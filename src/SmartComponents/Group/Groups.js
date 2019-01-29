@@ -32,12 +32,8 @@ class Groups extends Component {
 
     renderToolbar() {
       return (
-        <Toolbar className="toolbar-padding">
-          <ToolbarGroup>
-            <ToolbarItem>
-              <Title size={ '2xl' }>All Groups</Title>
-            </ToolbarItem>
-          </ToolbarGroup>
+        <Toolbar>
+          <GroupsFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
           <ToolbarGroup  className={ 'pf-u-ml-auto-on-xl' }>
             <ToolbarItem>
               <Link to="/groups/add-group">
@@ -64,12 +60,11 @@ class Groups extends Component {
 
       return (
         <Fragment>
-          <GroupsFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
           <Route exact path="/groups/add-group" component={ AddGroup } />
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           { this.renderToolbar() }
-          <ContentList { ...filteredItems } />
+          <ContentList { ...filteredItems } noItems={ 'No Groups'} />
         </Fragment>
       );
     }

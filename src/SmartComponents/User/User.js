@@ -1,28 +1,51 @@
-import React, { Component } from 'react';
+import React from 'react';
+import {
+  DataListItem,
+  DataListCell,
+  DataListToggle,
+  DataListContent,
+  DataListCheck,
+  DataListAction
+} from '@patternfly/react-core';
+
 import propTypes from 'prop-types';
 import ItemDetails from '../../PresentationalComponents/Shared/DetailCommon';
-import { GridItem } from '@patternfly/react-core';
 
-const TO_DISPLAY = [ 'description' ];
+const TO_DISPLAY = [ 'groups' ];
 
-class User extends Component {
-  render() {
-    return (
-      <GridItem sm={ 6 } md={ 4 } lg={ 4 } xl={ 3 }>
-        <div className="card_body">
-          <h4>{ this.props.name }</h4>
-          <ItemDetails { ...this.props } toDisplay={ TO_DISPLAY } />
-        </div>
-
-      </GridItem>
-    );
-  };
-}
+const User = ({ userData, isExpanded, toggle }) => (
+  <DataListItem aria-labelledby={ userData.name } isExpanded={ isExpanded }>
+    <DataListToggle
+      onClick={ () => toggle(userData.name) }
+      isExpanded={ isExpanded }
+      id={ userData.id }
+      aria-labelledby={ userData.name }
+      aria-label="Details"
+    />
+    <DataListCheck aria-labelledby={ userData.name } name={ 'Check_'.concat(userData.id) } />
+    <DataListCell>
+      <div id={ userData.id }>{ userData.name } { userData.email } </div>
+      <a href="#">link</a>
+    </DataListCell>
+    <DataListCell>
+      <span>{ userData.groups } </span>
+    </DataListCell>
+    <DataListAction aria-labelledby="Edit" id= { 'Edit' + userData.id } aria-label="Actions" />
+    <DataListContent aria-label="Details" isHidden= { !isExpanded }>
+      <p>
+        <ItemDetails { ...this.props } toDisplay={ TO_DISPLAY } />
+      </p>
+    </DataListContent>
+  </DataListItem>
+);
 
 User.propTypes = {
   history: propTypes.object,
   name: propTypes.string,
-  id: propTypes.string,
+  userData: propTypes.object,
+  isExpanded: propTypes.bool,
+  toggle: propTypes.func.isRequired
 };
 
 export default User;
+

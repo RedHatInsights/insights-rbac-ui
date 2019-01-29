@@ -3,13 +3,13 @@ import propTypes from 'prop-types';
 import { PageHeader, PageHeaderTitle, Table, Section } from '@red-hat-insights/insights-frontend-components';
 import { Bullseye } from '@patternfly/react-core';
 
-const ContentList = ({ isLoading, items }) => {
+const ContentList = ({ isLoading, items, noItems = 'No Items' }) => {
 
   if (isLoading)
   {
     return (
       <PageHeader>
-        <PageHeaderTitle title={ 'No Orders' }/>
+        <PageHeaderTitle title={ noItems }/>
       </PageHeader>
     );
   }
@@ -49,6 +49,7 @@ const ContentList = ({ isLoading, items }) => {
 
 ContentList.propTypes = {
   isLoading: propTypes.bool,
-  items: propTypes.array
+  items: propTypes.array,
+  noItems: propTypes.string
 };
 export default ContentList;

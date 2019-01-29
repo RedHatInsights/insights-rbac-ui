@@ -2,7 +2,8 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
-import { Toolbar, ToolbarGroup, ToolbarItem, Title, Button } from '@patternfly/react-core';
+import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
+import ExpandableList from '../../SmartComponents/ContentList/ExpandableList';
 import ContentList from '../../SmartComponents/ContentList/ContentList';
 import UserDetail from '../../PresentationalComponents/User/UserDetail';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
@@ -32,13 +33,9 @@ class Users extends Component {
 
     renderToolbar() {
       return (
-        <Toolbar className="toolbar-padding">
+        <Toolbar>
+          <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
           <ToolbarGroup>
-            <ToolbarItem>
-              <Title size={ '2xl' }>All Users</Title>
-            </ToolbarItem>
-          </ToolbarGroup>
-          <ToolbarGroup  className={ 'pf-u-ml-auto-on-xl' }>
             <ToolbarItem>
               <Link to="/users/add-user">
                 <Button
@@ -64,12 +61,11 @@ class Users extends Component {
 
       return (
         <Fragment>
-          <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
           <Route exact path="/users/add-user" component={ AddUser } />
           <Route exact path="/users/edit/:id" component={ AddUser } />
           <Route exact path="/users/remove/:id" component={ RemoveUser } />
           { this.renderToolbar() }
-          <ContentList { ...filteredItems } />
+          <ContentList { ...filteredItems } noItems={ 'No Approvers'} />
         </Fragment>
       );
     }
