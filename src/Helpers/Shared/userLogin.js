@@ -1,12 +1,12 @@
-import { AdminsApi, ApiClient as ApprovalApiClient } from '@manageiq/approval-api';
+let ApprovalApi = require('insights_service_approval_ap_is');
+
 import { APPROVAL_API_BASE } from '../../Utilities/Constants';
 
-const defaultClient = ApprovalApiClient.instance;
+const defaultClient = ApprovalApi.ApiClient.instance;
 defaultClient.basePath = APPROVAL_API_BASE;
 
-let approvalApi = new AdminsApi();
+let approvalApi = new ApprovalApi.AdminsApi();
 
 export function getApprovalApi() {
   return approvalApi;
 }
-

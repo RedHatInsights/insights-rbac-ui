@@ -1,12 +1,18 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { NavLink } from 'react-router-dom';
+import { Nav, NavGroup, NavItem } from '@patternfly/react-core';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import './ApprovalNav.scss';
+import './approval.scss';
 import { NavLoader } from '../../PresentationalComponents/Shared/LoaderPlaceholders';
+
+const USER_URL_BASE = '/user';
+const USERS_URL_BASE = '/users';
+const GROUP_URL_BASE = '/group';
+const GROUPS_URL_BASE = '/groups';
 
 class ApprovalNav extends Component {
 
@@ -15,53 +21,52 @@ class ApprovalNav extends Component {
   }
 
   fetchData = () => {
-  // TODO - only call if the user is an admin
-    this.props.fetchPortfolios();
-    this.props.fetchPlatforms();
+    this.props.fetchUsers();
+    this.props.fetchGroups();
   }
 
-  platformNavItems = () => this.props.platforms.map(item => (
-    <NavItem key={ item.id } id={ item.id } groupId="platforms">
-      <NavLink to={ `${PLATFORM_URL_BASE}/${item.id}` }>
+  userNavItems = () => this.props.users.map(item => (
+    <NavItem key={ item.id } id={ item.id } groupId="users">
+      <NavLink to={ `${USER_URL_BASE}/${item.id}` }>
         { item.name }
       </NavLink>
     </NavItem>
   ))
 
-  portfolioNavItems = () => this.props.portfolios.map(item => (
+  groupNavItems = () => this.props.groups.map(item => (
     <NavItem key={ item.id } id={ item.id }>
-      <NavLink to={ `${PORTFOLIO_URL_BASE}/${item.id}` }>
+      <NavLink to={ `${GROUP_URL_BASE}/${item.id}` }>
         { item.name }
       </NavLink>
     </NavItem>
   ));
 
-  renderPlatformNav = () => this.props.isPlatformDataLoading && this.props.platforms.length === 0
+  renderUserNav = () => this.props.isUserDataLoading && this.props.users.length === 0
     ? <NavLoader items={ 3 } />
-    : this.platformNavItems()
+    : this.userNavItems()
 
-  renderPortfolioNav = () => this.props.isLoading && this.props.portfolios.length === 0
+  renderGroupNav = () => this.props.isLoading && this.props.groups.length === 0
     ? <NavLoader items={ 5 } />
-    : this.portfolioNavItems()
+    : this.groupNavItems()
 
   render() {
     return (
       <Nav aria-label="Approval" className="approval-nav">
-        <NavGroup title="Platforms">
-          <NavItem key='all' id="all-platforms">
-            <NavLink exact to={ PLATFORMS_URL_BASE }>
-            All Platforms
+        <NavGroup title="Users">
+          <NavItem key='all' id="all-users">
+            <NavLink exact to={ USERS_URL_BASE }>
+            All Users
             </NavLink>
           </NavItem>
-          { this.renderPlatformNav() }
+          { this.renderUserNav() }
         </NavGroup>
-        <NavGroup title="Portfolios">
-          <NavItem key='all' id="all-portfolios">
-            <NavLink exact to={ PORTFOLIOS_URL_BASE }>
-              All Portfolios
+        <NavGroup title="Groups">
+          <NavItem key='all' id="all-groups">
+            <NavLink exact to={ GROUPS_URL_BASE }>
+              All Groups
             </NavLink>
           </NavItem>
-          { this.renderPortfolioNav() }
+          { this.renderGroupNav() }
         </NavGroup>
       </Nav>
     );
@@ -69,31 +74,31 @@ class ApprovalNav extends Component {
 }
 
 const mapStateToProps = ({
-  platformReducer: { platforms, isPlatformDataLoading },
-  portfolioReducer: { isLoading, portfolios }
+  userReducer: { users, isUserDataLoading },
+  groupReducer: { isLoading, groups }
 }) => ({
-  isPlatformDataLoading,
-  platforms,
+  isUserDataLoading,
+  users,
   isLoading,
-  portfolios
+  groups
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchPlatforms,
-  fetchPortfolios
+  fetchUsers,
+  fetchGroups
 }, dispatch);
 
 ApprovalNav.propTypes = {
-  portfolios: propTypes.array,
-  platforms: propTypes.array,
-  isPlatformDataLoading: propTypes.bool,
-  fetchPortfolios: propTypes.func,
-  fetchPlatforms: propTypes.func,
+  users: propTypes.array,
+  groups: propTypes.array,
+  isUserDataLoading: propTypes.bool,
+  fetchUsers: propTypes.func,
+  fetchGroups: propTypes.func,
   isLoading: propTypes.bool
 };
 
 ApprovalNav.defaultProps = {
-  platforms: []
+  users: []
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(ApprovalNav);

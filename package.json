@@ -1,5 +1,5 @@
 {
-  "name": "approval-ui",
+  "name": "approval_ui",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
@@ -10,7 +10,9 @@
     "@patternfly/react-icons": "^2.10.0",
     "@patternfly/react-tokens": "^1.10.0",
     "@red-hat-insights/insights-frontend-components": "^3.33.4",
+    "approval_api": "git+https://github.com/lgalis/approval-api-jsclient.git",
     "font-awesome": "^4.7.0",
+    "insights_service_approval_ap_is": "git+https://github.com/lgalis/approval-api-jsclient.git",
     "lodash": "^4.17.10",
     "patternfly-react": "^2.13.1",
     "react": "^16.7.0",
@@ -20,7 +22,7 @@
     "react-select": "^2.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "approval_api": "git+
+    "rxjs": "^6.3.3"
   },
   "sassIncludes": {
     "patternfly": "node_modules/patternfly/dist/sass",
@@ -32,8 +34,7 @@
     "collectCoverageFrom": [
       "src/**/*.{js|jsx}",
       "!src/**/stories/*"
-    ],https://github.com/lgalis/approval-api-jsclient.git",
-    "rxjs": "^6.3.3"
+    ],
     "setupFiles": [
       "<rootDir>/config/setupTests.js"
     ],
@@ -111,7 +112,7 @@
     "verify": "npm-run-all build lint test"
   },
   "insights": {
-    "appname": "approval_service"
+    "appname": "approval"
   },
   "resolutions": {
     "babel-core": "7.0.0-bridge.0"

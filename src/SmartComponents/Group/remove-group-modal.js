@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, Button, Title, Bullseye } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { fetchGroups, removeGroup } from '../../redux/Actions/GroupActions';
-import { hideModal } from '../../redux/Actions/MainModalActions';
 import { pipe } from 'rxjs';
 import './group.scss';
 

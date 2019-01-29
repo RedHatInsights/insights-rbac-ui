@@ -1,0 +1,29 @@
+@import "../../App";
+
+.content-list {
+  border: 0;
+  background-color: white;
+  box-shadow: 0px 0px 2px;
+  thead {
+    background-color: #393f44;
+    border: 0;
+    color: white;
+  }
+  th {
+    text-align: center;
+    padding: 20px;
+    border: 0;
+  }
+  td {
+    text-align: left;
+    padding-left:10px;
+    padding-right: 10px;
+    border: 0;
+    min-width: 150px;
+    height: 50px;
+    background-color: #e9e9e9;
+  }
+  tbody {
+      background-color: #e9e9e9;
+  }
+}

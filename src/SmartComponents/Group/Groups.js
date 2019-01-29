@@ -3,11 +3,10 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Title, Button } from '@patternfly/react-core';
-import ContentGallery from '../../SmartComponents/ContentGallery/ContentGallery';
-import GroupCard from '../../PresentationalComponents/Group/PorfolioCard';
+import ContentList from '../../SmartComponents/ContentList/ContentList';
+import GroupDetail from '../../PresentationalComponents/Group/GroupDetail';
 import GroupsFilterToolbar from '../../PresentationalComponents/Group/GroupsFilterToolbar';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import { hideModal, showModal } from '../../redux/Actions/MainModalActions';
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
 import './group.scss';
@@ -59,7 +58,7 @@ class Groups extends Component {
       let filteredItems = {
         items: this.props.groups
         .filter(({ name }) => name.toLowerCase().includes(this.state.filterValue.trim().toLowerCase()))
-        .map(item => <GroupCard key={ item.id } { ...item } />),
+        .map(item => <GroupDetail key={ item.id } { ...item } />),
         isLoading: this.props.isLoading && this.props.groups.length === 0
       };
 
@@ -70,7 +69,7 @@ class Groups extends Component {
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           { this.renderToolbar() }
-          <ContentGallery { ...filteredItems } />
+          <ContentList { ...filteredItems } />
         </Fragment>
       );
     }

@@ -3,11 +3,10 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Title, Button } from '@patternfly/react-core';
-import ContentGallery from '../../SmartComponents/ContentGallery/ContentGallery';
-import UserCard from '../../PresentationalComponents/User/PorfolioCard';
+import ContentList from '../../SmartComponents/ContentList/ContentList';
+import UserDetail from '../../PresentationalComponents/User/UserDetail';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';
-import { hideModal, showModal } from '../../redux/Actions/MainModalActions';
 import AddUser from './add-user-modal';
 import RemoveUser from './remove-user-modal';
 import './user.scss';
@@ -59,7 +58,7 @@ class Users extends Component {
       let filteredItems = {
         items: this.props.users
         .filter(({ name }) => name.toLowerCase().includes(this.state.filterValue.trim().toLowerCase()))
-        .map(item => <UserCard key={ item.id } { ...item } />),
+        .map(item => <UserDetail key={ item.id } { ...item } />),
         isLoading: this.props.isLoading && this.props.users.length === 0
       };
 
@@ -70,7 +69,7 @@ class Users extends Component {
           <Route exact path="/users/edit/:id" component={ AddUser } />
           <Route exact path="/users/remove/:id" component={ RemoveUser } />
           { this.renderToolbar() }
-          <ContentGallery { ...filteredItems } />
+          <ContentList { ...filteredItems } />
         </Fragment>
       );
     }
@@ -84,22 +83,15 @@ const mapStateToProps = ({ userReducer: { users, isLoading, filterValue }}) => (
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchUsers: apiProps => dispatch(fetchUsers(apiProps)),
-    hideModal: () => dispatch(hideModal()),
-    showModal: (modalProps, modalType) => {
-      dispatch(showModal({ modalProps, modalType }));
-    }
+    fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
   };
 };
 
 Users.propTypes = {
   filteredItems: propTypes.array,
   users: propTypes.array,
-  platforms: propTypes.array,
   isLoading: propTypes.bool,
   searchFilter: propTypes.string,
-  showModal: propTypes.func,
-  hideModal: propTypes.func,
   fetchUsers: propTypes.func.isRequired
 };
 

@@ -1,0 +1,27 @@
+# See https://help.github.com/ignore-files/ for more about ignoring files.
+
+# vscode config
+.vscode/
+
+# ide config
+.idea/
+
+# dependencies
+node_modules
+
+# production
+dist
+
+# deployment
+.travis/58231b16fdee45a03a4ee3cf94a9f2c3
+.travis/after_success.sh
+.travis/bootstrap.sh
+.travis/release.sh
+
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+yarn.lock
+
+.DS_Store
+coverage

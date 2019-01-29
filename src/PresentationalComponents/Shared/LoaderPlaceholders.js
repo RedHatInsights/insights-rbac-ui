@@ -38,7 +38,7 @@ CardLoader.defaultProps = {
   items: 5
 };
 
-export const PortfolioLoader = ({ items, ...props }) => (
+export const GroupLoader = ({ items, ...props }) => (
   <Grid gutter="md">
     <GridItem sm={ 12 }>
       <ContentLoader
@@ -57,11 +57,11 @@ export const PortfolioLoader = ({ items, ...props }) => (
   </Grid>
 );
 
-PortfolioLoader.propTypes = {
+GroupLoader.propTypes = {
   items: PropTypes.number
 };
 
-PortfolioLoader.defaultProps = {
+GroupLoader.defaultProps = {
   items: 5
 };
 
