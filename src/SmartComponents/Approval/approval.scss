@@ -1,0 +1,15 @@
+@import "../../App.scss";
+@import '~@red-hat-insights/insights-frontend-components/Utilities/_all';
+
+.approval {
+  border: 0;
+  background-color: white;
+  box-shadow: 0px 0px 2px;
+  font-size: $ins-fontSize;
+  margin: $ins-margin;
+  display: block;
+}
+
+.side_bar {
+  background-color: white;
+}
