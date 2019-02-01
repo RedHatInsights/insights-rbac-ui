@@ -53,8 +53,7 @@ class Groups extends Component {
     render() {
       let filteredItems = {
         items: this.props.groups
-        .filter(({ name }) => name.toLowerCase().includes(this.state.filterValue.trim().toLowerCase()))
-        .map(item => <GroupDetail key={ item.id } { ...item } />),
+        .filter(({ name }) => name.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
         isLoading: this.props.isLoading && this.props.groups.length === 0
       };
 
