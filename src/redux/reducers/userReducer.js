@@ -1,5 +1,6 @@
 import {
   FETCH_USER,
+  ADD_USER,
   FETCH_USERS
 } from '../../redux/ActionTypes';
 

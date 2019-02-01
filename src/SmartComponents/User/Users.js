@@ -3,9 +3,8 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
-import ExpandableList from '../../SmartComponents/ContentList/ExpandableList';
+//import ExpandableList from '../../SmartComponents/ContentList/ExpandableList';
 import ContentList from '../../SmartComponents/ContentList/ContentList';
-import UserDetail from '../../PresentationalComponents/User/UserDetail';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import AddUser from './add-user-modal';
@@ -33,16 +32,16 @@ class Users extends Component {
 
     renderToolbar() {
       return (
-        <Toolbar>
+        <Toolbar className="searchToolbar">
           <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
           <ToolbarGroup>
             <ToolbarItem>
               <Link to="/users/add-user">
                 <Button
                   variant="primary"
-                  aria-label="Create User"
+                  aria-label="Create Approver"
                 >
-                Create User
+                Create Approver
                 </Button>
               </Link>
             </ToolbarItem>
@@ -54,8 +53,7 @@ class Users extends Component {
     render() {
       let filteredItems = {
         items: this.props.users
-        .filter(({ name }) => name.toLowerCase().includes(this.state.filterValue.trim().toLowerCase()))
-        .map(item => <UserDetail key={ item.id } { ...item } />),
+        .filter(({ email }) => email.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
         isLoading: this.props.isLoading && this.props.users.length === 0
       };
 
@@ -65,7 +63,7 @@ class Users extends Component {
           <Route exact path="/users/edit/:id" component={ AddUser } />
           <Route exact path="/users/remove/:id" component={ RemoveUser } />
           { this.renderToolbar() }
-          <ContentList { ...filteredItems } noItems={ 'No Approvers'} />
+          <ContentList { ...filteredItems } noItems={ 'No Approvers' } />
         </Fragment>
       );
     }

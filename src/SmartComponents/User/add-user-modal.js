@@ -24,8 +24,8 @@ const AddUserModal = ({
   const onCancel = () => pipe(
     addNotification({
       variant: 'warning',
-      title: initialValues ? 'Editing user' : 'Adding user',
-      description: initialValues ? 'Edit user was cancelled by the user.' : 'Adding user was cancelled by the user.'
+      title: initialValues ? 'Editing approver' : 'Adding approver',
+      description: initialValues ? 'Edit approver was cancelled by the user.' : 'Adding approver was cancelled by the user.'
     }),
     goBack()
   );
@@ -33,15 +33,16 @@ const AddUserModal = ({
   const schema = {
     type: 'object',
     properties: {
-      name: { title: initialValues ? 'User Name' : 'New User Name', type: 'string' },
-      description: { title: 'Description', type: 'string' }
+      email: { title: initialValues ? 'Email' : 'New Email', type: 'string' },
+      first_name: { title: 'First Name', type: 'string' },
+      last_name: { title: 'Last Name', type: 'string' }
     },
-    required: [ 'name', 'description' ]
+    required: [ 'email' ]
   };
 
   return (
     <Modal
-      title={ initialValues ? 'Edit user' : 'Add user' }
+      title={ initialValues ? 'Edit approver' : 'Add approver' }
       isOpen
       onClose={ onCancel }
     >

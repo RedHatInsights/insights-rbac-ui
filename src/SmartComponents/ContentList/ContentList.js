@@ -37,7 +37,7 @@ const ContentList = ({ isLoading, items, noItems = 'No Items' }) => {
             header={ headers }
             rows={ items.map(item => {
               let row = {};
-              row.cells = (Object.values(item)).map(val => val === undefined ? '' : val.toString());
+              row.cells = (Object.values(item)).map(val => (!val || val === undefined) ? '' : val.toString());
               return row;
             }) }
           />)

@@ -1,24 +1,31 @@
-import { TabLayout } from '@red-hat-insights/insights-frontend-components';
-import propTypes from 'prop-types';
 import React, { Component } from 'react';
+import propTypes from 'prop-types';
+import { Tabs, Tab } from '@patternfly/react-core';
 import './approvaltabs.scss';
 
-class ApprovalTabs extends Component {
+const tabItems = [{ eventKey: 0, title: 'Approvers', name: '/users' }, { eventKey: 1, title: 'Groups', name: '/groups' }];
 
-  redirectTab = (event, tab) => {
-    this.props.children.props.childProps.history.push(tab.name);
-  }
+class ApprovalTabs extends Component {
+  state = {
+    activeTabKey: 0
+  };
+
+  // Toggle currently active tab
+  handleTabClick = (event, tabIndex) => {
+    this.setState({
+      activeTabKey: tabIndex
+    });
+
+    this.props.children.props.childProps.history.push(tabItems[tabIndex].name);
+  };
 
   render() {
     return (
       <React.Fragment>
-        <TabLayout
-          items={ [{ title: 'Approvers', name: '/users' }, { title: 'Groups', name: '/groups' }] }
-          onTabClick={ this.redirectTab }
-          active={ this.props.children.props.childProps.location.pathname }
-        >
-          { this.props.children }
-        </TabLayout>
+        <Tabs activeKey={ this.state.activeTabKey } onSelect={ this.handleTabClick }>
+          { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
+        </Tabs>
+        { this.props.children }
       </React.Fragment>
     );
   }

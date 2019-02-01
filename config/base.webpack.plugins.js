@@ -23,9 +23,9 @@ plugins.push(WriteFileWebpackPlugin);
  * @type {var}
  */
 const HtmlWebpackPlugin = new (require('html-webpack-plugin'))({
-    title: 'My App',
-    filename: 'index.html',
-    template: path.resolve(__dirname, '../src/index.html')
+  title: 'My App',
+  filename: 'index.html',
+  template: path.resolve(__dirname, '../src/index.html')
 });
 plugins.push(HtmlWebpackPlugin);
 
@@ -34,9 +34,9 @@ plugins.push(HtmlWebpackPlugin);
  * @type {var}
  */
 const SourceMapsPlugin = new webpack.SourceMapDevToolPlugin({
-    test: /\.js/i,
-    exclude: /(node_modules|bower_components)/i,
-    filename: `sourcemaps/[name].js.map`
+  test: /\.js/i,
+  exclude: /(node_modules|bower_components)/i,
+  filename: `sourcemaps/[name].js.map`
 });
 plugins.push(SourceMapsPlugin);
 
@@ -70,8 +70,8 @@ plugins.push(LodashWebpackPlugin);
  * Writes final css to file
  */
 const ExtractCssWebpackPlugin = new (require('mini-css-extract-plugin'))({
-    chunkFilename: 'css/[name].css',
-    filename: 'css/[name].css'
+  chunkFilename: 'css/[name].css',
+  filename: 'css/[name].css'
 });
 plugins.push(ExtractCssWebpackPlugin);
 
@@ -79,7 +79,7 @@ plugins.push(ExtractCssWebpackPlugin);
  * Copies files from the specified locations to the corresponding destinations.
  */
 const CopyFilesWebpackPlugin = new (require('copy-webpack-plugin'))([
-    { from: path.resolve(__dirname, '../static/images'), to: 'images' }
+  { from: path.resolve(__dirname, '../static/images'), to: 'images' }
 ]);
 plugins.push(CopyFilesWebpackPlugin);
 
@@ -87,14 +87,8 @@ plugins.push(CopyFilesWebpackPlugin);
  * Makes build-time env vars available to the client-side as constants
  */
 const envPlugin = new webpack.DefinePlugin({
-    'process.env.API_HOST': JSON.stringify(process.env.API_HOST),
-    'process.env.API_PORT': JSON.stringify(process.env.API_PORT),
-    'process.env.BASE_PATH': JSON.stringify(process.env.BASE_PATH),
-    'process.env.API_VERSION': JSON.stringify(process.env.API_VERSION),
-    'process.env.TOPO_API_HOST': JSON.stringify(process.env.TOPO_API_HOST),
-    'process.env.TOPO_API_PORT': JSON.stringify(process.env.TOPO_API_PORT),
-    'process.env.TOPO_BASE_PATH': JSON.stringify(process.env.TOPO_BASE_PATH),
-    'process.env.TOPO_API_VERSION': JSON.stringify(process.env.TOPO_API_VERSION)
+  'process.env.BASE_PATH': JSON.stringify(process.env.BASE_PATH),
+  'process.env.APPROVAL_PATH': JSON.stringify(process.env.APPROVAL_PATH)
 });
 plugins.push(envPlugin);
 
@@ -103,8 +97,8 @@ plugins.push(envPlugin);
  * This handles the path being either insights or insightsbeta in the esi:include.
  */
 const HtmlReplaceWebpackPlugin = new(require('html-replace-webpack-plugin'))([{
-    pattern: '@@insights',
-    replacement: config.insightsDeployment
+  pattern: '@@insights',
+  replacement: config.insightsDeployment
 }]);
 plugins.push(HtmlReplaceWebpackPlugin);
 

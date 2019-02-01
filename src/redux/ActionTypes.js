@@ -1,5 +1,6 @@
 export const FETCH_USER = 'FETCH_USER';
 export const FETCH_USERS = 'FETCH_USERS';
+export const ADD_USER = 'ADD_USER';
 export const FILTER_USER_ITEMS = 'FILTER_USER_ITEMS';
 
 export const FETCH_GROUPS = 'FETCH_GROUPS';

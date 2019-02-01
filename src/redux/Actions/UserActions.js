@@ -15,6 +15,25 @@ export const fetchUsers = () => (dispatch, getState) => {
   }
 };
 
+export const addUser = (userData) => ({
+  type: ActionTypes.ADD_USER,
+  payload: UserHelper.addUser(userData),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success adding approver',
+        description: 'The approver was added successfully.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed adding approver',
+        description: 'The approver was not added successfuly.'
+      }
+    }
+  }
+});
+
 export const fetchSelectedUser = id => ({
   type: ActionTypes.FETCH_USER,
   payload: new Promise(resolve => {

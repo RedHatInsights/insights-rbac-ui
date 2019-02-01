@@ -2,7 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
-import { Toolbar, ToolbarGroup, ToolbarItem, Title, Button } from '@patternfly/react-core';
+import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
 import ContentList from '../../SmartComponents/ContentList/ContentList';
 import GroupDetail from '../../PresentationalComponents/Group/GroupDetail';
 import GroupsFilterToolbar from '../../PresentationalComponents/Group/GroupsFilterToolbar';
@@ -32,9 +32,9 @@ class Groups extends Component {
 
     renderToolbar() {
       return (
-        <Toolbar>
+        <Toolbar className="searchToolbar">
           <GroupsFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
-          <ToolbarGroup  className={ 'pf-u-ml-auto-on-xl' }>
+          <ToolbarGroup>
             <ToolbarItem>
               <Link to="/groups/add-group">
                 <Button

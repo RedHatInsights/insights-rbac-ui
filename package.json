@@ -6,7 +6,7 @@
     "@data-driven-forms/pf4-component-mapper": "^0.3.0",
     "@data-driven-forms/react-form-renderer": "^1.4.3",
     "@patternfly/patternfly-next": "^1.0.131",
-    "@patternfly/react-core": "^1.49.1",
+    "@patternfly/react-core": "^1.51.4",
     "@patternfly/react-icons": "^2.10.0",
     "@patternfly/react-tokens": "^1.10.0",
     "@red-hat-insights/insights-frontend-components": "^3.33.4",
