@@ -20,7 +20,7 @@ const AddUserModal = ({
   updateUser
 }) => {
   const onSubmit = data => {
-    data[groups] = selectedGroups;
+    data.group_ids = selectedGroups;
     initialValues
       ? updateUser(data).then(() => fetchUsers()).then(goBack)
       : addUser(data).then(() => fetchUsers()).then(goBack);
@@ -38,7 +38,7 @@ const AddUserModal = ({
   let selectedGroups = [];
 
   const onOptionSelect = (selectedValues = []) =>
-  { selectedGroups = selectedValues; };
+  { selectedGroups = selectedValues.map(val => val.value); };
 
   const dropdownItems = groups.map(group => ({ value: group.id, label: group.name, id: group.id }));
 
