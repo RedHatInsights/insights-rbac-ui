@@ -80,8 +80,7 @@ const mapStateToProps = (state, { match: { params: { id }}}) => {
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   fetchGroups,
-  removeGroup,
-  hideModal
+  removeGroup
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal));

@@ -1,5 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import Select from 'react-select';
 import FormRenderer from '../Common/FormRenderer';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -15,6 +16,8 @@ const AddUserModal = ({
   addNotification,
   fetchUsers,
   initialValues,
+  onOptionSelect,
+  groups,
   updateUser
 }) => {
   const onSubmit = data => initialValues
@@ -40,8 +43,11 @@ const AddUserModal = ({
     required: [ 'email' ]
   };
 
+  const dropdownItems = groups.map(group => ({ value: group.id, label: group.name, id: group.id }));
+
   return (
     <Modal
+      isLarge
       title={ initialValues ? 'Edit approver' : 'Add approver' }
       isOpen
       onClose={ onCancel }
@@ -52,6 +58,13 @@ const AddUserModal = ({
         onSubmit={ onSubmit }
         onCancel={ onCancel }
         initialValues={ { ...initialValues } }
+      />
+      <Select
+        isMulti={ true }
+        placeholders={ 'Select groups' }
+        options={ dropdownItems }
+        onChange={ onOptionSelect }
+        closeMenuOnSelect={ false }
       />
     </Modal>
   );
@@ -65,13 +78,18 @@ AddUserModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchUsers: PropTypes.func.isRequired,
   initialValues: PropTypes.object,
+  groups: PropTypes.array,
   updateUser: PropTypes.func.isRequired
 };
 
-const mapStateToProps = ({ userReducer: { users }}, { match: { params: { id }}}) => ({
-  initialValues: id && users.find(item => item.id === id),
-  userId: id
-});
+const mapStateToProps = (state, { match: { params: { id }}}) => {
+  let users = state.userReducer.users;
+  return {
+    groups: state.groupReducer.groups,
+    initialValues: id && users.find(item => item.id === id),
+    userId: id
+  };
+};
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,

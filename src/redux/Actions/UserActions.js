@@ -34,6 +34,25 @@ export const addUser = (userData) => ({
   }
 });
 
+export const updateUser = (userData) => ({
+  type: ActionTypes.UPDATE_USER,
+  payload: UserHelper.updateUser(userData),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success updating approver',
+        description: 'The approver was updated successfully.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed updating approver',
+        description: 'The approver was not updated successfuly.'
+      }
+    }
+  }
+});
+
 export const fetchSelectedUser = id => ({
   type: ActionTypes.FETCH_USER,
   payload: new Promise(resolve => {

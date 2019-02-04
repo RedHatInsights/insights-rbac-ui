@@ -7,6 +7,7 @@ import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-co
 import ContentList from '../../SmartComponents/ContentList/ContentList';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';
+import { fetchGroups } from '../../redux/Actions/GroupActions';
 import AddUser from './add-user-modal';
 import RemoveUser from './remove-user-modal';
 import './user.scss';
@@ -21,6 +22,7 @@ class Users extends Component {
 
     fetchData = () => {
       this.props.fetchUsers();
+      this.props.fetchGroups();
     };
 
     componentDidMount() {
@@ -28,56 +30,64 @@ class Users extends Component {
       scrollToTop();
     }
 
-    onFilterChange = filterValue => this.setState({ filterValue })
+  onOptionSelect = (selectedValues = []) =>
+    this.setState(
+      () => ({ selectedGroups: selectedValues }));
 
-    renderToolbar() {
-      return (
-        <Toolbar className="searchToolbar">
-          <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
-          <ToolbarGroup>
-            <ToolbarItem>
-              <Link to="/users/add-user">
-                <Button
-                  variant="primary"
-                  aria-label="Create Approver"
-                >
+  onFilterChange = filterValue => this.setState({ filterValue })
+
+  renderToolbar() {
+    return (
+      <Toolbar className="searchToolbar">
+        <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } onOptionSelect={ this.onOptionSelect }/>
+        <ToolbarGroup>
+          <ToolbarItem>
+            <Link to="/users/add-user">
+              <Button
+                variant="primary"
+                aria-label="Create Approver"
+              >
                 Create Approver
-                </Button>
-              </Link>
-            </ToolbarItem>
-          </ToolbarGroup>
-        </Toolbar>
-      );
-    }
+              </Button>
+            </Link>
+          </ToolbarItem>
+        </ToolbarGroup>
+      </Toolbar>
+    );
+  }
 
-    render() {
-      let filteredItems = {
-        items: this.props.users
-        .filter(({ email }) => email.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
-        isLoading: this.props.isLoading && this.props.users.length === 0
-      };
+  render() {
+    let filteredItems = {
+      items: this.props.users
+      .filter(({ email }) => email.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
+      isLoading: this.props.isLoading && this.props.users.length === 0
+    };
 
-      return (
-        <Fragment>
-          <Route exact path="/users/add-user" component={ AddUser } />
-          <Route exact path="/users/edit/:id" component={ AddUser } />
-          <Route exact path="/users/remove/:id" component={ RemoveUser } />
-          { this.renderToolbar() }
-          <ContentList { ...filteredItems } noItems={ 'No Approvers' } />
-        </Fragment>
-      );
-    }
+    return (
+      <Fragment>
+        <Route exact path="/users/add-user" component={ AddUser } />
+        <Route exact path="/users/edit/:id" component={ AddUser } />
+        <Route exact path="/users/remove/:id" component={ RemoveUser } />
+        { this.renderToolbar() }
+        <ContentList { ...filteredItems } noItems={ 'No Approvers' } />
+      </Fragment>
+    );
+  }
 }
 
-const mapStateToProps = ({ userReducer: { users, isLoading, filterValue }}) => ({
-  users,
-  isLoading,
-  searchFilter: filterValue
-});
+const mapStateToProps = (state) => {
+  return {
+    users: state.userReducer.users,
+    isLoading: state.userReducer.isLoading,
+    groups: state.groupReducer.groups,
+    searchFilter: state.userReducer.filterValue
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
+    fetchUsers: apiProps => dispatch(fetchUsers(apiProps)),
+    fetchGroups: apiProps => dispatch(fetchGroups(apiProps))
   };
 };
 
@@ -86,7 +96,8 @@ Users.propTypes = {
   users: propTypes.array,
   isLoading: propTypes.bool,
   searchFilter: propTypes.string,
-  fetchUsers: propTypes.func.isRequired
+  fetchUsers: propTypes.func.isRequired,
+  fetchGroups: propTypes.func.isRequired
 };
 
 Users.defaultProps = {
