@@ -30,10 +30,6 @@ class Users extends Component {
       scrollToTop();
     }
 
-  onOptionSelect = (selectedValues = []) =>
-    this.setState(
-      () => ({ selectedGroups: selectedValues }));
-
   onFilterChange = filterValue => this.setState({ filterValue })
 
   renderToolbar() {

@@ -5,7 +5,7 @@ import FormRenderer from '../Common/FormRenderer';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal } from '@patternfly/react-core';
+import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { addUser, fetchUsers, updateUser } from '../../redux/Actions/UserActions';
 import { pipe } from 'rxjs';
@@ -16,13 +16,15 @@ const AddUserModal = ({
   addNotification,
   fetchUsers,
   initialValues,
-  onOptionSelect,
   groups,
   updateUser
 }) => {
-  const onSubmit = data => initialValues
-    ? updateUser(data).then(() => fetchUsers()).then(goBack)
-    : addUser(data).then(() => fetchUsers()).then(goBack);
+  const onSubmit = data => {
+    data[groups] = selectedGroups;
+    initialValues
+      ? updateUser(data).then(() => fetchUsers()).then(goBack)
+      : addUser(data).then(() => fetchUsers()).then(goBack);
+  };
 
   const onCancel = () => pipe(
     addNotification({
@@ -32,6 +34,13 @@ const AddUserModal = ({
     }),
     goBack()
   );
+
+  let selectedGroups = [];
+
+  const onOptionSelect = (selectedValues = []) =>
+  { selectedGroups = selectedValues; };
+
+  const dropdownItems = groups.map(group => ({ value: group.id, label: group.name, id: group.id }));
 
   const schema = {
     type: 'object',
@@ -43,29 +52,36 @@ const AddUserModal = ({
     required: [ 'email' ]
   };
 
-  const dropdownItems = groups.map(group => ({ value: group.id, label: group.name, id: group.id }));
-
   return (
     <Modal
       isLarge
-      title={ initialValues ? 'Edit approver' : 'Add approver' }
+      title={ initialValues ? 'Update approver' : 'Create approver' }
       isOpen
       onClose={ onCancel }
     >
-      <FormRenderer
-        schema={ schema }
-        schemaType="mozilla"
-        onSubmit={ onSubmit }
-        onCancel={ onCancel }
-        initialValues={ { ...initialValues } }
-      />
-      <Select
-        isMulti={ true }
-        placeholders={ 'Select groups' }
-        options={ dropdownItems }
-        onChange={ onOptionSelect }
-        closeMenuOnSelect={ false }
-      />
+      <Grid gutter="md" style={ { minWidth: '800px' } }>
+        <GridItem sm={ 6 }>
+          <FormRenderer
+            schema={ schema }
+            schemaType="mozilla"
+            onSubmit={ onSubmit }
+            onCancel={ onCancel }
+            initialValues={ { ...initialValues } }
+          />
+        </GridItem>
+        <GridItem sm={ 6 }>
+          <TextContent>
+            <Text component={ TextVariants.h6 }>Select the groups for this user.</Text>
+          </TextContent>
+          <Select
+            isMulti={ true }
+            placeholders={ 'Select groups' }
+            options={ dropdownItems }
+            onChange={ onOptionSelect }
+            closeMenuOnSelect={ false }
+          />
+        </GridItem>
+      </Grid>
     </Modal>
   );
 };

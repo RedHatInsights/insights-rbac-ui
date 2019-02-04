@@ -18,10 +18,6 @@ export const CardLoader = ({ items, ...props }) => (
               { ...props }
             >
               <rect x="2" y="99" rx="3" ry="3" width="300" height="6.4" />
-              <rect x="2" y="119.72" rx="3" ry="3" width="290" height="5.76" />
-              <rect x="2" y="139" rx="3" ry="3" width="201" height="6.4" />
-              <rect x="-2.16" y="0.67" rx="0" ry="0" width="271.6" height="82.74" />
-              <rect x="136.84" y="37.67" rx="0" ry="0" width="6" height="3" />
             </ContentLoader>
           </CardBody>
         </Card></GridItem>) }
@@ -35,7 +31,7 @@ CardLoader.propTypes = {
 };
 
 CardLoader.defaultProps = {
-  items: 5
+  items: 1
 };
 
 export const GroupLoader = ({ items, ...props }) => (
@@ -62,7 +58,7 @@ GroupLoader.propTypes = {
 };
 
 GroupLoader.defaultProps = {
-  items: 5
+  items: 1
 };
 
 export const NavLoader = ({ items, ...props }) => [ ...Array(items) ].map((_item, index) => (
@@ -86,7 +82,7 @@ NavLoader.propTypes = {
 };
 
 NavLoader.defaultProps = {
-  items: 5
+  items: 1
 };
 
 export const AppPlaceholder = props => (
