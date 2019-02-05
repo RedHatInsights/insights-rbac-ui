@@ -35,7 +35,7 @@ class Users extends Component {
   renderToolbar() {
     return (
       <Toolbar className="searchToolbar">
-        <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } onOptionSelect={ this.onOptionSelect }/>
+        <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
         <ToolbarGroup>
           <ToolbarItem>
             <Link to="/users/add-user">
@@ -74,7 +74,7 @@ class Users extends Component {
 const mapStateToProps = (state) => {
   return {
     users: state.userReducer.users,
-    isLoading: state.userReducer.isLoading,
+    isLoading: state.userReducer.isUserDataLoading,
     groups: state.groupReducer.groups,
     searchFilter: state.userReducer.filterValue
   };

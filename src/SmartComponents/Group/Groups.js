@@ -4,9 +4,9 @@ import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
 import ContentList from '../../SmartComponents/ContentList/ContentList';
-import GroupDetail from '../../PresentationalComponents/Group/GroupDetail';
 import GroupsFilterToolbar from '../../PresentationalComponents/Group/GroupsFilterToolbar';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
+import { fetchUsers } from '../../redux/Actions/UserActions';
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
 import './group.scss';
@@ -21,6 +21,7 @@ class Groups extends Component {
 
     fetchData = () => {
       this.props.fetchGroups();
+      this.props.fetchUsers();
     };
 
     componentDidMount() {
@@ -69,19 +70,19 @@ class Groups extends Component {
     }
 }
 
-const mapStateToProps = ({ groupReducer: { groups, isLoading, filterValue }}) => ({
-  groups,
-  isLoading,
-  searchFilter: filterValue
-});
+const mapStateToProps = (state) => {
+  return {
+    groups: state.groupReducer.groups,
+    users: state.userReducer.users,
+    isLoading: state.groupReducer.isLoading,
+    searchFilter: state.userReducer.filterValue
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroups: apiProps => dispatch(fetchGroups(apiProps)),
-    hideModal: () => dispatch(hideModal()),
-    showModal: (modalProps, modalType) => {
-      dispatch(showModal({ modalProps, modalType }));
-    }
+    fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
   };
 };
 
@@ -91,9 +92,8 @@ Groups.propTypes = {
   platforms: propTypes.array,
   isLoading: propTypes.bool,
   searchFilter: propTypes.string,
-  showModal: propTypes.func,
-  hideModal: propTypes.func,
-  fetchGroups: propTypes.func.isRequired
+  fetchGroups: propTypes.func.isRequired,
+  fetchUsers: propTypes.func.isRequired
 };
 
 Groups.defaultProps = {
