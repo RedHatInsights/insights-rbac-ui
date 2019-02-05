@@ -4,8 +4,18 @@ import ItemDetails from '../Shared/DetailCommon';
 import { Link } from 'react-router-dom';
 import { GridItem, Button } from '@patternfly/react-core';
 import { EditAltIcon, TrashIcon } from '@patternfly/react-icons';
+import {
+  GridItem,
+  Button,
+  DataList,
+  DataListItem,
+  DataListCell,
+  DataListToggle,
+  DataListContent,
+  DataListCheck,
+  DataListAction
+} from '@patternfly/react-core';
 
-const TO_DISPLAY = [ 'description', 'modified' ];
 const ICON_FILL = 'white';
 
 const createToolbarActions = (userName, userId) => [
@@ -41,6 +51,37 @@ const UserDetail = ({ imageUrl, name, id, ...props }) => (
     </Link>
   </GridItem>
 );
+
+  const dataRow = () => {
+    return (
+    <DataList aria-label="Expandable data list example">
+      <DataListItem aria-labelledby="ex-item1" isExpanded={expanded.includes('detail-toggle')}>
+        <DataListToggle
+          onClick={() => toggle('detail-toggle')}
+          isExpanded={this.state.expanded.includes('detail-toggle')}
+          id="detail-toggle"
+          aria-labelledby="detail-toggle ex-item1"
+          aria-label="Toggle details for"
+        />
+        <DataListCheck aria-labelledby="ex-item1" name="ex-check1" />
+        <DataListCell>
+          <div id="ex-item1">Primary content</div>
+          <a href="#">link</a>
+        </DataListCell>
+        <DataListCell>
+          <span>Lorem ipsum dolor sit amet, consectetur adipiscing elit.</span>
+        </DataListCell>
+        <DataListAction aria-labelledby="ex-item1 ex-action1" id="ex-action1" aria-label="Actions" />
+        <DataListContent aria-label="Primary Content Details" isHidden={!this.state.expanded.includes('detail-toggle')}>
+          <p>
+            Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et
+            dolore magna aliqua.
+          </p>
+        </DataListContent>
+      </DataListItem>
+    </DataList>
+  }
+}
 
 UserDetail.propTypes = {
   history: propTypes.object,

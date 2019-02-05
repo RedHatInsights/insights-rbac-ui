@@ -18,14 +18,13 @@ const ContentList = ({ isLoading, items, noItems = 'No Items' }) => {
     items.sort(function (a, b) {
       let dateA = new Date(a.created_at);
       let dateB = new Date(b.created_at);
-      return dateB - dateA; //sort by date descending
+      return dateB - dateA; //sort by date descending1
     });
   }
 
   const headers = items.reduce((acc, curr) => Object.keys(curr).length > acc.length ? Object.keys(curr) : acc,  []);
   return (
     <React.Fragment>
-      <br />
       <Bullseye>
         <div>
           { isLoading && (<span color={ '#00b9e4' }> Loading...</span>) }

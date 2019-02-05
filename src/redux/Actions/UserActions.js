@@ -1,5 +1,6 @@
 import * as ActionTypes from '../ActionTypes';
 import * as UserHelper from '../../Helpers/User/UserHelper';
+import * as GroupHelper from '../../Helpers/Group/GroupHelper';
 
 const doFetchUsers = () => ({
   type: ActionTypes.FETCH_USERS,
@@ -14,6 +15,13 @@ export const fetchUsers = () => (dispatch, getState) => {
     return dispatch(doFetchUsers());
   }
 };
+
+export const fetchGroupsByUserId = apiProps => ({
+  type: ActionTypes.FETCH_GROUPS_BY_USER_ID,
+  payload: new Promise(resolve => {
+    resolve(UserHelper.fetchGroupsByUserId(apiProps));
+  })
+});
 
 export const addUser = (userData) => ({
   type: ActionTypes.ADD_USER,

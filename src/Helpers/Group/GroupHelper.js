@@ -5,6 +5,7 @@ const userApi = getApprovalApi();
 export function fetchGroups() {
   return userApi.fetchGroups();
 }
+
 export async function updateGroup(data) {
   await userApi.updateGroup(data.id, data);
 }
