@@ -9,6 +9,7 @@ import { fetchGroups } from '../../redux/Actions/GroupActions';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
+import GroupList from './GroupList';
 import './group.scss';
 import { scrollToTop } from '../../Helpers/Shared/helpers';
 
@@ -64,7 +65,7 @@ class Groups extends Component {
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           { this.renderToolbar() }
-          <ContentList { ...filteredItems } noItems={ 'No Groups'} />
+          <GroupList { ...filteredItems } noItems={ 'No Groups' } />
         </Fragment>
       );
     }
