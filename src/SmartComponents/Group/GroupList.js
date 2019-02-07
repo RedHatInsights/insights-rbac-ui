@@ -37,9 +37,9 @@ const GroupList = ({ isLoading, items, noItems = 'No Items' }) => {
 
   const fetchUserListForGroup = (group) => {
     if (!group.members) {
-      return;
+      return '';
     }
-    return group.members.map(user => `${user.first_name} ${user.last_name}`);
+    return group.members.map(user => `${user.first_name} ${user.last_name}`).join(', ');
   };
 
   // <GroupDetail isExpanded={ expandedList.includes(item.name) } toggle={ toggle }/>) }
