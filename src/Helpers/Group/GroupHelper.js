@@ -1,15 +1,20 @@
+
 import { getApprovalApi } from '../Shared/userLogin';
 
 const userApi = getApprovalApi();
 
-export function fetchUsersByGroupId() {
-  return userApi.fetchUsersByGroupId();
+export function fetchUsersByGroupId(id) {
+  return userApi.fetchUsersByGroupId(id);
 }
 
 export async function fetchGroups() {
-  let groups = userApi.fetchGroups();
+  let groups = await userApi.fetchGroups();
   console.log('LLLG', groups);
-  for (let idx = 0; idx < groups.length; idx++) {
+  let len = groups.length;
+  console.log('LLLLength', len);
+
+  for (let idx = 0; idx < len; idx++) {
+    console.log('LLLLI', groups, idx, groups[idx], groups[idx].id);
     let users = await fetchUsersByGroupId(groups[idx].id);
     console.log('LLLU', users);
     groups[idx].members = users;
