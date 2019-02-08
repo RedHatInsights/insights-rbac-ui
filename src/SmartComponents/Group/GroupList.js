@@ -1,9 +1,10 @@
-import React, { Component, Fragment } from 'react';
+import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { PageHeader, PageHeaderTitle, Section } from '@red-hat-insights/insights-frontend-components';
-import { fetchUsersByGroupId } from '../../Helpers/Group/GroupHelper';
 import {
   Bullseye,
+  Stack,
+  StackItem,
   DataList,
   DataListItem,
   DataListCell,
@@ -11,6 +12,7 @@ import {
   DataListAction,
   DataListToggle,
   DataListContent,
+  Title,
   Text,
   TextVariants,
   TextContent } from '@patternfly/react-core';
@@ -84,9 +86,28 @@ class GroupList extends Component {
                     <DataListContent aria-label="Group Content Details"
                       isHidden={ !this.state.expanded.includes(`toggle-${item.id}`) }>
                       <p>
-                          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut
-                          labore et
-                          dolore magna aliqua.
+                        <Stack gutter="md">
+                          <StackItem>
+                            <Title size="md">Description</Title>
+                          </StackItem>
+                          <StackItem>
+                            <Text>
+                              <TextContent component={ TextVariants.h6 }>Placeholder for Group Description</TextContent>
+                            </Text>
+                          </StackItem>
+                          <StackItem>
+                          </StackItem>
+                          <StackItem>
+                            <Title size="md">Members</Title>
+                          </StackItem>
+                          <StackItem>
+                            <Text>
+                              <TextContent component={ TextVariants.h6 }>
+                                { this.fetchUserListForGroup(item) }
+                              </TextContent>
+                            </Text>
+                          </StackItem>
+                        </Stack>
                       </p>
                     </DataListContent>
                   </DataListItem>);
