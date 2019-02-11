@@ -61,7 +61,6 @@ class Groups extends Component {
 
       return (
         <Fragment>
-          <Route exact path="/groups/add-group" component={ AddGroup } />
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           { this.renderToolbar() }
