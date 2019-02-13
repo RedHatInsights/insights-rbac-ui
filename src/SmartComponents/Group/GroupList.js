@@ -51,7 +51,7 @@ class GroupList extends Component {
           </div>
         </Bullseye>
         { (this.props.items && this.props.items.length > 0) && (
-          <DataList aria-label="Expandable data list">
+          <DataList aria-label="Expandable data list" style={ { marginTop: '0px', marginRight: '12px', paddingBottom: '12px' } }>
             { this.props.items.map((item) => {
               return (
                 <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
@@ -64,7 +64,6 @@ class GroupList extends Component {
     );
   };
 }
-
 
 GroupList.propTypes = {
   isLoading: propTypes.bool,
