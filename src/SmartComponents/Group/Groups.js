@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
-import ContentList from '../../SmartComponents/ContentList/ContentList';
 import GroupsFilterToolbar from '../../PresentationalComponents/Group/GroupsFilterToolbar';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
 import { fetchUsers } from '../../redux/Actions/UserActions';
@@ -61,6 +60,7 @@ class Groups extends Component {
 
       return (
         <Fragment>
+          <Route exact path="/groups/add-group" component={ AddGroup } />
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           { this.renderToolbar() }

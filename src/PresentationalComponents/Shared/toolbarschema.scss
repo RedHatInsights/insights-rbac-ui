@@ -2,16 +2,12 @@
 
 .searchToolbar {
   background-color: white;
-  padding: 10px;
+  padding-left: 12px;
+  padding-top: 12px;
+  padding-bottom: 0;
 }
 .space-between-toolbar-items > div {
   margin-right: $ins-gutter;
   align-self: flex-end;
 }
 
-.searchPlatforms {
-  min-width: 30%;
-  > div {
-    width: 100%;
-  }
-}

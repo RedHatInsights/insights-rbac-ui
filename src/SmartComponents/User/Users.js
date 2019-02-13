@@ -3,8 +3,6 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
-//import ExpandableList from '../../SmartComponents/ContentList/ExpandableList';
-import ContentList from '../../SmartComponents/ContentList/ContentList';
 import UserList from './UserList';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';

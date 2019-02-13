@@ -2,6 +2,6 @@
 @import '~@red-hat-insights/insights-frontend-components/Utilities/_all';
 
 .ins-tabs {
-  margin-bottom: $ins-gutter;
-
+  padding-left: $ins-gutter;
+  background-color: white;
 }

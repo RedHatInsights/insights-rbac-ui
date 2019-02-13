@@ -22,7 +22,7 @@ class ApprovalTabs extends Component {
   render() {
     return (
       <React.Fragment>
-        <Tabs activeKey={ this.state.activeTabKey } onSelect={ this.handleTabClick }>
+        <Tabs className="ins-tabs" activeKey={ this.state.activeTabKey } onSelect={ this.handleTabClick }>
           { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
         </Tabs>
         { this.props.children }

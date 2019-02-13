@@ -47,12 +47,12 @@ class Group extends Component {
         dropdownItems={ [
           <DropdownItem aria-label="Edit Group" key="edit-group">
             <Link to={ `/groups/edit/${group.id}` }>
-              Edit Group
+              Edit
             </Link>
           </DropdownItem>,
           <DropdownItem component="link" aria-label="Remove Group" key="remove-group">
             <Link to={ `/groups/remove/${group.id}` }>
-              Remove Group
+              Delete
             </Link>
           </DropdownItem>
         ] }

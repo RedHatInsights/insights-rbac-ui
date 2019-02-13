@@ -50,22 +50,21 @@ class GroupList extends Component {
             { this.props.isLoading && (<span color={ '#00b9e4' }> Loading...</span>) }
           </div>
         </Bullseye>
-        <Section type='content'>
-          { (this.props.items && this.props.items.length > 0) && (
-            <DataList aria-label="Expandable data list">
-              { this.props.items.map((item) => {
-                return (
-                  <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
-              }
-              )
-              }
-            </DataList>)
-          }
-        </Section>
+        { (this.props.items && this.props.items.length > 0) && (
+          <DataList aria-label="Expandable data list">
+            { this.props.items.map((item) => {
+              return (
+                <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
+            }
+            )
+            }
+          </DataList>)
+        }
       </React.Fragment>
     );
   };
 }
+
 
 GroupList.propTypes = {
   isLoading: propTypes.bool,
