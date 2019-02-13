@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
+import { Section } from '@red-hat-insights/insights-frontend-components';
 import GroupsFilterToolbar from '../../PresentationalComponents/Group/GroupsFilterToolbar';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
 import { fetchUsers } from '../../redux/Actions/UserActions';
@@ -11,6 +12,7 @@ import RemoveGroup from './remove-group-modal';
 import GroupList from './GroupList';
 import './group.scss';
 import { scrollToTop } from '../../Helpers/Shared/helpers';
+import { fetchUsersByGroupId } from '../../redux/Actions/GroupActions';
 
 class Groups extends Component {
     state = {
@@ -63,8 +65,10 @@ class Groups extends Component {
           <Route exact path="/groups/add-group" component={ AddGroup } />
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
-          { this.renderToolbar() }
-          <GroupList { ...filteredItems } noItems={ 'No Groups' } />
+          <Section type='content'>
+            { this.renderToolbar() }
+            <GroupList { ...filteredItems } noItems={ 'No Groups' } fetchUsersBYGroupId={ this.props.fetchUsersByGroupId} />
+          </Section>
         </Fragment>
       );
     }
@@ -82,6 +86,7 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroups: apiProps => dispatch(fetchGroups(apiProps)),
+    fetchUsersByGroupId: apiProps => dispatch(fetchUsersByGroupId(apiProps)),
     fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
   };
 };
@@ -93,7 +98,8 @@ Groups.propTypes = {
   isLoading: propTypes.bool,
   searchFilter: propTypes.string,
   fetchGroups: propTypes.func.isRequired,
-  fetchUsers: propTypes.func.isRequired
+  fetchUsers: propTypes.func.isRequired,
+  fetchUsersByGroupId: propTypes.func.isRequired
 };
 
 Groups.defaultProps = {

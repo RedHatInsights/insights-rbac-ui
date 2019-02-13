@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
-import { PageHeader, PageHeaderTitle, Section } from '@red-hat-insights/insights-frontend-components';
+import { PageHeader, PageHeaderTitle } from '@red-hat-insights/insights-frontend-components';
 import {
   Bullseye,
   DataList
@@ -25,14 +25,6 @@ class GroupList extends Component {
     return this.state.expanded.includes(key);
   };
 
-  fetchUserListForGroup = (group) => {
-    if (!group.members) {
-      return '';
-    }
-
-    return group.members.map(user => `${user.first_name} ${user.last_name}`).join(', ');
-  };
-
   render() {
     if (this.props.isLoading) {
       return (
@@ -51,7 +43,7 @@ class GroupList extends Component {
           </div>
         </Bullseye>
         { (this.props.items && this.props.items.length > 0) && (
-          <DataList aria-label="Expandable data list" style={ { marginTop: '0px', marginRight: '12px', paddingBottom: '12px' } }>
+          <DataList aria-label="Expandable data list">
             { this.props.items.map((item) => {
               return (
                 <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);

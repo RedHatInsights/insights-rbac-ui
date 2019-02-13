@@ -3,6 +3,7 @@ import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
+import { Section } from '@red-hat-insights/insights-frontend-components';
 import UserList from './UserList';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';
@@ -64,8 +65,10 @@ class Users extends Component {
         <Route exact path="/users/add-user" component={ AddUser } />
         <Route exact path="/users/edit/:id" component={ AddUser } />
         <Route exact path="/users/remove/:id" component={ RemoveUser } />
-        { this.renderToolbar() }
-        <UserList { ...filteredItems } noItems={ 'No Approvers' } fetchGroupsByUserId = { this.props.fetchGroupsByUserId }/>
+        <Section type='content'>
+          { this.renderToolbar() }
+          <UserList { ...filteredItems } noItems={ 'No Approvers' } fetchGroupsByUserId = { this.props.fetchGroupsByUserId }/>
+        </Section>
       </Fragment>
     );
   }

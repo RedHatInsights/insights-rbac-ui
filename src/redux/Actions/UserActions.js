@@ -1,6 +1,5 @@
 import * as ActionTypes from '../ActionTypes';
 import * as UserHelper from '../../Helpers/User/UserHelper';
-import * as GroupHelper from '../../Helpers/Group/GroupHelper';
 
 const doFetchUsers = () => ({
   type: ActionTypes.FETCH_USERS,
@@ -61,16 +60,17 @@ export const updateUser = (userData) => ({
   }
 });
 
-export const fetchSelectedUser = id => ({
-  type: ActionTypes.FETCH_USER,
-  payload: new Promise(resolve => {
-    resolve(UserHelper.fetchUser(id));
-  })
+export const removeUser = (user) => ({
+  type: ActionTypes.REMOVE_USER,
+  payload: UserHelper.removeUser(user),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success removing user',
+        description: 'The user was removed successfully.'
+      }
+    }
+  }
 });
 
-export const searchUserItems = value => ({
-  type: ActionTypes.FILTER_USER_ITEMS,
-  payload: new Promise(resolve => {
-    resolve(value);
-  })
-});

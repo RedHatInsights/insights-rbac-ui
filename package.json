@@ -3,8 +3,8 @@
   "version": "0.1.0",
   "private": false,
   "dependencies": {
-    "@data-driven-forms/pf4-component-mapper": "^0.4.1",
-    "@data-driven-forms/react-form-renderer": "^1.6.0",
+    "@data-driven-forms/pf4-component-mapper": "^0.4.2",
+    "@data-driven-forms/react-form-renderer": "^1.7.0",
     "@patternfly/patternfly-next": "^1.0.131",
     "@patternfly/react-core": "^1.51.6",
     "@patternfly/react-icons": "^2.10.0",

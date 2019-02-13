@@ -15,7 +15,7 @@ const RemoveUserModal = ({
   addNotification,
   fetchUsers,
   userId,
-  userName
+  userEmail
 }) => {
   const onSubmit = () => removeUser(userId)
   .then(() => pipe(fetchUsers(), push('/users')));
@@ -46,7 +46,7 @@ const RemoveUserModal = ({
       <Bullseye>
         <div className="center_message">
           <Title size={ 'xl' }>
-            Removing User:  { userName }
+            Removing User:  { userEmail }
           </Title>
         </div>
       </Bullseye>
@@ -63,7 +63,7 @@ RemoveUserModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchUsers: PropTypes.func.isRequired,
   userId: PropTypes.string,
-  userName: PropTypes.string
+  userEmail: PropTypes.string
 };
 
 const userDetailsFromState = (state, id) =>
@@ -73,15 +73,14 @@ const mapStateToProps = (state, { match: { params: { id }}}) => {
   let user = userDetailsFromState(state, id);
   return {
     userId: user.id,
-    userName: user.name
+    userEmail: user.email
   };
 };
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   fetchUsers,
-  removeUser,
-  hideModal
+  removeUser
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveUserModal));

@@ -1,51 +1,130 @@
-import React from 'react';
+import React, { Component } from 'react';
+import propTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+import { Section } from '@red-hat-insights/insights-frontend-components';
 import {
+  Stack,
+  StackItem,
   DataListItem,
   DataListCell,
+  DataListCheck,
   DataListToggle,
   DataListContent,
-  DataListCheck,
-  DataListAction
-} from '@patternfly/react-core';
+  DropdownItem,
+  Dropdown,
+  DropdownPosition,
+  KebabToggle,
+  Title,
+  TextVariants,
+  TextContent } from '@patternfly/react-core';
 
-import propTypes from 'prop-types';
-import ItemDetails from '../../PresentationalComponents/Shared/DetailCommon';
+class User extends Component {
+  state = {
+    isKebabOpen: false
+  };
 
-const TO_DISPLAY = [ 'groups' ];
+  onKebabToggle = isOpen => {
+    this.setState({
+      isKebabOpen: isOpen
+    });
+    console.log('Kebab Toggle', isOpen);
+  };
 
-const User = ({ userData, isExpanded, toggle }) => (
-  <DataListItem aria-labelledby={ userData.name } isExpanded={ isExpanded }>
-    <DataListToggle
-      onClick={ () => toggle(userData.name) }
-      isExpanded={ isExpanded }
-      id={ userData.id }
-      aria-labelledby={ userData.name }
-      aria-label="Details"
-    />
-    <DataListCheck aria-labelledby={ userData.name } name={ 'Check_'.concat(userData.id) } />
-    <DataListCell>
-      <div id={ userData.id }>{ userData.name } { userData.email } </div>
-      <a href="#">link</a>
-    </DataListCell>
-    <DataListCell>
-      <span>{ userData.groups } </span>
-    </DataListCell>
-    <DataListAction aria-labelledby="Edit" id= { 'Edit' + userData.id } aria-label="Actions" />
-    <DataListContent aria-label="Details" isHidden= { !isExpanded }>
-      <p>
-        <ItemDetails { ...this.props } toDisplay={ TO_DISPLAY } />
-      </p>
-    </DataListContent>
-  </DataListItem>
-);
+  onKebabSelect = (event) => {
+    console.log('On Kebab Select', event);
+    this.setState({ isKebabOpen: !this.state.isKebabOpen });
+  };
+
+  buildUserActionKebab = (user) => {
+    console.log('isKebab open for ', user.name, this.state.isKebabOpen);
+    return (
+      <Dropdown
+        position={ DropdownPosition.right }
+        onSelect={ this.onKebabSelect }
+        toggle={ <KebabToggle onToggle={ this.onKebabToggle }/> }
+        isOpen = { this.state.isKebabOpen }
+        dropdownItems={ [
+          <DropdownItem aria-label="Edit User" key="edit-user">
+            <Link to={ `/users/edit/${user.id}` }>
+              Edit
+            </Link>
+          </DropdownItem>,
+          <DropdownItem component="link" aria-label="Remove User" key="remove-user">
+            <Link to={ `/users/remove/${user.id}` }>
+              Delete
+            </Link>
+          </DropdownItem>
+        ] }
+        isPlain
+      />
+    );
+  };
+
+  fetchGroupListForUser = (user) => {
+    if (!user.groups) {
+      return '';
+    }
+
+    return user.groups.map(group => group.name).join(', ');
+  };
+
+  render() {
+    let { item } = this.props;
+
+    return (
+      <DataListItem key={ `user-${item.id}` }
+        aria-labelledby={ `check-user-${item.id}` }
+        isExpanded={ this.props.isExpanded(`user-${item.id}`) }>
+        <DataListToggle
+          onClick={ () => this.props.toggleExpand(`user-${item.id}`) }
+          isExpanded={ this.props.isExpanded(`user-${item.id}`) }
+          id={ `user-${item.id}` }
+          aria-labelledby={ `user-${item.id} user-${item.id}` }
+          aria-label="Toggle details for"
+        />
+        <DataListCheck aria-labelledby={ `check-user-${item.id}` } name={ `check-user-${item.id}` }/>
+        <DataListCell>
+          <StackItem>
+            <span id={ item.id }>{ `${item.first_name} ${item.last_name}` } </span>
+          </StackItem>
+          <StackItem>
+            <span id={ item.email }>{ `${item.email}` } </span>
+          </StackItem>
+        </DataListCell>
+        <DataListCell>
+          { this.fetchGroupListForUser(item) }
+        </DataListCell>
+        <DataListCell
+          class="pf-c-data-list__action"
+          aria-labelledby={ `user-${item.id} check-user-action${item.id}` }
+          id={ `user-${item.id}` }
+          aria-label="Actions">
+          { this.buildUserActionKebab(item) }
+        </DataListCell>
+        <DataListContent aria-label="User Content Details"
+          isHidden={ !this.props.isExpanded(`user-${item.id}`) }>
+          <Stack gutter="md">
+            <StackItem>
+              <Title size="md">Groups</Title>
+            </StackItem>
+            <StackItem>
+              <TextContent component={ TextVariants.h6 }>
+                { this.fetchGroupListForUser(item) }
+              </TextContent>
+            </StackItem>
+          </Stack>
+        </DataListContent>
+      </DataListItem>
+    );
+  };
+}
 
 User.propTypes = {
-  history: propTypes.object,
-  name: propTypes.string,
-  userData: propTypes.object,
-  isExpanded: propTypes.bool,
-  toggle: propTypes.func.isRequired
+  isLoading: propTypes.bool,
+  item: propTypes.object,
+  isExpanded: propTypes.func.isRequired,
+  toggleExpand: propTypes.func.isRequired,
+  noItems: propTypes.string
 };
 
 export default User;
-

@@ -12,7 +12,7 @@ export const usersInitialState = {
 };
 
 const setLoadingState = state => ({ ...state, isUserDataLoading: true });
-const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoadingLoading: false });
+const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoading: false });
 const selectUser = (state, { payload }) => ({ ...state, selectedUser: payload, isUserDataLoading: false });
 
 export default {

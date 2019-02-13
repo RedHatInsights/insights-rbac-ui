@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { PageHeader, PageHeaderTitle, Section } from '@red-hat-insights/insights-frontend-components';
+import { Section } from '@red-hat-insights/insights-frontend-components';
 import {
   Stack,
   StackItem,
   DataListItem,
   DataListCell,
   DataListCheck,
-  DataListAction,
   DataListToggle,
   DataListContent,
   DropdownItem,
@@ -28,16 +27,13 @@ class Group extends Component {
     this.setState({
       isKebabOpen: isOpen
     });
-    console.log('Kebab Toggle', isOpen);
   };
 
   onKebabSelect = (event) => {
-    console.log('On Kebab Select', event);
     this.setState({ isKebabOpen: !this.state.isKebabOpen });
   };
 
   buildGroupActionKebab = (group) => {
-    console.log('isKebab open for ', group.name, this.state.isKebabOpen);
     return (
       <Dropdown
         position={ DropdownPosition.right }
@@ -65,7 +61,6 @@ class Group extends Component {
     if (!group.members) {
       return '';
     }
-
     return group.members.map(user => `${user.first_name} ${user.last_name}`).join(', ');
   };
 

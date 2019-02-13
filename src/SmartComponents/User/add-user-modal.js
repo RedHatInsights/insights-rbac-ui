@@ -66,6 +66,7 @@ const AddUserModal = ({
             schemaType="mozilla"
             onSubmit={ onSubmit }
             onCancel={ onCancel }
+            formContainer="modal"
             initialValues={ { ...initialValues } }
           />
         </GridItem>
