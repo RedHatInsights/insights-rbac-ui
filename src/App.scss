@@ -34,3 +34,30 @@ ul.navigation-secondary {
 .toolbar-padding {
   padding: 24px 24px 0 24px
 }
+
+.card-link {
+  &:hover {
+    text-decoration: none;
+  }
+  cursor: pointer;
+}
+
+.text-align-right {
+  text-align: right;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.align-items-base {
+  align-items: baseline;
+}
+
+.modal-form-right-align {
+  .pf-m-action:last-child {
+    .data-driven-forms__pf4-button-group:first-child {
+      margin-left: auto
+    }
+  }
+}

@@ -34,13 +34,12 @@ const paths = {
 const InsightsRoute = ({ rootClass, ...rest }) => {
   const root = document.getElementById('root');
   root.removeAttribute('class');
-  root.classList.add(`page__${rootClass}`, 'pf-l-page__main');
+  root.classList.add(`page__${rootClass}`, 'pf-l-page__main', 'pf-c-page__main');
   root.setAttribute('role', 'main');
   return (<Route { ...rest } />);
 };
 
 InsightsRoute.propTypes = {
-  component: PropTypes.func,
   rootClass: PropTypes.string
 };
 
