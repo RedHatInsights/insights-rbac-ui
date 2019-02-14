@@ -77,6 +77,7 @@ const AddGroupModal = ({
             isMulti={ true }
             placeholders={ 'Select Members' }
             options={ dropdownItems }
+            defaultValue={ initialValues ? initialValues.members.map(user => user.id) : [] }
             onChange={ onOptionSelect }
             closeMenuOnSelect={ false }
           />
