@@ -2,12 +2,16 @@ import { getApprovalApi } from '../Shared/userLogin';
 
 const userApi = getApprovalApi();
 
-export function fetchUsers() {
-  return userApi.fetchUsers();
-}
-
-export async function fetchGroupsByUserId(data) {
-  await userApi.fetchGroupsByUserId(data);
+export async function fetchUsers() {
+  let users = await userApi.fetchUsers();
+  let len = users.length;
+  for (let idx = 0; idx < len; idx++) {
+    let groups = [];
+    // TODO  - uncomment when the API is fixed
+    //groups = await userApi.fetchGroupsByUserId(users[idx].id);
+    users[idx].groups = groups;
+  }
+  return users;
 }
 
 export async function updateUser(data) {
@@ -19,5 +23,5 @@ export async function addUser(data) {
 }
 
 export async function removeUser(userId) {
-  await userApi.destroyUser(userId);
+  await userApi.removeUser(userId);
 }
