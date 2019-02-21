@@ -13,6 +13,7 @@
     "approval_api": "git+https://github.com/lgalis/approval-api-jsclient.git",
     "font-awesome": "^4.7.0",
     "insights_service_approval_ap_is": "git+https://github.com/lgalis/approval-api-jsclient.git",
+    "role_based_access_control": "git+https://github.com/lgalis/insights-rbac-jsclient.git",
     "lodash": "^4.17.10",
     "patternfly-react": "^2.13.1",
     "react": "^16.7.0",
