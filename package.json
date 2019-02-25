@@ -4,7 +4,7 @@
   "private": false,
   "dependencies": {
     "@data-driven-forms/pf4-component-mapper": "^0.4.2",
-    "@data-driven-forms/react-form-renderer": "^1.7.0",
+    "@data-driven-forms/react-form-renderer": "^1.7.3",
     "@patternfly/patternfly-next": "^1.0.131",
     "@patternfly/react-core": "^1.51.6",
     "@patternfly/react-icons": "^2.10.0",
@@ -13,6 +13,7 @@
     "approval_api": "git+https://github.com/lgalis/approval-api-jsclient.git",
     "font-awesome": "^4.7.0",
     "insights_service_approval_ap_is": "git+https://github.com/lgalis/approval-api-jsclient.git",
+    "role_based_access_control": "git+https://github.com/lgalis/insights-rbac-jsclient.git",
     "lodash": "^4.17.10",
     "patternfly-react": "^2.13.1",
     "react": "^16.7.0",
@@ -43,7 +44,8 @@
     ],
     "moduleNameMapper": {
       "\\.(css|scss)$": "identity-obj-proxy"
-    }
+    },
+    "testURL": "http://localhost:4000/"
   },
   "devDependencies": {
     "@babel/core": "^7.2.2",

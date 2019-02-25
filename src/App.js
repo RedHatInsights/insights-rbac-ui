@@ -5,7 +5,8 @@ import { connect } from 'react-redux';
 import { Routes } from './Routes';
 import './App.scss';
 import ApprovalTabs from './SmartComponents/Approval/ApprovalTabs';
-import { Main, PageHeader, PageHeaderTitle } from '@red-hat-insights/insights-frontend-components';
+import { Main, PageHeader } from '@red-hat-insights/insights-frontend-components';
+import { Title } from '@patternfly/react-core';
 import { NotificationsPortal } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import '@red-hat-insights/insights-frontend-components/components/Notifications.css';
 
@@ -36,10 +37,12 @@ class App extends Component {
     return (
       <React.Fragment>
         <NotificationsPortal />
-        <PageHeader style={ { margin: 0, padding: 0 } }>
-          <PageHeaderTitle title={ 'Approval' }/>
+        <PageHeader>
+          <Title size={ 'xl' }  style = { { margin: 12, padding: 12 } }>
+            Approval
+          </Title>
         </PageHeader>
-        <Main style={ { margin: 0, padding: 0 } }>
+        <Main style={ { backgroundColor: 'd3d3d3' } }>
           <ApprovalTabs>
             <Routes childProps={ this.props } />
           </ApprovalTabs>
