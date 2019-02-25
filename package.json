@@ -10,10 +10,8 @@
     "@patternfly/react-icons": "^2.10.0",
     "@patternfly/react-tokens": "^1.10.0",
     "@red-hat-insights/insights-frontend-components": "^3.33.4",
-    "approval_api": "git+https://github.com/lgalis/approval-api-jsclient.git",
     "font-awesome": "^4.7.0",
     "insights_service_approval_ap_is": "git+https://github.com/lgalis/approval-api-jsclient.git",
-    "role_based_access_control": "git+https://github.com/lgalis/insights-rbac-jsclient.git",
     "lodash": "^4.17.10",
     "patternfly-react": "^2.13.1",
     "react": "^16.7.0",
@@ -22,6 +20,7 @@
     "react-select": "^2.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
+    "role_based_access_control": "git+https://github.com/lgalis/insights-rbac-jsclient.git",
     "rxjs": "^6.3.3",
     "whatwg-fetch": "^3.0.0"
   },

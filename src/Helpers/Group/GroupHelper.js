@@ -5,6 +5,7 @@ const userApi = getApprovalApi();
 
 export async function fetchGroups() {
   let groups = await userApi.fetchGroups();
+  console.log('Groups: ', groups);
   let len = groups.length;
   for (let idx = 0; idx < len; idx++) {
     let users = await userApi.fetchUsersByGroupId(groups[idx].id);
