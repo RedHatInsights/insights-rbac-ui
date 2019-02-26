@@ -20,7 +20,7 @@ const AddGroupModal = ({
   updateGroup
 }) => {
   const onSubmit = data => {
-    data.user_ids = selectedUsers;
+    data.user_list = selectedUsers.map((user) => { return { username: user };});
     initialValues
       ? updateGroup(data).then(() => fetchGroups()).then(goBack)
       : addGroup(data).then(() => fetchGroups()).then(goBack);
@@ -40,7 +40,7 @@ const AddGroupModal = ({
   const onOptionSelect = (selectedValues = []) =>
   { selectedUsers = selectedValues.map(val => val.value); };
 
-  const dropdownItems = users.map(user => ({ value: user.email, label: `${user.username}`, id: user.email }));
+  const dropdownItems = users.map(user => ({ value: user.username, label: `${user.username}`, id: user.username }));
 
   const schema = {
     type: 'object',
@@ -77,7 +77,7 @@ const AddGroupModal = ({
             isMulti={ true }
             placeholders={ 'Select Members' }
             options={ dropdownItems }
-            defaultValue={ initialValues ? initialValues.members.map(user => user.email) : [] }
+            defaultValue={ initialValues ? initialValues.members.map(user => user.username) : [] }
             onChange={ onOptionSelect }
             closeMenuOnSelect={ false }
           />

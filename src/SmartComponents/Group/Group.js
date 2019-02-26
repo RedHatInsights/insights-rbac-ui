@@ -99,7 +99,9 @@ class Group extends Component {
               <Title size="md">Description</Title>
             </StackItem>
             <StackItem>
-              <TextContent component={ TextVariants.h6 }>Placeholder for Group Description</TextContent>
+              <TextContent component={ TextVariants.h6 }>
+                { item.description }
+              </TextContent>
             </StackItem>
             <StackItem>
             </StackItem>

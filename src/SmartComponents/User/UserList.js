@@ -34,7 +34,6 @@ class UserList extends Component {
       );
     }
 
-    // <UserDetail isExpanded={ expandedList.includes(item.name) } toggle={ toggle }/>) }
     return (
       <React.Fragment>
         <Bullseye>

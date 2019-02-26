@@ -36,7 +36,7 @@ class User extends Component {
   };
 
   buildUserActionKebab = (user) => {
-    console.log('isKebab open for ', user.name, this.state.isKebabOpen);
+    console.log('isKebab open for ', user.username, this.state.isKebabOpen);
     return (
       <Dropdown
         position={ DropdownPosition.right }
@@ -85,7 +85,7 @@ class User extends Component {
         <DataListCheck aria-labelledby={ `check-user-${item.id}` } name={ `check-user-${item.id}` }/>
         <DataListCell>
           <StackItem>
-            <span id={ item.id }>{ `${item.name}` } </span>
+            <span id={ item.id }>{ `${item.username}` } </span>
           </StackItem>
           <StackItem>
             <span id={ item.email }>{ `${item.email}` } </span>

@@ -18,7 +18,7 @@ let defaultRbacClient = RoleBasedAccessControl.ApiClient.instance;
 defaultRbacClient.basePath = RBAC_API_BASE;
 
 let rbac_basic_auth = defaultRbacClient.authentications.basic_auth;
-rbac_basic_auth.username = 'lgalis@redhat.com';
+rbac_basic_auth.username = 'mkanoor@redhat.com';
 rbac_basic_auth.password = 'redhat';
 
 let rbacApi = new RoleBasedAccessControl.AccessApi();

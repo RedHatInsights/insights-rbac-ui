@@ -13,6 +13,7 @@ export async function fetchGroups() {
     let groupWithUsers = await groupApi.getGroup(groups[idx].uuid);
     groups[idx].members = groupWithUsers.principals;
   }
+
   return groups;
 }
 
@@ -22,7 +23,7 @@ export async function updateGroup(data) {
 
 export async function addGroup(data) {
   let newGroup = await groupApi.createGroup(data);
-  groupApi.addPrincipalToGroup(newGroup.uuid, data.user_ids);
+  groupApi.addPrincipalToGroup(newGroup.uuid, JSON.stringify({ principals: data.user_list }));
   // add selected users to the group
 }
 
