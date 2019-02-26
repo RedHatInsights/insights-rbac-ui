@@ -1,27 +1,31 @@
 
-import { getApprovalApi } from '../Shared/userLogin';
+import { getApprovalApi, getGroupApi } from '../Shared/userLogin';
 
 const userApi = getApprovalApi();
+const groupApi = getGroupApi();
 
 export async function fetchGroups() {
-  let groups = await userApi.fetchGroups();
+  let groupsData = await groupApi.listGroups();
+  let groups = groupsData.data;
   console.log('Groups: ', groups);
   let len = groups.length;
   for (let idx = 0; idx < len; idx++) {
-    let users = await userApi.fetchUsersByGroupId(groups[idx].id);
-    groups[idx].members = users;
+    let groupWithUsers = await groupApi.getGroup(groups[idx].uuid);
+    groups[idx].members = groupWithUsers.principals;
   }
   return groups;
 }
 
 export async function updateGroup(data) {
-  await userApi.updateGroup(data.id, data);
+  await groupApi.updateGroup(data.id, data);
 }
 
 export async function addGroup(data) {
-  await userApi.addGroup(data);
+  let newGroup = await groupApi.createGroup(data);
+  groupApi.addPrincipalToGroup(newGroup.uuid, data.user_ids);
+  // add selected users to the group
 }
 
 export async function removeGroup(groupId) {
-  await userApi.removeGroup(groupId);
+  await groupApi.deleteGroup(groupId);
 }

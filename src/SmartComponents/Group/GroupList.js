@@ -46,7 +46,7 @@ class GroupList extends Component {
           <DataList aria-label="Expandable data list">
             { this.props.items.map((item) => {
               return (
-                <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
+                <Group key= { item.uuid } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
             }
             )
             }

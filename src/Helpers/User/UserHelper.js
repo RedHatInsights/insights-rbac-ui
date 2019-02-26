@@ -1,8 +1,9 @@
-import { getApprovalApi } from '../Shared/userLogin';
+import { getApprovalApi, getPrincipalApi } from '../Shared/userLogin';
 
 const userApi = getApprovalApi();
+const principalApi = getPrincipalApi();
 
-export async function fetchUsers() {
+export async function fetchUsersApproval() {
   let users = await userApi.fetchUsers();
   let len = users.length;
   for (let idx = 0; idx < len; idx++) {
@@ -11,6 +12,12 @@ export async function fetchUsers() {
     //groups = await userApi.fetchGroupsByUserId(users[idx].id);
     users[idx].groups = groups;
   }
+  return users;
+}
+
+export async function fetchUsers() {
+  let usersData = await principalApi.listPrincipals();
+  let users = usersData.data;
   return users;
 }
 

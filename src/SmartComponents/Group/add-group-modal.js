@@ -40,7 +40,7 @@ const AddGroupModal = ({
   const onOptionSelect = (selectedValues = []) =>
   { selectedUsers = selectedValues.map(val => val.value); };
 
-  const dropdownItems = users.map(user => ({ value: user.id, label: `${user.first_name} ${user.last_name}`, id: user.id }));
+  const dropdownItems = users.map(user => ({ value: user.email, label: `${user.username}`, id: user.email }));
 
   const schema = {
     type: 'object',
@@ -77,7 +77,7 @@ const AddGroupModal = ({
             isMulti={ true }
             placeholders={ 'Select Members' }
             options={ dropdownItems }
-            defaultValue={ initialValues ? initialValues.members.map(user => user.id) : [] }
+            defaultValue={ initialValues ? initialValues.members.map(user => user.email) : [] }
             onChange={ onOptionSelect }
             closeMenuOnSelect={ false }
           />
@@ -103,7 +103,7 @@ const mapStateToProps = (state, { match: { params: { id }}}) => {
   let groups = state.groupReducer.groups;
   return {
     users: state.userReducer.users,
-    initialValues: id && groups.find(item => item.id === id),
+    initialValues: id && groups.find(item => item.uuid === id),
     groupId: id
   };
 };

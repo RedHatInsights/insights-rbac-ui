@@ -85,7 +85,7 @@ class User extends Component {
         <DataListCheck aria-labelledby={ `check-user-${item.id}` } name={ `check-user-${item.id}` }/>
         <DataListCell>
           <StackItem>
-            <span id={ item.id }>{ `${item.first_name} ${item.last_name}` } </span>
+            <span id={ item.id }>{ `${item.name}` } </span>
           </StackItem>
           <StackItem>
             <span id={ item.email }>{ `${item.email}` } </span>
