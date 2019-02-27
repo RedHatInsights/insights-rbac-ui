@@ -1,7 +1,6 @@
 
-import { getApprovalApi, getGroupApi } from '../Shared/userLogin';
+import { getGroupApi } from '../Shared/userLogin';
 
-const userApi = getApprovalApi();
 const groupApi = getGroupApi();
 
 export async function fetchGroups() {

@@ -1,15 +1,4 @@
-let ApprovalApi = require('insights_service_approval_ap_is');
-
-import { APPROVAL_API_BASE, RBAC_API_BASE } from '../../Utilities/Constants';
-
-const defaultClient = ApprovalApi.ApiClient.instance;
-defaultClient.basePath = APPROVAL_API_BASE;
-
-let approvalApi = new ApprovalApi.AdminsApi();
-
-export function getApprovalApi() {
-  return approvalApi;
-}
+import { RBAC_API_BASE } from '../../Utilities/Constants';
 
 let RoleBasedAccessControl = require('role_based_access_control');
 
