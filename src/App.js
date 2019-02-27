@@ -4,21 +4,24 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './Routes';
 import './App.scss';
-import ApprovalTabs from './SmartComponents/Approval/ApprovalTabs';
+import AppTabs from './SmartComponents/AppTabs/AppTabs';
 import { Main, PageHeader } from '@red-hat-insights/insights-frontend-components';
 import { Title } from '@patternfly/react-core';
 import { NotificationsPortal } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import '@red-hat-insights/insights-frontend-components/components/Notifications.css';
+import { AppPlaceholder } from './PresentationalComponents/Shared/LoaderPlaceholders';
 
 class App extends Component {
   state = {
-    chromeNavAvailable: true
+    chromeNavAvailable: true,
+    auth: false
   }
 
   componentDidMount () {
     insights.chrome.init();
+    insights.chrome.auth.getUser().then(() => this.setState({ auth: true }));
     try {
-      insights.chrome.identifyApp('approval');
+      insights.chrome.identifyApp('rbac');
     } catch (error) {
       this.setState({
         chromeNavAvailable: false
@@ -34,18 +37,23 @@ class App extends Component {
   }
 
   render () {
+    const { auth } = this.state;
+    if (!auth) {
+      return <AppPlaceholder />;
+    }
+
     return (
       <React.Fragment>
         <NotificationsPortal />
         <PageHeader>
           <Title size={ 'xl' }  style = { { margin: 12, padding: 12 } }>
-            Approval
+            Role Based Access Control
           </Title>
         </PageHeader>
         <Main style={ { backgroundColor: 'd3d3d3' } }>
-          <ApprovalTabs>
+          <AppTabs>
             <Routes childProps={ this.props } />
-          </ApprovalTabs>
+          </AppTabs>
         </Main>
       </React.Fragment>
     );

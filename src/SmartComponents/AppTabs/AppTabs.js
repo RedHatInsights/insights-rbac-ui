@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Tabs, Tab } from '@patternfly/react-core';
-import './approvaltabs.scss';
+import './apptabs.scss';
 
-const tabItems = [{ eventKey: 0, title: 'Approvers', name: '/users' }, { eventKey: 1, title: 'Groups', name: '/groups' }];
+const tabItems = [{ eventKey: 0, title: 'Principals', name: '/users' }, { eventKey: 1, title: 'Groups', name: '/groups' }];
 
-class ApprovalTabs extends Component {
+class AppTabs extends Component {
   state = {
     activeTabKey: 0
   };
@@ -31,10 +31,10 @@ class ApprovalTabs extends Component {
   }
 }
 
-ApprovalTabs.propTypes = {
+AppTabs.propTypes = {
   children: propTypes.any,
   location: propTypes.object,
   history: propTypes.object
 };
 
-export default ApprovalTabs;
+export default AppTabs;

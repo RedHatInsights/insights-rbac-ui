@@ -88,7 +88,7 @@ plugins.push(CopyFilesWebpackPlugin);
  */
 const envPlugin = new webpack.DefinePlugin({
   'process.env.BASE_PATH': JSON.stringify(process.env.BASE_PATH),
-  'process.env.APPROVAL_PATH': JSON.stringify(process.env.APPROVAL_PATH)
+  'process.env.RBAC_PATH': JSON.stringify(process.env.RBAC_PATH)
 });
 plugins.push(envPlugin);
 

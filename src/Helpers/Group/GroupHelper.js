@@ -17,7 +17,18 @@ export async function fetchGroups() {
 }
 
 export async function updateGroup(data) {
-  await groupApi.updateGroup(data.id, data);
+  await groupApi.updateGroup(data.uuid, data);
+  let members_list = data.members.map(user => { return user.username; });
+  //update the user members here - adding users and removing users from the group should be a separate action in the UI
+  let addUsers = data.user_list.filter(item => !members_list.includes(item.username));
+  let removeUsers = members_list.filter(item => !(data.user_list.map(user => { return user.username;})).includes(item));
+  if (addUsers.length > 0) {
+    await groupApi.addPrincipalToGroup(data.uuid, JSON.stringify({ principals: addUsers }));
+  }
+
+  if (removeUsers.length > 0) {
+    await groupApi.deletePrincipalFromGroup(data.uuid, removeUsers.join(','));
+  }
 }
 
 export async function addGroup(data) {

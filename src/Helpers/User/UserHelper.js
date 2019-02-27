@@ -2,7 +2,7 @@ import { getPrincipalApi } from '../Shared/userLogin';
 
 const principalApi = getPrincipalApi();
 
-//export async function fetchUsersApproval() {
+//export async function fetchUsersRbac() {
 //  let users = await userApi.fetchUsers();
 //  let len = users.length;
 //  for (let idx = 0; idx < len; idx++) {

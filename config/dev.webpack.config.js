@@ -15,7 +15,7 @@ webpackConfig.serve = {
   hot: false,
   host: '0.0.0.0',
   dev: {
-    publicPath: '/insights/platform/approval'
+    publicPath: '/insights/platform/rbac'
   },
   // https://github.com/webpack-contrib/webpack-serve/blob/master/docs/addons/history-fallback.config.js
   add: app => app.use(convert(history({})))

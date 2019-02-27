@@ -1,4 +1,4 @@
-import { RBAC_API_BASE } from '../../Utilities/Constants';
+import { RBAC_API_BASE, RBAC_USER, RBAC_PWD } from '../../Utilities/Constants';
 
 let RoleBasedAccessControl = require('role_based_access_control');
 
@@ -7,8 +7,11 @@ let defaultRbacClient = RoleBasedAccessControl.ApiClient.instance;
 defaultRbacClient.basePath = RBAC_API_BASE;
 
 let rbac_basic_auth = defaultRbacClient.authentications.basic_auth;
-rbac_basic_auth.username = 'mkanoor@redhat.com';
-rbac_basic_auth.password = 'redhat';
+
+if (RBAC_USER && RBAC_PWD) {
+  rbac_basic_auth.username = RBAC_USER;
+  rbac_basic_auth.password = RBAC_PWD;
+}
 
 let rbacApi = new RoleBasedAccessControl.AccessApi();
 let principalApi = new RoleBasedAccessControl.PrincipalApi();

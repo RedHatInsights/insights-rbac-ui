@@ -55,7 +55,7 @@ class Users extends Component {
         <Route exact path="/users/remove/:id" component={ RemoveUser } />
         <Section type='content'>
           { this.renderToolbar() }
-          <UserList { ...filteredItems } noItems={ 'No Approvers' } fetchGroupsByUserId = { this.props.fetchGroupsByUserId }/>
+          <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId = { this.props.fetchGroupsByUserId }/>
         </Section>
       </Fragment>
     );

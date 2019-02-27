@@ -1,4 +1,4 @@
-# Insights Approval Service UI
+# Insights Rbac Service UI
 
 
 ## Getting Started
