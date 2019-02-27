@@ -37,18 +37,6 @@ class Users extends Component {
     return (
       <Toolbar className="searchToolbar">
         <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
-        <ToolbarGroup>
-          <ToolbarItem>
-            <Link to="/users/add-user">
-              <Button
-                variant="primary"
-                aria-label="Create Approver"
-              >
-                Create Approver
-              </Button>
-            </Link>
-          </ToolbarItem>
-        </ToolbarGroup>
       </Toolbar>
     );
   }
