@@ -94,13 +94,6 @@ class User extends Component {
         <DataListCell>
           { this.fetchGroupListForUser(item) }
         </DataListCell>
-        <DataListCell
-          class="pf-c-data-list__action"
-          aria-labelledby={ `user-${item.id} check-user-action${item.id}` }
-          id={ `user-${item.id}` }
-          aria-label="Actions">
-          { this.buildUserActionKebab(item) }
-        </DataListCell>
         <DataListContent aria-label="User Content Details"
           isHidden={ !this.props.isExpanded(`user-${item.id}`) }>
           <Stack gutter="md">
