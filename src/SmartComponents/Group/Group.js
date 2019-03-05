@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Section } from '@red-hat-insights/insights-frontend-components';
 import {
   Stack,
   StackItem,

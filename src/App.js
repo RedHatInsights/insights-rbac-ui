@@ -50,7 +50,7 @@ class App extends Component {
             Role Based Access Control
           </Title>
         </PageHeader>
-        <Main style={ { backgroundColor: 'd3d3d3' } }>
+        <Main style={ { backgroundColor: 'd3d3d3', margin: '0', padding: '0' } }>
           <AppTabs>
             <Routes childProps={ this.props } />
           </AppTabs>
