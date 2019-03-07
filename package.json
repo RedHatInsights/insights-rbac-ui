@@ -1,24 +1,25 @@
 {
-  "name": "rbac_ui",
+  "name": "approval_ui",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
     "@data-driven-forms/pf4-component-mapper": "^0.4.2",
-    "@data-driven-forms/react-form-renderer": "^1.7.3",
-    "@patternfly/react-core": "^2.1.4",
+    "@data-driven-forms/react-form-renderer": "^1.7.0",
+    "@patternfly/patternfly-next": "^1.0.131",
+    "@patternfly/react-core": "^1.51.6",
     "@patternfly/react-icons": "^2.10.0",
     "@patternfly/react-tokens": "^1.10.0",
-    "@red-hat-insights/insights-frontend-components": "^3.33.65",
+    "@red-hat-insights/insights-frontend-components": "^3.33.6",
     "font-awesome": "^4.7.0",
     "lodash": "^4.17.10",
     "patternfly-react": "^2.13.1",
-    "react": "^16.8.3",
+    "rbac_api_jsclient": "^1.0.0",
+    "react": "^16.7.0",
     "react-content-loader": "^3.4.2",
-    "react-dom": "^16.8.3",
+    "react-dom": "^16.7.0",
     "react-select": "^2.1.2",
     "redux-logger": "^3.0.6",
     "redux-thunk": "^2.3.0",
-    "role_based_access_control": "git+https://github.com/lgalis/insights-rbac-jsclient.git",
     "rxjs": "^6.3.3",
     "whatwg-fetch": "^3.0.0"
   },
@@ -53,7 +54,7 @@
     "@babel/preset-react": "^7.0.0",
     "babel-core": "7.0.0-bridge.0",
     "babel-eslint": "^10.0.1",
-    "babel-jest": "^24.1.0",
+    "babel-jest": "^23.6.0",
     "babel-loader": "^8.0.5",
     "babel-plugin-lodash": "^3.3.4",
     "clean-webpack-plugin": "^0.1.19",
@@ -74,7 +75,8 @@
     "html-replace-webpack-plugin": "^2.5.3",
     "html-webpack-plugin": "^3.0.4",
     "identity-obj-proxy": "^3.0.0",
-    "jest": "^24.1.0",
+    "jest": "^23.6.0",
+    "jest-cli": "^23.6.0",
     "koa-connect": "^2.0.1",
     "lodash-webpack-plugin": "^0.11.5",
     "mini-css-extract-plugin": "^0.4.2",
@@ -115,6 +117,6 @@
     "verify": "npm-run-all build lint test"
   },
   "insights": {
-    "appname": "rbac"
+    "appname": "approval"
   }
 }
