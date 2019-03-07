@@ -26,16 +26,13 @@ class User extends Component {
     this.setState({
       isKebabOpen: isOpen
     });
-    console.log('Kebab Toggle', isOpen);
   };
 
   onKebabSelect = (event) => {
-    console.log('On Kebab Select', event);
     this.setState({ isKebabOpen: !this.state.isKebabOpen });
   };
 
   buildUserActionKebab = (user) => {
-    console.log('isKebab open for ', user.username, this.state.isKebabOpen);
     return (
       <Dropdown
         position={ DropdownPosition.right }

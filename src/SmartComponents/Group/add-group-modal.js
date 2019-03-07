@@ -20,10 +20,10 @@ const AddGroupModal = ({
   updateGroup
 }) => {
   const onSubmit = data => {
-    data.user_list = selectedUsers.map((user) => { return { username: user };});
+    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
     initialValues
-      ? updateGroup(data).then(() => fetchGroups()).then(goBack)
-      : addGroup(data).then(() => fetchGroups()).then(goBack);
+      ? updateGroup(user_data).then(() => fetchGroups()).then(goBack)
+      : addGroup(user_data).then(() => fetchGroups()).then(goBack);
   };
 
   const onCancel = () => pipe(
@@ -40,7 +40,7 @@ const AddGroupModal = ({
   const onOptionSelect = (selectedValues = []) =>
   { selectedUsers = selectedValues.map(val => val.value); };
 
-  const dropdownItems = users.map(user => ({ value: user.username, label: `${user.username}`, id: user.username }));
+  const dropdownItems = users.map(user => ({ value: user.username, label: user.username, id: user.username }));
 
   const schema = {
     type: 'object',

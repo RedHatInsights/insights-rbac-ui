@@ -1,9 +1,7 @@
 import { RBAC_API_BASE, RBAC_USER, RBAC_PWD } from '../../Utilities/Constants';
+import { AccessApi, PrincipalApi, GroupApi, ApiClient } from 'rbac_api_jsclient';
 
-let RoleBasedAccessControl = require('role_based_access_control');
-
-// Configure HTTP basic authorization: basic_auth
-let defaultRbacClient = RoleBasedAccessControl.ApiClient.instance;
+const defaultRbacClient = ApiClient.instance;
 defaultRbacClient.basePath = RBAC_API_BASE;
 
 let rbac_basic_auth = defaultRbacClient.authentications.basic_auth;
@@ -13,9 +11,9 @@ if (RBAC_USER && RBAC_PWD) {
   rbac_basic_auth.password = RBAC_PWD;
 }
 
-let rbacApi = new RoleBasedAccessControl.AccessApi();
-let principalApi = new RoleBasedAccessControl.PrincipalApi();
-let groupApi = new RoleBasedAccessControl.GroupApi();
+let rbacApi = new AccessApi();
+let principalApi = new PrincipalApi();
+let groupApi = new GroupApi();
 
 export function getRbacApi() {
   return rbacApi;
