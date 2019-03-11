@@ -6,13 +6,8 @@ const groupApi = getGroupApi();
 export async function fetchGroups() {
   let groupsData = await groupApi.listGroups();
   let groups = groupsData.data;
-  let len = groups.length;
-  for (let idx = 0; idx < len; idx++) {
-    let groupWithUsers = await groupApi.getGroup(groups[idx].uuid);
-    groups[idx].members = groupWithUsers.principals;
-  }
-
-  return groups;
+  return Promise.all(groups.map(async group => { let groupWithUsers = await groupApi.getGroup(group.uuid);
+    return { ...group, members: groupWithUsers.principals };}));
 }
 
 export async function updateGroup(data) {
