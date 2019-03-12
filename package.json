@@ -1,5 +1,5 @@
 {
-  "name": "approval_ui",
+  "name": "insights-rbac-ui",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
