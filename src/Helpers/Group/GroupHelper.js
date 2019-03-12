@@ -7,7 +7,8 @@ export async function fetchGroups() {
   let groupsData = await groupApi.listGroups();
   let groups = groupsData.data;
   return Promise.all(groups.map(async group => { let groupWithUsers = await groupApi.getGroup(group.uuid);
-    return { ...group, members: groupWithUsers.principals };}));
+    return { ...group, members: groupWithUsers.principals };
+  }));
 }
 
 export async function updateGroup(data) {
