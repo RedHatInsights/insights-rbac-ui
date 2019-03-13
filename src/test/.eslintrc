@@ -1,0 +1,15 @@
+{
+  "env": {
+    "jest": true,
+    "es6": true
+  },
+  "globals": {
+    "apiClientMock": true,
+    "mockOnce": true,
+    "fetchMock": true
+  },
+  "rules": {
+    "react/display-name": "off",
+    "react/prop-types": "off"
+  }
+}

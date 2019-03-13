@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Section } from '@red-hat-insights/insights-frontend-components';
 import {
   Stack,
   StackItem,
@@ -27,16 +26,13 @@ class User extends Component {
     this.setState({
       isKebabOpen: isOpen
     });
-    console.log('Kebab Toggle', isOpen);
   };
 
   onKebabSelect = (event) => {
-    console.log('On Kebab Select', event);
     this.setState({ isKebabOpen: !this.state.isKebabOpen });
   };
 
   buildUserActionKebab = (user) => {
-    console.log('isKebab open for ', user.name, this.state.isKebabOpen);
     return (
       <Dropdown
         position={ DropdownPosition.right }
@@ -85,7 +81,7 @@ class User extends Component {
         <DataListCheck aria-labelledby={ `check-user-${item.id}` } name={ `check-user-${item.id}` }/>
         <DataListCell>
           <StackItem>
-            <span id={ item.id }>{ `${item.first_name} ${item.last_name}` } </span>
+            <span id={ item.id }>{ `${item.username}` } </span>
           </StackItem>
           <StackItem>
             <span id={ item.email }>{ `${item.email}` } </span>
@@ -93,13 +89,6 @@ class User extends Component {
         </DataListCell>
         <DataListCell>
           { this.fetchGroupListForUser(item) }
-        </DataListCell>
-        <DataListCell
-          class="pf-c-data-list__action"
-          aria-labelledby={ `user-${item.id} check-user-action${item.id}` }
-          id={ `user-${item.id}` }
-          aria-label="Actions">
-          { this.buildUserActionKebab(item) }
         </DataListCell>
         <DataListContent aria-label="User Content Details"
           isHidden={ !this.props.isExpanded(`user-${item.id}`) }>

@@ -1,7 +1,8 @@
 import React from 'react';
-import ReactFormRender from '@data-driven-forms/react-form-renderer';
 import PropTypes from 'prop-types';
+import ReactFormRender, { componentTypes } from '@data-driven-forms/react-form-renderer';
 import { layoutMapper, formFieldsMapper } from '@data-driven-forms/pf4-component-mapper';
+import Pf4SelectWrapper from '../../PresentationalComponents/Shared/pf4-select-wrapper';
 
 const buttonPositioning = {
   default: {},
@@ -16,7 +17,8 @@ const FormRenderer = ({ componentMapper, formContainer, ...rest }) => (
     <ReactFormRender
       formFieldsMapper={ {
         ...formFieldsMapper,
-        componentMapper
+        componentMapper,
+        [componentTypes.SELECT]: Pf4SelectWrapper
       } }
       layoutMapper={ layoutMapper }
       { ...buttonPositioning[formContainer] }

@@ -1,12 +1,28 @@
-let ApprovalApi = require('insights_service_approval_ap_is');
+import { RBAC_API_BASE, RBAC_USER, RBAC_PWD } from '../../Utilities/Constants';
+import { AccessApi, PrincipalApi, GroupApi, ApiClient } from 'rbac_api_jsclient';
 
-import { APPROVAL_API_BASE } from '../../Utilities/Constants';
+const defaultRbacClient = ApiClient.instance;
+defaultRbacClient.basePath = RBAC_API_BASE;
 
-const defaultClient = ApprovalApi.ApiClient.instance;
-defaultClient.basePath = APPROVAL_API_BASE;
+let rbac_basic_auth = defaultRbacClient.authentications.basic_auth;
 
-let approvalApi = new ApprovalApi.AdminsApi();
+if (RBAC_USER && RBAC_PWD) {
+  rbac_basic_auth.username = RBAC_USER;
+  rbac_basic_auth.password = RBAC_PWD;
+}
 
-export function getApprovalApi() {
-  return approvalApi;
+let rbacApi = new AccessApi();
+let principalApi = new PrincipalApi();
+let groupApi = new GroupApi();
+
+export function getRbacApi() {
+  return rbacApi;
+}
+
+export function getPrincipalApi() {
+  return principalApi;
+}
+
+export function getGroupApi() {
+  return groupApi;
 }

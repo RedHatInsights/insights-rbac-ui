@@ -24,7 +24,7 @@ const Groups = lazy(() => import('./SmartComponents/Group/Groups'));
 const Group = lazy(() => import('./SmartComponents/Group/Group'));
 
 const paths = {
-  approval: '/',
+  rbac: '/',
   users: '/users',
   user: '/user/:id',
   groups: '/groups',

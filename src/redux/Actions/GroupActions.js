@@ -22,9 +22,9 @@ export const fetchUsersByGroupId = apiProps => ({
   })
 });
 
-export const addGroup = (groupData, items) => ({
+export const addGroup = (groupData) => ({
   type: ActionTypes.ADD_GROUP,
-  payload: GroupHelper.addGroup(groupData, items),
+  payload: GroupHelper.addGroup(groupData),
   meta: {
     notifications: {
       fulfilled: {

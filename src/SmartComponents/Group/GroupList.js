@@ -1,10 +1,7 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { PageHeader, PageHeaderTitle } from '@red-hat-insights/insights-frontend-components';
-import {
-  Bullseye,
-  DataList
-} from '@patternfly/react-core';
+import { DataList } from '@patternfly/react-core';
 import Group from './Group';
 
 class GroupList extends Component {
@@ -37,16 +34,14 @@ class GroupList extends Component {
     // <GroupDetail isExpanded={ expandedList.includes(item.name) } toggle={ toggle }/>) }
     return (
       <React.Fragment>
-        <Bullseye>
-          <div>
-            { this.props.isLoading && (<span color={ '#00b9e4' }> Loading...</span>) }
-          </div>
-        </Bullseye>
+        <div>
+          { this.props.isLoading && (<span color={ '#00b9e4' }> Loading...</span>) }
+        </div>
         { (this.props.items && this.props.items.length > 0) && (
           <DataList aria-label="Expandable data list">
             { this.props.items.map((item) => {
               return (
-                <Group key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
+                <Group key= { item.uuid } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
             }
             )
             }

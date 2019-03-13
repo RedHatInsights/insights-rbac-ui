@@ -37,18 +37,6 @@ class Users extends Component {
     return (
       <Toolbar className="searchToolbar">
         <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
-        <ToolbarGroup>
-          <ToolbarItem>
-            <Link to="/users/add-user">
-              <Button
-                variant="primary"
-                aria-label="Create Approver"
-              >
-                Create Approver
-              </Button>
-            </Link>
-          </ToolbarItem>
-        </ToolbarGroup>
       </Toolbar>
     );
   }
@@ -67,7 +55,7 @@ class Users extends Component {
         <Route exact path="/users/remove/:id" component={ RemoveUser } />
         <Section type='content'>
           { this.renderToolbar() }
-          <UserList { ...filteredItems } noItems={ 'No Approvers' } fetchGroupsByUserId = { this.props.fetchGroupsByUserId }/>
+          <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId={ this.props.fetchGroupsByUserId }/>
         </Section>
       </Fragment>
     );

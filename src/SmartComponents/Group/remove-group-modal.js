@@ -67,12 +67,12 @@ RemoveGroupModal.propTypes = {
 };
 
 const groupDetailsFromState = (state, id) =>
-  state.groupReducer.groups.find(group => group.id  === id);
+  state.groupReducer.groups.find(group => group.uuid  === id);
 
 const mapStateToProps = (state, { match: { params: { id }}}) => {
   let group = groupDetailsFromState(state, id);
   return {
-    groupId: group.id,
+    groupId: group.uuid,
     groupName: group.name
   };
 };

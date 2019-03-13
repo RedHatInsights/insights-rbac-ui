@@ -12,6 +12,9 @@ node_modules
 # production
 dist
 
+#test coverage statistics
+coverage
+
 # deployment
 .travis/58231b16fdee45a03a4ee3cf94a9f2c3
 .travis/after_success.sh

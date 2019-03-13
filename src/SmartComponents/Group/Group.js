@@ -1,7 +1,6 @@
 import React, { Component } from 'react';
 import propTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Section } from '@red-hat-insights/insights-frontend-components';
 import {
   Stack,
   StackItem,
@@ -42,12 +41,12 @@ class Group extends Component {
         isOpen = { this.state.isKebabOpen}
         dropdownItems={ [
           <DropdownItem aria-label="Edit Group" key="edit-group">
-            <Link to={ `/groups/edit/${group.id}` }>
+            <Link to={ `/groups/edit/${group.uuid}` }>
               Edit
             </Link>
           </DropdownItem>,
           <DropdownItem component="link" aria-label="Remove Group" key="remove-group">
-            <Link to={ `/groups/remove/${group.id}` }>
+            <Link to={ `/groups/remove/${group.uuid}` }>
               Delete
             </Link>
           </DropdownItem>
@@ -61,45 +60,47 @@ class Group extends Component {
     if (!group.members) {
       return '';
     }
-    return group.members.map(user => `${user.first_name} ${user.last_name}`).join(', ');
+    return group.members.map(user => ` ${user.username}`).join(', ');
   };
 
   render() {
     let { item } = this.props;
 
     return (
-      <DataListItem key={ `group-${item.id}` }
-        aria-labelledby={ `check-group-${item.id}` }
-        isExpanded={ this.props.isExpanded(`group-${item.id}`) }>
+      <DataListItem key={ `group-${item.uuid}` }
+        aria-labelledby={ `check-group-${item.uuid}` }
+        isExpanded={ this.props.isExpanded(`group-${item.uuid}`) }>
         <DataListToggle
-          onClick={ () => this.props.toggleExpand(`group-${item.id}`) }
-          isExpanded={ this.props.isExpanded(`group-${item.id}`) }
-          id={ `group-${item.id}` }
-          aria-labelledby={ `group-${item.id} group-${item.id}` }
+          onClick={ () => this.props.toggleExpand(`group-${item.uuid}`) }
+          isExpanded={ this.props.isExpanded(`group-${item.uuid}`) }
+          id={ `group-${item.uuid}` }
+          aria-labelledby={ `group-${item.uuid} group-${item.uuid}` }
           aria-label="Toggle details for"
         />
-        <DataListCheck aria-labelledby={ `check-group-${item.id}` } name={ `check-group-${item.id}` }/>
+        <DataListCheck aria-labelledby={ `check-group-${item.uuid}` } name={ `check-group-${item.uuid}` }/>
         <DataListCell>
-          <span id={ item.id }>{ item.name } </span>
+          <span id={ item.uuid }>{ item.name } </span>
         </DataListCell>
         <DataListCell>
           { this.fetchUserListForGroup(item) }
         </DataListCell>
         <DataListCell
           class="pf-c-data-list__action"
-          aria-labelledby={ `group-${item.id} check-group-action${item.id}` }
-          id={ `group-${item.id}` }
+          aria-labelledby={ `group-${item.uuid} check-group-action${item.uuid}` }
+          id={ `group-${item.uuid}` }
           aria-label="Actions">
           { this.buildGroupActionKebab(item) }
         </DataListCell>
         <DataListContent aria-label="Group Content Details"
-          isHidden={ !this.props.isExpanded(`group-${item.id}`) }>
+          isHidden={ !this.props.isExpanded(`group-${item.uuid}`) }>
           <Stack gutter="md">
             <StackItem>
               <Title size="md">Description</Title>
             </StackItem>
             <StackItem>
-              <TextContent component={ TextVariants.h6 }>Placeholder for Group Description</TextContent>
+              <TextContent component={ TextVariants.h6 }>
+                { item.description }
+              </TextContent>
             </StackItem>
             <StackItem>
             </StackItem>

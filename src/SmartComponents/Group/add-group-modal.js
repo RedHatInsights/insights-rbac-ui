@@ -20,10 +20,10 @@ const AddGroupModal = ({
   updateGroup
 }) => {
   const onSubmit = data => {
-    data.user_ids = selectedUsers;
+    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
     initialValues
-      ? updateGroup(data).then(() => fetchGroups()).then(goBack)
-      : addGroup(data).then(() => fetchGroups()).then(goBack);
+      ? updateGroup(user_data).then(() => fetchGroups()).then(goBack)
+      : addGroup(user_data).then(() => fetchGroups()).then(goBack);
   };
 
   const onCancel = () => pipe(
@@ -40,7 +40,7 @@ const AddGroupModal = ({
   const onOptionSelect = (selectedValues = []) =>
   { selectedUsers = selectedValues.map(val => val.value); };
 
-  const dropdownItems = users.map(user => ({ value: user.id, label: `${user.first_name} ${user.last_name}`, id: user.id }));
+  const dropdownItems = users.map(user => ({ value: user.username, label: user.username, id: user.username }));
 
   const schema = {
     type: 'object',
@@ -77,7 +77,8 @@ const AddGroupModal = ({
             isMulti={ true }
             placeholders={ 'Select Members' }
             options={ dropdownItems }
-            defaultValue={ initialValues ? initialValues.members.map(user => user.id) : [] }
+            defaultValue={ (initialValues && initialValues.members) ? initialValues.members.map(
+              user => ({ value: user.username, label: `${user.username}`, id: user.username })) : [] }
             onChange={ onOptionSelect }
             closeMenuOnSelect={ false }
           />
@@ -103,7 +104,7 @@ const mapStateToProps = (state, { match: { params: { id }}}) => {
   let groups = state.groupReducer.groups;
   return {
     users: state.userReducer.users,
-    initialValues: id && groups.find(item => item.id === id),
+    initialValues: id && groups.find(item => item.uuid === id),
     groupId: id
   };
 };
