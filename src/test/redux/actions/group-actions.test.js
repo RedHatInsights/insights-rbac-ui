@@ -1,21 +1,12 @@
 import configureStore from 'redux-mock-store' ;
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
-import { Group } from 'rbac_api_jsclient';
 import { notificationsMiddleware, ADD_NOTIFICATION } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import {
-  FETCH_GROUPS,
-  FETCH_USERS_BY_GROUP_ID,
-  ADD_GROUP,
-  UPDATE_GROUP,
-  REMOVE_GROUP
+  ADD_GROUP
 } from '../../../redux/ActionTypes';
 import {
-  fetchGroups,
-  fetchUsersByGroupId,
-  addGroup,
-  updateGroup,
-  removeGroup
+  addGroup
 } from '../../../redux/Actions/GroupActions';
 import {
   RBAC_API_BASE
