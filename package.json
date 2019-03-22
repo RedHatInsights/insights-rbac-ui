@@ -1,5 +1,5 @@
 {
-  "name": "insights-rbac-ui",
+  "name": "insights-rbac",
   "version": "0.1.0",
   "private": false,
   "dependencies": {
@@ -120,6 +120,6 @@
     "verify": "npm-run-all build lint test"
   },
   "insights": {
-    "appname": "approval"
+    "appname": "insights-rbac"
   }
 }
