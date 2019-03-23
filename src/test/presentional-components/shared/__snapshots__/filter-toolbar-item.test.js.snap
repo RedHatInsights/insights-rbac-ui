@@ -1,0 +1,85 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<FilterToolbarItem /> should render correctly 1`] = `
+<FilterToolbarItem
+  onFilterChange={[MockFunction]}
+  placeholder="Foo"
+  searchValue=""
+>
+  <ToolbarGroup
+    className="searchToolbar"
+  >
+    <div
+      className="pf-l-toolbar__group searchToolbar"
+    >
+      <ToolbarItem
+        className={null}
+      >
+        <div
+          className="pf-l-toolbar__item"
+        >
+          <div
+            className="pf-c-input-group"
+          >
+            <TextInput
+              aria-label="Find product button"
+              className=""
+              isDisabled={false}
+              isReadOnly={false}
+              isRequired={false}
+              isValid={true}
+              onChange={[MockFunction]}
+              placeholder="Foo"
+              type="text"
+              value=""
+            >
+              <input
+                aria-invalid={false}
+                aria-label="Find product button"
+                className="pf-c-form-control"
+                disabled={false}
+                onChange={[Function]}
+                placeholder="Foo"
+                readOnly={false}
+                required={false}
+                type="text"
+                value=""
+              />
+            </TextInput>
+            <Button
+              aria-label={null}
+              className=""
+              component="button"
+              id="searchProductButton"
+              isActive={false}
+              isBlock={false}
+              isDisabled={false}
+              isFocus={false}
+              isHover={false}
+              onClick={[Function]}
+              type="button"
+              variant="tertiary"
+            >
+              <button
+                aria-disabled={null}
+                aria-label={null}
+                className="pf-c-button pf-m-tertiary"
+                disabled={false}
+                id="searchProductButton"
+                onClick={[Function]}
+                tabIndex={null}
+                type="button"
+              >
+                <i
+                  aria-hidden="true"
+                  className="fas fa-search"
+                />
+              </button>
+            </Button>
+          </div>
+        </div>
+      </ToolbarItem>
+    </div>
+  </ToolbarGroup>
+</FilterToolbarItem>
+`;
