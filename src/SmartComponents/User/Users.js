@@ -1,8 +1,8 @@
 import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
-import { Route, Link } from 'react-router-dom';
-import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
+import { Route } from 'react-router-dom';
+import { Toolbar } from '@patternfly/react-core';
 import { Section } from '@red-hat-insights/insights-frontend-components';
 import UserList from './UserList';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';

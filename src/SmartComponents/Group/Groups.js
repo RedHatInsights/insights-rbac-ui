@@ -67,7 +67,7 @@ class Groups extends Component {
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
           <Section type='content'>
             { this.renderToolbar() }
-            <GroupList { ...filteredItems } noItems={ 'No Groups' } fetchUsersBYGroupId={ this.props.fetchUsersByGroupId} />
+            <GroupList { ...filteredItems } noItems={ 'No Groups' } fetchUsersBYGroupId={ this.props.fetchUsersByGroupId } />
           </Section>
         </Fragment>
       );

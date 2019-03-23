@@ -28,7 +28,7 @@ class Group extends Component {
     });
   };
 
-  onKebabSelect = (event) => {
+  onKebabSelect = () => {
     this.setState({ isKebabOpen: !this.state.isKebabOpen });
   };
 
@@ -38,7 +38,7 @@ class Group extends Component {
         position={ DropdownPosition.right }
         onSelect={ this.onKebabSelect }
         toggle={ <KebabToggle onToggle={ this.onKebabToggle }/> }
-        isOpen = { this.state.isKebabOpen}
+        isOpen = { this.state.isKebabOpen }
         dropdownItems={ [
           <DropdownItem aria-label="Edit Group" key="edit-group">
             <Link to={ `/groups/edit/${group.uuid}` }>

@@ -1,0 +1,11 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<NoMatch /> should render correctly 1`] = `
+<NoMatch>
+  <div>
+    <h1>
+      Page you are looking for does not exist.
+    </h1>
+  </div>
+</NoMatch>
+`;
