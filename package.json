@@ -120,6 +120,6 @@
     "verify": "npm-run-all build lint test"
   },
   "insights": {
-    "appname": "insights-rbac"
+    "appname": "rbac"
   }
 }

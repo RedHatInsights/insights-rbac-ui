@@ -60,6 +60,7 @@ class Group extends Component {
     if (!group.members) {
       return '';
     }
+
     return group.members.map(user => ` ${user.username}`).join(', ');
   };
 
