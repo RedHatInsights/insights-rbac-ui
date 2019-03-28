@@ -5,15 +5,21 @@ import { Provider } from 'react-redux';
 import store from './Utilities/store';
 import App from './App';
 
-/**
- * Hooks up redux to app.
- *  https://redux.js.org/advanced/usage-with-react-router
- */
+const pathName = window.location.pathname.split('/');
+pathName.shift();
+
+let release = '/';
+
+if (pathName[0] === 'beta') {
+  release = `/${pathName.shift()}/`;
+}
+
 ReactDOM.render(
   <Provider store={ store }>
-    <Router basename='/insights/platform/rbac'>
+    <Router basename={ `${release}${pathName[0]}/${pathName[1]}/${pathName[2]}` }>
       <App />
     </Router>
   </Provider>,
+
   document.getElementById('root')
 );
