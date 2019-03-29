@@ -87,7 +87,7 @@ plugins.push(CopyFilesWebpackPlugin);
  * Makes build-time env vars available to the client-side as constants
  */
 const envPlugin = new webpack.DefinePlugin({
-  'process.env.BASE_PATH': JSON.stringify(process.env.BASE_PATH || '/r/insights/platform')
+  'process.env.BASE_PATH': JSON.stringify(process.env.BASE_PATH || '/api')
 });
 plugins.push(envPlugin);
 

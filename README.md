@@ -8,10 +8,9 @@
 
 ### Insights Proxy
 [Insights Proxy](https://github.com/RedHatInsights/insights-proxy) is required to run the RBAC frontend application. 
-To run the proxy with rbac-specific configuration run:
+To run the proxy with insights-rbac-specific configuration run:
 ```
-SPANDX_CONFIG="$(pwd)/insights-inventory-frontend/config/spandx.config.js" bash insights-proxy/scripts/run.sh
-```
+SPANDX_CONFIG="$(pwd)/insights-rbac-ui/config/spandx.config.js" bash insights-proxy/scripts/run.sh
 
 ## License
 
