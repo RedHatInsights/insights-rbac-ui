@@ -1,11 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Title, Bullseye } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
-import { fetchGroups, removeGroup } from '../../redux/Actions/GroupActions';
+import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
 import { pipe } from 'rxjs';
 import './group.scss';
 
@@ -14,9 +14,16 @@ const RemoveGroupModal = ({
   removeGroup,
   addNotification,
   fetchGroups,
+  fetchGroup,
   groupId,
   groupName
 }) => {
+  useEffect(() => {
+    if (groupId) {
+      fetchGroup(groupId);
+    }
+  }, []);
+
   const onSubmit = () => removeGroup(groupId)
   .then(() => pipe(fetchGroups(), push('/groups')));
 
@@ -62,24 +69,21 @@ RemoveGroupModal.propTypes = {
   removeGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
+  fetchGroup: PropTypes.func.isRequired,
   groupId: PropTypes.string,
   groupName: PropTypes.string
 };
 
-const groupDetailsFromState = (state, id) =>
-  state.groupReducer.groups.find(group => group.uuid  === id);
-
 const mapStateToProps = (state, { match: { params: { id }}}) => {
-  let group = groupDetailsFromState(state, id);
   return {
-    groupId: group.uuid,
-    groupName: group.name
+    groupId: id
   };
 };
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   fetchGroups,
+  fetchGroup,
   removeGroup
 }, dispatch);
 

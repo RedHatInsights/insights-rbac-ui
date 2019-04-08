@@ -20,6 +20,13 @@ export const fetchUsersByGroupId = apiProps => ({
   })
 });
 
+export const fetchGroup = apiProps => ({
+  type: ActionTypes.FETCH_GROUP,
+  payload: new Promise(resolve => {
+    resolve(GroupHelper.fetchGroup(apiProps));
+  })
+});
+
 export const addGroup = (groupData) => ({
   type: ActionTypes.ADD_GROUP,
   payload: GroupHelper.addGroup(groupData),

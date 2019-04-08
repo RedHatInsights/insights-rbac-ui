@@ -27,4 +27,4 @@ global.apiClientMock = mock;
 /**
  * setup ENV vars
  */
-process.env.BASE_PATH = '/r/insights/platform';
+process.env.BASE_PATH = '/api';

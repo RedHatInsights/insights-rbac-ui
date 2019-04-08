@@ -125,6 +125,25 @@ class Groups extends Component {
       );
     }
 
+    actionResolver = (groupData, { rowIndex }) => {
+      if (rowIndex === 1) {
+        return null;
+      }
+
+      return [
+        {
+          title: 'Edit',
+          onClick: (event, rowId, group) =>
+            this.props.history.push(`/groups/edit/${group.uuid}`)
+        },
+        {
+          title: 'Delete',
+          onClick: (event, rowId, group) =>
+            this.props.history.push(`/groups/remove/${group.uuid}`)
+        }
+      ];
+    };
+
     render() {
       return (
         <Fragment>
@@ -139,6 +158,7 @@ class Groups extends Component {
               rows={ this.state.rows }
               cells={ columns }
               onSelect={ this.selectRow }
+              actionResolver={ this.actionResolver }
             >
               <TableHeader />
               <TableBody />
@@ -166,6 +186,10 @@ const mapDispatchToProps = dispatch => {
 };
 
 Groups.propTypes = {
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
+  }).isRequired,
   filteredItems: PropTypes.array,
   groups: PropTypes.array,
   platforms: PropTypes.array,
