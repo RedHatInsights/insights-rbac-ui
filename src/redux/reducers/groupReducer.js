@@ -5,7 +5,14 @@ import {
 
 // Initial State
 export const groupsInitialState = {
-  groups: [],
+  groups: {
+    data: [],
+    meta: {
+      count: 0,
+      limit: 10,
+      offset: 0
+    }
+  },
   group: {},
   filterValue: '',
   isLoading: false
