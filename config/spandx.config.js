@@ -5,8 +5,8 @@
 const localhost = (process.env.PLATFORM === 'linux') ? 'localhost' : 'host.docker.internal';
 
 module.exports = {
-    routes: {
-        '/hcm/settings/rbac': { host: `http://${localhost}:8002` },
-        '/apps/rbac': { host: `http://${localhost}:8002` }
-    }
+  routes: {
+    '/hybrid/settings/rbac': { host: `http://${localhost}:8002` },
+    '/apps/rbac': { host: `http://${localhost}:8002` }
+  }
 };
