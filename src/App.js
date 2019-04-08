@@ -20,20 +20,7 @@ class App extends Component {
   componentDidMount () {
     insights.chrome.init();
     insights.chrome.auth.getUser().then(() => this.setState({ auth: true }));
-    try {
-      insights.chrome.identifyApp('rbac');
-    } catch (error) {
-      this.setState({
-        chromeNavAvailable: false
-      });
-    }
-  }
-
-  componentWillUnmount () {
-    if (this.state.chromeNavAvailable) {
-      this.appNav();
-      this.buildNav();
-    }
+    insights.chrome.identifyApp('rbac');
   }
 
   render () {
