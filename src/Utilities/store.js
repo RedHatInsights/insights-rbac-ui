@@ -6,7 +6,7 @@ import { notifications, notificationsMiddleware } from '@red-hat-insights/insigh
 import reduxLogger from 'redux-logger';
 import thunk from 'redux-thunk';
 import userReducer, { userInitialState } from '../redux/reducers/userReducer';
-import groupReducer, { groupInitialState } from '../redux/reducers/groupReducer';
+import groupReducer, { groupsInitialState } from '../redux/reducers/groupReducer';
 
 const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware(), notificationsMiddleware({
   errorTitleKey: [ 'message' ],
@@ -15,7 +15,7 @@ const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware(), notificat
 
 registry.register({
   userReducer: applyReducerHash(userReducer, userInitialState),
-  groupReducer: applyReducerHash(groupReducer, groupInitialState),
+  groupReducer: applyReducerHash(groupReducer, groupsInitialState),
   notifications
 });
 
