@@ -16,7 +16,6 @@
     "axios": "^0.18.0",
     "font-awesome": "^4.7.0",
     "patternfly-react": "^2.13.1",
-    "rbac_api_jsclient": "^1.0.0",
     "react": "^16.8.3",
     "react-content-loader": "^3.4.2",
     "react-dom": "^16.8.3",

@@ -1,19 +1,13 @@
-import { RBAC_API_BASE, RBAC_USER, RBAC_PWD } from '../../Utilities/Constants';
-import { AccessApi, PrincipalApi, GroupApi, ApiClient } from 'rbac_api_jsclient';
+import axios from 'axios';
+import { GroupApi, PrincipalApi, AccessApi } from '@redhat-cloud-services/rbac-client';
+import { RBAC_API_BASE } from '../../Utilities/Constants';
 
-const defaultRbacClient = ApiClient.instance;
-defaultRbacClient.basePath = RBAC_API_BASE;
+const instance = axios.create();
+instance.interceptors.response.use(response => response.data || response);
 
-let rbac_basic_auth = defaultRbacClient.authentications.basic_auth;
-
-if (RBAC_USER && RBAC_PWD) {
-  rbac_basic_auth.username = RBAC_USER;
-  rbac_basic_auth.password = RBAC_PWD;
-}
-
-let rbacApi = new AccessApi();
-let principalApi = new PrincipalApi();
-let groupApi = new GroupApi();
+let rbacApi = new AccessApi(undefined, RBAC_API_BASE, instance);
+let principalApi = new PrincipalApi(undefined, RBAC_API_BASE, instance);
+const groupApi = new GroupApi(undefined, RBAC_API_BASE, instance);
 
 export function getRbacApi() {
   return rbacApi;

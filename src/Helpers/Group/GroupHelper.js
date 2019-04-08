@@ -3,11 +3,19 @@ import { getGroupApi } from '../Shared/userLogin';
 
 const groupApi = getGroupApi();
 
-export async function fetchGroups() {
-  let groupsData = await groupApi.listGroups();
+export async function fetchGroups({ limit = 10, offset = 0 }) {
+  let groupsData = await groupApi.listGroups(limit, offset);
   let groups = groupsData.data;
-  return Promise.all(groups.map(async group => { let groupWithUsers = await groupApi.getGroup(group.uuid);
+  return Promise.all(groups.map(async group => {
+    let groupWithUsers = await groupApi.getGroup(group.uuid);
     return { ...group, members: groupWithUsers.principals };
+  })).then(data => ({
+    meta: {
+      ...groupsData.meta,
+      limit,
+      offset
+    },
+    data
   }));
 }
 
