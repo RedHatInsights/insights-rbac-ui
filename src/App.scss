@@ -61,3 +61,12 @@ ul.navigation-secondary {
     }
   }
 }
+
+.groups-table-detail {
+  &.heading {
+    margin: 0 !important
+  }
+  &.content {
+    margin-top: 0 !important
+  }
+}

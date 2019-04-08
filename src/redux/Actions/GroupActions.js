@@ -1,17 +1,15 @@
 import * as ActionTypes from '../ActionTypes';
 import * as GroupHelper from '../../Helpers/Group/GroupHelper';
 
-export const doFetchGroups = apiProps => ({
+export const doFetchGroups = (options = {}) => ({
   type: ActionTypes.FETCH_GROUPS,
-  payload: new Promise(resolve => {
-    resolve(GroupHelper.fetchGroups(apiProps));
-  })
+  payload: GroupHelper.fetchGroups(options)
 });
 
-export const fetchGroups = apiProps => (dispatch, getState) => {
+export const fetchGroups = (options) => (dispatch, getState) => {
   const { groupReducer: { isLoading }} = getState();
   if (!isLoading) {
-    return dispatch(doFetchGroups(apiProps));
+    return dispatch(doFetchGroups(options));
   }
 };
 
