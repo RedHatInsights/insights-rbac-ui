@@ -61,7 +61,7 @@ export const Routes = props => {
         <InsightsRoute path={ paths.groups } component={ Groups } rootClass="groups" />
         <InsightsRoute path={ paths.group } component={ Group } rootClass="group" />
         { /* Finally, catch all unmatched routes */ }
-        <Route render={ () => (some(paths, p => p === path) ? null : <Redirect to={ paths.users } />) } />
+        <Route render={ () => (some(paths, p => p === path) ? null : <Redirect to={ paths.groups } />) } />
       </Switch>
     </Suspense>
   );
