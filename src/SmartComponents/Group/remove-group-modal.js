@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Title, Bullseye } from '@patternfly/react-core';
+import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
 import { pipe } from 'rxjs';
@@ -35,6 +35,7 @@ const RemoveGroupModal = ({
   return (
     <Modal
       isOpen
+      isSmall
       title = { '' }
       onClose={ onCancel }
       actions={ [
@@ -47,11 +48,11 @@ const RemoveGroupModal = ({
       ] }
     >
       <Bullseye>
-        <div className="center_message">
-          <Title size={ 'xl' }>
+        <TextContent>
+          <Text component={ TextVariants.h1 }>
             Removing Group:  { group.name }
-          </Title>
-        </div>
+          </Text>
+        </TextContent>
       </Bullseye>
     </Modal>
   );
