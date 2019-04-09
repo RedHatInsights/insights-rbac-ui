@@ -45,6 +45,12 @@ class Groups extends Component {
       scrollToTop();
     }
 
+    componentDidUpdate(prevProps) {
+      if (this.props.groups !== prevProps.groups) {
+        this.setState({ rows: createInitialRows(this.props.groups) });
+      }
+    }
+
     handleOnPerPageSelect = limit => this.props.fetchGroups({
       offset: this.props.pagination.offset,
       limit

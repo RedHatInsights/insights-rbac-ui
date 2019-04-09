@@ -12,11 +12,10 @@ import './group.scss';
 const RemoveGroupModal = ({
   history: { goBack, push },
   removeGroup,
-  addNotification,
-  fetchGroups,
   fetchGroup,
+  fetchGroups,
   groupId,
-  groupName
+  group
 }) => {
   useEffect(() => {
     if (groupId) {
@@ -24,17 +23,14 @@ const RemoveGroupModal = ({
     }
   }, []);
 
+  if (!group) {
+    return null;
+  }
+
   const onSubmit = () => removeGroup(groupId)
   .then(() => pipe(fetchGroups(), push('/groups')));
 
-  const onCancel = () => pipe(
-    addNotification({
-      variant: 'warning',
-      title: 'Removing group',
-      description: 'Removing group was cancelled by the user.'
-    }),
-    goBack()
-  );
+  const onCancel = () => goBack();
 
   return (
     <Modal
@@ -53,7 +49,7 @@ const RemoveGroupModal = ({
       <Bullseye>
         <div className="center_message">
           <Title size={ 'xl' }>
-            Removing Group:  { groupName }
+            Removing Group:  { group.name }
           </Title>
         </div>
       </Bullseye>
@@ -71,19 +67,20 @@ RemoveGroupModal.propTypes = {
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   groupId: PropTypes.string,
-  groupName: PropTypes.string
+  group: PropTypes.object
 };
 
-const mapStateToProps = (state, { match: { params: { id }}}) => {
-  return {
-    groupId: id
-  };
-};
+const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }},
+  { match: { params: { id }}}) => ({
+  groupId: id,
+  group: selectedGroup,
+  isLoading
+});
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
-  fetchGroups,
   fetchGroup,
+  fetchGroups,
   removeGroup
 }, dispatch);
 
