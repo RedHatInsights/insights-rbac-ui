@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
+import isEqual from 'lodash/isEqual';
 import debouncePromise from 'awesome-debounce-promise';
 import { Section } from '@red-hat-insights/insights-frontend-components';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
@@ -46,7 +47,7 @@ class Groups extends Component {
     }
 
     componentDidUpdate(prevProps) {
-      if (this.props.groups !== prevProps.groups) {
+      if (!isEqual(this.props.groups, prevProps.groups)) {
         this.setState({ rows: createInitialRows(this.props.groups) });
       }
     }

@@ -15,16 +15,12 @@ export const fetchGroups = (options) => (dispatch, getState) => {
 
 export const fetchUsersByGroupId = apiProps => ({
   type: ActionTypes.FETCH_USERS_BY_GROUP_ID,
-  payload: new Promise(resolve => {
-    resolve(GroupHelper.fetchUsersByGroupId(apiProps));
-  })
+  payload: GroupHelper.fetchUsersByGroupId(apiProps)
 });
 
 export const fetchGroup = apiProps => ({
   type: ActionTypes.FETCH_GROUP,
-  payload: new Promise(resolve => {
-    resolve(GroupHelper.fetchGroup(apiProps));
-  })
+  payload: GroupHelper.fetchGroup(apiProps)
 });
 
 export const addGroup = (groupData) => ({

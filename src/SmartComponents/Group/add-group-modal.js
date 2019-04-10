@@ -48,7 +48,7 @@ const AddGroupModal = ({
   const onOptionSelect = (selectedValues = []) =>
   { selectedUsers = selectedValues.map(val => val.value); };
 
-  const dropdownItems = users ? users.map(user => ({ value: user.username, label: user.username, id: user.username })) : [];
+  const dropdownItems = users.map(user => ({ value: user.username, label: user.username, id: user.username }));
 
   const schema = {
     type: 'object',
@@ -94,6 +94,10 @@ const AddGroupModal = ({
       </Grid>
     </Modal>
   );
+};
+
+AddGroupModal.defaultProps = {
+  users: []
 };
 
 AddGroupModal.propTypes = {
