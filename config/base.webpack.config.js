@@ -43,14 +43,7 @@ const webpackConfig = {
           loader: 'css-loader'
         },
         {
-          loader: 'sass-loader',
-          options: {
-            includePaths: [
-              ...Object.values(pkg.sassIncludes).map(includePath =>
-                resolve(__dirname, `../${includePath}`)
-              )
-            ]
-          }
+          loader: 'sass-loader'
         }
       ]
     }, {
