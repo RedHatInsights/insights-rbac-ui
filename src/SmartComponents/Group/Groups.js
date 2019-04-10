@@ -2,6 +2,7 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
+import isEqual from 'lodash/isEqual';
 import debouncePromise from 'awesome-debounce-promise';
 import { Section } from '@red-hat-insights/insights-frontend-components';
 import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
@@ -43,6 +44,12 @@ class Groups extends Component {
     componentDidMount() {
       this.fetchData();
       scrollToTop();
+    }
+
+    componentDidUpdate(prevProps) {
+      if (!isEqual(this.props.groups, prevProps.groups)) {
+        this.setState({ rows: createInitialRows(this.props.groups) });
+      }
     }
 
     handleOnPerPageSelect = limit => this.props.fetchGroups({
@@ -125,6 +132,25 @@ class Groups extends Component {
       );
     }
 
+    actionResolver = (groupData, { rowIndex }) => {
+      if (rowIndex === 1) {
+        return null;
+      }
+
+      return [
+        {
+          title: 'Edit',
+          onClick: (event, rowId, group) =>
+            this.props.history.push(`/groups/edit/${group.uuid}`)
+        },
+        {
+          title: 'Delete',
+          onClick: (event, rowId, group) =>
+            this.props.history.push(`/groups/remove/${group.uuid}`)
+        }
+      ];
+    };
+
     render() {
       return (
         <Fragment>
@@ -139,6 +165,7 @@ class Groups extends Component {
               rows={ this.state.rows }
               cells={ columns }
               onSelect={ this.selectRow }
+              actionResolver={ this.actionResolver }
             >
               <TableHeader />
               <TableBody />
@@ -166,6 +193,10 @@ const mapDispatchToProps = dispatch => {
 };
 
 Groups.propTypes = {
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
+  }).isRequired,
   filteredItems: PropTypes.array,
   groups: PropTypes.array,
   platforms: PropTypes.array,

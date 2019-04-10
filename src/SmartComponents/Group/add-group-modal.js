@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -7,7 +7,7 @@ import Select from 'react-select';
 import FormRenderer from '../Common/FormRenderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
-import { addGroup, fetchGroups, updateGroup } from '../../redux/Actions/GroupActions';
+import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
 import { pipe } from 'rxjs';
 
 const AddGroupModal = ({
@@ -15,10 +15,18 @@ const AddGroupModal = ({
   addGroup,
   addNotification,
   fetchGroups,
+  fetchGroup,
   initialValues,
   users,
+  groupId,
   updateGroup
 }) => {
+  useEffect(() => {
+    if (groupId) {
+      fetchGroup(groupId);
+    }
+  }, []);
+
   const onSubmit = data => {
     const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
     initialValues
@@ -88,6 +96,10 @@ const AddGroupModal = ({
   );
 };
 
+AddGroupModal.defaultProps = {
+  users: []
+};
+
 AddGroupModal.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
@@ -95,16 +107,18 @@ AddGroupModal.propTypes = {
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
+  fetchGroup: PropTypes.func.isRequired,
   initialValues: PropTypes.object,
+  groupId: PropTypes.string,
   users: PropTypes.array,
   updateGroup: PropTypes.func.isRequired
 };
 
 const mapStateToProps = (state, { match: { params: { id }}}) => {
-  let groups = state.groupReducer.groups;
+  let selectedGroup = state.groupReducer.selectedGroup;
   return {
     users: state.userReducer.users,
-    initialValues: id && groups.find(item => item.uuid === id),
+    initialValues: id && selectedGroup,
     groupId: id
   };
 };
@@ -113,6 +127,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   updateGroup,
+  fetchGroup,
   fetchGroups
 }, dispatch);
 

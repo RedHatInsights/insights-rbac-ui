@@ -1,37 +1,41 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Title, Bullseye } from '@patternfly/react-core';
+import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
-import { fetchGroups, removeGroup } from '../../redux/Actions/GroupActions';
+import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
 import { pipe } from 'rxjs';
 import './group.scss';
 
 const RemoveGroupModal = ({
   history: { goBack, push },
   removeGroup,
-  addNotification,
+  fetchGroup,
   fetchGroups,
   groupId,
-  groupName
+  group
 }) => {
+  useEffect(() => {
+    if (groupId) {
+      fetchGroup(groupId);
+    }
+  }, []);
+
+  if (!group) {
+    return null;
+  }
+
   const onSubmit = () => removeGroup(groupId)
   .then(() => pipe(fetchGroups(), push('/groups')));
 
-  const onCancel = () => pipe(
-    addNotification({
-      variant: 'warning',
-      title: 'Removing group',
-      description: 'Removing group was cancelled by the user.'
-    }),
-    goBack()
-  );
+  const onCancel = () => goBack();
 
   return (
     <Modal
       isOpen
+      isSmall
       title = { '' }
       onClose={ onCancel }
       actions={ [
@@ -44,11 +48,11 @@ const RemoveGroupModal = ({
       ] }
     >
       <Bullseye>
-        <div className="center_message">
-          <Title size={ 'xl' }>
-            Removing Group:  { groupName }
-          </Title>
-        </div>
+        <TextContent>
+          <Text component={ TextVariants.h1 }>
+            Removing Group:  { group.name }
+          </Text>
+        </TextContent>
       </Bullseye>
     </Modal>
   );
@@ -62,23 +66,21 @@ RemoveGroupModal.propTypes = {
   removeGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
+  fetchGroup: PropTypes.func.isRequired,
   groupId: PropTypes.string,
-  groupName: PropTypes.string
+  group: PropTypes.object
 };
 
-const groupDetailsFromState = (state, id) =>
-  state.groupReducer.groups.find(group => group.uuid  === id);
-
-const mapStateToProps = (state, { match: { params: { id }}}) => {
-  let group = groupDetailsFromState(state, id);
-  return {
-    groupId: group.uuid,
-    groupName: group.name
-  };
-};
+const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }},
+  { match: { params: { id }}}) => ({
+  groupId: id,
+  group: selectedGroup,
+  isLoading
+});
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
+  fetchGroup,
   fetchGroups,
   removeGroup
 }, dispatch);
