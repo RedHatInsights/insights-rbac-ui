@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, Button, Title, Bullseye } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { fetchUsers, removeUser } from '../../redux/Actions/UserActions';
-import { pipe } from 'rxjs';
 import './user.scss';
 
 const RemoveUserModal = ({
@@ -18,16 +17,19 @@ const RemoveUserModal = ({
   userEmail
 }) => {
   const onSubmit = () => removeUser(userId)
-  .then(() => pipe(fetchUsers(), push('/users')));
+  .then(() => {
+    fetchUsers();
+    push('/users');
+  });
 
-  const onCancel = () => pipe(
+  const onCancel = () => {
     addNotification({
       variant: 'warning',
       title: 'Removing user',
       description: 'Removing user was cancelled by the user.'
-    }),
-    goBack()
-  );
+    });
+    goBack();
+  };
 
   return (
     <Modal

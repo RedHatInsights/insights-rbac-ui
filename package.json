@@ -24,7 +24,6 @@
     "redux-logger": "^3.0.6",
     "redux-promise-middleware": "^5.1.1",
     "redux-thunk": "^2.3.0",
-    "rxjs": "^6.3.3",
     "whatwg-fetch": "^3.0.0"
   },
   "jest": {
@@ -101,7 +100,7 @@
     "xhr-mock": "^2.4.1"
   },
   "scripts": {
-    "build": "webpack --config config/prod.webpack.config.js",
+    "build": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "test": "jest --passWithNoTests",
     "lint": "yarn eslint ./src",
     "lint:sass": "stylelint 'src/**/*.scss' --config .stylelintrc.json",

@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
-import { pipe } from 'rxjs';
 import './group.scss';
 
 const RemoveGroupModal = ({
@@ -28,7 +27,10 @@ const RemoveGroupModal = ({
   }
 
   const onSubmit = () => removeGroup(groupId)
-  .then(() => pipe(fetchGroups(), push('/groups')));
+  .then(() => {
+    fetchGroups();
+    push('/groups');
+  });
 
   const onCancel = () => goBack();
 
