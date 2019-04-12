@@ -8,7 +8,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { addUser, fetchUsers, updateUser } from '../../redux/Actions/UserActions';
-import { pipe } from 'rxjs';
 
 const AddUserModal = ({
   history: { goBack },
@@ -26,14 +25,14 @@ const AddUserModal = ({
       : addUser(data).then(() => fetchUsers()).then(goBack);
   };
 
-  const onCancel = () => pipe(
+  const onCancel = () => {
     addNotification({
       variant: 'warning',
       title: initialValues ? 'Editing approver' : 'Adding approver',
       description: initialValues ? 'Edit approver was cancelled by the user.' : 'Adding approver was cancelled by the user.'
-    }),
-    goBack()
-  );
+    });
+    goBack();
+  };
 
   let selectedGroups = [];
 

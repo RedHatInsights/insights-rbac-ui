@@ -8,7 +8,6 @@ import FormRenderer from '../Common/FormRenderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
-import { pipe } from 'rxjs';
 
 const AddGroupModal = ({
   history: { goBack },
@@ -34,14 +33,14 @@ const AddGroupModal = ({
       : addGroup(user_data).then(() => fetchGroups()).then(goBack);
   };
 
-  const onCancel = () => pipe(
+  const onCancel = () => {
     addNotification({
       variant: 'warning',
       title: initialValues ? 'Editing group' : 'Adding group',
       description: initialValues ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
-    }),
-    goBack()
-  );
+    });
+    goBack();
+  };
 
   let selectedUsers = [];
 
