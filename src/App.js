@@ -32,15 +32,14 @@ class App extends Component {
     return (
       <React.Fragment>
         <NotificationsPortal />
-        <PageHeader>
-          <Title size={ 'xl' }  style = { { margin: 12, padding: 12 } }>
+        <PageHeader style={ { paddingBottom: 0 } }>
+          <Title size="3xl">
             Role Based Access Control
           </Title>
+          <AppTabs />
         </PageHeader>
-        <Main style={ { backgroundColor: 'd3d3d3', margin: '0', padding: '0' } }>
-          <AppTabs>
-            <Routes childProps={ this.props } />
-          </AppTabs>
+        <Main>
+          <Routes childProps={ this.props } />
         </Main>
       </React.Fragment>
     );
@@ -51,4 +50,4 @@ App.propTypes = {
   history: PropTypes.object
 };
 
-export default withRouter (connect()(App));
+export default withRouter(connect()(App));
