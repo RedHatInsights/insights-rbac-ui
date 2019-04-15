@@ -29,7 +29,7 @@ const FormRenderer = ({ componentMapper, formContainer, ...rest }) => (
 
 FormRenderer.propTypes = {
   componentMapper: PropTypes.object,
-  formContainer: PropTypes.oneOf('default', 'modal')
+  formContainer: PropTypes.oneOf([ 'default', 'modal' ])
 };
 
 FormRenderer.defaultProps = {

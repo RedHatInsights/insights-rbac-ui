@@ -9,9 +9,10 @@ import { fetchGroups } from '../../redux/Actions/GroupActions';
 import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
 import AddUser from './add-user-modal';
 import RemoveUser from './remove-user-modal';
-import './user.scss';
 import { scrollToTop } from '../../Helpers/Shared/helpers';
 import { fetchGroupsByUserId } from '../../redux/Actions/UserActions';
+
+import './user.scss';
 
 class Users extends Component {
     state = {

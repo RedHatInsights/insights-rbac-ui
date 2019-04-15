@@ -7,10 +7,10 @@ exports[`<FilterToolbarItem /> should render correctly 1`] = `
   searchValue=""
 >
   <ToolbarGroup
-    className="searchToolbar"
+    className={null}
   >
     <div
-      className="pf-l-toolbar__group searchToolbar"
+      className="pf-l-toolbar__group"
     >
       <ToolbarItem
         className={null}
