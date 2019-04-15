@@ -11,10 +11,7 @@ import RemoveGroup from './remove-group-modal';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { createInitialRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import { fetchUsersByGroupId } from '../../redux/Actions/GroupActions';
 import { scrollToTop, getNewPage } from '../../Helpers/Shared/helpers';
-
-import './group.scss';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
