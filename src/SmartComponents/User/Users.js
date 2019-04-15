@@ -1,6 +1,7 @@
-import React, { Component, Fragment } from 'react';
-import propTypes from 'prop-types';
+import React, { Fragment, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
 
 import UserList from './UserList';
@@ -9,72 +10,49 @@ import { fetchUsers } from '../../redux/Actions/UserActions';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 
-class Users extends Component {
-    state = {
-      filteredItems: [],
-      isOpen: false,
-      filterValue: ''
-    };
+const Users = ({ users, isLoading, fetchUsers, fetchGroups }) => {
+  const [ filterValue, setFiltervalue ] = useState('');
 
-    fetchData = () => {
-      this.props.fetchUsers();
-      this.props.fetchGroups();
-    };
+  useEffect(() => {
+    fetchUsers();
+    fetchGroups();
+    scrollToTop();
+  }, []);
 
-    componentDidMount() {
-      this.fetchData();
-      scrollToTop();
-    }
+  let filteredItems = {
+    items: users
+    .filter(({ email }) => email.toLowerCase().includes(filterValue.trim().toLowerCase())),
+    isLoading: isLoading && users.length === 0
+  };
 
-  onFilterChange = filterValue => this.setState({ filterValue })
-
-  renderToolbar() {
-    return (
+  return (
+    <Fragment>
       <TableToolbar>
-        <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
+        <UsersFilterToolbar onFilterChange={ value => setFiltervalue(value) } filterValue={ filterValue } />
       </TableToolbar>
-    );
-  }
-
-  render() {
-    let filteredItems = {
-      items: this.props.users
-      .filter(({ email }) => email.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
-      isLoading: this.props.isLoading && this.props.users.length === 0
-    };
-
-    return (
-      <Fragment>
-        { this.renderToolbar() }
-        <UserList { ...filteredItems } noItems={ 'No Principals' }/>
-      </Fragment>
-    );
-  }
-}
-
-const mapStateToProps = (state) => {
-  return {
-    users: state.userReducer.users,
-    isLoading: state.userReducer.isUserDataLoading,
-    groups: state.groupReducer.groups,
-    searchFilter: state.userReducer.filterValue
-  };
+      <UserList { ...filteredItems } noItems={ 'No Principals' }/>
+    </Fragment>
+  );
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchUsers: apiProps => dispatch(fetchUsers(apiProps)),
-    fetchGroups: apiProps => dispatch(fetchGroups(apiProps))
-  };
-};
+const mapStateToProps = ({ userReducer: { users, isUserDataLoading }, groupReducer: { groups }}) => ({
+  users,
+  isLoading: isUserDataLoading,
+  groups
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  fetchUsers,
+  fetchGroups
+}, dispatch);
 
 Users.propTypes = {
-  filteredItems: propTypes.array,
-  users: propTypes.array,
-  isLoading: propTypes.bool,
-  searchFilter: propTypes.string,
-  fetchUsers: propTypes.func.isRequired,
-  fetchGroups: propTypes.func.isRequired
+  users: PropTypes.arrayOf(PropTypes.shape({
+    email: PropTypes.string.isRequired
+  })),
+  isLoading: PropTypes.bool,
+  fetchUsers: PropTypes.func.isRequired,
+  fetchGroups: PropTypes.func.isRequired
 };
 
 Users.defaultProps = {
