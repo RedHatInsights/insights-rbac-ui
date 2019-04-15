@@ -6,7 +6,6 @@ import { bindActionCreators } from 'redux';
 import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
 import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
-import './group.scss';
 
 const RemoveGroupModal = ({
   history: { goBack, push },

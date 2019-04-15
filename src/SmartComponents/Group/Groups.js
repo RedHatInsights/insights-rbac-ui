@@ -131,7 +131,6 @@ const mapStateToProps = ({ groupReducer: { groups, isLoading }, userReducer: { u
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroups: apiProps => dispatch(fetchGroups(apiProps)),
-    fetchUsersByGroupId: apiProps => dispatch(fetchUsersByGroupId(apiProps)),
     fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
   };
 };
@@ -147,7 +146,6 @@ Groups.propTypes = {
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
   fetchUsers: PropTypes.func.isRequired,
-  fetchUsersByGroupId: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,

@@ -10,11 +10,9 @@ const AppTabs = ({ history: { push }, location: { pathname }}) => {
   const handleTabClick = (_event, tabIndex) => push(tabItems[tabIndex].name);
 
   return (
-    <div className="bg-white pf-u-mt-md">
-      <Tabs activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
-        { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
-      </Tabs>
-    </div>
+    <Tabs className="pf-u-mt-md" activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
+      { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
+    </Tabs>
   );
 };
 

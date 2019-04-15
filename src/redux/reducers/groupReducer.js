@@ -14,7 +14,6 @@ export const groupsInitialState = {
     }
   },
   group: {},
-  filterValue: '',
   isLoading: false
 };
 

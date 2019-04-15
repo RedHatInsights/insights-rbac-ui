@@ -7,8 +7,3 @@ export async function fetchUsers() {
   let users = usersData.data;
   return users;
 }
-
-export async function updateUser(data) {
-  await principalApi.updateUser(data.id, data);
-}
-

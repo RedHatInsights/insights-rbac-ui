@@ -1,18 +1,13 @@
 import React, { Component, Fragment } from 'react';
-import { connect } from 'react-redux';
 import propTypes from 'prop-types';
-import { Route } from 'react-router-dom';
+import { connect } from 'react-redux';
+import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
+
 import UserList from './UserList';
-import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
+import { scrollToTop } from '../../Helpers/Shared/helpers';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
-import AddUser from './add-user-modal';
-import RemoveUser from './remove-user-modal';
-import { scrollToTop } from '../../Helpers/Shared/helpers';
-import { fetchGroupsByUserId } from '../../redux/Actions/UserActions';
-
-import './user.scss';
+import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 
 class Users extends Component {
     state = {
@@ -50,11 +45,8 @@ class Users extends Component {
 
     return (
       <Fragment>
-        <Route exact path="/users/add-user" component={ AddUser } />
-        <Route exact path="/users/edit/:id" component={ AddUser } />
-        <Route exact path="/users/remove/:id" component={ RemoveUser } />
         { this.renderToolbar() }
-        <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId={ this.props.fetchGroupsByUserId }/>
+        <UserList { ...filteredItems } noItems={ 'No Principals' }/>
       </Fragment>
     );
   }
@@ -72,7 +64,6 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = dispatch => {
   return {
     fetchUsers: apiProps => dispatch(fetchUsers(apiProps)),
-    fetchGroupsByUserId: apiProps => dispatch(fetchGroupsByUserId(apiProps)),
     fetchGroups: apiProps => dispatch(fetchGroups(apiProps))
   };
 };
@@ -83,8 +74,7 @@ Users.propTypes = {
   isLoading: propTypes.bool,
   searchFilter: propTypes.string,
   fetchUsers: propTypes.func.isRequired,
-  fetchGroups: propTypes.func.isRequired,
-  fetchGroupsByUserId: propTypes.func.isRequired
+  fetchGroups: propTypes.func.isRequired
 };
 
 Users.defaultProps = {

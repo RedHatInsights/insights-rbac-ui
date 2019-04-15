@@ -4,14 +4,12 @@ import React, { lazy, Suspense } from 'react';
 import { AppPlaceholder } from './PresentationalComponents/Shared/LoaderPlaceholders';
 
 const Users = lazy(() => import('./SmartComponents/User/Users'));
-const User = lazy(() => import('./SmartComponents/User/User'));
 const Groups = lazy(() => import('./SmartComponents/Group/Groups'));
 const Group = lazy(() => import('./SmartComponents/Group/Group'));
 
 const paths = {
   rbac: '/',
   users: '/users',
-  user: '/user/:id',
   groups: '/groups',
   group: '/group/:id'
 };
@@ -33,7 +31,6 @@ export const Routes = () => {
     <Suspense fallback={ <AppPlaceholder /> }>
       <Switch>
         <InsightsRoute path={ paths.users } component={ Users } rootClass="users"/>
-        <InsightsRoute path={ paths.user } component={ User } rootClass="user"/>
         <InsightsRoute path={ paths.groups } component={ Groups } rootClass="groups" />
         <InsightsRoute path={ paths.group } component={ Group } rootClass="group" />
         <Route render={ () => <Redirect to={ paths.groups } /> } />

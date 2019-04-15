@@ -38,12 +38,13 @@ class UserList extends Component {
         </div>
         { (this.props.items && this.props.items.length > 0) && (
           <DataList aria-label="Expandable data list">
-            { this.props.items.map((item) => {
-              return (
-                <User key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
-            }
-            )
-            }
+            { this.props.items.map(item => (
+              <User
+                key= { item.email }
+                item={ item }
+                isExpanded={ this.isExpanded }
+                toggleExpand={ this.toggleExpand }/>
+            )) }
           </DataList>)
         }
       </React.Fragment>

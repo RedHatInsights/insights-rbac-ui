@@ -6,11 +6,6 @@ export const fetchGroups = (options = {}) => ({
   payload: GroupHelper.fetchGroups(options)
 });
 
-export const fetchUsersByGroupId = apiProps => ({
-  type: ActionTypes.FETCH_USERS_BY_GROUP_ID,
-  payload: GroupHelper.fetchUsersByGroupId(apiProps)
-});
-
 export const fetchGroup = apiProps => ({
   type: ActionTypes.FETCH_GROUP,
   payload: GroupHelper.fetchGroup(apiProps)
@@ -30,20 +25,6 @@ export const addGroup = (groupData) => ({
         variant: 'danger',
         title: 'Failed adding group',
         description: 'The group was not added successfuly.'
-      }
-    }
-  }
-});
-
-export const addToGroup = (groupId, items) => ({
-  type: ActionTypes.ADD_TO_GROUP,
-  payload: GroupHelper.addToGroup(groupId, items),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding users',
-        description: 'Users were successfully added to group.'
       }
     }
   }
