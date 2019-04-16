@@ -5,6 +5,9 @@ cache:
   - "$HOME/.npm"
 node_js:
 - '10'
+env:
+  global:
+  - NODE_OPTIONS="--max-old-space-size=4096 --max_old_space_size=4096"
 install:
 - npm install
 - npm install -g codecov
