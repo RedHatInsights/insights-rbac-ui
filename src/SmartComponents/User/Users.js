@@ -2,17 +2,17 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import propTypes from 'prop-types';
 import { Route } from 'react-router-dom';
-import { Toolbar } from '@patternfly/react-core';
-import { Section } from '@red-hat-insights/insights-frontend-components';
 import UserList from './UserList';
 import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
+import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
 import AddUser from './add-user-modal';
 import RemoveUser from './remove-user-modal';
-import './user.scss';
 import { scrollToTop } from '../../Helpers/Shared/helpers';
 import { fetchGroupsByUserId } from '../../redux/Actions/UserActions';
+
+import './user.scss';
 
 class Users extends Component {
     state = {
@@ -35,9 +35,9 @@ class Users extends Component {
 
   renderToolbar() {
     return (
-      <Toolbar className="searchToolbar">
+      <TableToolbar>
         <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
-      </Toolbar>
+      </TableToolbar>
     );
   }
 
@@ -53,10 +53,8 @@ class Users extends Component {
         <Route exact path="/users/add-user" component={ AddUser } />
         <Route exact path="/users/edit/:id" component={ AddUser } />
         <Route exact path="/users/remove/:id" component={ RemoveUser } />
-        <Section type='content'>
-          { this.renderToolbar() }
-          <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId={ this.props.fetchGroupsByUserId }/>
-        </Section>
+        { this.renderToolbar() }
+        <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId={ this.props.fetchGroupsByUserId }/>
       </Fragment>
     );
   }

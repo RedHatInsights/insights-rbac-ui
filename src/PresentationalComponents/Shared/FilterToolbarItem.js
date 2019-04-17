@@ -3,7 +3,7 @@ import propTypes from 'prop-types';
 import { ToolbarGroup, ToolbarItem, Button, TextInput } from '@patternfly/react-core';
 
 const FilterToolbarItem = ({ searchValue, onFilterChange, placeholder }) => (
-  <ToolbarGroup className="searchToolbar">
+  <ToolbarGroup>
     <ToolbarItem>
       <div className="pf-c-input-group">
         <TextInput placeholder={ placeholder } value={ searchValue } type="text" onChange={ onFilterChange }

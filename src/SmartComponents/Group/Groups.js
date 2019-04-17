@@ -4,10 +4,10 @@ import PropTypes from 'prop-types';
 import { Route, Link } from 'react-router-dom';
 import isEqual from 'lodash/isEqual';
 import debouncePromise from 'awesome-debounce-promise';
-import { Section } from '@red-hat-insights/insights-frontend-components';
-import { Toolbar, ToolbarGroup, ToolbarItem, Button } from '@patternfly/react-core';
+import { Toolbar, ToolbarGroup, ToolbarItem, Button, Level, LevelItem } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
 import { Pagination } from '@red-hat-insights/insights-frontend-components/components/Pagination';
+import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
 
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -102,22 +102,29 @@ class Groups extends Component {
 
     renderToolbar() {
       return (
-        <Toolbar className="searchToolbar">
-          <GroupsFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
-          <ToolbarGroup>
-            <ToolbarItem>
-              <Link to="/groups/add-group">
-                <Button
-                  variant="primary"
-                  aria-label="Create Group"
-                >
-                Create Group
-                </Button>
-              </Link>
-            </ToolbarItem>
-          </ToolbarGroup>
-          <ToolbarGroup>
-            <ToolbarItem>
+        <TableToolbar>
+          <Level style={ { flex: 1 } }>
+            <LevelItem>
+              <Toolbar>
+                <ToolbarGroup>
+                  <ToolbarItem>
+                    <GroupsFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue }/>
+                  </ToolbarItem>
+                </ToolbarGroup>
+                <ToolbarGroup>
+                  <ToolbarItem>
+                  </ToolbarItem>
+                  <ToolbarItem>
+                    <Link to="/groups/add-group">
+                      <Button variant="primary" aria-label="Create Group">
+                      Create Group
+                      </Button>
+                    </Link>
+                  </ToolbarItem>
+                </ToolbarGroup>
+              </Toolbar>
+            </LevelItem>
+            <LevelItem>
               <Pagination
                 itemsPerPage={ this.props.pagination.limit || 50 }
                 numberOfItems={ this.props.pagination.count || 50 }
@@ -126,9 +133,9 @@ class Groups extends Component {
                 onSetPage={ this.handleSetPage }
                 direction="down"
               />
-            </ToolbarItem>
-          </ToolbarGroup>
-        </Toolbar>
+            </LevelItem>
+          </Level>
+        </TableToolbar>
       );
     }
 
@@ -157,20 +164,18 @@ class Groups extends Component {
           <Route exact path="/groups/add-group" component={ AddGroup } />
           <Route exact path="/groups/edit/:id" component={ AddGroup } />
           <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
-          <Section type='content'>
-            { this.renderToolbar() }
-            <Table
-              aria-label="Groups table"
-              onCollapse={ this.onCollapse }
-              rows={ this.state.rows }
-              cells={ columns }
-              onSelect={ this.selectRow }
-              actionResolver={ this.actionResolver }
-            >
-              <TableHeader />
-              <TableBody />
-            </Table>
-          </Section>
+          { this.renderToolbar() }
+          <Table
+            aria-label="Groups table"
+            onCollapse={ this.onCollapse }
+            rows={ this.state.rows }
+            cells={ columns }
+            onSelect={ this.selectRow }
+            actionResolver={ this.actionResolver }
+          >
+            <TableHeader />
+            <TableBody />
+          </Table>
         </Fragment>
       );
     }
