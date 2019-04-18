@@ -113,5 +113,8 @@
   },
   "insights": {
     "appname": "rbac"
-  }
+  },
+  "sideEffects": [
+    "*.scss"
+  ]
 }

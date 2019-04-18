@@ -2,8 +2,6 @@
 
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const config = require('./webpack.common.js');
-const { resolve } = require('path');
-const pkg = require('../package.json');
 
 const webpackConfig = {
   mode: process.env.NODE_ENV === 'production' ? 'production' : 'development',
@@ -38,7 +36,7 @@ const webpackConfig = {
     }, {
       test: /\.s?[ac]ss$/,
       use: [
-        process.env.NODE_ENV === 'production' ? 'style-loader' : MiniCssExtractPlugin.loader,
+        MiniCssExtractPlugin.loader,
         {
           loader: 'css-loader'
         },
