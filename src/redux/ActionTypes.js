@@ -1,14 +1,8 @@
-export const FETCH_USER = 'FETCH_USER';
 export const FETCH_USERS = 'FETCH_USERS';
-export const FILTER_USER_ITEMS = 'FILTER_USER_ITEMS';
-export const REMOVE_USER = 'REMOVE_USER';
 
 export const FETCH_GROUP = 'FETCH_GROUP';
 export const FETCH_GROUPS = 'FETCH_GROUPS';
-export const FETCH_GROUPS_BY_USER_ID = 'FETCH_GROUPS_BY_USER_ID';
-export const FETCH_USERS_BY_GROUP_ID = 'FETCH_USERS_BY_GROUP_ID';
 
-export const ADD_TO_GROUP = 'ADD_TO_GROUP';
 export const ADD_GROUP = 'ADD_GROUP';
 export const UPDATE_GROUP = 'UPDATE_GROUP';
 export const REMOVE_GROUP = 'REMOVE_GROUP';

@@ -11,10 +11,7 @@ import RemoveGroup from './remove-group-modal';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { createInitialRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import { fetchUsersByGroupId } from '../../redux/Actions/GroupActions';
 import { scrollToTop, getNewPage } from '../../Helpers/Shared/helpers';
-
-import './group.scss';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
@@ -131,7 +128,6 @@ const mapStateToProps = ({ groupReducer: { groups, isLoading }, userReducer: { u
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroups: apiProps => dispatch(fetchGroups(apiProps)),
-    fetchUsersByGroupId: apiProps => dispatch(fetchUsersByGroupId(apiProps)),
     fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
   };
 };
@@ -147,7 +143,6 @@ Groups.propTypes = {
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
   fetchUsers: PropTypes.func.isRequired,
-  fetchUsersByGroupId: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,

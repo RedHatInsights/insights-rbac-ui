@@ -1,60 +1,52 @@
-import React, { Component } from 'react';
-import propTypes from 'prop-types';
-import { PageHeader, PageHeaderTitle } from '@red-hat-insights/insights-frontend-components';
+import React, { useState } from 'react';
+import PropTypes from 'prop-types';
 import { DataList } from '@patternfly/react-core';
+import { PageHeader, PageHeaderTitle } from '@red-hat-insights/insights-frontend-components';
+
 import User from './User';
 
-class UserList extends Component {
+const UserList = ({ isLoading, noItems, items }) => {
+  const [ expanded, setExpanded ] = useState([]);
 
-  state= {
-    expanded: []
-  };
-
-  toggleExpand = id => {
-    const expanded = this.state.expanded;
+  const toggleExpand = id => {
     const index = expanded.indexOf(id);
-    const newExpanded =
-        index >= 0 ? [ ...expanded.slice(0, index), ...expanded.slice(index + 1, expanded.length) ] : [ ...expanded, id ];
-    this.setState(() => ({ expanded: newExpanded }));
+    const newExpanded = index >= 0 ? [ ...expanded.slice(0, index), ...expanded.slice(index + 1, expanded.length) ] : [ ...expanded, id ];
+    setExpanded(newExpanded);
   };
 
-  isExpanded = key => {
-    return this.state.expanded.includes(key);
-  };
+  const isExpanded = key => expanded.includes(key);
 
-  render() {
-    if (this.props.isLoading) {
-      return (
-        <PageHeader>
-          <PageHeaderTitle title={ this.props.noItems }/>
-        </PageHeader>
-      );
-    }
-
+  if (isLoading) {
     return (
-      <React.Fragment>
-        <div>
-          { this.props.isLoading && (<span color={ '#00b9e4' }> Loading...</span>) }
-        </div>
-        { (this.props.items && this.props.items.length > 0) && (
-          <DataList aria-label="Expandable data list">
-            { this.props.items.map((item) => {
-              return (
-                <User key= { item.id } item={ item } isExpanded={ this.isExpanded } toggleExpand={ this.toggleExpand }/>);
-            }
-            )
-            }
-          </DataList>)
-        }
-      </React.Fragment>
+      <PageHeader>
+        <PageHeaderTitle title={ noItems }/>
+      </PageHeader>
     );
-  };
-}
+  }
+
+  return (
+    <DataList aria-label="Expandable data list">
+      { items.map(item => (
+        <User
+          key= { item.email }
+          item={ item }
+          isExpanded={ isExpanded }
+          toggleExpand={ toggleExpand }/>
+      )) }
+    </DataList>
+  );
+};
 
 UserList.propTypes = {
-  isLoading: propTypes.bool,
-  items: propTypes.array,
-  noItems: propTypes.string
+  isLoading: PropTypes.bool,
+  items: PropTypes.arrayOf(PropTypes.shape({
+    email: PropTypes.string.isRequired
+  })),
+  noItems: PropTypes.string
+};
+
+UserList.defaultProps = {
+  items: []
 };
 
 export default UserList;

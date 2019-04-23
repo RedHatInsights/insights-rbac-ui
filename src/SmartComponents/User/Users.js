@@ -1,90 +1,58 @@
-import React, { Component, Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import propTypes from 'prop-types';
-import { Route } from 'react-router-dom';
+import { bindActionCreators } from 'redux';
+import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
+
 import UserList from './UserList';
-import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
+import { scrollToTop } from '../../Helpers/Shared/helpers';
 import { fetchUsers } from '../../redux/Actions/UserActions';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
-import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
-import AddUser from './add-user-modal';
-import RemoveUser from './remove-user-modal';
-import { scrollToTop } from '../../Helpers/Shared/helpers';
-import { fetchGroupsByUserId } from '../../redux/Actions/UserActions';
+import UsersFilterToolbar from '../../PresentationalComponents/User/UsersFilterToolbar';
 
-import './user.scss';
+const Users = ({ users, isLoading, fetchUsers, fetchGroups }) => {
+  const [ filterValue, setFiltervalue ] = useState('');
 
-class Users extends Component {
-    state = {
-      filteredItems: [],
-      isOpen: false,
-      filterValue: ''
-    };
+  useEffect(() => {
+    fetchUsers();
+    fetchGroups();
+    scrollToTop();
+  }, []);
 
-    fetchData = () => {
-      this.props.fetchUsers();
-      this.props.fetchGroups();
-    };
+  let filteredItems = {
+    items: users
+    .filter(({ email }) => email.toLowerCase().includes(filterValue.trim().toLowerCase())),
+    isLoading: isLoading && users.length === 0
+  };
 
-    componentDidMount() {
-      this.fetchData();
-      scrollToTop();
-    }
-
-  onFilterChange = filterValue => this.setState({ filterValue })
-
-  renderToolbar() {
-    return (
+  return (
+    <Fragment>
       <TableToolbar>
-        <UsersFilterToolbar onFilterChange={ this.onFilterChange } filterValue={ this.state.filterValue } />
+        <UsersFilterToolbar onFilterChange={ value => setFiltervalue(value) } filterValue={ filterValue } />
       </TableToolbar>
-    );
-  }
-
-  render() {
-    let filteredItems = {
-      items: this.props.users
-      .filter(({ email }) => email.toLowerCase().includes(this.state.filterValue.trim().toLowerCase())),
-      isLoading: this.props.isLoading && this.props.users.length === 0
-    };
-
-    return (
-      <Fragment>
-        <Route exact path="/users/add-user" component={ AddUser } />
-        <Route exact path="/users/edit/:id" component={ AddUser } />
-        <Route exact path="/users/remove/:id" component={ RemoveUser } />
-        { this.renderToolbar() }
-        <UserList { ...filteredItems } noItems={ 'No Principals' } fetchGroupsByUserId={ this.props.fetchGroupsByUserId }/>
-      </Fragment>
-    );
-  }
-}
-
-const mapStateToProps = (state) => {
-  return {
-    users: state.userReducer.users,
-    isLoading: state.userReducer.isUserDataLoading,
-    groups: state.groupReducer.groups,
-    searchFilter: state.userReducer.filterValue
-  };
+      <UserList { ...filteredItems } noItems={ 'No Principals' }/>
+    </Fragment>
+  );
 };
 
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchUsers: apiProps => dispatch(fetchUsers(apiProps)),
-    fetchGroupsByUserId: apiProps => dispatch(fetchGroupsByUserId(apiProps)),
-    fetchGroups: apiProps => dispatch(fetchGroups(apiProps))
-  };
-};
+const mapStateToProps = ({ userReducer: { users, isUserDataLoading }, groupReducer: { groups }}) => ({
+  users,
+  isLoading: isUserDataLoading,
+  groups
+});
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+  fetchUsers,
+  fetchGroups
+}, dispatch);
 
 Users.propTypes = {
-  filteredItems: propTypes.array,
-  users: propTypes.array,
-  isLoading: propTypes.bool,
-  searchFilter: propTypes.string,
-  fetchUsers: propTypes.func.isRequired,
-  fetchGroups: propTypes.func.isRequired,
-  fetchGroupsByUserId: propTypes.func.isRequired
+  users: PropTypes.arrayOf(PropTypes.shape({
+    email: PropTypes.string.isRequired
+  })),
+  isLoading: PropTypes.bool,
+  fetchUsers: PropTypes.func.isRequired,
+  fetchGroups: PropTypes.func.isRequired
 };
 
 Users.defaultProps = {
