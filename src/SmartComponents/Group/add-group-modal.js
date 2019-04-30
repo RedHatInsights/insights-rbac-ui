@@ -10,7 +10,7 @@ import { addNotification } from '@red-hat-insights/insights-frontend-components/
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
 
 const AddGroupModal = ({
-  history: { goBack },
+  history: { push },
   addGroup,
   addNotification,
   fetchGroups,
@@ -29,8 +29,8 @@ const AddGroupModal = ({
   const onSubmit = data => {
     const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
     initialValues
-      ? updateGroup(user_data).then(() => fetchGroups()).then(goBack)
-      : addGroup(user_data).then(() => fetchGroups()).then(goBack);
+      ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
+      : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
   };
 
   const onCancel = () => {
@@ -39,7 +39,7 @@ const AddGroupModal = ({
       title: initialValues ? 'Editing group' : 'Adding group',
       description: initialValues ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
-    goBack();
+    push('/groups');
   };
 
   let selectedUsers = [];
@@ -116,7 +116,6 @@ AddGroupModal.propTypes = {
 const mapStateToProps = (state, { match: { params: { id }}}) => {
   let selectedGroup = state.groupReducer.selectedGroup;
   return {
-    users: state.userReducer.users,
     initialValues: id && selectedGroup,
     groupId: id
   };

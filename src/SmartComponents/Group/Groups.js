@@ -8,20 +8,18 @@ import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-tab
 import AddGroup from './add-group-modal';
 import GroupsToolbar from './groups-toolbar';
 import RemoveGroup from './remove-group-modal';
-import { fetchUsers } from '../../redux/Actions/UserActions';
 import { createInitialRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/Actions/GroupActions';
 import { scrollToTop, getNewPage } from '../../Helpers/Shared/helpers';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
-const Groups = ({ fetchGroups, fetchUsers, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
     fetchGroups().then(({ value: { data }}) => setRows(createInitialRows(data)));
-    fetchUsers();
     scrollToTop();
   }, []);
 
@@ -117,18 +115,16 @@ const Groups = ({ fetchGroups, fetchUsers, pagination, history: { push }}) => {
   );
 };
 
-const mapStateToProps = ({ groupReducer: { groups, isLoading }, userReducer: { users, filterValue }}) => ({
+const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) => ({
   groups: groups.data,
   pagination: groups.meta,
-  users,
   isLoading,
   searchFilter: filterValue
 });
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchGroups: apiProps => dispatch(fetchGroups(apiProps)),
-    fetchUsers: apiProps => dispatch(fetchUsers(apiProps))
+    fetchGroups: apiProps => dispatch(fetchGroups(apiProps))
   };
 };
 
@@ -142,7 +138,6 @@ Groups.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
-  fetchUsers: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
