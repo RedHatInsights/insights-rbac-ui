@@ -1,16 +1,15 @@
-import { FETCH_USERS } from '../../redux/ActionTypes';
+import { FETCH_USER } from '../../redux/ActionTypes';
 
 // Initial State
 export const usersInitialState = {
-  users: [],
-  user: {},
+  selectedUser: {},
   isUserDataLoading: false
 };
 
 const setLoadingState = state => ({ ...state, isUserDataLoading: true });
-const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoading: false });
+const setUser = (state, { payload }) => ({ ...state, selectedUser: payload, isUserDataLoading: false });
 
 export default {
-  [`${FETCH_USERS}_PENDING`]: setLoadingState,
-  [`${FETCH_USERS}_FULFILLED`]: setUsers
+  [`${FETCH_USER}_PENDING`]: setLoadingState,
+  [`${FETCH_USER}_FULFILLED`]: setUser
 };

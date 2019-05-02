@@ -1,9 +1,9 @@
 import * as ActionTypes from '../ActionTypes';
 import * as UserHelper from '../../Helpers/User/UserHelper';
 
-export const fetchUsers = () => ({
-  type: ActionTypes.FETCH_USERS,
+export const fetchUser = () => ({
+  type: ActionTypes.FETCH_USER,
   payload: new Promise(resolve => {
-    resolve(UserHelper.fetchUsers());
+    resolve(UserHelper.fetchUser());
   })
 });
