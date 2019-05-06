@@ -82,6 +82,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
       },
       {
         title: 'Delete',
+        style: { color: 'var(--pf-global--danger-color--100)'	},
         onClick: (_event, _rowId, group) =>
           push(`/groups/remove/${group.uuid}`)
       }
