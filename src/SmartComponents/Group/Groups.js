@@ -69,25 +69,21 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
     ? setRows(rows.map(row => ({ ...row, selected })))
     : setRows(rows => handleSelected(rows, uuid));
 
-  const actionResolver = (_groupData, { rowIndex }) => {
-    if (rowIndex === 1) {
-      return null;
-    }
-
-    return [
-      {
-        title: 'Edit',
-        onClick: (_event, _rowId, group) =>
-          push(`/groups/edit/${group.uuid}`)
-      },
-      {
-        title: 'Delete',
-        style: { color: 'var(--pf-global--danger-color--100)'	},
-        onClick: (_event, _rowId, group) =>
-          push(`/groups/remove/${group.uuid}`)
-      }
-    ];
-  };
+  const actionResolver = (_groupData, { rowIndex }) =>
+    rowIndex % 2 === 1 ? null :
+      [
+        {
+          title: 'Edit',
+          onClick: (_event, _rowId, group) =>
+            push(`/groups/edit/${group.uuid}`)
+        },
+        {
+          title: 'Delete',
+          style: { color: 'var(--pf-global--danger-color--100)'	},
+          onClick: (_event, _rowId, group) =>
+            push(`/groups/remove/${group.uuid}`)
+        }
+      ];
 
   return (
     <Fragment>
