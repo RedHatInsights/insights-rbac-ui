@@ -13,7 +13,8 @@ const RemoveGroupModal = ({
   fetchGroup,
   fetchGroups,
   groupId,
-  group
+  group,
+  pagination
 }) => {
   useEffect(() => {
     if (groupId) {
@@ -27,7 +28,7 @@ const RemoveGroupModal = ({
 
   const onSubmit = () => removeGroup(groupId)
   .then(() => {
-    fetchGroups();
+    fetchGroups(pagination);
     push('/groups');
   });
 
@@ -69,14 +70,20 @@ RemoveGroupModal.propTypes = {
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   groupId: PropTypes.string,
-  group: PropTypes.object
+  group: PropTypes.object,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
+    offset: PropTypes.number.isRequired,
+    count: PropTypes.number.isRequired
+  })
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }},
+const mapStateToProps = ({ groupReducer: { groups, selectedGroup, isLoading }},
   { match: { params: { id }}}) => ({
   groupId: id,
   group: selectedGroup,
-  isLoading
+  isLoading,
+  pagination: groups.meta
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({

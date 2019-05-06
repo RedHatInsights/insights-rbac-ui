@@ -18,7 +18,8 @@ const AddGroupModal = ({
   initialValues,
   users,
   groupId,
-  updateGroup
+  updateGroup,
+  pagination,
 }) => {
   useEffect(() => {
     if (groupId) {
@@ -29,8 +30,8 @@ const AddGroupModal = ({
   const onSubmit = data => {
     const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
     initialValues
-      ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
-      : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
+      ? updateGroup(user_data).then(() => fetchGroups(pagination)).then(push('/groups'))
+      : addGroup(user_data).then(() => fetchGroups(pagination)).then(push('/groups'));
   };
 
   const onCancel = () => {
@@ -110,14 +111,20 @@ AddGroupModal.propTypes = {
   initialValues: PropTypes.object,
   groupId: PropTypes.string,
   users: PropTypes.array,
-  updateGroup: PropTypes.func.isRequired
+  updateGroup: PropTypes.func.isRequired,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
+    offset: PropTypes.number.isRequired,
+    count: PropTypes.number.isRequired
+  })
 };
 
 const mapStateToProps = (state, { match: { params: { id }}}) => {
   let selectedGroup = state.groupReducer.selectedGroup;
   return {
     initialValues: id && selectedGroup,
-    groupId: id
+    groupId: id,
+    pagination: state.groupReducer.groups.meta
   };
 };
 

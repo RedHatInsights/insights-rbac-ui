@@ -14,19 +14,23 @@ import { scrollToTop, getNewPage } from '../../Helpers/Shared/helpers';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
-const Groups = ({ fetchGroups, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
-    fetchGroups().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    fetchGroups();
     scrollToTop();
   }, []);
+
+  useEffect(() => {
+    setRows(createInitialRows(groups));
+  }, [ groups ]);
 
   const handleOnPerPageSelect = limit => fetchGroups({
     offset: pagination.offset,
     limit
-  }).then(({ value: { data }}) => setRows(createInitialRows(data)));
+  });
 
   const  handleSetPage = (number, debounce) => {
     const options = {
@@ -38,7 +42,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
       return debouncePromise(request, 250)();
     }
 
-    return request().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    return request();
   };
 
   const handleOpen = (data, uuid) => data.map(row => {
