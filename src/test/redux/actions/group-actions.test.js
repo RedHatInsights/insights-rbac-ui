@@ -1,7 +1,7 @@
 import configureStore from 'redux-mock-store' ;
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware, ADD_NOTIFICATION } from '@red-hat-insights/insights-frontend-components/components/Notifications';
+import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
 import {
   ADD_GROUP
 } from '../../../redux/ActionTypes';

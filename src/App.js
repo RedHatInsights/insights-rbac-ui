@@ -5,10 +5,10 @@ import { connect } from 'react-redux';
 import { Routes } from './Routes';
 import './App.scss';
 import AppTabs from './SmartComponents/AppTabs/AppTabs';
-import { Main, PageHeader } from '@red-hat-insights/insights-frontend-components';
+import { Main, PageHeader } from '@redhat-cloud-services/frontend-components';
 import { Title } from '@patternfly/react-core';
-import { NotificationsPortal } from '@red-hat-insights/insights-frontend-components/components/Notifications';
-import '@red-hat-insights/insights-frontend-components/components/Notifications.css';
+import { NotificationsPortal } from '@redhat-cloud-services/frontend-components-notifications/';
+import '@redhat-cloud-services/frontend-components-notifications/index.css';
 import { AppPlaceholder } from './PresentationalComponents/Shared/LoaderPlaceholders';
 
 class App extends Component {

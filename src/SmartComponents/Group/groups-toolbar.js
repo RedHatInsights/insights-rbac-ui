@@ -1,8 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-import { Pagination } from '@red-hat-insights/insights-frontend-components/components/Pagination';
-import { TableToolbar } from '@red-hat-insights/insights-frontend-components/components/TableToolbar';
+import { Pagination } from '@redhat-cloud-services/frontend-components/components/Pagination';
+import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
 import { Button, Level, LevelItem, Toolbar, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 
 import { getCurrentPage } from '../../Helpers/Shared/helpers';

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import Select from 'react-select';
 import FormRenderer from '../Common/FormRenderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
-import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
 
 const AddGroupModal = ({
