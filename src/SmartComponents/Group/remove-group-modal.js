@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { addNotification } from '@red-hat-insights/insights-frontend-components/components/Notifications';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchGroups, fetchGroup, removeGroup } from '../../redux/Actions/GroupActions';
 
 const RemoveGroupModal = ({
