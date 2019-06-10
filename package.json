@@ -19,7 +19,7 @@
     "react-dom": "^16.8.3",
     "react-redux": "^5.0.7",
     "react-router-dom": "^5.0.0",
-    "react-select": "^2.1.2",
+    "react-select": "^3.0.4",
     "redux": "^3.7.2",
     "redux-logger": "^3.0.6",
     "redux-promise-middleware": "^5.1.1",

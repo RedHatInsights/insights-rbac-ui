@@ -3,11 +3,15 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import FormRenderer from '../Common/FormRenderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
+
+const components = {
+  DropdownIndicator: null
+};
 
 const AddGroupModal = ({
   history: { push },
@@ -18,7 +22,8 @@ const AddGroupModal = ({
   initialValues,
   users,
   groupId,
-  updateGroup
+  updateGroup,
+  inputValue
 }) => {
   useEffect(() => {
     if (groupId) {
@@ -44,11 +49,6 @@ const AddGroupModal = ({
 
   let selectedUsers = [];
 
-  const onOptionSelect = (selectedValues = []) =>
-  { selectedUsers = selectedValues.map(val => val.value); };
-
-  const dropdownItems = users.map(user => ({ value: user.username, label: user.username, id: user.username }));
-
   const schema = {
     type: 'object',
     properties: {
@@ -56,6 +56,34 @@ const AddGroupModal = ({
       description: { title: 'Description', type: 'string' }
     },
     required: [ 'name' ]
+  };
+
+  const handleChange = (value, actionMeta) => {
+    console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'value: ', value);
+    selectedUsers = value;
+  };
+
+  const handleInputChange = (val) => {
+    console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
+    inputValue = val;
+  };
+
+  const createOption = (label) => ({
+    label,
+    value: label
+  });
+
+  const handleKeyDown = (event) => {
+    if (!inputValue) {return;}
+
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'selectedUsers: ', selectedUsers);
+        selectedUsers =  [ ...selectedUsers, createOption(inputValue) ],
+        inputValue = '';
+        event.preventDefault();
+    }
   };
 
   return (
@@ -80,14 +108,17 @@ const AddGroupModal = ({
           <TextContent>
             <Text component={ TextVariants.h6 }>Select Members for this group.</Text>
           </TextContent>
-          <Select
-            isMulti={ true }
-            placeholders={ 'Select Members' }
-            options={ dropdownItems }
-            defaultValue={ (initialValues && initialValues.members) ? initialValues.members.map(
-              user => ({ value: user.username, label: `${user.username}`, id: user.username })) : [] }
-            onChange={ onOptionSelect }
-            closeMenuOnSelect={ false }
+          <CreatableSelect
+            components={ components }
+            inputValue={ initialValues }
+            isClearable
+            isMulti
+            menuIsOpen={ false }
+            onChange={ handleChange }
+            onInputChange={ handleInputChange }
+            onKeyDown={ handleKeyDown }
+            placeholder="Type the exact user name and press enter..."
+            value={ inputValue }
           />
         </GridItem>
       </Grid>
@@ -96,7 +127,8 @@ const AddGroupModal = ({
 };
 
 AddGroupModal.defaultProps = {
-  users: []
+  users: [],
+  selectedUsers: []
 };
 
 AddGroupModal.propTypes = {
@@ -109,6 +141,7 @@ AddGroupModal.propTypes = {
   fetchGroup: PropTypes.func.isRequired,
   initialValues: PropTypes.object,
   groupId: PropTypes.string,
+  inputValue: PropTypes.string,
   users: PropTypes.array,
   updateGroup: PropTypes.func.isRequired
 };
