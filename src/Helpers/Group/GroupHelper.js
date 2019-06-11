@@ -22,7 +22,7 @@ export async function fetchGroup(uuid) {
 export async function updateGroup(data) {
   await groupApi.updateGroup(data.uuid, data);
 
-  const members_list = data.members ? data.members.map(user => user.username) : [];
+  const members_list = data.principals ? data.principals.map(user => user.username) : [];
   let addUsers = data.user_list.filter(item => !members_list.includes(item.username));
   let removeUsers = members_list.filter(item => !(data.user_list.map(user => user.username).includes(item)));
   if (addUsers.length > 0) {
@@ -36,6 +36,7 @@ export async function updateGroup(data) {
 
 export async function addGroup(data) {
   let newGroup = await groupApi.createGroup(data);
+  console.log('Debug- addGroup - user_list', data.user_list);
   if (data.user_list && data.user_list.length > 0) {
     groupApi.addPrincipalToGroup(newGroup.uuid, { principals: data.user_list });
   }

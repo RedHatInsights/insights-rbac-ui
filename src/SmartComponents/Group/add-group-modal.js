@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -20,10 +20,8 @@ const AddGroupModal = ({
   fetchGroups,
   fetchGroup,
   initialValues,
-  users,
   groupId,
-  updateGroup,
-  inputValue
+  updateGroup
 }) => {
   useEffect(() => {
     if (groupId) {
@@ -31,8 +29,13 @@ const AddGroupModal = ({
     }
   }, []);
 
+  const [ inputValue, setInputValue ] = useState('');
+  const [ value, setValue ] = useState([]);
+
   const onSubmit = data => {
-    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
+    console.log('DEBUG - onSubmit value: ', value);
+    const user_data = { ...data, user_list: value.map(user => ({ username: user.label })) };
+    console.log('DEBUG - onSubmit user_data: ', user_data);
     initialValues
       ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
@@ -47,8 +50,6 @@ const AddGroupModal = ({
     push('/groups');
   };
 
-  let selectedUsers = [];
-
   const schema = {
     type: 'object',
     properties: {
@@ -58,14 +59,14 @@ const AddGroupModal = ({
     required: [ 'name' ]
   };
 
-  const handleChange = (value, actionMeta) => {
-    console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'value: ', value);
-    selectedUsers = value;
+  const handleChange = (val, actionMeta) => {
+    console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'val: ', val);
+    setValue(val);
   };
 
   const handleInputChange = (val) => {
     console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
-    inputValue = val;
+    setInputValue(val);
   };
 
   const createOption = (label) => ({
@@ -79,9 +80,10 @@ const AddGroupModal = ({
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'selectedUsers: ', selectedUsers);
-        selectedUsers =  [ ...selectedUsers, createOption(inputValue) ],
-        inputValue = '';
+        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'value: ', value);
+        setValue([ ...value, createOption(inputValue) ]);
+        console.log('DEBUG handleKeyDown - after: ', 'value: ', value);
+        setInputValue('');
         event.preventDefault();
     }
   };
@@ -110,7 +112,8 @@ const AddGroupModal = ({
           </TextContent>
           <CreatableSelect
             components={ components }
-            inputValue={ initialValues }
+            inputValue={ inputValue }
+            defaultValue={ value }
             isClearable
             isMulti
             menuIsOpen={ false }
@@ -118,7 +121,7 @@ const AddGroupModal = ({
             onInputChange={ handleInputChange }
             onKeyDown={ handleKeyDown }
             placeholder="Type the exact user name and press enter..."
-            value={ inputValue }
+            value={ value }
           />
         </GridItem>
       </Grid>
@@ -128,7 +131,7 @@ const AddGroupModal = ({
 
 AddGroupModal.defaultProps = {
   users: [],
-  selectedUsers: []
+  value: []
 };
 
 AddGroupModal.propTypes = {
@@ -143,6 +146,7 @@ AddGroupModal.propTypes = {
   groupId: PropTypes.string,
   inputValue: PropTypes.string,
   users: PropTypes.array,
+  value: PropTypes.array,
   updateGroup: PropTypes.func.isRequired
 };
 
