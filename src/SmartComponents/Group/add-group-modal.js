@@ -13,6 +13,11 @@ const components = {
   DropdownIndicator: null
 };
 
+const createOption = (label) => ({
+  label,
+  value: label
+});
+
 const AddGroupModal = ({
   history: { push },
   addGroup,
@@ -28,6 +33,10 @@ const AddGroupModal = ({
       fetchGroup(groupId);
     }
   }, []);
+
+  useEffect(() => {
+    setValue(initialValues ? initialValues.principals.map(user => (createOption(user.username))) : []);
+  }, initialValues);
 
   const [ inputValue, setInputValue ] = useState('');
   const [ value, setValue ] = useState([]);
@@ -68,11 +77,6 @@ const AddGroupModal = ({
     console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
     setInputValue(val);
   };
-
-  const createOption = (label) => ({
-    label,
-    value: label
-  });
 
   const handleKeyDown = (event) => {
     if (!inputValue) {return;}
