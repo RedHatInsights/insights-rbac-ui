@@ -1,0 +1,373 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
+<Pf4SelectWrapper
+  FieldProvider={[Function]}
+  id="bazz"
+  input={
+    Object {
+      "name": "bazz",
+      "onChange": [MockFunction],
+      "value": "",
+    }
+  }
+  meta={Object {}}
+  options={
+    Array [
+      Object {
+        "label": "Foo",
+        "value": "bar",
+      },
+    ]
+  }
+>
+  <FormGroup
+    className=""
+    fieldId="bazz"
+    isInline={false}
+    isRequired={false}
+    isValid={true}
+  >
+    <div
+      className="pf-c-form__group"
+    >
+      <Select
+        FieldProvider={[Function]}
+        id="bazz"
+        input={
+          Object {
+            "name": "bazz",
+            "onChange": [MockFunction],
+            "value": "",
+          }
+        }
+        isValid={true}
+        options={
+          Array [
+            Object {
+              "label": "Foo",
+              "value": "bar",
+            },
+          ]
+        }
+      >
+        <FormSelect
+          aria-label={null}
+          className=""
+          id="bazz"
+          isDisabled={false}
+          isValid={true}
+          name="bazz"
+          onBlur={[Function]}
+          onChange={[MockFunction]}
+          onFocus={[Function]}
+          value=""
+        >
+          <select
+            aria-invalid={false}
+            aria-label={null}
+            className="pf-c-form-control"
+            disabled={false}
+            id="bazz"
+            name="bazz"
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            value=""
+          >
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="None"
+              label="None"
+              value=""
+            >
+              <option
+                className=""
+                disabled={false}
+                value=""
+              >
+                None
+              </option>
+            </FormSelectOption>
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="bar"
+              label="Foo"
+              value="bar"
+            >
+              <option
+                className=""
+                disabled={false}
+                value="bar"
+              >
+                Foo
+              </option>
+            </FormSelectOption>
+          </select>
+        </FormSelect>
+      </Select>
+    </div>
+  </FormGroup>
+</Pf4SelectWrapper>
+`;
+
+exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
+<Pf4SelectWrapper
+  FieldProvider={[Function]}
+  id="bazz"
+  input={
+    Object {
+      "name": "bazz",
+      "onChange": [MockFunction],
+      "value": "",
+    }
+  }
+  meta={
+    Object {
+      "error": "Error",
+      "touched": true,
+    }
+  }
+  options={
+    Array [
+      Object {
+        "label": "Foo",
+        "value": "bar",
+      },
+    ]
+  }
+>
+  <FormGroup
+    className=""
+    fieldId="bazz"
+    helperTextInvalid="Error"
+    isInline={false}
+    isRequired={false}
+    isValid={false}
+  >
+    <div
+      className="pf-c-form__group"
+    >
+      <Select
+        FieldProvider={[Function]}
+        id="bazz"
+        input={
+          Object {
+            "name": "bazz",
+            "onChange": [MockFunction],
+            "value": "",
+          }
+        }
+        isValid={false}
+        options={
+          Array [
+            Object {
+              "label": "Foo",
+              "value": "bar",
+            },
+          ]
+        }
+      >
+        <FormSelect
+          aria-label={null}
+          className=""
+          id="bazz"
+          isDisabled={false}
+          isValid={false}
+          name="bazz"
+          onBlur={[Function]}
+          onChange={[MockFunction]}
+          onFocus={[Function]}
+          value=""
+        >
+          <select
+            aria-invalid={true}
+            aria-label={null}
+            className="pf-c-form-control"
+            disabled={false}
+            id="bazz"
+            name="bazz"
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            value=""
+          >
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="None"
+              label="None"
+              value=""
+            >
+              <option
+                className=""
+                disabled={false}
+                value=""
+              >
+                None
+              </option>
+            </FormSelectOption>
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="bar"
+              label="Foo"
+              value="bar"
+            >
+              <option
+                className=""
+                disabled={false}
+                value="bar"
+              >
+                Foo
+              </option>
+            </FormSelectOption>
+          </select>
+        </FormSelect>
+      </Select>
+      <div
+        aria-live="polite"
+        className="pf-c-form__helper-text pf-m-error"
+        id="bazz-helper"
+      >
+        Error
+      </div>
+    </div>
+  </FormGroup>
+</Pf4SelectWrapper>
+`;
+
+exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
+<Pf4SelectWrapper
+  FieldProvider={[Function]}
+  description="description"
+  id="bazz"
+  input={
+    Object {
+      "name": "bazz",
+      "onChange": [MockFunction],
+      "value": "",
+    }
+  }
+  meta={Object {}}
+  options={
+    Array [
+      Object {
+        "label": "Foo",
+        "value": "bar",
+      },
+    ]
+  }
+>
+  <FormGroup
+    className=""
+    fieldId="bazz"
+    isInline={false}
+    isRequired={false}
+    isValid={true}
+  >
+    <div
+      className="pf-c-form__group"
+    >
+      <TextContent
+        className=""
+      >
+        <div
+          className="pf-c-content"
+        >
+          <Text
+            className=""
+            component="small"
+          >
+            <small
+              className=""
+              data-pf-content={true}
+            >
+              description
+            </small>
+          </Text>
+        </div>
+      </TextContent>
+      <Select
+        FieldProvider={[Function]}
+        id="bazz"
+        input={
+          Object {
+            "name": "bazz",
+            "onChange": [MockFunction],
+            "value": "",
+          }
+        }
+        isValid={true}
+        options={
+          Array [
+            Object {
+              "label": "Foo",
+              "value": "bar",
+            },
+          ]
+        }
+      >
+        <FormSelect
+          aria-label={null}
+          className=""
+          id="bazz"
+          isDisabled={false}
+          isValid={true}
+          name="bazz"
+          onBlur={[Function]}
+          onChange={[MockFunction]}
+          onFocus={[Function]}
+          value=""
+        >
+          <select
+            aria-invalid={false}
+            aria-label={null}
+            className="pf-c-form-control"
+            disabled={false}
+            id="bazz"
+            name="bazz"
+            onBlur={[Function]}
+            onChange={[Function]}
+            onFocus={[Function]}
+            value=""
+          >
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="None"
+              label="None"
+              value=""
+            >
+              <option
+                className=""
+                disabled={false}
+                value=""
+              >
+                None
+              </option>
+            </FormSelectOption>
+            <FormSelectOption
+              className=""
+              isDisabled={false}
+              key="bar"
+              label="Foo"
+              value="bar"
+            >
+              <option
+                className=""
+                disabled={false}
+                value="bar"
+              >
+                Foo
+              </option>
+            </FormSelectOption>
+          </select>
+        </FormSelect>
+      </Select>
+    </div>
+  </FormGroup>
+</Pf4SelectWrapper>
+`;
