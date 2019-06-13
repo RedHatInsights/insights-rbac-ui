@@ -20,39 +20,42 @@ const createOption = (label) => ({
 
 const AddGroupModal = ({
   history: { push },
-  addGroup,
-  addNotification,
-  fetchGroups,
-  fetchGroup,
-  initialValues,
-  groupId,
-  updateGroup
+  match: { params: { id }},
+  addNotification
 }) => {
-  useEffect(() => {
-    if (groupId) {
-      fetchGroup(groupId);
+  const [ selectedGroup, setSelectedGroup ] = useState({});
+  const [ inputValue, setInputValue ] = useState('');
+  const [ selectedUsers, setSelectedUsers ] = useState([]);
+
+  const setGroupData = (groupData) => {
+    setSelectedGroup(groupData);
+    if (groupData) {
+      setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
     }
+  };
+
+  const fetchData = () => {
+    fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
-  useEffect(() => {
-    setValue(initialValues ? initialValues.principals.map(user => (createOption(user.username))) : []);
-  }, initialValues);
-
-  const [ inputValue, setInputValue ] = useState('');
-  const [ value, setValue ] = useState([]);
-
   const onSubmit = data => {
-    const user_data = { ...data, user_list: value.map(user => ({ username: user.label })) };
-    initialValues
-      ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
+    console.log('DEBUG - onSubmit selectedUsers: ', selectedUsers);
+    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user.label })) };
+    console.log('DEBUG - onSubmit user_data: ', user_data);
+    selectedGroup
+      ? updateGroup(user_data).then(() => { fetchGroups(); push('/groups'); })
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: initialValues ? 'Editing group' : 'Adding group',
-      description: initialValues ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
+      title: selectedGroup ? 'Editing group' : 'Adding group',
+      description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
     push('/groups');
   };
@@ -60,17 +63,19 @@ const AddGroupModal = ({
   const schema = {
     type: 'object',
     properties: {
-      name: { title: initialValues ? 'Group Name' : 'New Group Name', type: 'string' },
+      name: { title: selectedGroup ? 'Group Name' : 'New Group Name', type: 'string' },
       description: { title: 'Description', type: 'string' }
     },
     required: [ 'name' ]
   };
 
-  const handleChange = (val) => {
-    setValue(v => v.concat(val));
+  const handleChange = (val, actionMeta) => {
+    console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'val: ', val);
+    setSelectedUsers([ ...val ]);
   };
 
   const handleInputChange = (val) => {
+    console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
     setInputValue(val);
   };
 
@@ -80,7 +85,9 @@ const AddGroupModal = ({
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        setValue(v => v.concat(createOption(inputValue)));
+        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'selectedUsers: ', selectedUsers);
+        setSelectedUsers([ ...selectedUsers, { label: inputValue, selectedUsers: inputValue }]);
+        console.log('DEBUG handleKeyDown - after: ', 'selectedUsers: ', selectedUsers);
         setInputValue('');
         event.preventDefault();
     }
@@ -89,7 +96,7 @@ const AddGroupModal = ({
   return (
     <Modal
       isLarge
-      title={ initialValues ? 'Edit group' : 'Add group' }
+      title={ selectedGroup ? 'Edit group' : 'Add group' }
       isOpen
       onClose={ onCancel }
     >
@@ -101,7 +108,7 @@ const AddGroupModal = ({
             onSubmit={ onSubmit }
             onCancel={ onCancel }
             formContainer="modal"
-            initialValues={ { ...initialValues } }
+            initialValues={ { ...selectedGroup } }
           />
         </GridItem>
         <GridItem sm={ 6 }>
@@ -111,7 +118,7 @@ const AddGroupModal = ({
           <CreatableSelect
             components={ components }
             inputValue={ inputValue }
-            defaultValue={ value }
+            defaultValue={ selectedUsers }
             isClearable
             isMulti
             menuIsOpen={ false }
@@ -119,7 +126,7 @@ const AddGroupModal = ({
             onInputChange={ handleInputChange }
             onKeyDown={ handleKeyDown }
             placeholder="Type the exact user name and press enter..."
-            value={ value }
+            value={ selectedUsers }
           />
         </GridItem>
       </Grid>
@@ -130,7 +137,8 @@ const AddGroupModal = ({
 AddGroupModal.defaultProps = {
   users: [],
   inputValue: '',
-  value: []
+  selectedGroup: undefined,
+  selectedUsers: []
 };
 
 AddGroupModal.propTypes = {
@@ -141,21 +149,17 @@ AddGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  initialValues: PropTypes.object,
-  groupId: PropTypes.string,
+  selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
-  value: PropTypes.array,
+  selectedUsers: PropTypes.array,
+  match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired
 };
 
-const mapStateToProps = (state, { match: { params: { id }}}) => {
-  let selectedGroup = state.groupReducer.selectedGroup;
-  return {
-    initialValues: id && selectedGroup,
-    groupId: id
-  };
-};
+const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
+  isLoading
+});
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,

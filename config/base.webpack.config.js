@@ -30,7 +30,7 @@ const webpackConfig = {
   },
   module: {
     rules: [{
-      test: /\.js$/,
+      test: /src\/.*\.js$/,
       exclude: /node_modules/,
       use: [{ loader: 'source-map-loader' }, { loader: 'babel-loader' }]
     }, {
