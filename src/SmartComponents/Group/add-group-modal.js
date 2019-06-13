@@ -42,9 +42,7 @@ const AddGroupModal = ({
   const [ value, setValue ] = useState([]);
 
   const onSubmit = data => {
-    console.log('DEBUG - onSubmit value: ', value);
     const user_data = { ...data, user_list: value.map(user => ({ username: user.label })) };
-    console.log('DEBUG - onSubmit user_data: ', user_data);
     initialValues
       ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
@@ -68,13 +66,11 @@ const AddGroupModal = ({
     required: [ 'name' ]
   };
 
-  const handleChange = (val, actionMeta) => {
-    console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'val: ', val);
-    setValue(val);
+  const handleChange = (val) => {
+    setValue(v => v.concat(val));
   };
 
   const handleInputChange = (val) => {
-    console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
     setInputValue(val);
   };
 
@@ -84,9 +80,7 @@ const AddGroupModal = ({
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'value: ', value);
-        setValue([ ...value, createOption(inputValue) ]);
-        console.log('DEBUG handleKeyDown - after: ', 'value: ', value);
+        setValue(v => v.concat(createOption(inputValue)));
         setInputValue('');
         event.preventDefault();
     }
@@ -135,6 +129,7 @@ const AddGroupModal = ({
 
 AddGroupModal.defaultProps = {
   users: [],
+  inputValue: '',
   value: []
 };
 
