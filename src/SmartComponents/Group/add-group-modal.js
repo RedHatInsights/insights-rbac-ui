@@ -71,7 +71,7 @@ const AddGroupModal = ({
 
   const handleChange = (val, actionMeta) => {
     console.log('DEBUG handleChange', `action: ${actionMeta.action}`, 'val: ', val);
-    setSelectedUsers([ ...val ]);
+    setSelectedUsers({ val });
   };
 
   const handleInputChange = (val) => {

@@ -13,7 +13,7 @@
     "@redhat-cloud-services/frontend-components-utilities": "0.0.7",
     "@redhat-cloud-services/rbac-client": "^1.0.5",
     "awesome-debounce-promise": "^2.1.0",
-    "axios": "^0.19.0",
+    "axios": "^0.18.0",
     "react": "^16.8.3",
     "react-content-loader": "^3.4.2",
     "react-dom": "^16.8.3",
