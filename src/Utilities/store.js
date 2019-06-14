@@ -16,7 +16,7 @@ const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware(), notificat
 registry.register({
   userReducer: applyReducerHash(userReducer, usersInitialState),
   groupReducer: applyReducerHash(groupReducer, groupsInitialState),
-  notifications: applyReducerHash(notifications, [])
+  notifications
 });
 
 export default registry.getStore();
