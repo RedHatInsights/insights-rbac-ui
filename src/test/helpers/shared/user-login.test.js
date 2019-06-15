@@ -1,4 +1,4 @@
-import { getGroupApi } from '../../../Helpers/Shared/userLogin';
+import { getGroupApi } from '../../../helpers/shared/user-login';
 import { RBAC_API_BASE } from '../../../Utilities/Constants';
 
 describe('user login', () => {
