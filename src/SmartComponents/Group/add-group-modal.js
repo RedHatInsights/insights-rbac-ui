@@ -13,11 +13,6 @@ const components = {
   DropdownIndicator: null
 };
 
-const createOption = (label) => ({
-  label,
-  value: label
-});
-
 const AddGroupModal = ({
   history: { push },
   match: { params: { id }},
@@ -28,6 +23,16 @@ const AddGroupModal = ({
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ inputValue, setInputValue ] = useState('');
   const [ selectedUsers, setSelectedUsers ] = useState([]);
+  const [ optionIdx, setOptionIdx ] = useState(0);
+
+  const createOption = (label) => {
+    let idx = optionIdx;
+    setOptionIdx(optionIdx + 1);
+    return {
+      label,
+      value: `${label}_${idx}`
+    };
+  };
 
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
@@ -82,7 +87,15 @@ const AddGroupModal = ({
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        setSelectedUsers([ ...selectedUsers, { label: inputValue, value: inputValue }]);
+        if (selectedUsers) {
+          if (!selectedUsers.find(user => (user.label === inputValue))) {
+            setSelectedUsers([ ...selectedUsers, createOption(inputValue) ]);
+          }
+        }
+        else {
+          setSelectedUsers([ createOption(inputValue) ]);
+        }
+
         setInputValue('');
         event.preventDefault();
     }
