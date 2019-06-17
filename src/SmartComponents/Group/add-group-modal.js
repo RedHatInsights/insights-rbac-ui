@@ -45,9 +45,7 @@ const AddGroupModal = ({
   }, []);
 
   const onSubmit = data => {
-    console.log('DEBUG - onSubmit selectedUsers: ', selectedUsers);
     const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user.label })) };
-    console.log('DEBUG - onSubmit user_data: ', user_data);
     id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
   };
@@ -70,14 +68,11 @@ const AddGroupModal = ({
     required: [ 'name' ]
   };
 
-  const handleChange = (value, actionMeta) => {
-    console.log('DEBUG handleChange', `action: ${actionMeta}`, 'value: ', value);
+  const handleChange = (value) => {
     setSelectedUsers(value);
-    console.log('DEBUG handleChange', 'selectedUsers', selectedUsers, 'inputValue', inputValue);
   };
 
   const handleInputChange = (val) => {
-    console.log('DEBUG handleInputChange - val: ', val, 'inputValue: ', inputValue);
     setInputValue(val);
   };
 
@@ -87,9 +82,7 @@ const AddGroupModal = ({
     switch (event.key) {
       case 'Enter':
       case 'Tab':
-        console.log('DEBUG handleKeyDown - input Value: ', inputValue, 'selectedUsers: ', selectedUsers);
         setSelectedUsers([ ...selectedUsers, { label: inputValue, value: inputValue }]);
-        console.log('DEBUG handleKeyDown - after: ', 'selectedUsers: ', selectedUsers);
         setInputValue('');
         event.preventDefault();
     }
