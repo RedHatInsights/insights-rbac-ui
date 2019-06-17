@@ -1,9 +1,9 @@
-import groupReducer from '../../../redux/reducers/groupReducer';
+import groupReducer from '../../../redux/reducers/group-reducer';
 import { callReducer } from '../redux-helpers';
 
 import {
   FETCH_GROUPS
-} from '../../../redux/ActionTypes';
+} from '../../../redux/action-types';
 
 describe('Group reducer', () => {
   let initialState;
