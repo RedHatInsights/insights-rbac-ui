@@ -1,67 +1,110 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import Select from 'react-select';
+import CreatableSelect from 'react-select/creatable';
 import FormRenderer from '../Common/FormRenderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/Actions/GroupActions';
 
+const components = {
+  DropdownIndicator: null
+};
+
 const AddGroupModal = ({
   history: { push },
-  addGroup,
+  match: { params: { id }},
   addNotification,
-  fetchGroups,
-  fetchGroup,
-  initialValues,
-  users,
-  groupId,
+  addGroup,
   updateGroup
 }) => {
-  useEffect(() => {
-    if (groupId) {
-      fetchGroup(groupId);
+  const [ selectedGroup, setSelectedGroup ] = useState({});
+  const [ inputValue, setInputValue ] = useState('');
+  const [ selectedUsers, setSelectedUsers ] = useState([]);
+  const [ optionIdx, setOptionIdx ] = useState(0);
+
+  const createOption = (label) => {
+    let idx = optionIdx;
+    setOptionIdx(optionIdx + 1);
+    return {
+      label,
+      value: `${label}_${idx}`
+    };
+  };
+
+  const setGroupData = (groupData) => {
+    setSelectedGroup(groupData);
+    if (groupData) {
+      setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
     }
+  };
+
+  const fetchData = () => {
+    fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, []);
 
   const onSubmit = data => {
-    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user })) };
-    initialValues
-      ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
+    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user.label })) };
+    id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: initialValues ? 'Editing group' : 'Adding group',
-      description: initialValues ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
+      title: selectedGroup ? 'Editing group' : 'Adding group',
+      description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
     push('/groups');
   };
 
-  let selectedUsers = [];
-
-  const onOptionSelect = (selectedValues = []) =>
-  { selectedUsers = selectedValues.map(val => val.value); };
-
-  const dropdownItems = users.map(user => ({ value: user.username, label: user.username, id: user.username }));
-
   const schema = {
     type: 'object',
     properties: {
-      name: { title: initialValues ? 'Group Name' : 'New Group Name', type: 'string' },
+      name: { title: selectedGroup ? 'Group Name' : 'New Group Name', type: 'string' },
       description: { title: 'Description', type: 'string' }
     },
     required: [ 'name' ]
   };
 
+  const handleChange = (value) => {
+    setSelectedUsers(value);
+  };
+
+  const handleInputChange = (val) => {
+    setInputValue(val);
+  };
+
+  const handleKeyDown = (event) => {
+    if (!inputValue) {return;}
+
+    switch (event.key) {
+      case 'Enter':
+      case 'Tab':
+        if (selectedUsers) {
+          if (!selectedUsers.find(user => (user.label === inputValue))) {
+            setSelectedUsers([ ...selectedUsers, createOption(inputValue) ]);
+          }
+        }
+        else {
+          setSelectedUsers([ createOption(inputValue) ]);
+        }
+
+        setInputValue('');
+        event.preventDefault();
+    }
+  };
+
   return (
     <Modal
       isLarge
-      title={ initialValues ? 'Edit group' : 'Add group' }
+      title={ selectedGroup ? 'Edit group' : 'Add group' }
       isOpen
       onClose={ onCancel }
     >
@@ -73,21 +116,25 @@ const AddGroupModal = ({
             onSubmit={ onSubmit }
             onCancel={ onCancel }
             formContainer="modal"
-            initialValues={ { ...initialValues } }
+            initialValues={ { ...selectedGroup } }
           />
         </GridItem>
         <GridItem sm={ 6 }>
           <TextContent>
             <Text component={ TextVariants.h6 }>Select Members for this group.</Text>
           </TextContent>
-          <Select
-            isMulti={ true }
-            placeholders={ 'Select Members' }
-            options={ dropdownItems }
-            defaultValue={ (initialValues && initialValues.members) ? initialValues.members.map(
-              user => ({ value: user.username, label: `${user.username}`, id: user.username })) : [] }
-            onChange={ onOptionSelect }
-            closeMenuOnSelect={ false }
+          <CreatableSelect
+            components={ components }
+            inputValue={ inputValue }
+            defaultValue={ selectedUsers }
+            isClearable
+            isMulti
+            menuIsOpen={ false }
+            onChange={ handleChange }
+            onInputChange={ handleInputChange }
+            onKeyDown={ handleKeyDown }
+            placeholder="Type the exact user name and press enter..."
+            value={ selectedUsers }
           />
         </GridItem>
       </Grid>
@@ -96,7 +143,10 @@ const AddGroupModal = ({
 };
 
 AddGroupModal.defaultProps = {
-  users: []
+  users: [],
+  inputValue: '',
+  selectedGroup: undefined,
+  selectedUsers: []
 };
 
 AddGroupModal.propTypes = {
@@ -107,19 +157,17 @@ AddGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  initialValues: PropTypes.object,
-  groupId: PropTypes.string,
+  selectedGroup: PropTypes.object,
+  inputValue: PropTypes.string,
   users: PropTypes.array,
+  selectedUsers: PropTypes.array,
+  match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired
 };
 
-const mapStateToProps = (state, { match: { params: { id }}}) => {
-  let selectedGroup = state.groupReducer.selectedGroup;
-  return {
-    initialValues: id && selectedGroup,
-    groupId: id
-  };
-};
+const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
+  isLoading
+});
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,

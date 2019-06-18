@@ -129,7 +129,7 @@ Groups.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
-  }).isRequired,
+  }),
   groups: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
