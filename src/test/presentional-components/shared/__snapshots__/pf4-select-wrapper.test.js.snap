@@ -22,10 +22,7 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
   }
 >
   <FormGroup
-    className=""
     fieldId="bazz"
-    isInline={false}
-    isRequired={false}
     isValid={true}
   >
     <div
@@ -140,11 +137,8 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
   }
 >
   <FormGroup
-    className=""
     fieldId="bazz"
     helperTextInvalid="Error"
-    isInline={false}
-    isRequired={false}
     isValid={false}
   >
     <div
@@ -262,23 +256,17 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
   }
 >
   <FormGroup
-    className=""
     fieldId="bazz"
-    isInline={false}
-    isRequired={false}
     isValid={true}
   >
     <div
       className="pf-c-form__group"
     >
-      <TextContent
-        className=""
-      >
+      <TextContent>
         <div
           className="pf-c-content"
         >
           <Text
-            className=""
             component="small"
           >
             <small

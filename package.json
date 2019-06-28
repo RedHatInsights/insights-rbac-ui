@@ -3,11 +3,11 @@
   "version": "0.1.0",
   "private": false,
   "dependencies": {
-    "@data-driven-forms/pf4-component-mapper": "^0.4.2",
-    "@data-driven-forms/react-form-renderer": "^1.7.0",
-    "@patternfly/react-core": "^2.10.9",
-    "@patternfly/react-icons": "^3.7.2",
-    "@patternfly/react-table": "^1.5.0",
+    "@data-driven-forms/pf4-component-mapper": "^1.11.0",
+    "@data-driven-forms/react-form-renderer": "^1.11.0",
+    "@patternfly/react-core": "^3.38.1",
+    "@patternfly/react-icons": "^3.10.2",
+    "@patternfly/react-table": "^2.11.1",
     "@redhat-cloud-services/frontend-components": "0.0.7",
     "@redhat-cloud-services/frontend-components-notifications": "0.0.5",
     "@redhat-cloud-services/frontend-components-utilities": "0.0.7",
@@ -41,7 +41,8 @@
     ],
     "moduleNameMapper": {
       "\\.(jpg|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$": "<rootDir>/src/test/__mocks__/fileMock.js",
-      "\\.(css|scss)$": "identity-obj-proxy"
+      "\\.(css|scss)$": "identity-obj-proxy",
+      "^lodash-es$": "lodash"
     },
     "testURL": "http://localhost:5000/"
   },

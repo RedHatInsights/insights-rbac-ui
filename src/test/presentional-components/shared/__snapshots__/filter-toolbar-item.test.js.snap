@@ -47,17 +47,8 @@ exports[`<FilterToolbarItem /> should render correctly 1`] = `
               />
             </TextInput>
             <Button
-              aria-label={null}
-              className=""
-              component="button"
               id="searchProductButton"
-              isActive={false}
-              isBlock={false}
-              isDisabled={false}
-              isFocus={false}
-              isHover={false}
               onClick={[Function]}
-              type="button"
               variant="tertiary"
             >
               <button
