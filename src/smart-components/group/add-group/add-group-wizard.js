@@ -59,7 +59,6 @@ const AddGroupModal = ({
   }, []);
 
   const onSubmit = () => {
-    console.log('DEBUG submit:', formData);
     const user_data = { ...formData, user_list: selectedUsers.map(user => ({ username: user.label })) };
     id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));

@@ -16,7 +16,7 @@ import {  } from '@patternfly/react-core';
 const SummaryContent = (formData) => {
   const { name, description } =
       formData.values ? formData.values : { name: '', description: '' };
-  console.log('DEBUG - formData', formData);
+  const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
   return (
     <Fragment>
       <Stack gutter="md">
@@ -48,14 +48,18 @@ const SummaryContent = (formData) => {
                   <Text className="data-table-detail content" component={ TextVariants.p }>{ description }</Text>
                 </GridItem>
               </Grid>
-              { (formData && formData.selectedUsers !== undefined) && <Grid gutter="md">
-                { formData.selectedUsers.map((user)  =>
-                  <Text key={ user.label }
-                    className="data-table-detail content"
-                    component={ TextVariants.p }>
-                    { user.label }
-                  </Text>) }
-              </Grid> }
+              <Grid gutter="md">
+                <GridItem span = { 2 }>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Members</Text>
+                </GridItem>
+                <GridItem span= { 10 }>
+                  <Text
+                    className="groups-table-detail content"
+                    component={ TextVariants.h5 }>
+                    { `${selectedUsers.map((user, index) => `${index !== 0 ? ' ' : ''}${user.label}`)}` }
+                  </Text>
+                </GridItem>
+              </Grid>
             </StackItem>
           </Stack>
         </StackItem>
