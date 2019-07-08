@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import debouncePromise from 'awesome-debounce-promise';
 import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
 
+import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
 import GroupsToolbar from './groups-toolbar';
 import RemoveGroup from './remove-group-modal';
@@ -87,7 +88,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
 
   return (
     <Fragment>
-      <Route exact path="/groups/add-group" component={ AddGroup } />
+      <Route exact path="/groups/add-group" component={ AddGroupWizard } />
       <Route exact path="/groups/edit/:id" component={ AddGroup } />
       <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
       <GroupsToolbar
