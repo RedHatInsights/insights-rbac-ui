@@ -68,7 +68,6 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
 
   const onFilterChange = (value) => {
     setFilterValue(value);
-    const compareValue = value.toLowerCase();
   };
 
   const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
