@@ -23,9 +23,5 @@ describe('<FilterToolbarItem />', () => {
     wrapper.find('input').simulate('change');
     expect(onFilterChange).toHaveBeenCalledWith('bar', expect.any(Object));
     expect(onFilterChange).toHaveBeenCalledTimes(1);
-
-    wrapper.find('button').simulate('click');
-    expect(onFilterChange).toHaveBeenCalledWith('bar', expect.any(Object));
-    expect(onFilterChange).toHaveBeenCalledTimes(2);
   });
 });
