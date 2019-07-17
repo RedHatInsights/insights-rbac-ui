@@ -13,11 +13,10 @@ import {
 } from '@patternfly/react-core';
 import Select from 'react-select';
 
-const PolicyStep = (formValue, onHandleChange, setGroupData,
-  selectedPolicies, setPolicies, selectedRoles, setSelectedRoles, roles) => {
+const PolicyStep = (formValue, onHandleChange, selectedRoles, setSelectedRoles, roles) => {
 
-  const onOptionSelect = (selectedValues = []) =>
-  { setSelectedRoles(selectedValues.map(val => val.value)); };
+  const onOptionSelect = (selectedValues) =>
+  { setSelectedRoles(selectedValues); };
 
   const dropdownItems = roles.map(role => ({ value: role.name, label: role.name, id: role.username }));
 

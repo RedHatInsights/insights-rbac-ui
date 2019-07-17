@@ -21,9 +21,8 @@ const AddGroupModal = ({
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
-  const [ selectedPolicies, setSelectedPolicies ] = useState([]);
   const [ roles, setRoles ] = useState([]);
-  const [ selectedRoles, setSelectedRoles ] = useState({});
+  const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ optionIdx, setOptionIdx ] = useState(0);
   const [ formData, setValues ] = useState({});
 
@@ -45,19 +44,14 @@ const AddGroupModal = ({
     if (groupData && groupData.principals) {
       setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
     }
-
-    if (groupData && groupData.policies) {
-      setSelectedPolicies(groupData.policies.map(policy => (createOption(policy.name))));
-    }
   };
 
   const steps = [
     { name: 'General Information', component: new GroupInformation(formData, handleChange) },
     { name: 'Set Users', component: new SetUsers(setGroupData, selectedUsers, setSelectedUsers,
       optionIdx, setOptionIdx, createOption, handleChange) },
-    { name: 'Policy Step', component: new PolicyStep(formData, handleChange, setGroupData,
-      selectedPolicies, setSelectedPolicies, selectedRoles, setSelectedRoles, roles) },
-    { name: 'Review', component: new SummaryContent({ values: formData, selectedUsers }),
+    { name: 'Policy Step', component: new PolicyStep(formData, handleChange, selectedRoles, setSelectedRoles, roles) },
+    { name: 'Review', component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
       nextButtonText: 'Confirm' }
   ];
 
@@ -101,7 +95,8 @@ AddGroupModal.defaultProps = {
   users: [],
   inputValue: '',
   selectedGroup: undefined,
-  selectedUsers: []
+  selectedUsers: [],
+  selectedRoles: []
 };
 
 AddGroupModal.propTypes = {
