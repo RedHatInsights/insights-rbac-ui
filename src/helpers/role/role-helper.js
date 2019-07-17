@@ -1,4 +1,4 @@
-import { getRoleApi } from '../Shared/user-login';
+import { getRoleApi } from '../shared/user-login';
 
 const roleApi = getRoleApi();
 

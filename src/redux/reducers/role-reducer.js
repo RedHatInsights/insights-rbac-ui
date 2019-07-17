@@ -4,7 +4,7 @@ import {
 } from '../../redux/action-types';
 
 // Initial State
-export const rolessInitialState = {
+export const rolesInitialState = {
   roles: {
     data: [],
     meta: {

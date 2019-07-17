@@ -6,9 +6,11 @@ import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../../redux/actions/group-actions';
+import { fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
 import SetUsers from './set-users';
+import PolicyStep from './policy-step';
 
 const AddGroupModal = ({
   history: { push },
@@ -19,6 +21,9 @@ const AddGroupModal = ({
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
+  const [ selectedPolicies, setSelectedPolicies ] = useState([]);
+  const [ roles, setRoles ] = useState([]);
+  const [ selectedRoles, setSelectedRoles ] = useState({});
   const [ optionIdx, setOptionIdx ] = useState(0);
   const [ formData, setValues ] = useState({});
 
@@ -37,8 +42,12 @@ const AddGroupModal = ({
 
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
-    if (groupData) {
+    if (groupData && groupData.principals) {
       setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
+    }
+
+    if (groupData && groupData.policies) {
+      setSelectedPolicies(groupData.policies.map(policy => (createOption(policy.name))));
     }
   };
 
@@ -46,12 +55,15 @@ const AddGroupModal = ({
     { name: 'General Information', component: new GroupInformation(formData, handleChange) },
     { name: 'Set Users', component: new SetUsers(setGroupData, selectedUsers, setSelectedUsers,
       optionIdx, setOptionIdx, createOption, handleChange) },
+    { name: 'Policy Step', component: new PolicyStep(formData, handleChange, setGroupData,
+      selectedPolicies, setSelectedPolicies, selectedRoles, setSelectedRoles, roles) },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedUsers }),
       nextButtonText: 'Confirm' }
   ];
 
   const fetchData = () => {
     fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
+    fetchRoles().payload.then((data) => setRoles(data));
   };
 
   useEffect(() => {
@@ -108,8 +120,11 @@ AddGroupModal.propTypes = {
   updateGroup: PropTypes.func.isRequired
 };
 
-const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
-  isLoading
+const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
+  roles: roles.data,
+  pagination: roles.meta,
+  isLoading,
+  searchFilter: filterValue
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
@@ -117,7 +132,8 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addGroup,
   updateGroup,
   fetchGroup,
-  fetchGroups
+  fetchGroups,
+  fetchRoles
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupModal));
