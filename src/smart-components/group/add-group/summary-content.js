@@ -18,7 +18,6 @@ const SummaryContent = (formData) => {
       formData.values ? formData.values : { name: '', description: '', policyName: '' };
   const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
   const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
-  console.log('DEBUG: review data', formData);
   return (
     <Fragment>
       <Stack gutter="md">

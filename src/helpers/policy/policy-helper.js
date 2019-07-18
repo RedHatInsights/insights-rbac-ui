@@ -1,5 +1,5 @@
 
-import { getPolicyApi } from '../shared/role-login';
+import { getPolicyApi } from '../shared/user-login';
 
 /*
 data :
@@ -29,23 +29,8 @@ export async function fetchPolicy(uuid) {
   return await policyApi.getPolicy(uuid);
 }
 
-export async function updatePolicy(data) {
-  await policyApi.updatePolicy(data.uuid, data);
-
-  const roles_list = data.roles ? data.roles.map(role => role.uuid) : [];
-  let addRoles = data.roles.filter(item => !roles_list.includes(item.uuid));
-  let removeRoles = roles_list.filter(item => !(data.roles.map(role => role.uuid).includes(item)));
-  if (addRoles.length > 0) {
-    await policyApi.addRoleToPolicy(data.uuid, { roles: addRoles });
-  }
-
-  if (removeRoles.length > 0) {
-    await policyApi.deleteRoleFromPolicy(data.uuid, removeRoles.join(','));
-  }
-}
-
-export async function addPolicy(data) {
-  return await policyApi.createPolicy(data);
+export async function createPolicy(data) {
+  return await policyApi.createPolicies(data);
 }
 
 export async function removePolicy(policyId) {

@@ -11,5 +11,4 @@ export const FETCH_ROLE = 'FETCH_ROLE';
 export const FETCH_ROLES = 'FETCH_ROLES';
 
 export const ADD_POLICY = 'ADD_POLICY';
-export const UPDATE_POLICY = 'UPDATE_POLICY';
 export const REMOVE_POLICY = 'REMOVE_POLICY';

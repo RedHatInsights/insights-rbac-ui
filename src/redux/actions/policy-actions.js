@@ -11,9 +11,9 @@ export const fetchPolicy = apiProps => ({
   payload: PolicyHelper.fetchPolicy(apiProps)
 });
 
-export const addPolicy = (policyData) => ({
+export const createPolicy = (policyData) => ({
   type: ActionTypes.ADD_POLICY,
-  payload: PolicyHelper.addPolicy(policyData),
+  payload: PolicyHelper.createPolicy(policyData),
   meta: {
     notifications: {
       fulfilled: {
@@ -25,25 +25,6 @@ export const addPolicy = (policyData) => ({
         variant: 'danger',
         title: 'Failed adding policy',
         description: 'The policy was not added successfully.'
-      }
-    }
-  }
-});
-
-export const updatePolicy = (policyData) => ({
-  type: ActionTypes.UPDATE_POLICY,
-  payload: PolicyHelper.updatePolicy(policyData),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success updating policy',
-        description: 'The policy was updated successfully.'
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed updating policy',
-        description: 'The policy was not updated successfully.'
       }
     }
   }

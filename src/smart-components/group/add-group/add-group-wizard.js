@@ -5,7 +5,8 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../../redux/actions/group-actions';
+import { addGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
+import { createPolicy } from '../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
@@ -16,8 +17,7 @@ const AddGroupModal = ({
   history: { push },
   match: { params: { id }},
   addNotification,
-  addGroup,
-  updateGroup
+  addGroup
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
@@ -54,7 +54,6 @@ const AddGroupModal = ({
     { name: 'Review', component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
       nextButtonText: 'Confirm' }
   ];
-
   const fetchData = () => {
     fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
     fetchRoles().payload.then((data) => setRoles(data));
@@ -64,10 +63,15 @@ const AddGroupModal = ({
     fetchData();
   }, []);
 
-  const onSubmit = () => {
+  const  onSubmit =  async() => {
     const user_data = { ...formData, user_list: selectedUsers.map(user => ({ username: user.label })) };
-    id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
-      : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
+    const group = await addGroup(user_data);
+    const policy_data = { name: formData.policyName,
+      description: formData.policyDescription,
+      group: group.value.uuid,
+      roles: selectedRoles.map(role => role.value) };
+    // TODO - only create the policy if the user selected a policy name and at least a role
+    createPolicy(policy_data).then(() => fetchGroups()).then(push('/groups'));
   };
 
   const onCancel = () => {
@@ -87,8 +91,8 @@ const AddGroupModal = ({
       onClose={ onCancel }
       onSave={ onSubmit }
       steps={ steps }
-    />
-  );
+    />);
+
 };
 
 AddGroupModal.defaultProps = {
@@ -107,12 +111,13 @@ AddGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
+  createPolicies: PropTypes.func.isRequired,
+
   selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
-  match: PropTypes.object,
-  updateGroup: PropTypes.func.isRequired
+  match: PropTypes.object
 };
 
 const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
@@ -125,7 +130,6 @@ const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => (
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
-  updateGroup,
   fetchGroup,
   fetchGroups,
   fetchRoles
