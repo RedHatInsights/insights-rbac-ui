@@ -1,16 +1,6 @@
 
 import { getPolicyApi } from '../shared/user-login';
 
-/*
-data :
-{
-    "name": "TestLG3",
-    "description": "TestLG3",
-    "group":  "d6b1bcaa-e6eb-4d38-8512-a736eec9a6c7" ,
-    "roles": ["4c1c4c87-09f0-4062-905a-e5c48623aeeb"]
-}
-*/
-
 const policyApi = getPolicyApi();
 
 export async function fetchPolicies({ limit, offset }) {
