@@ -66,6 +66,10 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
 
   const onCollapse = (_event, _index, _isOpen, { uuid }) => setRows(rows => handleOpen(rows, uuid));
 
+  const onFilterChange = (value) => {
+    setFilterValue(value);
+  };
+
   const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
     ? setRows(rows.map(row => ({ ...row, selected })))
     : setRows(rows => handleSelected(rows, uuid));
@@ -93,7 +97,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
       <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
       <GroupsToolbar
         filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
+        onFilterChange={ onFilterChange }
         pagination={ pagination }
         handleOnPerPageSelect={ handleOnPerPageSelect }
         handleSetPage={ handleSetPage }

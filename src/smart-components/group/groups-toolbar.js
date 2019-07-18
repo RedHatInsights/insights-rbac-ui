@@ -9,7 +9,7 @@ import { getCurrentPage } from '../../helpers/shared/helpers';
 import GroupsFilterToolbar from '../../presentational-components/group/groups-filter-toolbar';
 
 const GroupsToolbar = ({
-  setFilterValue,
+  onFilterChange,
   filterValue,
   pagination,
   handleOnPerPageSelect,
@@ -21,7 +21,7 @@ const GroupsToolbar = ({
         <Toolbar>
           <ToolbarGroup>
             <ToolbarItem>
-              <GroupsFilterToolbar onFilterChange={ value => setFilterValue(value) } filterValue={ filterValue }/>
+              <GroupsFilterToolbar onFilterChange={ value => onFilterChange(value) } filterValue={ filterValue }/>
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
@@ -52,7 +52,7 @@ const GroupsToolbar = ({
 );
 
 GroupsToolbar.propTypes = {
-  setFilterValue: PropTypes.func.isRequired,
+  onFilterChange: PropTypes.func.isRequired,
   filterValue: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,

@@ -14,9 +14,10 @@ import {
 import {  } from '@patternfly/react-core';
 
 const SummaryContent = (formData) => {
-  const { name, description } =
-      formData.values ? formData.values : { name: '', description: '' };
+  const { name, description, policyName } =
+      formData.values ? formData.values : { name: '', description: '', policyName: '' };
   const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
+  const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
   return (
     <Fragment>
       <Stack gutter="md">
@@ -57,6 +58,26 @@ const SummaryContent = (formData) => {
                     className="groups-table-detail content"
                     component={ TextVariants.h5 }>
                     { `${selectedUsers.map((user, index) => `${index !== 0 ? ' ' : ''}${user.label}`)}` }
+                  </Text>
+                </GridItem>
+              </Grid>
+              <Grid gutter="md">
+                <GridItem span={ 2 }>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Policy name</Text>
+                </GridItem>
+                <GridItem span={ 10 }>
+                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policyName }</Text>
+                </GridItem>
+              </Grid>
+              <Grid gutter="md">
+                <GridItem span = { 2 }>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Roles</Text>
+                </GridItem>
+                <GridItem span= { 10 }>
+                  <Text
+                    className="groups-table-detail content"
+                    component={ TextVariants.h5 }>
+                    { `${selectedRoles.map((role, index) => `${index !== 0 ? ' ' : ''}${role.label}`)}` }
                   </Text>
                 </GridItem>
               </Grid>
