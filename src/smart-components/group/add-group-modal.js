@@ -13,7 +13,7 @@ const components = {
   DropdownIndicator: null
 };
 
-const AddGroupModal = ({
+const AddGroupWizard = ({
   history: { push },
   match: { params: { id }},
   addNotification,
@@ -142,14 +142,14 @@ const AddGroupModal = ({
   );
 };
 
-AddGroupModal.defaultProps = {
+AddGroupWizard.defaultProps = {
   users: [],
   inputValue: '',
   selectedGroup: undefined,
   selectedUsers: []
 };
 
-AddGroupModal.propTypes = {
+AddGroupWizard.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
@@ -177,4 +177,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchGroups
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupModal));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
