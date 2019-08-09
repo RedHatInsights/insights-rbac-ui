@@ -1,7 +1,7 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
-import ExpandableDescription from './expandable-description';
+import ExpandableContent from './expandable-content';
 
 export const createInitialRows = (data, filterValue = undefined) => {
   console.log('Debug - data', data);
@@ -15,7 +15,7 @@ export const createInitialRows = (data, filterValue = undefined) => {
     }, {
       parent: key * 2,
       fullWidth: true,
-      cells: [{ title: <ExpandableDescription description={ description } members={ members } /> }]
+      cells: [{ title: <ExpandableContent description={ description } members={ members } /> }]
     }
   ]), []);
 };
