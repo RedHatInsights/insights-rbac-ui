@@ -13,7 +13,7 @@ import { DataListLoader } from './loader-placeholders';
 export const TableToolbarView = ({
   request,
   isSelectable,
-  createInitialRows,
+  createRows,
   columns,
   toolbarButtons,
   fetchData,
@@ -34,13 +34,13 @@ export const TableToolbarView = ({
   }, []);
 
   useEffect(() => {
-    setRows(createInitialRows(data));
-  }, [ data ]);
+    setRows(createRows(data, filterValue));
+  }, [ data, filterValue, pagination.limit ]);
 
   const handleOnPerPageSelect = limit => request({
     offset: pagination.offset,
     limit
-  }).then(() => setRows(createInitialRows(data)));
+  }).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
 
   const handleSetPage = (number, debounce) => {
     const options = {
@@ -48,7 +48,7 @@ export const TableToolbarView = ({
       limit: pagination.limit
     };
     const requestFunc = () => request(options);
-    return debounce ? debouncePromise(request, 250)() : requestFunc().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    return debounce ? debouncePromise(request, 250)() : requestFunc().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
   const setOpen = (data, id) => data.map(row => row.id === id ?
@@ -83,7 +83,7 @@ export const TableToolbarView = ({
     <Level style={ { flex: 1 } }>
       <LevelItem>
         <Toolbar>
-          <FilterToolbar onFilterChange={ value => setFilterValue(value) } searchValue={ filterValue } placeholder={ `Filter by ${titleSingular}` } />
+          <FilterToolbar onFilterChange={ value => setFilterValue(value) } searchValue={ filterValue } placeholder={ `Find a ${titleSingular}` } />
           { toolbarButtons() }
         </Toolbar>
       </LevelItem>
@@ -135,7 +135,7 @@ export const TableToolbarView = ({
 
 TableToolbarView.propTypes = {
   isSelectable: propTypes.bool,
-  createInitialRows: propTypes.func.isRequired,
+  createRows: propTypes.func.isRequired,
   request: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   toolbarButtons: propTypes.func,

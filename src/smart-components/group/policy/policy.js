@@ -9,7 +9,7 @@ import AddPolicyWizard from './add-policy/add-policy-wizard';
 import AddPolicy from './add-policy-modal';
 import PoliciesToolbar from './policies-toolbar';
 import RemovePolicy from './remove-policy-modal';
-import { createInitialRows } from './policy-table-helpers';
+import { createRows } from './policy-table-helpers';
 import { fetchPolicies } from '../../redux/actions/policy-actions';
 import { scrollToTop, getNewPage } from '../../helpers/shared/helpers';
 
@@ -20,14 +20,14 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
-    fetchPolicies().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    fetchPolicies().then(({ value: { data }}) => setRows(createRows(data)));
     scrollToTop();
   }, []);
 
   const handleOnPerPageSelect = limit => fetchPolicies({
     offset: pagination.offset,
     limit
-  }).then(({ value: { data }}) => setRows(createInitialRows(data)));
+  }).then(({ value: { data }}) => setRows(createRows(data)));
 
   const  handleSetPage = (number, debounce) => {
     const options = {
@@ -39,7 +39,7 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
       return debouncePromise(request, 250)();
     }
 
-    return request().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    return request().then(({ value: { data }}) => setRows(createRows(data)));
   };
 
   const handleOpen = (data, uuid) => data.map(row => {

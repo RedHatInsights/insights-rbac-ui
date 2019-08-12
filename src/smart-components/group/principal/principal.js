@@ -8,7 +8,7 @@ import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-tab
 import AddPrincipal from './add-principal-modal';
 import PrincipalsToolbar from './principals-toolbar';
 import RemovePrincipal from './remove-principal-modal';
-import { createInitialRows } from './principal-table-helpers';
+import { createRows } from './principal-table-helpers';
 import { fetchPrincipals } from '../../redux/actions/principal-actions';
 import { scrollToTop, getNewPage } from '../../helpers/shared/helpers';
 
@@ -19,14 +19,14 @@ const Principals = ({ fetchPrincipals, pagination, history: { push }}) => {
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
-    fetchPrincipals().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    fetchPrincipals().then(({ value: { data }}) => setRows(createRows(data)));
     scrollToTop();
   }, []);
 
   const handleOnPerPageSelect = limit => fetchPrincipals({
     offset: pagination.offset,
     limit
-  }).then(({ value: { data }}) => setRows(createInitialRows(data)));
+  }).then(({ value: { data }}) => setRows(createRows(data)));
 
   const  handleSetPage = (number, debounce) => {
     const options = {
@@ -38,7 +38,7 @@ const Principals = ({ fetchPrincipals, pagination, history: { push }}) => {
       return debouncePromise(request, 250)();
     }
 
-    return request().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    return request().then(({ value: { data }}) => setRows(createRows(data)));
   };
 
   const handleOpen = (data, uuid) => data.map(row => {
