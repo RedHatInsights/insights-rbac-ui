@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
-import { TextContent, Text, TextVariants, Level, LevelItem, Button } from '@patternfly/react-core';
+import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 
 const ExpandableDescription = ({ description, members }) => (
   <Fragment>

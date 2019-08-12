@@ -10,7 +10,7 @@ export const createInitialRows = (data, filterValue = undefined) => {
     ...acc, {
       uuid,
       isOpen: false,
-      cells: [ <Fragment key={ uuid }><Link to={ `/groups/${uuid}` }>
+      cells: [ <Fragment key={ uuid }><Link to={ `/groups/detail/${uuid}` }>
         <Button variant="link"> { name } </Button></Link></Fragment>, description, members.length ]
     }, {
       parent: key * 2,

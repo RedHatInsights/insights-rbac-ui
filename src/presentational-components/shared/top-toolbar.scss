@@ -1,0 +1,16 @@
+.top-toolbar {
+  background-color: #FFFFFF;
+  .pf-c-breadcrumb__item {
+    .active{ 
+      color: var(--pf-c-breadcrumb__item--Color);
+      text-decoration: none;
+      pointer-events: none;
+    }
+  }
+  h2 {
+    margin-bottom: 0 !important;
+  }
+  .top-toolbar-title {
+    min-width: 200px;
+  }
+}

@@ -6,7 +6,7 @@ import { TableToolbar } from '@redhat-cloud-services/frontend-components/compone
 import { Button, Level, LevelItem, Toolbar, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 
 import { getCurrentPage } from '../../helpers/shared/helpers';
-import GroupFilterToolbar from '../../presentational-components/group/groups-filter-toolbar';
+import GroupFilterToolbar from '../../presentational-components/principal/principals-filter-toolbar';
 
 const GroupToolbar = ({
   onFilterChange,
@@ -28,9 +28,9 @@ const GroupToolbar = ({
             <ToolbarItem>
             </ToolbarItem>
             <ToolbarItem>
-              <Link to="/groups/add-group">
-                <Button variant="primary" aria-label="Create Group">
-                  Create Policy
+              <Link to="/principals/add-principal">
+                <Button variant="primary" aria-label="Edit members">
+                  Edit Members
                 </Button>
               </Link>
             </ToolbarItem>

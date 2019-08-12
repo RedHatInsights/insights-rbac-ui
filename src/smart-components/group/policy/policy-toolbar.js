@@ -6,9 +6,9 @@ import { TableToolbar } from '@redhat-cloud-services/frontend-components/compone
 import { Button, Level, LevelItem, Toolbar, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 
 import { getCurrentPage } from '../../helpers/shared/helpers';
-import PrincipalsFilterToolbar from '../../presentational-components/principal/principals-filter-toolbar';
+import PoliciesFilterToolbar from '../../presentational-components/policy/policies-filter-toolbar';
 
-const PrincipalsToolbar = ({
+const PoliciesToolbar = ({
   onFilterChange,
   filterValue,
   pagination,
@@ -21,23 +21,23 @@ const PrincipalsToolbar = ({
         <Toolbar>
           <ToolbarGroup>
             <ToolbarItem>
-              <PrincipalsFilterToolbar onFilterChange={ value => onFilterChange(value) } filterValue={ filterValue }/>
+              <PoliciesFilterToolbar onFilterChange={ value => onFilterChange(value) } filterValue={ filterValue }/>
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem>
             </ToolbarItem>
             <ToolbarItem>
-              <Link to="/principals/add-principal">
+              <Link to="/policies/add-policy">
                 <Button variant="primary" aria-label="Add member">
-                  Add member
+                  Create policy
                 </Button>
               </Link>
             </ToolbarItem>
             <ToolbarItem>
-              <Link to="/principals/remove-principal">
-                <Button variant="primary" aria-label="Remove member">
-                  remove member
+              <Link to="/policies/remove-policy">
+                <Button variant="primary" aria-label="Remove policy">
+                  Remove policy
                 </Button>
               </Link>
             </ToolbarItem>
@@ -58,7 +58,7 @@ const PrincipalsToolbar = ({
   </TableToolbar>
 );
 
-PrincipalsToolbar.propTypes = {
+PoliciesToolbar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
   filterValue: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
@@ -69,4 +69,4 @@ PrincipalsToolbar.propTypes = {
   handleSetPage: PropTypes.func.isRequired
 };
 
-export default PrincipalsToolbar;
+export default PoliciesToolbar;

@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Route } from 'react-router-dom';
+import { Route, Switch } from 'react-router-dom';
 import debouncePromise from 'awesome-debounce-promise';
 import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
 
@@ -12,6 +12,7 @@ import RemoveGroup from './remove-group-modal';
 import { createInitialRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import { scrollToTop, getNewPage } from '../../helpers/shared/helpers';
+import Group from './group';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
@@ -90,7 +91,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
         }
       ];
 
-  return (
+  const renderGroupsList = () => (
     <Fragment>
       <Route exact path="/groups/add-group" component={ AddGroupWizard } />
       <Route exact path="/groups/edit/:id" component={ AddGroup } />
@@ -114,6 +115,13 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
         <TableBody />
       </Table>
     </Fragment>
+  );
+
+  return (
+    <Switch>
+      <Route path={ '/groups/detail/:id' } render={ props => <Group { ...props }/> } />
+      <Route path={ '/groups' } render={ () => renderGroupsList() } />
+    </Switch>
   );
 };
 

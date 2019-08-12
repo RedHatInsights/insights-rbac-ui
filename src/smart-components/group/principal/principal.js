@@ -5,25 +5,25 @@ import { Route } from 'react-router-dom';
 import debouncePromise from 'awesome-debounce-promise';
 import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
 
-import AddPolicy from './add-policy-modal';
-import PoliciesToolbar from './policies-toolbar';
-import RemovePolicy from './remove-policy-modal';
-import { createInitialRows } from './policy-table-helpers';
-import { fetchPolicies } from '../../redux/actions/policy-actions';
+import AddPrincipal from './add-principal-modal';
+import PrincipalsToolbar from './principals-toolbar';
+import RemovePrincipal from './remove-principal-modal';
+import { createInitialRows } from './principal-table-helpers';
+import { fetchPrincipals } from '../../redux/actions/principal-actions';
 import { scrollToTop, getNewPage } from '../../helpers/shared/helpers';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
-const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
+const Principals = ({ fetchPrincipals, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
-    fetchPolicies().then(({ value: { data }}) => setRows(createInitialRows(data)));
+    fetchPrincipals().then(({ value: { data }}) => setRows(createInitialRows(data)));
     scrollToTop();
   }, []);
 
-  const handleOnPerPageSelect = limit => fetchPolicies({
+  const handleOnPerPageSelect = limit => fetchPrincipals({
     offset: pagination.offset,
     limit
   }).then(({ value: { data }}) => setRows(createInitialRows(data)));
@@ -33,7 +33,7 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
       offset: getNewPage(number, pagination.limit),
       limit: pagination.limit
     };
-    const request = () => fetchPolicies(options);
+    const request = () => fetchPrincipals(options);
     if (debounce) {
       return debouncePromise(request, 250)();
     }
@@ -73,28 +73,27 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
     ? setRows(rows.map(row => ({ ...row, selected })))
     : setRows(rows => handleSelected(rows, uuid));
 
-  const actionResolver = (_policyData, { rowIndex }) =>
+  const actionResolver = (_principalData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
       [
         {
           title: 'Edit',
-          onClick: (_event, _rowId, policy) =>
-            push(`/policies/edit/${policy.uuid}`)
+          onClick: (_event, _rowId, principal) =>
+            push(`/principals/edit/${principal.uuid}`)
         },
         {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
-          onClick: (_event, _rowId, policy) =>
-            push(`/policies/remove/${policy.uuid}`)
+          onClick: (_event, _rowId, principal) =>
+            push(`/principals/remove/${principal.uuid}`)
         }
       ];
 
   return (
     <Fragment>
-      <Route exact path="/policies/add-policy" component={ AddPolicyWizard } />
-      <Route exact path="/policies/edit/:id" component={ AddPolicy } />
-      <Route exact path="/policies/remove/:id" component={ RemovePolicy } />
-      <PoliciesToolbar
+      <Route exact path="/groups/add-principal" component={ AddPrincipal } />
+      <Route exact path="/groups/remove/:id" component={ RemovePrincipal } />
+      <PrincipalsToolbar
         filterValue={ filterValue }
         onFilterChange={ onFilterChange }
         pagination={ pagination }
@@ -102,7 +101,7 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
         handleSetPage={ handleSetPage }
       />
       <Table
-        aria-label="Policies table"
+        aria-label="Principals table"
         onCollapse={ onCollapse }
         rows={ rows }
         cells={ columns }
@@ -116,29 +115,29 @@ const Policies = ({ fetchPolicies, pagination, history: { push }}) => {
   );
 };
 
-const mapStateToProps = ({ policyReducer: { policies, filterValue, isLoading }}) => ({
-  policies: policies.data,
-  pagination: policies.meta,
+const mapStateToProps = ({ principalReducer: { principals, filterValue, isLoading }}) => ({
+  principals: principals.data,
+  pagination: principals.meta,
   isLoading,
   searchFilter: filterValue
 });
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchPolicies: apiProps => dispatch(fetchPolicies(apiProps))
+    fetchPrincipals: apiProps => dispatch(fetchPrincipals(apiProps))
   };
 };
 
-Policies.propTypes = {
+Principals.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }),
-  policies: PropTypes.array,
+  principals: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
-  fetchPolicies: PropTypes.func.isRequired,
+  fetchPrincipals: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
@@ -146,9 +145,9 @@ Policies.propTypes = {
   })
 };
 
-Policies.defaultProps = {
-  policies: [],
+Principals.defaultProps = {
+  principals: [],
   pagination: {}
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Policies);
+export default connect(mapStateToProps, mapDispatchToProps)(Principals);

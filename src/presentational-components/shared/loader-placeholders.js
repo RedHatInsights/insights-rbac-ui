@@ -61,3 +61,16 @@ export const AppPlaceholder = props => (
     <ListLoader />
   </div>
 );
+
+export const ToolbarTitlePlaceholder = props => (
+  <ContentLoader
+    height={ 21 }
+    width={ 200 }
+    speed={ 2 }
+    primaryColor="#f3f3f3"
+    secondaryColor="#ecebeb"
+    { ...props }
+  >
+    <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
+  </ContentLoader>
+);

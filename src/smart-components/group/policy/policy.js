@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 import debouncePromise from 'awesome-debounce-promise';
 import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
 
+import AddPolicyWizard from './add-policy/add-policy-wizard';
 import AddPolicy from './add-policy-modal';
 import PoliciesToolbar from './policies-toolbar';
 import RemovePolicy from './remove-policy-modal';
