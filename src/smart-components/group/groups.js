@@ -14,6 +14,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import AppTabs from '../app-tabs/app-tabs';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
+const tabItems = [{ eventKey: 0, title: 'Groups', name: '/groups' }];
 
 const Groups = ({ fetchGroups, groups, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
@@ -50,7 +51,7 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
     <Fragment>
       <TopToolbar>
         <TopToolbarTitle title="Access Management" />
-        <AppTabs/>
+        <AppTabs tabItems={ tabItems }/>
       </TopToolbar>
       <TableToolbarView
         data={ groups }

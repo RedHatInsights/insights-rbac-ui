@@ -4,7 +4,7 @@ import { Button } from '@patternfly/react-core';
 import ExpandableDescription from './expandable-description';
 
 export const createRows = (data, filterValue = undefined) => {
-  console.log('Debug - data', data);
+  console.log('Debug Group list createRows - data', data);
   return data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
     return filter; }).reduce((acc,  { uuid, name, description, members }, key) => ([
     ...acc, {

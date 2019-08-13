@@ -25,6 +25,7 @@ export async function updateGroup(data) {
   const members_list = data.principals ? data.principals.map(user => user.username) : [];
   let addUsers = data.user_list.filter(item => !members_list.includes(item.username));
   let removeUsers = members_list.filter(item => !(data.user_list.map(user => user.username).includes(item)));
+  console.log('DEBUG: addUsers, removeUsers, data.user_list, members_list', addUsers, removeUsers, data.user_list, members_list);
   if (addUsers.length > 0) {
     await groupApi.addPrincipalToGroup(data.uuid, { principals: addUsers });
   }

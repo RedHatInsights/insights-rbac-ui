@@ -1,35 +1,39 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
-import { Tabs, Tab } from '@patternfly/react-core';
-import { Section } from '@redhat-cloud-services/frontend-components';
+
+import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { fetchGroup } from '../../helpers/group/group-helper';
 
-const groupTabs = [{ eventKey: 0, title: 'Members', name: '/members' }, { eventKey: 0, title: 'Policies', name: '/policies' }];
-// TODOD - add the current group id in the path
+const tabItems = [{ eventKey: 0, title: 'Members', name: '/members' }, { eventKey: 0, title: 'Policies', name: '/policies' }];
 
-const Group = ({ history: { push }, location: { pathname }, groupName }) => {
-  const activeTab = groupTabs.find(({ name }) => pathname.includes(name));
-  const handleTabClick = (_event, tabIndex) => push(groupTabs[tabIndex].name);
-
+const Group = ({ match: { params: { id }}}) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
     { title: 'Group', isActive: true }
   ];
+  const [ isFetching, setFetching ] = useState(true);
+  const [ group, setGroup ] = useState(true);
 
-  const renderToolbar = () => (<TopToolbar breadcrumbs={ breadcrumbsList() } paddingBottom={ true }>
-    <TopToolbarTitle title = { `${groupName}` }>
-    </TopToolbarTitle>
-  </TopToolbar>);
+  useEffect(() => {
+    const fetchData = async () => {
+      setFetching(true);
+      const groupData = await fetchGroup(id);
+      setGroup(groupData);
+      console.log('Debug: group', group, group);
+      setFetching(false);
+    };
+
+    fetchData();
+  }, []);
 
   return (
     <Fragment>
-      { renderToolbar() }
-      <Section className="data-table-pane">
-        <Tabs className="pf-u-mt-md" activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
-          { groupTabs.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
-        </Tabs>
-      </Section>
+      <TopToolbar breadcrumbs={ breadcrumbsList() }>
+        <TopToolbarTitle title= { !isFetching && group ? group.name : undefined } />
+        <AppTabs tabItems={ tabItems } />
+      </TopToolbar>
     </Fragment>
   );
 };
@@ -41,7 +45,7 @@ Group.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }),
-  groupName: PropTypes.string
+  match: PropTypes.object
 };
 
 export default withRouter(Group);
