@@ -5,9 +5,8 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addPolicy, fetchPolicies, fetchPolicy } from '../../../redux/actions/policy-actions';
-import { createPolicy } from '../../../redux/actions/policy-actions';
-import { fetchRoles } from '../../../redux/actions/role-actions';
+import { fetchGroupPolicies, fetchPolicy, createPolicy } from '../../../../redux/actions/policy-actions';
+import { fetchRoles } from '../../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import PolicyInformation from './policy-information';
 import PolicyContent from './policy-content';
@@ -16,7 +15,7 @@ const AddPolicyWizard = ({
   history: { push },
   match: { params: { id }},
   addNotification,
-  addPolicy
+  createPolicy
 }) => {
   const [ selectedPolicy, setSelectedPolicy ] = useState({});
   const [ roles, setRoles ] = useState([]);
@@ -61,13 +60,13 @@ const AddPolicyWizard = ({
 
   const  onSubmit =  async() => {
     const role_data = { ...formData, role_list: selectedRoles.map(role => ({ name: role.label })) };
-    const policy = await addPolicy(role_data);
+    const policy = await createPolicy(role_data);
     const policy_data = { name: formData.policyName,
       description: formData.policyDescription,
       policy: policy.value.uuid,
       roles: selectedRoles.map(role => role.value) };
     // TODO - only create the policy if the user selected a policy name and at least a role
-    createPolicy(policy_data).payload.then(() => fetchPolicies()).then(push('/policies'));
+    createPolicy(policy_data).payload.then(() => fetchGroupPolicies()).then(push('/policies'));
   };
 
   const onCancel = () => {
@@ -103,9 +102,9 @@ AddPolicyWizard.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
-  addPolicy: PropTypes.func.isRequired,
+  createPolicy: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchPolicies: PropTypes.func.isRequired,
+  fetchGroupPolicies: PropTypes.func.isRequired,
   fetchPolicy: PropTypes.func.isRequired,
   createPolicies: PropTypes.func.isRequired,
 
@@ -125,9 +124,9 @@ const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => (
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
-  addPolicy,
+  createPolicy,
   fetchPolicy,
-  fetchPolicies,
+  fetchGroupPolicies,
   fetchRoles
 }, dispatch);
 

@@ -23,13 +23,14 @@ export const TableToolbarView = ({
   titlePlural,
   titleSingular,
   pagination,
-  setCheckedItems }) => {
-  const [ filterValue, setFilterValue ] = useState('');
+  setCheckedItems,
+  filterValue,
+  setFilterValue }) => {
   const [ rows, setRows ] = useState([]);
   const [ isLoading ] = useState(false);
 
   useEffect(() => {
-    fetchData(setRows);
+    fetchData(setRows, filterValue);
     scrollToTop();
   }, []);
 
@@ -51,7 +52,7 @@ export const TableToolbarView = ({
     return debounce ? debouncePromise(request, 250)() : requestFunc().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
-  const setOpen = (data, id) => data.map(row => row.id === id ?
+  const setOpen = (data, uuid) => data.map(row => row.uuid === uuid ?
     {
       ...row,
       isOpen: !row.isOpen
@@ -59,8 +60,8 @@ export const TableToolbarView = ({
       ...row
     });
 
-  const setSelected = (data, id) => {
-    const newData = data.map(row => row.id === id ?
+  const setSelected = (data, uuid) => {
+    const newData = data.map(row => row.uuid === uuid ?
       {
         ...row,
         selected: !row.selected
@@ -68,16 +69,16 @@ export const TableToolbarView = ({
         ...row
       });
 
-    let checkedItems = newData.filter(item => (item.id && item.selected));
+    let checkedItems = newData.filter(item => (item.uuid && item.selected));
     setCheckedItems(checkedItems);
     return newData;
   };
 
-  const onCollapse = (_event, _index, _isOpen, { id }) => setRows((rows) => setOpen(rows, id));
+  const onCollapse = (_event, _index, _isOpen, { uuid }) => setRows((rows) => setOpen(rows, uuid));
 
-  const selectRow = (_event, selected, index, { id } = {}) => index === -1
+  const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
     ? setRows(rows.map(row => ({ ...row, selected })))
-    : setRows((rows) => setSelected(rows, id));
+    : setRows((rows) => setSelected(rows, uuid));
 
   const renderToolbar = () => <TableToolbar>
     <Level style={ { flex: 1 } }>
@@ -93,8 +94,8 @@ export const TableToolbarView = ({
           <ToolbarGroup>
             <ToolbarItem>
               <Pagination
-                itemsPerPage={ pagination.limit || 10 }
-                numberOfItems={ pagination.count || 10 }
+                itemsPerPage={ pagination.limit || 50 }
+                numberOfItems={ pagination.count || 50 }
                 onPerPageSelect={ handleOnPerPageSelect }
                 page={ getCurrentPage(pagination.limit, pagination.offset) }
                 onSetPage={ handleSetPage }
@@ -150,7 +151,9 @@ TableToolbarView.propTypes = {
   titleSingular: propTypes.string,
   routes: propTypes.func,
   actionResolver: propTypes.func,
-  setCheckedItems: propTypes.func
+  setCheckedItems: propTypes.func,
+  filterValue: propTypes.string,
+  setFilterValue: propTypes.func
 };
 
 TableToolbarView.defaultProps = {

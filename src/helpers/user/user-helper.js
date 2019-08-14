@@ -1,4 +1,4 @@
-import { getPrincipalApi } from '../Shared/user-login';
+import { getPrincipalApi } from '../shared/user-login';
 
 const principalApi = getPrincipalApi();
 

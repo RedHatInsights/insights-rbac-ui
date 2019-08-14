@@ -6,7 +6,6 @@ import { expandable } from '@patternfly/react-table';
 import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import RemoveGroup from './remove-group-modal';
 import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import Group from './group';
@@ -23,11 +22,9 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
   };
 
   const routes = () => <Fragment>
-    <Route exact path="/groups/add_group/:id" render={ props => <AddGroupWizard { ...props }
+    <Route exact path="/groups/add_group/:uuid" render={ props => <AddGroupWizard { ...props }
       postMethod={ fetchGroups } /> }/>
-    <Route exact path="/groups/edit/:id" render={ props => <AddGroup { ...props }
-      postMethod={ fetchGroups }/> } />
-    <Route exact path="/groups/deny/:id" render={ props => <RemoveGroup { ...props }
+    <Route exact path="/groups/edit/:uuid" render={ props => <AddGroup { ...props }
       postMethod={ fetchGroups }/> } />
   </Fragment>;
 
@@ -71,7 +68,7 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
 
   return (
     <Switch>
-      <Route path={ '/groups/detail/:id' } render={ props => <Group { ...props }/> } />
+      <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
       <Route path={ '/groups' } render={ () => renderGroupsList() } />
     </Switch>
   );
