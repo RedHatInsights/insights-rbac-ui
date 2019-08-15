@@ -7,16 +7,15 @@ import { fetchGroup } from '../../helpers/group/group-helper';
 import GroupPolicies from './policy/policies';
 //import GroupPrincipals from './principal/principal';
 
-const Group = ({ match: { params: { uuid }}}) => {
+const Group = ({ match: { params: { uuid }}, location: { pathname }}) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
     { title: 'Group', isActive: true }
   ];
   const [ isFetching, setFetching ] = useState(true);
   const [ group, setGroup ] = useState(true);
-
-  //const membersUrl = `${pathname}/members`;
-  //const policiesUrl = `${pathname}/policies`;
+  const [ tabItems ] = useState([{ eventKey: 0, title: 'Members', name: `${pathname}/members` },
+    { eventKey: 1, title: 'Policies', name: `${pathname}/policies` }]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -29,8 +28,6 @@ const Group = ({ match: { params: { uuid }}}) => {
 
     fetchData();
   }, []);
-
-  const tabItems = [{ eventKey: 0, title: 'Policies', name: 'policies' }];
 
   return (
     <Fragment>

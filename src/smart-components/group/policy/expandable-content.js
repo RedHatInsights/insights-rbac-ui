@@ -16,7 +16,7 @@ const ExpandableDescription = ({ description, roles }) =>
         <Text
           className="groups-table-detail content"
           component={ TextVariants.h5 }>
-          { `${roles.map((role, index) => `${index !== 0 ? ' ' : ''}$ ${role.description}`)}` }
+          { `${roles.map((role, index) => `${index !== 0 ? ', ' : ''} ${role.description}`)}` }
         </Text>
       </TextContent>
     </Fragment>
