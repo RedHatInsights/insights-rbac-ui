@@ -9,13 +9,16 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import RemovePolicy from './../policy/add-policy/remove-policy-modal';
 import { createRows } from './policy-table-helpers';
 import { fetchGroupPolicies } from '../../../redux/actions/policy-actions';
+import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Roles', 'Created', 'Modified' ];
 
-const GroupPolicies = ({ fetchGroupPolicies, policies, pagination }) => {
+const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
+
+  console.log('Debug - GroupPolicies uuid: ', uuid);
   const fetchData = (setRows) => {
-    fetchGroupPolicies().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+    fetchGroupPolicies({ group_uuid: uuid }).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
   const routes = () => <Fragment>
@@ -27,7 +30,7 @@ const GroupPolicies = ({ fetchGroupPolicies, policies, pagination }) => {
       postMethod={ fetchGroupPolicies }/> } />
   </Fragment>;
 
-  /*const actionResolver = (_policyData, { rowIndex }) =>
+  const actionResolver = (_policyData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
       [
         {
@@ -41,23 +44,25 @@ const GroupPolicies = ({ fetchGroupPolicies, policies, pagination }) => {
           onClick: (_event, _rowId, policy) =>
             history.push(`/policies/remove/${policy.uuid}`)
         }
-      ];*/
+      ];
 
   return (
     <Fragment>
-      <TableToolbarView
-        data={ policies }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchGroupPolicies }
-        routes={ routes }
-        titlePlural="policies"
-        titleSingular="policy"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-      />
+      { uuid === undefined ? <ListLoader/> :
+        <TableToolbarView
+          data={ policies }
+          createRows={ createRows }
+          columns={ columns }
+          fetchData={ fetchData }
+          request={ fetchGroupPolicies }
+          routes={ routes }
+          actionResolver={ actionResolver }
+          titlePlural="policies"
+          titleSingular="policy"
+          pagination={ pagination }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+        /> }
     </Fragment>);
 };
 
@@ -79,6 +84,7 @@ GroupPolicies.propTypes = {
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }),
+  uuid: PropTypes.string,
   policies: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,

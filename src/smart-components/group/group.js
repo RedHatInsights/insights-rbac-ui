@@ -38,7 +38,7 @@ const Group = ({ match: { params: { uuid }}}) => {
         <TopToolbarTitle title= { !isFetching && group ? group.name : undefined } />
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
-      <GroupPolicies/>
+      <GroupPolicies uuid={ group.uuid }/>
     </Fragment>
   );
 };

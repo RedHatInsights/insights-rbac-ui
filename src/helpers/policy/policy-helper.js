@@ -4,7 +4,7 @@ import { getPolicyApi } from '../shared/user-login';
 const policyApi = getPolicyApi();
 
 export async function fetchGroupPolicies({ group_uuid, limit, offset }) {
-  let policiesData = await policyApi.listPolicies(group_uuid, limit, offset);
+  let policiesData = await policyApi.listPolicies(limit, offset, undefined, undefined, group_uuid);
   let policies = policiesData.data;
   return Promise.all(policies.map(async policy => {
     let policyWithRoles = await policyApi.getPolicy(policy.uuid);
