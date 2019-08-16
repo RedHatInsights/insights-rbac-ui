@@ -1,18 +1,32 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
+import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 
-const GroupPrincipals = ({ fetchGroup, principals, pagination, history }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const fetchData = (setRows) => {
-    fetchGroup().then(({ value: { data }}) => setRows(createRows(data.principals, filterValue)));
+  const [ isFetching, setFetching ] = useState(true);
+  const [ principals, setPrincipals ] = useState([]);
+  console.log('DEBUG GroupPrincipals for : ', uuid);
+
+  const fetchData = async (setRows) => {
+    setFetching(true);
+    const group = await fetchGroup(uuid);
+    console.log('DEBUG group Data : ', group);
+    setPrincipals(group.principals);
+    setRows(createRows(group.members));
+    setFetching(false);
   };
+
+  useEffect(() => {
+    if (uuid) { fetchData();}
+  }, [ uuid ]);
 
   const actionResolver = (_principalData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
@@ -32,27 +46,22 @@ const GroupPrincipals = ({ fetchGroup, principals, pagination, history }) => {
 
   return (
     <Fragment>
-      <TableToolbarView
-        data={ principals }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchGroup }
-        actionResolver={ actionResolver }
-        titlePlural="principals"
-        titleSingular="principal"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-      />
+      { isFetching ?  <ListLoader/> :
+        <TableToolbarView
+          data={ principals }
+          createRows={ createRows }
+          columns={ columns }
+          fetchData={ fetchData }
+          request={ fetchGroup }
+          actionResolver={ actionResolver }
+          titlePlural="principals"
+          titleSingular="principal"
+          pagination={ pagination }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+        /> }
     </Fragment>);
 };
-
-const mapStateToProps = ({ groupReducer: { selectedGroup, filterValue, isLoading }}) => ({
-  principals: selectedGroup.members,
-  isLoading,
-  searchFilter: filterValue
-});
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -70,6 +79,7 @@ GroupPrincipals.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroup: PropTypes.func.isRequired,
+  uuid: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
@@ -82,4 +92,4 @@ GroupPrincipals.defaultProps = {
   pagination: {}
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);
+export default connect(null, mapDispatchToProps)(GroupPrincipals);

@@ -4,8 +4,8 @@ import { withRouter } from 'react-router-dom';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { fetchGroup } from '../../helpers/group/group-helper';
-import GroupPolicies from './policy/policies';
-//import GroupPrincipals from './principal/principal';
+//import GroupPolicies from './policy/policies';
+import GroupPrincipals from './principal/principal';
 
 const Group = ({ match: { params: { uuid }}, location: { pathname }}) => {
   const breadcrumbsList = () => [
@@ -35,7 +35,7 @@ const Group = ({ match: { params: { uuid }}, location: { pathname }}) => {
         <TopToolbarTitle title= { !isFetching && group ? group.name : undefined } />
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
-      <GroupPolicies uuid={ group.uuid }/>
+      <GroupPrincipals uuid={ group.uuid }/>
     </Fragment>
   );
 };
