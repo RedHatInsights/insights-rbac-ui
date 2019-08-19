@@ -2,26 +2,22 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 
-const ExpandableDescription = ({ description, roles }) =>
-{
-  console.log('Debug ExpPol: desc, roles', description, roles);
-  return (
-    <Fragment>
-      <TextContent>
-        <Text className="groups-table-detail heading" component={ TextVariants.small }>Description</Text>
-        <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description }</Text>
-      </TextContent>
-      <TextContent>
-        <Text className="groups-table-detail heading" component={ TextVariants.small }>roles</Text>
-        <Text
-          className="groups-table-detail content"
-          component={ TextVariants.h5 }>
-          { `${roles.map((role, index) => `${index !== 0 ? ', ' : ''} ${role.description}`)}` }
-        </Text>
-      </TextContent>
-    </Fragment>
-  );
-};
+const ExpandableDescription = ({ description, roles }) => (
+  <Fragment>
+    <TextContent>
+      <Text className="groups-table-detail heading" component={ TextVariants.small }>Description</Text>
+      <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description }</Text>
+    </TextContent>
+    <TextContent>
+      <Text className="groups-table-detail heading" component={ TextVariants.small }>roles</Text>
+      <Text
+        className="groups-table-detail content"
+        component={ TextVariants.h5 }>
+        { `${roles.map((role, index) => `${index !== 0 ? ', ' : ''} ${role.description}`)}` }
+      </Text>
+    </TextContent>
+  </Fragment>
+);
 
 ExpandableDescription.propTypes = {
   description: PropTypes.string.isRequired,

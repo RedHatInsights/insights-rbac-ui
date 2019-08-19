@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Level, LevelItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
+import { Level, LevelItem, Stack, StackItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
 
@@ -28,13 +28,22 @@ TopToolbar.defaultProps = {
   paddingBottom: false
 };
 
-export const TopToolbarTitle = ({ title, children }) => (
+export const TopToolbarTitle = ({ title, description, children }) => (
   <Fragment>
     <Level className="pf-u-mb-xl">
       <LevelItem>
-        <TextContent className="top-toolbar-title">
-          { <Text component={ TextVariants.h2 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
-        </TextContent>
+        <Stack gutter="sm">
+          <StackItem>
+            <TextContent className="top-toolbar-title">
+              { <Text component={ TextVariants.h2 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
+            </TextContent>
+          </StackItem>
+          <StackItem>
+            <TextContent className="top-toolbar-title">
+              { description || <Text component={ TextVariants.h4 }>{ description }</Text> }
+            </TextContent>
+          </StackItem>
+        </Stack>
       </LevelItem>
       { children }
     </Level>
@@ -43,6 +52,7 @@ export const TopToolbarTitle = ({ title, children }) => (
 
 TopToolbarTitle.propTypes = {
   title: PropTypes.string.isRequired,
+  description: PropTypes.string,
   children: PropTypes.oneOfType([
     PropTypes.node,
     PropTypes.arrayOf(PropTypes.node)

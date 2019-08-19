@@ -3,9 +3,8 @@ import { Link } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import ExpandableContent from './expandable-content';
 
-export const createRows = (data, filterValue = undefined) => {
-  console.log('Debug - data', data);
-  return data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
+export const createRows = (data, filterValue = undefined) => (
+  data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
     return filter; }).reduce((acc,  { uuid, name, description, roles, created, modified }, key) => ([
     ...acc, {
       uuid,
@@ -17,6 +16,5 @@ export const createRows = (data, filterValue = undefined) => {
       fullWidth: true,
       cells: [{ title: <ExpandableContent description={ description } roles={ roles }/> }]
     }
-  ]), []);
-};
+  ]), []));
 

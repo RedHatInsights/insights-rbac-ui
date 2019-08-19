@@ -16,7 +16,6 @@ const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description'
 const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
-  console.log('Debug - GroupPolicies uuid: ', uuid);
   const fetchData = (setRows) => {
     fetchGroupPolicies({ group_uuid: uuid }).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };

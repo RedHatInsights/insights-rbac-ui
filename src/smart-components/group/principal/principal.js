@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { expandable } from '@patternfly/react-table';
@@ -7,26 +7,22 @@ import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, pagination, history }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ isFetching, setFetching ] = useState(true);
   const [ principals, setPrincipals ] = useState([]);
-  console.log('DEBUG GroupPrincipals for : ', uuid);
+  const [ pagination, setPagination ] = useState({});
 
-  const fetchData = async (setRows) => {
-    setFetching(true);
-    const group = await fetchGroup(uuid);
-    console.log('DEBUG group Data : ', group);
-    setPrincipals(group.principals);
-    setRows(createRows(group.members));
-    setFetching(false);
+  const fetchData = (setRows) => {
+    if (uuid) {
+      fetchGroup(uuid).then((data) => {
+        setPrincipals(data.value.principals);
+        setRows(createRows(data.value.principals, filterValue));
+        setPagination({ ...pagination, count: data.value.principals.length });
+      });
+    }
   };
-
-  useEffect(() => {
-    if (uuid) { fetchData();}
-  }, [ uuid ]);
 
   const actionResolver = (_principalData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
@@ -46,22 +42,27 @@ const GroupPrincipals = ({ uuid, fetchGroup, pagination, history }) => {
 
   return (
     <Fragment>
-      { isFetching ?  <ListLoader/> :
-        <TableToolbarView
-          data={ principals }
-          createRows={ createRows }
-          columns={ columns }
-          fetchData={ fetchData }
-          request={ fetchGroup }
-          actionResolver={ actionResolver }
-          titlePlural="principals"
-          titleSingular="principal"
-          pagination={ pagination }
-          filterValue={ filterValue }
-          setFilterValue={ setFilterValue }
-        /> }
+      { !uuid && <ListLoader/> }
+      { uuid &&
+      <TableToolbarView
+        data={ principals }
+        createRows={ createRows }
+        columns={ columns }
+        fetchData={ fetchData }
+        request={ fetchGroup }
+        actionResolver={ actionResolver }
+        titlePlural="principals"
+        titleSingular="principal"
+        filterValue={ filterValue }
+        setFilterValue={ setFilterValue }
+        pagination={ pagination }
+      /> }
     </Fragment>);
 };
+
+const mapStateToProps = ({ groupReducer: { filterValue }}) => ({
+  searchFilter: filterValue
+});
 
 const mapDispatchToProps = dispatch => {
   return {
@@ -92,4 +93,4 @@ GroupPrincipals.defaultProps = {
   pagination: {}
 };
 
-export default connect(null, mapDispatchToProps)(GroupPrincipals);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);
