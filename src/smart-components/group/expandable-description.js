@@ -6,7 +6,7 @@ const ExpandableDescription = ({ description, members }) => (
   <Fragment>
     <TextContent>
       <Text className="groups-table-detail heading" component={ TextVariants.small }>Description</Text>
-      <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description }</Text>
+      <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description || '' }</Text>
     </TextContent>
     <TextContent>
       <Text className="groups-table-detail heading" component={ TextVariants.small }>members</Text>

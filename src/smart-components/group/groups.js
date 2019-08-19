@@ -5,6 +5,7 @@ import { Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
+import RemoveGroup from './remove-group-modal';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
@@ -22,9 +23,11 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
   };
 
   const routes = () => <Fragment>
-    <Route exact path="/groups/add_group/:uuid" render={ props => <AddGroupWizard { ...props }
+    <Route exact path="/groups/add_group/:id" render={ props => <AddGroupWizard { ...props }
       postMethod={ fetchGroups } /> }/>
-    <Route exact path="/groups/edit/:uuid" render={ props => <AddGroup { ...props }
+    <Route exact path="/groups/edit/:id" render={ props => <AddGroup { ...props }
+      postMethod={ fetchGroups }/> } />
+    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props }
       postMethod={ fetchGroups }/> } />
   </Fragment>;
 
