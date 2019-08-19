@@ -1,16 +1,20 @@
 import React from 'react';
 import propTypes from 'prop-types';
-import { ToolbarGroup, ToolbarItem, Button, TextInput } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons';
+import { ToolbarGroup, ToolbarItem, TextInput } from '@patternfly/react-core';
 
 const FilterToolbarItem = ({ searchValue, onFilterChange, placeholder }) => (
   <ToolbarGroup>
     <ToolbarItem>
-      <div className="pf-c-input-group">
-        <TextInput placeholder={ placeholder } value={ searchValue } type="text" onChange={ onFilterChange }
-          aria-label="Find product button"></TextInput>
-        <Button variant="tertiary" id="searchProductButton" onClick={ () => onFilterChange(searchValue) }>
-          <i className="fas fa-search" aria-hidden="true"></i>
-        </Button>
+      <div className="toolbar-filter-input-group">
+        <TextInput
+          placeholder={ placeholder }
+          value={ searchValue }
+          type="text"
+          onChange={ onFilterChange }
+          aria-label={ placeholder }
+        />
+        <SearchIcon />
       </div>
     </ToolbarItem>
   </ToolbarGroup>
