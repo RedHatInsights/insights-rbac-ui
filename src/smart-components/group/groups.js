@@ -1,8 +1,9 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
+import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -16,19 +17,16 @@ import AppTabs from '../app-tabs/app-tabs';
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 const tabItems = [{ eventKey: 0, title: 'Groups', name: '/groups' }];
 
-const Groups = ({ fetchGroups, groups, pagination, history }) => {
+const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const fetchData = (setRows) => {
     fetchGroups().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
   const routes = () => <Fragment>
-    <Route exact path="/groups/add_group/:id" render={ props => <AddGroupWizard { ...props }
-      postMethod={ fetchGroups } /> }/>
-    <Route exact path="/groups/edit/:id" render={ props => <AddGroup { ...props }
-      postMethod={ fetchGroups }/> } />
-    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props }
-      postMethod={ fetchGroups }/> } />
+    <Route exact path="/groups/add-group" component={ AddGroupWizard } />
+    <Route exact path="/groups/edit/:id" component={ AddGroup } />
+    <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
   </Fragment>;
 
   const actionResolver = (_groupData, { rowIndex }) =>
@@ -37,20 +35,33 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
         {
           title: 'Edit',
           onClick: (_event, _rowId, group) =>
-            history.push(`/groups/edit/${group.uuid}`)
+            push(`/groups/edit/${group.uuid}`)
         },
         {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
           onClick: (_event, _rowId, group) =>
-            history.push(`/groups/remove/${group.uuid}`)
+            push(`/groups/remove/${group.uuid}`)
         }
       ];
+
+  const toolbarButtons = () => <ToolbarGroup>
+    <ToolbarItem>
+      <Link to="/groups/add-group">
+        <Button
+          variant="primary"
+          aria-label="Create group"
+        >
+          Add group
+        </Button>
+      </Link>
+    </ToolbarItem>
+  </ToolbarGroup>;
 
   const renderGroupsList = () =>
     <Fragment>
       <TopToolbar>
-        <TopToolbarTitle title="Access Management" />
+        <TopToolbarTitle title="User access management" />
         <AppTabs tabItems={ tabItems }/>
       </TopToolbar>
       <TableToolbarView
@@ -66,6 +77,7 @@ const Groups = ({ fetchGroups, groups, pagination, history }) => {
         pagination={ pagination }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
+        toolbarButtons = { toolbarButtons }
       />
     </Fragment>;
 
