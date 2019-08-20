@@ -66,11 +66,10 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history
     </Fragment>);
 };
 
-const mapStateToProps = ({ policyReducer: { policies, filterValue, isLoading }}) => ({
+const mapStateToProps = ({ policyReducer: { policies, isLoading }}) => ({
   policies: policies.data,
   pagination: policies.meta,
-  isLoading,
-  searchFilter: filterValue
+  isLoading
 });
 
 const mapDispatchToProps = dispatch => {
@@ -88,7 +87,6 @@ GroupPolicies.propTypes = {
   policies: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
-  searchFilter: PropTypes.string,
   fetchGroupPolicies: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
