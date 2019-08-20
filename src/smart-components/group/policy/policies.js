@@ -80,7 +80,6 @@ const mapDispatchToProps = dispatch => {
 
 GroupPolicies.propTypes = {
   history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }),
   uuid: PropTypes.string,
