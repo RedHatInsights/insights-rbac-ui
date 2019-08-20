@@ -13,6 +13,7 @@ import { fetchGroups } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import AppTabs from '../app-tabs/app-tabs';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
 const tabItems = [{ eventKey: 0, title: 'Groups', name: '/groups' }];
@@ -121,7 +122,7 @@ Groups.propTypes = {
 
 Groups.defaultProps = {
   groups: [],
-  pagination: {}
+  pagination: defaultSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Groups);

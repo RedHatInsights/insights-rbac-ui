@@ -10,6 +10,7 @@ import RemovePolicy from './../policy/add-policy/remove-policy-modal';
 import { createRows } from './policy-table-helpers';
 import { fetchGroupPolicies } from '../../../redux/actions/policy-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Roles', 'Created', 'Modified' ];
 
@@ -98,7 +99,7 @@ GroupPolicies.propTypes = {
 
 GroupPolicies.defaultProps = {
   policies: [],
-  pagination: {}
+  pagination: defaultSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupPolicies);

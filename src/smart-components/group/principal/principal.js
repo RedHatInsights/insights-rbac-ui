@@ -6,6 +6,7 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
@@ -80,17 +81,17 @@ GroupPrincipals.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroup: PropTypes.func.isRequired,
-  uuid: PropTypes.string.isRequired,
+  uuid: PropTypes.string,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired
+    count: PropTypes.number
   })
 };
 
 GroupPrincipals.defaultProps = {
   principals: [],
-  pagination: {}
+  pagination: defaultSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);
