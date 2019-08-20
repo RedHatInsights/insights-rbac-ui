@@ -40,7 +40,7 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history
         },
         {
           title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)'	},
+          style: { color: 'var(--pf-global--danger-color--100)' },
           onClick: (_event, _rowId, policy) =>
             history.push(`/policies/remove/${policy.uuid}`)
         }
