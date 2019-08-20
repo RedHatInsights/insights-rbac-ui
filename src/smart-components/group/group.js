@@ -14,8 +14,9 @@ const Group = ({ match: { params: { uuid }}, location: { pathname }}) => {
   ];
   const [ isFetching, setFetching ] = useState(true);
   const [ group, setGroup ] = useState(true);
-  const [ tabItems ] = useState([{ eventKey: 0, title: 'Members', name: `${pathname}/members` },
-    { eventKey: 1, title: 'Policies', name: `${pathname}/policies` }]);
+
+  const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${uuid}/members` },
+    { eventKey: 1, title: 'Policies', name: `/groups/detail/${uuid}/policies` }];
 
   useEffect(() => {
     const fetchData = async () => {
