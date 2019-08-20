@@ -61,10 +61,6 @@ const GroupPrincipals = ({ uuid, fetchGroup, history }) => {
     </Fragment>);
 };
 
-const mapStateToProps = ({ groupReducer: { filterValue }}) => ({
-  searchFilter: filterValue
-});
-
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroup: apiProps => dispatch(fetchGroup(apiProps))
@@ -73,13 +69,11 @@ const mapDispatchToProps = dispatch => {
 
 GroupPrincipals.propTypes = {
   history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }),
   principals: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
-  searchFilter: PropTypes.string,
   fetchGroup: PropTypes.func.isRequired,
   uuid: PropTypes.string,
   pagination: PropTypes.shape({
@@ -94,4 +88,4 @@ GroupPrincipals.defaultProps = {
   pagination: defaultSettings
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);
+export default connect(null, mapDispatchToProps)(GroupPrincipals);
