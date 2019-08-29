@@ -81,7 +81,6 @@ export const TableToolbarView = ({
     : setRows((rows) => setSelected(rows, uuid));
 
   const renderToolbar = () => {
-    console.log('Debug - pagination', pagination);
     return (<TableToolbar>
       <Level style={ { flex: 1 } }>
         <LevelItem>
@@ -144,7 +143,7 @@ TableToolbarView.propTypes = {
   pagination: propTypes.shape({
     limit: propTypes.number.isRequired,
     offset: propTypes.number.isRequired,
-    count: propTypes.number.isRequired
+    count: propTypes.number
   }),
   titlePlural: propTypes.string,
   titleSingular: propTypes.string,

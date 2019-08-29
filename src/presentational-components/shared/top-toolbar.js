@@ -51,7 +51,7 @@ export const TopToolbarTitle = ({ title, description, children }) => (
 );
 
 TopToolbarTitle.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   description: PropTypes.string,
   children: PropTypes.oneOfType([
     PropTypes.node,

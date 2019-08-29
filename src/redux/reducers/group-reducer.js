@@ -14,7 +14,7 @@ export const groupsInitialState = {
       offset: 0
     }
   },
-  group: {},
+  selectedGroup: {},
   isLoading: false
 };
 
