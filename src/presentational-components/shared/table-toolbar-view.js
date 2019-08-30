@@ -3,8 +3,9 @@ import propTypes from 'prop-types';
 import debouncePromise from 'awesome-debounce-promise';
 import { Toolbar, ToolbarGroup, ToolbarItem, Level, LevelItem } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table';
-import { Pagination } from '@redhat-cloud-services/frontend-components/components/Pagination';
-import { scrollToTop, getCurrentPage, getNewPage, defaultSettings } from '../../helpers/shared/helpers';
+import { Pagination } from '@redhat-cloud-services/frontend-components';
+import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
+import { defaultSettings  } from '../../helpers/shared/pagination';
 import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
@@ -141,8 +142,8 @@ TableToolbarView.propTypes = {
   fetchData: propTypes.func.isRequired,
   data: propTypes.array,
   pagination: propTypes.shape({
-    limit: propTypes.number.isRequired,
-    offset: propTypes.number.isRequired,
+    limit: propTypes.number,
+    offset: propTypes.number,
     count: propTypes.number
   }),
   titlePlural: propTypes.string,

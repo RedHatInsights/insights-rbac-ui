@@ -20,10 +20,10 @@ const ExpandableDescription = ({ description, roles }) => (
 );
 
 ExpandableDescription.propTypes = {
-  description: PropTypes.string.isRequired,
+  description: PropTypes.string,
   roles: PropTypes.arrayOf(PropTypes.shape({
     name: PropTypes.string.isRequired,
-    description: PropTypes.string.isRequired
+    description: PropTypes.string
   })).isRequired
 };
 

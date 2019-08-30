@@ -10,17 +10,13 @@ import { defaultSettings } from '../../../helpers/shared/pagination';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, history }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ principals, setPrincipals ] = useState([]);
-  const [ pagination, setPagination ] = useState({});
 
   const fetchData = (setRows) => {
     if (uuid) {
       fetchGroup(uuid).then((data) => {
-        setPrincipals(data.value.principals);
         setRows(createRows(data.value.principals, filterValue));
-        setPagination({ ...pagination, count: data.value.principals.length });
       });
     }
   };
@@ -54,9 +50,9 @@ const GroupPrincipals = ({ uuid, fetchGroup, history }) => {
         actionResolver={ actionResolver }
         titlePlural="principals"
         titleSingular="principal"
+        pagination={ pagination }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
-        pagination={ pagination }
       /> }
     </Fragment>);
 };
