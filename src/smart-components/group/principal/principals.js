@@ -57,6 +57,12 @@ const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) 
     </Fragment>);
 };
 
+const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }}) => ({
+  principals: selectedGroup.principals,
+  pagination: { ...defaultSettings, count: selectedGroup.principals.length },
+  isLoading
+});
+
 const mapDispatchToProps = dispatch => {
   return {
     fetchGroup: apiProps => dispatch(fetchGroup(apiProps))
@@ -84,4 +90,4 @@ GroupPrincipals.defaultProps = {
   pagination: defaultSettings
 };
 
-export default connect(null, mapDispatchToProps)(GroupPrincipals);
+export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);

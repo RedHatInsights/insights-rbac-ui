@@ -12,7 +12,7 @@ import { fetchGroupPolicies } from '../../../redux/actions/policy-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Roles', 'Created', 'Modified' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Roles', 'Last modified' ];
 
 const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');

@@ -15,7 +15,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
 const tabItems = [{ eventKey: 0, title: 'Groups', name: '/groups' }];
 
 const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
