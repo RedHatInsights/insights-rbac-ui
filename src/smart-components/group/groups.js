@@ -1,78 +1,34 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Route } from 'react-router-dom';
-import debouncePromise from 'awesome-debounce-promise';
-import { Table, TableHeader, TableBody, expandable } from '@patternfly/react-table';
-
+import { Link, Route, Switch } from 'react-router-dom';
+import { expandable } from '@patternfly/react-table';
+import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
-import GroupsToolbar from './groups-toolbar';
 import RemoveGroup from './remove-group-modal';
-import { createInitialRows } from './group-table-helpers';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
-import { scrollToTop, getNewPage } from '../../helpers/shared/helpers';
+import Group from './group';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import AppTabs from '../app-tabs/app-tabs';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
+const tabItems = [{ eventKey: 0, title: 'Groups', name: '/groups' }];
 
-const Groups = ({ fetchGroups, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ rows, setRows ] = useState([]);
-
-  useEffect(() => {
-    fetchGroups().then(({ value: { data }}) => setRows(createInitialRows(data)));
-    scrollToTop();
-  }, []);
-
-  const handleOnPerPageSelect = limit => fetchGroups({
-    offset: pagination.offset,
-    limit
-  }).then(({ value: { data }}) => setRows(createInitialRows(data)));
-
-  const  handleSetPage = (number, debounce) => {
-    const options = {
-      offset: getNewPage(number, pagination.limit),
-      limit: pagination.limit
-    };
-    const request = () => fetchGroups(options);
-    if (debounce) {
-      return debouncePromise(request, 250)();
-    }
-
-    return request().then(({ value: { data }}) => setRows(createInitialRows(data)));
+  const fetchData = (setRows) => {
+    fetchGroups().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
-  const handleOpen = (data, uuid) => data.map(row => {
-    if (row.uuid === uuid) {
-      return {
-        ...row,
-        isOpen: !row.isOpen
-      };
-    }
-
-    return { ...row };
-  });
-
-  const handleSelected = (data, uuid) => data.map(row => {
-    if (row.uuid === uuid) {
-      return {
-        ...row,
-        selected: !row.selected
-      };
-    }
-
-    return { ...row };
-  });
-
-  const onCollapse = (_event, _index, _isOpen, { uuid }) => setRows(rows => handleOpen(rows, uuid));
-
-  const onFilterChange = (value) => {
-    setFilterValue(value);
-  };
-
-  const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
-    ? setRows(rows.map(row => ({ ...row, selected })))
-    : setRows(rows => handleSelected(rows, uuid));
+  const routes = () => <Fragment>
+    <Route exact path="/groups/add-group" component={ AddGroupWizard } />
+    <Route exact path="/groups/edit/:id" component={ AddGroup } />
+    <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
+  </Fragment>;
 
   const actionResolver = (_groupData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
@@ -90,30 +46,47 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
         }
       ];
 
-  return (
+  const toolbarButtons = () => <ToolbarGroup>
+    <ToolbarItem>
+      <Link to="/groups/add-group">
+        <Button
+          variant="primary"
+          aria-label="Create group"
+        >
+          Add group
+        </Button>
+      </Link>
+    </ToolbarItem>
+  </ToolbarGroup>;
+
+  const renderGroupsList = () =>
     <Fragment>
-      <Route exact path="/groups/add-group" component={ AddGroupWizard } />
-      <Route exact path="/groups/edit/:id" component={ AddGroup } />
-      <Route exact path="/groups/remove/:id" component={ RemoveGroup } />
-      <GroupsToolbar
-        filterValue={ filterValue }
-        onFilterChange={ onFilterChange }
-        pagination={ pagination }
-        handleOnPerPageSelect={ handleOnPerPageSelect }
-        handleSetPage={ handleSetPage }
-      />
-      <Table
-        aria-label="Groups table"
-        onCollapse={ onCollapse }
-        rows={ rows }
-        cells={ columns }
-        onSelect={ selectRow }
+      <TopToolbar>
+        <TopToolbarTitle title="User access management" />
+        <AppTabs tabItems={ tabItems }/>
+      </TopToolbar>
+      <TableToolbarView
+        data={ groups }
+        createRows={ createRows }
+        columns={ columns }
+        fetchData={ fetchData }
+        request={ fetchGroups }
+        routes={ routes }
         actionResolver={ actionResolver }
-      >
-        <TableHeader />
-        <TableBody />
-      </Table>
-    </Fragment>
+        titlePlural="groups"
+        titleSingular="group"
+        pagination={ pagination }
+        filterValue={ filterValue }
+        setFilterValue={ setFilterValue }
+        toolbarButtons = { toolbarButtons }
+      />
+    </Fragment>;
+
+  return (
+    <Switch>
+      <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
+      <Route path={ '/groups' } render={ () => renderGroupsList() } />
+    </Switch>
   );
 };
 
@@ -149,7 +122,7 @@ Groups.propTypes = {
 
 Groups.defaultProps = {
   groups: [],
-  pagination: {}
+  pagination: defaultSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Groups);

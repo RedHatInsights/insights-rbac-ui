@@ -6,9 +6,9 @@ import { TableToolbar } from '@redhat-cloud-services/frontend-components/compone
 import { Button, Level, LevelItem, Toolbar, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 
 import { getCurrentPage } from '../../helpers/shared/helpers';
-import GroupsFilterToolbar from '../../presentational-components/group/groups-filter-toolbar';
+import GroupFilterToolbar from '../../presentational-components/principal/principals-filter-toolbar';
 
-const GroupsToolbar = ({
+const GroupToolbar = ({
   onFilterChange,
   filterValue,
   pagination,
@@ -21,16 +21,16 @@ const GroupsToolbar = ({
         <Toolbar>
           <ToolbarGroup>
             <ToolbarItem>
-              <GroupsFilterToolbar onFilterChange={ value => onFilterChange(value) } filterValue={ filterValue }/>
+              <GroupFilterToolbar onFilterChange={ value => onFilterChange(value) } filterValue={ filterValue }/>
             </ToolbarItem>
           </ToolbarGroup>
           <ToolbarGroup>
             <ToolbarItem>
             </ToolbarItem>
             <ToolbarItem>
-              <Link to="/groups/add-group">
-                <Button variant="primary" aria-label="Create Group">
-                  Create Group
+              <Link to="/principals/add-principal">
+                <Button variant="primary" aria-label="Edit members">
+                  Edit Members
                 </Button>
               </Link>
             </ToolbarItem>
@@ -51,7 +51,7 @@ const GroupsToolbar = ({
   </TableToolbar>
 );
 
-GroupsToolbar.propTypes = {
+GroupToolbar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
   filterValue: PropTypes.string.isRequired,
   pagination: PropTypes.shape({
@@ -62,4 +62,4 @@ GroupsToolbar.propTypes = {
   handleSetPage: PropTypes.func.isRequired
 };
 
-export default GroupsToolbar;
+export default GroupToolbar;

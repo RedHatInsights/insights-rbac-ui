@@ -62,3 +62,7 @@ export const removeGroup = (group) => ({
     }
   }
 });
+
+export const resetSelectedGroup = () => ({
+  type: ActionTypes.RESET_SELECTED_GROUP
+});

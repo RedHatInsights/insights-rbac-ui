@@ -2,18 +2,18 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 
-const ExpandableDescription = ({ description, members }) => (
+const ExpandableDescription = ({ description, roles }) => (
   <Fragment>
     <TextContent>
       <Text className="groups-table-detail heading" component={ TextVariants.small }>Description</Text>
-      <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description || '' }</Text>
+      <Text className="groups-table-detail content" component={ TextVariants.h5 }>{ description }</Text>
     </TextContent>
     <TextContent>
-      <Text className="groups-table-detail heading" component={ TextVariants.small }>members</Text>
+      <Text className="groups-table-detail heading" component={ TextVariants.small }>roles</Text>
       <Text
         className="groups-table-detail content"
         component={ TextVariants.h5 }>
-        { `${members.map(({ first_name, last_name }, index) => `${index !== 0 ? ' ' : ''}${first_name} ${last_name}`)}` }
+        { `${roles.map((role, index) => `${index !== 0 ? ', ' : ''} ${role.description}`)}` }
       </Text>
     </TextContent>
   </Fragment>
@@ -21,9 +21,9 @@ const ExpandableDescription = ({ description, members }) => (
 
 ExpandableDescription.propTypes = {
   description: PropTypes.string,
-  members: PropTypes.arrayOf(PropTypes.shape({
-    first_name: PropTypes.string,
-    last_name: PropTypes.string
+  roles: PropTypes.arrayOf(PropTypes.shape({
+    name: PropTypes.string.isRequired,
+    description: PropTypes.string
   })).isRequired
 };
 

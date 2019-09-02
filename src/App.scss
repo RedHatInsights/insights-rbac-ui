@@ -17,6 +17,33 @@
   }
 }
 
-.bg-white {
-  background-color: white;
+.data-table-pane {
+  padding-left:32px;
+  padding-right: 32px;
+  padding-top: 16px;
+}
+
+.table-fix {
+  .pf-c-table__toggle {
+    padding-top: 0;
+  }
+}
+
+.toolbar-filter-input-group {
+  position: relative;
+  width: 300px;
+  height: 36px;
+  input {
+    position: absolute;
+    width: 300px;
+    background: transparent;
+  }
+  svg {
+    vertical-align: -0.125em;
+    z-index: 1000;
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    fill: #72767B
+  }
 }

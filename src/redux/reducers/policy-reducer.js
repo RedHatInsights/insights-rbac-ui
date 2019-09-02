@@ -1,6 +1,6 @@
 import {
   FETCH_POLICY,
-  FETCH_POLICIES
+  FETCH_GROUP_POLICIES
 } from '../../redux/action-types';
 
 // Initial State
@@ -22,8 +22,8 @@ const setPolicies = (state, { payload }) => ({ ...state, policies: payload, isLo
 const selectPolicy = (state, { payload }) => ({ ...state, selectedPolicy: payload, isLoading: false });
 
 export default {
-  [`${FETCH_POLICIES}_PENDING`]: setLoadingState,
-  [`${FETCH_POLICIES}_FULFILLED`]: setPolicies,
+  [`${FETCH_GROUP_POLICIES}_PENDING`]: setLoadingState,
+  [`${FETCH_GROUP_POLICIES}_FULFILLED`]: setPolicies,
   [`${FETCH_POLICY}_PENDING`]: setLoadingState,
   [`${FETCH_POLICY}_FULFILLED`]: selectPolicy
 };

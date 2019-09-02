@@ -2,13 +2,13 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import FilterToolbarItem from '../shared/filter-toolbar-item';
 
-const UsersFilterToolbar = ({ onFilterChange, filterValue, ...props }) => (
+const PrincipalsFilterToolbar = ({ onFilterChange, filterValue, ...props }) => (
   <FilterToolbarItem { ...props } searchValue={ filterValue } onFilterChange={ onFilterChange } placeholder={ 'Find a User' }/>
 );
 
-UsersFilterToolbar.propTypes = {
+PrincipalsFilterToolbar.propTypes = {
   onFilterChange: PropTypes.func.isRequired,
   filterValue: PropTypes.string
 };
 
-export default UsersFilterToolbar;
+export default PrincipalsFilterToolbar;

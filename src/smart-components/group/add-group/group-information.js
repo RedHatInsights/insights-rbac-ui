@@ -15,7 +15,7 @@ const GroupInformation = (formValue, onHandleChange) => {
     <Fragment>
       <Stack gutter="md">
         <StackItem>
-          <Title size="xl"> Add group </Title>
+          <Title size="xl"> Enter group information </Title>
         </StackItem>
         <StackItem>
           <Form>

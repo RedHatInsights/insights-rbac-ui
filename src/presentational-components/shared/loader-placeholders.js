@@ -13,10 +13,10 @@ import ContentLoader from 'react-content-loader';
 export const ListLoader = ({ items, ...props }) => (
   <Fragment>
     <Section className="data-table-pane">
-      <DataList aria-labelledby="datalist-placeholder" style={ { margin: 32 } }>
+      <DataList aria-label="datalist-placeholder" style={ { margin: 32 } }>
         { [ ...Array(items) ].map((_item, index) => (
           <DataListItem key={ index } aria-labelledby="datalist-item-placeholder">
-            <DataListItemRow>
+            <DataListItemRow aria-label="datalist-item-placeholder-row">
               <DataListItemCells dataListCells={ [
                 <DataListCell key="1">
                   <ContentLoader
@@ -60,4 +60,17 @@ export const AppPlaceholder = props => (
     </ContentLoader>
     <ListLoader />
   </div>
+);
+
+export const ToolbarTitlePlaceholder = props => (
+  <ContentLoader
+    height={ 21 }
+    width={ 200 }
+    speed={ 2 }
+    primaryColor="#f3f3f3"
+    secondaryColor="#ecebeb"
+    { ...props }
+  >
+    <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
+  </ContentLoader>
 );
