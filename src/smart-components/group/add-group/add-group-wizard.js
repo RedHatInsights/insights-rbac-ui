@@ -71,7 +71,7 @@ const AddGroupModal = ({
       group: group.value.uuid,
       roles: selectedRoles.map(role => role.value) };
     // TODO - only create the policy if the user selected a policy name and at least a role
-    createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
+    return createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
   };
 
   const onCancel = () => {
