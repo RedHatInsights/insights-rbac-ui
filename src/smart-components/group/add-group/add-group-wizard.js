@@ -64,8 +64,9 @@ const AddGroupModal = ({
   }, []);
 
   const  onSubmit =  async() => {
-    const user_data = { ...formData, user_list: selectedUsers.map(user => ({ username: user.label })) };
+    const user_data = { ...formData, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined };
     const group = await addGroup(user_data);
+    console.log('Debug - new group: ', group);
     const policy_data = { name: formData.policyName,
       description: formData.policyDescription,
       group: group.value.uuid,
