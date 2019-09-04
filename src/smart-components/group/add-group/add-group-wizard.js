@@ -66,13 +66,19 @@ const AddGroupModal = ({
   const  onSubmit =  async() => {
     const user_data = { ...formData, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined };
     const group = await addGroup(user_data);
-    console.log('Debug - new group: ', group);
-    const policy_data = { name: formData.policyName,
-      description: formData.policyDescription,
-      group: group.value.uuid,
-      roles: selectedRoles.map(role => role.value) };
-    // TODO - only create the policy if the user selected a policy name and at least a role
-    return createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
+    if (selectedRoles && selectedRoles.length > 0) {
+      const policy_data = {
+        name: formData.policyName,
+        description: formData.policyDescription,
+        group: group.value.uuid,
+        roles: selectedRoles.map(role => role.value)
+      };
+      return createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
+    }
+    else {
+      fetchGroups().then(push('/groups'));
+      return group;
+    }
   };
 
   const onCancel = () => {
@@ -112,7 +118,7 @@ AddGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  createPolicies: PropTypes.func.isRequired,
+  createPolicy: PropTypes.func.isRequired,
 
   selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
