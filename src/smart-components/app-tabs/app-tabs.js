@@ -3,12 +3,17 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { Tabs, Tab } from '@patternfly/react-core';
 
-const AppTabs = ({ history: { push }, location: { pathname }, tabItems }) => {
+const tabItems = [
+  { eventKey: 0, title: 'Groups', name: '/groups' },
+  { eventKey: 1, title: 'Roles', name: '/roles' }
+];
+
+const AppTabs = ({ history: { push }, location: { pathname }}) => {
   const activeTab = tabItems.find(({ name }) => pathname.includes(name));
   const handleTabClick = (_event, tabIndex) => push(tabItems[tabIndex].name);
 
   return (
-    <Tabs className="pf-u-mt-md" activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
+    <Tabs className="pf-u-mt-md" activeKey={ activeTab ? activeTab.eventKey : 1 } onSelect={ handleTabClick }>
       { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
     </Tabs>
   );
@@ -20,8 +25,7 @@ AppTabs.propTypes = {
   }),
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
-  }),
-  tabItems: PropTypes.array.isRequired
+  })
 };
 
 export default withRouter(AppTabs);

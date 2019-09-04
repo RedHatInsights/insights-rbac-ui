@@ -6,6 +6,11 @@ export const fetchRoles = (options = {}) => ({
   payload: RoleHelper.fetchRoles(options)
 });
 
+export const fetchRolesWithPolicies = (options = {}) => ({
+  type: ActionTypes.FETCH_ROLES,
+  payload: RoleHelper.fetchRolesWithPolicies(options)
+});
+
 export const fetchRole = apiProps => ({
   type: ActionTypes.FETCH_ROLE,
   payload: RoleHelper.fetchRole(apiProps)
