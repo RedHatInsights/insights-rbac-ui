@@ -6,6 +6,7 @@ import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
+import { deletePrincipalsFromGroup } from '../../../helpers/group/group-helper';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
@@ -13,15 +14,20 @@ import AddGroupMembers from './edit-group-members';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
   const fetchData = (setRows) => {
     if (uuid) {
       fetchGroup(uuid).then((data) => {
+        console.log('Debug - createRows principal list: ', data);
         setRows(createRows(data.value.principals, filterValue));
       });
     }
+  };
+
+  const removeMember = (userNames) => {
+    return deletePrincipalsFromGroup(uuid, userNames);
   };
 
   const routes = () => <Fragment>
@@ -32,15 +38,12 @@ const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) 
     rowIndex % 2 === 1 ? null :
       [
         {
-          title: 'Edit',
-          onClick: (_event, _rowId, principal) =>
-            history.push(`/principals/edit/${principal.uuid}`)
-        },
-        {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
-          onClick: (_event, _rowId, principal) =>
-            history.push(`/principals/remove/${principal.uuid}`)
+          onClick: (_event, _rowId, principal) => {
+            console.log('Debug - principal, event', principal, _event);
+            removeMember([ principal.username ]);
+          }
         }
       ];
 
@@ -63,6 +66,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) 
       { uuid &&
       <TableToolbarView
         data={ principals }
+        isSelectable={ true }
         createRows={ createRows }
         columns={ columns }
         fetchData={ fetchData }

@@ -38,8 +38,9 @@ const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
       [
         {
           title: 'Edit',
-          onClick: (_event, _rowId, group) =>
-            push(`/groups/edit/${group.uuid}`)
+          onClick: (_event, _rowId, group) => {
+            console.log('Group event, _rowId, group', _event, _rowId, group);
+            push(`/groups/edit/${group.uuid}`);}
         },
         {
           title: 'Delete',
