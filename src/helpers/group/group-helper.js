@@ -49,3 +49,7 @@ export async function removeGroup(groupId) {
 export async function deletePrincipalsFromGroup(groupId, users) {
   return await groupApi.deletePrincipalFromGroup(groupId, users.join(','));
 }
+
+export async function addPrincipalsToGroup(groupId, users) {
+  return await groupApi.addPrincipalToGroup(groupId, { principals: users });
+}

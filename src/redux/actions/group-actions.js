@@ -66,3 +66,41 @@ export const removeGroup = (group) => ({
 export const resetSelectedGroup = () => ({
   type: ActionTypes.RESET_SELECTED_GROUP
 });
+
+export const addMembersToGroup = (groupData) => ({
+  type: ActionTypes.ADD_MEMBERS_TO_GROUP,
+  payload: GroupHelper.addPrincipalsToGroup(groupData),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success adding members to group',
+        description: 'The members were successfully added to the group.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed adding members to group',
+        description: 'The members were not added successfully.'
+      }
+    }
+  }
+});
+
+export const removeMembersFromGroup = (groupData) => ({
+  type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
+  payload: GroupHelper.deletePrincipalsFromGroup(groupData),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success removing members from group',
+        description: 'The members were successfully removed from the group.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed removing members to group',
+        description: 'The members were not removed successfully.'
+      }
+    }
+  }
+});

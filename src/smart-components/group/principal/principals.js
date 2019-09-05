@@ -6,11 +6,11 @@ import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
-import { deletePrincipalsFromGroup } from '../../../helpers/group/group-helper';
+import { removeMembersFromGroup } from '../../../redux/actions/group-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
-import AddGroupMembers from './edit-group-members';
+import AddGroupMembers from './add-group-members';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
@@ -27,7 +27,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
   };
 
   const removeMember = (userNames) => {
-    return deletePrincipalsFromGroup(uuid, userNames);
+    return removeMembersFromGroup(uuid, userNames);
   };
 
   const routes = () => <Fragment>

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,7 +15,7 @@ import { ActionGroup,
   Text,
   TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../../redux/actions/group-actions';
+import { addGroup, fetchGroups, fetchGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
 
 const components = {
   DropdownIndicator: null
@@ -23,10 +23,10 @@ const components = {
 
 const AddGroupMembers = ({
   history: { push },
-  match: { params: { id }},
+  match: { params: { uuid }},
   addNotification,
   closeUrl,
-  updateGroup
+  addMembersToGroup
 }) => {
   const [ inputValue, setInputValue ] = useState('');
   const [ selectedUsers, setSelectedUsers ] = useState([]);
@@ -41,23 +41,9 @@ const AddGroupMembers = ({
     };
   };
 
-  const setGroupData = (groupData) => {
-    if (groupData) {
-      setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
-    }
-  };
-
-  const fetchData = () => {
-    fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const onSubmit = data => {
-    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user.label })) };
-    updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
+  const onSubmit = () => {
+    const user_list = selectedUsers.map(user => ({ username: user.label }));
+    return addMembersToGroup(uuid, user_list);
   };
 
   const onCancel = () => {
@@ -167,7 +153,7 @@ AddGroupMembers.propTypes = {
   selectedUsers: PropTypes.array,
   match: PropTypes.object,
   closeUrl: PropTypes.string,
-  updateGroup: PropTypes.func.isRequired
+  addMembersToGroup: PropTypes.func.isRequired
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
@@ -177,7 +163,7 @@ const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
-  updateGroup,
+  addMembersToGroup,
   fetchGroup,
   fetchGroups
 }, dispatch);
