@@ -8,7 +8,8 @@ const Roles = lazy(() => import('./smart-components/role/roles'));
 
 const paths = {
   rbac: '/',
-  groups: '/groups'
+  groups: '/groups',
+  roles: '/roles'
 };
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
