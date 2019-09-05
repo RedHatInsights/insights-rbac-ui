@@ -67,9 +67,9 @@ export const resetSelectedGroup = () => ({
   type: ActionTypes.RESET_SELECTED_GROUP
 });
 
-export const addMembersToGroup = (groupData) => ({
+export const addMembersToGroup = (groupId, members) => ({
   type: ActionTypes.ADD_MEMBERS_TO_GROUP,
-  payload: GroupHelper.addPrincipalsToGroup(groupData),
+  payload: GroupHelper.addPrincipalsToGroup(groupId, members),
   meta: {
     notifications: {
       fulfilled: {
@@ -86,9 +86,9 @@ export const addMembersToGroup = (groupData) => ({
   }
 });
 
-export const removeMembersFromGroup = (groupData) => ({
+export const removeMembersFromGroup = (groupId, members) => ({
   type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
-  payload: GroupHelper.deletePrincipalsFromGroup(groupData),
+  payload: GroupHelper.deletePrincipalsFromGroup(groupId, members),
   meta: {
     notifications: {
       fulfilled: {

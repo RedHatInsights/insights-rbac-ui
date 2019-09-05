@@ -22,7 +22,7 @@ const components = {
 };
 
 const AddGroupMembers = ({
-  history: { push },
+  history: { push, goBack },
   match: { params: { uuid }},
   addNotification,
   closeUrl,
@@ -43,7 +43,7 @@ const AddGroupMembers = ({
 
   const onSubmit = () => {
     const user_list = selectedUsers.map(user => ({ username: user.label }));
-    return addMembersToGroup(uuid, user_list);
+    return addMembersToGroup(uuid, user_list).then(() => goBack());
   };
 
   const onCancel = () => {
@@ -134,7 +134,6 @@ const AddGroupMembers = ({
 AddGroupMembers.defaultProps = {
   users: [],
   inputValue: '',
-  selectedGroup: undefined,
   closeUrl: '/groups',
   selectedUsers: []
 };
@@ -143,11 +142,11 @@ AddGroupMembers.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
+  groupId: PropTypes.string.isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
