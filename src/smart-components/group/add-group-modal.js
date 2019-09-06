@@ -50,7 +50,7 @@ const AddGroupWizard = ({
   }, []);
 
   const onSubmit = data => {
-    const user_data = { ...data, user_list: selectedUsers.map(user => ({ username: user.label })) };
+    const user_data = { ...data, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : []};
     id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
       : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
   };
