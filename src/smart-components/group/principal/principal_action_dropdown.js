@@ -2,9 +2,14 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, DropdownPosition, KebabToggle, DropdownItem } from '@patternfly/react-core';
 
-export const PrincipalsActionsDropdown = ({ action, anyItemsSelected, groupId, itemsSelected }) => {
+export const PrincipalsActionsDropdown = ( {itemAction, anyItemsSelected, groupId, itemsSelected}) => {
   const [ isOpen, setOpen ] =  useState(false);
-  console.log('DEBUG - principal dropdown - removeItems, itemsSelected: ', action, anyItemsSelected, groupId, itemsSelected);
+  console.log('DEBUG - principal dropdown - removeItems, itemsSelected: ', itemAction, anyItemsSelected(), groupId, itemsSelected);
+
+  const onAction = () => {
+    return itemAction(groupId, itemsSelected);
+  };
+
   return (
     <Dropdown
       onSelect={ () => setOpen(false) }
@@ -16,7 +21,7 @@ export const PrincipalsActionsDropdown = ({ action, anyItemsSelected, groupId, i
         <DropdownItem
           id="action-item"
           isDisabled={ !anyItemsSelected() }
-          onClick={ action(groupId, itemsSelected) }
+          onClick={ onAction }
           aria-label="Remove products from portfolio"
           key="remove-products"
         >
@@ -31,7 +36,7 @@ export const PrincipalsActionsDropdown = ({ action, anyItemsSelected, groupId, i
 };
 
 PrincipalsActionsDropdown.propTypes = {
-  action: PropTypes.func.isRequired,
+  itemAction: PropTypes.func.isRequired,
   anyItemsSelected: PropTypes.func.isRequired,
   itemsSelected: PropTypes.array.isRequired,
   groupId: PropTypes.string.isRequired

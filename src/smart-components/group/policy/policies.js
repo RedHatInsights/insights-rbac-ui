@@ -16,8 +16,9 @@ const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description'
 
 const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ rows, setRows ] = useState([]);
 
-  const fetchData = (setRows) => {
+  const fetchData = () => {
     fetchGroupPolicies({ group_uuid: uuid }).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
@@ -51,6 +52,8 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, policies, pagination, history
       { uuid === undefined ? <ListLoader/> :
         <TableToolbarView
           data={ policies }
+          rows = { rows }
+          setRows={ setRows }
           createRows={ createRows }
           columns={ columns }
           fetchData={ fetchData }
@@ -84,6 +87,7 @@ GroupPolicies.propTypes = {
   }),
   uuid: PropTypes.string,
   policies: PropTypes.array,
+  createRows: PropTypes.func.isRequired,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroupPolicies: PropTypes.func.isRequired,

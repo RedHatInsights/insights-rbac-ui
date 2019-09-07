@@ -16,7 +16,7 @@ import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, principals, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
 
@@ -34,9 +34,9 @@ const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
     setSelectedPrincipals(checkedPrincipals.map(user => user.username));
   };
 
-  const anyPrincipalsSelected = () => selectedPrincipals.length > 0;
+  const anyPrincipalsSelected = () => {return selectedPrincipals.length > 0;};
 
-  const removeMember = (userNames) => {
+  const removeMembers = (userNames) => {
     return removeMembersFromGroup(uuid, userNames);
   };
 
@@ -52,7 +52,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
           style: { color: 'var(--pf-global--danger-color--100)'	},
           onClick: (_event, _rowId, principal) => {
             console.log('Debug - principal, event', principal, _event);
-            removeMember([ principal.username ]);
+            removeMembers([ principal.username ]);
           }
         }
       ];
@@ -70,7 +70,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, principals, pagination }) => {
         </Link>
       </ToolbarItem>
       <ToolbarItem>
-        <PrincipalsActionsDropdown action={ removeMembersFromGroup }
+        <PrincipalsActionsDropdown itemAction={ removeMembers }
           anyItemsSelected={ anyPrincipalsSelected }
           groupId ={ uuid }
           itemsSelected={ selectedPrincipals } />
@@ -124,6 +124,7 @@ GroupPrincipals.propTypes = {
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroup: PropTypes.func.isRequired,
+  removeMembersFromGroup: PropTypes.func.isRequired,
   uuid: PropTypes.string,
   match: PropTypes.object,
   pagination: PropTypes.shape({
