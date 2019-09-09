@@ -36,7 +36,7 @@ export const PrincipalsActionsDropdown = ({ itemAction, anyItemsSelected, itemsS
 
 PrincipalsActionsDropdown.propTypes = {
   itemAction: PropTypes.func.isRequired,
-  anyItemsSelected: PropTypes.func.isRequired,
+  anyItemsSelected: PropTypes.bool.isRequired,
   itemsSelected: PropTypes.array.isRequired
 };
 

@@ -121,7 +121,6 @@ GroupPrincipals.propTypes = {
     pathname: PropTypes.string
   }),
   principals: PropTypes.array,
-  platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroup: PropTypes.func.isRequired,
   removeMembersFromGroup: PropTypes.func.isRequired,
