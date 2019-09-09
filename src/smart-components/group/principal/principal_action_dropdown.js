@@ -2,12 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Dropdown, DropdownPosition, KebabToggle, DropdownItem } from '@patternfly/react-core';
 
-export const PrincipalsActionsDropdown = ( {itemAction, anyItemsSelected, groupId, itemsSelected}) => {
+export const PrincipalsActionsDropdown = ({ itemAction, anyItemsSelected, itemsSelected }) => {
   const [ isOpen, setOpen ] =  useState(false);
-  console.log('DEBUG - principal dropdown - removeItems, itemsSelected: ', itemAction, anyItemsSelected(), groupId, itemsSelected);
 
   const onAction = () => {
-    return itemAction(groupId, itemsSelected);
+    return itemAction(itemsSelected);
   };
 
   return (
@@ -20,13 +19,13 @@ export const PrincipalsActionsDropdown = ( {itemAction, anyItemsSelected, groupI
       dropdownItems={ [
         <DropdownItem
           id="action-item"
-          isDisabled={ !anyItemsSelected() }
+          isDisabled={ !anyItemsSelected }
           onClick={ onAction }
           aria-label="Remove products from portfolio"
           key="remove-products"
         >
           <span style={ { cursor: 'pointer' } }
-            className={ `pf-c-dropdown__menu-item ${!anyItemsSelected() ? 'disabled-color' : 'destructive-color'}` }>
+            className= { `pf-c-dropdown__menu-item ${!anyItemsSelected ? 'disabled-color' : 'danger-color'}` }>
             Remove members
           </span>
         </DropdownItem>
@@ -38,7 +37,6 @@ export const PrincipalsActionsDropdown = ( {itemAction, anyItemsSelected, groupI
 PrincipalsActionsDropdown.propTypes = {
   itemAction: PropTypes.func.isRequired,
   anyItemsSelected: PropTypes.func.isRequired,
-  itemsSelected: PropTypes.array.isRequired,
-  groupId: PropTypes.string.isRequired
+  itemsSelected: PropTypes.array.isRequired
 };
 

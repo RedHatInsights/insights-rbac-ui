@@ -15,16 +15,17 @@ import { ActionGroup,
   Text,
   TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
+import { addGroup, fetchGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
 
 const components = {
   DropdownIndicator: null
 };
 
 const AddGroupMembers = ({
-  history: { push, goBack },
+  history: { push },
   match: { params: { uuid }},
   addNotification,
+  fetchData,
   closeUrl,
   addMembersToGroup
 }) => {
@@ -43,7 +44,10 @@ const AddGroupMembers = ({
 
   const onSubmit = () => {
     const user_list = selectedUsers.map(user => ({ username: user.label }));
-    return addMembersToGroup(uuid, user_list).then(() => goBack());
+    return addMembersToGroup(uuid, user_list).then(() => {
+      fetchData();
+      push(closeUrl);
+    });
   };
 
   const onCancel = () => {
@@ -145,7 +149,7 @@ AddGroupMembers.propTypes = {
   groupId: PropTypes.string.isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
+  fetchData: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
   users: PropTypes.array,
@@ -163,8 +167,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   addMembersToGroup,
-  fetchGroup,
-  fetchGroups
+  fetchGroup
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));

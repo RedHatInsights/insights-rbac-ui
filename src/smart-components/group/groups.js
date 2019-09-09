@@ -21,10 +21,12 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const fetchData = (setRows) => {
-    fetchGroups().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+  const [ groups, setGroups ] = useState([]);
+
+  const fetchData = () => {
+    fetchGroups().then(({ value: { data }}) => setGroups(data));
   };
 
   const routes = () => <Fragment>
@@ -39,7 +41,6 @@ const Groups = ({ fetchGroups, groups, pagination, history: { push }}) => {
         {
           title: 'Edit',
           onClick: (_event, _rowId, group) => {
-            console.log('Group event, _rowId, group', _event, _rowId, group);
             push(`/groups/edit/${group.uuid}`);}
         },
         {

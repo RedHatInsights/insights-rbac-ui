@@ -16,15 +16,15 @@ import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, principals, pagination }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
+  const [ principals, setPrincipals ] = useState([]);
 
-  const fetchData = (setRows) => {
+  const fetchData = () => {
     if (uuid) {
       fetchGroup(uuid).then((data) => {
-        console.log('Debug - createRows principal list: ', data);
-        setRows(createRows(data.value.principals, filterValue));
+        setPrincipals(data.value.principals);
       });
     }
   };
@@ -37,11 +37,12 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, principals,
   const anyPrincipalsSelected = () => {return selectedPrincipals.length > 0;};
 
   const removeMembers = (userNames) => {
-    return removeMembersFromGroup(uuid, userNames);
+    return removeMembersFromGroup(uuid, userNames).then(() => { setCheckedPrincipals([]); fetchData();});
   };
 
   const routes = () => <Fragment>
-    <Route exact path={ `/groups/detail/:uuid/add_members` } component={ AddGroupMembers }/>
+    <Route exact path={ `/groups/detail/:uuid/add_members` }
+      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
   </Fragment>;
 
   const actionResolver = (_principalData, { rowIndex }) =>
@@ -51,8 +52,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, principals,
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
           onClick: (_event, _rowId, principal) => {
-            console.log('Debug - principal, event', principal, _event);
-            removeMembers([ principal.username ]);
+            removeMembers([ principal.username ]).then(() => fetchData());
           }
         }
       ];
@@ -71,7 +71,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, principals,
       </ToolbarItem>
       <ToolbarItem>
         <PrincipalsActionsDropdown itemAction={ removeMembers }
-          anyItemsSelected={ anyPrincipalsSelected }
+          anyItemsSelected={ anyPrincipalsSelected() }
           groupId ={ uuid }
           itemsSelected={ selectedPrincipals } />
       </ToolbarItem>
