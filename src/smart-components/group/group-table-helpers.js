@@ -7,8 +7,7 @@ import { timeAgo } from '../../helpers/shared/helpers';
 export const createRows = (data, filterValue = undefined) => (
   data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
     return filter; }).reduce((acc,  { uuid, name, description, members, modified }, key) => ([
-    ...acc, {
-      uuid,
+    ...acc, { uuid,
       isOpen: false,
       cells: [ <Fragment key={ uuid }><Link to={ `/groups/detail/${uuid}` }>
         <Button variant="link"> { name } </Button></Link></Fragment>, description, members.length, `${timeAgo(modified)}` ]

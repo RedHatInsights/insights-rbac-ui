@@ -50,7 +50,7 @@ const Roles = ({ fetchRoles, pagination, roles }) => {
 
   return (
     <Switch>
-      <Route path={ '/roles' } render={ () => renderRolesList() } />
+      <Route exact path={ '/roles' } render={ () => renderRolesList() } />
     </Switch>
   );
 };

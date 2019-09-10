@@ -47,3 +47,13 @@
     fill: #72767B
   }
 }
+
+.disabled-color {
+  color: #d2d2d2;
+}
+
+.danger-color {
+  &:not(:disabled) {
+    color: var(--pf-global--danger-color--100) !important;
+  }
+}

@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<GroupPolicies /> should render correctly 1`] = `
+<GroupPolicies
+  fetchGroupPolicies={[Function]}
+  isLoading={false}
+  pagination={
+    Object {
+      "count": 0,
+      "limit": 10,
+      "offset": 0,
+    }
+  }
+  policies={
+    Object {
+      "data": Array [],
+      "meta": Object {
+        "count": 0,
+        "limit": 10,
+        "offset": 0,
+      },
+    }
+  }
+  store={
+    Object {
+      "clearActions": [Function],
+      "dispatch": [Function],
+      "getActions": [Function],
+      "getState": [Function],
+      "replaceReducer": [Function],
+      "subscribe": [Function],
+    }
+  }
+  storeSubscription={
+    Subscription {
+      "listeners": Object {
+        "clear": [Function],
+        "get": [Function],
+        "notify": [Function],
+        "subscribe": [Function],
+      },
+      "onStateChange": [Function],
+      "parentSub": undefined,
+      "store": Object {
+        "clearActions": [Function],
+        "dispatch": [Function],
+        "getActions": [Function],
+        "getState": [Function],
+        "replaceReducer": [Function],
+        "subscribe": [Function],
+      },
+      "unsubscribe": [Function],
+    }
+  }
+/>
+`;
+
+exports[`<GroupPolicies /> should render correctly in loading state 1`] = `
+<GroupPolicies
+  fetchGroupPolicies={[Function]}
+  isLoading={false}
+  pagination={
+    Object {
+      "count": 0,
+      "limit": 10,
+      "offset": 0,
+    }
+  }
+  policies={
+    Object {
+      "data": Array [],
+      "meta": Object {
+        "count": 0,
+        "limit": 10,
+        "offset": 0,
+      },
+    }
+  }
+  store={
+    Object {
+      "clearActions": [Function],
+      "dispatch": [Function],
+      "getActions": [Function],
+      "getState": [Function],
+      "replaceReducer": [Function],
+      "subscribe": [Function],
+    }
+  }
+  storeSubscription={
+    Subscription {
+      "listeners": Object {
+        "clear": [Function],
+        "get": [Function],
+        "notify": [Function],
+        "subscribe": [Function],
+      },
+      "onStateChange": [Function],
+      "parentSub": undefined,
+      "store": Object {
+        "clearActions": [Function],
+        "dispatch": [Function],
+        "getActions": [Function],
+        "getState": [Function],
+        "replaceReducer": [Function],
+        "subscribe": [Function],
+      },
+      "unsubscribe": [Function],
+    }
+  }
+/>
+`;

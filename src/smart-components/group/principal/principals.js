@@ -1,41 +1,79 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { Link, Route } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
+import { removeMembersFromGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
+import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import AddGroupMembers from './add-group-members';
+import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) => {
+const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
+  const [ principals, setPrincipals ] = useState([]);
 
-  const fetchData = (setRows) => {
+  const fetchData = () => {
     if (uuid) {
       fetchGroup(uuid).then((data) => {
-        setRows(createRows(data.value.principals, filterValue));
+        setPrincipals(data.value.principals);
       });
     }
   };
+
+  const setCheckedPrincipals = (checkedPrincipals) =>
+    setSelectedPrincipals(checkedPrincipals.map(user => user.username));
+
+  const anyPrincipalsSelected = () => selectedPrincipals.length > 0;
+
+  const removeMembers = (userNames) => {
+    return removeMembersFromGroup(uuid, userNames).then(() => { setCheckedPrincipals([]); fetchData();});
+  };
+
+  const routes = () => <Fragment>
+    <Route exact path={ `/groups/detail/:uuid/add_members` }
+      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+  </Fragment>;
 
   const actionResolver = (_principalData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
       [
         {
-          title: 'Edit',
-          onClick: (_event, _rowId, principal) =>
-            history.push(`/principals/edit/${principal.uuid}`)
-        },
-        {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
-          onClick: (_event, _rowId, principal) =>
-            history.push(`/principals/remove/${principal.uuid}`)
+          onClick: (_event, _rowId, principal) => {
+            removeMembers([ principal.username ]);
+          }
         }
       ];
+
+  const toolbarButtons = () =>
+    <ToolbarGroup>
+      <ToolbarItem>
+        <Link to={ `/groups/detail/${uuid}/add_members` }>
+          <Button
+            variant="primary"
+            aria-label="Add member"
+          >
+          Add member
+          </Button>
+        </Link>
+      </ToolbarItem>
+      <ToolbarItem>
+        <PrincipalsActionsDropdown itemAction={ removeMembers }
+          anyItemsSelected={ anyPrincipalsSelected() }
+          groupId ={ uuid }
+          itemsSelected={ selectedPrincipals } />
+      </ToolbarItem>
+    </ToolbarGroup>;
 
   return (
     <Fragment>
@@ -43,16 +81,20 @@ const GroupPrincipals = ({ uuid, fetchGroup, history, principals, pagination }) 
       { uuid &&
       <TableToolbarView
         data={ principals }
+        isSelectable={ true }
         createRows={ createRows }
         columns={ columns }
         fetchData={ fetchData }
         request={ fetchGroup }
+        routes={ routes }
         actionResolver={ actionResolver }
         titlePlural="principals"
         titleSingular="principal"
         pagination={ pagination }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
+        setCheckedItems={ setCheckedPrincipals }
+        toolbarButtons = { toolbarButtons }
       /> }
     </Fragment>);
 };
@@ -63,20 +105,17 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }}) => ({
   isLoading
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchGroup: apiProps => dispatch(fetchGroup(apiProps))
-  };
-};
+const mapDispatchToProps = dispatch => bindActionCreators({
+  fetchGroup,
+  addMembersToGroup,
+  removeMembersFromGroup
+}, dispatch);
 
 GroupPrincipals.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }),
   principals: PropTypes.array,
-  platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroup: PropTypes.func.isRequired,
+  removeMembersFromGroup: PropTypes.func.isRequired,
   uuid: PropTypes.string,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
