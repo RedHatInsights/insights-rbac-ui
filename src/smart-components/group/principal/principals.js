@@ -29,12 +29,10 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination 
     }
   };
 
-  const setCheckedPrincipals = (checkedPrincipals) => {
-    console.log('DEBUG - checked Principals: ', checkedPrincipals);
+  const setCheckedPrincipals = (checkedPrincipals) =>
     setSelectedPrincipals(checkedPrincipals.map(user => user.username));
-  };
 
-  const anyPrincipalsSelected = () => {return selectedPrincipals.length > 0;};
+  const anyPrincipalsSelected = () => selectedPrincipals.length > 0;
 
   const removeMembers = (userNames) => {
     return removeMembersFromGroup(uuid, userNames).then(() => { setCheckedPrincipals([]); fetchData();});
@@ -52,7 +50,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination 
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
           onClick: (_event, _rowId, principal) => {
-            removeMembers([ principal.username ]).then(() => fetchData());
+            removeMembers([ principal.username ]);
           }
         }
       ];
@@ -114,18 +112,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 GroupPrincipals.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired
-  }),
-  location: PropTypes.shape({
-    pathname: PropTypes.string
-  }),
   principals: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroup: PropTypes.func.isRequired,
   removeMembersFromGroup: PropTypes.func.isRequired,
   uuid: PropTypes.string,
-  match: PropTypes.object,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
