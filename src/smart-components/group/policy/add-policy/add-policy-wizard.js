@@ -1,4 +1,4 @@
-const AddPolicyWizard = () => {
+const AddGroupPolicyWizard = () => {
 };
 
-export default AddPolicyWizard;
+export default AddGroupPolicyWizard;

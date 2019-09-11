@@ -9,7 +9,7 @@ import { defaultSettings  } from '../../helpers/shared/pagination';
 import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
-import { DataListLoader } from './loader-placeholders';
+import { ListLoader } from './loader-placeholders';
 
 export const TableToolbarView = ({
   request,
@@ -26,9 +26,9 @@ export const TableToolbarView = ({
   pagination,
   setCheckedItems,
   filterValue,
+  isLoading,
   setFilterValue }) => {
   const [ rows, setRows ] = useState([]);
-  const [ isLoading ] = useState(false);
 
   useEffect(() => {
     fetchData(setRows, filterValue, pagination);
@@ -113,7 +113,7 @@ export const TableToolbarView = ({
   };
 
   return (
-    isLoading ? <DataListLoader/> :
+    isLoading ? <ListLoader/> :
       <Section className="data-table-pane" page-type={ `tab-${titlePlural}` } id={ `tab-${titlePlural}` }>
         { routes() }
         { renderToolbar() }
@@ -152,11 +152,13 @@ TableToolbarView.propTypes = {
   actionResolver: propTypes.func,
   setCheckedItems: propTypes.func,
   filterValue: propTypes.string,
-  setFilterValue: propTypes.func
+  setFilterValue: propTypes.func,
+  isLoading: propTypes.bool
 };
 
 TableToolbarView.defaultProps = {
   requests: [],
+  isLoading: false,
   pagination: defaultSettings,
   toolbarButtons: () => null,
   isSelectable: null,

@@ -21,7 +21,7 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ groups, setGroups ] = useState([]);
 
@@ -84,6 +84,7 @@ const Groups = ({ fetchGroups, pagination, history: { push }}) => {
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
         toolbarButtons = { toolbarButtons }
+        isLoading = { isLoading }
       />
     </Fragment>;
 

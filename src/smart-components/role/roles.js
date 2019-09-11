@@ -22,7 +22,7 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Roles = ({ fetchRoles, pagination, roles }) => {
+const Roles = ({ fetchRoles, isLoading, pagination, roles }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const fetchData = (setRows) => {
     fetchRoles().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
@@ -45,6 +45,7 @@ const Roles = ({ fetchRoles, pagination, roles }) => {
         pagination={ pagination }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
+        isLoading={ isLoading }
       />
     </Fragment>;
 
@@ -83,6 +84,7 @@ Roles.propTypes = {
 
 Roles.defaultProps = {
   roles: [],
+  isLoading: false,
   pagination: defaultSettings
 };
 

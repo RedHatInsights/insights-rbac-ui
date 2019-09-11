@@ -2,17 +2,22 @@ import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
+import { Link, Route } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './policy-table-helpers';
-import { fetchGroupPolicies } from '../../../redux/actions/policy-actions';
+import { fetchGroupPolicies, removePolicy } from '../../../redux/actions/policy-actions';
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
+import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import AddGroupPolicyWizard from './add-policy/add-policy-wizard';
+import { PolicyActionsDropdown } from './policy_action_dropdown';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
+const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
 
 const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ selectedPolicies, setSelectedPolicies ] = useState([]);
   const [ policies, setPolicies ] = useState([]);
 
   const fetchData = () => {
@@ -21,22 +26,98 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
     }
   };
 
+  const setCheckedPolicies = (checkedPolicies) =>
+    setSelectedPolicies(checkedPolicies.map(user => user.username));
+
+  const anyPoliciesSelected = () => selectedPolicies.length > 0;
+
+  const editPolicyInformation = (policy) => {
+    // TODO - redirect to the EditPolicyInformation modal
+    console.log('Debug - editPolicyInformation - policy: ', policy);
+    return;
+  };
+
+  const editPolicyRoles = (policy) => {
+    // TODO - redirect to the EditPolicyRoles modal
+    console.log('Debug - editPolicyRoles - policy: ', policy);
+    return;
+  };
+
+  const removePolicies = (policiesToRemove) => {
+    const policyPromises = policiesToRemove.map(policy => removePolicy(policy));
+    Promise.all(policyPromises).then(() => { setCheckedPolicies([]); fetchData();});
+  };
+
+  const routes = () => <Fragment>
+    <Route exact path={ `/groups/detail/:uuid/add_policies` }
+      render={ args => <AddGroupPolicyWizard fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+  </Fragment>;
+
+  const actionResolver = (_policyData, { rowIndex }) =>
+    rowIndex % 2 === 1 ? null :
+      [
+        {
+          title: 'Edit information',
+          onClick: (_event, _rowId, policy) => {
+            // TODO - change the arg to policy.uuid
+            editPolicyInformation(policy);
+          }
+        },
+        {
+          title: 'Edit roles',
+          onClick: (_event, _rowId, policy) => {
+            editPolicyRoles(policy.uuid);
+          }
+        },
+        {
+          title: 'Delete',
+          style: { color: 'var(--pf-global--danger-color--100)'	},
+          onClick: (_event, _rowId, policy) => {
+            removePolicies([ policy.uuid ]);
+          }
+        }
+      ];
+
+  const toolbarButtons = () =>
+    <ToolbarGroup>
+      <ToolbarItem>
+        <Link to={ `/groups/detail/${uuid}/add_Policies` }>
+          <Button
+            variant="primary"
+            aria-label="Add policy"
+          >
+          Add policy
+          </Button>
+        </Link>
+      </ToolbarItem>
+      <ToolbarItem>
+        <PolicyActionsDropdown itemAction={ removePolicies }
+          anyItemsSelected={ anyPoliciesSelected() }
+          groupId ={ uuid }
+          itemsSelected={ selectedPolicies } />
+      </ToolbarItem>
+    </ToolbarGroup>;
+
   return (
     <Fragment>
       { !uuid && <ListLoader/> }
       { uuid &&
       <TableToolbarView
         data={ policies }
+        isSelectable={ true }
         createRows={ createRows }
         columns={ columns }
         fetchData={ fetchData }
         request={ fetchGroupPolicies }
+        routes={ routes }
+        actionResolver={ actionResolver }
         titlePlural="policies"
         titleSingular="policy"
         pagination={ pagination }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
-
+        setCheckedItems={ setCheckedPolicies }
+        toolbarButtons = { toolbarButtons }
       /> }
     </Fragment>);
 };
@@ -48,7 +129,8 @@ const mapStateToProps = ({ policyReducer: { policies, isLoading }}) => ({
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchGroupPolicies
+  fetchGroupPolicies,
+  removePolicy
 }, dispatch);
 
 GroupPolicies.propTypes = {
@@ -61,8 +143,8 @@ GroupPolicies.propTypes = {
   policies: PropTypes.array,
   isLoading: PropTypes.bool,
   fetchGroupPolicies: PropTypes.func.isRequired,
+  removePolicy: PropTypes.func.isRequired,
   uuid: PropTypes.string,
-  match: PropTypes.object,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
