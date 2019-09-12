@@ -11,7 +11,8 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
 import SetUsers from './set-users';
-import PolicyStep from './policy-step';
+import PolicyInformation from './policy-information';
+import PolicySetRoles from './policy-set-roles';
 
 const AddGroupModal = ({
   history: { push },
@@ -50,7 +51,13 @@ const AddGroupModal = ({
     { name: 'General Information', component: new GroupInformation(formData, handleChange) },
     { name: 'Set Users', component: new SetUsers(setGroupData, selectedUsers, setSelectedUsers,
       optionIdx, setOptionIdx, createOption, handleChange) },
-    { name: 'Policy Step', component: new PolicyStep(formData, handleChange, selectedRoles, setSelectedRoles, roles) },
+    {
+      name: 'Create policy',
+      steps: [
+        { name: 'Name and description', component: new PolicyInformation(formData, handleChange) },
+        { name: 'Add roles', component: new PolicySetRoles(formData, selectedRoles, setSelectedRoles, roles) }
+      ]
+    },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
       nextButtonText: 'Confirm' }
   ];
