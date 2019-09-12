@@ -1,4 +1,5 @@
-import { getRoleApi } from '../shared/user-login';
+import { getRoleApi, getAxiosInstance } from '../shared/user-login';
+import { RBAC_API_BASE } from '../../utilities/constants';
 
 const roleApi = getRoleApi();
 
@@ -23,3 +24,9 @@ export async function fetchRolesWithPolicies({ limit, offset, name, orderBy }) {
 export async function fetchRole(id) {
   return await roleApi.getGroup(id);
 }
+
+export const fetchFilterRoles = (filterValue) =>
+  getAxiosInstance().get(`${RBAC_API_BASE}/roles/${filterValue.length > 0
+    ? `?name=${filterValue}`
+    : ''}`)
+  .then(({ data }) => data.map(({ uuid, name }) => ({ label: name, value: uuid })));
