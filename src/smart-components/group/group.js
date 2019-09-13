@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch } from 'react-router-dom';
+import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AppTabs from '../app-tabs/app-tabs';
@@ -46,13 +46,12 @@ const Group = (props) => {
           description={ !props.isFetching && props.group ? props.group.description : undefined }/>
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
-      { !isFetching && props.group &&
-      <Switch>
-        <Route path={ tabItems[0].name } render={ args => <GroupPrincipals uuid={ props.group.uuid } { ...args }/> } />
-        <Route path={ tabItems[1].name } render={ args => <GroupPolicies uuid={ props.group.uuid } { ...args }/> } />
-        <Route path={ `${props.location.pathname}` }
-          render={ args => <GroupPrincipals uuid={ props.group.uuid } { ...args }/> } />
-      </Switch> }
+      { !isFetching &&
+          <Switch>
+            <Route path={ `/groups/detail/:uuid/policies` } component={ GroupPolicies }/>
+            <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals }/>
+            <Route render={ () => <Redirect to={ `/groups/detail/${props.match.params.uuid}/members` } /> } />
+          </Switch> }
       { !props.group && <ListLoader/> }
     </Fragment>
   );

@@ -10,12 +10,12 @@ import { fetchGroupPolicies, removePolicy } from '../../../redux/actions/policy-
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
-import AddGroupPolicyWizard from './add-policy/add-policy-wizard';
+import AddGroupPolicy from './add-policy/add-policy-wizard';
 import { PolicyActionsDropdown } from './policy_action_dropdown';
 
 const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
 
-const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
+const GroupPolicies = ({ match: { params: { uuid }}, fetchGroupPolicies, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPolicies, setSelectedPolicies ] = useState([]);
   const [ policies, setPolicies ] = useState([]);
@@ -25,6 +25,11 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
       fetchGroupPolicies({ group_uuid: uuid }).then(({ value: { data }}) => setPolicies(data));
     }
   };
+
+  const routes = () => <Fragment>
+    <Route path={ `/groups/detail/:uuid/policies/add_policy` }
+      render={ args => <AddGroupPolicy fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+  </Fragment>;
 
   const setCheckedPolicies = (checkedPolicies) =>
     setSelectedPolicies(checkedPolicies.map(user => user.username));
@@ -45,13 +50,8 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
 
   const removePolicies = (policiesToRemove) => {
     const policyPromises = policiesToRemove.map(policy => removePolicy(policy));
-    Promise.all(policyPromises).then(() => { setCheckedPolicies([]); fetchData();});
+    return Promise.all(policyPromises).then(() => { setCheckedPolicies([]); fetchData();});
   };
-
-  const routes = () => <Fragment>
-    <Route exact path={ `/groups/detail/:uuid/add_policies` }
-      render={ args => <AddGroupPolicyWizard fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
-  </Fragment>;
 
   const actionResolver = (_policyData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
@@ -81,7 +81,7 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
   const toolbarButtons = () =>
     <ToolbarGroup>
       <ToolbarItem>
-        <Link to={ `/groups/detail/${uuid}/add_Policies` }>
+        <Link to={ `/groups/detail/${uuid}/policies/add_policy` }>
           <Button
             variant="primary"
             aria-label="Add policy"
@@ -123,7 +123,7 @@ const GroupPolicies = ({ uuid, fetchGroupPolicies, pagination }) => {
 };
 
 const mapStateToProps = ({ policyReducer: { policies, isLoading }}) => ({
-  policies,
+  policies: policies.data,
   pagination: policies.meta,
   isLoading
 });
@@ -145,6 +145,8 @@ GroupPolicies.propTypes = {
   fetchGroupPolicies: PropTypes.func.isRequired,
   removePolicy: PropTypes.func.isRequired,
   uuid: PropTypes.string,
+  match: PropTypes.shape({
+    params: PropTypes.object.isRequired }).isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,

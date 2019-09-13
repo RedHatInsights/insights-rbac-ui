@@ -146,7 +146,6 @@ AddGroupMembers.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
-  groupId: PropTypes.string.isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchData: PropTypes.func.isRequired,
