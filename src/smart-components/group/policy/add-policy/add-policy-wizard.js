@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchGroup } from '../../../../redux/actions/group-actions';
 import { createPolicy } from '../../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
@@ -66,7 +65,6 @@ const AddGroupPolicyWizard = ({
 
   return (
     <Wizard
-      isLarge
       title={ 'Add policy' }
       isOpen
       onClose={ onCancel }
@@ -78,7 +76,6 @@ const AddGroupPolicyWizard = ({
 
 AddGroupPolicyWizard.defaultProps = {
   roles: [],
-  inputValue: '',
   selectedRoles: []
 };
 
@@ -89,21 +86,18 @@ AddGroupPolicyWizard.propTypes = {
   addNotification: PropTypes.func.isRequired,
   createPolicy: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
-  inputValue: PropTypes.string,
   match: PropTypes.object,
   closeUrl: PropTypes.string
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
-  isLoading,
-  searchFilter: filterValue
+  isLoading
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
-  fetchGroup,
   createPolicy,
   fetchRoles
 }, dispatch);
