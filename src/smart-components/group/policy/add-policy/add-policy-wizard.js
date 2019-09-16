@@ -5,7 +5,6 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchGroupPolicies } from '../../../../redux/actions/policy-actions';
 import { fetchGroup } from '../../../../redux/actions/group-actions';
 import { createPolicy } from '../../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../../redux/actions/role-actions';
@@ -18,6 +17,7 @@ const AddGroupPolicyWizard = ({
   match: { params: { uuid }},
   addNotification,
   createPolicy,
+  postMethod,
   closeUrl
 }) => {
   const [ roles, setRoles ] = useState([]);
@@ -36,7 +36,6 @@ const AddGroupPolicyWizard = ({
   ];
 
   const fetchData = () => {
-    console.log('Debug - AddGroupPolicyWizard fetchData');
     fetchRoles().payload.then((data) => setRoles(data));
   };
 
@@ -52,10 +51,7 @@ const AddGroupPolicyWizard = ({
         group: uuid,
         roles: selectedRoles.map(role => role.value)
       };
-      return createPolicy(policy_data).payload.then(() => fetchGroupPolicies({ group_uuid: uuid })).then(push(closeUrl));
-    }
-    else {
-      return fetchGroupPolicies().then(push(closeUrl));
+      return createPolicy(policy_data).then(() => postMethod()).then(push(closeUrl));
     }
   };
 
@@ -92,6 +88,7 @@ AddGroupPolicyWizard.propTypes = {
   }).isRequired,
   addNotification: PropTypes.func.isRequired,
   createPolicy: PropTypes.func.isRequired,
+  postMethod: PropTypes.func,
   inputValue: PropTypes.string,
   match: PropTypes.object,
   closeUrl: PropTypes.string

@@ -40,7 +40,7 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
 
   const routes = () => <Fragment>
     <Route path={ `/groups/detail/:uuid/members/add_members` }
-      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/principals` } { ...args }/> }/>
   </Fragment>;
 
   const actionResolver = (_principalData, { rowIndex }) =>

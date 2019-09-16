@@ -28,25 +28,14 @@ const GroupPolicies = ({ match: { params: { uuid }}, fetchGroupPolicies, paginat
 
   const routes = () => <Fragment>
     <Route path={ `/groups/detail/:uuid/policies/add_policy` }
-      render={ args => <AddGroupPolicy fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+      render={ args => <AddGroupPolicy fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/policies` }
+        postMethod={ fetchData } { ...args }/> }/>
   </Fragment>;
 
   const setCheckedPolicies = (checkedPolicies) =>
     setSelectedPolicies(checkedPolicies.map(user => user.username));
 
   const anyPoliciesSelected = () => selectedPolicies.length > 0;
-
-  const editPolicyInformation = (policy) => {
-    // TODO - redirect to the EditPolicyInformation modal
-    console.log('Debug - editPolicyInformation - policy: ', policy);
-    return;
-  };
-
-  const editPolicyRoles = (policy) => {
-    // TODO - redirect to the EditPolicyRoles modal
-    console.log('Debug - editPolicyRoles - policy: ', policy);
-    return;
-  };
 
   const removePolicies = (policiesToRemove) => {
     const policyPromises = policiesToRemove.map(policy => removePolicy(policy));
@@ -56,19 +45,6 @@ const GroupPolicies = ({ match: { params: { uuid }}, fetchGroupPolicies, paginat
   const actionResolver = (_policyData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
       [
-        {
-          title: 'Edit information',
-          onClick: (_event, _rowId, policy) => {
-            // TODO - change the arg to policy.uuid
-            editPolicyInformation(policy);
-          }
-        },
-        {
-          title: 'Edit roles',
-          onClick: (_event, _rowId, policy) => {
-            editPolicyRoles(policy.uuid);
-          }
-        },
         {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
