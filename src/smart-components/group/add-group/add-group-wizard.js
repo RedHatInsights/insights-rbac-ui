@@ -54,7 +54,7 @@ const AddGroupModal = ({
     {
       name: 'Create policy',
       steps: [
-        { name: 'Name and description', component: new PolicyInformation(formData, handleChange) },
+        { name: 'Name and description', component: new PolicyInformation('Create policy (optional)', formData, handleChange) },
         { name: 'Add roles', component: new PolicySetRoles(formData, selectedRoles, setSelectedRoles, roles) }
       ]
     },

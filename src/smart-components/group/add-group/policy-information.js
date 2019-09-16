@@ -13,13 +13,13 @@ import {
   Title
 } from '@patternfly/react-core';
 
-const PolicyInformation = (formValue, onHandleChange) => {
+const PolicyInformation = (title, formValue, onHandleChange) => {
   return (
     <Fragment>
       <Form>
         <Stack gutter="md">
           <StackItem>
-            <Title size="xl">Create policy (optional)</Title>
+            <Title size="xl">{ title }</Title>
           </StackItem>
           <StackItem>
             <TextContent>
@@ -65,7 +65,12 @@ const PolicyInformation = (formValue, onHandleChange) => {
 };
 
 PolicyInformation.propTypes = {
-  formData: PropTypes.object
+  formData: PropTypes.object,
+  title: PropTypes.string
+};
+
+PolicyInformation.defaultProps = {
+  title: 'Create policy'
 };
 
 export default PolicyInformation;
