@@ -125,8 +125,6 @@ AddGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  createPolicy: PropTypes.func.isRequired,
-
   selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
