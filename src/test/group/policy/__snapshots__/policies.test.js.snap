@@ -11,16 +11,7 @@ exports[`<GroupPolicies /> should render correctly 1`] = `
       "offset": 0,
     }
   }
-  policies={
-    Object {
-      "data": Array [],
-      "meta": Object {
-        "count": 0,
-        "limit": 10,
-        "offset": 0,
-      },
-    }
-  }
+  policies={Array []}
   removePolicy={[Function]}
   store={
     Object {
@@ -67,16 +58,7 @@ exports[`<GroupPolicies /> should render correctly in loading state 1`] = `
       "offset": 0,
     }
   }
-  policies={
-    Object {
-      "data": Array [],
-      "meta": Object {
-        "count": 0,
-        "limit": 10,
-        "offset": 0,
-      },
-    }
-  }
+  policies={Array []}
   removePolicy={[Function]}
   store={
     Object {
