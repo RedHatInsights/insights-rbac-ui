@@ -12,21 +12,14 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import Select from 'react-select';
 
-const PolicyStep = (formValue, onHandleChange, selectedRoles, setSelectedRoles, roles) => {
-
-  const onOptionSelect = (selectedValues) =>
-  { setSelectedRoles(selectedValues); };
-
-  const dropdownItems = roles.map(role => ({ value: role.uuid, label: role.name, id: role.uuid }));
-
+const PolicyInformation = (formValue, onHandleChange) => {
   return (
     <Fragment>
       <Form>
         <Stack gutter="md">
           <StackItem>
-            <Title size="xl">Create policy</Title>
+            <Title size="xl">Create policy (optional)</Title>
           </StackItem>
           <StackItem>
             <TextContent>
@@ -40,7 +33,7 @@ const PolicyStep = (formValue, onHandleChange, selectedRoles, setSelectedRoles, 
           </StackItem>
           <StackItem>
             <FormGroup
-              label="Policy name"
+              label="Name"
               fieldId="policy-name"
             >
               <TextInput
@@ -65,29 +58,15 @@ const PolicyStep = (formValue, onHandleChange, selectedRoles, setSelectedRoles, 
               />
             </FormGroup>
           </StackItem>
-          <StackItem>
-            <FormGroup
-              label="Select roles"
-              fieldId="select-role"
-            >
-              <Select
-                options={ dropdownItems }
-                isClearable
-                isMulti={ true }
-                placeholders={ 'Select Roles' }
-                onChange={ onOptionSelect }
-                closeMenuOnSelect={ false } />
-            </FormGroup>
-          </StackItem>
         </Stack>
       </Form>
     </Fragment>
   );
 };
 
-PolicyStep.propTypes = {
+PolicyInformation.propTypes = {
   formData: PropTypes.object
 };
 
-export default PolicyStep;
+export default PolicyInformation;
 

@@ -16,7 +16,7 @@ import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination }) => {
+const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembersFromGroup, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
   const [ principals, setPrincipals ] = useState([]);
@@ -39,8 +39,8 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination 
   };
 
   const routes = () => <Fragment>
-    <Route exact path={ `/groups/detail/:uuid/add_members` }
-      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}` } { ...args }/> }/>
+    <Route path={ `/groups/detail/:uuid/members/add_members` }
+      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/principals` } { ...args }/> }/>
   </Fragment>;
 
   const actionResolver = (_principalData, { rowIndex }) =>
@@ -58,7 +58,7 @@ const GroupPrincipals = ({ uuid, fetchGroup, removeMembersFromGroup, pagination 
   const toolbarButtons = () =>
     <ToolbarGroup>
       <ToolbarItem>
-        <Link to={ `/groups/detail/${uuid}/add_members` }>
+        <Link to={ `/groups/detail/${uuid}/members/add_members` }>
           <Button
             variant="primary"
             aria-label="Add member"
@@ -117,6 +117,8 @@ GroupPrincipals.propTypes = {
   fetchGroup: PropTypes.func.isRequired,
   removeMembersFromGroup: PropTypes.func.isRequired,
   uuid: PropTypes.string,
+  match: PropTypes.shape({
+    params: PropTypes.object.isRequired }).isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,

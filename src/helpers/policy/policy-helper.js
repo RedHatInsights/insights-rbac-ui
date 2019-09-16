@@ -6,7 +6,7 @@ const policyApi = getPolicyApi();
 export async function fetchGroupPolicies({ group_uuid, limit, offset }) {
   let policiesData = await policyApi.listPolicies(limit, offset, undefined, undefined, group_uuid);
   let policies = policiesData.data;
-  return Promise.all(policies.map(async policy => {
+  return await Promise.all(policies.map(async policy => {
     let policyWithRoles = await policyApi.getPolicy(policy.uuid);
     return { ...policy, roles: policyWithRoles.roles };
   })).then(data => ({
