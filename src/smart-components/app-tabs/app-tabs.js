@@ -8,7 +8,7 @@ const AppTabs = ({ history: { push }, location: { pathname }, tabItems }) => {
   const handleTabClick = (_event, tabIndex) => push(tabItems[tabIndex].name);
 
   return (
-    <Tabs className="pf-u-mt-md" activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
+    <Tabs className="pf-u-mt-sm" activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
       { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
     </Tabs>
   );

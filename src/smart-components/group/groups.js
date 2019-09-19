@@ -67,8 +67,8 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
   const renderGroupsList = () =>
     <Stack>
       <StackItem>
-        <TopToolbar>
-          <TopToolbarTitle title="User access management" />
+        <TopToolbar paddingBottm={ false }>
+          <TopToolbarTitle title="User access management"/>
           <AppTabs tabItems={ tabItems }/>
         </TopToolbar>
       </StackItem>
