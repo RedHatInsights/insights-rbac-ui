@@ -114,7 +114,7 @@ export const TableToolbarView = ({
 
   return (
     isLoading ? <ListLoader/> :
-      <Section className="data-table-pane" page-type={ `tab-${titlePlural}` } id={ `tab-${titlePlural}` }>
+      <Section type="content" id={ `tab-${titlePlural}` }>
         { routes() }
         { renderToolbar() }
         <Table
@@ -124,7 +124,6 @@ export const TableToolbarView = ({
           cells={ columns }
           onSelect={ isSelectable && selectRow }
           actionResolver={ actionResolver }
-          className="table-fix"
         >
           <TableHeader />
           <TableBody />

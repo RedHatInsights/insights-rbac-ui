@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
-import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import AddGroup from './add-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -65,29 +65,32 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
   </ToolbarGroup>;
 
   const renderGroupsList = () =>
-    <Fragment>
-      <TopToolbar>
-        <TopToolbarTitle title="User access management" />
-        <AppTabs tabItems={ tabItems }/>
-      </TopToolbar>
-      <TableToolbarView
-        data={ groups }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchGroups }
-        routes={ routes }
-        actionResolver={ actionResolver }
-        titlePlural="groups"
-        titleSingular="group"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-        toolbarButtons = { toolbarButtons }
-        isLoading = { isLoading }
-      />
-    </Fragment>;
-
+    <Stack>
+      <StackItem>
+        <TopToolbar>
+          <TopToolbarTitle title="User access management" />
+          <AppTabs tabItems={ tabItems }/>
+        </TopToolbar>
+      </StackItem>
+      <StackItem>
+        <TableToolbarView
+          data={ groups }
+          createRows={ createRows }
+          columns={ columns }
+          fetchData={ fetchData }
+          request={ fetchGroups }
+          routes={ routes }
+          actionResolver={ actionResolver }
+          titlePlural="groups"
+          titleSingular="group"
+          pagination={ pagination }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+          toolbarButtons = { toolbarButtons }
+          isLoading = { isLoading }
+        />
+      </StackItem>
+    </Stack>;
   return (
     <Switch>
       <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
