@@ -49,10 +49,10 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
         }
       >
         <FormSelect
-          aria-label={null}
           className=""
           id="bazz"
           isDisabled={false}
+          isRequired={false}
           isValid={true}
           name="bazz"
           onBlur={[Function]}
@@ -62,7 +62,6 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
         >
           <select
             aria-invalid={false}
-            aria-label={null}
             className="pf-c-form-control"
             disabled={false}
             id="bazz"
@@ -70,14 +69,12 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
+            required={false}
             value=""
           >
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="None"
               label="None"
-              value=""
             >
               <option
                 className=""
@@ -88,8 +85,6 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
               </option>
             </FormSelectOption>
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="bar"
               label="Foo"
               value="bar"
@@ -165,10 +160,10 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
         }
       >
         <FormSelect
-          aria-label={null}
           className=""
           id="bazz"
           isDisabled={false}
+          isRequired={false}
           isValid={false}
           name="bazz"
           onBlur={[Function]}
@@ -178,7 +173,6 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
         >
           <select
             aria-invalid={true}
-            aria-label={null}
             className="pf-c-form-control"
             disabled={false}
             id="bazz"
@@ -186,14 +180,12 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
+            required={false}
             value=""
           >
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="None"
               label="None"
-              value=""
             >
               <option
                 className=""
@@ -204,8 +196,6 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
               </option>
             </FormSelectOption>
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="bar"
               label="Foo"
               value="bar"
@@ -299,10 +289,10 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
         }
       >
         <FormSelect
-          aria-label={null}
           className=""
           id="bazz"
           isDisabled={false}
+          isRequired={false}
           isValid={true}
           name="bazz"
           onBlur={[Function]}
@@ -312,7 +302,6 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
         >
           <select
             aria-invalid={false}
-            aria-label={null}
             className="pf-c-form-control"
             disabled={false}
             id="bazz"
@@ -320,14 +309,12 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
             onBlur={[Function]}
             onChange={[Function]}
             onFocus={[Function]}
+            required={false}
             value=""
           >
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="None"
               label="None"
-              value=""
             >
               <option
                 className=""
@@ -338,8 +325,6 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
               </option>
             </FormSelectOption>
             <FormSelectOption
-              className=""
-              isDisabled={false}
               key="bar"
               label="Foo"
               value="bar"

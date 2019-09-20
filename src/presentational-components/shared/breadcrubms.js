@@ -5,13 +5,13 @@ import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 
 const RbacBreadcrumbs = (breadcrumbs) => {
   return (
-    <Breadcrumb style={ { minHeight: 18 } }>
-      { breadcrumbs && Object.values(breadcrumbs).map(item => (
+    breadcrumbs ? <Breadcrumb className="pf-u-pt-xl">
+      { Object.values(breadcrumbs).map(item => (
         <BreadcrumbItem key={ item.title } isActive={ item.isActive }>
           { (item.to && <NavLink exact to={ item.to }>{ item.title }</NavLink>) || item.title }
         </BreadcrumbItem>
       )) }
-    </Breadcrumb>
+    </Breadcrumb> : null
   );
 };
 

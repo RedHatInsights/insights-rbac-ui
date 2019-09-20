@@ -1,13 +1,13 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Level, LevelItem, Stack, StackItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
+import { Level, LevelItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
 
 import './top-toolbar.scss';
 
 export const TopToolbar = ({ children,  breadcrumbs, paddingBottom }) => (
-  <div className={ `pf-u-pt-xl pf-u-pr-xl pf-u-pl-xl ${paddingBottom ? 'pf-u-pb-xl' : ''} top-toolbar` }>
+  <div className={ `pf-u-pr-xl pf-u-pl-lg ${paddingBottom ? 'pf-u-pb-sm' : ''} top-toolbar` }>
     <Level className="pf-u-mb-md">
       <RbacBreadcrumbs { ...breadcrumbs } />
     </Level>
@@ -30,20 +30,15 @@ TopToolbar.defaultProps = {
 
 export const TopToolbarTitle = ({ title, description, children }) => (
   <Fragment>
-    <Level className="pf-u-mb-xl">
+    <Level>
       <LevelItem>
-        <Stack gutter="sm">
-          <StackItem>
-            <TextContent className="top-toolbar-title">
-              { <Text component={ TextVariants.h2 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
-            </TextContent>
-          </StackItem>
-          <StackItem>
-            <TextContent className="top-toolbar-title">
-              { description || <Text component={ TextVariants.h4 }>{ description }</Text> }
-            </TextContent>
-          </StackItem>
-        </Stack>
+        <TextContent className="pf-u-mb-sm">
+          { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
+        </TextContent>
+        { description &&
+              <TextContent className="pf-u-pt-sm pf-u-mb-md">
+                <Text component={ TextVariants.p }>{ description }</Text>
+              </TextContent> }
       </LevelItem>
       { children }
     </Level>

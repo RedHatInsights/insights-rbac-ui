@@ -12,8 +12,8 @@ import ContentLoader from 'react-content-loader';
 
 export const ListLoader = ({ items, ...props }) => (
   <Fragment>
-    <Section className="data-table-pane">
-      <DataList aria-label="datalist-placeholder" style={ { margin: 32 } }>
+    <Section type="content">
+      <DataList aria-label="datalist-placeholder">
         { [ ...Array(items) ].map((_item, index) => (
           <DataListItem key={ index } aria-labelledby="datalist-item-placeholder">
             <DataListItemRow aria-label="datalist-item-placeholder-row">
