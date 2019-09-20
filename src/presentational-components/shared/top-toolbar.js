@@ -32,17 +32,13 @@ export const TopToolbarTitle = ({ title, description, children }) => (
   <Fragment>
     <Level>
       <LevelItem>
-        <Text className="pf-u-mb-sm">
-          <TextContent>
-            { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
-          </TextContent>
-        </Text>
+        <TextContent className="pf-u-mb-sm">
+          { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
+        </TextContent>
         { description &&
-            <Text className="pf-u-pt-sm pf-u-mb-md">
-              <TextContent>
+              <TextContent className="pf-u-pt-sm pf-u-mb-md">
                 <Text component={ TextVariants.p }>{ description }</Text>
-              </TextContent>
-            </Text> }
+              </TextContent> }
       </LevelItem>
       { children }
     </Level>
