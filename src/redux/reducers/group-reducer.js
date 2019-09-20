@@ -15,18 +15,20 @@ export const groupsInitialState = {
     }
   },
   selectedGroup: {},
-  isLoading: false
+  isLoading: false,
+  isRecordLoading: false
 };
 
 const setLoadingState = state => ({ ...state, isLoading: true });
+const setRecordLoadingState = state => ({ ...state, isRecordLoading: true });
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
-const selectGroup = (state, { payload }) => ({ ...state, selectedGroup: payload, isLoading: false });
+const setGroup = (state, { payload }) => ({ ...state, selectedGroup: payload, isRecordLoading: false });
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
-  [`${FETCH_GROUP}_PENDING`]: setLoadingState,
-  [`${FETCH_GROUP}_FULFILLED`]: selectGroup,
+  [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
+  [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [RESET_SELECTED_GROUP]: resetSelectedGroup
 };

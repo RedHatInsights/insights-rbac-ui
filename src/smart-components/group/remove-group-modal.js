@@ -9,23 +9,19 @@ import { fetchGroups, fetchGroup, removeGroup } from '../../redux/actions/group-
 
 const RemoveGroupModal = ({
   history: { goBack, push },
+  match: { params: { id }},
   removeGroup,
+  group,
+  isLoading,
   fetchGroup,
-  fetchGroups,
-  groupId,
-  group
+  fetchGroups
 }) => {
+
   useEffect(() => {
-    if (groupId) {
-      fetchGroup(groupId);
-    }
+    fetchGroup(id);
   }, []);
 
-  if (!group) {
-    return null;
-  }
-
-  const onSubmit = () => removeGroup(groupId)
+  const onSubmit = () => removeGroup(id)
   .then(() => {
     fetchGroups();
     push('/groups');
@@ -43,7 +39,7 @@ const RemoveGroupModal = ({
         <Button key="cancel" variant="secondary" type="button" onClick={ onCancel }>
           Cancel
         </Button>,
-        <Button key="submit" variant="primary" type="button" onClick={ onSubmit }>
+        <Button key="submit" isDisabled={ isLoading  }  variant="primary" type="button" onClick={ onSubmit }>
           Confirm
         </Button>
       ] }
@@ -59,24 +55,32 @@ const RemoveGroupModal = ({
   );
 };
 
+RemoveGroupModal.defaultProps = {
+  group: {},
+  isLoading: true
+};
+
 RemoveGroupModal.propTypes = {
+  match: PropTypes.shape({
+    params: PropTypes.shape({
+      id: PropTypes.string
+    }).isRequired
+  }).isRequired,
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }).isRequired,
   removeGroup: PropTypes.func.isRequired,
+  fetchGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
-  groupId: PropTypes.string,
+  isLoading: PropTypes.bool,
   group: PropTypes.object
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }},
-  { match: { params: { id }}}) => ({
-  groupId: id,
+const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) => ({
   group: selectedGroup,
-  isLoading
+  isLoading: isRecordLoading
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
