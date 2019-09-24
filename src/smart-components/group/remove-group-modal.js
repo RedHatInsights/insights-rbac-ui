@@ -3,9 +3,10 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Bullseye, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchGroups, fetchGroup, removeGroup } from '../../redux/actions/group-actions';
+import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveGroupModal = ({
   history: { goBack, push },
@@ -16,7 +17,6 @@ const RemoveGroupModal = ({
   fetchGroup,
   fetchGroups
 }) => {
-
   useEffect(() => {
     fetchGroup(id);
   }, []);
@@ -44,13 +44,23 @@ const RemoveGroupModal = ({
         </Button>
       ] }
     >
-      <Bullseye>
-        <TextContent>
-          <Text component={ TextVariants.h1 }>
-            Removing Group:  { group.name }
-          </Text>
-        </TextContent>
-      </Bullseye>
+      <Grid gutter="sm">
+        <GridItem span={ 5 }>
+          <TextContent>
+            <Text component={ TextVariants.h1 }>
+                Removing Group:
+            </Text>
+          </TextContent>
+        </GridItem>
+        <GridItem span={ 6 }>
+          <TextContent>
+            { !isLoading && <Text component={ TextVariants.h1 }>
+              { group.name }
+            </Text> }
+          </TextContent>
+          { isLoading && <FormItemLoader/> }
+        </GridItem>
+      </Grid>
     </Modal>
   );
 };

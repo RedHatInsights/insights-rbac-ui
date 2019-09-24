@@ -74,3 +74,15 @@ export const ToolbarTitlePlaceholder = props => (
     <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
   </ContentLoader>
 );
+
+export const FormItemLoader = () => (
+  <ContentLoader
+    height={ 32 }
+    width={ 160 }
+    speed={ 2 }
+    primaryColor="#f3f3f3"
+    secondaryColor="#ecebeb"
+  >
+    <rect x="0" y="0" rx="0" ry="0" width="160" height="32" />
+  </ContentLoader>
+);
