@@ -1,9 +1,8 @@
 import React from 'react';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { shallow, mount } from 'enzyme';
+import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store' ;
-import { shallowToJson } from 'enzyme-to-json';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -41,11 +40,6 @@ describe('<RemoveGroupModal />', () => {
         }
       }
     };
-  });
-
-  it('should render correctly', () => {
-    const wrapper = shallow(<RemoveGroupModal { ...initialProps } />);
-    expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('should call cancel action', () => {
