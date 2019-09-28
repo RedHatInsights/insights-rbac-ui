@@ -20,6 +20,7 @@ export const TableToolbarView = ({
   fetchData,
   data,
   actionResolver,
+  areActionsDisabled,
   routes,
   titlePlural,
   titleSingular,
@@ -127,6 +128,7 @@ export const TableToolbarView = ({
           cells={ columns }
           onSelect={ isSelectable && selectRow }
           actionResolver={ actionResolver }
+          areActionsDisabled={ areActionsDisabled }
         >
           <TableHeader />
           <TableBody />
@@ -152,6 +154,7 @@ TableToolbarView.propTypes = {
   titleSingular: propTypes.string,
   routes: propTypes.func,
   actionResolver: propTypes.func,
+  areActionsDisabled: propTypes.func,
   setCheckedItems: propTypes.func,
   filterValue: propTypes.string,
   setFilterValue: propTypes.func,
