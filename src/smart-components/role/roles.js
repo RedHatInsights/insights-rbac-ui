@@ -1,7 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { Route, Switch } from 'react-router-dom';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { Link, Route, Switch } from 'react-router-dom';
+import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
 
 import AppTabs from '../app-tabs/app-tabs';
@@ -10,6 +10,7 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 
 const columns = [
@@ -33,6 +34,7 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
   };
 
   const routes = () => <Fragment>
+    <Route exact path="/roles/add-role" component={ AddRoleWizard } />
     <Route exact path="/roles/remove/:id" component={ RemoveRole } />
   </Fragment>;
 
@@ -49,6 +51,19 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
   const areActionsDisabled = (_roleData) => {
     return _roleData.policies.title > 1;
   };
+
+  const toolbarButtons = () => <ToolbarGroup>
+    <ToolbarItem>
+      <Link to="/roles/add-role">
+        <Button
+          variant="primary"
+          aria-label="Create role"
+        >
+          Add role
+        </Button>
+      </Link>
+    </ToolbarItem>
+  </ToolbarGroup>;
 
   const renderRolesList = () =>
     <Stack>
@@ -74,6 +89,7 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
           routes={ routes }
           titlePlural="roles"
           titleSingular="role"
+          toolbarButtons = { toolbarButtons }
         />
       </StackItem>
     </Stack>;

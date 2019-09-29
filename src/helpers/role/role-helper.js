@@ -3,6 +3,10 @@ import { RBAC_API_BASE } from '../../utilities/constants';
 
 const roleApi = getRoleApi();
 
+export async function createRole(data) {
+  return await roleApi.createRoles(data);
+}
+
 export const fetchFilterRoles = (filterValue) =>
   getAxiosInstance().get(`${RBAC_API_BASE}/roles/${filterValue.length > 0
     ? `?name=${filterValue}`
