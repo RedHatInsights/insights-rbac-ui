@@ -11,6 +11,11 @@ const entry = process.env.NODE_ENV === 'production' ?
 const { insights } = require('../package.json');
 
 let appDeployment = 'apps';
+// TO DO remove once hybrid/ansible is avaiable outside of beta. Or we can always develop on beta
+if (process.env.BETA === 'true') {
+  appDeployment = 'beta/apps';
+}
+
 const gitBranch = process.env.TRAVIS_BRANCH || process.env.BRANCH || gitRevisionPlugin.branch();
 const betaBranch =
     gitBranch === 'master' ||
