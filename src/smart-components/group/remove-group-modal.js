@@ -15,16 +15,16 @@ const RemoveGroupModal = ({
   group,
   isLoading,
   fetchGroup,
-  postMethod
+  postMethod,
+  closeUrl
 }) => {
   useEffect(() => {
     fetchGroup(id);
   }, []);
 
-  const onSubmit = () => removeGroup(id)
-  .then(() => {
-    postMethod ? postMethod().then(() => push('/groups')) : push('/groups');
-  });
+  const onSubmit = () =>
+    postMethod ? removeGroup(id).then(() => postMethod()).then(push(closeUrl)) :
+      removeGroup(id).then(() => push(closeUrl));
 
   const onCancel = () => goBack();
 
@@ -66,7 +66,8 @@ const RemoveGroupModal = ({
 
 RemoveGroupModal.defaultProps = {
   group: {},
-  isLoading: true
+  isLoading: true,
+  closeUrl: '/groups'
 };
 
 RemoveGroupModal.propTypes = {
@@ -84,7 +85,8 @@ RemoveGroupModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
-  group: PropTypes.object
+  group: PropTypes.object,
+  closeUrl: PropTypes.string
 };
 
 const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) => ({
