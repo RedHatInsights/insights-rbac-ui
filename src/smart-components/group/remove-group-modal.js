@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchGroups, fetchGroup, removeGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, removeGroup } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveGroupModal = ({
@@ -15,7 +15,7 @@ const RemoveGroupModal = ({
   group,
   isLoading,
   fetchGroup,
-  fetchGroups
+  postMethod
 }) => {
   useEffect(() => {
     fetchGroup(id);
@@ -23,8 +23,7 @@ const RemoveGroupModal = ({
 
   const onSubmit = () => removeGroup(id)
   .then(() => {
-    fetchGroups();
-    push('/groups');
+    postMethod ? postMethod().then(() => push('/groups')) : push('/groups');
   });
 
   const onCancel = () => goBack();
@@ -83,7 +82,7 @@ RemoveGroupModal.propTypes = {
   removeGroup: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
+  postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
   group: PropTypes.object
 };
@@ -96,7 +95,6 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) =>
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   fetchGroup,
-  fetchGroups,
   removeGroup
 }, dispatch);
 
