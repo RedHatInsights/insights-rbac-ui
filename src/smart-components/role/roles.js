@@ -25,7 +25,7 @@ const tabItems = [
 const Roles = ({ fetchRoles, isLoading, pagination, roles }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const fetchData = (setRows) => {
-    fetchRoles().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+    fetchRoles(pagination).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
   };
 
   const renderRolesList = () =>
