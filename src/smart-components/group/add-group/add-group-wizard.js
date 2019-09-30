@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
+import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import { createPolicy } from '../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
@@ -18,7 +18,9 @@ const AddGroupModal = ({
   history: { push },
   match: { params: { id }},
   addNotification,
-  addGroup
+  addGroup,
+  postMethod,
+  closeUrl
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
@@ -80,11 +82,14 @@ const AddGroupModal = ({
         group: group.value.uuid,
         roles: selectedRoles.map(role => role.value)
       };
-      return createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
+      return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).then(() => push(closeUrl)) :
+        createPolicy(policy_data).payload.then(() => push(closeUrl));
     }
     else {
-      fetchGroups().then(push('/groups'));
-      return group;
+      if (postMethod) {
+        postMethod();
+      }
+      push(closeUrl);
     }
   };
 
@@ -114,7 +119,8 @@ AddGroupModal.defaultProps = {
   inputValue: '',
   selectedGroup: undefined,
   selectedUsers: [],
-  selectedRoles: []
+  selectedRoles: [],
+  closeUrl: '/groups'
 };
 
 AddGroupModal.propTypes = {
@@ -123,13 +129,14 @@ AddGroupModal.propTypes = {
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
-  match: PropTypes.object
+  match: PropTypes.object,
+  postMethod: PropTypes.func,
+  closeUrl: PropTypes.string
 };
 
 const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
@@ -143,7 +150,6 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   fetchGroup,
-  fetchGroups,
   fetchRoles
 }, dispatch);
 

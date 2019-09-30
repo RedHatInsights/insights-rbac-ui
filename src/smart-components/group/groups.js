@@ -31,7 +31,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
   };
 
   const routes = () => <Fragment>
-    <Route exact path="/groups/add-group" component={ AddGroupWizard } />
+    <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } /> } />
   </Fragment>;
