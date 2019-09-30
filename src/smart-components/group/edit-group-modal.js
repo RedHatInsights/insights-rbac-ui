@@ -18,7 +18,8 @@ const EditGroupModal = ({
   match: { params: { id }},
   addNotification,
   updateGroup,
-  postMethod
+  postMethod,
+  closeUrl
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ inputValue, setInputValue ] = useState('');
@@ -51,8 +52,8 @@ const EditGroupModal = ({
 
   const onSubmit = data => {
     const user_data = { ...data, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : []};
-    postMethod ? updateGroup(user_data).then(postMethod()).then(push('/groups')) :
-      updateGroup(user_data).then(push('/groups'));
+    postMethod ? updateGroup(user_data).then(() => postMethod()).then(push(closeUrl)) :
+      updateGroup(user_data).then(() => push(closeUrl));
   };
 
   const onCancel = () => {
@@ -146,14 +147,14 @@ EditGroupModal.defaultProps = {
   users: [],
   inputValue: '',
   selectedGroup: undefined,
-  selectedUsers: []
+  selectedUsers: [],
+  closeUrl: '/groups'
 };
 
 EditGroupModal.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
-  addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   selectedGroup: PropTypes.object,
@@ -162,7 +163,8 @@ EditGroupModal.propTypes = {
   selectedUsers: PropTypes.array,
   match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired,
-  postMethod: PropTypes.func
+  postMethod: PropTypes.func,
+  closeUrl: PropTypes.string
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
@@ -171,7 +173,6 @@ const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
-  addGroup,
   updateGroup,
   fetchGroup
 }, dispatch);

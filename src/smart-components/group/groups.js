@@ -108,7 +108,7 @@ const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) =>
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchGroups,
+  fetchGroups
 }, dispatch);
 
 Groups.propTypes = {
