@@ -26,7 +26,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
   const [ groups, setGroups ] = useState([]);
 
   const fetchData = () => {
-    fetchGroups().then(({ value: { data }}) => setGroups(data));
+    fetchGroups(pagination).then(({ value: { data }}) => setGroups(data));
   };
 
   const routes = () => <Fragment>

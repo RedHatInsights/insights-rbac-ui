@@ -32,12 +32,15 @@ export const TableToolbarView = ({
 
   useEffect(() => {
     fetchData(setRows, filterValue, pagination);
-    scrollToTop();
-  }, []);
+  }, [ filterValue, pagination.limit, pagination.offset ]);
 
   useEffect(() => {
     setRows(createRows(data, filterValue));
-  }, [ data, filterValue, pagination.limit, pagination.offset ]);
+  }, [ data ]);
+
+  useEffect(() => {
+    scrollToTop();
+  }, []);
 
   const handleOnPerPageSelect = limit => request({
     offset: pagination.offset,
