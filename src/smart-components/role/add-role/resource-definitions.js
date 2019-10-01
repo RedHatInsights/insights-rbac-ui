@@ -103,7 +103,6 @@ const ResourceDefinitions = (formData, handleChange) => {
               id="resource-key"
               name="resource-key"
               onChange={ (_, event) => updateDefinition({ key: event.currentTarget.value }) }
-              placeholder="openshift.project"
               type="text"
               value={ resourceDefinition.key }
             />
@@ -117,7 +116,6 @@ const ResourceDefinitions = (formData, handleChange) => {
               id="resource-operation"
               name="resource-operation"
               onChange={ (_, event) => updateDefinition({ operation: event.currentTarget.value }) }
-              placeholder="equal"
               type="text"
               value={ resourceDefinition.operation }
             />
@@ -131,7 +129,6 @@ const ResourceDefinitions = (formData, handleChange) => {
               id="resource-value"
               name="resource-value"
               onChange={ (_, event) => updateDefinition({ value: event.currentTarget.value }) }
-              placeholder="metering-hccm,openshift-monitoring"
               type="text"
               value={ resourceDefinition.value }
             />

@@ -57,7 +57,6 @@ const PermissionInformation = (formData, onHandleChange) => {
               isRequired
               name="application"
               onChange={ (_, event) => handleChange({ application: event.currentTarget.value }) }
-              placeholder="cost-management"
               type="text"
               value={ application }
             />
@@ -73,7 +72,6 @@ const PermissionInformation = (formData, onHandleChange) => {
               isRequired
               name="resource-type"
               onChange={ (_, event) => handleChange({ resourceType: event.currentTarget.value }) }
-              placeholder="openshift.cluster"
               type="text"
               value={ resourceType }
             />
@@ -89,7 +87,6 @@ const PermissionInformation = (formData, onHandleChange) => {
               isRequired
               name="permission"
               onChange={ (_, event) => handleChange({ permission: event.currentTarget.value }) }
-              placeholder="read"
               type="text"
               value={ permission }
             />
