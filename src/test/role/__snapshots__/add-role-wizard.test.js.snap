@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AddRoleWizard /> should post a warning message on Cancel 1`] = `
+<MemoryRouter
+  initialEntries={
+    Array [
+      "/roles/add-role/",
+    ]
+  }
+>
+  <withRouter(Connect(AddRoleWizard)) />
+</MemoryRouter>
+`;

@@ -1,5 +1,4 @@
 import {
-  RESET_SELECTED_ROLE,
   FETCH_ROLE,
   FETCH_ROLES
 } from '../../redux/action-types';
@@ -19,14 +18,12 @@ export const rolesInitialState = {
   selectedRole: {}
 };
 
-const resetSelectedRole = state => ({ ...state, selectedRole: undefined });
 const setLoadingState = state => ({ ...state, isLoading: true });
 const setRecordLoadingState = state => ({ ...state, isRecordLoading: true });
 const setRole = (state, { payload }) => ({ ...state, selectedRole: payload, isRecordLoading: false });
 const setRoles = (state, { payload }) => ({ ...state, roles: payload, isLoading: false });
 
 export default {
-  [RESET_SELECTED_ROLE]: resetSelectedRole,
   [`${FETCH_ROLE}_FULFILLED`]: setRole,
   [`${FETCH_ROLE}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLES}_FULFILLED`]: setRoles,

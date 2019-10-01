@@ -71,26 +71,27 @@ RemoveRoleModal.defaultProps = {
 };
 
 RemoveRoleModal.propTypes = {
+  addNotification: PropTypes.func.isRequired,
+  fetchRole: PropTypes.func.isRequired,
+  fetchRoles: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool,
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
+  }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
       id: PropTypes.string
     }).isRequired
   }).isRequired,
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }).isRequired,
   removeRole: PropTypes.func.isRequired,
-  fetchRole: PropTypes.func.isRequired,
-  addNotification: PropTypes.func.isRequired,
-  fetchRoles: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool,
   role: PropTypes.object
 };
 
-const mapStateToProps = ({ roleReducer: { selectedRole, isRecordLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, selectedRole, isRecordLoading }}) => ({
   role: selectedRole,
-  isLoading: isRecordLoading
+  isLoading: isRecordLoading,
+  pagination: roles.meta
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
