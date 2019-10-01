@@ -3,6 +3,12 @@ import { RBAC_API_BASE } from '../../utilities/constants';
 
 const roleApi = getRoleApi();
 
+export const fetchFilterRoles = (filterValue) =>
+  getAxiosInstance().get(`${RBAC_API_BASE}/roles/${filterValue.length > 0
+    ? `?name=${filterValue}`
+    : ''}`)
+  .then(({ data }) => data.map(({ uuid, name }) => ({ label: name, value: uuid })));
+
 export async function fetchRoles({ limit, offset }) {
   let rolesData = await roleApi.listRoles(limit, offset);
   let roles = rolesData.data;
@@ -21,12 +27,10 @@ export async function fetchRolesWithPolicies({ limit, offset, name, orderBy }) {
   }));
 }
 
-export async function fetchRole(id) {
-  return await roleApi.getGroup(id);
+export async function fetchRole(uuid) {
+  return await roleApi.getRole(uuid);
 }
 
-export const fetchFilterRoles = (filterValue) =>
-  getAxiosInstance().get(`${RBAC_API_BASE}/roles/${filterValue.length > 0
-    ? `?name=${filterValue}`
-    : ''}`)
-  .then(({ data }) => data.map(({ uuid, name }) => ({ label: name, value: uuid })));
+export async function removeRole(roleId) {
+  return await roleApi.deleteRole(roleId);
+}

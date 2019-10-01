@@ -1,6 +1,7 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
 import { Route, Switch } from 'react-router-dom';
+import { Stack, StackItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
 
 import AppTabs from '../app-tabs/app-tabs';
@@ -9,6 +10,7 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import RemoveRole from './remove-role-modal';
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -22,36 +24,63 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Roles = ({ fetchRoles, isLoading, pagination, roles }) => {
+const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const fetchData = (setRows) => {
-    fetchRoles(pagination).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+  const [ roles, setRoles ] = useState([]);
+
+  const fetchData = () => {
+    fetchRoles(pagination).then(({ value: { data }}) => setRoles(data));
+  };
+
+  const routes = () => <Fragment>
+    <Route exact path="/roles/remove/:id" component={ RemoveRole } />
+  </Fragment>;
+
+  const actionResolver = () =>
+    [
+      {
+        title: 'Delete',
+        style: { color: 'var(--pf-global--danger-color--100)' },
+        onClick: (_event, _rowId, role) =>
+          push(`/roles/remove/${role.uuid}`)
+      }
+    ];
+
+  const areActionsDisabled = (_roleData) => {
+    return _roleData.policies.title > 1;
   };
 
   const renderRolesList = () =>
-    <Fragment>
-      <TopToolbar>
-        <TopToolbarTitle title="User access management" />
-        <AppTabs tabItems={ tabItems }/>
-      </TopToolbar>
-      <TableToolbarView
-        data={ roles }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchRoles }
-        titlePlural="roles"
-        titleSingular="role"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-        isLoading={ isLoading }
-      />
-    </Fragment>;
+    <Stack>
+      <StackItem>
+        <TopToolbar>
+          <TopToolbarTitle title="User access management" />
+          <AppTabs tabItems={ tabItems }/>
+        </TopToolbar>
+      </StackItem>
+      <StackItem>
+        <TableToolbarView
+          actionResolver={ actionResolver }
+          areActionsDisabled={ areActionsDisabled }
+          columns={ columns }
+          createRows={ createRows }
+          data={ roles }
+          fetchData={ fetchData }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+          isLoading={ isLoading }
+          pagination={ pagination }
+          request={ fetchRoles }
+          routes={ routes }
+          titlePlural="roles"
+          titleSingular="role"
+        />
+      </StackItem>
+    </Stack>;
 
   return (
     <Switch>
-      <Route exact path={ '/roles' } render={ () => renderRolesList() } />
+      <Route path={ '/roles' } render={ () => renderRolesList() } />
     </Switch>
   );
 };
@@ -70,6 +99,10 @@ const mapDispatchToProps = dispatch => {
 };
 
 Roles.propTypes = {
+  history: PropTypes.shape({
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
+  }),
   roles: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
@@ -84,7 +117,6 @@ Roles.propTypes = {
 
 Roles.defaultProps = {
   roles: [],
-  isLoading: false,
   pagination: defaultSettings
 };
 

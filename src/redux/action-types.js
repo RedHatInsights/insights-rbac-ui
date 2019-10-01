@@ -8,6 +8,8 @@ export const REMOVE_GROUP = 'REMOVE_GROUP';
 
 export const FETCH_ROLE = 'FETCH_ROLE';
 export const FETCH_ROLES = 'FETCH_ROLES';
+export const REMOVE_ROLE = 'REMOVE_ROLE';
+export const RESET_SELECTED_ROLE = 'RESET_SELECTED_ROLE';
 
 export const FETCH_GROUP_POLICIES = 'FETCH_GROUP_POLICIES';
 export const FETCH_POLICY = 'FETCH_POLICY';
