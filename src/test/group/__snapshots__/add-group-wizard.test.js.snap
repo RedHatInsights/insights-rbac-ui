@@ -1,0 +1,18 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<AddGroupWizard /> should post a warning message on Cancel 1`] = `
+<MemoryRouter
+  initialEntries={
+    Array [
+      "/groups/",
+      "/groups/add-group/",
+      "/groups/",
+    ]
+  }
+  initialIndex={1}
+>
+  <withRouter(Connect(AddGroupWizard))
+    uuid="123"
+  />
+</MemoryRouter>
+`;

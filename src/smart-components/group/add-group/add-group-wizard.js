@@ -14,7 +14,7 @@ import SetUsers from './set-users';
 import PolicyInformation from './policy-information';
 import PolicySetRoles from './policy-set-roles';
 
-const AddGroupModal = ({
+const AddGroupWizard = ({
   history: { push },
   match: { params: { id }},
   addNotification,
@@ -22,7 +22,6 @@ const AddGroupModal = ({
   postMethod,
   closeUrl
 }) => {
-  const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
   const [ roles, setRoles ] = useState([]);
   const [ selectedRoles, setSelectedRoles ] = useState([]);
@@ -43,7 +42,6 @@ const AddGroupModal = ({
   };
 
   const setGroupData = (groupData) => {
-    setSelectedGroup(groupData);
     if (groupData && groupData.principals) {
       setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
     }
@@ -96,8 +94,8 @@ const AddGroupModal = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: selectedGroup ? 'Editing group' : 'Adding group',
-      description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
+      title: 'Adding group',
+      description: 'Adding group was cancelled by the user.'
     });
     push('/groups');
   };
@@ -105,7 +103,7 @@ const AddGroupModal = ({
   return (
     <Wizard
       isLarge
-      title={ selectedGroup ? 'Edit group' : 'Add group' }
+      title={ 'Add group' }
       isOpen
       onClose={ onCancel }
       onSave={ onSubmit }
@@ -114,23 +112,21 @@ const AddGroupModal = ({
 
 };
 
-AddGroupModal.defaultProps = {
+AddGroupWizard.defaultProps = {
   users: [],
   inputValue: '',
-  selectedGroup: undefined,
   selectedUsers: [],
   selectedRoles: [],
   closeUrl: '/groups'
 };
 
-AddGroupModal.propTypes = {
+AddGroupWizard.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
@@ -153,4 +149,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchRoles
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupModal));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
