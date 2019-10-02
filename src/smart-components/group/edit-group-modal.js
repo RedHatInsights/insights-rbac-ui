@@ -7,18 +7,19 @@ import CreatableSelect from 'react-select/creatable';
 import FormRenderer from '../common/form-renderer';
 import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup, updateGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 
 const components = {
   DropdownIndicator: null
 };
 
-const AddGroupWizard = ({
+const EditGroupModal = ({
   history: { push },
   match: { params: { id }},
   addNotification,
-  addGroup,
-  updateGroup
+  updateGroup,
+  postMethod,
+  closeUrl
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ inputValue, setInputValue ] = useState('');
@@ -51,8 +52,8 @@ const AddGroupWizard = ({
 
   const onSubmit = data => {
     const user_data = { ...data, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : []};
-    id ? updateGroup(user_data).then(() => fetchGroups()).then(push('/groups'))
-      : addGroup(user_data).then(() => fetchGroups()).then(push('/groups'));
+    postMethod ? updateGroup(user_data).then(() => postMethod()).then(push(closeUrl)) :
+      updateGroup(user_data).then(() => push(closeUrl));
   };
 
   const onCancel = () => {
@@ -142,27 +143,28 @@ const AddGroupWizard = ({
   );
 };
 
-AddGroupWizard.defaultProps = {
+EditGroupModal.defaultProps = {
   users: [],
   inputValue: '',
   selectedGroup: undefined,
-  selectedUsers: []
+  selectedUsers: [],
+  closeUrl: '/groups'
 };
 
-AddGroupWizard.propTypes = {
+EditGroupModal.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
-  addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
   match: PropTypes.object,
-  updateGroup: PropTypes.func.isRequired
+  updateGroup: PropTypes.func.isRequired,
+  postMethod: PropTypes.func,
+  closeUrl: PropTypes.string
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
@@ -171,10 +173,8 @@ const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
-  addGroup,
   updateGroup,
-  fetchGroup,
-  fetchGroups
+  fetchGroup
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditGroupModal));

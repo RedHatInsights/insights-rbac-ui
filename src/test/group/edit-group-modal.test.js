@@ -9,11 +9,11 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { RBAC_API_BASE } from '../../utilities/constants';
-import AddGroupModal from '../../smart-components/group/add-group-modal';
+import EditGroupModal from '../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../redux/reducers/group-reducer';
 import { componentTypes } from '@data-driven-forms/react-form-renderer/dist/index';
 
-describe('<AddGroupModal />', () => {
+describe('<EditGroupModal />', () => {
   let initialProps;
   const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
   let mockStore;
@@ -49,7 +49,7 @@ describe('<AddGroupModal />', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = shallow(<AddGroupModal { ...initialProps } />);
+    const wrapper = shallow(<EditGroupModal { ...initialProps } />);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
@@ -68,7 +68,7 @@ describe('<AddGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store } initialEntries={ [ '/foo/url' ] }>
-        <Route to="/foo/url" render={ args => <AddGroupModal { ...initialProps } { ...args } /> }  />
+        <Route to="/foo/url" render={ args => <EditGroupModal { ...initialProps } { ...args } /> }  />
       </GroupWrapper>
     );
 

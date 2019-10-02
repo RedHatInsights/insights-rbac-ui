@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
+import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import { createPolicy } from '../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
@@ -14,13 +14,14 @@ import SetUsers from './set-users';
 import PolicyInformation from './policy-information';
 import PolicySetRoles from './policy-set-roles';
 
-const AddGroupModal = ({
+const AddGroupWizard = ({
   history: { push },
   match: { params: { id }},
   addNotification,
-  addGroup
+  addGroup,
+  postMethod,
+  closeUrl
 }) => {
-  const [ selectedGroup, setSelectedGroup ] = useState({});
   const [ selectedUsers, setSelectedUsers ] = useState([]);
   const [ roles, setRoles ] = useState([]);
   const [ selectedRoles, setSelectedRoles ] = useState([]);
@@ -41,7 +42,6 @@ const AddGroupModal = ({
   };
 
   const setGroupData = (groupData) => {
-    setSelectedGroup(groupData);
     if (groupData && groupData.principals) {
       setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
     }
@@ -80,19 +80,22 @@ const AddGroupModal = ({
         group: group.value.uuid,
         roles: selectedRoles.map(role => role.value)
       };
-      return createPolicy(policy_data).payload.then(() => fetchGroups()).then(push('/groups'));
+      return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).then(() => push(closeUrl)) :
+        createPolicy(policy_data).payload.then(() => push(closeUrl));
     }
     else {
-      fetchGroups().then(push('/groups'));
-      return group;
+      if (postMethod) {
+        postMethod();
+      }
+      push(closeUrl);
     }
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: selectedGroup ? 'Editing group' : 'Adding group',
-      description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
+      title: 'Adding group',
+      description: 'Adding group was cancelled by the user.'
     });
     push('/groups');
   };
@@ -100,7 +103,7 @@ const AddGroupModal = ({
   return (
     <Wizard
       isLarge
-      title={ selectedGroup ? 'Edit group' : 'Add group' }
+      title={ 'Add group' }
       isOpen
       onClose={ onCancel }
       onSave={ onSubmit }
@@ -109,27 +112,27 @@ const AddGroupModal = ({
 
 };
 
-AddGroupModal.defaultProps = {
+AddGroupWizard.defaultProps = {
   users: [],
   inputValue: '',
-  selectedGroup: undefined,
   selectedUsers: [],
-  selectedRoles: []
+  selectedRoles: [],
+  closeUrl: '/groups'
 };
 
-AddGroupModal.propTypes = {
+AddGroupWizard.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  selectedGroup: PropTypes.object,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
-  match: PropTypes.object
+  match: PropTypes.object,
+  postMethod: PropTypes.func,
+  closeUrl: PropTypes.string
 };
 
 const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
@@ -143,8 +146,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   fetchGroup,
-  fetchGroups,
   fetchRoles
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupModal));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));

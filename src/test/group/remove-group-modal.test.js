@@ -9,7 +9,7 @@ import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-service
 import { RBAC_API_BASE } from '../../utilities/constants';
 import RemoveGroupModal from '../../smart-components/group/remove-group-modal';
 import { groupsInitialState } from '../../redux/reducers/group-reducer';
-import { REMOVE_GROUP, FETCH_GROUP, FETCH_GROUPS } from '../../redux/action-types';
+import { REMOVE_GROUP, FETCH_GROUP } from '../../redux/action-types';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
@@ -27,7 +27,8 @@ describe('<RemoveGroupModal />', () => {
 
   beforeEach(() => {
     initialProps = {
-      id: '123'
+      id: '123',
+      postMethod: jest.fn()
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -109,10 +110,7 @@ describe('<RemoveGroupModal />', () => {
       expect(actions).toContainObj({ type: ADD_NOTIFICATION,
         payload: expect.objectContaining({ description: 'The group was removed successfully.' }) });
       expect(actions).toContainObj({ type: `${REMOVE_GROUP}_FULFILLED` });
-      expect(actions).toContainObj({ type: `${FETCH_GROUPS}_PENDING` });
-      expect(actions).toContainObj({ type: `${FETCH_GROUPS}_FULFILLED`,
-        payload: { data: []}
-      });
+      expect(initialProps.postMethod).toHaveBeenCalled();
       done();
     });
   });
