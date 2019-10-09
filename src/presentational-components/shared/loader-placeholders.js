@@ -5,7 +5,9 @@ import {
   DataListCell,
   DataListItem,
   DataListItemRow,
-  DataListItemCells
+  DataListItemCells,
+  Form,
+  FormGroup
 } from '@patternfly/react-core';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import ContentLoader from 'react-content-loader';
@@ -85,4 +87,15 @@ export const FormItemLoader = () => (
   >
     <rect x="0" y="0" rx="0" ry="0" width="160" height="32" />
   </ContentLoader>
+);
+
+export const PolicyRolesLoader = () => (
+  <Form>
+    <FormGroup fieldId="1">
+      <FormItemLoader />
+    </FormGroup>
+    <FormGroup fieldId="2">
+      <FormItemLoader />
+    </FormGroup>
+  </Form>
 );

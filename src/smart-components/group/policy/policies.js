@@ -10,7 +10,9 @@ import { fetchGroupPolicies, removePolicy } from '../../../redux/actions/policy-
 import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
-import AddGroupPolicy from './add-policy/add-policy-wizard';
+import AddGroupPolicy from './policy-actions/add-policy-wizard';
+import EditPolicyInfo from './policy-actions/edit-policy-info';
+import EditPolicyRoles from './policy-actions/edit-policy-roles';
 import { PolicyActionsDropdown } from './policy_action_dropdown';
 
 const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
@@ -30,6 +32,12 @@ const GroupPolicies = ({ match: { params: { uuid }}, fetchGroupPolicies, paginat
     <Route path={ `/groups/detail/:uuid/policies/add_policy` }
       render={ args => <AddGroupPolicy fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/policies` }
         postMethod={ fetchData } { ...args }/> }/>
+    <Route exact path="/policies/edit-info/:id" render={ props => <EditPolicyInfo { ...props }
+      postMethod={ fetchData } closeUrl={ `/groups/detail/${uuid}/policies` }
+    /> }/>
+    <Route exact path="/policies/edit-roles/:id" render={ props => <EditPolicyRoles { ...props }
+      postMethod={ fetchData } closeUrl={ `/groups/detail/${uuid}/policies` }/>
+    }/>
   </Fragment>;
 
   const setCheckedPolicies = (checkedPolicies) =>
@@ -45,6 +53,17 @@ const GroupPolicies = ({ match: { params: { uuid }}, fetchGroupPolicies, paginat
   const actionResolver = (_policyData, { rowIndex }) =>
     rowIndex % 2 === 1 ? null :
       [
+        {
+          title: 'Edit information',
+          onClick: (_event, _rowId, policy) =>
+            history.push(`/policies/edit-info/${policy.uuid}`)
+        },
+        {
+          title: 'Edit roles',
+          onClick: (_event, _rowId, policy) =>
+            history.push(`/policies/edit-roles/${policy.id}`)
+        },
+
         {
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)'	},
