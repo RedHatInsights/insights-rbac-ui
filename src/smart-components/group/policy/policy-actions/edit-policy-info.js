@@ -12,26 +12,25 @@ import '../../../../App.scss';
 
 const EditPolicyInfoModal = ({
   history: { push },
-  match: { params: { id }},
+  match: { params: { uuid, id }},
   addNotification,
   fetchPolicy,
   updatePolicy,
   postMethod,
-  policy,
+  closeUrl,
   isFetching
 }) => {
-  const [ formData, setFormData ] = useState({});
+  const [ formData, setFormData ] = useState({ policy: undefined });
 
   const handleChange = data => setFormData({ ...formData, ...data });
 
   useEffect(() => {
-    fetchPolicy(id).then((data) => { setFormData({ ...formData, ...data.value });});
+    fetchPolicy(id).then((data) => { console.log('DEBUG - data.value:  ', data.value); setFormData({ ...formData, policy: data.value  });});
   }, []);
 
   const onSave = () => {
-    const { name, description } = formData;
-    const policyData = { id, name, description };
-    updatePolicy(policyData).then(postMethod()).then(push('/policies'));
+    const policyData = { id, name: formData.policy.name, description: formData.policy.description };
+    updatePolicy(policyData).then(postMethod()).then(push(closeUrl || `/groups/detail/${uuid}/policies`));
   };
 
   const onCancel = () => {
@@ -40,12 +39,12 @@ const EditPolicyInfoModal = ({
       title: `Edit policy's roles`,
       description: `Edit policy's roles was cancelled by the user.`
     });
-    push('/policies');
+    push(closeUrl || `/groups/detail/${uuid}/policies`);
   };
 
   return (
     <Modal
-      title={ `Edit policy's information` }
+      title={ `Edit policy information` }
       width={ '40%' }
       isOpen
       onClose={ onCancel }
@@ -53,11 +52,13 @@ const EditPolicyInfoModal = ({
       <Stack gutter="md">
         <StackItem>
           <FormGroup>
-            { isFetching && <FormItemLoader/> }
-            { !isFetching && (
-              <PolicyInformation formData = { formData }
+            { (isFetching || !formData.policy) && <FormItemLoader/> }
+            { !isFetching && formData.policy && (
+              <PolicyInformation
+                editType = { 'edit' }
+                formData = { formData }
                 handleChange = { handleChange }
-                title = { `Make any changes to policy ${policy.name}` }/>) }
+              />) }
           </FormGroup>
         </StackItem>
         <StackItem>
@@ -97,9 +98,9 @@ EditPolicyInfoModal.propTypes = {
   fetchPolicy: PropTypes.func.isRequired,
   postMethod: PropTypes.func.isRequired,
   updatePolicy: PropTypes.func.isRequired,
-  policy: PropTypes.object,
   id: PropTypes.string,
   editType: PropTypes.string,
+  closeUrl: PropTypes.string,
   isFetching: PropTypes.bool
 };
 
@@ -109,8 +110,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchPolicy
 }, dispatch);
 
-const mapStateToProps = ({ policyReducer: { policy, isRecordLoading }}) => ({
-  policy,
+const mapStateToProps = ({ policyReducer: { isRecordLoading }}) => ({
   isFetching: isRecordLoading
 });
 
