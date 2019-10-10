@@ -3,83 +3,100 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { withRouter } from 'react-router-dom';
-import { ActionGroup, Button, FormGroup, Modal, Split, SplitItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { ActionGroup, Button, FormGroup, Modal, Split, SplitItem, Stack, StackItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications';
 import { updatePolicy, fetchPolicy } from '../../../../redux/actions/policy-actions';
+import { fetchRoles } from '../../../../redux/actions/role-actions';
 import { PolicyRolesLoader } from '../../../../presentational-components/shared/loader-placeholders';
 import PolicySetRoles from '../../add-group/policy-set-roles';
-import { fetchFilterRoles } from '../../../../helpers/role/role-helper';
 import '../../../../App.scss';
 
 const EditPolicyRolesModal = ({
   history: { push },
-  match: { params: { id }},
+  match: { params: { uuid, id }},
   addNotification,
   fetchPolicy,
   updatePolicy,
-  roles,
   postMethod,
   isFetching,
   closeUrl
 }) => {
-  const [ formData, setValues ] = useState({});
+  const [ roles, setRoles ] = useState([]);
+  const [ policy, setPolicy ] = useState({});
+  const [ selectedRoles, setSelectedRoles ] = useState({});
+  const [ optionIdx, setOptionIdx ] = useState([]);
 
-  const handleChange = data => {
-    setValues({ ...formData, ...data });
+  const createOption = (label) => {
+    let idx = optionIdx;
+    setOptionIdx(optionIdx + 1);
+    return {
+      label,
+      value: `${label}_${idx}`
+    };
   };
 
-  const initialValues = (policyData) => {
-    const roleOptions = policyData.role_refs.map((role, idx) => {
-      return { label: (policyData.role_names[idx] ? policyData.role_names[idx] : role), value: role };
-    });
-    const data = { ...policyData, policyRoles: roleOptions };
-    return data;
+  const setPolicyData = (policyData) => {
+    setPolicy(policyData);
+    if (policyData && policyData.roles) {
+      setSelectedRoles(policyData.roles.map(role => (createOption(role.name))));
+    }
+  };
+
+  const fetchData = () => {
+    fetchRoles().payload.then((data) => setRoles(data));
+    fetchPolicy(id).then((data) => { setPolicyData(data); });
   };
 
   useEffect(() => {
-    fetchPolicy(id).then((result) => setValues(initialValues(result.value)));
-  }, []);
-
-  useEffect(() => {
-    roles = fetchFilterRoles();
+    fetchData();
   }, []);
 
   const onSave = () => {
-    const { policyRoles } = formData;
-    const policyData = { role_refs: policyRoles.map(role => role.value)  };
-    updatePolicy({ id, ...policyData }).then(postMethod()).then(push(closeUrl));
+    if (policy) {
+      const policy_data = {
+        group: uuid,
+        roles: selectedRoles.map(role => role.value)
+      };
+      return postMethod ? updatePolicy(policy_data).payload.then(() => postMethod()).then(() => push(closeUrl)) :
+        updatePolicy(policy_data).payload.then(() => push(closeUrl));
+    }
+    else {
+      if (postMethod) {
+        postMethod();
+      }
+
+      push(closeUrl);
+    }
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
       title: `Edit workflow's roles`,
-      description: `Edit workflow's roles was cancelled by the user.`
+      dismissable: true,
+      description: `Edit policy's roles was cancelled by the user.`
     });
     push(closeUrl);
   };
 
   return (
     <Modal
-      title={ `Edit policy's roles` }
+      title={ `Edit policy roles` }
       width={ '40%' }
       isOpen
       onClose={ onCancel }
       onSave={ onSave }>
-      <Stack gutter="md">
+      <Stack gutter="xl">
         <StackItem>
           <FormGroup>
             { isFetching && <PolicyRolesLoader/> }
-            { !isFetching && roles.length === 0 && (
-              <Title headingLevel="h2" size="1xl">
-                    No roles available.
-              </Title>) }
-            { !isFetching && roles.length > 0 && (
+            { !isFetching && (
               <StackItem>
-                <PolicySetRoles formData={ formData }
-                  handleChange = { handleChange }
-                  options={ roles }
-                  title={ `Add or remove ${formData.name}'s roles` }/>
+                <PolicySetRoles formValue={ policy }
+                  selectedRoles = { selectedRoles }
+                  setSelectedRoles = { setSelectedRoles }
+                  roles={ roles }
+                />
               </StackItem>) }
           </FormGroup>
         </StackItem>
@@ -109,6 +126,8 @@ const EditPolicyRolesModal = ({
 
 EditPolicyRolesModal.defaultProps = {
   roles: [],
+  selectedRoles: [],
+  inputValue: '',
   closeUrl: '/policies',
   isFetching: false
 };
@@ -117,7 +136,6 @@ EditPolicyRolesModal.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.func.isRequired
   }),
-  addPolicy: PropTypes.func.isRequired,
   match: PropTypes.object,
   addNotification: PropTypes.func.isRequired,
   fetchPolicy: PropTypes.func.isRequired,
@@ -136,12 +154,12 @@ EditPolicyRolesModal.propTypes = {
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   updatePolicy,
-  fetchPolicy
+  fetchPolicy,
+  fetchRoles
 }, dispatch);
 
-const mapStateToProps = ({ policyReducer: { policy, isRecordLoading }}) => ({
-  policy: policy.data,
-  isFetching: isRecordLoading
+const mapStateToProps = ({ policyReducer: { isRecordLoading }, roleReducer: { isLoading }}) => ({
+  isFetching: isRecordLoading || isLoading
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditPolicyRolesModal));

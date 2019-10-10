@@ -14,7 +14,7 @@ import AsyncSelect from 'react-select/async';
 import asyncDebounce from '../../../utilities/async-debounce';
 import { fetchFilterRoles } from '../../../helpers/role/role-helper';
 
-const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
+const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles }) => {
   const [ inputValue, setInputValue ] = useState([]);
 
   const onInputChange = (newValue) => {
@@ -52,6 +52,7 @@ const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
                 placeholders={ 'Select Roles' }
                 onChange={ onOptionSelect }
                 closeMenuOnSelect={ false }
+                defaultValue = { selectedRoles }
                 inpuValue={ inputValue }
                 loadOptions={ asyncDebounce(loadRoleOptions) }
                 defaultOptions={ dropdownItems }
@@ -66,7 +67,9 @@ const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
 };
 
 PolicySetRoles.propTypes = {
-  formData: PropTypes.object
+  selectedRoles: PropTypes.array,
+  setSelectedRoles: PropTypes.func,
+  roles: PropTypes.array
 };
 
 export default PolicySetRoles;

@@ -61,7 +61,7 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
         {
           title: 'Edit roles',
           onClick: (_event, _rowId, policy) =>
-            history.push(`/groups/detail/${uuid}/policies/edit-roles/${policy.id}`)
+            history.push(`/groups/detail/${uuid}/policies/edit-roles/${policy.uuid}`)
         },
         {
           title: 'Delete',
