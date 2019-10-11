@@ -29,7 +29,7 @@ const AddGroupPolicyWizard = ({
 
   const steps = [
     { name: 'Name and description', component: new PolicyInformation({ title: 'Create policy',
-      formData, handleChange }) },
+      formData, onHandleChange: handleChange }) },
     { name: 'Add roles', component: new PolicySetRoles({ formValue: formData,
       selectedRoles, setSelectedRoles, roles, title: 'Add roles to policy' }) },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedRoles }),

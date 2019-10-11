@@ -54,7 +54,8 @@ const AddGroupWizard = ({
     {
       name: 'Create policy',
       steps: [
-        { name: 'Name and description', component: new PolicyInformation({ title: 'Create policy (optional)', formData, handleChange }) },
+        { name: 'Name and description', component: new PolicyInformation({ title: 'Create policy (optional)',
+          formData, onHandleChange: handleChange }) },
         { name: 'Add roles', component: new PolicySetRoles({ formData, selectedRoles, setSelectedRoles, roles }) }
       ]
     },
