@@ -44,9 +44,9 @@ export const removePolicy = (policy) => ({
   }
 });
 
-export const updatePolicy = (policyData) => ({
+export const updatePolicy = (uuid, policyData) => ({
   type: ActionTypes.UPDATE_POLICY,
-  payload: PolicyHelper.updatePolicy(policyData),
+  payload: PolicyHelper.updatePolicy(uuid, policyData),
   meta: {
     notifications: {
       fulfilled: {

@@ -13,7 +13,7 @@ import '../../../../App.scss';
 
 const EditPolicyRolesModal = ({
   history: { push },
-  match: { params: { uuid, id }},
+  match: { params: { id }},
   addNotification,
   fetchPolicy,
   updatePolicy,
@@ -24,27 +24,18 @@ const EditPolicyRolesModal = ({
   const [ roles, setRoles ] = useState([]);
   const [ policy, setPolicy ] = useState({});
   const [ selectedRoles, setSelectedRoles ] = useState({});
-  const [ optionIdx, setOptionIdx ] = useState([]);
-
-  const createOption = (label) => {
-    let idx = optionIdx;
-    setOptionIdx(optionIdx + 1);
-    return {
-      label,
-      value: `${label}_${idx}`
-    };
-  };
 
   const setPolicyData = (policyData) => {
+    console.log('Debug - policyData', policyData);
     setPolicy(policyData);
     if (policyData && policyData.roles) {
-      setSelectedRoles(policyData.roles.map(role => (createOption(role.name))));
+      setSelectedRoles(policyData.roles.map(role => ({ value: role.uuid, label: role.name, id: role.uuid })));
     }
   };
 
   const fetchData = () => {
     fetchRoles().payload.then((data) => setRoles(data));
-    fetchPolicy(id).then((data) => { setPolicyData(data); });
+    fetchPolicy(id).then((data) => { setPolicyData(data.value); });
   };
 
   useEffect(() => {
@@ -54,11 +45,12 @@ const EditPolicyRolesModal = ({
   const onSave = () => {
     if (policy) {
       const policy_data = {
-        group: uuid,
+        name: policy.name,
+        group: policy.group.uuid,
         roles: selectedRoles.map(role => role.value)
       };
-      return postMethod ? updatePolicy(policy_data).payload.then(() => postMethod()).then(() => push(closeUrl)) :
-        updatePolicy(policy_data).payload.then(() => push(closeUrl));
+      return postMethod ? updatePolicy(policy.uuid, policy_data).then(() => postMethod()).then(() => push(closeUrl)) :
+        updatePolicy(policy.uuid, policy_data).then(() => push(closeUrl));
     }
     else {
       if (postMethod) {

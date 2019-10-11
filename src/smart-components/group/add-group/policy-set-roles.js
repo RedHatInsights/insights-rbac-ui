@@ -52,7 +52,7 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles }) => {
                 placeholders={ 'Select Roles' }
                 onChange={ onOptionSelect }
                 closeMenuOnSelect={ false }
-                defaultValue = { selectedRoles }
+                value = { selectedRoles }
                 inpuValue={ inputValue }
                 loadOptions={ asyncDebounce(loadRoleOptions) }
                 defaultOptions={ dropdownItems }

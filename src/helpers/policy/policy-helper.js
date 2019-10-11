@@ -23,8 +23,8 @@ export async function createPolicy(data) {
   return await policyApi.createPolicies(data);
 }
 
-export async function updatePolicy(data) {
-  return await policyApi.updatePolicy(data);
+export async function updatePolicy(uuid, data) {
+  return await policyApi.updatePolicy(uuid, data);
 }
 
 export async function removePolicy(policyId) {
