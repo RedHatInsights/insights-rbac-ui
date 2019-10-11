@@ -13,7 +13,7 @@ import {
 import AsyncSelect from 'react-select/async';
 import asyncDebounce from '../../../utilities/async-debounce';
 import { fetchFilterRoles } from '../../../helpers/role/role-helper';
-import '../../../App.scss'
+import '../../../App.scss';
 
 const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles, title, description }) => {
   const [ inputValue, setInputValue ] = useState([]);

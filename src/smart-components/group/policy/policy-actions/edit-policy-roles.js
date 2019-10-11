@@ -26,7 +26,6 @@ const EditPolicyRolesModal = ({
   const [ selectedRoles, setSelectedRoles ] = useState({});
 
   const setPolicyData = (policyData) => {
-    console.log('Debug - policyData', policyData);
     setPolicy(policyData);
     if (policyData && policyData.roles) {
       setSelectedRoles(policyData.roles.map(role => ({ value: role.uuid, label: role.name, id: role.uuid })));
@@ -65,6 +64,7 @@ const EditPolicyRolesModal = ({
     addNotification({
       variant: 'warning',
       title: `Edit policy's roles`,
+      dismissable: true,
       description: `Edit policy's roles was cancelled by the user.`
     });
     push(closeUrl);

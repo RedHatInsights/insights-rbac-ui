@@ -25,7 +25,7 @@ const EditPolicyInfoModal = ({
   const handleChange = data => { setPolicy(data.policy); };
 
   useEffect(() => {
-    fetchPolicy(id).then((data) => { console.log('DEBUG - data.value:  ', data.value); setPolicy(data.value);});
+    fetchPolicy(id).then((data) => setPolicy(data.value));
   }, []);
 
   const onSave = () => {
@@ -52,6 +52,7 @@ const EditPolicyInfoModal = ({
     addNotification({
       variant: 'warning',
       title: `Edit policy's information`,
+      dismissable: true,
       description: `Edit policy's information was cancelled by the user.`
     });
     push(closeUrl);

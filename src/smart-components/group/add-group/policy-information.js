@@ -14,7 +14,6 @@ import {
 } from '@patternfly/react-core';
 
 const PolicyInfoText = ({ title, editType }) => {
-  console.log('PolicyInfoText - editType', editType);
   return (editType === 'edit') ?
     <TextContent>
       <Text component={ TextVariants.small }> All fields are required </Text>
@@ -32,7 +31,6 @@ const PolicyInfoText = ({ title, editType }) => {
         All fields are optional.</Text>
       </TextContent>
     </Fragment>;
-
 };
 
 PolicyInfoText.propTypes = {
