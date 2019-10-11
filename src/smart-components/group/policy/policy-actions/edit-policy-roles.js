@@ -77,18 +77,17 @@ const EditPolicyRolesModal = ({
       isOpen
       onClose={ onCancel }
       onSave={ onSave }>
-      <Stack gutter="xl">
+      <Stack gutter="md">
         <StackItem>
           <FormGroup>
             { isFetching && <PolicyRolesLoader/> }
-            { !isFetching && (
-              <StackItem>
-                <PolicySetRoles formValue={ policy }
-                  selectedRoles = { selectedRoles }
-                  setSelectedRoles = { setSelectedRoles }
-                  roles={ roles }
-                />
-              </StackItem>) }
+            { !isFetching &&
+                  <PolicySetRoles formValue={ policy }
+                    selectedRoles = { selectedRoles }
+                    setSelectedRoles = { setSelectedRoles }
+                    roles={ roles }
+                    description = { `At least one role must be selected for the ${policy.name} policy.` }
+                  /> }
           </FormGroup>
         </StackItem>
         <StackItem>
