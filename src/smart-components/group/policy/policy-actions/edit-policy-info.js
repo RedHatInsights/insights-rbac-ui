@@ -20,26 +20,41 @@ const EditPolicyInfoModal = ({
   closeUrl,
   isFetching
 }) => {
-  const [ formData, setFormData ] = useState({ policy: undefined });
+  const [ policy, setPolicy ] = useState(undefined);
 
-  const handleChange = data => setFormData({ ...formData, ...data });
+  const handleChange = data => { setPolicy(data.policy); };
 
   useEffect(() => {
-    fetchPolicy(id).then((data) => { console.log('DEBUG - data.value:  ', data.value); setFormData({ ...formData, policy: data.value  });});
+    fetchPolicy(id).then((data) => { console.log('DEBUG - data.value:  ', data.value); setPolicy(data.value);});
   }, []);
 
   const onSave = () => {
-    const policyData = { id, name: formData.policy.name, description: formData.policy.description };
-    updatePolicy(policyData).then(postMethod()).then(push(closeUrl || `/groups/detail/${uuid}/policies`));
+    if (policy) {
+      const policy_data = {
+        name: policy.name,
+        description: policy.description,
+        group: policy.group.uuid,
+        roles: policy.roles.map(role => role.uuid)
+      };
+      return postMethod ? updatePolicy(policy.uuid, policy_data).then(() => postMethod()).then(() => push(closeUrl)) :
+        updatePolicy(policy.uuid, policy_data).then(() => push(closeUrl));
+    }
+    else {
+      if (postMethod) {
+        postMethod();
+      }
+
+      push(closeUrl || `/groups/detail/${uuid}/policies`);
+    }
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: `Edit policy's roles`,
-      description: `Edit policy's roles was cancelled by the user.`
+      title: `Edit policy's information`,
+      description: `Edit policy's information was cancelled by the user.`
     });
-    push(closeUrl || `/groups/detail/${uuid}/policies`);
+    push(closeUrl);
   };
 
   return (
@@ -52,12 +67,12 @@ const EditPolicyInfoModal = ({
       <Stack gutter="md">
         <StackItem>
           <FormGroup>
-            { (isFetching || !formData.policy) && <FormItemLoader/> }
-            { !isFetching && formData.policy && (
+            { (isFetching || !policy) && <FormItemLoader/> }
+            { !isFetching && policy && (
               <PolicyInformation
                 editType = { 'edit' }
-                formData = { formData }
-                handleChange = { handleChange }
+                formData = { { policy } }
+                onHandleChange = { handleChange }
               />) }
           </FormGroup>
         </StackItem>

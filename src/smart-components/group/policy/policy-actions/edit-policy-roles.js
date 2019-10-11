@@ -64,8 +64,7 @@ const EditPolicyRolesModal = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: `Edit workflow's roles`,
-      dismissable: true,
+      title: `Edit policy's roles`,
       description: `Edit policy's roles was cancelled by the user.`
     });
     push(closeUrl);
