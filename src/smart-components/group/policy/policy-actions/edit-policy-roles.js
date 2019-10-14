@@ -51,13 +51,7 @@ const EditPolicyRolesModal = ({
       return postMethod ? updatePolicy(policy.uuid, policy_data).then(() => postMethod()).then(() => push(closeUrl)) :
         updatePolicy(policy.uuid, policy_data).then(() => push(closeUrl));
     }
-    else {
-      if (postMethod) {
-        postMethod();
-      }
-
-      push(closeUrl);
-    }
+    push(closeUrl);
   };
 
   const onCancel = () => {
