@@ -13,8 +13,9 @@ import {
 import AsyncSelect from 'react-select/async';
 import asyncDebounce from '../../../utilities/async-debounce';
 import { fetchFilterRoles } from '../../../helpers/role/role-helper';
+import '../../../App.scss';
 
-const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
+const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles, title, description }) => {
   const [ inputValue, setInputValue ] = useState([]);
 
   const onInputChange = (newValue) => {
@@ -32,32 +33,35 @@ const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
     <Fragment>
       <Form>
         <Stack gutter="md">
-          <StackItem>
-            <Title size="xl">Add roles to policy</Title>
-          </StackItem>
+          { title && <StackItem>
+            <Title size="xl">{ title }</Title>
+          </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>Select at least one role to add to policy.</Text>
+              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to policy' }</Text>
             </TextContent>
           </StackItem>
           <StackItem>
-            <FormGroup
-              label="Select roles"
-              fieldId="select-role"
-            >
-              <AsyncSelect
-                options={ dropdownItems }
-                isClearable
-                isMulti={ true }
-                placeholders={ 'Select Roles' }
-                onChange={ onOptionSelect }
-                closeMenuOnSelect={ false }
-                inpuValue={ inputValue }
-                loadOptions={ asyncDebounce(loadRoleOptions) }
-                defaultOptions={ dropdownItems }
-                onInputChange={ onInputChange }
-              />
-            </FormGroup>
+            <div className="select-style">
+              <FormGroup
+                label="Select roles"
+                fieldId="select-role"
+              >
+                <AsyncSelect
+                  options={ dropdownItems }
+                  isClearable
+                  isMulti={ true }
+                  placeholders={ 'Select Roles' }
+                  onChange={ onOptionSelect }
+                  closeMenuOnSelect={ false }
+                  value = { selectedRoles }
+                  inpuValue={ inputValue }
+                  loadOptions={ asyncDebounce(loadRoleOptions) }
+                  defaultOptions={ dropdownItems }
+                  onInputChange={ onInputChange }
+                />
+              </FormGroup>
+            </div>
           </StackItem>
         </Stack>
       </Form>
@@ -66,7 +70,11 @@ const PolicySetRoles = (formValue, selectedRoles, setSelectedRoles, roles) => {
 };
 
 PolicySetRoles.propTypes = {
-  formData: PropTypes.object
+  selectedRoles: PropTypes.array,
+  setSelectedRoles: PropTypes.func,
+  roles: PropTypes.array,
+  title: PropTypes.string,
+  description: PropTypes.string
 };
 
 export default PolicySetRoles;

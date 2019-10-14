@@ -54,6 +54,7 @@ const AddGroupMembers = ({
     addNotification({
       variant: 'warning',
       title: 'Adding members to group',
+      dismissable: true,
       description: 'Adding members to group was cancelled by the user.'
     });
     push(closeUrl);

@@ -28,8 +28,10 @@ const AddGroupPolicyWizard = ({
   };
 
   const steps = [
-    { name: 'Name and description', component: new PolicyInformation('Create policy', formData, handleChange) },
-    { name: 'Add roles', component: new PolicySetRoles(formData, selectedRoles, setSelectedRoles, roles) },
+    { name: 'Name and description', component: new PolicyInformation({ title: 'Create policy',
+      formData, onHandleChange: handleChange }) },
+    { name: 'Add roles', component: new PolicySetRoles({ formValue: formData,
+      selectedRoles, setSelectedRoles, roles, title: 'Add roles to policy' }) },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedRoles }),
       nextButtonText: 'Confirm' }
   ];
@@ -58,6 +60,7 @@ const AddGroupPolicyWizard = ({
     addNotification({
       variant: 'warning',
       title: 'Add policy',
+      dismissable: true,
       description: 'Adding policy was cancelled by the user.'
     });
     push(closeUrl);
