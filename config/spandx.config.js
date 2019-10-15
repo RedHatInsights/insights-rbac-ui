@@ -6,7 +6,7 @@ const localhost = (process.env.PLATFORM === 'linux') ? 'localhost' : 'host.docke
 
 module.exports = {
   routes: {
-    '/beta/hybrid/settings/rbac': { host: `http://${localhost}:8002` },
+    '/beta/ansible/settings/rbac': { host: `http://${localhost}:8002` },
     '/beta/apps/rbac': { host: `http://${localhost}:8002` }
   }
 };
