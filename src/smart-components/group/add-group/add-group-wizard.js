@@ -81,8 +81,20 @@ const AddGroupWizard = ({
         group: group.value.uuid,
         roles: selectedRoles.map(role => role.value)
       };
-      return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).then(() => push(closeUrl)) :
-        createPolicy(policy_data).payload.then(() => push(closeUrl));
+      return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).catch(() =>
+        addNotification({
+          variant: 'danger',
+          title: `Add group`,
+          dismissable: true,
+          description: `Error creating policy`
+        })).then(() => push(closeUrl)) :
+        createPolicy(policy_data).payload.catch(() =>
+          addNotification({
+            variant: 'danger',
+            title: `Add group`,
+            dismissable: true,
+            description: `Error creating policy`
+          })).then(() => push(closeUrl));
     }
     else {
       if (postMethod) {
