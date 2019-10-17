@@ -57,13 +57,11 @@ const PolicyInformation = ({ title, editType, formData, onHandleChange }) => {
       : undefined;
   });
 
-  const debouncedValidator = (data) => asyncDebounce(validateName(data.policy.name));
+  const debouncedValidator = (data, validateCallback) => asyncDebounce(validateName(data.policy.name).then((result) => validateCallback(result)));
 
-  const handleNameChange = (data) => {
-    validateName(data.policy.name).then((res) => {
-      console.log('Debug 5: result, res, one', res, data.policy.name);
-      setError(res);});
-    onHandleChange(data);
+  const handleNameChange = value => {
+    onHandleChange(value);
+    debouncedValidator(value, setError);
   };
 
   return (
