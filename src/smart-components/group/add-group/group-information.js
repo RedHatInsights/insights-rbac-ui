@@ -10,7 +10,7 @@ import {
   Title
 } from '@patternfly/react-core';
 
-const GroupInformation = (formValue, onHandleChange) => {
+const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
   return (
     <Fragment>
       <Stack gutter="md">
@@ -31,7 +31,8 @@ const GroupInformation = (formValue, onHandleChange) => {
                 name="group-name"
                 aria-describedby="group-name"
                 value={ formValue.name }
-                onChange={ (_, event) => onHandleChange({ name: event.currentTarget.value }) }
+                onChange={ (_, event) => { setIsGroupInfoValid(event.currentTarget.value.trim().length > 0);
+                  onHandleChange({ name: event.currentTarget.value });} }
               />
             </FormGroup>
             <FormGroup label="Description" fieldId="group-description">

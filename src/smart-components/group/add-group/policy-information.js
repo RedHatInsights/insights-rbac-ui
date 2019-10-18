@@ -40,28 +40,24 @@ PolicyInfoText.propTypes = {
   editType: PropTypes.string
 };
 
-const PolicyInformation = ({ title, editType, formData, onHandleChange }) => {
+const PolicyInformation = ({ title, editType, formData, onHandleChange, setIsPolicyInfoValid }) => {
   const [ error, setError ] = useState(undefined);
   const policy = formData.policy ? formData.policy : { name: '', description: '' };
 
   const validateName = (name) => fetchPolicyByName(name)
   .then(({ data }) => {
-    console.log('Debug 1: data, name', data, name);
-    if (!name || name.trim().length === 0) {
-      return 'Required';
-    }
-
     console.log('Debug 4: name', name);
     return data.find(pol => name === pol.name)
       ? 'Name has already been taken'
       : undefined;
   });
 
-  const debouncedValidator = (data, validateCallback) => asyncDebounce(validateName(data.policy.name).then((result) => validateCallback(result)));
+  const debouncedValidator = (data, validateCallback) => asyncDebounce(validateName(data.name).then((result) => validateCallback(result)));
 
-  const handleNameChange = value => {
-    onHandleChange(value);
-    debouncedValidator(value, setError);
+  const handleNameChange = () => {
+    debouncedValidator(policy, setError);
+    setIsPolicyInfoValid(!error);
+    //onHandleChange(value);
   };
 
   return (
@@ -79,13 +75,13 @@ const PolicyInformation = ({ title, editType, formData, onHandleChange }) => {
               helperTextInvalid={ error }
             >
               <TextInput
-                isRequired
                 type="text"
                 id="policy-name"
                 name="policy-name"
                 aria-describedby="policy-name"
                 value={ policy.name }
-                onChange={ (_, event) => handleNameChange({ policy: { ...policy, name: event.currentTarget.value }}) }
+                onBlur={ handleNameChange }
+                onChange={ (_, event) => { setError(undefined); onHandleChange({ policy: { ...policy, name: event.currentTarget.value }}); } }
               />
             </FormGroup>
           </StackItem>
@@ -110,7 +106,8 @@ PolicyInformation.propTypes = {
   formData: PropTypes.object,
   editType: PropTypes.string,
   title: PropTypes.string,
-  onHandleChange: PropTypes.func.required
+  onHandleChange: PropTypes.func.required,
+  setIsPolicyInfoValid: PropTypes.func.required
 };
 
 PolicyInformation.defaultProps = {
