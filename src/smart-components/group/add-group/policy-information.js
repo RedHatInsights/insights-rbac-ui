@@ -46,18 +46,20 @@ const PolicyInformation = ({ title, editType, formData, onHandleChange, setIsPol
 
   const validateName = (name) => fetchPolicyByName(name)
   .then(({ data }) => {
-    console.log('Debug 4: name', name);
     return data.find(pol => name === pol.name)
       ? 'Name has already been taken'
       : undefined;
   });
 
+  const setResult = (result) => {
+    setError(result);
+    setIsPolicyInfoValid(!result);
+  };
+
   const debouncedValidator = (data, validateCallback) => asyncDebounce(validateName(data.name).then((result) => validateCallback(result)));
 
   const handleNameChange = () => {
-    debouncedValidator(policy, setError);
-    setIsPolicyInfoValid(!error);
-    //onHandleChange(value);
+    debouncedValidator(policy, setResult);
   };
 
   return (

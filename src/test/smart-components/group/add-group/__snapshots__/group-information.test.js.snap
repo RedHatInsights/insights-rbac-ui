@@ -1,0 +1,144 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<GroupInformation /> should render correctly 1`] = `
+<GroupInformation
+  formValue={
+    Object {
+      "description": "This is a test",
+      "name": "Foo",
+    }
+  }
+  onHandleChange={[MockFunction]}
+  setIsGroupInfoValid={[MockFunction]}
+>
+  <Stack
+    gutter="md"
+  >
+    <div
+      className="pf-l-stack pf-m-gutter"
+    >
+      <StackItem>
+        <div
+          className="pf-l-stack__item"
+        >
+          <Title
+            size="xl"
+          >
+            <h1
+              className="pf-c-title pf-m-xl"
+            >
+               Enter group information 
+            </h1>
+          </Title>
+        </div>
+      </StackItem>
+      <StackItem>
+        <div
+          className="pf-l-stack__item"
+        >
+          <Form>
+            <form
+              className="pf-c-form"
+              noValidate={true}
+            >
+              <FormGroup
+                fieldId="group-name"
+                isRequired={true}
+                label="Group name"
+              >
+                <div
+                  className="pf-c-form__group"
+                >
+                  <label
+                    className="pf-c-form__label"
+                    htmlFor="group-name"
+                  >
+                    <span
+                      className="pf-c-form__label-text"
+                    >
+                      Group name
+                    </span>
+                    <span
+                      aria-hidden="true"
+                      className="pf-c-form__label-required"
+                    >
+                      *
+                    </span>
+                  </label>
+                  <TextInput
+                    aria-describedby="group-name"
+                    aria-label={null}
+                    className=""
+                    id="group-name"
+                    isDisabled={false}
+                    isReadOnly={false}
+                    isRequired={true}
+                    isValid={true}
+                    name="group-name"
+                    onChange={[Function]}
+                    type="text"
+                  >
+                    <input
+                      aria-describedby="group-name"
+                      aria-invalid={false}
+                      aria-label={null}
+                      className="pf-c-form-control"
+                      disabled={false}
+                      id="group-name"
+                      name="group-name"
+                      onChange={[Function]}
+                      readOnly={false}
+                      required={true}
+                      type="text"
+                    />
+                  </TextInput>
+                </div>
+              </FormGroup>
+              <FormGroup
+                fieldId="group-description"
+                label="Description"
+              >
+                <div
+                  className="pf-c-form__group"
+                >
+                  <label
+                    className="pf-c-form__label"
+                    htmlFor="group-description"
+                  >
+                    <span
+                      className="pf-c-form__label-text"
+                    >
+                      Description
+                    </span>
+                  </label>
+                  <TextArea
+                    aria-label={null}
+                    className=""
+                    id="group-description"
+                    isRequired={false}
+                    isValid={true}
+                    name="group-description"
+                    onChange={[Function]}
+                    type="text"
+                  >
+                    <textarea
+                      aria-invalid={false}
+                      aria-label={null}
+                      className="pf-c-form-control"
+                      id="group-description"
+                      name="group-description"
+                      onChange={[Function]}
+                      required={false}
+                      type="text"
+                    />
+                  </TextArea>
+                </div>
+              </FormGroup>
+            </form>
+          </Form>
+        </div>
+      </StackItem>
+    </div>
+  </Stack>
+</GroupInformation>
+`;

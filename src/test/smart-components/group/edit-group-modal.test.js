@@ -8,9 +8,9 @@ import { Button } from '@patternfly/react-core';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import { RBAC_API_BASE } from '../../utilities/constants';
-import EditGroupModal from '../../smart-components/group/edit-group-modal';
-import { groupsInitialState } from '../../redux/reducers/group-reducer';
+import { RBAC_API_BASE } from '../../../utilities/constants';
+import EditGroupModal from '../../../smart-components/group/edit-group-modal';
+import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { componentTypes } from '@data-driven-forms/react-form-renderer/dist/index';
 
 describe('<EditGroupModal />', () => {

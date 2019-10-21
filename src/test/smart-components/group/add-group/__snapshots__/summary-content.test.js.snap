@@ -1,0 +1,307 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<SummaryContent /> should render correctly 1`] = `
+<SummaryContent
+  formData={
+    Object {
+      "selectedRoles": Array [],
+      "selectedUsers": Array [],
+      "values": Object {
+        "description": "This is a test",
+        "name": "TestGroupName",
+        "policy": Object {
+          "description": "Test Policy Description",
+          "name": "TestPolicyName",
+        },
+      },
+    }
+  }
+>
+  <Stack
+    gutter="md"
+  >
+    <div
+      className="pf-l-stack pf-m-gutter"
+    >
+      <StackItem>
+        <div
+          className="pf-l-stack__item"
+        >
+          <Title
+            size="xl"
+          >
+            <h1
+              className="pf-c-title pf-m-xl"
+            >
+               Review 
+            </h1>
+          </Title>
+        </div>
+      </StackItem>
+      <StackItem>
+        <div
+          className="pf-l-stack__item"
+        >
+          <Stack
+            gutter="md"
+          >
+            <div
+              className="pf-l-stack pf-m-gutter"
+            >
+              <StackItem>
+                <div
+                  className="pf-l-stack__item"
+                >
+                  <TextContent>
+                    <div
+                      className="pf-c-content"
+                    >
+                      <Text
+                        className="data-table-detail heading"
+                        component="h5"
+                      >
+                        <h5
+                          className="data-table-detail heading"
+                          data-pf-content={true}
+                        >
+                          Review and confirm your inputs. If there is anything incorrect, click Back and revise.
+                        </h5>
+                      </Text>
+                    </div>
+                  </TextContent>
+                </div>
+              </StackItem>
+              <StackItem>
+                <div
+                  className="pf-l-stack__item"
+                >
+                  <Grid
+                    gutter="md"
+                  >
+                    <div
+                      className="pf-l-grid pf-m-gutter"
+                    >
+                      <GridItem
+                        span={2}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-2-col"
+                        >
+                          <Text
+                            className="data-table-detail heading"
+                            component="h5"
+                          >
+                            <h5
+                              className="data-table-detail heading"
+                              data-pf-content={true}
+                            >
+                              Group name
+                            </h5>
+                          </Text>
+                        </div>
+                      </GridItem>
+                      <GridItem
+                        span={10}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-10-col"
+                        >
+                          <Text
+                            className="data-table-detail content"
+                            component="p"
+                          >
+                            <p
+                              className="data-table-detail content"
+                              data-pf-content={true}
+                            />
+                          </Text>
+                        </div>
+                      </GridItem>
+                    </div>
+                  </Grid>
+                  <Grid
+                    gutter="md"
+                  >
+                    <div
+                      className="pf-l-grid pf-m-gutter"
+                    >
+                      <GridItem
+                        span={2}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-2-col"
+                        >
+                          <Text
+                            className="data-table-detail heading"
+                            component="h5"
+                          >
+                            <h5
+                              className="data-table-detail heading"
+                              data-pf-content={true}
+                            >
+                              Description
+                            </h5>
+                          </Text>
+                        </div>
+                      </GridItem>
+                      <GridItem
+                        span={10}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-10-col"
+                        >
+                          <Text
+                            className="data-table-detail content"
+                            component="p"
+                          >
+                            <p
+                              className="data-table-detail content"
+                              data-pf-content={true}
+                            />
+                          </Text>
+                        </div>
+                      </GridItem>
+                    </div>
+                  </Grid>
+                  <Grid
+                    gutter="md"
+                  >
+                    <div
+                      className="pf-l-grid pf-m-gutter"
+                    >
+                      <GridItem
+                        span={2}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-2-col"
+                        >
+                          <Text
+                            className="data-table-detail heading"
+                            component="h5"
+                          >
+                            <h5
+                              className="data-table-detail heading"
+                              data-pf-content={true}
+                            >
+                              Members
+                            </h5>
+                          </Text>
+                        </div>
+                      </GridItem>
+                      <GridItem
+                        span={10}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-10-col"
+                        >
+                          <Text
+                            className="groups-table-detail content"
+                            component="h5"
+                          >
+                            <h5
+                              className="groups-table-detail content"
+                              data-pf-content={true}
+                            />
+                          </Text>
+                        </div>
+                      </GridItem>
+                    </div>
+                  </Grid>
+                  <Grid
+                    gutter="md"
+                  >
+                    <div
+                      className="pf-l-grid pf-m-gutter"
+                    >
+                      <GridItem
+                        span={2}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-2-col"
+                        >
+                          <Text
+                            className="data-table-detail heading"
+                            component="h5"
+                          >
+                            <h5
+                              className="data-table-detail heading"
+                              data-pf-content={true}
+                            >
+                              Policy name
+                            </h5>
+                          </Text>
+                        </div>
+                      </GridItem>
+                      <GridItem
+                        span={10}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-10-col"
+                        >
+                          <Text
+                            className="data-table-detail content"
+                            component="p"
+                          >
+                            <p
+                              className="data-table-detail content"
+                              data-pf-content={true}
+                            />
+                          </Text>
+                        </div>
+                      </GridItem>
+                    </div>
+                  </Grid>
+                  <Grid
+                    gutter="md"
+                  >
+                    <div
+                      className="pf-l-grid pf-m-gutter"
+                    >
+                      <GridItem
+                        span={2}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-2-col"
+                        >
+                          <Text
+                            className="data-table-detail heading"
+                            component="h5"
+                          >
+                            <h5
+                              className="data-table-detail heading"
+                              data-pf-content={true}
+                            >
+                              Roles
+                            </h5>
+                          </Text>
+                        </div>
+                      </GridItem>
+                      <GridItem
+                        span={10}
+                      >
+                        <div
+                          className="pf-l-grid__item pf-m-10-col"
+                        >
+                          <Text
+                            className="groups-table-detail content"
+                            component="h5"
+                          >
+                            <h5
+                              className="groups-table-detail content"
+                              data-pf-content={true}
+                            />
+                          </Text>
+                        </div>
+                      </GridItem>
+                    </div>
+                  </Grid>
+                </div>
+              </StackItem>
+            </div>
+          </Stack>
+        </div>
+      </StackItem>
+    </div>
+  </Stack>
+</SummaryContent>
+`;
