@@ -4,9 +4,9 @@ import { shallow } from 'enzyme';
 import configureStore from 'redux-mock-store' ;
 import { shallowToJson } from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
-import GroupPolicies from '../../../smart-components/group/policy/policies';
+import GroupPolicies from '../../../../smart-components/group/policy/policies';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
-import { policiesInitialState } from '../../../redux/reducers/policy-reducer';
+import { policiesInitialState } from '../../../../redux/reducers/policy-reducer';
 
 describe('<GroupPolicies />', () => {
 

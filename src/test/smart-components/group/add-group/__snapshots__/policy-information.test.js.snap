@@ -1,0 +1,183 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<PolicyInformation /> should render correctly 1`] = `
+<PolicyInformation
+  editType="add"
+  formData={
+    Object {
+      "policy": Object {
+        "description": "Test policy description",
+        "name": "Test policy name",
+      },
+    }
+  }
+  onHandleChange={[MockFunction]}
+  setIsPolicyInfoValid={[MockFunction]}
+  title="Policy info title"
+>
+  <Form>
+    <form
+      className="pf-c-form"
+      noValidate={true}
+    >
+      <Stack
+        gutter="md"
+      >
+        <div
+          className="pf-l-stack pf-m-gutter"
+        >
+          <StackItem>
+            <div
+              className="pf-l-stack__item"
+            >
+              <PolicyInfoText
+                editType="add"
+                title="Policy info title"
+              >
+                <StackItem>
+                  <div
+                    className="pf-l-stack__item"
+                  >
+                    <Title
+                      size="xl"
+                    >
+                      <h1
+                        className="pf-c-title pf-m-xl"
+                      >
+                        Policy info title
+                      </h1>
+                    </Title>
+                  </div>
+                </StackItem>
+                <TextContent>
+                  <div
+                    className="pf-c-content"
+                  >
+                    <Text
+                      component="h6"
+                    >
+                      <h6
+                        className=""
+                        data-pf-content={true}
+                      >
+                        Policies are the permissions set for this group. Groups can have one or more policies. Policies are created for a group, they cannot be shared. You can only create one policy at this time. It is possible to create more for this group at a later time.
+                        <br />
+                        All fields are optional.
+                      </h6>
+                    </Text>
+                  </div>
+                </TextContent>
+              </PolicyInfoText>
+            </div>
+          </StackItem>
+          <StackItem>
+            <div
+              className="pf-l-stack__item"
+            >
+              <FormGroup
+                fieldId="policy-name"
+                isValid={true}
+                label="Name"
+              >
+                <div
+                  className="pf-c-form__group"
+                >
+                  <label
+                    className="pf-c-form__label"
+                    htmlFor="policy-name"
+                  >
+                    <span
+                      className="pf-c-form__label-text"
+                    >
+                      Name
+                    </span>
+                  </label>
+                  <TextInput
+                    aria-describedby="policy-name"
+                    aria-label={null}
+                    className=""
+                    id="policy-name"
+                    isDisabled={false}
+                    isReadOnly={false}
+                    isRequired={false}
+                    isValid={true}
+                    name="policy-name"
+                    onBlur={[Function]}
+                    onChange={[Function]}
+                    type="text"
+                    value="Test policy name"
+                  >
+                    <input
+                      aria-describedby="policy-name"
+                      aria-invalid={false}
+                      aria-label={null}
+                      className="pf-c-form-control"
+                      disabled={false}
+                      id="policy-name"
+                      name="policy-name"
+                      onBlur={[Function]}
+                      onChange={[Function]}
+                      readOnly={false}
+                      required={false}
+                      type="text"
+                      value="Test policy name"
+                    />
+                  </TextInput>
+                </div>
+              </FormGroup>
+            </div>
+          </StackItem>
+          <StackItem>
+            <div
+              className="pf-l-stack__item"
+            >
+              <FormGroup
+                fieldId="policy-description"
+                label="Description"
+              >
+                <div
+                  className="pf-c-form__group"
+                >
+                  <label
+                    className="pf-c-form__label"
+                    htmlFor="policy-description"
+                  >
+                    <span
+                      className="pf-c-form__label-text"
+                    >
+                      Description
+                    </span>
+                  </label>
+                  <TextArea
+                    aria-label={null}
+                    className=""
+                    id="policy-description"
+                    isRequired={false}
+                    isValid={true}
+                    name="policy-description"
+                    onChange={[Function]}
+                    type="text"
+                    value="Test policy description"
+                  >
+                    <textarea
+                      aria-invalid={false}
+                      aria-label={null}
+                      className="pf-c-form-control"
+                      id="policy-description"
+                      name="policy-description"
+                      onChange={[Function]}
+                      required={false}
+                      type="text"
+                      value="Test policy description"
+                    />
+                  </TextArea>
+                </div>
+              </FormGroup>
+            </div>
+          </StackItem>
+        </div>
+      </Stack>
+    </form>
+  </Form>
+</PolicyInformation>
+`;

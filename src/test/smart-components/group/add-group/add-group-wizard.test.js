@@ -8,8 +8,8 @@ import { shallowToJson } from 'enzyme-to-json';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import { RBAC_API_BASE } from '../../utilities/constants';
-import AddGroupWizard from '../../smart-components/group/add-group/add-group-wizard';
+import { RBAC_API_BASE } from '../../../../utilities/constants';
+import AddGroupWizard from '../../../../smart-components/group/add-group/add-group-wizard';
 import { ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/index';
 import { mount } from 'enzyme/build/index';
 

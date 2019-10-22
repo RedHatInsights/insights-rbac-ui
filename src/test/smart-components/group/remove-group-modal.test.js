@@ -6,10 +6,10 @@ import configureStore from 'redux-mock-store' ;
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
-import { RBAC_API_BASE } from '../../utilities/constants';
-import RemoveGroupModal from '../../smart-components/group/remove-group-modal';
-import { groupsInitialState } from '../../redux/reducers/group-reducer';
-import { REMOVE_GROUP, FETCH_GROUP } from '../../redux/action-types';
+import { RBAC_API_BASE } from '../../../utilities/constants';
+import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
+import { groupsInitialState } from '../../../redux/reducers/group-reducer';
+import { REMOVE_GROUP, FETCH_GROUP } from '../../../redux/action-types';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
