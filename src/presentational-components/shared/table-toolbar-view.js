@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 import debouncePromise from 'awesome-debounce-promise';
 import { Toolbar, ToolbarGroup, ToolbarItem, Level, LevelItem } from '@patternfly/react-core';
-import { Table, TableHeader, TableBody } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import { Pagination } from '@redhat-cloud-services/frontend-components';
 import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
 import { defaultSettings  } from '../../helpers/shared/pagination';
@@ -14,7 +14,9 @@ import { ListLoader } from './loader-placeholders';
 export const TableToolbarView = ({
   request,
   isSelectable,
+  isCompact,
   createRows,
+  borders,
   columns,
   toolbarButtons,
   fetchData,
@@ -123,6 +125,8 @@ export const TableToolbarView = ({
         { renderToolbar() }
         <Table
           aria-label={ `${titlePlural} table` }
+          variant={ isCompact ? TableVariant.compact : null }
+          borders={ borders }
           onCollapse={ onCollapse }
           rows={ rows }
           cells={ columns }
@@ -139,6 +143,7 @@ export const TableToolbarView = ({
 
 TableToolbarView.propTypes = {
   isSelectable: propTypes.bool,
+  isCompact: propTypes.bool,
   createRows: propTypes.func.isRequired,
   request: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
@@ -166,6 +171,8 @@ TableToolbarView.defaultProps = {
   isLoading: false,
   pagination: defaultSettings,
   toolbarButtons: () => null,
-  isSelectable: null,
+  isSelectable: false,
+  isCompact: false,
+  borders: true,
   routes: () => null
 };

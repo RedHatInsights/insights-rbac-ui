@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form,
@@ -10,25 +10,10 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import AsyncSelect from 'react-select/async';
-import asyncDebounce from '../../../utilities/async-debounce';
-import { fetchFilterRoles } from '../../../helpers/role/role-helper';
+import RolesList from './roles-list';
 import '../../../App.scss';
 
-const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles, title, description }) => {
-  const [ inputValue, setInputValue ] = useState([]);
-
-  const onInputChange = (newValue) => {
-    const value = newValue.replace(/\W/g, '');
-    setInputValue(value);
-  };
-
-  const onOptionSelect = (selectedValues) =>
-  { setSelectedRoles(selectedValues); };
-
-  const dropdownItems = roles.map(role => ({ value: role.uuid, label: role.name, id: role.uuid }));
-  const loadRoleOptions = (inputValue) => fetchFilterRoles(inputValue);
-
+const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
   return (
     <Fragment>
       <Form>
@@ -42,26 +27,12 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, roles, title, descrip
             </TextContent>
           </StackItem>
           <StackItem>
-            <div className="select-style">
-              <FormGroup
-                label="Select roles"
-                fieldId="select-role"
-              >
-                <AsyncSelect
-                  options={ dropdownItems }
-                  isClearable
-                  isMulti={ true }
-                  placeholders={ 'Select Roles' }
-                  onChange={ onOptionSelect }
-                  closeMenuOnSelect={ false }
-                  value = { selectedRoles }
-                  inpuValue={ inputValue }
-                  loadOptions={ asyncDebounce(loadRoleOptions) }
-                  defaultOptions={ dropdownItems }
-                  onInputChange={ onInputChange }
-                />
-              </FormGroup>
-            </div>
+            <FormGroup
+              label="Select roles"
+              fieldId="select-role"
+            >
+              <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
+            </FormGroup>
           </StackItem>
         </Stack>
       </Form>
