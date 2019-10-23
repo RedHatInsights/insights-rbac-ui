@@ -2,6 +2,7 @@
 
 exports[`<FilterToolbarItem /> should render correctly 1`] = `
 <FilterToolbarItem
+  isCompact={false}
   onFilterChange={[MockFunction]}
   placeholder="Foo"
   searchValue=""

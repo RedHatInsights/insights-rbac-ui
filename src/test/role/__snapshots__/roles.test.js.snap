@@ -7,7 +7,7 @@ exports[`<Roles /> should render correctly 1`] = `
   pagination={
     Object {
       "count": 0,
-      "limit": 10,
+      "limit": 5,
       "offset": 0,
     }
   }
@@ -53,7 +53,7 @@ exports[`<Roles /> should render correctly in loading state 1`] = `
   pagination={
     Object {
       "count": 0,
-      "limit": 10,
+      "limit": 5,
       "offset": 0,
     }
   }
