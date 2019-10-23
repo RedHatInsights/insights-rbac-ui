@@ -6,7 +6,7 @@ import { ToolbarGroup, ToolbarItem, TextInput } from '@patternfly/react-core';
 const FilterToolbarItem = ({ isCompact, searchValue, onFilterChange, placeholder }) => (
   <ToolbarGroup>
     <ToolbarItem>
-      <div className={`toolbar-filter-input-group${isCompact ? '-c' : ''}`}>
+      <div className={ `toolbar-filter-input-group${isCompact ? '-c' : ''}` }>
         <TextInput
           placeholder={ placeholder }
           value={ searchValue }

@@ -13,6 +13,7 @@ import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
 import { PrincipalsActionsDropdown } from './principal_action_dropdown';
+import { Section } from '@redhat-cloud-services/frontend-components';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
@@ -78,24 +79,25 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
   return (
     <Fragment>
       { !uuid && <ListLoader/> }
-      { uuid &&
-      <TableToolbarView
-        data={ principals }
-        isSelectable={ true }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchGroup }
-        routes={ routes }
-        actionResolver={ actionResolver }
-        titlePlural="principals"
-        titleSingular="principal"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-        setCheckedItems={ setCheckedPrincipals }
-        toolbarButtons = { toolbarButtons }
-      /> }
+      { uuid && <Section type="content" id={ 'tab-principals' }>
+        <TableToolbarView
+          data={ principals }
+          isSelectable={ true }
+          createRows={ createRows }
+          columns={ columns }
+          fetchData={ fetchData }
+          request={ fetchGroup }
+          routes={ routes }
+          actionResolver={ actionResolver }
+          titlePlural="principals"
+          titleSingular="principal"
+          pagination={ pagination }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+          setCheckedItems={ setCheckedPrincipals }
+          toolbarButtons = { toolbarButtons }
+        />
+      </Section> }
     </Fragment>);
 };
 

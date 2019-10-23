@@ -11,15 +11,16 @@ const columns = [
   { title: 'Description' }
 ];
 
-const createRows = (data, filterValue = undefined) => (
-  data ? data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
+const createRows = (data, checkedRows = [], filterValue = undefined) => {
+  return data ? data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
     return filter; }).reduce((acc,  { uuid, name, description }) => ([
     ...acc, {
       uuid,
-      cells: [ name, description ]
+      cells: [ name, description ],
+      selected: checkedRows && checkedRows.indexOf(uuid) > -1
     }
-  ]), []) : []
-);
+  ]), []) : [];
+};
 
 const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelectedRoles }) => {
   const [ filterValue, setFilterValue ] = useState('');
@@ -29,8 +30,10 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
     fetchRolesList(filterValue, pagination).then(({ data }) => setRoles(data));
   };
 
-  const setCheckedItems = (checkedItems) =>
-    setSelectedRoles(checkedItems.map(item => item.uuid));
+  const setCheckedItems = (checkedItems) => {
+    console.log('Debug - selected roles: ', checkedItems);
+    setSelectedRoles(checkedItems.map(item => ({ value: item.uuid, label: item.cells[0] })));
+  };
 
   return <TableToolbarView
     columns={ columns }
@@ -45,7 +48,7 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
     isLoading={ isLoading }
     pagination={ pagination }
     request={ fetchRoles }
-    checkedItems={ selectedRoles }
+    checkedRows={ selectedRoles.map(item => item.value) }
     setCheckedItems={ setCheckedItems }
     titlePlural="roles"
     titleSingular="role"

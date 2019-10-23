@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 import debouncePromise from 'awesome-debounce-promise';
 import { Toolbar, ToolbarGroup, ToolbarItem, Level, LevelItem } from '@patternfly/react-core';
@@ -7,7 +7,6 @@ import { Pagination } from '@redhat-cloud-services/frontend-components';
 import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
 import { defaultSettings  } from '../../helpers/shared/pagination';
 import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
-import { Section } from '@redhat-cloud-services/frontend-components';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
 import { ListLoader } from './loader-placeholders';
 
@@ -27,6 +26,7 @@ export const TableToolbarView = ({
   titlePlural,
   titleSingular,
   pagination,
+  checkedRows,
   setCheckedItems,
   filterValue,
   isLoading,
@@ -38,7 +38,8 @@ export const TableToolbarView = ({
   }, [ filterValue, pagination.limit, pagination.offset ]);
 
   useEffect(() => {
-    setRows(createRows(data, filterValue));
+    setRows(createRows(data, checkedRows, filterValue));
+    setCheckedItems(rows.filter(item => (item.uuid && item.selected)));
   }, [ data ]);
 
   useEffect(() => {
@@ -48,7 +49,7 @@ export const TableToolbarView = ({
   const handleOnPerPageSelect = limit => request({
     offset: pagination.offset,
     limit
-  }).then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+  }).then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
 
   const handleSetPage = (number, debounce) => {
     const options = {
@@ -56,7 +57,8 @@ export const TableToolbarView = ({
       limit: pagination.limit
     };
     const requestFunc = () => request(options);
-    return debounce ? debouncePromise(request, 250)() : requestFunc().then(({ value: { data }}) => setRows(createRows(data, filterValue)));
+    return debounce ? debouncePromise(request, 250)() : requestFunc()
+    .then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
   };
 
   const setOpen = (data, uuid) => data.map(row => row.uuid === uuid ?
@@ -92,7 +94,9 @@ export const TableToolbarView = ({
       <Level style={ { flex: 1 } }>
         <LevelItem>
           <Toolbar>
-            <FilterToolbar isCompact = { isCompact } onFilterChange={ value => setFilterValue(value) } searchValue={ filterValue }
+            <FilterToolbar isCompact = { isCompact }
+              onFilterChange={ value => setFilterValue(value) }
+              searchValue={ filterValue }
               placeholder={ `Find a ${titleSingular}` }/>
             { toolbarButtons() }
           </Toolbar>
@@ -120,7 +124,7 @@ export const TableToolbarView = ({
 
   return (
     isLoading ? <ListLoader/> :
-      <Section type="content" id={ `tab-${titlePlural}` }>
+      <Fragment>
         { routes() }
         { renderToolbar() }
         <Table
@@ -137,7 +141,7 @@ export const TableToolbarView = ({
           <TableHeader />
           <TableBody />
         </Table>
-      </Section>
+      </Fragment>
   );
 };
 
@@ -163,6 +167,7 @@ TableToolbarView.propTypes = {
   areActionsDisabled: propTypes.func,
   setCheckedItems: propTypes.func,
   filterValue: propTypes.string,
+  checkedRows: propTypes.array,
   setFilterValue: propTypes.func,
   isLoading: propTypes.bool
 };

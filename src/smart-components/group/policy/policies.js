@@ -14,6 +14,7 @@ import AddGroupPolicy from './policy-actions/add-policy-wizard';
 import EditPolicyInfo from './policy-actions/edit-policy-info';
 import EditPolicyRoles from './policy-actions/edit-policy-roles';
 import { PolicyActionsDropdown } from './policy_action_dropdown';
+import { Section } from '@redhat-cloud-services/frontend-components';
 
 const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
 
@@ -96,23 +97,25 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
     <Fragment>
       { !uuid && <ListLoader/> }
       { uuid &&
-      <TableToolbarView
-        data={ policies }
-        isSelectable={ true }
-        createRows={ createRows }
-        columns={ columns }
-        fetchData={ fetchData }
-        request={ fetchGroupPolicies }
-        routes={ routes }
-        actionResolver={ actionResolver }
-        titlePlural="policies"
-        titleSingular="policy"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-        setCheckedItems={ setCheckedPolicies }
-        toolbarButtons = { toolbarButtons }
-      /> }
+      <Section type="content" id={ 'tab-policies' }>
+        <TableToolbarView
+          data={ policies }
+          isSelectable={ true }
+          createRows={ createRows }
+          columns={ columns }
+          fetchData={ fetchData }
+          request={ fetchGroupPolicies }
+          routes={ routes }
+          actionResolver={ actionResolver }
+          titlePlural="policies"
+          titleSingular="policy"
+          pagination={ pagination }
+          filterValue={ filterValue }
+          setFilterValue={ setFilterValue }
+          setCheckedItems={ setCheckedPolicies }
+          toolbarButtons = { toolbarButtons }
+        />
+      </Section> }
     </Fragment>);
 };
 

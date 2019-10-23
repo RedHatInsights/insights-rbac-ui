@@ -12,6 +12,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
+import { Section } from '@redhat-cloud-services/frontend-components';
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -74,23 +75,25 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
         </TopToolbar>
       </StackItem>
       <StackItem>
-        <TableToolbarView
-          actionResolver={ actionResolver }
-          areActionsDisabled={ areActionsDisabled }
-          columns={ columns }
-          createRows={ createRows }
-          data={ roles }
-          fetchData={ fetchData }
-          filterValue={ filterValue }
-          setFilterValue={ setFilterValue }
-          isLoading={ isLoading }
-          pagination={ pagination }
-          request={ fetchRoles }
-          routes={ routes }
-          titlePlural="roles"
-          titleSingular="role"
-          toolbarButtons = { toolbarButtons }
-        />
+        <Section type="content" id={ 'tab-roles' }>
+          <TableToolbarView
+            actionResolver={ actionResolver }
+            areActionsDisabled={ areActionsDisabled }
+            columns={ columns }
+            createRows={ createRows }
+            data={ roles }
+            fetchData={ fetchData }
+            filterValue={ filterValue }
+            setFilterValue={ setFilterValue }
+            isLoading={ isLoading }
+            pagination={ pagination }
+            request={ fetchRoles }
+            routes={ routes }
+            titlePlural="roles"
+            titleSingular="role"
+            toolbarButtons = { toolbarButtons }
+          />
+        </Section>
       </StackItem>
     </Stack>;
 
