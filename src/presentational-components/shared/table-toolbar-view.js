@@ -92,7 +92,7 @@ export const TableToolbarView = ({
       <Level style={ { flex: 1 } }>
         <LevelItem>
           <Toolbar>
-            <FilterToolbar onFilterChange={ value => setFilterValue(value) } searchValue={ filterValue }
+            <FilterToolbar isCompact = { isCompact } onFilterChange={ value => setFilterValue(value) } searchValue={ filterValue }
               placeholder={ `Find a ${titleSingular}` }/>
             { toolbarButtons() }
           </Toolbar>
@@ -144,6 +144,7 @@ export const TableToolbarView = ({
 TableToolbarView.propTypes = {
   isSelectable: propTypes.bool,
   isCompact: propTypes.bool,
+  borders: propTypes.bool,
   createRows: propTypes.func.isRequired,
   request: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,

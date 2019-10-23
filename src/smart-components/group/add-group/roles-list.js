@@ -1,12 +1,10 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { defaultSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import AsyncSelect from 'react-select/async';
-import asyncDebounce from '../../../utilities/async-debounce';
-import { fetchFilterRoles } from '../../../helpers/role/role-helper';
+import { fetchRolesList } from '../../../helpers/role/role-helper';
 
 const columns = [
   { title: 'Role name', orderBy: 'name' },
@@ -28,7 +26,7 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
   const [ roles, setRoles ] = useState([]);
 
   const fetchData = () => {
-    fetchFilterRoles(filterValue).then(({ value: { data }}) => setRoles(data));
+    fetchRolesList(filterValue, pagination).then(({ data }) => setRoles(data));
   };
 
   const setCheckedItems = (checkedItems) =>
@@ -82,13 +80,13 @@ RolesList.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired
+    count: PropTypes.number
   })
 };
 
 RolesList.defaultProps = {
   roles: [],
-  pagination: defaultSettings
+  pagination: defaultCompactSettings
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(RolesList);

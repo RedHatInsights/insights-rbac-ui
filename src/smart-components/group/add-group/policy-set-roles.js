@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Card,
   Form,
   FormGroup,
   Stack,
@@ -31,7 +32,9 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description })
               label="Select roles"
               fieldId="select-role"
             >
-              <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
+              <Card>
+                <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
+              </Card>
             </FormGroup>
           </StackItem>
         </Stack>

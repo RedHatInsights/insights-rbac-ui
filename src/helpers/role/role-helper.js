@@ -13,6 +13,9 @@ export const fetchFilterRoles = (filterValue) =>
     : ''}`)
   .then(({ data }) => data.map(({ uuid, name }) => ({ label: name, value: uuid })));
 
+export const fetchRolesList = (filterValue, pagination) =>
+  roleApi.listRoles(pagination.limit, pagination.offset, filterValue);
+
 export async function fetchRoles({ limit, offset }) {
   let rolesData = await roleApi.listRoles(limit, offset);
   let roles = rolesData.data;
