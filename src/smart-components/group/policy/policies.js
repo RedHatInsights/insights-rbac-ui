@@ -15,10 +15,11 @@ import EditPolicyInfo from './policy-actions/edit-policy-info';
 import EditPolicyRoles from './policy-actions/edit-policy-roles';
 import { PolicyActionsDropdown } from './policy_action_dropdown';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
 
-const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies, pagination }) => {
+const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies, addNotification, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPolicies, setSelectedPolicies ] = useState([]);
   const [ policies, setPolicies ] = useState([]);
@@ -42,13 +43,20 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
   </Fragment>;
 
   const setCheckedPolicies = (checkedPolicies) =>
-    setSelectedPolicies(checkedPolicies.map(user => user.username));
+    setSelectedPolicies(checkedPolicies.map(policy => policy.uuid));
 
   const anyPoliciesSelected = () => selectedPolicies.length > 0;
 
   const removePolicies = (policiesToRemove) => {
     const policyPromises = policiesToRemove.map(policy => removePolicy(policy));
-    return Promise.all(policyPromises).then(() => { setCheckedPolicies([]); fetchData();});
+    return Promise.all(policyPromises).then(() => {
+      addNotification({
+        variant: 'success',
+        title: `Remove policy`,
+        dismissable: true,
+        description: `Policies were removed successfully`
+      });
+      fetchData();});
   };
 
   const actionResolver = (_policyData, { rowIndex }) =>
@@ -127,6 +135,7 @@ const mapStateToProps = ({ policyReducer: { policies, isLoading }}) => ({
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   fetchGroupPolicies,
+  addNotification,
   removePolicy
 }, dispatch);
 
@@ -141,6 +150,7 @@ GroupPolicies.propTypes = {
   isLoading: PropTypes.bool,
   fetchGroupPolicies: PropTypes.func.isRequired,
   removePolicy: PropTypes.func.isRequired,
+  addNotification: PropTypes.func.isRequired,
   uuid: PropTypes.string,
   match: PropTypes.shape({
     params: PropTypes.object.isRequired }).isRequired,

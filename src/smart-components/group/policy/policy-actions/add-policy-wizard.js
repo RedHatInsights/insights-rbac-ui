@@ -22,17 +22,22 @@ const AddGroupPolicyWizard = ({
   const [ roles, setRoles ] = useState([]);
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ formData, setValues ] = useState({});
+  const [ isPolicyInfoValid, setIsPolicyInfoValid ] = useState(true);
 
   const handleChange = data => {
     setValues({ ...formData,  ...data });
   };
 
   const steps = [
-    { name: 'Name and description', component: new PolicyInformation({ title: 'Create policy',
-      formData, onHandleChange: handleChange }) },
-    { name: 'Add roles', component: new PolicySetRoles({ formValue: formData,
-      selectedRoles, setSelectedRoles, roles, title: 'Add roles to policy' }) },
+    { name: 'Name and description',
+      component: new PolicyInformation(
+        { title: 'Create policy', formData, onHandleChange: handleChange, setIsPolicyInfoValid }),
+      enableNext: isPolicyInfoValid },
+    { name: 'Add roles',
+      component: new PolicySetRoles({ formValue: formData,
+        selectedRoles, setSelectedRoles, roles, title: 'Add roles to policy' }) },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedRoles }),
+      enableNext: isPolicyInfoValid,
       nextButtonText: 'Confirm' }
   ];
 
@@ -45,10 +50,10 @@ const AddGroupPolicyWizard = ({
   }, []);
 
   const  onSubmit =  async() => {
-    if (selectedRoles && selectedRoles.length > 0) {
+    if (formData.policy && selectedRoles && selectedRoles.length > 0) {
       const policy_data = {
-        name: formData.policyName,
-        description: formData.policyDescription,
+        name: formData.policy.name,
+        description: formData.policy.description,
         group: uuid,
         roles: selectedRoles.map(role => role.value)
       };

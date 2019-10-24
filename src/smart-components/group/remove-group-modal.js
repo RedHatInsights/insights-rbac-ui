@@ -82,7 +82,6 @@ RemoveGroupModal.propTypes = {
   }).isRequired,
   removeGroup: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  addNotification: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
@@ -95,7 +94,6 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) =>
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
-  addNotification,
   fetchGroup,
   removeGroup
 }, dispatch);
