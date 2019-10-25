@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { connect } from 'react-redux';
+import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
-import { fetchRoles } from '../../../redux/actions/role-actions';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { fetchRolesList } from '../../../helpers/role/role-helper';
+import { fetchRoles } from '../../../redux/actions/role-actions';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 const columns = [
   { title: 'Role name', orderBy: 'name' },
@@ -27,11 +28,10 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
   const [ roles, setRoles ] = useState([]);
 
   const fetchData = () => {
-    fetchRolesList(filterValue, pagination).then(({ data }) => setRoles(data));
+    fetchRoles(pagination).then(({ value: { data }}) => setRoles(data));
   };
 
   const setCheckedItems = (checkedItems) => {
-    console.log('Debug - selected roles: ', checkedItems);
     setSelectedRoles(checkedItems.map(item => ({ value: item.uuid, label: item.cells[0] })));
   };
 
@@ -55,26 +55,22 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
   />;
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
-  isLoading,
-  searchFilter: filterValue
+  isLoading
 });
 
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchRoles: apiProps => dispatch(fetchRoles(apiProps))
-  };
-};
+const mapDispatchToProps = dispatch => bindActionCreators({
+  fetchRoles,
+  addNotification
+}, dispatch);
 
 RolesList.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }),
-  roles: PropTypes.array,
-  platforms: PropTypes.array,
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchRoles: PropTypes.func.isRequired,

@@ -39,7 +39,9 @@ export const TableToolbarView = ({
 
   useEffect(() => {
     setRows(createRows(data, checkedRows, filterValue));
-    setCheckedItems(rows.filter(item => (item.uuid && item.selected)));
+    if (isSelectable) {
+      setCheckedItems(rows.filter(item => (item.uuid && item.selected)));
+    }
   }, [ data ]);
 
   useEffect(() => {
