@@ -20,11 +20,14 @@ describe('role actions', () => {
     const expectedActions = [{
       type: `${FETCH_ROLES}_PENDING`
     }, {
-      payload: [
-        {
-          name: 'roleName',
-          uuid: '1234'
-        }],
+      payload: {
+        data: [
+          {
+            name: 'roleName',
+            uuid: '1234'
+          }
+        ]
+      },
       type: `${FETCH_ROLES}_FULFILLED`
     }];
 
