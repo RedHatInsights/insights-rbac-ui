@@ -9,35 +9,32 @@ import {
   Form,
   FormGroup
 } from '@patternfly/react-core';
-import { Section } from '@redhat-cloud-services/frontend-components';
 import ContentLoader from 'react-content-loader';
 
 export const ListLoader = ({ items, ...props }) => (
   <Fragment>
-    <Section type="content">
-      <DataList aria-label="datalist-placeholder">
-        { [ ...Array(items) ].map((_item, index) => (
-          <DataListItem key={ index } aria-labelledby="datalist-item-placeholder">
-            <DataListItemRow aria-label="datalist-item-placeholder-row">
-              <DataListItemCells dataListCells={ [
-                <DataListCell key="1">
-                  <ContentLoader
-                    height={ 12 }
-                    width={ 300 }
-                    speed={ 2 }
-                    primaryColor="#FFFFFF"
-                    secondaryColor="#ecebeb"
-                    { ...props }>
-                    <rect x="0" y="0" rx="0" ry="0" width="300" height="12" />
-                  </ContentLoader>
-                </DataListCell>
-              ] }
-              />
-            </DataListItemRow>
-          </DataListItem>
-        )) }
-      </DataList>
-    </Section>
+    <DataList aria-label="datalist-placeholder">
+      { [ ...Array(items) ].map((_item, index) => (
+        <DataListItem key={ index } aria-labelledby="datalist-item-placeholder">
+          <DataListItemRow aria-label="datalist-item-placeholder-row">
+            <DataListItemCells dataListCells={ [
+              <DataListCell key="1">
+                <ContentLoader
+                  height={ 12 }
+                  width={ 300 }
+                  speed={ 2 }
+                  primaryColor="#FFFFFF"
+                  secondaryColor="#ecebeb"
+                  { ...props }>
+                  <rect x="0" y="0" rx="0" ry="0" width="300" height="12" />
+                </ContentLoader>
+              </DataListCell>
+            ] }
+            />
+          </DataListItemRow>
+        </DataListItem>
+      )) }
+    </DataList>
   </Fragment>
 );
 

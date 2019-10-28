@@ -48,7 +48,7 @@ const RolesList = ({ fetchRoles, isLoading, pagination, selectedRoles, setSelect
     isLoading={ isLoading }
     pagination={ pagination }
     request={ fetchRoles }
-    checkedRows={ selectedRoles.map(item => item.value) }
+    checkedRows={ selectedRoles ? selectedRoles.map(item => item.value) : [] }
     setCheckedItems={ setCheckedItems }
     titlePlural="roles"
     titleSingular="role"

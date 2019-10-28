@@ -23,7 +23,7 @@ const EditPolicyRolesModal = ({
 }) => {
   const [ roles, setRoles ] = useState([]);
   const [ policy, setPolicy ] = useState({});
-  const [ selectedRoles, setSelectedRoles ] = useState({});
+  const [ selectedRoles, setSelectedRoles ] = useState([]);
 
   const setPolicyData = (policyData) => {
     setPolicy(policyData);
@@ -51,6 +51,7 @@ const EditPolicyRolesModal = ({
       return postMethod ? updatePolicy(policy.uuid, policy_data).then(() => postMethod()).then(() => push(closeUrl)) :
         updatePolicy(policy.uuid, policy_data).then(() => push(closeUrl));
     }
+
     push(closeUrl);
   };
 
@@ -67,7 +68,7 @@ const EditPolicyRolesModal = ({
   return (
     <Modal
       title={ `Edit policy roles` }
-      width={ '40%' }
+      width={ '60%' }
       isOpen
       onClose={ onCancel }
       onSave={ onSave }>
@@ -109,7 +110,6 @@ const EditPolicyRolesModal = ({
 };
 
 EditPolicyRolesModal.defaultProps = {
-  roles: [],
   selectedRoles: [],
   inputValue: '',
   closeUrl: '/policies',
@@ -138,12 +138,11 @@ EditPolicyRolesModal.propTypes = {
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   updatePolicy,
-  fetchPolicy,
-  fetchRoles
+  fetchPolicy
 }, dispatch);
 
-const mapStateToProps = ({ policyReducer: { isRecordLoading }, roleReducer: { isLoading }}) => ({
-  isFetching: isRecordLoading || isLoading
+const mapStateToProps = ({ policyReducer: { isRecordLoading }}) => ({
+  isFetching: isRecordLoading
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditPolicyRolesModal));
