@@ -15,6 +15,7 @@ import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { Section } from '@redhat-cloud-services/frontend-components';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
 const tabItems = [
@@ -74,22 +75,24 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
         </TopToolbar>
       </StackItem>
       <StackItem>
-        <TableToolbarView
-          data={ groups }
-          createRows={ createRows }
-          columns={ columns }
-          fetchData={ fetchData }
-          request={ fetchGroups }
-          routes={ routes }
-          actionResolver={ actionResolver }
-          titlePlural="groups"
-          titleSingular="group"
-          pagination={ pagination }
-          filterValue={ filterValue }
-          setFilterValue={ setFilterValue }
-          toolbarButtons = { toolbarButtons }
-          isLoading = { isLoading }
-        />
+        <Section type="content" id={ 'tab-groups' }>
+          <TableToolbarView
+            data={ groups }
+            createRows={ createRows }
+            columns={ columns }
+            fetchData={ fetchData }
+            request={ fetchGroups }
+            routes={ routes }
+            actionResolver={ actionResolver }
+            titlePlural="groups"
+            titleSingular="group"
+            pagination={ pagination }
+            filterValue={ filterValue }
+            setFilterValue={ setFilterValue }
+            toolbarButtons = { toolbarButtons }
+            isLoading = { isLoading }
+          />
+        </Section>
       </StackItem>
     </Stack>;
   return (

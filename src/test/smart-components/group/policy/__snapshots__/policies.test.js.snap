@@ -2,6 +2,7 @@
 
 exports[`<GroupPolicies /> should render correctly 1`] = `
 <GroupPolicies
+  addNotification={[Function]}
   fetchGroupPolicies={[Function]}
   isLoading={false}
   pagination={
@@ -49,6 +50,7 @@ exports[`<GroupPolicies /> should render correctly 1`] = `
 
 exports[`<GroupPolicies /> should render correctly in loading state 1`] = `
 <GroupPolicies
+  addNotification={[Function]}
   fetchGroupPolicies={[Function]}
   isLoading={false}
   pagination={

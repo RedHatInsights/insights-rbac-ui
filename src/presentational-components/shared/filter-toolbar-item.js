@@ -3,10 +3,10 @@ import propTypes from 'prop-types';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ToolbarGroup, ToolbarItem, TextInput } from '@patternfly/react-core';
 
-const FilterToolbarItem = ({ searchValue, onFilterChange, placeholder }) => (
+const FilterToolbarItem = ({ isCompact, searchValue, onFilterChange, placeholder }) => (
   <ToolbarGroup>
     <ToolbarItem>
-      <div className="toolbar-filter-input-group">
+      <div className={ `toolbar-filter-input-group${isCompact ? '-c' : ''}` }>
         <TextInput
           placeholder={ placeholder }
           value={ searchValue }
@@ -23,11 +23,13 @@ const FilterToolbarItem = ({ searchValue, onFilterChange, placeholder }) => (
 FilterToolbarItem.propTypes = {
   onFilterChange: propTypes.func.isRequired,
   placeholder: propTypes.string,
-  searchValue: propTypes.string
+  searchValue: propTypes.string,
+  isCompact: propTypes.bool
 };
 
 FilterToolbarItem.defaultProps = {
-  searchValue: ''
+  searchValue: '',
+  isCompact: false
 };
 
 export default FilterToolbarItem;

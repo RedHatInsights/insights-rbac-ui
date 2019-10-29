@@ -52,6 +52,25 @@
   }
 }
 
+.toolbar-filter-input-group-c{
+  position: relative;
+  width: 200px;
+  height: 24px;
+  input {
+    position: absolute;
+    width: 200px;
+    background: transparent;
+  }
+  svg {
+    vertical-align: -0.125em;
+    z-index: 1000;
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    fill: #72767B
+  }
+}
+
 .disabled-color {
   color: #d2d2d2;
 }

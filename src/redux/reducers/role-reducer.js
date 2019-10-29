@@ -11,7 +11,7 @@ export const rolesInitialState = {
     data: [],
     meta: {
       count: 0,
-      limit: 10,
+      limit: 5,
       offset: 0
     }
   },

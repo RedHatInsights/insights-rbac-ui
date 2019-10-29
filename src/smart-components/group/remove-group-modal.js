@@ -4,7 +4,6 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchGroup, removeGroup } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -82,7 +81,6 @@ RemoveGroupModal.propTypes = {
   }).isRequired,
   removeGroup: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  addNotification: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
@@ -95,7 +93,6 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) =>
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
-  addNotification,
   fetchGroup,
   removeGroup
 }, dispatch);

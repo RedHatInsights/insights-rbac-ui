@@ -12,8 +12,7 @@ import {
 } from '@patternfly/react-core';
 
 const SummaryContent = (formData) => {
-  const { policyName, policyDescription } =
-      formData.values ? formData.values : { policyName: '', policyDescription: '' };
+  const { policy } = formData.values ? formData.values : { policy: { name: '', description: '' }};
   const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
   return (
     <Fragment>
@@ -35,7 +34,7 @@ const SummaryContent = (formData) => {
                   <Text className="data-table-detail heading" component={ TextVariants.h5 }>Name</Text>
                 </GridItem>
                 <GridItem span={ 10 }>
-                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policyName }</Text>
+                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policy ? policy.name : '' }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
@@ -43,7 +42,7 @@ const SummaryContent = (formData) => {
                   <Text className="data-table-detail heading" component={ TextVariants.h5 }>Description</Text>
                 </GridItem>
                 <GridItem span={ 10 }>
-                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policyDescription }</Text>
+                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policy ? policy.description : '' }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
