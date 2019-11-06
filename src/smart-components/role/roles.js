@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, Suspense, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
 import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
@@ -13,6 +13,9 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import awesomeDebouncePromise from '../../utilities/async-debounce';
+
+const debouncedFilter = awesomeDebouncePromise(callback => callback(), 1000);
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -26,13 +29,11 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
+const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ roles, setRoles ] = useState([]);
-
-  const fetchData = () => {
-    fetchRoles(pagination).then(({ value: { data }}) => setRoles(data));
-  };
+  useEffect(() => {
+    fetchRoles({ ...pagination, name: filterValue });
+  }, []);
 
   const routes = () => <Fragment>
     <Route exact path="/roles/add-role" component={ AddRoleWizard } />
@@ -53,16 +54,28 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
     return _roleData.policies.title > 1;
   };
 
+  const ConditionalAdd = React.lazy(() => insights.chrome.auth.getUser().then(({ entitlements }) => ({
+    // eslint-disable-next-line react/display-name
+    default: (props) => (
+      entitlements.cost_management ?
+        <Link to="/roles/add-role" { ...props }>
+          <Button
+            variant="primary"
+            aria-label="Create role"
+          >
+            Add role
+          </Button>
+        </Link> :
+        <Fragment />
+    )
+  })));
+
   const toolbarButtons = () => <ToolbarGroup>
     <ToolbarItem>
-      <Link to="/roles/add-role">
-        <Button
-          variant="primary"
-          aria-label="Create role"
-        >
-          Add role
-        </Button>
-      </Link>
+      <Suspense fallback={ <Fragment /> }>
+        <ConditionalAdd />
+      </Suspense>
+
     </ToolbarItem>
   </ToolbarGroup>;
 
@@ -82,9 +95,11 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
             columns={ columns }
             createRows={ createRows }
             data={ roles }
-            fetchData={ fetchData }
             filterValue={ filterValue }
-            setFilterValue={ setFilterValue }
+            setFilterValue={ (value) => {
+              setFilterValue(value);
+              debouncedFilter(() => fetchRoles({ ...pagination, name: value }));
+            } }
             isLoading={ isLoading }
             pagination={ pagination }
             request={ fetchRoles }
@@ -104,16 +119,21 @@ const Roles = ({ fetchRoles, isLoading, history: { push }, pagination }) => {
   );
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
-  isLoading,
-  searchFilter: filterValue
+  isLoading
 });
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchRoles: apiProps => dispatch(fetchRolesWithPolicies(apiProps))
+    fetchRoles: apiProps => {
+      const mappedPros = Object.entries(apiProps).reduce((acc, [ key, value ]) => ({
+        ...acc,
+        ...value && { [key]: value }
+      }), {});
+      dispatch(fetchRolesWithPolicies(mappedPros));
+    }
   };
 };
 
@@ -125,7 +145,6 @@ Roles.propTypes = {
   roles: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
-  searchFilter: PropTypes.string,
   fetchRoles: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,

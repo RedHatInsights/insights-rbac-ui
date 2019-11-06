@@ -182,5 +182,6 @@ TableToolbarView.defaultProps = {
   isSelectable: false,
   isCompact: false,
   borders: true,
-  routes: () => null
+  routes: () => null,
+  fetchData: () => undefined
 };
