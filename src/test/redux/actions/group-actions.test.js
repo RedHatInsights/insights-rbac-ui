@@ -4,6 +4,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import { fetchGroups } from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS } from '../../../redux/action-types';
+import { mock } from '../../__mocks__/apiMock';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
 describe('group actions', () => {
@@ -29,23 +30,20 @@ describe('group actions', () => {
       type: `${FETCH_GROUPS}_FULFILLED`
     }];
 
-    apiClientMock.get(`${RBAC_API_BASE}/groups/`, mockOnce({
-      body: {
-        data: [{
-          name: 'groupName',
-          uuid: '1234'
-        }]
-      }
-    }));
+    mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, {
+      data: [{
+        name: 'groupName',
+        uuid: '1234'
+      }]
+    });
 
-    apiClientMock.get(`${RBAC_API_BASE}/groups/1234/`, mockOnce({
-      body: {
-        data: {
-          name: 'groupName',
-          uuid: '1234'
-        }
+    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {
+      data: {
+        name: 'groupName',
+        uuid: '1234'
       }
-    }));
+    });
+
     return store.dispatch(fetchGroups()).then(() => {
       expect(store.getActions()).toEqual(expectedActions);
     });
