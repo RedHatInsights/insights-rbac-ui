@@ -13,7 +13,7 @@ describe('group helper', () => {
   });
 
   it.only('should call addGroup', async () => {
-    const newGroup = { uuid: '123', name: 'group name', user_list: [{ username: 'user1', uuid: '12' }] };
+    const newGroup = { uuid: '123', name: 'group name', user_list: [{ username: 'user1', uuid: '12' }]};
     mock.onPost(`${RBAC_API_BASE}/groups/`).reply(200, newGroup)
     .onPost(`${RBAC_API_BASE}/groups/123/principals/`).reply(200, newGroup);
     const data = await addGroup(newGroup);
