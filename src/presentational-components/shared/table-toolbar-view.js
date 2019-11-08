@@ -9,6 +9,7 @@ import { defaultSettings  } from '../../helpers/shared/pagination';
 import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
 import { ListLoader } from './loader-placeholders';
+import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
   request,
@@ -92,7 +93,7 @@ export const TableToolbarView = ({
     : setRows((rows) => setSelected(rows, uuid));
 
   const renderToolbar = () => {
-    return (<TableToolbar>
+    return (<TableToolbar className="rbac-table__toolbar">
       <Level style={ { flex: 1 } }>
         <LevelItem>
           <Toolbar>

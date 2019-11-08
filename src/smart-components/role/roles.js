@@ -1,4 +1,4 @@
-import React, { Fragment, useState, Suspense, useEffect } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
 import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
@@ -12,8 +12,9 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import { Section, Skeleton } from '@redhat-cloud-services/frontend-components';
 import awesomeDebouncePromise from '../../utilities/async-debounce';
+import SuspendComponent from '../common/suspend-component';
 
 const debouncedFilter = awesomeDebouncePromise(callback => callback(), 1000);
 
@@ -29,7 +30,7 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination }) => {
+const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
   useEffect(() => {
     fetchRoles({ ...pagination, name: filterValue });
@@ -40,42 +41,43 @@ const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination }) 
     <Route exact path="/roles/remove/:id" component={ RemoveRole } />
   </Fragment>;
 
-  const actionResolver = () =>
-    [
+  const actionResolver = ({ system }) => {
+    const userAllowed = insights.chrome.isBeta() && userIdentity.user.is_org_admin;
+    return (system || !userAllowed) ? [] : [
       {
         title: 'Delete',
-        style: { color: 'var(--pf-global--danger-color--100)' },
         onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`)
+          push(`/roles/remove/${role.uuid}`),
+        props: {
+          isDisabled: true
+        },
+        isDisabled: true
       }
     ];
+  };
 
   const areActionsDisabled = (_roleData) => {
     return _roleData.policies.title > 1;
   };
 
-  const ConditionalAdd = React.lazy(() => insights.chrome.auth.getUser().then(({ entitlements }) => ({
-    // eslint-disable-next-line react/display-name
-    default: (props) => (
-      entitlements.cost_management ?
-        <Link to="/roles/add-role" { ...props }>
-          <Button
-            variant="primary"
-            aria-label="Create role"
-          >
-            Add role
-          </Button>
-        </Link> :
-        <Fragment />
-    )
-  })));
-
   const toolbarButtons = () => <ToolbarGroup>
     <ToolbarItem>
-      <Suspense fallback={ <Fragment /> }>
-        <ConditionalAdd />
-      </Suspense>
-
+      <SuspendComponent
+        fallback={ <Skeleton /> }
+        asyncFunction={ insights.chrome.auth.getUser }
+        callback={ ({ entitlements }, props) => (
+          entitlements.cost_management ?
+            <Link to="/roles/add-role" { ...props }>
+              <Button
+                variant="primary"
+                aria-label="Create role"
+              >
+                Add role
+              </Button>
+            </Link> :
+            <Fragment />
+        ) }
+      />
     </ToolbarItem>
   </ToolbarGroup>;
 
@@ -122,6 +124,7 @@ const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination }) 
 const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
+  userIdentity: roles.identity,
   isLoading
 });
 
@@ -150,6 +153,11 @@ Roles.propTypes = {
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
     count: PropTypes.number.isRequired
+  }),
+  userIdentity: PropTypes.shape({
+    user: PropTypes.shape({
+      [PropTypes.string]: PropTypes.oneOfType([ PropTypes.string, PropTypes.bool ])
+    })
   })
 };
 

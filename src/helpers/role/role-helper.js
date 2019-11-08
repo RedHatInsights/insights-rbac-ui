@@ -11,7 +11,10 @@ export function fetchRoles({ limit, offset }) {
 }
 
 export async function fetchRolesWithPolicies({ limit, offset, name, orderBy }) {
-  return roleApi.listRoles(limit, offset, name, orderBy);
+  return {
+    ...await roleApi.listRoles(limit, offset, name, orderBy),
+    ...await insights.chrome.auth.getUser()
+  };
 }
 
 export async function fetchRole(uuid) {
