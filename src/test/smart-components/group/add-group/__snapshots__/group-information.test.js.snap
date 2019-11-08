@@ -119,6 +119,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                     isValid={true}
                     name="group-description"
                     onChange={[Function]}
+                    resizeOrientation="both"
                     type="text"
                   >
                     <textarea

@@ -156,6 +156,7 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                     isValid={true}
                     name="policy-description"
                     onChange={[Function]}
+                    resizeOrientation="both"
                     type="text"
                     value="Test policy description"
                   >
