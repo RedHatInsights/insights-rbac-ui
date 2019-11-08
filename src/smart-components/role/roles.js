@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
 
 import AppTabs from '../app-tabs/app-tabs';
@@ -60,26 +60,24 @@ const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination, us
     return _roleData.policies.title > 1;
   };
 
-  const toolbarButtons = () => <ToolbarGroup>
-    <ToolbarItem>
-      <SuspendComponent
-        fallback={ <Skeleton /> }
-        asyncFunction={ insights.chrome.auth.getUser }
-        callback={ ({ entitlements }, props) => (
-          entitlements.cost_management ?
-            <Link to="/roles/add-role" { ...props }>
-              <Button
-                variant="primary"
-                aria-label="Create role"
-              >
+  const toolbarButtons = () => [
+    <SuspendComponent key="add-role"
+      fallback={ <Skeleton /> }
+      asyncFunction={ insights.chrome.auth.getUser }
+      callback={ ({ entitlements }, props) => (
+        entitlements.cost_management ?
+          <Link to="/roles/add-role" { ...props }>
+            <Button
+              variant="primary"
+              aria-label="Create role"
+            >
                 Add role
-              </Button>
-            </Link> :
-            <Fragment />
-        ) }
-      />
-    </ToolbarItem>
-  </ToolbarGroup>;
+            </Button>
+          </Link> :
+          <Fragment />
+      ) }
+    />
+  ];
 
   const renderRolesList = () =>
     <Stack>

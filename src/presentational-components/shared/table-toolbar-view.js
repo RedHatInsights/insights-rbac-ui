@@ -1,13 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import propTypes from 'prop-types';
 import debouncePromise from 'awesome-debounce-promise';
-import { Toolbar, ToolbarGroup, ToolbarItem, Level, LevelItem } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { Pagination } from '@redhat-cloud-services/frontend-components';
 import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
 import { defaultSettings  } from '../../helpers/shared/pagination';
-import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
-import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
+import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
 import { ListLoader } from './loader-placeholders';
 import './table-toolbar-view.scss';
 
@@ -35,7 +32,7 @@ export const TableToolbarView = ({
   const [ rows, setRows ] = useState([]);
 
   useEffect(() => {
-    fetchData(setRows, filterValue, pagination);
+    fetchData(pagination);
   }, [ filterValue, pagination.limit, pagination.offset ]);
 
   useEffect(() => {
@@ -48,11 +45,6 @@ export const TableToolbarView = ({
   useEffect(() => {
     scrollToTop();
   }, []);
-
-  const handleOnPerPageSelect = limit => request({
-    offset: pagination.offset,
-    limit
-  }).then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
 
   const handleSetPage = (number, debounce) => {
     const options = {
@@ -93,58 +85,97 @@ export const TableToolbarView = ({
     : setRows((rows) => setSelected(rows, uuid));
 
   const renderToolbar = () => {
-    return (<TableToolbar className="rbac-table__toolbar">
-      <Level style={ { flex: 1 } }>
-        <LevelItem>
-          <Toolbar>
-            <FilterToolbar isCompact = { isCompact }
-              onFilterChange={ value => setFilterValue(value) }
-              searchValue={ filterValue }
-              placeholder={ `Find a ${titleSingular}` }/>
-            { toolbarButtons() }
-          </Toolbar>
-        </LevelItem>
-
-        <LevelItem>
-          <Toolbar>
-            <ToolbarGroup>
-              <ToolbarItem>
-                <Pagination
-                  itemsPerPage={ pagination.limit }
-                  numberOfItems={ pagination.count }
-                  onPerPageSelect={ handleOnPerPageSelect }
-                  page={ getCurrentPage(pagination.limit, pagination.offset) }
-                  onSetPage={ handleSetPage }
-                  direction="down"
-                />
-              </ToolbarItem>
-            </ToolbarGroup>
-          </Toolbar>
-        </LevelItem>
-      </Level>
-    </TableToolbar>);
+    return (
+      <PrimaryToolbar
+        filterConfig={ {
+          items: [{
+            label: titleSingular,
+            type: 'text',
+            filterValues: {
+              id: 'filter-by-string',
+              key: 'filter-by-string',
+              placeholder: `Filter by ${titleSingular}`,
+              value: filterValue,
+              onChange: (_e, value) => {
+                fetchData({
+                  ...pagination,
+                  name: value
+                });
+              },
+              isDisabled: isLoading
+            }
+          }]
+        } }
+        actionsConfig={ {
+          actions: toolbarButtons()
+        } }
+        { ...!isLoading && {
+          pagination: {
+            itemCount: pagination.count,
+            perPage: pagination.limit,
+            page: getCurrentPage(pagination.limit, pagination.offset),
+            onSetPage: (_event, page) => {
+              fetchData({
+                ...pagination,
+                offset: (page - 1) * pagination.limit,
+                name: filterValue
+              });
+            },
+            perPageOptions: [
+              { title: '5', value: 5 },
+              { title: '10', value: 10 },
+              { title: '20', value: 20 },
+              { title: '50', value: 50 }
+            ],
+            onPerPageSelect: (_event, perPage) => {
+              fetchData({
+                ...pagination,
+                offset: 0,
+                limit: perPage,
+                name: filterValue
+              });
+            }
+          }
+        } }
+        { ...filterValue.length > 0 && {
+          activeFiltersConfig: {
+            filters: [{
+              name: filterValue
+            }],
+            onDelete: () => {
+              handleSetPage({
+                ...pagination,
+                page: 1
+              });
+              setFilterValue('');
+            }
+          }
+        }
+        }
+      />
+    );
   };
 
   return (
-    isLoading ? <ListLoader/> :
-      <Fragment>
-        { routes() }
-        { renderToolbar() }
-        <Table
-          aria-label={ `${titlePlural} table` }
-          variant={ isCompact ? TableVariant.compact : null }
-          borders={ borders }
-          onCollapse={ onCollapse }
-          rows={ rows }
-          cells={ columns }
-          onSelect={ isSelectable && selectRow }
-          actionResolver={ actionResolver }
-          areActionsDisabled={ areActionsDisabled }
-        >
-          <TableHeader />
-          <TableBody />
-        </Table>
-      </Fragment>
+
+    <Fragment>
+      { routes() }
+      { renderToolbar() }
+      { isLoading ? <ListLoader /> : <Table
+        aria-label={ `${titlePlural} table` }
+        variant={ isCompact ? TableVariant.compact : null }
+        borders={ borders }
+        onCollapse={ onCollapse }
+        rows={ rows }
+        cells={ columns }
+        onSelect={ isSelectable && selectRow }
+        actionResolver={ actionResolver }
+        areActionsDisabled={ areActionsDisabled }
+      >
+        <TableHeader />
+        <TableBody />
+      </Table> }
+    </Fragment>
   );
 };
 

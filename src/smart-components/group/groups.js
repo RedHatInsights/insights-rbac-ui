@@ -23,12 +23,11 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ groups, setGroups ] = useState([]);
 
-  const fetchData = () => {
-    fetchGroups(pagination).then(({ value: { data }}) => setGroups(data));
+  const fetchData = (config) => {
+    fetchGroups(config);
   };
 
   const routes = () => <Fragment>
@@ -53,18 +52,16 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
         }
       ];
 
-  const toolbarButtons = () => <ToolbarGroup>
-    <ToolbarItem>
-      <Link to="/groups/add-group">
-        <Button
-          variant="primary"
-          aria-label="Create group"
-        >
-          Add group
-        </Button>
-      </Link>
-    </ToolbarItem>
-  </ToolbarGroup>;
+  const toolbarButtons = () => [
+    <Link to="/groups/add-group" key="add-group">
+      <Button
+        variant="primary"
+        aria-label="Create group"
+      >
+        Add group
+      </Button>
+    </Link>
+  ];
 
   const renderGroupsList = () =>
     <Stack>
