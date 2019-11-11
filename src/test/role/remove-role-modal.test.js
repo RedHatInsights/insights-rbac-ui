@@ -5,6 +5,7 @@ import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store' ;
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
+import { mock } from '../__mocks__/apiMock';
 import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
 import { RBAC_API_BASE } from '../../utilities/constants';
 import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
@@ -44,11 +45,7 @@ describe('<RemoveRoleModal />', () => {
 
   it('should call cancel action', () => {
     const store = mockStore(initialState);
-
-    apiClientMock.get(`${RBAC_API_BASE}/roles/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
+    mock.onGet(`${RBAC_API_BASE}/roles/123/`).reply(200, { data: []});
 
     const wrapper = mount(
       <RoleWrapper store={ store }>
@@ -62,20 +59,11 @@ describe('<RemoveRoleModal />', () => {
   it('should call the remove action', (done) => {
     const store = mockStore(initialState);
 
-    apiClientMock.get(`${RBAC_API_BASE}/roles/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
+    mock.onGet(`${RBAC_API_BASE}/roles/123/`).reply(200, { data: []});
 
-    apiClientMock.delete(`${RBAC_API_BASE}/roles/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200);
-    }));
+    mock.onDelete(`${RBAC_API_BASE}/roles/123/`).reply(200);
 
-    apiClientMock.get(`${RBAC_API_BASE}/roles/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
+    mock.onGet(`${RBAC_API_BASE}/roles/`).reply(200, { data: []});
 
     const wrapper = mount(
       <RoleWrapper store={ store }>

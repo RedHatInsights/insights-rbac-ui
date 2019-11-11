@@ -1,6 +1,7 @@
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store' ;
 import promiseMiddleware from 'redux-promise-middleware';
+import { mock } from '../../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import { fetchGroupPolicies } from '../../../redux/actions/policy-actions';
 import { FETCH_GROUP_POLICIES } from '../../../redux/action-types';
@@ -28,23 +29,20 @@ describe('policy actions', () => {
       type: `${FETCH_GROUP_POLICIES}_FULFILLED`
     }];
 
-    apiClientMock.get(`${RBAC_API_BASE}/policies/`, mockOnce({
-      body: {
-        data: [{
-          name: 'policyName',
-          uuid: '1234'
-        }]
-      }
-    }));
+    mock.onGet(`${RBAC_API_BASE}/policies/`).reply(200, {
+      data: [{
+        name: 'policyName',
+        uuid: '1234'
+      }]
+    });
 
-    apiClientMock.get(`${RBAC_API_BASE}/policies/1234/`, mockOnce({
-      body: {
-        data: {
-          name: 'policyName',
-          uuid: '1234'
-        }
-      }
-    }));
+    mock.onGet(`${RBAC_API_BASE}/policies/1234/`).reply(200, {
+      data: [{
+        name: 'policyName',
+        uuid: '1234'
+      }]
+    });
+
     return store.dispatch(fetchGroupPolicies('1234')).then(() => {
       expect(store.getActions()).toEqual(expectedActions);
     });

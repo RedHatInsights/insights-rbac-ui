@@ -6,6 +6,7 @@ import configureStore from 'redux-mock-store' ;
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
+import { mock } from '../../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
@@ -45,11 +46,7 @@ describe('<RemoveGroupModal />', () => {
 
   it('should call cancel action', () => {
     const store = mockStore(initialState);
-
-    apiClientMock.get(`${RBAC_API_BASE}/groups/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
+    mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, { data: []});
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
@@ -63,20 +60,9 @@ describe('<RemoveGroupModal />', () => {
   it('should call the remove action', (done) => {
     const store = mockStore(initialState);
 
-    apiClientMock.get(`${RBAC_API_BASE}/groups/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
-
-    apiClientMock.delete(`${RBAC_API_BASE}/groups/123/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200);
-    }));
-
-    apiClientMock.get(`${RBAC_API_BASE}/groups/`, mockOnce((req, res) => {
-      expect(req).toBeTruthy();
-      return res.status(200).body({ data: []});
-    }));
+    mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, { data: []});
+    mock.onDelete(`${RBAC_API_BASE}/groups/123/`).reply(200);
+    mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, { data: []});
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
