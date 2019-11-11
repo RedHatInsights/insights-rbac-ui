@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
-
 import AppTabs from '../app-tabs/app-tabs';
 import { createRows } from './role-table-helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';

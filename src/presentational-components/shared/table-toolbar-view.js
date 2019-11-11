@@ -7,6 +7,12 @@ import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/compo
 import { ListLoader } from './loader-placeholders';
 import './table-toolbar-view.scss';
 
+const calculateChecked = (rows = [], selected) => {
+  return (rows.length !== 0 && rows.every(({ uuid }) => selected.indexOf(uuid) !== -1)) || (
+    (rows.length !== 0 && rows.some(({ uuid }) => selected.indexOf(uuid) !== -1)) ? null : false
+  );
+};
+
 export const TableToolbarView = ({
   isCompact,
   createRows,
@@ -22,8 +28,14 @@ export const TableToolbarView = ({
   pagination,
   filterValue,
   isLoading,
-  setFilterValue }) => {
+  setFilterValue,
+  checkedRows,
+  isSelectable,
+  setCheckedItems
+}) => {
   const [ opened, openRow ] = useState({});
+
+  const rows = createRows(data, opened, checkedRows);
 
   const onCollapse = (_event, _index, isOpen, { uuid }) => openRow({
     ...opened,
@@ -33,6 +45,29 @@ export const TableToolbarView = ({
   const renderToolbar = () => {
     return (
       <PrimaryToolbar
+        { ...isSelectable && {
+          bulkSelect: {
+            count: checkedRows.length,
+            items: [{
+              title: 'Select none (0)',
+              onClick: () => {
+                setCheckedItems(-1, false);
+              }
+            },
+            {
+              ...!isLoading && rows && rows.length > 0 ? {
+                title: `Select page (${rows.length})`,
+                onClick: () => {
+                  setCheckedItems(0, true);
+                }
+              } : {}
+            }],
+            checked: calculateChecked(rows, checkedRows),
+            onSelect: (value) => {
+              !isLoading && setCheckedItems(0, value);
+            }
+          }
+        } }
         filterConfig={ {
           items: [{
             label: titleSingular,
@@ -113,7 +148,8 @@ export const TableToolbarView = ({
         variant={ isCompact ? TableVariant.compact : null }
         borders={ borders }
         onCollapse={ onCollapse }
-        rows={ createRows(data, opened) }
+        { ...isSelectable && { onSelect: setCheckedItems } }
+        rows={ rows }
         cells={ columns }
         actionResolver={ actionResolver }
         areActionsDisabled={ areActionsDisabled }
@@ -147,11 +183,13 @@ TableToolbarView.propTypes = {
   areActionsDisabled: propTypes.func,
   filterValue: propTypes.string,
   checkedRows: propTypes.array,
+  setCheckedItems: propTypes.func,
   setFilterValue: propTypes.func,
   isLoading: propTypes.bool
 };
 
 TableToolbarView.defaultProps = {
+  checkedRows: [],
   requests: [],
   isLoading: false,
   pagination: defaultSettings,
@@ -159,6 +197,7 @@ TableToolbarView.defaultProps = {
   isSelectable: false,
   isCompact: false,
   borders: true,
+  setCheckedItems: () => null,
   routes: () => null,
   fetchData: () => undefined
 };

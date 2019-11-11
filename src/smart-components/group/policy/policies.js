@@ -1,6 +1,6 @@
 import React, { Fragment, useState } from 'react';
 import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { mappedProps } from '../../../helpers/shared/helpers';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
@@ -16,17 +16,26 @@ import EditPolicyRoles from './policy-actions/edit-policy-roles';
 import { PolicyActionsDropdown } from './policy_action_dropdown';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+
+const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [{ title: 'Policy name', cellFormatters: [ expandable ]}, 'Policy Description', 'Roles', 'Last modified' ];
 
-const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies, addNotification, pagination }) => {
+const GroupPolicies = ({
+  match: { params: { uuid }},
+  history,
+  fetchGroupPolicies,
+  addNotification,
+  pagination,
+  policies
+}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPolicies, setSelectedPolicies ] = useState([]);
-  const [ policies, setPolicies ] = useState([]);
 
   const fetchData = () => {
     if (uuid) {
-      fetchGroupPolicies({ group_uuid: uuid }).then(({ value: { data }}) => setPolicies(data));
+      fetchGroupPolicies({ group_uuid: uuid });
     }
   };
 
@@ -56,7 +65,8 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
         dismissable: true,
         description: `Policies were removed successfully`
       });
-      fetchData();});
+      fetchData();
+    });
   };
 
   const actionResolver = (_policyData, { rowIndex }) =>
@@ -111,7 +121,6 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
           isSelectable={ true }
           createRows={ createRows }
           columns={ columns }
-          fetchData={ fetchData }
           request={ fetchGroupPolicies }
           routes={ routes }
           actionResolver={ actionResolver }
@@ -119,7 +128,14 @@ const GroupPolicies = ({ match: { params: { uuid }}, history, fetchGroupPolicies
           titleSingular="policy"
           pagination={ pagination }
           filterValue={ filterValue }
-          setFilterValue={ setFilterValue }
+          setFilterValue={ (config, isDebounce) => {
+            setFilterValue(config.name);
+            if (isDebounce) {
+              debouncedFetch(() => fetchGroupPolicies(config));
+            } else {
+              fetchGroupPolicies(config);
+            }
+          } }
           setCheckedItems={ setCheckedPolicies }
           toolbarButtons = { toolbarButtons }
         />
@@ -133,10 +149,10 @@ const mapStateToProps = ({ policyReducer: { policies, isLoading }}) => ({
   isLoading
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchGroupPolicies,
-  addNotification,
-  removePolicy
+const mapDispatchToProps = dispatch => ({
+  fetchGroupPolicies: (apiProps) => dispatch(fetchGroupPolicies(mappedProps(apiProps))),
+  addNotification: (...props) => dispatch(addNotification(...props)),
+  removePolicy: (...props) => dispatch(removePolicy(...props))
 }, dispatch);
 
 GroupPolicies.propTypes = {
