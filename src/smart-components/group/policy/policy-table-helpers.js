@@ -1,6 +1,5 @@
 import React from 'react';
 import ExpandableContent from './expandable-content';
-import { timeAgo } from '../../../helpers/shared/helpers';
 
 export const createRows = (data, filterValue = undefined) => (
   data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
@@ -8,7 +7,7 @@ export const createRows = (data, filterValue = undefined) => (
     ...acc, {
       uuid,
       isOpen: false,
-      cells: [ name, description, roles.length, `${timeAgo(modified)}` ]
+      cells: [ name, description, roles.length, modified ]
     }, {
       parent: key * 2,
       fullWidth: true,

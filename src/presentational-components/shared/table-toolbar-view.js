@@ -1,22 +1,18 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import propTypes from 'prop-types';
-import debouncePromise from 'awesome-debounce-promise';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
+import { getCurrentPage } from '../../helpers/shared/helpers';
 import { defaultSettings  } from '../../helpers/shared/pagination';
 import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
 import { ListLoader } from './loader-placeholders';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
-  request,
-  isSelectable,
   isCompact,
   createRows,
   borders,
   columns,
   toolbarButtons,
-  fetchData,
   data,
   actionResolver,
   areActionsDisabled,
@@ -24,65 +20,15 @@ export const TableToolbarView = ({
   titlePlural,
   titleSingular,
   pagination,
-  checkedRows,
-  setCheckedItems,
   filterValue,
   isLoading,
   setFilterValue }) => {
-  const [ rows, setRows ] = useState([]);
+  const [ opened, openRow ] = useState({});
 
-  useEffect(() => {
-    fetchData(pagination);
-  }, [ filterValue, pagination.limit, pagination.offset ]);
-
-  useEffect(() => {
-    setRows(createRows(data, checkedRows, filterValue));
-    if (isSelectable) {
-      setCheckedItems(rows.filter(item => (item.uuid && item.selected)));
-    }
-  }, [ data ]);
-
-  useEffect(() => {
-    scrollToTop();
-  }, []);
-
-  const handleSetPage = (number, debounce) => {
-    const options = {
-      offset: getNewPage(number, pagination.limit),
-      limit: pagination.limit
-    };
-    const requestFunc = () => request(options);
-    return debounce ? debouncePromise(request, 250)() : requestFunc()
-    .then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
-  };
-
-  const setOpen = (data, uuid) => data.map(row => row.uuid === uuid ?
-    {
-      ...row,
-      isOpen: !row.isOpen
-    } : {
-      ...row
-    });
-
-  const setSelected = (data, uuid) => {
-    const newData = data.map(row => row.uuid === uuid ?
-      {
-        ...row,
-        selected: !row.selected
-      } : {
-        ...row
-      });
-
-    const checkedItems = newData.filter(item => (item.uuid && item.selected));
-    setCheckedItems(checkedItems);
-    return newData;
-  };
-
-  const onCollapse = (_event, _index, _isOpen, { uuid }) => setRows((rows) => setOpen(rows, uuid));
-
-  const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
-    ? setRows(rows.map(row => ({ ...row, selected })))
-    : setRows((rows) => setSelected(rows, uuid));
+  const onCollapse = (_event, _index, isOpen, { uuid }) => openRow({
+    ...opened,
+    [uuid]: isOpen
+  });
 
   const renderToolbar = () => {
     return (
@@ -97,10 +43,11 @@ export const TableToolbarView = ({
               placeholder: `Filter by ${titleSingular}`,
               value: filterValue,
               onChange: (_e, value) => {
-                fetchData({
+                setFilterValue({
                   ...pagination,
+                  offset: 0,
                   name: value
-                });
+                }, true);
               },
               isDisabled: isLoading
             }
@@ -115,11 +62,11 @@ export const TableToolbarView = ({
             perPage: pagination.limit,
             page: getCurrentPage(pagination.limit, pagination.offset),
             onSetPage: (_event, page) => {
-              fetchData({
+              setFilterValue({
                 ...pagination,
                 offset: (page - 1) * pagination.limit,
                 name: filterValue
-              });
+              }, false);
             },
             perPageOptions: [
               { title: '5', value: 5 },
@@ -128,12 +75,12 @@ export const TableToolbarView = ({
               { title: '50', value: 50 }
             ],
             onPerPageSelect: (_event, perPage) => {
-              fetchData({
+              setFilterValue({
                 ...pagination,
                 offset: 0,
                 limit: perPage,
                 name: filterValue
-              });
+              }, false);
             }
           }
         } }
@@ -143,11 +90,11 @@ export const TableToolbarView = ({
               name: filterValue
             }],
             onDelete: () => {
-              handleSetPage({
+              setFilterValue({
                 ...pagination,
-                page: 1
-              });
-              setFilterValue('');
+                offset: 0,
+                name: ''
+              }, false);
             }
           }
         }
@@ -166,9 +113,8 @@ export const TableToolbarView = ({
         variant={ isCompact ? TableVariant.compact : null }
         borders={ borders }
         onCollapse={ onCollapse }
-        rows={ rows }
+        rows={ createRows(data, opened) }
         cells={ columns }
-        onSelect={ isSelectable && selectRow }
         actionResolver={ actionResolver }
         areActionsDisabled={ areActionsDisabled }
       >
@@ -199,7 +145,6 @@ TableToolbarView.propTypes = {
   routes: propTypes.func,
   actionResolver: propTypes.func,
   areActionsDisabled: propTypes.func,
-  setCheckedItems: propTypes.func,
   filterValue: propTypes.string,
   checkedRows: propTypes.array,
   setFilterValue: propTypes.func,

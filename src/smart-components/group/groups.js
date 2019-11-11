@@ -1,10 +1,10 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
-import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -16,6 +16,9 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+
+const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
 const tabItems = [
@@ -25,6 +28,10 @@ const tabItems = [
 
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
+
+  useEffect(() => {
+    fetchGroups({ ...pagination, name: filterValue });
+  }, []);
 
   const fetchData = (config) => {
     fetchGroups(config);
@@ -77,7 +84,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             data={ groups }
             createRows={ createRows }
             columns={ columns }
-            fetchData={ fetchData }
             request={ fetchGroups }
             routes={ routes }
             actionResolver={ actionResolver }
@@ -85,7 +91,14 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             titleSingular="group"
             pagination={ pagination }
             filterValue={ filterValue }
-            setFilterValue={ setFilterValue }
+            setFilterValue={ (config, isDebounce) => {
+              setFilterValue(config.name);
+              if (isDebounce) {
+                debouncedFetch(() => fetchGroups(config));
+              } else {
+                fetchGroups(config);
+              }
+            } }
             toolbarButtons = { toolbarButtons }
             isLoading = { isLoading }
           />

@@ -22,7 +22,16 @@ export const groupsInitialState = {
 const setLoadingState = state => ({ ...state, isLoading: true });
 const setRecordLoadingState = state => ({ ...state, isRecordLoading: true });
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
-const setGroup = (state, { payload }) => ({ ...state, selectedGroup: payload, isRecordLoading: false });
+const setGroup = (state, { payload }) => ({
+  ...state,
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...payload.uuid === group.uuid && { ...payload, loaded: true }
+    }))
+  }
+});
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 
 export default {

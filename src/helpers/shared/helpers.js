@@ -10,5 +10,7 @@ export const getCurrentPage = (limit = 1, offset = 0) => Math.floor(offset / lim
 
 export const getNewPage = (page = 1, offset) => (page - 1) * offset;
 
-export const timeAgo = (date) => moment(date).fromNow();
-
+export const mappedProps = (apiProps) => Object.entries(apiProps).reduce((acc, [ key, value ]) => ({
+  ...acc,
+  ...value && { [key]: value }
+}), {});
