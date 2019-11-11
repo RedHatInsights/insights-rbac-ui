@@ -14,27 +14,62 @@ import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
 import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+import { mappedProps } from '../../../helpers/shared/helpers';
+
+const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
-const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembersFromGroup, pagination }) => {
+const GroupPrincipals = ({
+  match: { params: { uuid }},
+  fetchGroup,
+  removeMembersFromGroup,
+  pagination,
+  principals
+}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
-  const [ principals, setPrincipals ] = useState([]);
 
   const fetchData = () => {
     if (uuid) {
-      fetchGroup(uuid).then((data) => {
-        setPrincipals(data.value.principals);
-      });
+      fetchGroup(uuid);
     }
   };
 
-  const setCheckedPrincipals = (checkedPrincipals) =>
-    setSelectedPrincipals(checkedPrincipals.map(user => user.username));
+  const setCheckedPrincipals = (event, isSelected, _rowId, { username } = {}) => {
+    setSelectedPrincipals((selected) => {
+      let currRows = [ username ];
+      if (typeof event === 'number') {
+        if (event === -1) {
+          return [];
+        }
 
-  const anyPrincipalsSelected = () => selectedPrincipals.length > 0;
+        currRows = principals.map(({ username }) => username);
+      }
 
+      if (!isSelected) {
+        return selected.filter((row) => !currRows.find((username) => username === row));
+      } else {
+        return [
+          ...selected,
+          ...currRows
+        ].filter((row, key, arr) => arr.findIndex((username) => row === username) === key);
+      }
+    });
+  };
+
+  const actionResolver = (_principalData, { rowIndex }) =>
+    rowIndex % 2 === 1 ? null :
+      [
+        {
+          title: 'Delete',
+          style: { color: 'var(--pf-global--danger-color--100)' },
+          onClick: (_event, _rowId, principal) => {
+            removeMembers([ principal.username ]);
+          }
+        }
+      ];
   const removeMembers = (userNames) => {
     return removeMembersFromGroup(uuid, userNames).then(() => { setCheckedPrincipals([]); fetchData();});
   };
@@ -44,37 +79,27 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
       render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/principals` } { ...args }/> }/>
   </Fragment>;
 
-  const actionResolver = (_principalData, { rowIndex }) =>
-    rowIndex % 2 === 1 ? null :
-      [
-        {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)'	},
-          onClick: (_event, _rowId, principal) => {
-            removeMembers([ principal.username ]);
-          }
-        }
-      ];
-
-  const toolbarButtons = () =>
-    <ToolbarGroup>
-      <ToolbarItem>
-        <Link to={ `/groups/detail/${uuid}/members/add_members` }>
-          <Button
-            variant="primary"
-            aria-label="Add member"
-          >
-          Add member
-          </Button>
-        </Link>
-      </ToolbarItem>
-      <ToolbarItem>
-        <PrincipalsActionsDropdown itemAction={ removeMembers }
-          anyItemsSelected={ anyPrincipalsSelected() }
-          groupId ={ uuid }
-          itemsSelected={ selectedPrincipals } />
-      </ToolbarItem>
-    </ToolbarGroup>;
+  const toolbarButtons = () => [
+    <Link
+      to={ `/groups/detail/${uuid}/members/add_members` }
+      key="remove-from-group"
+    >
+      <Button
+        variant="primary"
+        aria-label="Add member"
+      >
+        Add member
+      </Button>
+    </Link>,
+    {
+      label: 'Remove selected',
+      props: {
+        isDisabled: !selectedPrincipals.length > 0,
+        variant: 'danger',
+        onClick: () => removeMembers(selectedPrincipals)
+      }
+    }
+  ];
 
   return (
     <Fragment>
@@ -85,7 +110,6 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
           isSelectable={ true }
           createRows={ createRows }
           columns={ columns }
-          fetchData={ fetchData }
           request={ fetchGroup }
           routes={ routes }
           actionResolver={ actionResolver }
@@ -93,7 +117,15 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
           titleSingular="principal"
           pagination={ pagination }
           filterValue={ filterValue }
-          setFilterValue={ setFilterValue }
+          setFilterValue={ (config, isDebounce) => {
+            setFilterValue(config.name);
+            if (isDebounce) {
+              debouncedFetch(() => fetchGroup(mappedProps(config)));
+            } else {
+              fetchGroup(mappedProps(config));
+            }
+          } }
+          checkedRows={ selectedPrincipals }
           setCheckedItems={ setCheckedPrincipals }
           toolbarButtons = { toolbarButtons }
         />
@@ -101,11 +133,14 @@ const GroupPrincipals = ({ match: { params: { uuid }}, fetchGroup, removeMembers
     </Fragment>);
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }}) => ({
-  principals: selectedGroup.principals,
-  pagination: { ...defaultSettings, count: selectedGroup.principals.length },
-  isLoading
-});
+const mapStateToProps = ({ groupReducer: { groups, isLoading }}, { match: { params: { uuid }}}) => {
+  const activeGroup = groups.data.find((group) => group.uuid === uuid) || {};
+  return {
+    principals: (activeGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
+    pagination: { ...defaultSettings, count: activeGroup.principals && activeGroup.principals.length },
+    isLoading
+  };
+};
 
 const mapDispatchToProps = dispatch => bindActionCreators({
   fetchGroup,

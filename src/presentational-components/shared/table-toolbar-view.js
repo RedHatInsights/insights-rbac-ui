@@ -8,6 +8,7 @@ import { ListLoader } from './loader-placeholders';
 import './table-toolbar-view.scss';
 
 const calculateChecked = (rows = [], selected) => {
+  console.log(rows, 'huh');
   return (rows.length !== 0 && rows.every(({ uuid }) => selected.indexOf(uuid) !== -1)) || (
     (rows.length !== 0 && rows.some(({ uuid }) => selected.indexOf(uuid) !== -1)) ? null : false
   );
@@ -55,14 +56,14 @@ export const TableToolbarView = ({
               }
             },
             {
-              ...!isLoading && rows && rows.length > 0 ? {
-                title: `Select page (${rows.length})`,
+              ...!isLoading && data && data.length > 0 ? {
+                title: `Select page (${data.length})`,
                 onClick: () => {
                   setCheckedItems(0, true);
                 }
               } : {}
             }],
-            checked: calculateChecked(rows, checkedRows),
+            checked: calculateChecked(data, checkedRows),
             onSelect: (value) => {
               !isLoading && setCheckedItems(0, value);
             }
@@ -144,6 +145,7 @@ export const TableToolbarView = ({
       { routes() }
       { renderToolbar() }
       { isLoading ? <ListLoader /> : <Table
+        canSelectAll={ false }
         aria-label={ `${titlePlural} table` }
         variant={ isCompact ? TableVariant.compact : null }
         borders={ borders }
