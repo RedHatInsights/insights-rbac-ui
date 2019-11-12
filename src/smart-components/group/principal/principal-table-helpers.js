@@ -10,7 +10,7 @@ export const createRows = (data, opened = [], checkedRows = []) => {
         username,
         isOpen: Boolean(opened[username]),
         cells: [ username, email, first_name, last_name ],
-        selected: checkedRows.indexOf(username) !== -1
+        selected: checkedRows.find(row => row.uuid === username)
       }, {
         parent: key * 2,
         fullWidth: true,

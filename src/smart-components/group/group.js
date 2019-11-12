@@ -46,12 +46,11 @@ const Group = (props) => {
           description={ !props.isFetching && props.group ? props.group.description : undefined }/>
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
-      { !isFetching &&
-          <Switch>
-            <Route path={ `/groups/detail/:uuid/policies` } component={ GroupPolicies }/>
-            <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals }/>
-            <Route render={ () => <Redirect to={ `/groups/detail/${props.match.params.uuid}/members` } /> } />
-          </Switch> }
+      <Switch>
+        <Route path={ `/groups/detail/:uuid/policies` } component={ GroupPolicies } />
+        <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
+        <Route render={ () => <Redirect to={ `/groups/detail/${props.match.params.uuid}/members` } /> } />
+      </Switch>
       { !props.group && <ListLoader/> }
     </Fragment>
   );

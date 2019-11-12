@@ -1,13 +1,21 @@
-import React from 'react';
+import React, { Fragment } from 'react';
 import ExpandableContent from './expandable-content';
+import { DateFormat } from '@redhat-cloud-services/frontend-components';
 
-export const createRows = (data, filterValue = undefined) => (
-  data.filter(item => { const filter = filterValue ? item.name.includes(filterValue) : true;
-    return filter; }).reduce((acc,  { uuid, name, description, roles, modified }, key) => ([
+export const createRows = (data, opened = [], checkedRows = []) => (
+  data.reduce((acc,  { uuid, name, description, roles, modified }, key) => ([
     ...acc, {
       uuid,
-      isOpen: false,
-      cells: [ name, description, roles.length, modified ]
+      isOpen: Boolean(opened[uuid]),
+      cells: [
+        name,
+        description,
+        roles.length,
+        <Fragment key={ `${uuid}-modified` }>
+          <DateFormat date={ modified } type="relative" />
+        </Fragment>
+      ],
+      selected: Boolean(checkedRows.find(row => row.uuid === uuid))
     }, {
       parent: key * 2,
       fullWidth: true,

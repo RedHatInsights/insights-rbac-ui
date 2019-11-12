@@ -8,16 +8,10 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
 import { removeMembersFromGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
-import { ListLoader } from '../../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import { Button, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
-import { PrincipalsActionsDropdown } from './principal_action_dropdown';
 import { Section } from '@redhat-cloud-services/frontend-components';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-import { mappedProps } from '../../../helpers/shared/helpers';
-
-const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
@@ -26,37 +20,22 @@ const GroupPrincipals = ({
   fetchGroup,
   removeMembersFromGroup,
   pagination,
-  principals
+  principals,
+  isLoading
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
 
   const fetchData = () => {
-    if (uuid) {
-      fetchGroup(uuid);
-    }
+    fetchGroup(uuid);
   };
 
-  const setCheckedPrincipals = (event, isSelected, _rowId, { username } = {}) => {
-    setSelectedPrincipals((selected) => {
-      let currRows = [ username ];
-      if (typeof event === 'number') {
-        if (event === -1) {
-          return [];
-        }
+  const setCheckedPrincipals = (newSelection) => {
+    setSelectedPrincipals((principals) => newSelection(principals));
+  };
 
-        currRows = principals.map(({ username }) => username);
-      }
-
-      if (!isSelected) {
-        return selected.filter((row) => !currRows.find((username) => username === row));
-      } else {
-        return [
-          ...selected,
-          ...currRows
-        ].filter((row, key, arr) => arr.findIndex((username) => row === username) === key);
-      }
-    });
+  const removeMembers = (userNames) => {
+    return removeMembersFromGroup(uuid, userNames).then(() => { setSelectedPrincipals([]); fetchData();});
   };
 
   const actionResolver = (_principalData, { rowIndex }) =>
@@ -70,13 +49,15 @@ const GroupPrincipals = ({
           }
         }
       ];
-  const removeMembers = (userNames) => {
-    return removeMembersFromGroup(uuid, userNames).then(() => { setCheckedPrincipals([]); fetchData();});
-  };
 
   const routes = () => <Fragment>
     <Route path={ `/groups/detail/:uuid/members/add_members` }
-      render={ args => <AddGroupMembers fetchData={ fetchData } closeUrl={ `/groups/detail/${uuid}/principals` } { ...args }/> }/>
+      render={ args => <AddGroupMembers
+        fetchData={ fetchData }
+        closeUrl={ `/groups/detail/${uuid}/principals` }
+        { ...args }
+      /> }
+    />
   </Fragment>;
 
   const toolbarButtons = () => [
@@ -94,7 +75,7 @@ const GroupPrincipals = ({
     {
       label: 'Remove selected',
       props: {
-        isDisabled: !selectedPrincipals.length > 0,
+        isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
         variant: 'danger',
         onClick: () => removeMembers(selectedPrincipals)
       }
@@ -102,43 +83,36 @@ const GroupPrincipals = ({
   ];
 
   return (
-    <Fragment>
-      { !uuid && <ListLoader/> }
-      { uuid && <Section type="content" id={ 'tab-principals' }>
-        <TableToolbarView
-          data={ principals }
-          isSelectable={ true }
-          createRows={ createRows }
-          columns={ columns }
-          request={ fetchGroup }
-          routes={ routes }
-          actionResolver={ actionResolver }
-          titlePlural="principals"
-          titleSingular="principal"
-          pagination={ pagination }
-          filterValue={ filterValue }
-          setFilterValue={ (config, isDebounce) => {
-            setFilterValue(config.name);
-            if (isDebounce) {
-              debouncedFetch(() => fetchGroup(mappedProps(config)));
-            } else {
-              fetchGroup(mappedProps(config));
-            }
-          } }
-          checkedRows={ selectedPrincipals }
-          setCheckedItems={ setCheckedPrincipals }
-          toolbarButtons = { toolbarButtons }
-        />
-      </Section> }
-    </Fragment>);
+    <Section type="content" id={ 'tab-principals' }>
+      <TableToolbarView
+        data={ principals }
+        isSelectable={ true }
+        createRows={ createRows }
+        columns={ columns }
+        request={ fetchGroup }
+        routes={ routes }
+        actionResolver={ actionResolver }
+        titlePlural="principals"
+        titleSingular="principal"
+        pagination={ pagination }
+        filterValue={ filterValue }
+        fetchData={ (config) => fetchGroup(uuid) }
+        setFilterValue={ ({ name }) => setFilterValue(name) }
+        checkedRows={ selectedPrincipals }
+        isLoading={ isLoading }
+        setCheckedItems={ setCheckedPrincipals }
+        toolbarButtons={ toolbarButtons }
+      />
+    </Section>
+  );
 };
 
-const mapStateToProps = ({ groupReducer: { groups, isLoading }}, { match: { params: { uuid }}}) => {
+const mapStateToProps = ({ groupReducer: { groups }}, { match: { params: { uuid }}}) => {
   const activeGroup = groups.data.find((group) => group.uuid === uuid) || {};
   return {
     principals: (activeGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
     pagination: { ...defaultSettings, count: activeGroup.principals && activeGroup.principals.length },
-    isLoading
+    isLoading: !activeGroup.loaded
   };
 };
 

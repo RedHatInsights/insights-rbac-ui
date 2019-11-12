@@ -16,9 +16,6 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-
-const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
 const tabItems = [
@@ -91,16 +88,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             titleSingular="group"
             pagination={ pagination }
             filterValue={ filterValue }
-            setFilterValue={ (config, isDebounce) => {
-              setFilterValue(config.name);
-              if (isDebounce) {
-                debouncedFetch(() => fetchGroups(config));
-              } else {
-                fetchGroups(config);
-              }
-            } }
-            toolbarButtons = { toolbarButtons }
-            isLoading = { isLoading }
+            fetchData={ (config) => fetchGroups(config) }
+            setFilterValue={ ({ name }) => setFilterValue(name) }
+            toolbarButtons={ toolbarButtons }
+            isLoading={ isLoading }
           />
         </Section>
       </StackItem>

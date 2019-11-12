@@ -12,41 +12,34 @@ import PolicySetRoles from '../../add-group/policy-set-roles';
 import '../../../../App.scss';
 
 const EditPolicyRolesModal = ({
+  roles,
   history: { push },
   match: { params: { id }},
   addNotification,
+  policy,
   fetchPolicy,
   updatePolicy,
   postMethod,
   isFetching,
   closeUrl
 }) => {
-  const [ roles, setRoles ] = useState([]);
-  const [ policy, setPolicy ] = useState({});
   const [ selectedRoles, setSelectedRoles ] = useState([]);
 
-  const setPolicyData = (policyData) => {
-    setPolicy(policyData);
-    if (policyData && policyData.roles) {
-      setSelectedRoles(policyData.roles.map(role => ({ value: role.uuid, label: role.name, id: role.uuid })));
-    }
-  };
-
   const fetchData = () => {
-    fetchRoles().payload.then((data) => setRoles(data));
-    fetchPolicy(id).then((data) => { setPolicyData(data.value); });
+    fetchPolicy(id);
   };
 
   useEffect(() => {
     fetchData();
-  }, []);
+    setSelectedRoles(roles);
+  }, [ roles ]);
 
   const onSave = () => {
     if (policy) {
       const policy_data = {
         name: policy.name,
         group: policy.group.uuid,
-        roles: selectedRoles.map(role => role.value)
+        roles: selectedRoles.map(role => role.uuid)
       };
       return postMethod ? updatePolicy(policy.uuid, policy_data).then(() => postMethod()).then(() => push(closeUrl)) :
         updatePolicy(policy.uuid, policy_data).then(() => push(closeUrl));
@@ -127,6 +120,7 @@ EditPolicyRolesModal.propTypes = {
   updatePolicy: PropTypes.func.isRequired,
   id: PropTypes.string,
   editType: PropTypes.string,
+  policy: PropTypes.any,
   roles: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.oneOfType([ PropTypes.number, PropTypes.string ]).isRequired,
     label: PropTypes.string.isRequired
@@ -141,8 +135,13 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchPolicy
 }, dispatch);
 
-const mapStateToProps = ({ policyReducer: { isRecordLoading }}) => ({
-  isFetching: isRecordLoading
-});
+const mapStateToProps = ({ policyReducer: { isRecordLoading, policies: { data } } }, { match: { params: { id } } }) => {
+  const selectedPolicy = data.find(({ uuid }) => uuid === id) || {};
+  return ({
+    isFetching: isRecordLoading,
+    policy: selectedPolicy,
+    roles: selectedPolicy.roles
+  });
+};
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditPolicyRolesModal));

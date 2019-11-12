@@ -13,9 +13,6 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-
-const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -99,14 +96,8 @@ const Roles = ({
             createRows={ createRows }
             data={ roles }
             filterValue={ filterValue }
-            setFilterValue={ (config, isDebounce) => {
-              setFilterValue(config.name);
-              if (isDebounce) {
-                debouncedFetch(() => fetchRoles(config));
-              } else {
-                fetchRoles(config);
-              }
-            } }
+            fetchData={ (config) => fetchRoles(mappedProps(config)) }
+            setFilterValue={ ({ name }) => setFilterValue(name) }
             isLoading={ isLoading }
             pagination={ pagination }
             request={ fetchRoles }
@@ -137,7 +128,7 @@ const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
 const mapDispatchToProps = dispatch => {
   return {
     fetchRoles: (apiProps) => {
-      dispatch(fetchRolesWithPolicies(mappedProps(apiProps)));
+      dispatch(fetchRolesWithPolicies(apiProps));
     }
   };
 };

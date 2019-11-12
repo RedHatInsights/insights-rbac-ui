@@ -6,12 +6,25 @@ import { defaultSettings  } from '../../helpers/shared/pagination';
 import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
 import { ListLoader } from './loader-placeholders';
 import './table-toolbar-view.scss';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+
+const debouncedFetch = debouncePromise(callback => callback());
 
 const calculateChecked = (rows = [], selected) => {
-  console.log(rows, 'huh');
-  return (rows.length !== 0 && rows.every(({ uuid }) => selected.indexOf(uuid) !== -1)) || (
-    (rows.length !== 0 && rows.some(({ uuid }) => selected.indexOf(uuid) !== -1)) ? null : false
+  return (rows.length !== 0 && rows.every(({ uuid }) => selected.find(row => row.uuid === uuid))) || (
+    (rows.length !== 0 && rows.some(({ uuid }) => selected.find(row => row.uuid === uuid))) ? null : false
   );
+};
+
+const selectedRows = (newSelection, isSelected) => (selected) => {
+  if (!isSelected) {
+    return selected.filter((row) => !newSelection.find(({ uuid }) => uuid === row.uuid));
+  }
+
+  return [
+    ...selected,
+    ...newSelection
+  ].filter((row, key, arr) => arr.findIndex(({ uuid }) => row.uuid === uuid) === key);
 };
 
 export const TableToolbarView = ({
@@ -32,6 +45,7 @@ export const TableToolbarView = ({
   setFilterValue,
   checkedRows,
   isSelectable,
+  fetchData,
   setCheckedItems
 }) => {
   const [ opened, openRow ] = useState({});
@@ -52,20 +66,20 @@ export const TableToolbarView = ({
             items: [{
               title: 'Select none (0)',
               onClick: () => {
-                setCheckedItems(-1, false);
+                setCheckedItems(() => []);
               }
             },
             {
               ...!isLoading && data && data.length > 0 ? {
                 title: `Select page (${data.length})`,
                 onClick: () => {
-                  setCheckedItems(0, true);
+                  setCheckedItems(selectedRows(data, true));
                 }
               } : {}
             }],
             checked: calculateChecked(data, checkedRows),
             onSelect: (value) => {
-              !isLoading && setCheckedItems(0, value);
+              !isLoading && setCheckedItems(selectedRows(data, value));
             }
           }
         } }
@@ -83,7 +97,12 @@ export const TableToolbarView = ({
                   ...pagination,
                   offset: 0,
                   name: value
-                }, true);
+                });
+                debouncedFetch(() => fetchData({
+                  ...pagination,
+                  offset: 0,
+                  name: value
+                }));
               },
               isDisabled: isLoading
             }
@@ -98,11 +117,11 @@ export const TableToolbarView = ({
             perPage: pagination.limit,
             page: getCurrentPage(pagination.limit, pagination.offset),
             onSetPage: (_event, page) => {
-              setFilterValue({
+              fetchData({
                 ...pagination,
                 offset: (page - 1) * pagination.limit,
                 name: filterValue
-              }, false);
+              });
             },
             perPageOptions: [
               { title: '5', value: 5 },
@@ -111,12 +130,12 @@ export const TableToolbarView = ({
               { title: '50', value: 50 }
             ],
             onPerPageSelect: (_event, perPage) => {
-              setFilterValue({
+              fetchData({
                 ...pagination,
                 offset: 0,
                 limit: perPage,
                 name: filterValue
-              }, false);
+              });
             }
           }
         } }
@@ -131,6 +150,11 @@ export const TableToolbarView = ({
                 offset: 0,
                 name: ''
               }, false);
+              fetchData({
+                ...pagination,
+                offset: 0,
+                name: ''
+              });
             }
           }
         }
@@ -140,7 +164,6 @@ export const TableToolbarView = ({
   };
 
   return (
-
     <Fragment>
       { routes() }
       { renderToolbar() }
@@ -150,7 +173,9 @@ export const TableToolbarView = ({
         variant={ isCompact ? TableVariant.compact : null }
         borders={ borders }
         onCollapse={ onCollapse }
-        { ...isSelectable && { onSelect: setCheckedItems } }
+        { ...isSelectable && { onSelect: (_e, isSelected, _idx, { uuid, cells: [ name ] }) =>
+          setCheckedItems(selectedRows([{ uuid, name }], isSelected))
+        } }
         rows={ rows }
         cells={ columns }
         actionResolver={ actionResolver }

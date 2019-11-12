@@ -117,13 +117,18 @@ const AddGroupMembers = ({
           <ActionGroup>
             <Split gutter="md">
               <SplitItem>
-                <Button aria-label={ 'Save' }
+                <Button
+                  aria-label="Save"
                   variant="primary"
                   type="submit"
-                  onClick={ onSubmit }>Save</Button>
+                  onClick={ onSubmit }
+                >
+                  Save
+                </Button>
               </SplitItem>
               <SplitItem>
-                <Button  aria-label='Cancel'
+                <Button
+                  aria-label='Cancel'
                   variant='secondary'
                   type='button'
                   onClick={ onCancel }>Cancel</Button>

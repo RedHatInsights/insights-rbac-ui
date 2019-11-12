@@ -6,9 +6,6 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-
-const debouncedFetch = debouncePromise(callback => callback());
 
 const columns = [
   { title: 'Role name', orderBy: 'name' },
@@ -20,7 +17,7 @@ const createRows = (data, expanded, checkedRows = []) => {
     ...acc, {
       uuid,
       cells: [ name, description ],
-      selected: checkedRows && checkedRows.indexOf(uuid) !== -1
+      selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
     }
   ]), []) : [];
 };
@@ -29,28 +26,12 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
-    fetchRoles({ ...pagination, name: filterValue });
+    fetchRoles({});
   }, []);
 
-  const setCheckedItems = (event, isSelected, _rowId, { uuid, cells: [ label ] } = { cells: []}) => {
-    setSelectedRoles((selected) => {
-      let currRows = [{ uuid, label }];
-      if (typeof event === 'number') {
-        if (event === -1) {
-          return [];
-        }
-
-        currRows = roles.map(({ uuid, name }) => ({ uuid, label: name }));
-      }
-
-      if (!isSelected) {
-        return selected.filter((row) => !currRows.find(({ uuid }) => uuid === row.uuid));
-      } else {
-        return [
-          ...selected,
-          ...currRows
-        ].filter((row, key, arr) => arr.findIndex(({ uuid }) => row.uuid === uuid) === key);
-      }
+  const setCheckedItems = (newSelection) => {
+    setSelectedRoles((roles) => {
+      return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
     });
   };
 
@@ -62,18 +43,12 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
     createRows={ createRows }
     data={ roles }
     filterValue={ filterValue }
-    setFilterValue={ (config, isDebounce) => {
-      setFilterValue(config.name);
-      if (isDebounce) {
-        debouncedFetch(() => fetchRoles(config));
-      } else {
-        fetchRoles(config);
-      }
-    } }
+    fetchData={ (config) => fetchRoles(mappedProps(config)) }
+    setFilterValue={ ({ name }) => setFilterValue(name) }
     isLoading={ isLoading }
     pagination={ pagination }
     request={ fetchRoles }
-    checkedRows={ selectedRoles ? selectedRoles.map(item => item.uuid) : [] }
+    checkedRows={ selectedRoles }
     setCheckedItems={ setCheckedItems }
     titlePlural="roles"
     titleSingular="role"

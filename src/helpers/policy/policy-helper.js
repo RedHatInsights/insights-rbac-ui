@@ -4,16 +4,8 @@ import { getPolicyApi, getAxiosInstance } from '../shared/user-login';
 const policyApi = getPolicyApi();
 const axiosInstance = getAxiosInstance();
 
-export async function fetchGroupPolicies({ group_uuid, limit, offset }) {
-  let policiesData = await policyApi.listPolicies(limit, offset, undefined, undefined, group_uuid);
-  let policies = policiesData.data;
-  return await Promise.all(policies.map(async policy => {
-    let policyWithRoles = await policyApi.getPolicy(policy.uuid);
-    return { ...policy, roles: policyWithRoles.roles };
-  })).then(data => ({
-    ...policiesData,
-    data
-  }));
+export async function fetchGroupPolicies({ group_uuid, limit, offset, name, scope, groupName, orderBy }) {
+  return await policyApi.listPolicies(limit, offset, name, scope, groupName, group_uuid, orderBy);
 }
 
 export async function fetchPolicy(uuid) {
