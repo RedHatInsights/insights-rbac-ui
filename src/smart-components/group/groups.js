@@ -1,10 +1,10 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
-import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -23,12 +23,15 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ groups, setGroups ] = useState([]);
 
-  const fetchData = () => {
-    fetchGroups(pagination).then(({ value: { data }}) => setGroups(data));
+  useEffect(() => {
+    fetchGroups({ ...pagination, name: filterValue });
+  }, []);
+
+  const fetchData = (config) => {
+    fetchGroups(config);
   };
 
   const routes = () => <Fragment>
@@ -53,18 +56,16 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
         }
       ];
 
-  const toolbarButtons = () => <ToolbarGroup>
-    <ToolbarItem>
-      <Link to="/groups/add-group">
-        <Button
-          variant="primary"
-          aria-label="Create group"
-        >
-          Add group
-        </Button>
-      </Link>
-    </ToolbarItem>
-  </ToolbarGroup>;
+  const toolbarButtons = () => [
+    <Link to="/groups/add-group" key="add-group">
+      <Button
+        variant="primary"
+        aria-label="Create group"
+      >
+        Add group
+      </Button>
+    </Link>
+  ];
 
   const renderGroupsList = () =>
     <Stack>
@@ -80,7 +81,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
             data={ groups }
             createRows={ createRows }
             columns={ columns }
-            fetchData={ fetchData }
             request={ fetchGroups }
             routes={ routes }
             actionResolver={ actionResolver }
@@ -88,9 +88,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }}) => {
             titleSingular="group"
             pagination={ pagination }
             filterValue={ filterValue }
-            setFilterValue={ setFilterValue }
-            toolbarButtons = { toolbarButtons }
-            isLoading = { isLoading }
+            fetchData={ (config) => fetchGroups(config) }
+            setFilterValue={ ({ name }) => setFilterValue(name) }
+            toolbarButtons={ toolbarButtons }
+            isLoading={ isLoading }
           />
         </Section>
       </StackItem>

@@ -1,22 +1,18 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
-import { Button, Stack, StackItem, ToolbarGroup, ToolbarItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
-
 import AppTabs from '../app-tabs/app-tabs';
 import { createRows } from './role-table-helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
-import { Section, Skeleton } from '@redhat-cloud-services/frontend-components';
-import awesomeDebouncePromise from '../../utilities/async-debounce';
-import SuspendComponent from '../common/suspend-component';
-
-const debouncedFilter = awesomeDebouncePromise(callback => callback(), 1000);
+import { Section } from '@redhat-cloud-services/frontend-components';
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -30,7 +26,15 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination, userIdentity }) => {
+const Roles = ({
+  fetchRoles,
+  roles,
+  isLoading,
+  history: { push },
+  pagination,
+  userIdentity,
+  userEntitlements
+}) => {
   const [ filterValue, setFilterValue ] = useState('');
   useEffect(() => {
     fetchRoles({ ...pagination, name: filterValue });
@@ -60,26 +64,20 @@ const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination, us
     return _roleData.policies.title > 1;
   };
 
-  const toolbarButtons = () => <ToolbarGroup>
-    <ToolbarItem>
-      <SuspendComponent
-        fallback={ <Skeleton /> }
-        asyncFunction={ insights.chrome.auth.getUser }
-        callback={ ({ entitlements }, props) => (
-          entitlements.cost_management ?
-            <Link to="/roles/add-role" { ...props }>
-              <Button
-                variant="primary"
-                aria-label="Create role"
-              >
-                Add role
-              </Button>
-            </Link> :
-            <Fragment />
-        ) }
-      />
-    </ToolbarItem>
-  </ToolbarGroup>;
+  const toolbarButtons = () => [
+    <Fragment key="add-role">
+      { userEntitlements && userEntitlements.cost_management ?
+        <Link to="/roles/add-role" >
+          <Button
+            variant="primary"
+            aria-label="Create role"
+          >
+          Add role
+          </Button>
+        </Link> :
+        <Fragment /> }
+    </Fragment>
+  ];
 
   const renderRolesList = () =>
     <Stack>
@@ -98,10 +96,8 @@ const Roles = ({ fetchRoles, roles, isLoading, history: { push }, pagination, us
             createRows={ createRows }
             data={ roles }
             filterValue={ filterValue }
-            setFilterValue={ (value) => {
-              setFilterValue(value);
-              debouncedFilter(() => fetchRoles({ ...pagination, name: value }));
-            } }
+            fetchData={ (config) => fetchRoles(mappedProps(config)) }
+            setFilterValue={ ({ name }) => setFilterValue(name) }
             isLoading={ isLoading }
             pagination={ pagination }
             request={ fetchRoles }
@@ -125,17 +121,14 @@ const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
   userIdentity: roles.identity,
+  userEntitlements: roles.entitlements,
   isLoading
 });
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchRoles: apiProps => {
-      const mappedPros = Object.entries(apiProps).reduce((acc, [ key, value ]) => ({
-        ...acc,
-        ...value && { [key]: value }
-      }), {});
-      dispatch(fetchRolesWithPolicies(mappedPros));
+    fetchRoles: (apiProps) => {
+      dispatch(fetchRolesWithPolicies(apiProps));
     }
   };
 };
@@ -158,6 +151,9 @@ Roles.propTypes = {
     user: PropTypes.shape({
       [PropTypes.string]: PropTypes.oneOfType([ PropTypes.string, PropTypes.bool ])
     })
+  }),
+  userEntitlements: PropTypes.shape({
+    [PropTypes.string]: PropTypes.bool
   })
 };
 

@@ -1,25 +1,20 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import propTypes from 'prop-types';
-import debouncePromise from 'awesome-debounce-promise';
-import { Toolbar, ToolbarGroup, ToolbarItem, Level, LevelItem } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { Pagination } from '@redhat-cloud-services/frontend-components';
-import { scrollToTop, getCurrentPage, getNewPage } from '../../helpers/shared/helpers';
-import { defaultSettings  } from '../../helpers/shared/pagination';
-import FilterToolbar from '../../presentational-components/shared/filter-toolbar-item';
-import { TableToolbar } from '@redhat-cloud-services/frontend-components/components/TableToolbar';
+import { Button } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
+import { UsersIcon } from '@patternfly/react-icons';
+import { selectedRows } from '../../helpers/shared/helpers';
+import Toolbar from './toolbar';
+import EmptyWithAction from './empty-filter';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
-  request,
-  isSelectable,
   isCompact,
   createRows,
   borders,
   columns,
   toolbarButtons,
-  fetchData,
   data,
   actionResolver,
   areActionsDisabled,
@@ -27,162 +22,129 @@ export const TableToolbarView = ({
   titlePlural,
   titleSingular,
   pagination,
-  checkedRows,
-  setCheckedItems,
   filterValue,
   isLoading,
-  setFilterValue }) => {
-  const [ rows, setRows ] = useState([]);
+  setFilterValue,
+  checkedRows,
+  isSelectable,
+  fetchData,
+  setCheckedItems
+}) => {
+  const [ opened, openRow ] = useState({});
 
-  useEffect(() => {
-    fetchData(setRows, filterValue, pagination);
-  }, [ filterValue, pagination.limit, pagination.offset ]);
+  const rows = createRows(data, opened, checkedRows);
 
-  useEffect(() => {
-    setRows(createRows(data, checkedRows, filterValue));
-    if (isSelectable) {
-      setCheckedItems(rows.filter(item => (item.uuid && item.selected)));
+  const onCollapse = (_event, _index, isOpen, { uuid }) => openRow((opened) => ({
+    ...opened,
+    [uuid]: isOpen
+  }));
+
+  const renderEmpty = () => ({
+    title: (
+      <EmptyWithAction
+        title={ `No matching ${titlePlural} found` }
+        description={ [
+          `This filter criteria matches no ${titlePlural}.`,
+          `Try changing your filter settings.`
+        ] }
+        actions={ [
+          <Button
+            variant="link"
+            key="clear-filters"
+            onClick={ () => {
+              setFilterValue({
+                ...pagination,
+                offset: 0,
+                name: ''
+              });
+              fetchData({
+                ...pagination,
+                offset: 0,
+                name: ''
+              });
+            } }
+          >
+            Clear all filters
+          </Button>
+        ] }
+      />
+    ),
+    props: {
+      colSpan: columns.length + Boolean(onCollapse)
     }
-  }, [ data ]);
+  });
 
-  useEffect(() => {
-    scrollToTop();
-  }, []);
-
-  const handleOnPerPageSelect = limit => request({
-    offset: pagination.offset,
-    limit
-  }).then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
-
-  const handleSetPage = (number, debounce) => {
-    const options = {
-      offset: getNewPage(number, pagination.limit),
-      limit: pagination.limit
-    };
-    const requestFunc = () => request(options);
-    return debounce ? debouncePromise(request, 250)() : requestFunc()
-    .then(({ value: { data }}) => setRows(createRows(data, checkedRows, filterValue)));
-  };
-
-  const setOpen = (data, uuid) => data.map(row => row.uuid === uuid ?
-    {
-      ...row,
-      isOpen: !row.isOpen
-    } : {
-      ...row
-    });
-
-  const setSelected = (data, uuid) => {
-    const newData = data.map(row => row.uuid === uuid ?
-      {
-        ...row,
-        selected: !row.selected
-      } : {
-        ...row
-      });
-
-    const checkedItems = newData.filter(item => (item.uuid && item.selected));
-    setCheckedItems(checkedItems);
-    return newData;
-  };
-
-  const onCollapse = (_event, _index, _isOpen, { uuid }) => setRows((rows) => setOpen(rows, uuid));
-
-  const selectRow = (_event, selected, index, { uuid } = {}) => index === -1
-    ? setRows(rows.map(row => ({ ...row, selected })))
-    : setRows((rows) => setSelected(rows, uuid));
-
-  const renderToolbar = () => {
-    return (<TableToolbar className="rbac-table__toolbar">
-      <Level style={ { flex: 1 } }>
-        <LevelItem>
-          <Toolbar>
-            <FilterToolbar isCompact = { isCompact }
-              onFilterChange={ value => setFilterValue(value) }
-              searchValue={ filterValue }
-              placeholder={ `Find a ${titleSingular}` }/>
-            { toolbarButtons() }
-          </Toolbar>
-        </LevelItem>
-
-        <LevelItem>
-          <Toolbar>
-            <ToolbarGroup>
-              <ToolbarItem>
-                <Pagination
-                  itemsPerPage={ pagination.limit }
-                  numberOfItems={ pagination.count }
-                  onPerPageSelect={ handleOnPerPageSelect }
-                  page={ getCurrentPage(pagination.limit, pagination.offset) }
-                  onSetPage={ handleSetPage }
-                  direction="down"
-                />
-              </ToolbarItem>
-            </ToolbarGroup>
-          </Toolbar>
-        </LevelItem>
-      </Level>
-    </TableToolbar>);
-  };
+  const renderTable = () => (
+    <Fragment>
+      <Toolbar
+        isSelectable={ isSelectable }
+        checkedRows={ checkedRows }
+        setCheckedItems={ setCheckedItems }
+        isLoading={ isLoading }
+        data={ data }
+        titleSingular={ titleSingular }
+        filterValue={ filterValue }
+        setFilterValue={ setFilterValue }
+        pagination={ pagination }
+        fetchData={ fetchData }
+        toolbarButtons={ toolbarButtons }
+      />
+      { isLoading ? <ListLoader /> : <Table
+        canSelectAll={ false }
+        aria-label={ `${titlePlural} table` }
+        variant={ isCompact ? TableVariant.compact : null }
+        borders={ borders }
+        onCollapse={ onCollapse }
+        { ...isSelectable && rows.length > 0 && {
+          onSelect: (_e, isSelected, _idx, { uuid, cells: [ name ] }) =>
+            setCheckedItems(selectedRows([{ uuid, name }], isSelected))
+        } }
+        rows={ rows.length > 0 ? rows : [{ fullWidth: true, cells: [ renderEmpty() ]}] }
+        cells={ columns }
+        { ...rows.length > 0 && { actionResolver } }
+        areActionsDisabled={ areActionsDisabled }
+      >
+        <TableHeader />
+        <TableBody />
+      </Table> }
+    </Fragment>
+  );
 
   return (
-    isLoading ? <ListLoader/> :
-      <Fragment>
-        { routes() }
-        { renderToolbar() }
-        <Table
-          aria-label={ `${titlePlural} table` }
-          variant={ isCompact ? TableVariant.compact : null }
-          borders={ borders }
-          onCollapse={ onCollapse }
-          rows={ rows }
-          cells={ columns }
-          onSelect={ isSelectable && selectRow }
-          actionResolver={ actionResolver }
-          areActionsDisabled={ areActionsDisabled }
-        >
-          <TableHeader />
-          <TableBody />
-        </Table>
-      </Fragment>
+    <Fragment>
+      { routes() }
+      { !isLoading && rows.length === 0 && filterValue.length === 0 ?
+        <EmptyWithAction
+          title={ `Configure ${titlePlural}` }
+          icon={ UsersIcon }
+          description={ [
+            `To configure user access to applicastions`,
+            `create at least one ${titleSingular}`
+          ] }
+          actions={ toolbarButtons()[0] }
+        /> :
+        renderTable() }
+    </Fragment>
   );
 };
 
 TableToolbarView.propTypes = {
-  isSelectable: propTypes.bool,
+  ...Toolbar.propTypes,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
   createRows: propTypes.func.isRequired,
   request: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
-  toolbarButtons: propTypes.func,
-  fetchData: propTypes.func.isRequired,
-  data: propTypes.array,
-  pagination: propTypes.shape({
-    limit: propTypes.number,
-    offset: propTypes.number,
-    count: propTypes.number
-  }),
   titlePlural: propTypes.string,
-  titleSingular: propTypes.string,
   routes: propTypes.func,
   actionResolver: propTypes.func,
-  areActionsDisabled: propTypes.func,
-  setCheckedItems: propTypes.func,
-  filterValue: propTypes.string,
-  checkedRows: propTypes.array,
-  setFilterValue: propTypes.func,
-  isLoading: propTypes.bool
+  areActionsDisabled: propTypes.func
 };
 
 TableToolbarView.defaultProps = {
+  ...Toolbar.defaultProps,
   requests: [],
-  isLoading: false,
-  pagination: defaultSettings,
-  toolbarButtons: () => null,
-  isSelectable: false,
   isCompact: false,
   borders: true,
-  routes: () => null,
-  fetchData: () => undefined
+  routes: () => null
 };

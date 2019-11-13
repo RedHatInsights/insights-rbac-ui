@@ -3,15 +3,8 @@ import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
 
-export async function fetchGroups({ limit, offset }) {
-  let groupsData = await groupApi.listGroups(limit, offset);
-  return groupsData.data ? Promise.all(groupsData.data.map(async group => {
-    let groupWithUsers = await groupApi.getGroup(group.uuid);
-    return { ...group, members: groupWithUsers.principals };
-  })).then(data => ({
-    ...groupsData,
-    data
-  })) : groupsData;
+export async function fetchGroups({ limit, offset, name, orderBy }) {
+  return await groupApi.listGroups(limit, offset, name, orderBy);
 }
 
 export async function fetchGroup(uuid) {
