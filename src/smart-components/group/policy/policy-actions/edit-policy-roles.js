@@ -6,7 +6,6 @@ import { withRouter } from 'react-router-dom';
 import { ActionGroup, Button, FormGroup, Modal, Split, SplitItem, Stack, StackItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications';
 import { updatePolicy, fetchPolicy } from '../../../../redux/actions/policy-actions';
-import { fetchRoles } from '../../../../redux/actions/role-actions';
 import { PolicyRolesLoader } from '../../../../presentational-components/shared/loader-placeholders';
 import PolicySetRoles from '../../add-group/policy-set-roles';
 import '../../../../App.scss';
@@ -135,7 +134,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchPolicy
 }, dispatch);
 
-const mapStateToProps = ({ policyReducer: { isRecordLoading, policies: { data } } }, { match: { params: { id } } }) => {
+const mapStateToProps = ({ policyReducer: { isRecordLoading, policies: { data }}}, { match: { params: { id }}}) => {
   const selectedPolicy = data.find(({ uuid }) => uuid === id) || {};
   return ({
     isFetching: isRecordLoading,

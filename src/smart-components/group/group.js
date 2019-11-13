@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useReducer } from 'react';
+import React, { Fragment, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -10,14 +10,6 @@ import GroupPrincipals from './principal/principals';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 
-const initialState = {
-  isFetching: true
-};
-
-const groupUIReducer = (state, { type, payload }) => ({
-  setIsFetching: ({ ...state, isFetching: payload })
-})[type];
-
 const Group = (props) => {
   const breadcrumbsList = () => [
     { title: 'User Access Management', to: '/groups' },
@@ -27,12 +19,8 @@ const Group = (props) => {
   const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${props.match.params.uuid}/members` },
     { eventKey: 1, title: 'Policies', name: `/groups/detail/${props.match.params.uuid}/policies` }];
 
-  const [{ isFetching }, dispatch ] = useReducer(groupUIReducer, initialState);
-
   const fetchData = (apiProps) => {
-    dispatch({ type: 'setIsFetching', payload: true });
-    props.fetchGroup(apiProps).then(() => dispatch({ type: 'setIsFetching', payload: false }))
-    .catch(() => dispatch({ type: 'setIsFetching', payload: false }));
+    props.fetchGroup(apiProps);
   };
 
   useEffect(() => {

@@ -96,7 +96,7 @@ const GroupPrincipals = ({
         titleSingular="principal"
         pagination={ pagination }
         filterValue={ filterValue }
-        fetchData={ (config) => fetchGroup(uuid) }
+        fetchData={ () => fetchGroup(uuid) }
         setFilterValue={ ({ name }) => setFilterValue(name) }
         checkedRows={ selectedPrincipals }
         isLoading={ isLoading }
