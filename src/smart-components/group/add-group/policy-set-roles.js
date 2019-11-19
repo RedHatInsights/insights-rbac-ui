@@ -24,7 +24,7 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description })
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to policy' }</Text>
+              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to this group' }</Text>
             </TextContent>
           </StackItem>
           <StackItem>

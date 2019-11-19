@@ -49,11 +49,11 @@ const SetUsers = (setGroupData, selectedUsers, setSelectedUsers, optionIdx, setO
     <Fragment>
       <Stack gutter="md">
         <StackItem>
-          <Title size="xl">Select members for this group</Title>
+          <Title size="xl">Add members to the group</Title>
         </StackItem>
         <StackItem>
           <TextContent>
-            <Text component={ TextVariants.h6 }>Select Members for this group.</Text>
+            <Text component={ TextVariants.h6 }>Select users from your organization to add to this group.</Text>
           </TextContent>
           <CreatableSelect
             components={ components }

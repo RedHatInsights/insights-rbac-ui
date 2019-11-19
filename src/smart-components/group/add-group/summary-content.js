@@ -43,7 +43,7 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Description</Text>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Group description</Text>
                 </GridItem>
                 <GridItem span = { 10 }>
                   <Text className="data-table-detail content" component={ TextVariants.p }>{ description }</Text>
@@ -51,7 +51,7 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Members</Text>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Member(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
@@ -71,7 +71,7 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Roles</Text>
+                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Role(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
