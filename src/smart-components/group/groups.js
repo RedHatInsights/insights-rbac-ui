@@ -17,7 +17,7 @@ import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
+const columns = [{ title: 'Group', cellFormatters: [ expandable ]}, 'Roles', 'Members', 'Last modified' ];
 const tabItems = [
   { eventKey: 0, title: 'Groups', name: '/groups' },
   { eventKey: 1, title: 'Roles', name: '/roles' }
@@ -44,13 +44,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
     rowIndex % 2 === 1 ? null :
       [
         {
-          title: 'Edit',
+          title: 'Edit group',
           onClick: (_event, _rowId, group) => {
             push(`/groups/edit/${group.uuid}`);}
         },
         {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)'	},
+          title: 'Delete group',
           onClick: (_event, _rowId, group) =>
             push(`/groups/remove/${group.uuid}`)
         }
@@ -62,7 +61,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         variant="primary"
         aria-label="Create group"
       >
-        Add group
+        Create a group
       </Button>
     </Link>
   ];
