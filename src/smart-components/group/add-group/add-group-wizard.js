@@ -50,26 +50,17 @@ const AddGroupWizard = ({
   };
 
   const steps = [
-    { name: 'General Information',
+    { name: 'General information',
       component: new GroupInformation(formData, handleChange, setIsGroupInfoValid),
       enableNext: isGroupInfoValid
     },
-    { name: 'Set Users',
+    { name: 'Add members',
       component: new SetUsers(setGroupUsers, selectedUsers, setSelectedUsers,
         optionIdx, setOptionIdx, createOption, handleChange)
     },
     {
-      name: 'Create policy',
-      steps: [
-        { name: 'Name and description',
-          component: new PolicyInformation({ title: 'Create policy (optional)',
-            formData, onHandleChange: handleChange, setIsPolicyInfoValid }),
-          enableNext: isPolicyInfoValid
-        },
-        { name: 'Add roles',
-          component: new PolicySetRoles({ formData, selectedRoles, setSelectedRoles, roles })
-        }
-      ]
+      name: 'Assign roles',
+      component: new PolicySetRoles({ formData, selectedRoles, setSelectedRoles, roles })
     },
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
