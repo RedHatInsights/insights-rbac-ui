@@ -8,42 +8,30 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import CreatableSelect from 'react-select/creatable';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 const components = {
   DropdownIndicator: null
 };
 
+
+const columns = [
+  { title: 'Role name', orderBy: 'name' },
+  { title: 'Description' }
+];
+
+const createRows = (data, expanded, checkedRows = []) => {
+  return data ? data.reduce((acc, { uuid, name, description }) => ([
+    ...acc, {
+      uuid,
+      cells: [name, description],
+      selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
+    }
+  ]), []) : [];
+};
+
 const SetUsers = (setGroupData, selectedUsers, setSelectedUsers, optionIdx, setOptionIdx, createOption) => {
   const [ inputValue, setInputValue ] = useState('');
-
-  const handleInputChange = (val) => {
-    setInputValue(val);
-  };
-
-  const handleUsersChange = (value) => {
-    setSelectedUsers(value);
-  };
-
-  const handleKeyDown = (event) => {
-    if (!inputValue) {return;}
-
-    switch (event.key) {
-      case 'Enter':
-      case 'Tab':
-        if (selectedUsers) {
-          if (!selectedUsers.find(user => (user.label === inputValue))) {
-            setSelectedUsers([ ...selectedUsers, createOption(inputValue) ]);
-          }
-        }
-        else {
-          setSelectedUsers([ createOption(inputValue) ]);
-        }
-
-        setInputValue('');
-        event.preventDefault();
-    }
-  };
 
   return (
     <Fragment>
@@ -55,18 +43,23 @@ const SetUsers = (setGroupData, selectedUsers, setSelectedUsers, optionIdx, setO
           <TextContent>
             <Text component={ TextVariants.h6 }>Select users from your organization to add to this group.</Text>
           </TextContent>
-          <CreatableSelect
-            components={ components }
-            inputValue={ inputValue }
-            defaultValue={ selectedUsers }
-            isClearable
-            isMulti
-            menuIsOpen={ false }
-            onChange={ handleUsersChange }
-            onInputChange={ handleInputChange }
-            onKeyDown={ handleKeyDown }
-            placeholder="Type the exact user name and press enter..."
-            value={ selectedUsers }
+          <<TableToolbarView
+            columns={columns}
+            isSelectable={true}
+            isCompact={true}
+            borders={false}
+            createRows={createRows}
+            data={roles}
+            filterValue={filterValue}
+            fetchData={(config) => fetchRoles(mappedProps(config))}
+            setFilterValue={({ name }) => setFilterValue(name)}
+            isLoading={isLoading}
+            pagination={pagination}
+            request={fetchRoles}
+            checkedRows={selectedRoles}
+            setCheckedItems={setCheckedItems}
+            titlePlural="roles"
+            titleSingular="role"
           />
         </StackItem>
       </Stack>

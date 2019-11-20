@@ -7,3 +7,11 @@ export const fetchUser = () => ({
     resolve(UserHelper.fetchUser());
   })
 });
+
+export const fetchUsers = () => ({
+  type: ActionTypes.FETCH_USERS,
+  payload: new Promise(resolve => {
+    resolve(UserHelper.fetchUsers());
+  })
+});
+

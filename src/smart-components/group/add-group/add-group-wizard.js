@@ -8,9 +8,11 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import { createPolicy } from '../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
+import { fetchUsers } from '../../../redux/actions/user-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
-import SetUsers from './set-users';
+// import SetUsers from './set-users';
+import PolicySetUsers from './policy-set-users';
 import PolicyInformation from './policy-information';
 import PolicySetRoles from './policy-set-roles';
 
@@ -24,6 +26,7 @@ const AddGroupWizard = ({
 }) => {
   const [ selectedUsers, setSelectedUsers ] = useState([]);
   const [ roles, setRoles ] = useState([]);
+  const [ users, setUsers ] = useState([]);
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ optionIdx, setOptionIdx ] = useState(0);
   const [ formData, setValues ] = useState({});
@@ -55,8 +58,7 @@ const AddGroupWizard = ({
       enableNext: isGroupInfoValid
     },
     { name: 'Add members',
-      component: new SetUsers(setGroupUsers, selectedUsers, setSelectedUsers,
-        optionIdx, setOptionIdx, createOption, handleChange)
+      component: new PolicySetUsers({ formData, selectedUsers, setSelectedUsers, users })
     },
     {
       name: 'Assign roles',
@@ -71,6 +73,7 @@ const AddGroupWizard = ({
   const fetchData = () => {
     fetchGroup(id).payload.then((data) => setGroupUsers(data)).catch(() => setGroupUsers(undefined));
     fetchRoles().payload.then((data) => setRoles(data));
+    fetchUsers().payload.then((data) => setUsers(data));
   };
 
   useEffect(() => {
@@ -85,7 +88,8 @@ const AddGroupWizard = ({
         name: formData.policy.name,
         description: formData.policy.description,
         group: group.value.uuid,
-        roles: selectedRoles.map(role => role.value)
+        roles: selectedRoles.map(role => role.value),
+        users: selectedUsers.map(user => user.value)
       };
       return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).catch(() =>
         addNotification({
@@ -156,18 +160,21 @@ AddGroupWizard.propTypes = {
   closeUrl: PropTypes.string
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
-  roles: roles.data,
-  pagination: roles.meta,
-  isLoading,
-  searchFilter: filterValue
-});
+const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }, userReducer: { users }}) => (
+  {
+    roles: roles.data,
+    users: users.data,
+    pagination: roles.meta,
+    isLoading,
+    searchFilter: filterValue
+  });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   fetchGroup,
-  fetchRoles
+  fetchRoles,
+  fetchUsers
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
