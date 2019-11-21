@@ -10,8 +10,6 @@ export const fetchUser = () => ({
 
 export const fetchUsers = () => ({
   type: ActionTypes.FETCH_USERS,
-  payload: new Promise(resolve => {
-    resolve(UserHelper.fetchUsers());
-  })
+  payload: UserHelper.fetchUsers()
 });
 

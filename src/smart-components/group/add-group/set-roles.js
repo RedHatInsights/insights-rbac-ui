@@ -46,7 +46,6 @@ const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
 SetRoles.propTypes = {
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
-  roles: PropTypes.array,
   title: PropTypes.string,
   description: PropTypes.string
 };

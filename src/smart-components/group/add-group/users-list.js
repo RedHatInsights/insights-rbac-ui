@@ -15,7 +15,6 @@ const columns = [
 ];
 
 const createRows = (data, expanded, checkedRows = []) => {
-  console.log(data);
   return data ? data.reduce((acc, { username, email, first_name, last_name }) => ([
     ...acc, {
       uuid: username,
@@ -38,7 +37,6 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     });
   };
 
-  console.log('render', users);
   return <TableToolbarView
     columns={ columns }
     isSelectable={ true }
@@ -60,7 +58,6 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
 };
 
 const mapStateToProps = ({ userReducer: { users, isUserDataLoading }}) => {
-  console.log(users, isUserDataLoading);
   return {
     users: users.data,
     pagination: users.meta,

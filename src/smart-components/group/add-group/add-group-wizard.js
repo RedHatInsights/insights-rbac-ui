@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -15,37 +15,18 @@ import SetRoles from './set-roles';
 
 const AddGroupWizard = ({
   history: { push },
-  match: { params: { id }},
   addNotification,
   addGroup,
   postMethod,
   closeUrl
 }) => {
   const [ selectedUsers, setSelectedUsers ] = useState([]);
-  const [ roles, setRoles ] = useState([]);
-  const [ users, setUsers ] = useState([]);
   const [ selectedRoles, setSelectedRoles ] = useState([]);
-  const [ optionIdx, setOptionIdx ] = useState(0);
   const [ formData, setValues ] = useState({});
   const [ isGroupInfoValid, setIsGroupInfoValid ] = useState(false);
 
   const handleChange = data => {
     setValues({ ...formData,  ...data });
-  };
-
-  const createOption = (label) => {
-    let idx = optionIdx;
-    setOptionIdx(optionIdx + 1);
-    return {
-      label,
-      value: `${label}_${idx}`
-    };
-  };
-
-  const setGroupUsers = (groupData) => {
-    if (groupData && groupData.principals) {
-      setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
-    }
   };
 
   const steps = [
@@ -54,11 +35,11 @@ const AddGroupWizard = ({
       enableNext: isGroupInfoValid
     },
     { name: 'Add members',
-      component: new SetUsers({ formData, selectedUsers, setSelectedUsers, users })
+      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
     },
     {
       name: 'Assign roles',
-      component: new SetRoles({ formData, selectedRoles, setSelectedRoles, roles })
+      component: new SetRoles({ formData, selectedRoles, setSelectedRoles })
     },
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
@@ -66,23 +47,11 @@ const AddGroupWizard = ({
       enableNext: isGroupInfoValid
     }
   ];
-  const fetchData = () => {
-    fetchGroup(id).payload.then((data) => setGroupUsers(data)).catch(() => setGroupUsers(undefined));
-    fetchRoles().payload.then((data) => setRoles(data));
-    fetchUsers().payload.then((data) => setUsers(data));
-  };
-
-  useEffect(() => {
-    fetchData();
-  }, []);
 
   const  onSubmit =  async() => {
     const user_data = { ...formData, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined };
-    const group = await addGroup(user_data);
-    if (postMethod) {
-      postMethod();
-    }
-
+    await addGroup(user_data);
+    postMethod();
     push(closeUrl);
   };
 
@@ -113,7 +82,8 @@ AddGroupWizard.defaultProps = {
   inputValue: '',
   selectedUsers: [],
   selectedRoles: [],
-  closeUrl: '/groups'
+  closeUrl: '/groups',
+  postMethod: () => undefined
 };
 
 AddGroupWizard.propTypes = {
@@ -124,21 +94,19 @@ AddGroupWizard.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
-  users: PropTypes.array,
   selectedUsers: PropTypes.array,
   match: PropTypes.object,
   postMethod: PropTypes.func,
   closeUrl: PropTypes.string
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }, userReducer: { users }}) => (
-  {
-    roles: roles.data,
-    users: users.data,
-    pagination: roles.meta,
+const mapStateToProps = ({ roleReducer: { roles: { meta }, filterValue, isLoading }}) => {
+  return {
+    pagination: meta,
     isLoading,
     searchFilter: filterValue
-  });
+  };
+};
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,

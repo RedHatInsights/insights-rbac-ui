@@ -1,7 +1,7 @@
 import React from 'react';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { shallow } from 'enzyme';
 import toJson from 'enzyme-to-json';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
@@ -48,7 +48,7 @@ describe('<SetUsers />', () => {
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
-    const wrapper = mount(<Provider store={ store }>
+    const wrapper = shallow(<Provider store={ store }>
       <MemoryRouter initialEntries={ [ '/groups/', '/groups/add-group/', '/groups/' ] } initialIndex={ 1 }>
         <SetUsers { ...initialProps } />
       </MemoryRouter>

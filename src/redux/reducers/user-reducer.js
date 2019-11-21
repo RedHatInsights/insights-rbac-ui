@@ -7,10 +7,10 @@ export const usersInitialState = {
   users: []
 };
 
-const setLoadingState = state => {console.log('loading');return { ...state, isUserDataLoading: true };};
+const setLoadingState = state => ({ ...state, isUserDataLoading: true });
 
 const setUser = (state, { payload }) => ({ ...state, selectedUser: payload, isUserDataLoading: false });
-const setUsers = (state, { payload }) => {console.log('set users'); return { ...state, users: payload, isUserDataLoading: false }};
+const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoading: false });
 
 export default {
   [`${FETCH_USER}_PENDING`]: setLoadingState,

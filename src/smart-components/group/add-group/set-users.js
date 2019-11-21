@@ -19,12 +19,12 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
     <Fragment>
       <Form>
         <Stack gutter="md">
-          {title && <StackItem>
-            <Title size="xl">{title}</Title>
-          </StackItem>}
+          { title && <StackItem>
+            <Title size="xl">{ title }</Title>
+          </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={TextVariants.h6}>{description || 'Select users from your organization to add to this group.'}</Text>
+              <Text component={ TextVariants.h6 }>{ description || 'Select users from your organization to add to this group.' }</Text>
             </TextContent>
           </StackItem>
           <StackItem>
@@ -32,7 +32,7 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
               fieldId="select-user"
             >
               <Card>
-                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+                <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
               </Card>
             </FormGroup>
           </StackItem>
