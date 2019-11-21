@@ -14,8 +14,8 @@ import {
 import {  } from '@patternfly/react-core';
 
 const SummaryContent = (formData) => {
-  const { name, description, policy } =
-      formData.values ? formData.values : { name: '', description: '', policy: { name: '' }};
+  const { name, description } =
+      formData.values ? formData.values : { name: '', description: '' };
   const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
   const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
   return (
@@ -59,14 +59,6 @@ const SummaryContent = (formData) => {
                     component={ TextVariants.h5 }>
                     { `${selectedUsers.map((user, index) => `${index !== 0 ? ' ' : ''}${user.label}`)}` }
                   </Text>
-                </GridItem>
-              </Grid>
-              <Grid gutter="md">
-                <GridItem span={ 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Policy name</Text>
-                </GridItem>
-                <GridItem span={ 10 }>
-                  <Text className="data-table-detail content" component={ TextVariants.p }>{ policy ? policy.name : '' }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">

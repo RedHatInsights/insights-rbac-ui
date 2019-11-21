@@ -6,14 +6,11 @@ import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
-import { createPolicy } from '../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
-// import SetUsers from './set-users';
 import PolicySetUsers from './policy-set-users';
-import PolicyInformation from './policy-information';
 import PolicySetRoles from './policy-set-roles';
 
 const AddGroupWizard = ({
@@ -31,7 +28,6 @@ const AddGroupWizard = ({
   const [ optionIdx, setOptionIdx ] = useState(0);
   const [ formData, setValues ] = useState({});
   const [ isGroupInfoValid, setIsGroupInfoValid ] = useState(false);
-  const [ isPolicyInfoValid, setIsPolicyInfoValid ] = useState(true);
 
   const handleChange = data => {
     setValues({ ...formData,  ...data });
@@ -67,7 +63,7 @@ const AddGroupWizard = ({
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
       nextButtonText: 'Confirm',
-      enableNext: isGroupInfoValid && isPolicyInfoValid
+      enableNext: isGroupInfoValid
     }
   ];
   const fetchData = () => {
@@ -83,36 +79,11 @@ const AddGroupWizard = ({
   const  onSubmit =  async() => {
     const user_data = { ...formData, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined };
     const group = await addGroup(user_data);
-    if (formData.policy && selectedRoles && selectedRoles.length > 0) {
-      const policy_data = {
-        name: formData.policy.name,
-        description: formData.policy.description,
-        group: group.value.uuid,
-        roles: selectedRoles.map(role => role.value),
-        users: selectedUsers.map(user => user.value)
-      };
-      return postMethod ? createPolicy(policy_data).payload.then(() => postMethod()).catch(() =>
-        addNotification({
-          variant: 'danger',
-          title: `Add group`,
-          dismissable: true,
-          description: `Error creating policy`
-        })).then(() => push(closeUrl)) :
-        createPolicy(policy_data).payload.catch(() =>
-          addNotification({
-            variant: 'danger',
-            title: `Add group`,
-            dismissable: true,
-            description: `Error creating policy`
-          })).then(() => push(closeUrl));
+    if (postMethod) {
+      postMethod();
     }
-    else {
-      if (postMethod) {
-        postMethod();
-      }
 
-      push(closeUrl);
-    }
+    push(closeUrl);
   };
 
   const onCancel = () => {
