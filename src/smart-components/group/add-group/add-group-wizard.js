@@ -10,8 +10,8 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
-import PolicySetUsers from './policy-set-users';
-import PolicySetRoles from './policy-set-roles';
+import SetUsers from './set-users';
+import SetRoles from './set-roles';
 
 const AddGroupWizard = ({
   history: { push },
@@ -54,11 +54,11 @@ const AddGroupWizard = ({
       enableNext: isGroupInfoValid
     },
     { name: 'Add members',
-      component: new PolicySetUsers({ formData, selectedUsers, setSelectedUsers, users })
+      component: new SetUsers({ formData, selectedUsers, setSelectedUsers, users })
     },
     {
       name: 'Assign roles',
-      component: new PolicySetRoles({ formData, selectedRoles, setSelectedRoles, roles })
+      component: new SetRoles({ formData, selectedRoles, setSelectedRoles, roles })
     },
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),

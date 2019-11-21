@@ -11,10 +11,10 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import UsersList from './users-list';
+import RolesList from './roles-list';
 import '../../../App.scss';
 
-const PolicySetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
+const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
   return (
     <Fragment>
       <Form>
@@ -24,15 +24,16 @@ const PolicySetUsers = ({ selectedUsers, setSelectedUsers, title, description })
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select users from your organization to add to this group.' }</Text>
+              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to this group' }</Text>
             </TextContent>
           </StackItem>
           <StackItem>
             <FormGroup
-              fieldId="select-user"
+              label="Select roles"
+              fieldId="select-role"
             >
               <Card>
-                <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+                <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
               </Card>
             </FormGroup>
           </StackItem>
@@ -42,12 +43,13 @@ const PolicySetUsers = ({ selectedUsers, setSelectedUsers, title, description })
   );
 };
 
-PolicySetUsers.propTypes = {
-  selectedUsers: PropTypes.array,
-  setSelectedUsers: PropTypes.func,
+SetRoles.propTypes = {
+  selectedRoles: PropTypes.array,
+  setSelectedRoles: PropTypes.func,
+  roles: PropTypes.array,
   title: PropTypes.string,
   description: PropTypes.string
 };
 
-export default PolicySetUsers;
+export default SetRoles;
 

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<PolicySetRoles /> should render correctly 1`] = `
+exports[`<SetRoles /> should render correctly 1`] = `
 <GroupWrapper
   store={
     Object {

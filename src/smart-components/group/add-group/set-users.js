@@ -1,6 +1,9 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import {
+  Card,
+  Form,
+  FormGroup,
   Stack,
   StackItem,
   Text,
@@ -8,68 +11,43 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import UsersList from './users-list';
+import '../../../App.scss';
 
-const components = {
-  DropdownIndicator: null
-};
-
-
-const columns = [
-  { title: 'Role name', orderBy: 'name' },
-  { title: 'Description' }
-];
-
-const createRows = (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { uuid, name, description }) => ([
-    ...acc, {
-      uuid,
-      cells: [name, description],
-      selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
-    }
-  ]), []) : [];
-};
-
-const SetUsers = (setGroupData, selectedUsers, setSelectedUsers, optionIdx, setOptionIdx, createOption) => {
-  const [ inputValue, setInputValue ] = useState('');
-
+const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
   return (
     <Fragment>
-      <Stack gutter="md">
-        <StackItem>
-          <Title size="xl">Add members to the group</Title>
-        </StackItem>
-        <StackItem>
-          <TextContent>
-            <Text component={ TextVariants.h6 }>Select users from your organization to add to this group.</Text>
-          </TextContent>
-          <<TableToolbarView
-            columns={columns}
-            isSelectable={true}
-            isCompact={true}
-            borders={false}
-            createRows={createRows}
-            data={roles}
-            filterValue={filterValue}
-            fetchData={(config) => fetchRoles(mappedProps(config))}
-            setFilterValue={({ name }) => setFilterValue(name)}
-            isLoading={isLoading}
-            pagination={pagination}
-            request={fetchRoles}
-            checkedRows={selectedRoles}
-            setCheckedItems={setCheckedItems}
-            titlePlural="roles"
-            titleSingular="role"
-          />
-        </StackItem>
-      </Stack>
+      <Form>
+        <Stack gutter="md">
+          {title && <StackItem>
+            <Title size="xl">{title}</Title>
+          </StackItem>}
+          <StackItem>
+            <TextContent>
+              <Text component={TextVariants.h6}>{description || 'Select users from your organization to add to this group.'}</Text>
+            </TextContent>
+          </StackItem>
+          <StackItem>
+            <FormGroup
+              fieldId="select-user"
+            >
+              <Card>
+                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+              </Card>
+            </FormGroup>
+          </StackItem>
+        </Stack>
+      </Form>
     </Fragment>
   );
 };
 
 SetUsers.propTypes = {
-  name: PropTypes.string,
+  selectedUsers: PropTypes.array,
+  setSelectedUsers: PropTypes.func,
+  title: PropTypes.string,
   description: PropTypes.string
 };
 
 export default SetUsers;
+
