@@ -44,6 +44,11 @@ describe('<AddGroupWizard />', () => {
           uuid: '123',
           name: 'SampleGroup'
         }]}
+      },
+      userReducer: {
+        selectedUser: {},
+        isUserDataLoading: false,
+        users: []
       }
     };
     mockStore = configureStore(middlewares);

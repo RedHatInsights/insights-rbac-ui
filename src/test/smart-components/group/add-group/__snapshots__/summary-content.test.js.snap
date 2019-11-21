@@ -139,7 +139,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                               className="data-table-detail heading"
                               data-pf-content={true}
                             >
-                              Description
+                              Group description
                             </h5>
                           </Text>
                         </div>
@@ -183,7 +183,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                               className="data-table-detail heading"
                               data-pf-content={true}
                             >
-                              Members
+                              Member(s)
                             </h5>
                           </Text>
                         </div>
@@ -227,51 +227,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                               className="data-table-detail heading"
                               data-pf-content={true}
                             >
-                              Policy name
-                            </h5>
-                          </Text>
-                        </div>
-                      </GridItem>
-                      <GridItem
-                        span={10}
-                      >
-                        <div
-                          className="pf-l-grid__item pf-m-10-col"
-                        >
-                          <Text
-                            className="data-table-detail content"
-                            component="p"
-                          >
-                            <p
-                              className="data-table-detail content"
-                              data-pf-content={true}
-                            />
-                          </Text>
-                        </div>
-                      </GridItem>
-                    </div>
-                  </Grid>
-                  <Grid
-                    gutter="md"
-                  >
-                    <div
-                      className="pf-l-grid pf-m-gutter"
-                    >
-                      <GridItem
-                        span={2}
-                      >
-                        <div
-                          className="pf-l-grid__item pf-m-2-col"
-                        >
-                          <Text
-                            className="data-table-detail heading"
-                            component="h5"
-                          >
-                            <h5
-                              className="data-table-detail heading"
-                              data-pf-content={true}
-                            >
-                              Roles
+                              Role(s)
                             </h5>
                           </Text>
                         </div>
