@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
-import { Button, Stack, StackItem } from '@patternfly/react-core';
+import { Button, Stack, StackItem, KebabToggle } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -23,7 +23,7 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, selectedRows, setSelectedRows }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
@@ -32,6 +32,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
 
   const fetchData = (config) => {
     fetchGroups(config);
+  };
+
+  const setCheckedItems = (newSelection) => {
+    setSelectedRows((rows) => {
+      return newSelection(rows).map(({ uuid, name }) => ({ uuid, label: name }));
+    });
   };
 
   const routes = () => <Fragment>
@@ -44,13 +50,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
     rowIndex % 2 === 1 ? null :
       [
         {
-          title: 'Edit',
+          title: 'Edit group',
           onClick: (_event, _rowId, group) => {
             push(`/groups/edit/${group.uuid}`);}
         },
         {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)'	},
+          title: 'Delete group',
           onClick: (_event, _rowId, group) =>
             push(`/groups/remove/${group.uuid}`)
         }
@@ -62,9 +67,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         variant="primary"
         aria-label="Create group"
       >
-        Add group
+        Create a group
       </Button>
-    </Link>
+    </Link>,
+    <KebabToggle></KebabToggle>
   ];
 
   const renderGroupsList = () =>
@@ -81,6 +87,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             data={ groups }
             createRows={ createRows }
             columns={ columns }
+            isSelectable={ true }
+            checkedRows={ selectedRows }
+            setCheckedItems={ setCheckedItems }
             request={ fetchGroups }
             routes={ routes }
             actionResolver={ actionResolver }
@@ -96,6 +105,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         </Section>
       </StackItem>
     </Stack>;
+    console.log(createRows.checkedRows);
   return (
     <Switch>
       <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
@@ -104,11 +114,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
   );
 };
 
-const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) => ({
+const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading, selectedRows }}) => ({
   groups: groups.data,
   pagination: groups.meta,
   isLoading,
-  searchFilter: filterValue
+  searchFilter: filterValue,
+  selectedRows
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
@@ -125,6 +136,8 @@ Groups.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
+  selectedRows: PropTypes.array,
+  setSelectedRows: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,

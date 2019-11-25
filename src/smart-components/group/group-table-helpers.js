@@ -5,6 +5,7 @@ import ExpandableDescription from './expandable-description';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 
 export const createRows = (data, opened) => (
+  console.log("Checked Rows: ", data),
   data.reduce((acc, { uuid, name, description, principalCount, modified }, key) => ([
     ...acc,
     {

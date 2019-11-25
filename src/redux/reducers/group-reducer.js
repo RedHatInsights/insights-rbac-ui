@@ -16,7 +16,8 @@ export const groupsInitialState = {
   },
   selectedGroup: {},
   isLoading: false,
-  isRecordLoading: false
+  isRecordLoading: false,
+  selectedRows: []
 };
 
 const setLoadingState = state => ({ ...state, isLoading: true });
