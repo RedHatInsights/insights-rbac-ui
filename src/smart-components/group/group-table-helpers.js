@@ -4,8 +4,7 @@ import { Button } from '@patternfly/react-core';
 import ExpandableDescription from './expandable-description';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 
-export const createRows = (data, opened) => (
-  console.log("Checked Rows: ", data),
+export const createRows = (data, opened, selectedRows = []) => (
   data.reduce((acc, { uuid, name, description, principalCount, modified }, key) => ([
     ...acc,
     {
@@ -22,7 +21,8 @@ export const createRows = (data, opened) => (
         <Fragment key={ `${uuid}-modified` }>
           <DateFormat date={ modified } type="relative" />
         </Fragment>
-      ]
+      ],
+      selected: Boolean(selectedRows && selectedRows.find(row => row.uuid === uuid))
     }, {
       parent: key * 2,
       fullWidth: true,

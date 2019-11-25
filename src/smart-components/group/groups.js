@@ -23,8 +23,9 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, selectedRows, setSelectedRows }) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ selectedRows, setSelectedRows ] = useState([]);
 
   useEffect(() => {
     fetchGroups({ ...pagination, name: filterValue });
@@ -105,7 +106,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
         </Section>
       </StackItem>
     </Stack>;
-    console.log(createRows.checkedRows);
+    console.log("selected rows: ", selectedRows)
   return (
     <Switch>
       <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
@@ -114,12 +115,11 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   );
 };
 
-const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading, selectedRows }}) => ({
+const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) => ({
   groups: groups.data,
   pagination: groups.meta,
   isLoading,
-  searchFilter: filterValue,
-  selectedRows
+  searchFilter: filterValue
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
