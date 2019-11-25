@@ -118,7 +118,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         </Section>
       </StackItem>
     </Stack>;
-    console.log("selected rows: ", selectedRows)
   return (
     <Switch>
       <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
