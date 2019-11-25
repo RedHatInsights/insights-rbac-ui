@@ -77,6 +77,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                     name="group-name"
                     onChange={[Function]}
                     type="text"
+                    validated="default"
                   >
                     <input
                       aria-describedby="group-name"
@@ -121,6 +122,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                     onChange={[Function]}
                     resizeOrientation="both"
                     type="text"
+                    validated="default"
                   >
                     <textarea
                       aria-invalid={false}
