@@ -105,6 +105,7 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                     onBlur={[Function]}
                     onChange={[Function]}
                     type="text"
+                    validated="default"
                     value="Test policy name"
                   >
                     <input
@@ -158,6 +159,7 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                     onChange={[Function]}
                     resizeOrientation="both"
                     type="text"
+                    validated="default"
                     value="Test policy description"
                   >
                     <textarea

@@ -58,6 +58,7 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
           onBlur={[Function]}
           onChange={[MockFunction]}
           onFocus={[Function]}
+          validated="default"
           value=""
         >
           <select
@@ -169,6 +170,7 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
           onBlur={[Function]}
           onChange={[MockFunction]}
           onFocus={[Function]}
+          validated="default"
           value=""
         >
           <select
@@ -298,6 +300,7 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
           onBlur={[Function]}
           onChange={[MockFunction]}
           onFocus={[Function]}
+          validated="default"
           value=""
         >
           <select
