@@ -4,7 +4,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
-import { Button, Stack, StackItem, KebabToggle } from '@patternfly/react-core';
+import { Button, Stack, StackItem, ToolbarItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -71,7 +71,20 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         Create a group
       </Button>
     </Link>,
-    <KebabToggle></KebabToggle>
+    <ToolbarItem
+      variant="plain"
+      aria-label="Edit group"
+      isDisabled={ selectedRows.length == 1 ? false : true }
+      onClick={ () => push(`groups/edit/${selectedRows[0].uuid}`) }
+    >
+      Edit group
+    </ToolbarItem>,
+    <ToolbarItem
+      aria-label="Delete groups"
+      isDisabled={ selectedRows.length > 0 ? false: true }
+    >
+      Delete group(s)
+    </ToolbarItem>
   ];
 
   const renderGroupsList = () =>
