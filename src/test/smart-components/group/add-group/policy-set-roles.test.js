@@ -10,7 +10,7 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import AddGroupWizard from '../../../../smart-components/group/add-group/add-group-wizard';
 
-describe('<PolicySetRoles />', () => {
+describe('<SetRoles />', () => {
   let initialProps;
   let initialState;
   const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];

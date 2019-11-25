@@ -27,7 +27,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
             <h1
               className="pf-c-title pf-m-xl"
             >
-               Enter group information 
+               Enter group details 
             </h1>
           </Title>
         </div>
@@ -96,7 +96,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
               </FormGroup>
               <FormGroup
                 fieldId="group-description"
-                label="Description"
+                label="Group description"
               >
                 <div
                   className="pf-c-form__group"
@@ -108,7 +108,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                     <span
                       className="pf-c-form__label-text"
                     >
-                      Description
+                      Group description
                     </span>
                   </label>
                   <TextArea

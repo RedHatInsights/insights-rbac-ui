@@ -14,7 +14,7 @@ import {
 import RolesList from './roles-list';
 import '../../../App.scss';
 
-const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
+const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
   return (
     <Fragment>
       <Form>
@@ -24,7 +24,7 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description })
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to policy' }</Text>
+              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to this group' }</Text>
             </TextContent>
           </StackItem>
           <StackItem>
@@ -43,13 +43,12 @@ const PolicySetRoles = ({ selectedRoles, setSelectedRoles, title, description })
   );
 };
 
-PolicySetRoles.propTypes = {
+SetRoles.propTypes = {
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
-  roles: PropTypes.array,
   title: PropTypes.string,
   description: PropTypes.string
 };
 
-export default PolicySetRoles;
+export default SetRoles;
 

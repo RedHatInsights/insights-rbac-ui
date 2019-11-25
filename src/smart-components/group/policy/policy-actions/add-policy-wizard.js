@@ -9,7 +9,7 @@ import { createPolicy } from '../../../../redux/actions/policy-actions';
 import { fetchRoles } from '../../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import PolicyInformation from '../../add-group/policy-information';
-import PolicySetRoles from '../../add-group/policy-set-roles';
+import SetRoles from '../../add-group/set-roles';
 
 const AddGroupPolicyWizard = ({
   history: { push },
@@ -34,7 +34,7 @@ const AddGroupPolicyWizard = ({
         { title: 'Create policy', formData, onHandleChange: handleChange, setIsPolicyInfoValid }),
       enableNext: isPolicyInfoValid },
     { name: 'Add roles',
-      component: new PolicySetRoles({ formValue: formData,
+      component: new SetRoles({ formValue: formData,
         selectedRoles, setSelectedRoles, roles, title: 'Add roles to policy' }) },
     { name: 'Review', component: new SummaryContent({ values: formData, selectedRoles }),
       enableNext: isPolicyInfoValid,

@@ -15,7 +15,7 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
     <Fragment>
       <Stack gutter="md">
         <StackItem>
-          <Title size="xl"> Enter group information </Title>
+          <Title size="xl"> Enter group details </Title>
         </StackItem>
         <StackItem>
           <Form>
@@ -35,7 +35,7 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
                   onHandleChange({ name: event.currentTarget.value });} }
               />
             </FormGroup>
-            <FormGroup label="Description" fieldId="group-description">
+            <FormGroup label="Group description" fieldId="group-description">
               <TextArea
                 type="text"
                 id="group-description"

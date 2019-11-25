@@ -7,7 +7,7 @@ import { ActionGroup, Button, FormGroup, Modal, Split, SplitItem, Stack, StackIt
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications';
 import { updatePolicy, fetchPolicy } from '../../../../redux/actions/policy-actions';
 import { PolicyRolesLoader } from '../../../../presentational-components/shared/loader-placeholders';
-import PolicySetRoles from '../../add-group/policy-set-roles';
+import SetRoles from '../../add-group/set-roles';
 import '../../../../App.scss';
 
 const EditPolicyRolesModal = ({
@@ -69,7 +69,7 @@ const EditPolicyRolesModal = ({
           <FormGroup>
             { isFetching && <PolicyRolesLoader/> }
             { !isFetching &&
-                  <PolicySetRoles formValue={ policy }
+                  <SetRoles formValue={ policy }
                     selectedRoles = { selectedRoles }
                     setSelectedRoles = { setSelectedRoles }
                     roles={ roles }
