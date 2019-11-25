@@ -71,19 +71,19 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         Create a group
       </Button>
     </Link>,
-    <DropdownItem
-      aria-label="Edit group"
-      isDisabled={ selectedRows.length == 1 ? false : true }
-      onClick={ () => push(`groups/edit/${selectedRows[0].uuid}`) }
-    >
-      Edit group
-    </DropdownItem>,
-    <DropdownItem
-      aria-label="Delete groups"
-      isDisabled={ selectedRows.length > 0 ? false: true }
-    >
-      Delete group(s)
-    </DropdownItem>
+    {
+      label: 'Edit group',
+      props: {
+        isDisabled: selectedRows.length == 1 ? false : true,
+        onClick: () => push(`groups/edit/${selectedRows[0].uuid}`)
+      }
+    },
+    {
+      label: 'Delete Group(s)',
+      props: {
+        isDisabled: !selectedRows.length > 0
+      }
+    }
   ];
 
   const renderGroupsList = () =>
