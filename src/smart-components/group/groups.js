@@ -25,6 +25,7 @@ const tabItems = [
 
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ selectedRows, setSelectedRows ] = useState([]);
 
   useEffect(() => {
     fetchGroups({ ...pagination, name: filterValue });
@@ -32,6 +33,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
 
   const fetchData = (config) => {
     fetchGroups(config);
+  };
+
+  const setCheckedItems = (newSelection) => {
+    setSelectedRows((rows) => newSelection(rows).map(({ uuid, name }) => ({ uuid, label: name })));
   };
 
   const routes = () => <Fragment>
@@ -44,13 +49,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
     rowIndex % 2 === 1 ? null :
       [
         {
-          title: 'Edit',
+          title: 'Edit group',
           onClick: (_event, _rowId, group) => {
             push(`/groups/edit/${group.uuid}`);}
         },
         {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)'	},
+          title: 'Delete group',
           onClick: (_event, _rowId, group) =>
             push(`/groups/remove/${group.uuid}`)
         }
@@ -62,9 +66,22 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
         variant="primary"
         aria-label="Create group"
       >
-        Add group
+        Create a group
       </Button>
-    </Link>
+    </Link>,
+    {
+      label: 'Edit group',
+      props: {
+        isDisabled: !(selectedRows.length === 1)
+      },
+      onClick: () => push(`/groups/edit/${selectedRows[0].uuid}`)
+    },
+    {
+      label: 'Delete Group(s)',
+      props: {
+        isDisabled: !selectedRows.length > 0
+      }
+    }
   ];
 
   const renderGroupsList = () =>
@@ -81,6 +98,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             data={ groups }
             createRows={ createRows }
             columns={ columns }
+            isSelectable
+            checkedRows={ selectedRows }
+            setCheckedItems={ setCheckedItems }
             request={ fetchGroups }
             routes={ routes }
             actionResolver={ actionResolver }
