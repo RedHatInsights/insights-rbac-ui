@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes, { arrayOf } from 'prop-types';
+import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
