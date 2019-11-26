@@ -145,14 +145,6 @@ Groups.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
-  selectedRows: arrayOf(
-    PropTypes.shape({
-      uuid: PropTypes.string.isRequired,
-      label: PropTypes.shape({
-        key: PropTypes.string.isRequired
-      }).isRequired
-    })),
-  setSelectedRows: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
