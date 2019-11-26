@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import PropTypes from 'prop-types';
+import PropTypes, { arrayOf } from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
@@ -36,9 +36,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
   };
 
   const setCheckedItems = (newSelection) => {
-    setSelectedRows((rows) => {
-      return newSelection(rows).map(({ uuid, name }) => ({ uuid, label: name }));
-    });
+    setSelectedRows((rows) => newSelection(rows).map(({ uuid, name }) => ({ uuid, label: name })));
   };
 
   const routes = () => <Fragment>
@@ -74,9 +72,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
     {
       label: 'Edit group',
       props: {
-        isDisabled: selectedRows.length === 1 ? false : true
+        isDisabled: !(selectedRows.length === 1)
       },
-      onClick: () => push(`groups/edit/${selectedRows[0].uuid}`)
+      onClick: () => push(`/groups/edit/${selectedRows[0].uuid}`)
     },
     {
       label: 'Delete Group(s)',
@@ -100,7 +98,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
             data={ groups }
             createRows={ createRows }
             columns={ columns }
-            isSelectable={ true }
+            isSelectable
             checkedRows={ selectedRows }
             setCheckedItems={ setCheckedItems }
             request={ fetchGroups }
@@ -147,8 +145,14 @@ Groups.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchGroups: PropTypes.func.isRequired,
-  selectedRows: PropTypes.array,
-  setSelectedRows: PropTypes.func.isRequired,
+  selectedRows: arrayOf(
+                  PropTypes.shape({
+                    uuid: PropTypes.string.isRequired,
+                    label: PropTypes.shape({
+                      key: PropTypes.string.isRequired
+                    }).isRequired
+                })),
+  setSelectedRows: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
