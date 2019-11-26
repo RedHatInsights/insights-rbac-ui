@@ -23,7 +23,7 @@ const tabItems = [
   { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups }) => {
+const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
 
@@ -127,6 +127,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups 
 const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) => ({
   groups: groups.data,
   pagination: groups.meta,
+  userIdentity: groups.identity,
   isLoading,
   searchFilter: filterValue
 });
@@ -136,6 +137,11 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 }, dispatch);
 
 Groups.propTypes = {
+  userIdentity: PropTypes.shape({
+    user: PropTypes.shape({
+      is_org_admin: PropTypes.bool
+    })
+  }),
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
@@ -154,6 +160,7 @@ Groups.propTypes = {
 
 Groups.defaultProps = {
   groups: [],
+  userIdentity: {},
   pagination: defaultSettings
 };
 

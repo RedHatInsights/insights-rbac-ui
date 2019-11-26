@@ -3,7 +3,10 @@ import { getGroupApi } from '../shared/user-login';
 const groupApi = getGroupApi();
 
 export async function fetchGroups({ limit, offset, name, orderBy }) {
-  return await groupApi.listGroups(limit, offset, name, orderBy);
+  return {
+    ...await groupApi.listGroups(limit, offset, name, orderBy),
+    ...await insights.chrome.auth.getUser()
+  };
 }
 
 export async function fetchGroup(uuid) {
