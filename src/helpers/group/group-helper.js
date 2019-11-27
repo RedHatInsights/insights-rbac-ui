@@ -1,5 +1,6 @@
 
 import { getGroupApi } from '../shared/user-login';
+import { GroupApi } from '@redhat-cloud-services/rbac-client';
 
 const groupApi = getGroupApi();
 
@@ -46,3 +47,17 @@ export async function deletePrincipalsFromGroup(groupId, users) {
 export async function addPrincipalsToGroup(groupId, users) {
   return await groupApi.addPrincipalToGroup(groupId, { principals: users });
 }
+
+export async function fetchRolesForGroup(groupId) {
+
+  return await groupApi.listRolesForGroup(groupId);
+}
+
+export async function deleteRolesFromGroup(groupId, roles) {
+  return await groupApi.deleteRoleFromGroup(groupId, roles.join(','));
+}
+
+export async function addRolesToGroup(groupId, roles) {
+  return await groupApi.addRoleToGroup(groupId, { roles });
+}
+

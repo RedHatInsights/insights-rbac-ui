@@ -7,6 +7,9 @@ import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPolicies from './policy/policies';
 import GroupPrincipals from './principal/principals';
+// import Roles from '../role/roles';
+// import RolesList from './add-group/roles-list';
+import GroupRoles from './role/group-roles';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -17,7 +20,7 @@ const Group = (props) => {
   ];
 
   const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${props.match.params.uuid}/members` },
-    { eventKey: 1, title: 'Policies', name: `/groups/detail/${props.match.params.uuid}/policies` }];
+    { eventKey: 1, title: 'Roles', name: `/groups/detail/${props.match.params.uuid}/roles` }];
 
   const fetchData = (apiProps) => {
     props.fetchGroup(apiProps);
@@ -35,7 +38,7 @@ const Group = (props) => {
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
       <Switch>
-        <Route path={ `/groups/detail/:uuid/policies` } component={ GroupPolicies } />
+        <Route path={ `/groups/detail/:uuid/roles` } component={ GroupRoles } />
         <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
         <Route render={ () => <Redirect to={ `/groups/detail/${props.match.params.uuid}/members` } /> } />
       </Switch>
