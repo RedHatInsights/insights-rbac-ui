@@ -1,14 +1,14 @@
 import React from 'react';
 import thunk from 'redux-thunk';
 import { shallow } from 'enzyme';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import { shallowToJson } from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
-import GroupPolicies from '../../../../smart-components/group/policy/policies';
+import GroupRoles from '../../../../smart-components/group/role/group-roles';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
-import { policiesInitialState } from '../../../../redux/reducers/policy-reducer';
+import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
 
-describe('<GroupPolicies />', () => {
+describe('<GroupPrincipals />', () => {
 
   let initialProps;
   const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
@@ -18,18 +18,18 @@ describe('<GroupPolicies />', () => {
   beforeEach(() => {
     initialProps = {};
     mockStore = configureStore(middlewares);
-    initialState = { policyReducer: { ...policiesInitialState, isLoading: false }};
+    initialState = { roleReducer: { ...rolesInitialState, isLoading: false }};
   });
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(<GroupPolicies store={ store } { ...initialProps } />);
+    const wrapper = shallow(<GroupRoles store={ store } { ...initialProps } />);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('should render correctly in loading state', () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(<GroupPolicies store={ store } { ...initialProps } isLoading />);
+    const wrapper = shallow(<GroupRoles store={ store } { ...initialProps } isLoading />);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 });
