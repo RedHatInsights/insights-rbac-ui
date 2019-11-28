@@ -104,6 +104,9 @@ AddGroupRoles.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired
   }).isRequired,
+  match: PropTypes.shape({
+    params: PropTypes.object.isRequired
+  }).isRequired,
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   addRolesToGroup: PropTypes.func,

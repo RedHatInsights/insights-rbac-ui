@@ -37,8 +37,8 @@ const GroupRoles = ({
   roles,
   fetchRoles,
   removeRoles,
-  addRoles,
-  fetchRolesForGroup,
+  // addRoles,
+  // fetchRolesForGroup,
   isLoading,
   pagination,
   match: { params: { uuid }}

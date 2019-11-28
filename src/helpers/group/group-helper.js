@@ -1,6 +1,4 @@
-
 import { getGroupApi } from '../shared/user-login';
-import { GroupApi } from '@redhat-cloud-services/rbac-client';
 
 const groupApi = getGroupApi();
 
@@ -49,7 +47,6 @@ export async function addPrincipalsToGroup(groupId, users) {
 }
 
 export async function fetchRolesForGroup(groupId) {
-
   return await groupApi.listRolesForGroup(groupId);
 }
 
