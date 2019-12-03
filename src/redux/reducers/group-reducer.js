@@ -31,7 +31,7 @@ const setGroup = (state, { payload }) => ({
       ...payload.uuid === group.uuid && { ...payload, loaded: true }
     }))
   },
-  selectedGroup: { ...payload }
+  selectedGroup: { ...payload, loaded: true }
 });
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 
