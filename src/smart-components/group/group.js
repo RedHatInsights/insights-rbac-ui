@@ -13,7 +13,7 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 const Group = (props) => {
   const breadcrumbsList = () => [
     { title: 'User Access Management', to: '/groups' },
-    { title: 'Group', isActive: true }
+    { title: props.group.name, isActive: true }
   ];
 
   const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${props.match.params.uuid}/members` },
