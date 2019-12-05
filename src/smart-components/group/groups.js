@@ -46,7 +46,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   </Fragment>;
 
   const actionResolver = (_groupData, { rowIndex }) =>
-    rowIndex % 2 === 1 ? null :
+    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -61,27 +61,30 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
       ];
 
   const toolbarButtons = () => [
-    <Link to="/groups/add-group" key="add-group">
-      <Button
-        variant="primary"
-        aria-label="Create group"
-      >
+    ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
+      [
+        <Link to="/groups/add-group" key="add-group">
+          <Button
+            variant="primary"
+            aria-label="Create group"
+          >
         Create a group
-      </Button>
-    </Link>,
-    {
-      label: 'Edit group',
-      props: {
-        isDisabled: !(selectedRows.length === 1)
-      },
-      onClick: () => push(`/groups/edit/${selectedRows[0].uuid}`)
-    },
-    {
-      label: 'Delete Group(s)',
-      props: {
-        isDisabled: !selectedRows.length > 0
-      }
-    }
+          </Button>
+        </Link>,
+        {
+          label: 'Edit group',
+          props: {
+            isDisabled: !(selectedRows.length === 1)
+          },
+          onClick: () => push(`/groups/edit/${selectedRows[0].uuid}`)
+        },
+        {
+          label: 'Delete Group(s)',
+          props: {
+            isDisabled: !selectedRows.length > 0
+          }
+        }
+      ] : []
   ];
 
   const renderGroupsList = () =>
@@ -98,7 +101,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             data={ groups }
             createRows={ createRows }
             columns={ columns }
-            isSelectable
+            isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
             checkedRows={ selectedRows }
             setCheckedItems={ setCheckedItems }
             request={ fetchGroups }

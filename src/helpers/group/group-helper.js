@@ -3,9 +3,13 @@ import { getGroupApi } from '../shared/user-login';
 const groupApi = getGroupApi();
 
 export async function fetchGroups({ limit, offset, name, orderBy }) {
+  const [ groups, auth ] = await Promise.all([
+    groupApi.listGroups(limit, offset, name, orderBy),
+    insights.chrome.auth.getUser()
+  ]);
   return {
-    ...await groupApi.listGroups(limit, offset, name, orderBy),
-    ...await insights.chrome.auth.getUser()
+    ...groups,
+    ...auth
   };
 }
 

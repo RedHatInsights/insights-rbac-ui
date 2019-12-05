@@ -48,6 +48,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
       "unsubscribe": [Function],
     }
   }
+  userIdentity={Object {}}
 />
 `;
 
@@ -99,5 +100,6 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
       "unsubscribe": [Function],
     }
   }
+  userIdentity={Object {}}
 />
 `;
