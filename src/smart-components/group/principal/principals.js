@@ -107,12 +107,11 @@ const GroupPrincipals = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { groups }}, { match: { params: { uuid }}}) => {
-  const activeGroup = groups.data.find((group) => group.uuid === uuid) || {};
+const mapStateToProps = ({ groupReducer: { selectedGroup }}) => {
   return {
-    principals: (activeGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
-    pagination: { ...defaultSettings, count: activeGroup.principals && activeGroup.principals.length },
-    isLoading: !activeGroup.loaded
+    principals: (selectedGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
+    pagination: { ...defaultSettings, count: selectedGroup.principals && selectedGroup.principals.length },
+    isLoading: !selectedGroup.loaded
   };
 };
 

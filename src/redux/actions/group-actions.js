@@ -104,3 +104,46 @@ export const removeMembersFromGroup = (groupId, members) => ({
     }
   }
 });
+
+export const fetchRolesForGroup = (groupId) => ({
+  type: ActionTypes.FETCH_ROLES_FOR_GROUP,
+  payload: GroupHelper.fetchRolesForGroup(groupId)
+});
+
+export const addRolesToGroup = (groupId, roles) => ({
+  type: ActionTypes.ADD_ROLES_TO_GROUP,
+  payload: GroupHelper.addRolesToGroup(groupId, roles),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success adding roles to group',
+        description: 'The roles were successfully added to the group.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed adding roles to group',
+        description: 'The roles were not added successfully.'
+      }
+    }
+  }
+});
+
+export const removeRolesFromGroup = (groupId, roles) => ({
+  type: ActionTypes.REMOVE_ROLES_FROM_GROUP,
+  payload: GroupHelper.deleteRolesFromGroup(groupId, roles),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success removing roles from group',
+        description: 'The roles were successfully removed from the group.'
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed removing roles to group',
+        description: 'The roles were not removed successfully.'
+      }
+    }
+  }
+});
