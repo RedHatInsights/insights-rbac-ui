@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Level, LevelItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
+
 import RbacBreadcrumbs from './breadcrubms';
 
 import './top-toolbar.scss';
@@ -37,9 +38,9 @@ export const TopToolbarTitle = ({ title, description, children }) => (
           { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
         </TextContent>
         { description &&
-              <TextContent className="pf-u-pt-sm pf-u-mb-md">
-                <Text component={ TextVariants.p }>{ description }</Text>
-              </TextContent> }
+          <TextContent className="pf-u-pt-sm pf-u-mb-md">
+            <Text component={ TextVariants.p }>{ description }</Text>
+          </TextContent> }
       </LevelItem>
       { children }
     </Level>
