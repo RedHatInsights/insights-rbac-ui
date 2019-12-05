@@ -1,19 +1,22 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPolicies /> should render correctly 1`] = `
-<GroupPolicies
+exports[`<GroupPrincipals /> should render correctly 1`] = `
+<GroupRoles
   addNotification={[Function]}
-  fetchGroupPolicies={[Function]}
+  addRoles={[Function]}
+  fetchRoles={[Function]}
+  fetchRolesForGroup={[Function]}
   isLoading={false}
   pagination={
     Object {
       "count": 0,
-      "limit": 10,
+      "limit": 5,
       "offset": 0,
     }
   }
-  policies={Array []}
-  removePolicy={[Function]}
+  removeRoles={[Function]}
+  roles={Array []}
+  selectedRoles={Array []}
   store={
     Object {
       "clearActions": [Function],
@@ -48,20 +51,23 @@ exports[`<GroupPolicies /> should render correctly 1`] = `
 />
 `;
 
-exports[`<GroupPolicies /> should render correctly in loading state 1`] = `
-<GroupPolicies
+exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
+<GroupRoles
   addNotification={[Function]}
-  fetchGroupPolicies={[Function]}
+  addRoles={[Function]}
+  fetchRoles={[Function]}
+  fetchRolesForGroup={[Function]}
   isLoading={false}
   pagination={
     Object {
       "count": 0,
-      "limit": 10,
+      "limit": 5,
       "offset": 0,
     }
   }
-  policies={Array []}
-  removePolicy={[Function]}
+  removeRoles={[Function]}
+  roles={Array []}
+  selectedRoles={Array []}
   store={
     Object {
       "clearActions": [Function],

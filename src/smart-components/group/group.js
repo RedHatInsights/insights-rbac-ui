@@ -5,41 +5,46 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import GroupPolicies from './policy/policies';
 import GroupPrincipals from './principal/principals';
+import GroupRoles from './role/group-roles';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 
-const Group = (props) => {
+const Group = ({
+  match: { params: { uuid }},
+  group,
+  fetchGroup,
+  isFetching
+}) => {
   const breadcrumbsList = () => [
     { title: 'User Access Management', to: '/groups' },
-    { title: 'Group', isActive: true }
+    { title: group.name, isActive: true }
   ];
 
-  const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${props.match.params.uuid}/members` },
-    { eventKey: 1, title: 'Policies', name: `/groups/detail/${props.match.params.uuid}/policies` }];
+  const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${uuid}/members` },
+    { eventKey: 1, title: 'Roles', name: `/groups/detail/${uuid}/roles` }];
 
   const fetchData = (apiProps) => {
-    props.fetchGroup(apiProps);
+    fetchGroup(apiProps);
   };
 
   useEffect(() => {
-    fetchData(props.match.params.uuid);
+    fetchData(uuid);
   }, []);
 
   return (
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
-        <TopToolbarTitle title= { !props.isFetching && props.group ? props.group.name : undefined }
-          description={ !props.isFetching && props.group ? props.group.description : undefined }/>
+        <TopToolbarTitle title= { !isFetching && group ? group.name : undefined }
+          description={ !isFetching && group ? group.description : undefined }/>
         <AppTabs tabItems={ tabItems } />
       </TopToolbar>
       <Switch>
-        <Route path={ `/groups/detail/:uuid/policies` } component={ GroupPolicies } />
+        <Route path={ `/groups/detail/:uuid/roles` } component={ GroupRoles } />
         <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
-        <Route render={ () => <Redirect to={ `/groups/detail/${props.match.params.uuid}/members` } /> } />
+        <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/members` } /> } />
       </Switch>
-      { !props.group && <ListLoader/> }
+      { !group && <ListLoader/> }
     </Fragment>
   );
 };

@@ -61,18 +61,38 @@ export const AppPlaceholder = props => (
   </div>
 );
 
-export const ToolbarTitlePlaceholder = props => (
-  <ContentLoader
-    height={ 21 }
-    width={ 200 }
-    speed={ 2 }
-    primaryColor="#f3f3f3"
-    secondaryColor="#ecebeb"
-    { ...props }
-  >
-    <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
-  </ContentLoader>
-);
+export const ToolbarTitlePlaceholder = props => {
+  return (
+    <div style={ { width: '200px', height: '21px' } }>
+      <ContentLoader
+        height={ 21 }
+        width={ 200 }
+        speed={ 2 }
+        primaryColor="#f3f3f3"
+        secondaryColor="#ecebeb"
+        { ...props }
+      >
+        <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
+      </ContentLoader>
+    </div>
+  );};
+
+export const BreadcrumbPlaceholder = props => {
+  return (
+    <div style={ { width: '200px', height: '18px' } }>
+      <ContentLoader
+        height={ 18 }
+        width={ 200 }
+        speed={ 2 }
+        primaryColor="#f3f3f3"
+        secondaryColor="#ecebeb"
+        { ...props }
+      >
+        <rect x="0" y="0" rx="0" ry="0" width="200" height="18" />
+      </ContentLoader>
+    </div>
+  );
+};
 
 export const FormItemLoader = () => (
   <ContentLoader
