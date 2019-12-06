@@ -10,6 +10,7 @@ import {
   FormGroup
 } from '@patternfly/react-core';
 import ContentLoader from 'react-content-loader';
+import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components';
 
 export const ListLoader = ({ items, ...props }) => (
   <Fragment>
@@ -19,15 +20,7 @@ export const ListLoader = ({ items, ...props }) => (
           <DataListItemRow aria-label="datalist-item-placeholder-row">
             <DataListItemCells dataListCells={ [
               <DataListCell key="1">
-                <ContentLoader
-                  height={ 12 }
-                  width={ 300 }
-                  speed={ 2 }
-                  primaryColor="#FFFFFF"
-                  secondaryColor="#ecebeb"
-                  { ...props }>
-                  <rect x="0" y="0" rx="0" ry="0" width="300" height="12" />
-                </ContentLoader>
+                <Skeleton size={ SkeletonSize.lg } { ...props } />
               </DataListCell>
             ] }
             />
