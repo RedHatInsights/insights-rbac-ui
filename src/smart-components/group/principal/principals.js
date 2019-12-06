@@ -21,7 +21,8 @@ const GroupPrincipals = ({
   removeMembersFromGroup,
   pagination,
   principals,
-  isLoading
+  isLoading,
+  userIdentity
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
@@ -39,7 +40,7 @@ const GroupPrincipals = ({
   };
 
   const actionResolver = (_principalData, { rowIndex }) =>
-    rowIndex % 2 === 1 ? null :
+    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Delete',
@@ -61,32 +62,35 @@ const GroupPrincipals = ({
   </Fragment>;
 
   const toolbarButtons = () => [
-    <Link
-      to={ `/groups/detail/${uuid}/members/add_members` }
-      key="remove-from-group"
-    >
-      <Button
-        variant="primary"
-        aria-label="Add member"
-      >
+    ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
+      [
+        <Link
+          to={ `/groups/detail/${uuid}/members/add_members` }
+          key="remove-from-group"
+        >
+          <Button
+            variant="primary"
+            aria-label="Add member"
+          >
         Add member
-      </Button>
-    </Link>,
-    {
-      label: 'Remove selected',
-      props: {
-        isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
-        variant: 'danger',
-        onClick: () => removeMembers(selectedPrincipals)
-      }
-    }
+          </Button>
+        </Link>,
+        {
+          label: 'Remove selected',
+          props: {
+            isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
+            variant: 'danger',
+            onClick: () => removeMembers(selectedPrincipals)
+          }
+        }
+      ] : []
   ];
 
   return (
     <Section type="content" id={ 'tab-principals' }>
       <TableToolbarView
         data={ principals }
-        isSelectable={ true }
+        isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
         createRows={ createRows }
         columns={ columns }
         request={ fetchGroup }
@@ -107,11 +111,12 @@ const GroupPrincipals = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup }}) => {
+const mapStateToProps = ({ groupReducer: { groups, selectedGroup }}) => {
   return {
     principals: (selectedGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
     pagination: { ...defaultSettings, count: selectedGroup.principals && selectedGroup.principals.length },
-    isLoading: !selectedGroup.loaded
+    isLoading: !selectedGroup.loaded,
+    userIdentity: groups.identity
   };
 };
 
@@ -133,12 +138,18 @@ GroupPrincipals.propTypes = {
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
     count: PropTypes.number
+  }),
+  userIdentity: PropTypes.shape({
+    user: PropTypes.shape({
+      is_org_admin: PropTypes.bool
+    })
   })
 };
 
 GroupPrincipals.defaultProps = {
   principals: [],
-  pagination: defaultSettings
+  pagination: defaultSettings,
+  userIdentity: {}
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);

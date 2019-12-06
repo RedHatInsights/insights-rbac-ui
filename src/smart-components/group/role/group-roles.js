@@ -41,7 +41,8 @@ const GroupRoles = ({
   // fetchRolesForGroup,
   isLoading,
   pagination,
-  match: { params: { uuid }}
+  match: { params: { uuid }},
+  userIdentity
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
@@ -60,12 +61,15 @@ const GroupRoles = ({
 
   const actionResolver = () => (
     [
-      {
-        title: 'Remove from group',
-        onClick: (_event, _rowId, role) => {
-          removeRoles(uuid, [ role.uuid ]);
-        }
-      }
+      ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
+        [
+          {
+            title: 'Remove from group',
+            onClick: (_event, _rowId, role) => {
+              removeRoles(uuid, [ role.uuid ]);
+            }
+          }
+        ] : []
     ]);
 
   const routes = () => <Fragment>
@@ -82,32 +86,35 @@ const GroupRoles = ({
   </Fragment>;
 
   const toolbarButtons = () => [
-    <Link
-      to={ `/groups/detail/${uuid}/roles/add_roles` }
-      key="add-to-group"
-    >
-      <Button
-        variant="primary"
-        aria-label="Add a role"
-      >
+    ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
+      [
+        <Link
+          to={ `/groups/detail/${uuid}/roles/add_roles` }
+          key="add-to-group"
+        >
+          <Button
+            variant="primary"
+            aria-label="Add a role"
+          >
         Add a role
-      </Button>
-    </Link>,
-    {
-      label: 'Remove from group',
-      props: {
-        isDisabled: !selectedRoles || !selectedRoles.length > 0,
-        variant: 'danger',
-        onClick: () => removeRoles(selectedRoles)
-      }
-    }
+          </Button>
+        </Link>,
+        {
+          label: 'Remove from group',
+          props: {
+            isDisabled: !selectedRoles || !selectedRoles.length > 0,
+            variant: 'danger',
+            onClick: () => removeRoles(selectedRoles)
+          }
+        }
+      ] : []
   ];
 
   return (
     <Section type="content" id={ 'tab-roles' }>
       <TableToolbarView
         columns={ columns }
-        isSelectable={ true }
+        isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
         createRows={ createRows }
         data={ roles }
         filterValue={ filterValue }
@@ -129,11 +136,12 @@ const GroupRoles = ({
   );
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => {
+const mapStateToProps = ({ roleReducer: { roles, isLoading }, groupReducer: { groups }}) => {
   return {
     roles: roles.data,
     pagination: roles.meta,
-    isLoading
+    isLoading,
+    userIdentity: groups.identity
   };};
 
 const mapDispatchToProps = dispatch => {
@@ -168,13 +176,19 @@ GroupRoles.propTypes = {
   }),
   match: PropTypes.shape({
     params: PropTypes.object.isRequired
-  }).isRequired
+  }).isRequired,
+  userIdentity: PropTypes.shape({
+    user: PropTypes.shape({
+      is_org_admin: PropTypes.bool
+    })
+  })
 };
 
 GroupRoles.defaultProps = {
   roles: [],
   pagination: defaultCompactSettings,
-  selectedRoles: []
+  selectedRoles: [],
+  userIdentity: {}
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupRoles);

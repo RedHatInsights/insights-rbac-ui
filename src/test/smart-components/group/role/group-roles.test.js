@@ -7,6 +7,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import GroupRoles from '../../../../smart-components/group/role/group-roles';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
 import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
+import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 
 describe('<GroupPrincipals />', () => {
 
@@ -18,7 +19,10 @@ describe('<GroupPrincipals />', () => {
   beforeEach(() => {
     initialProps = {};
     mockStore = configureStore(middlewares);
-    initialState = { roleReducer: { ...rolesInitialState, isLoading: false }};
+    initialState = {
+      roleReducer: { ...rolesInitialState, isLoading: false },
+      groupReducer: { ...groupsInitialState, isLoading: false }
+    };
   });
 
   it('should render correctly', () => {
