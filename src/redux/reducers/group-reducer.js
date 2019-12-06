@@ -20,7 +20,7 @@ export const groupsInitialState = {
 };
 
 const setLoadingState = state => ({ ...state, isLoading: true });
-const setRecordLoadingState = state => ({ ...state, isRecordLoading: true });
+const setRecordLoadingState = state => ({ ...state, isRecordLoading: true, selectedGroup: { loaded: false }});
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
 const setGroup = (state, { payload }) => ({
   ...state,

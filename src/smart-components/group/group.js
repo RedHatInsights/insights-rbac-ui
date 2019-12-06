@@ -21,8 +21,10 @@ const Group = ({
     { title: group.name, isActive: true }
   ];
 
-  const tabItems = [{ eventKey: 0, title: 'Members', name: `/groups/detail/${uuid}/members` },
-    { eventKey: 1, title: 'Roles', name: `/groups/detail/${uuid}/roles` }];
+  const tabItems = [
+    { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
+    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` }
+  ];
 
   const fetchData = (apiProps) => {
     fetchGroup(apiProps);
