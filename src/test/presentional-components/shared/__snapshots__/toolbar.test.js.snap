@@ -1,0 +1,764 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<Toolbar> checkedRows is loading - false 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": true,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {
+          "onClick": [Function],
+          "title": "Select page (1)",
+        },
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": false,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {},
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> checkedRows is loading - true 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": true,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {},
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": true,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": false,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {},
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": true,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> isSelectable is loading - false 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": false,
+      "count": undefined,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {},
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> isSelectable is loading - true 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": false,
+      "count": undefined,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {},
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": true,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render buttons 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [
+        <button>
+          Something
+        </button>,
+        Object {
+          "title": "fff",
+        },
+      ],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render correctly - NO DATA 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render pagination 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": Array [],
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": 10,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 10,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render with filterValue 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
+      "onDelete": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": "some",
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render with full data is loading - false 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [
+        <button>
+          Something
+        </button>,
+        Object {
+          "title": "fff",
+        },
+      ],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
+      "onDelete": [Function],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": true,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {
+          "onClick": [Function],
+          "title": "Select page (1)",
+        },
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": "some",
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": 10,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 10,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> should render with full data is loading - true 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [
+        <button>
+          Something
+        </button>,
+        Object {
+          "title": "fff",
+        },
+      ],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
+      "onDelete": [Function],
+    }
+  }
+  bulkSelect={
+    Object {
+      "checked": true,
+      "count": 1,
+      "items": Array [
+        Object {
+          "onClick": [Function],
+          "title": "Select none (0)",
+        },
+        Object {
+          "onClick": [Function],
+          "title": "Select page (1)",
+        },
+      ],
+      "onSelect": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by ",
+            "value": "some",
+          },
+          "label": "",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": 10,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 10,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
