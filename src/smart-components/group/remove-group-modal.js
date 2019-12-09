@@ -26,7 +26,7 @@ const RemoveGroupModal = ({
       removeGroup(id).then(() => push(closeUrl));
 
   const onCancel = () => goBack();
-  console.log(group);
+
   return (
     <Modal
       isOpen
