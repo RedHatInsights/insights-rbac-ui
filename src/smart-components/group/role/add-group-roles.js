@@ -41,11 +41,9 @@ const AddGroupRoles = ({
   };
 
   const onSubmit = () => {
-    const rolesList = selectedRoles;
-    return addRolesToGroup(uuid, rolesList).then(() => {
-      fetchRolesForGroup(uuid);
-      push(closeUrl);
-    });
+    const rolesList = selectedRoles.map(role => role.uuid);
+    addRolesToGroup(uuid, rolesList, () => fetchRolesForGroup(uuid));
+    return push(closeUrl);
   };
 
   return (
@@ -77,7 +75,7 @@ const AddGroupRoles = ({
                     <Button
                       aria-label="Save"
                       variant="primary"
-                      type="submit"
+                      type="button"
                       onClick={ onSubmit }
                     >
                       Save
