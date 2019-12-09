@@ -26,7 +26,7 @@ const RemoveGroupModal = ({
       removeGroup(id).then(() => push(closeUrl));
 
   const onCancel = () => goBack();
-
+  console.log(group);
   return (
     <Modal
       isOpen
@@ -89,7 +89,7 @@ RemoveGroupModal.propTypes = {
 
 const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) => ({
   group: selectedGroup,
-  isLoading: isRecordLoading
+  isLoading: false
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
