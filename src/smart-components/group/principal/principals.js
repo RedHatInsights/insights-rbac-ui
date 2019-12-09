@@ -9,7 +9,7 @@ import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
 import { removeMembersFromGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import { Button } from '@patternfly/react-core';
+import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
 
@@ -22,7 +22,8 @@ const GroupPrincipals = ({
   pagination,
   principals,
   isLoading,
-  userIdentity
+  userIdentity,
+  group
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
@@ -88,25 +89,38 @@ const GroupPrincipals = ({
 
   return (
     <Section type="content" id={ 'tab-principals' }>
-      <TableToolbarView
-        data={ principals }
-        isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
-        createRows={ createRows }
-        columns={ columns }
-        request={ fetchGroup }
-        routes={ routes }
-        actionResolver={ actionResolver }
-        titlePlural="principals"
-        titleSingular="principal"
-        pagination={ pagination }
-        filterValue={ filterValue }
-        fetchData={ () => fetchGroup(uuid) }
-        setFilterValue={ ({ name }) => setFilterValue(name) }
-        checkedRows={ selectedPrincipals }
-        isLoading={ isLoading }
-        setCheckedItems={ setCheckedPrincipals }
-        toolbarButtons={ toolbarButtons }
-      />
+      {
+        group.platform_default ?
+          <Card>
+            <CardBody>
+              <Bullseye>
+                <TextContent>
+                  <Text component={ TextVariants.h1 }>
+                    All users in this organization are members of this group.
+                  </Text>
+                </TextContent>
+              </Bullseye>
+            </CardBody>
+          </Card> :
+          <TableToolbarView
+            data={ principals }
+            isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
+            createRows={ createRows }
+            columns={ columns }
+            request={ fetchGroup }
+            routes={ routes }
+            actionResolver={ actionResolver }
+            titlePlural="principals"
+            titleSingular="principal"
+            pagination={ pagination }
+            filterValue={ filterValue }
+            fetchData={ () => fetchGroup(uuid) }
+            setFilterValue={ ({ name }) => setFilterValue(name) }
+            checkedRows={ selectedPrincipals }
+            isLoading={ isLoading }
+            setCheckedItems={ setCheckedPrincipals }
+            toolbarButtons={ toolbarButtons }
+          /> }
     </Section>
   );
 };
@@ -116,7 +130,8 @@ const mapStateToProps = ({ groupReducer: { groups, selectedGroup }}) => {
     principals: (selectedGroup.principals || []).map(principal => ({ ...principal, uuid: principal.username })),
     pagination: { ...defaultSettings, count: selectedGroup.principals && selectedGroup.principals.length },
     isLoading: !selectedGroup.loaded,
-    userIdentity: groups.identity
+    userIdentity: groups.identity,
+    group: selectedGroup
   };
 };
 
@@ -143,13 +158,18 @@ GroupPrincipals.propTypes = {
     user: PropTypes.shape({
       is_org_admin: PropTypes.bool
     })
+  }),
+  group: PropTypes.shape({
+    platform_default: PropTypes.bool,
+    loaded: PropTypes.bool
   })
 };
 
 GroupPrincipals.defaultProps = {
   principals: [],
   pagination: defaultSettings,
-  userIdentity: {}
+  userIdentity: {},
+  group: {}
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupPrincipals);
