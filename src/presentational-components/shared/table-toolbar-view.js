@@ -1,11 +1,12 @@
 import React, { Fragment, useState } from 'react';
 import propTypes from 'prop-types';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { Button } from '@patternfly/react-core';
+import { TableToolbar } from '@redhat-cloud-services/frontend-components';
+import { Button, Pagination } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
 import { UsersIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
-import Toolbar from './toolbar';
+import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-filter';
 import './table-toolbar-view.scss';
 
@@ -107,6 +108,16 @@ export const TableToolbarView = ({
         <TableHeader />
         <TableBody />
       </Table> }
+      <TableToolbar>
+        {
+          !isLoading &&
+          <Pagination
+            { ...paginationBuilder(pagination, fetchData, filterValue) }
+            variant="bottom"
+            dropDirection="up"
+          />
+        }
+      </TableToolbar>
     </Fragment>
   );
 
