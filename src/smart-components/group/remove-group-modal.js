@@ -89,7 +89,7 @@ RemoveGroupModal.propTypes = {
 
 const mapStateToProps = ({ groupReducer: { selectedGroup }}) => ({
   group: selectedGroup,
-  isLoading: false
+  isLoading: !selectedGroup.loaded
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
