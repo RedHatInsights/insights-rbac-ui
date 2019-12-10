@@ -87,9 +87,9 @@ RemoveGroupModal.propTypes = {
   closeUrl: PropTypes.string
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) => ({
+const mapStateToProps = ({ groupReducer: { selectedGroup }}) => ({
   group: selectedGroup,
-  isLoading: isRecordLoading
+  isLoading: !selectedGroup.loaded
 });
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({

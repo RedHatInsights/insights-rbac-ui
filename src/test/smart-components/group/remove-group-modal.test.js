@@ -39,6 +39,9 @@ describe('<RemoveGroupModal />', () => {
         group: {
           name: 'Foo',
           uuid: '1'
+        },
+        selectedGroup: {
+          loaded: true
         }
       }
     };
