@@ -37,7 +37,7 @@ const setGroup = (state, { payload }) => ({
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
-  selectedGroup: { roles: payload.data, loaded: true }
+  selectedGroup: { roles: payload.data, pagination: payload.meta, loaded: true }
 });
 
 export default {

@@ -50,6 +50,7 @@ const GroupRoles = ({
   const [ selectedAddRoles, setSelectedAddRoles ] = useState([]);
 
   useEffect(() => {
+    fetchRolesForGroup(pagination)(uuid);
   }, []);
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
@@ -62,7 +63,7 @@ const GroupRoles = ({
       {
         title: 'Remove from group',
         onClick: (_event, _rowId, role) => {
-          removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(uuid));
+          removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid));
         }
       }
     ]);
@@ -75,7 +76,7 @@ const GroupRoles = ({
         setSelectedRoles={ setSelectedAddRoles }
         closeUrl={ `/groups/detail/${uuid}/roles` }
         addRolesToGroup={ addRoles }
-        fetchRolesForGroup= { fetchRolesForGroup }
+        fetchRolesForGroup={ fetchRolesForGroup(pagination) }
         { ...args }
       /> }
     />
@@ -114,11 +115,11 @@ const GroupRoles = ({
         createRows={ createRows }
         data={ roles }
         filterValue={ filterValue }
-        fetchData={ (config) => fetchRoles(mappedProps(config)) }
+        fetchData={ (config => fetchRolesForGroup(config)(uuid)) }
         setFilterValue={ ({ name }) => setFilterValue(name) }
         isLoading={ isLoading }
         pagination={ pagination }
-        request={ fetchRolesForGroup }
+        request={ fetchRolesForGroup(pagination) }
         checkedRows={ selectedRoles }
         setCheckedItems={ setCheckedItems }
         titlePlural="roles"
@@ -140,7 +141,7 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
   const roles = selectedGroup.roles;
   return {
     roles,
-    pagination: { ...defaultSettings, count: selectedGroup.principals && selectedGroup.principals.length },
+    pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
     userIdentity: groups.identity
   };};
@@ -152,7 +153,7 @@ const mapDispatchToProps = dispatch => {
     },
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
-    fetchRolesForGroup: (groupId) => dispatch(fetchRolesForGroup(groupId)),
+    fetchRolesForGroup: (pagination) => (groupId) => dispatch(fetchRolesForGroup(groupId, pagination)),
     addNotification: (...props) => dispatch(addNotification(...props))
   };
 };
