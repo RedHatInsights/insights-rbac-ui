@@ -35,7 +35,7 @@ describe('<RemoveGroupModal />', () => {
     initialState = {
       groupReducer: {
         ...groupsInitialState,
-        isLoading: false,
+        isLoading: true,
         group: {
           name: 'Foo',
           uuid: '1'
