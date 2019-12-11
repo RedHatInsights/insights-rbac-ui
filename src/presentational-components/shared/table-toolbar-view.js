@@ -108,7 +108,7 @@ export const TableToolbarView = ({
         <TableHeader />
         <TableBody />
       </Table> }
-      <TableToolbar>
+      { !pagination.noBottom && <TableToolbar>
         {
           !isLoading &&
           <Pagination
@@ -117,7 +117,7 @@ export const TableToolbarView = ({
             dropDirection="up"
           />
         }
-      </TableToolbar>
+      </TableToolbar> }
     </Fragment>
   );
 

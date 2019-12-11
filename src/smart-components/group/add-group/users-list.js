@@ -28,7 +28,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
-    fetchUsers({});
+    fetchUsers();
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -48,7 +48,12 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     fetchData={ (config) => fetchUsers(mappedProps(config)) }
     setFilterValue={ ({ name }) => setFilterValue(name) }
     isLoading={ isLoading }
-    pagination={ pagination }
+    pagination={ {
+      ...pagination,
+      noBottom: true,
+      // eslint-disable-next-line react/display-name, react/prop-types
+      toggleTemplate: ({ firstIndex, lastIndex }) => <b>{ `${firstIndex} - ${lastIndex}` }</b>
+    } }
     request={ fetchUsers }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
@@ -59,14 +64,14 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
 
 const mapStateToProps = ({ userReducer: { users, isUserDataLoading }}) => {
   return {
-    users: users.data,
+    users: users.data && users.data.map(data => ({ ...data, uuid: data.username })),
     pagination: users.meta,
     isLoading: isUserDataLoading
   };};
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchUsers: (apiProps) => {
+    fetchUsers: (apiProps = { limit: 10, offset: 0 }) => {
       dispatch(fetchUsers(mappedProps(apiProps)));
     },
     addNotification: (...props) => dispatch(addNotification(...props))

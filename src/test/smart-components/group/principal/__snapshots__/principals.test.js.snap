@@ -337,7 +337,11 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
       >
         <div
           class="pf-c-pagination pf-m-compact"
+          count="1"
           id="pagination-options-menu"
+          limit="50"
+          numberofitems="50"
+          offset="0"
         >
           <div
             class="pf-c-pagination__total-items"
@@ -652,7 +656,11 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
      
     <div
       class="pf-c-pagination pf-m-footer"
+      count="1"
       id="pagination-options-menu"
+      limit="50"
+      numberofitems="50"
+      offset="0"
     >
       <div
         class="pf-c-options-menu pf-m-top"
@@ -872,7 +880,11 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       >
         <div
           class="pf-c-pagination pf-m-compact"
+          count="1"
           id="pagination-options-menu"
+          limit="50"
+          numberofitems="50"
+          offset="0"
         >
           <div
             class="pf-c-pagination__total-items"
@@ -1187,7 +1199,11 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
      
     <div
       class="pf-c-pagination pf-m-footer"
+      count="1"
       id="pagination-options-menu"
+      limit="50"
+      numberofitems="50"
+      offset="0"
     >
       <div
         class="pf-c-options-menu pf-m-top"

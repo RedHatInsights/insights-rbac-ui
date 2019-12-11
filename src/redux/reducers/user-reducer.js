@@ -15,6 +15,6 @@ const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserData
 export default {
   [`${FETCH_USER}_PENDING`]: setLoadingState,
   [`${FETCH_USER}_FULFILLED`]: setUser,
-  [`${FETCH_USERS}_PENDIND`]: setLoadingState,
+  [`${FETCH_USERS}_PENDING`]: setLoadingState,
   [`${FETCH_USERS}_FULFILLED`]: setUsers
 };
