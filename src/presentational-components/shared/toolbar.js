@@ -5,6 +5,7 @@ import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch } from '
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '') => ({
+  ...pagination,
   itemCount: pagination.count,
   perPage: pagination.limit,
   page: getCurrentPage(pagination.limit, pagination.offset),

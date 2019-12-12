@@ -45,6 +45,9 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -115,6 +118,9 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -271,6 +277,9 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -377,6 +386,9 @@ exports[`<Toolbar> should render buttons 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -433,6 +445,9 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -488,7 +503,10 @@ exports[`<Toolbar> should render pagination 1`] = `
   }
   pagination={
     Object {
+      "count": 10,
       "itemCount": 10,
+      "limit": 10,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -555,6 +573,9 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   pagination={
     Object {
       "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -644,7 +665,10 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
   }
   pagination={
     Object {
+      "count": 10,
       "itemCount": 10,
+      "limit": 10,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
@@ -734,7 +758,10 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
   }
   pagination={
     Object {
+      "count": 10,
       "itemCount": 10,
+      "limit": 10,
+      "offset": 0,
       "onPerPageSelect": [Function],
       "onSetPage": [Function],
       "page": 1,
