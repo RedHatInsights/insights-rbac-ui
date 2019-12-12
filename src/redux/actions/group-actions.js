@@ -105,9 +105,9 @@ export const removeMembersFromGroup = (groupId, members) => ({
   }
 });
 
-export const fetchRolesForGroup = (groupId) => ({
+export const fetchRolesForGroup = (groupId, pagination) => ({
   type: ActionTypes.FETCH_ROLES_FOR_GROUP,
-  payload: GroupHelper.fetchRolesForGroup(groupId)
+  payload: GroupHelper.fetchRolesForGroup(groupId, pagination)
 });
 
 export const addRolesToGroup = (groupId, roles) => ({
