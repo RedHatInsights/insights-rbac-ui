@@ -58,15 +58,17 @@ const GroupRoles = ({
     });
   };
 
-  const actionResolver = () => (
-    [
-      {
-        title: 'Remove from group',
-        onClick: (_event, _rowId, role) => {
-          removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid));
+  const actionResolver = () => [
+    ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
+      [
+        {
+          title: 'Remove from group',
+          onClick: (_event, _rowId, role) => {
+            removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid));
+          }
         }
-      }
-    ]);
+      ] : []
+  ];
 
   const routes = () => <Fragment>
     <Route path={ `/groups/detail/:uuid/roles/add_roles` }
@@ -115,7 +117,7 @@ const GroupRoles = ({
         createRows={ createRows }
         data={ roles }
         filterValue={ filterValue }
-        fetchData={ (config => fetchRolesForGroup(config)(uuid)) }
+        fetchData={ config => fetchRolesForGroup(config)(uuid) }
         setFilterValue={ ({ name }) => setFilterValue(name) }
         isLoading={ isLoading }
         pagination={ pagination }
