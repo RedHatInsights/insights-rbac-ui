@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
+
 import {
   ActionGroup,
   Button,
@@ -16,7 +17,7 @@ import {
   Title
 } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import RolesList from '../add-group/roles-list';
+import { ExcludedRolesList } from '../add-group/roles-list';
 import '../../../App.scss';
 
 const AddGroupRoles = ({
@@ -49,7 +50,7 @@ const AddGroupRoles = ({
   return (
     <Modal
       title={ 'Add group roles' }
-      width={ '40%' }
+      width={ '60%' }
       isOpen
       onClose={ onCancel }>
       <Fragment>
@@ -65,7 +66,7 @@ const AddGroupRoles = ({
             </StackItem>
             <StackItem>
               <Card>
-                <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
+                <ExcludedRolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
               </Card>
             </StackItem>
             <StackItem>

@@ -6,6 +6,8 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { defaultSettings } from '../../../helpers/shared/pagination';
+import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 
 const columns = [
   { title: 'Role name', orderBy: 'name' },
@@ -26,6 +28,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
+    console.log('FETCH ROLES');
     fetchRoles({});
   }, []);
 
@@ -93,4 +96,34 @@ RolesList.defaultProps = {
   pagination: defaultCompactSettings
 };
 
+const mapStateToPropsGroup = ({ groupReducer: { selectedGroup }}) => {
+  const roles = selectedGroup.addRoles.roles;
+
+  return {
+    roles,
+    pagination: selectedGroup.addRoles.pagination || { ...defaultSettings, count: roles && roles.length },
+    isLoading: !selectedGroup.addRoles.loaded,
+    groupId: selectedGroup.uuid
+  };
+};
+
+const mapDispatchToPropsGroup = dispatch => {
+  return {
+    fetchRoles: (groupId, apiProps) => {
+      dispatch(fetchAddRolesForGroup(groupId, apiProps));
+    },
+    addNotification: (...props) => dispatch(addNotification(...props))
+  };
+};
+
+const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
+  return {
+    ...ownProps,
+    ...propsFromState,
+    ...propsFromDispatch,
+    fetchRoles: (apiProps) => propsFromDispatch.fetchRoles(propsFromState.groupId, apiProps)
+  };
+};
+
 export default connect(mapStateToProps, mapDispatchToProps)(RolesList);
+export const ExcludedRolesList = connect(mapStateToPropsGroup, mapDispatchToPropsGroup, mergeProps)(RolesList);
