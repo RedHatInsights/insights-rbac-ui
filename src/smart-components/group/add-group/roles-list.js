@@ -28,7 +28,6 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
-    console.log('FETCH ROLES');
     fetchRoles({});
   }, []);
 
