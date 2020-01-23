@@ -12,6 +12,7 @@ import { defaultSettings } from '../../../helpers/shared/pagination';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
@@ -27,10 +28,18 @@ const GroupPrincipals = ({
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
+  const [ showRemoveModal, setShowRemoveModal ] = useState(false);
+  const [ confirmDelete, setConfirmDelete ] = useState(() => null);
+  const [ deleteInfo, setDeleteInfo ] = useState({});
 
   const fetchData = () => {
     fetchGroup(uuid);
   };
+
+  const removeModalText = (name, group, plural) => (plural
+    ? <p>These <b> { `${name}` }</b> members will lose all the roles associated with the <b>{ `${group}` }</b> group.</p>
+    : <p> <b>{ `${name}` }</b> will lose all the roles associated with the <b> { `${group}` }</b> group.</p>
+  );
 
   const setCheckedPrincipals = (newSelection) => {
     setSelectedPrincipals((principals) => newSelection(principals));
@@ -47,7 +56,13 @@ const GroupPrincipals = ({
           title: 'Delete',
           style: { color: 'var(--pf-global--danger-color--100)' },
           onClick: (_event, _rowId, principal) => {
-            removeMembers([ principal.username ]);
+            setConfirmDelete(() => () => removeMembers([ principal.username ]));
+            setDeleteInfo({
+              title: 'Remove member?',
+              text: removeModalText(principal.username, group.name, false),
+              confirmButtonLabel: 'Remove member'
+            });
+            setShowRemoveModal(true);
           }
         }
       ];
@@ -77,51 +92,77 @@ const GroupPrincipals = ({
           </Button>
         </Link>,
         {
-          label: 'Remove selected',
+          label: 'Remove',
           props: {
             isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
-            variant: 'danger',
-            onClick: () => removeMembers(selectedPrincipals)
+            variant: 'danger'
+          },
+          onClick: () => {
+            const multipleMembersSelected = selectedPrincipals.length > 1;
+            setConfirmDelete(() => () => removeMembers(selectedPrincipals.map(user => user.name)));
+            setDeleteInfo({
+              title: 'Remove members?',
+              confirmButtonLabel: multipleMembersSelected ? 'Remove members' : 'Remove member',
+              text: removeModalText(
+                multipleMembersSelected ? selectedPrincipals.length : selectedPrincipals[0].name,
+                group.name,
+                multipleMembersSelected
+              )
+            });
+            setShowRemoveModal(true);
           }
         }
       ] : []
   ];
 
   return (
-    <Section type="content" id={ 'tab-principals' }>
-      {
-        group.platform_default ?
-          <Card>
-            <CardBody>
-              <Bullseye>
-                <TextContent>
-                  <Text component={ TextVariants.h1 }>
+    <Fragment>
+      <RemoveModal
+        text={ deleteInfo.text }
+        title={ deleteInfo.title }
+        confirmButtonLabel={ deleteInfo.confirmButtonLabel }
+        isOpen={ showRemoveModal }
+        onClose={ () => setShowRemoveModal(false) }
+        onSubmit={ () => {
+          setShowRemoveModal(false);
+          confirmDelete();
+        } }
+      />
+      <Section type="content" id={ 'tab-principals' }>
+        {
+          group.platform_default ?
+            <Card>
+              <CardBody>
+                <Bullseye>
+                  <TextContent>
+                    <Text component={ TextVariants.h1 }>
                     All users in this organization are members of this group.
-                  </Text>
-                </TextContent>
-              </Bullseye>
-            </CardBody>
-          </Card> :
-          <TableToolbarView
-            data={ principals }
-            isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
-            createRows={ createRows }
-            columns={ columns }
-            request={ fetchGroup }
-            routes={ routes }
-            actionResolver={ actionResolver }
-            titlePlural="principals"
-            titleSingular="principal"
-            pagination={ pagination }
-            filterValue={ filterValue }
-            fetchData={ () => fetchGroup(uuid) }
-            setFilterValue={ ({ name }) => setFilterValue(name) }
-            checkedRows={ selectedPrincipals }
-            isLoading={ isLoading }
-            setCheckedItems={ setCheckedPrincipals }
-            toolbarButtons={ toolbarButtons }
-          /> }
-    </Section>
+                    </Text>
+                  </TextContent>
+                </Bullseye>
+              </CardBody>
+            </Card> :
+            <TableToolbarView
+              data={ principals }
+              isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
+              createRows={ createRows }
+              columns={ columns }
+              request={ fetchGroup }
+              routes={ routes }
+              actionResolver={ actionResolver }
+              titlePlural="principals"
+              titleSingular="principal"
+              pagination={ pagination }
+              filterValue={ filterValue }
+              fetchData={ () => fetchGroup(uuid) }
+              setFilterValue={ ({ name }) => setFilterValue(name) }
+              checkedRows={ selectedPrincipals }
+              isLoading={ isLoading }
+              setCheckedItems={ setCheckedPrincipals }
+              toolbarButtons={ toolbarButtons }
+            /> }
+      </Section>
+    </Fragment>
   );
 };
 
