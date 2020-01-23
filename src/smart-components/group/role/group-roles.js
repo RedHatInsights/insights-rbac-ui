@@ -43,7 +43,8 @@ const GroupRoles = ({
   isLoading,
   pagination,
   match: { params: { uuid }},
-  userIdentity
+  userIdentity,
+  name
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
@@ -79,6 +80,7 @@ const GroupRoles = ({
         closeUrl={ `/groups/detail/${uuid}/roles` }
         addRolesToGroup={ addRoles }
         fetchRolesForGroup={ fetchRolesForGroup(pagination) }
+        name={ name }
         { ...args }
       /> }
     />
@@ -145,7 +147,8 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
     roles,
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
-    userIdentity: groups.identity
+    userIdentity: groups.identity,
+    name: selectedGroup.name
   };};
 
 const mapDispatchToProps = dispatch => {
@@ -155,7 +158,7 @@ const mapDispatchToProps = dispatch => {
     },
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
-    fetchRolesForGroup: (pagination) => (groupId) => dispatch(fetchRolesForGroup(groupId, pagination)),
+    fetchRolesForGroup: (pagination) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, pagination, options)),
     addNotification: (...props) => dispatch(addNotification(...props))
   };
 };
@@ -172,6 +175,7 @@ GroupRoles.propTypes = {
   fetchRolesForGroup: PropTypes.func.isRequired,
   selectedRoles: PropTypes.array,
   addRoles: PropTypes.func,
+  name: PropTypes.string,
   removeRoles: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
