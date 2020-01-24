@@ -84,7 +84,7 @@ const GroupRoles = ({
             setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid)));
             setDeleteInfo({
               title: 'Remove role?',
-              text: <p>Members in <b>{ `${name}` }</b> group will lose permissions in the <b> { `${role['role-name'].title}` }</b> role.</p>
+              text: <p>Members in <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${role['role-name'].title}` }</b> role.</p>
             });
             setShowRemoveModal(true);
           }

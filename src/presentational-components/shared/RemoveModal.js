@@ -15,7 +15,8 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen }) => {
 
   return (
     <Modal className="ins-c-rbac__dialog--warning"
-      title={ title }
+
+      title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { `${title}` } </div> }
       isOpen={ isOpen }
       isSmall
       onClose={ onClose }
@@ -37,7 +38,6 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen }) => {
       isFooterLeftAligned
     >
       <Split gutter="md">
-        <SplitItem><ExclamationTriangleIcon size="xl" className="ins-m-alert ins-c-rbac__delete-icon" /></SplitItem>
         <SplitItem isFilled>
           <Stack gutter="md">
             <TextContent>
