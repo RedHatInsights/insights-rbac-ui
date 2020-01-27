@@ -132,8 +132,8 @@ const GroupRoles = ({
             setDeleteInfo({
               title: 'Remove roles?',
               text: (selectedRoles.length > 1
-                ? <p>Members in <b>{ `${name}` }</b> group will lose permissions in these <b> { `${selectedRoles.length}` }</b> roles.</p>
-                : <p>Members in <b>{ `${name}` }</b> group will lose permissions in the <b> { `${selectedRoles[0].label}` }</b> role.</p>)
+                ? <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in these <b> { `${selectedRoles.length}` }</b> roles.</p>
+                : <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${selectedRoles[0].label}` }</b> role.</p>)
             });
             setShowRemoveModal(true);
           }
