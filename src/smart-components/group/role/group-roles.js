@@ -63,6 +63,13 @@ const GroupRoles = ({
     });
   };
 
+  const removeModalText = (name, role, plural) => (
+    <p>
+      Members in the <b>{ name }</b> group will lose the permissions in { plural ? 'these' : 'the' }
+      <b> { role }</b> role{ plural ? `s` : '' }.
+    </p>
+  );
+
   const actionResolver = () => [
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
@@ -73,7 +80,7 @@ const GroupRoles = ({
             setDeleteInfo({
               title: 'Remove role?',
               confirmButtonLabel: 'Remove role',
-              text: <p>Members in <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${role['role-name'].title}` }</b> role.</p>
+              text: removeModalText(name, role['role-name'].title, false)
             });
             setShowRemoveModal(true);
           }
@@ -117,13 +124,12 @@ const GroupRoles = ({
             variant: 'danger'
           },
           onClick: () => {
+            const multipleRolesSelected = selectedRoles.length > 1;
             setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
             setDeleteInfo({
               title: 'Remove roles?',
               confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
-              text: (selectedRoles.length > 1
-                ? <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in these <b> { `${selectedRoles.length}` }</b> roles.</p>
-                : <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${selectedRoles[0].label}` }</b> role.</p>)
+              text: removeModalText(name, multipleRolesSelected ? selectedRoles.length : selectedRoles[0].label, multipleRolesSelected)
             });
             setShowRemoveModal(true);
           }

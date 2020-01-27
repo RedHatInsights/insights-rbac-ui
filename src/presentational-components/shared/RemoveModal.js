@@ -16,7 +16,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
   return (
     <Modal className="ins-c-rbac__dialog--warning"
 
-      title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { `${title}` } </div> }
+      title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { title } </div> }
       isOpen={ isOpen }
       isSmall
       onClose={ onClose }
@@ -32,7 +32,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
           variant="link"
           onClick={ onClose }
         >
-          { 'Cancel' }
+          Cancel
         </Button>
       ] }
       isFooterLeftAligned
