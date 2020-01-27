@@ -3,18 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import {
-  Button,
-  Modal,
-  Split,
-  SplitItem,
-  Stack,
-  Text,
-  TextContent,
-  TextVariants,
-  TextList,
-  TextListItem,
-  Checkbox } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
@@ -23,7 +12,6 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const columns = [
@@ -84,6 +72,7 @@ const GroupRoles = ({
             setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid)));
             setDeleteInfo({
               title: 'Remove role?',
+              confirmButtonLabel: 'Remove role',
               text: <p>Members in <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${role['role-name'].title}` }</b> role.</p>
             });
             setShowRemoveModal(true);
@@ -131,6 +120,7 @@ const GroupRoles = ({
             setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
             setDeleteInfo({
               title: 'Remove roles?',
+              confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
               text: (selectedRoles.length > 1
                 ? <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in these <b> { `${selectedRoles.length}` }</b> roles.</p>
                 : <p>Members in the <b>{ `${name}` }</b> group will lose the permissions in the <b> { `${selectedRoles[0].label}` }</b> role.</p>)
@@ -147,6 +137,7 @@ const GroupRoles = ({
         text={ deleteInfo.text }
         title={ deleteInfo.title }
         isOpen={ showRemoveModal }
+        confirmButtonLabel={ deleteInfo.confirmButtonLabel }
         onClose={ () => setShowRemoveModal(false) }
         onSubmit={ () => {
           setShowRemoveModal(false);

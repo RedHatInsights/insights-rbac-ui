@@ -11,7 +11,7 @@ import {
   TextContent
 } from '@patternfly/react-core';
 
-const RemoveModal = ({ title, text, onClose, onSubmit, isOpen }) => {
+const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel }) => {
 
   return (
     <Modal className="ins-c-rbac__dialog--warning"
@@ -25,7 +25,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen }) => {
           key="confirm"
           variant="danger"
           onClick={ onSubmit }>
-          { 'Remove role' }
+          { confirmButtonLabel }
         </Button>,
         <Button
           key="cancel"
@@ -53,6 +53,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen }) => {
 RemoveModal.propTypes = {
   text: PropTypes.string,
   title: PropTypes.string,
+  confirmButtonLabel: PropTypes.string,
   onSubmit: PropTypes.func,
   onClose: PropTypes.func,
   isOpen: PropTypes.bool
