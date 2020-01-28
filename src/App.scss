@@ -80,3 +80,9 @@
     color: var(--pf-global--danger-color--100) !important;
   }
 }
+
+.ins-c-rbac__dialog--warning {
+  .ins-c-rbac__delete-icon {
+    color: var(--pf-global--warning-color--100);
+  }
+}

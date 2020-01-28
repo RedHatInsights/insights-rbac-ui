@@ -12,6 +12,7 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
+import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const columns = [
   { title: 'Role name', orderBy: 'name' },
@@ -49,6 +50,9 @@ const GroupRoles = ({
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ selectedAddRoles, setSelectedAddRoles ] = useState([]);
+  const [ showRemoveModal, setShowRemoveModal ] = useState(false);
+  const [ confirmDelete, setConfirmDelete ] = useState(() => null);
+  const [ deleteInfo, setDeleteInfo ] = useState({});
 
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);
@@ -59,13 +63,26 @@ const GroupRoles = ({
     });
   };
 
+  const removeModalText = (name, role, plural) => (
+    <p>
+      Members in the <b>{ name }</b> group will lose the permissions in { plural ? 'these' : 'the' }
+      <b> { role }</b> role{ plural ? `s` : '' }.
+    </p>
+  );
+
   const actionResolver = () => [
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         {
           title: 'Remove from group',
           onClick: (_event, _rowId, role) => {
-            removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid));
+            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid)));
+            setDeleteInfo({
+              title: 'Remove role?',
+              confirmButtonLabel: 'Remove role',
+              text: removeModalText(name, role['role-name'].title, false)
+            });
+            setShowRemoveModal(true);
           }
         }
       ] : []
@@ -104,35 +121,58 @@ const GroupRoles = ({
           label: 'Remove from group',
           props: {
             isDisabled: !selectedRoles || !selectedRoles.length > 0,
-            variant: 'danger',
-            onClick: () => removeRoles(selectedRoles)
+            variant: 'danger'
+          },
+          onClick: () => {
+            const multipleRolesSelected = selectedRoles.length > 1;
+            setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
+            setDeleteInfo({
+              title: 'Remove roles?',
+              confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
+              text: removeModalText(name, multipleRolesSelected ? selectedRoles.length : selectedRoles[0].label, multipleRolesSelected)
+            });
+            setShowRemoveModal(true);
           }
         }
       ] : []
   ];
 
   return (
-    <Section type="content" id={ 'tab-roles' }>
-      <TableToolbarView
-        columns={ columns }
-        isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
-        createRows={ createRows }
-        data={ roles }
-        filterValue={ filterValue }
-        fetchData={ config => fetchRolesForGroup(config)(uuid) }
-        setFilterValue={ ({ name }) => setFilterValue(name) }
-        isLoading={ isLoading }
-        pagination={ pagination }
-        request={ fetchRolesForGroup(pagination) }
-        checkedRows={ selectedRoles }
-        setCheckedItems={ setCheckedItems }
-        titlePlural="roles"
-        titleSingular="role"
-        toolbarButtons={ toolbarButtons }
-        actionResolver={ actionResolver }
-        routes={ routes }
+    <React.Fragment>
+      <RemoveModal
+        text={ deleteInfo.text }
+        title={ deleteInfo.title }
+        isOpen={ showRemoveModal }
+        confirmButtonLabel={ deleteInfo.confirmButtonLabel }
+        onClose={ () => setShowRemoveModal(false) }
+        onSubmit={ () => {
+          setShowRemoveModal(false);
+          confirmDelete();
+        } }
       />
-    </Section>
+      <Section type="content" id={ 'tab-roles' }>
+        <TableToolbarView
+          columns={ columns }
+          isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
+          createRows={ createRows }
+          data={ roles }
+          filterValue={ filterValue }
+          fetchData={ config => fetchRolesForGroup(config)(uuid) }
+          setFilterValue={ ({ name }) => setFilterValue(name) }
+          isLoading={ isLoading }
+          pagination={ pagination }
+          request={ fetchRolesForGroup(pagination) }
+          checkedRows={ selectedRoles }
+          setCheckedItems={ setCheckedItems }
+          titlePlural="roles"
+          titleSingular="role"
+          toolbarButtons={ toolbarButtons }
+          actionResolver={ actionResolver }
+          routes={ routes }
+        />
+      </Section>
+    </React.Fragment>
+
   );
 };
 
@@ -143,6 +183,7 @@ const reloadWrapper = (event, callback) => {
 
 const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
   const roles = selectedGroup.roles;
+
   return {
     roles,
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
