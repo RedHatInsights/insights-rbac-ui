@@ -144,7 +144,6 @@ TableToolbarView.propTypes = {
   isCompact: propTypes.bool,
   borders: propTypes.bool,
   createRows: propTypes.func.isRequired,
-  request: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
   routes: propTypes.func,
@@ -154,7 +153,6 @@ TableToolbarView.propTypes = {
 
 TableToolbarView.defaultProps = {
   ...Toolbar.defaultProps,
-  requests: [],
   isCompact: false,
   borders: true,
   routes: () => null

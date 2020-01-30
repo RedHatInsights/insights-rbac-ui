@@ -27,7 +27,7 @@ const Role = () => {
       ...groupUuid ? [{
         title: group && group.name,
         to: `/groups/detail/${groupUuid}/roles`,
-        isLoading: group.loaded
+        isLoading: group && group.loaded
       }] : [],
       { title: role && role.name, isActive: true }
     ] }>

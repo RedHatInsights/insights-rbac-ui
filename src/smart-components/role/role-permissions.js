@@ -65,7 +65,6 @@ const Permissions = () => {
         filter: name
       })  }
       isLoading={ isRecordLoading }
-      request={ () => undefined }
       pagination={ {
         ...pagination,
         count: filteredRows.length
