@@ -9,7 +9,6 @@ export const createRows = (data, opened, selectedRows = []) => (
     ...acc,
     {
       uuid,
-      isOpen: Boolean(opened[uuid]),
       cells: [
         <Fragment key={ uuid }>
           <Link to={ `/groups/detail/${uuid}` }>
@@ -23,14 +22,6 @@ export const createRows = (data, opened, selectedRows = []) => (
         </Fragment>
       ],
       selected: Boolean(selectedRows && selectedRows.find(row => row.uuid === uuid))
-    }, {
-      parent: key * 2,
-      fullWidth: true,
-      cells: [{
-        title: opened[uuid] ?
-          <ExpandableDescription uuid={ uuid } /> :
-          <Fragment />
-      }]
     }
   ]), [])
 );
