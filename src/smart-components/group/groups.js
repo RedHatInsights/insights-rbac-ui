@@ -69,7 +69,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             variant="primary"
             aria-label="Create group"
           >
-        Create a group
+        Create group
           </Button>
         </Link>,
         {
