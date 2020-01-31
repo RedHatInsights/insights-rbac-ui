@@ -1,5 +1,4 @@
 import React, { useEffect, Fragment } from 'react';
-import PropTypes from 'prop-types';
 import { useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { fetchRole } from '../../redux/actions/role-actions';
@@ -37,14 +36,5 @@ const Role = () => {
     { (isRecordLoading || !role) ? <ListLoader/> : <Permissions /> }
   </Fragment>;
 };
-
-Role.propTypes = {
-  role: PropTypes.shape({
-    uuid: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string
-  })
-};
-Role.defaultPropTypes = {};
 
 export default Role;
