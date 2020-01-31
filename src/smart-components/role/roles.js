@@ -13,6 +13,7 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import Role from './role';
 
 const columns = [
   { title: 'Role', orderBy: 'name' },
@@ -112,6 +113,7 @@ const Roles = ({
 
   return (
     <Switch>
+      <Route path={ '/roles/detail/:uuid' } render={ props => <Role { ...props }/> } />
       <Route path={ '/roles' } render={ () => renderRolesList() } />
     </Switch>
   );

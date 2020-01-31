@@ -20,12 +20,16 @@ const columns = [
   { title: 'Last modified' }
 ];
 
-const createRows = (data, expanded, checkedRows = []) => {
+const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   return data ? data.reduce((acc, { uuid, name, description, modified }) => ([
     ...acc, {
       uuid,
       cells: [
-        name,
+        <Fragment key={ `${uuid}-name` }>
+          <Link to={ `/groups/detail/${groupUuid}/roles/detail/${uuid}` }>
+            <Button variant="link"> { name } </Button>
+          </Link>
+        </Fragment>,
         description,
         <Fragment key={ `${uuid}-modified` }>
           <DateFormat date={ modified } type="relative" />
@@ -154,7 +158,7 @@ const GroupRoles = ({
         <TableToolbarView
           columns={ columns }
           isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
-          createRows={ createRows }
+          createRows={ (...props) => createRows(uuid, ...props) }
           data={ roles }
           filterValue={ filterValue }
           fetchData={ config => fetchRolesForGroup(config)(uuid) }

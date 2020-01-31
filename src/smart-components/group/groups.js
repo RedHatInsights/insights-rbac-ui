@@ -16,6 +16,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
+import Role from '../role/role';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
 const tabItems = [
@@ -121,6 +122,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
     </Stack>;
   return (
     <Switch>
+      <Route path={ '/groups/detail/:groupUuid/roles/detail/:uuid' } render={ props => <Role { ...props }/> } />
       <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
       <Route path={ '/groups' } render={ () => renderGroupsList() } />
     </Switch>
