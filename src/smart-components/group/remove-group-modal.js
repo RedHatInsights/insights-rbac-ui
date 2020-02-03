@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants, Checkbox } from '@patternfly/react-core';
+import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons'
 import { fetchGroup, removeGroup } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
