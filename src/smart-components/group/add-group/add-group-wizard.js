@@ -49,7 +49,11 @@ const AddGroupWizard = ({
   ];
 
   const  onSubmit =  async() => {
-    const user_data = { ...formData, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined };
+    const user_data = {
+      ...formData,
+      user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined,
+      roles_list: selectedRoles ? selectedRoles.map(role => role.uuid) : undefined
+    };
     await addGroup(user_data);
     postMethod();
     push(closeUrl);

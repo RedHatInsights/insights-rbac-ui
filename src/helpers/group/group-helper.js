@@ -34,11 +34,17 @@ export async function updateGroup(data) {
 
 export async function addGroup(data) {
   let newGroup = await groupApi.createGroup(data);
+  let ret = newGroup;
+
   if (data.user_list && data.user_list.length > 0) {
-    return groupApi.addPrincipalToGroup(newGroup.uuid, { principals: data.user_list });
+    ret = groupApi.addPrincipalToGroup(newGroup.uuid, { principals: data.user_list });
   }
 
-  return newGroup;
+  if (data.roles_list && data.roles_list.length > 0) {
+    ret = groupApi.addRoleToGroup(newGroup.uuid, { roles: data.roles_list });
+  }
+
+  return ret;
 }
 
 export async function removeGroup(groupId) {
