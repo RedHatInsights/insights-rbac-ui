@@ -72,7 +72,7 @@ describe('<RemoveGroupModal />', () => {
         <Route path="/groups/:id/" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
       </GroupWrapper>
     );
-
+    wrapper.find('#delete-group-check').first().simulate('click');
     expect.extend({
       toContainObj(received, argument) {
         const result = this.equals(received,

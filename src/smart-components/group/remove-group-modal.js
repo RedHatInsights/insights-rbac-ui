@@ -1,9 +1,10 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants, Checkbox } from '@patternfly/react-core';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons'
 import { fetchGroup, removeGroup } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -21,6 +22,8 @@ const RemoveGroupModal = ({
     fetchGroup(id);
   }, []);
 
+  const [checked, setChecked] = useState(false);
+
   const onSubmit = () =>
     postMethod ? removeGroup(id).then(() => postMethod()).then(push(closeUrl)) :
       removeGroup(id).then(() => push(closeUrl));
@@ -31,34 +34,36 @@ const RemoveGroupModal = ({
     <Modal
       isOpen
       isSmall
-      title = { '' }
+      title = { <Text>
+                <ExclamationTriangleIcon className="delete-group-warning-icon" />
+                &nbsp; Delete group?
+              </Text>}
       onClose={ onCancel }
       actions={ [
-        <Button key="cancel" variant="secondary" type="button" onClick={ onCancel }>
-          Cancel
+        <Button key="submit" isDisabled={ !checked }  variant="danger" type="button" onClick={ onSubmit }>
+          Delete group
         </Button>,
-        <Button key="submit" isDisabled={ isLoading  }  variant="primary" type="button" onClick={ onSubmit }>
-          Confirm
+        <Button key="cancel" variant="link" type="button" onClick={ onCancel }>
+          Cancel
         </Button>
       ] }
+      isFooterLeftAligned
     >
-      <Grid gutter="sm">
-        <GridItem span={ 5 }>
-          <TextContent>
-            <Text component={ TextVariants.h1 }>
-                Removing Group:
-            </Text>
-          </TextContent>
-        </GridItem>
-        <GridItem span={ 6 }>
-          <TextContent>
-            { !isLoading && <Text component={ TextVariants.h1 }>
-              { group.name }
-            </Text> }
-          </TextContent>
-          { isLoading && <FormItemLoader/> }
-        </GridItem>
-      </Grid>
+      <TextContent>
+        { isLoading ? <FormItemLoader/> :
+          <Text>
+            Deleting the <b>{ group.name }</b> group removes all roles
+            from the members inside the group.
+          </Text>
+        }
+      </TextContent>
+      &nbsp;
+      <Checkbox
+        isChecked={checked}
+        onChange={()=> setChecked(!checked)}
+        label="I understand that this action cannot be undone."
+        id="delete-group-check"
+      />
     </Modal>
   );
 };
