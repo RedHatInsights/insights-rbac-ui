@@ -46,8 +46,8 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
     <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } /> } />
   </Fragment>;
 
-  const actionResolver = (_groupData, { rowIndex }) =>
-    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+  const actionResolver = (_groupData) =>
+    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
