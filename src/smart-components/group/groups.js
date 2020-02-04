@@ -7,7 +7,7 @@ import { expandable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
-import RemoveGroup from './remove-group-modal';
+import RemoveGroup from './remove-group-modal-2';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
@@ -27,6 +27,7 @@ const tabItems = [
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
+  const [ removeGroup, setRemoveGroup ] = useState([]);
 
   useEffect(() => {
     fetchGroups({ ...pagination, name: filterValue });
@@ -43,11 +44,18 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const routes = () => <Fragment>
     <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } /> } />
-    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } /> } />
+    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } isModalOpen={true} groups={removeGroup}/> } />
   </Fragment>;
 
+const renderRemoveModal = (groups) => {
+  return (
+    <Fragment>
+      <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } isModalOpen={true} groups={groups}/> } />
+    </Fragment>
+  )
+}
   const actionResolver = (_groupData, { rowIndex }) =>
-    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -56,8 +64,12 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
         },
         {
           title: 'Delete group',
-          onClick: (_event, _rowId, group) =>
-            push(`/groups/remove/${group.uuid}`)
+          onClick: (_event, _rowId, group) => {
+            setRemoveGroup([group])
+            push(`/groups/removegroups`);
+          }
+          // onClick: (_event, _rowId, group) =>
+          //   renderRemoveModal([group])
         }
       ];
 
@@ -85,7 +97,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             isDisabled: !selectedRows.length > 0
           },
           onClick: () => {
-            let uuids = selectedRows.map(({ uuid }) => uuid);
+            console.log("multiple: ", selectedRows);
+            setRemoveGroup(selectedRows)
+            push(`/groups/removegroups`);
           }
         }
       ] : []
