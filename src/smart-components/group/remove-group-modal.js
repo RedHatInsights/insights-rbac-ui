@@ -5,17 +5,19 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons'
-import { fetchGroup, removeGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, removeGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveGroupModal = ({
   history: { goBack, push },
   match: { params: { id }},
   removeGroup,
+  removeGroups,
   group,
   isLoading,
   fetchGroup,
   postMethod,
+  groupIds,
   closeUrl
 }) => {
   useEffect(() => {
@@ -27,6 +29,9 @@ const RemoveGroupModal = ({
   const onSubmit = () =>
     postMethod ? removeGroup(id).then(() => postMethod()).then(push(closeUrl)) :
       removeGroup(id).then(() => push(closeUrl));
+  
+  // const onSubmit = () =>
+  //   groupIds.length > 1 ? removeGroups(groupIds) : removeGroup(groupIds)
 
   const onCancel = () => goBack();
 
@@ -85,6 +90,7 @@ RemoveGroupModal.propTypes = {
     push: PropTypes.func.isRequired
   }).isRequired,
   removeGroup: PropTypes.func.isRequired,
+  removeGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
@@ -99,7 +105,8 @@ const mapStateToProps = ({ groupReducer: { selectedGroup }}) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchGroup,
-  removeGroup
+  removeGroup,
+  removeGroups
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal));

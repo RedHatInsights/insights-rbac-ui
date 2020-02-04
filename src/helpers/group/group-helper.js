@@ -51,6 +51,10 @@ export async function removeGroup(groupId) {
   return await groupApi.deleteGroup(groupId);
 }
 
+export async function removeGroups(uuids) {
+  return uuids.map((uuid) => groupApi.deleteGroup(uuid));
+}
+
 export async function deletePrincipalsFromGroup(groupId, users) {
   return await groupApi.deletePrincipalFromGroup(groupId, users.join(','));
 }

@@ -47,7 +47,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   </Fragment>;
 
   const actionResolver = (_groupData, { rowIndex }) =>
-    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -83,6 +83,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
           label: 'Delete Group(s)',
           props: {
             isDisabled: !selectedRows.length > 0
+          },
+          onClick: () => {
+            let uuids = selectedRows.map(({ uuid }) => uuid);
           }
         }
       ] : []
