@@ -46,8 +46,8 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
     <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } /> } />
   </Fragment>;
 
-  const actionResolver = (_groupData, { rowIndex }) =>
-    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+  const actionResolver = () =>
+    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -144,7 +144,9 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 Groups.propTypes = {
   userIdentity: PropTypes.shape({
     user: PropTypes.shape({
+      /*eslint-disable camelcase*/
       is_org_admin: PropTypes.bool
+      /*eslint-enable camelcase*/
     })
   }),
   history: PropTypes.shape({
