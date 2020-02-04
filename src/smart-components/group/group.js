@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import { connect } from 'react-redux';
@@ -9,6 +9,9 @@ import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
+import { Button } from '@patternfly/react-core';
+import EditGroup from './edit-group-modal';
+import './group.scss';
 
 const Group = ({
   match: { params: { uuid }},
@@ -25,6 +28,7 @@ const Group = ({
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` }
   ];
+  const [ showEdit, setShowEdit ] = useState(false);
 
   const fetchData = (apiProps) => {
     fetchGroup(apiProps);
@@ -37,6 +41,14 @@ const Group = ({
   return (
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
+        <Button className='edit-group-button' onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
+        <EditGroup
+          isOpen={ showEdit }
+          group={ group }
+          closeUrl={ `group/detail/${uuid}` }
+          onClose={ () => setShowEdit(false) }
+          postMethod={ () => new Promise(() => setShowEdit(false)) }
+        />
         <TopToolbarTitle title= { !isFetching && group ? group.name : undefined }
           description={ !isFetching && group ? group.description : undefined }/>
         <AppTabs tabItems={ tabItems } />

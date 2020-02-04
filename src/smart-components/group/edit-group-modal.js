@@ -3,10 +3,9 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import CreatableSelect from 'react-select/creatable';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -16,7 +15,10 @@ const EditGroupModal = ({
   addNotification,
   updateGroup,
   postMethod,
-  closeUrl
+  closeUrl,
+  isOpen,
+  group,
+  onClose
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState(undefined);
 
@@ -32,6 +34,10 @@ const EditGroupModal = ({
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setSelectedGroup(group);
+  }, [ group ]);
+
   const onSubmit = data => {
     const user_data = { ...data };
     postMethod ? updateGroup(user_data).then(() => postMethod()).then(push(closeUrl)) :
@@ -45,7 +51,8 @@ const EditGroupModal = ({
       title: selectedGroup ? 'Editing group' : 'Adding group',
       description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
-    push('/groups');
+    onClose();
+    push(closeUrl);
   };
 
   const schema = {
@@ -59,7 +66,7 @@ const EditGroupModal = ({
     }, {
       name: 'description',
       label: 'Description',
-      component: componentTypes.TEXT_FIELD
+      component: componentTypes.TEXTAREA_FIELD
     }]
   };
 
@@ -68,7 +75,7 @@ const EditGroupModal = ({
       isLarge
       width={ '50%' }
       title={ 'Edit group\'s informaiton' }
-      isOpen
+      isOpen={ isOpen }
       onClose={ onCancel }
     > { selectedGroup
         ?
@@ -98,7 +105,9 @@ const EditGroupModal = ({
 };
 
 EditGroupModal.defaultProps = {
-  closeUrl: '/groups'
+  closeUrl: '/groups',
+  onClose: () => null,
+  onSubmit: () => null
 };
 
 EditGroupModal.propTypes = {
@@ -112,7 +121,11 @@ EditGroupModal.propTypes = {
   match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
-  closeUrl: PropTypes.string
+  closeUrl: PropTypes.string,
+  isOpen: PropTypes.bool,
+  group: PropTypes.object,
+  onClose: PropTypes.func
+
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({
