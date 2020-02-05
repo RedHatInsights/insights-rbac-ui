@@ -22,8 +22,8 @@ const RemoveGroupModal = ({
 }) => {
   useEffect(() => {
     if (groups.length === 1) {
-      fetchGroup(groups[0].uuid)
-    };
+      fetchGroup(groups[0].uuid);
+    }
   }, []);
 
   const [ checked, setChecked ] = useState(false);
