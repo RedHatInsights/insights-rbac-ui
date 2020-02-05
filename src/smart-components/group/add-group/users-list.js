@@ -24,7 +24,7 @@ const createRows = (data, expanded, checkedRows = []) => {
   ]), []) : [];
 };
 
-const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers }) => {
+const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, props }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
@@ -59,6 +59,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     setCheckedItems={ setCheckedItems }
     titlePlural="users"
     titleSingular="user"
+    { ...props }
   />;
 };
 
@@ -93,7 +94,8 @@ UsersList.propTypes = {
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
     count: PropTypes.number
-  })
+  }),
+  props: PropTypes.object
 };
 
 UsersList.defaultProps = {
