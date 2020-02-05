@@ -10,39 +10,43 @@ import { FormItemLoader } from '../../presentational-components/shared/loader-pl
 
 const RemoveGroupModal = ({
   history: { goBack, push },
-  match: { params: { id }},
   removeGroup,
   removeGroups,
   group,
   isLoading,
   fetchGroup,
+  groups,
+  isModalOpen,
   postMethod,
-  groupIds,
   closeUrl
 }) => {
   useEffect(() => {
-    if(groupIds.length === 1) fetchGroup(id);
+    if(groups.length === 1) fetchGroup(groups[0].uuid);
   }, []);
 
   const [checked, setChecked] = useState(false);
 
-  // const onSubmit = () =>
-  //   postMethod ? removeGroup(id).then(() => postMethod()).then(push(closeUrl)) :
-  //     removeGroup(id).then(() => push(closeUrl));
+  const multipleGroups = groups.length > 1
   
-  const onSubmit = () =>
-    groupIds.length > 1 ? removeGroups(groupIds) : removeGroup(groupIds[0])
+  const onSubmit = () => {
+    if(multipleGroups){
+        let uuids = groups.map((group) => group.uuid);
+        removeGroups(uuids).then(() => postMethod()).then(push(closeUrl));
+    } else {
+        removeGroup([groups[0].uuid]).then(()=> postMethod()).then(push(closeUrl));
+    }
+  }
 
   const onCancel = () => goBack();
 
   return (
     <Modal
-      isOpen
+      isOpen={isModalOpen}
       isSmall
       title = { <Text>
                 <ExclamationTriangleIcon className="delete-group-warning-icon" />
-                &nbsp; Delete group?
-              </Text>}
+                &nbsp; { multipleGroups ? "Delete groups?" : "Delete group?"}
+              </Text>} 
       onClose={ onCancel }
       actions={ [
         <Button key="submit" isDisabled={ !checked }  variant="danger" type="button" onClick={ onSubmit }>
@@ -55,11 +59,17 @@ const RemoveGroupModal = ({
       isFooterLeftAligned
     >
       <TextContent>
-        { isLoading ? <FormItemLoader/> :
-          <Text>
-            Deleting the <b>{ group.name }</b> group removes all roles
+        { multipleGroups ? 
+            <Text>
+            Deleting these <b>{ groups.length }</b> groups removes all roles
             from the members inside the group.
-          </Text>
+            </Text> :
+            isLoading ?
+                <FormItemLoader/> :
+                <Text>
+                    Deleting the <b>{ group.name }</b> group removes all roles
+                    from the members inside the group.
+                </Text>
         }
       </TextContent>
       &nbsp;
@@ -74,27 +84,25 @@ const RemoveGroupModal = ({
 };
 
 RemoveGroupModal.defaultProps = {
+  isModalOpen: false,
   group: {},
   isLoading: true,
   closeUrl: '/groups'
 };
 
 RemoveGroupModal.propTypes = {
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      id: PropTypes.string
-    }).isRequired
-  }).isRequired,
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired
   }).isRequired,
+  isModalOpen: PropTypes.bool,
   removeGroup: PropTypes.func.isRequired,
   removeGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
+  groups: PropTypes.array,
   closeUrl: PropTypes.string
 };
 

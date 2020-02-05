@@ -7,7 +7,7 @@ import { expandable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
-import RemoveGroup from './remove-group-modal-2';
+import RemoveGroup from './remove-group-modal';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
@@ -27,7 +27,7 @@ const tabItems = [
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
-  const [ removeGroup, setRemoveGroup ] = useState([]);
+  const [ removeGroupsList, setRemoveGroupsList ] = useState([]);
 
   useEffect(() => {
     fetchGroups({ ...pagination, name: filterValue });
@@ -44,7 +44,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const routes = () => <Fragment>
     <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } /> } />
-    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } isModalOpen={true} groups={removeGroup}/> } />
+    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } isModalOpen={ true } groups={ removeGroupsList }/> } />
   </Fragment>;
 
 const renderRemoveModal = (groups) => {
@@ -65,11 +65,9 @@ const renderRemoveModal = (groups) => {
         {
           title: 'Delete group',
           onClick: (_event, _rowId, group) => {
-            setRemoveGroup([group])
+            setRemoveGroupsList([group])
             push(`/groups/removegroups`);
           }
-          // onClick: (_event, _rowId, group) =>
-          //   renderRemoveModal([group])
         }
       ];
 
@@ -97,8 +95,7 @@ const renderRemoveModal = (groups) => {
             isDisabled: !selectedRows.length > 0
           },
           onClick: () => {
-            console.log("multiple: ", selectedRows);
-            setRemoveGroup(selectedRows)
+            setRemoveGroupsList(selectedRows)
             push(`/groups/removegroups`);
           }
         }
