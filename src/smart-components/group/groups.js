@@ -149,7 +149,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 Groups.propTypes = {
   userIdentity: PropTypes.shape({
     user: PropTypes.shape({
-      /*eslint-disable-next-line camelcase*/
+      // eslint-disable-next-line camelcase
       is_org_admin: PropTypes.bool
     })
   }),

@@ -89,6 +89,7 @@ const RemoveGroupModal = ({
 RemoveGroupModal.defaultProps = {
   isModalOpen: false,
   group: {},
+  groups: [],
   isLoading: true,
   closeUrl: '/groups'
 };

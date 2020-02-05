@@ -67,7 +67,7 @@ export const removeGroup = (group) => ({
 });
 
 export const removeGroups = (uuids) => ({
-  type: ActionTypes.REMOVE_GROUP,
+  type: ActionTypes.REMOVE_GROUPS,
   payload: GroupHelper.removeGroups(uuids),
   meta: {
     notifications: {

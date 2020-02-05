@@ -5,6 +5,7 @@ export const FETCH_GROUPS = 'FETCH_GROUPS';
 export const ADD_GROUP = 'ADD_GROUP';
 export const UPDATE_GROUP = 'UPDATE_GROUP';
 export const REMOVE_GROUP = 'REMOVE_GROUP';
+export const REMOVE_GROUPS = 'REMOVE_GROUPS';
 
 export const FETCH_USERS = 'FETCH_USERS';
 

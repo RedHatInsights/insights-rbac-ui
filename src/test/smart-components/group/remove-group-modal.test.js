@@ -29,7 +29,8 @@ describe('<RemoveGroupModal />', () => {
   beforeEach(() => {
     initialProps = {
       id: '123',
-      postMethod: jest.fn()
+      postMethod: jest.fn(),
+      isModalOpen: true
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -38,7 +39,7 @@ describe('<RemoveGroupModal />', () => {
         isLoading: true,
         group: {
           name: 'Foo',
-          uuid: '1'
+          uuid: '123'
         },
         selectedGroup: {
           loaded: true
@@ -53,10 +54,10 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/:id/" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
       </GroupWrapper>
     );
-    wrapper.find('button').first().simulate('click');
+    wrapper.find('button').last().simulate('click');
     expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
   });
 
@@ -69,10 +70,10 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/:id/" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
       </GroupWrapper>
     );
-    wrapper.find('#delete-group-check').first().simulate('click');
+    wrapper.find({ type: 'checkbox' }).first().simulate('click');
     expect.extend({
       toContainObj(received, argument) {
         const result = this.equals(received,
@@ -88,7 +89,7 @@ describe('<RemoveGroupModal />', () => {
       }
     });
 
-    wrapper.find('button').last().simulate('click');
+    wrapper.find('button').first().simulate('click');
     setImmediate(() => {
       const actions = store.getActions();
       expect(actions).toContainObj({ type: `${FETCH_GROUP}_PENDING` });
