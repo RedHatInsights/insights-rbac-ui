@@ -9,7 +9,7 @@ import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { Button } from '@patternfly/react-core';
+import { Button, Level, LevelItem } from '@patternfly/react-core';
 import EditGroup from './edit-group-modal';
 import './group.scss';
 
@@ -41,17 +41,30 @@ const Group = ({
   return (
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
-        <Button className='edit-group-button' onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
-        <EditGroup
-          isOpen={ showEdit }
-          group={ group }
-          closeUrl={ `group/detail/${uuid}` }
-          onClose={ () => setShowEdit(false) }
-          postMethod={ () => new Promise(() => setShowEdit(false)) }
-        />
-        <TopToolbarTitle title= { !isFetching && group ? group.name : undefined }
-          description={ !isFetching && group ? group.description : undefined }/>
-        <AppTabs tabItems={ tabItems } />
+        <Level>
+          <LevelItem>
+            <TopToolbarTitle title={ !isFetching && group ? group.name : undefined }
+              description={ !isFetching && group ? group.description : undefined } />
+            <AppTabs tabItems={ tabItems } />
+          </LevelItem>
+
+          <LevelItem>
+            <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
+          </LevelItem>
+          <EditGroup
+            isOpen={ showEdit }
+            group={ group }
+            closeUrl={ `group/detail/${uuid}` }
+            onClose={ () => setShowEdit(false) }
+            postMethod={ () => {
+              fetchData(uuid);
+              setShowEdit(false);
+            }
+            }
+          />
+
+        </Level>
+
       </TopToolbar>
       <Switch>
         <Route path={ `/groups/detail/:uuid/roles` } component={ GroupRoles } />
