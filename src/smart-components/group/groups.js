@@ -47,13 +47,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
     <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } isModalOpen={ true } groups={ removeGroupsList }/> } />
   </Fragment>;
 
-const renderRemoveModal = (groups) => {
-  return (
-    <Fragment>
-      <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } isModalOpen={true} groups={groups}/> } />
-    </Fragment>
-  )
-}
   const actionResolver = (_groupData, { rowIndex }) =>
     (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
