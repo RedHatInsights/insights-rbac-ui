@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { Link, Route, Switch } from 'react-router-dom';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import PropTypes from 'prop-types';
-import AppTabs from '../app-tabs/app-tabs';
 import { createRows } from './role-table-helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -20,11 +19,6 @@ const columns = [
   { title: 'Description' },
   { title: 'Policies' },
   { title: 'Last Modified', orderBy: 'modified' }
-];
-
-const tabItems = [
-  { eventKey: 0, title: 'Groups', name: '/groups' },
-  { eventKey: 1, title: 'Roles', name: '/roles' }
 ];
 
 const Roles = ({
@@ -85,7 +79,6 @@ const Roles = ({
       <StackItem>
         <TopToolbar>
           <TopToolbarTitle title="User access management" />
-          <AppTabs tabItems={ tabItems }/>
         </TopToolbar>
       </StackItem>
       <StackItem>

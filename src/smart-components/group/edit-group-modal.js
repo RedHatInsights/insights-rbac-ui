@@ -3,43 +3,27 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import CreatableSelect from 'react-select/creatable';
-import FormRenderer from '../common/form-renderer';
-import { Modal, Grid, GridItem, TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import { Skeleton } from '@redhat-cloud-services/frontend-components';
+import { Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
-
-const components = {
-  DropdownIndicator: null
-};
-
 const EditGroupModal = ({
   history: { push },
   match: { params: { id }},
   addNotification,
   updateGroup,
   postMethod,
-  closeUrl
+  closeUrl,
+  isOpen,
+  group,
+  onClose
 }) => {
-  const [ selectedGroup, setSelectedGroup ] = useState({});
-  const [ inputValue, setInputValue ] = useState('');
-  const [ selectedUsers, setSelectedUsers ] = useState([]);
-  const [ optionIdx, setOptionIdx ] = useState(0);
-
-  const createOption = (label) => {
-    let idx = optionIdx;
-    setOptionIdx(optionIdx + 1);
-    return {
-      label,
-      value: `${label}_${idx}`
-    };
-  };
+  const [ selectedGroup, setSelectedGroup ] = useState(undefined);
 
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
-    if (groupData) {
-      setSelectedUsers(groupData.principals.map(user => (createOption(user.username))));
-    }
   };
 
   const fetchData = () => {
@@ -50,8 +34,12 @@ const EditGroupModal = ({
     fetchData();
   }, []);
 
+  useEffect(() => {
+    setSelectedGroup(group);
+  }, [ group ]);
+
   const onSubmit = data => {
-    const user_data = { ...data, user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : []};
+    const user_data = { ...data };
     postMethod ? updateGroup(user_data).then(() => postMethod()).then(push(closeUrl)) :
       updateGroup(user_data).then(() => push(closeUrl));
   };
@@ -63,93 +51,63 @@ const EditGroupModal = ({
       title: selectedGroup ? 'Editing group' : 'Adding group',
       description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
-    push('/groups');
+    onClose();
+    push(closeUrl);
   };
 
   const schema = {
-    type: 'object',
-    properties: {
-      name: { title: selectedGroup ? 'Group Name' : 'New Group Name', type: 'string' },
-      description: { title: 'Description', type: 'string' }
-    },
-    required: [ 'name' ]
-  };
-
-  const handleChange = (value) => {
-    setSelectedUsers(value);
-  };
-
-  const handleInputChange = (val) => {
-    setInputValue(val);
-  };
-
-  const handleKeyDown = (event) => {
-    if (!inputValue) {return;}
-
-    switch (event.key) {
-      case 'Enter':
-      case 'Tab':
-        if (selectedUsers) {
-          if (!selectedUsers.find(user => (user.label === inputValue))) {
-            setSelectedUsers([ ...selectedUsers, createOption(inputValue) ]);
-          }
-        }
-        else {
-          setSelectedUsers([ createOption(inputValue) ]);
-        }
-
-        setInputValue('');
-        event.preventDefault();
-    }
+    fields: [{
+      name: 'name',
+      label: 'Name',
+      component: componentTypes.TEXT_FIELD,
+      validate: [{
+        type: validatorTypes.REQUIRED
+      }]
+    }, {
+      name: 'description',
+      label: 'Description',
+      component: componentTypes.TEXTAREA_FIELD
+    }]
   };
 
   return (
     <Modal
       isLarge
-      title={ selectedGroup ? 'Edit group' : 'Add group' }
-      isOpen
+      width={ '50%' }
+      title={ 'Edit group\'s informaiton' }
+      isOpen={ isOpen }
       onClose={ onCancel }
-    >
-      <Grid gutter="md" style={ { minWidth: '800px' } }>
-        <GridItem sm={ 6 }>
-          <FormRenderer
-            schema={ schema }
-            schemaType="mozilla"
-            onSubmit={ onSubmit }
-            onCancel={ onCancel }
-            formContainer="modal"
-            initialValues={ { ...selectedGroup } }
-          />
-        </GridItem>
-        <GridItem sm={ 6 }>
+    > { selectedGroup
+        ?
+        <Grid gutter="md">
           <TextContent>
-            <Text component={ TextVariants.h6 }>Select Members for this group.</Text>
+            <Text>
+              { `Make any changes to ${selectedGroup.name} group.` }
+            </Text>
           </TextContent>
-          <CreatableSelect
-            components={ components }
-            inputValue={ inputValue }
-            defaultValue={ selectedUsers }
-            isClearable
-            isMulti
-            menuIsOpen={ false }
-            onChange={ handleChange }
-            onInputChange={ handleInputChange }
-            onKeyDown={ handleKeyDown }
-            placeholder="Type the exact user name and press enter..."
-            value={ selectedUsers }
-          />
-        </GridItem>
-      </Grid>
+          <GridItem>
+            <FormRenderer
+              schema={ schema }
+              schemaType="mozilla"
+              onSubmit={ onSubmit }
+              onCancel={ onCancel }
+              formContainer="modal"
+              initialValues={ { ...selectedGroup } }
+              buttonOrder= { [ 'submit', 'cancel' ] }
+              disableSubmit={ [ 'pristine' ] }
+            />
+          </GridItem>
+        </Grid>
+        : <Skeleton/>
+      }
     </Modal>
   );
 };
 
 EditGroupModal.defaultProps = {
-  users: [],
-  inputValue: '',
-  selectedGroup: undefined,
-  selectedUsers: [],
-  closeUrl: '/groups'
+  closeUrl: '/groups',
+  onClose: () => null,
+  onSubmit: () => null
 };
 
 EditGroupModal.propTypes = {
@@ -158,14 +116,16 @@ EditGroupModal.propTypes = {
   }).isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  selectedGroup: PropTypes.object,
+  selectedGroup: PropTypes.object.isRequired,
   inputValue: PropTypes.string,
-  users: PropTypes.array,
-  selectedUsers: PropTypes.array,
   match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
-  closeUrl: PropTypes.string
+  closeUrl: PropTypes.string,
+  isOpen: PropTypes.bool,
+  group: PropTypes.object,
+  onClose: PropTypes.func
+
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({

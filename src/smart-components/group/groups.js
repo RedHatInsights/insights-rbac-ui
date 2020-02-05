@@ -13,16 +13,11 @@ import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from '../role/role';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
-const tabItems = [
-  { eventKey: 0, title: 'Groups', name: '/groups' },
-  { eventKey: 1, title: 'Roles', name: '/roles' }
-];
 
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
@@ -44,11 +39,15 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const routes = () => <Fragment>
     <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } /> } />
-    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } isModalOpen={ true } groups={ removeGroupsList }/> } />
+    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ (ids) => {
+      fetchData();
+      setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
+      setFilterValue('');
+    } } isModalOpen={ true } groups={ removeGroupsList } /> } />
   </Fragment>;
 
-  const actionResolver = (_groupData, { rowIndex }) =>
-    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+  const actionResolver = () =>
+    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -100,7 +99,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
       <StackItem>
         <TopToolbar paddingBottm={ false }>
           <TopToolbarTitle title="User access management"/>
-          <AppTabs tabItems={ tabItems }/>
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -151,6 +149,7 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 Groups.propTypes = {
   userIdentity: PropTypes.shape({
     user: PropTypes.shape({
+      /*eslint-disable-next-line camelcase*/
       is_org_admin: PropTypes.bool
     })
   }),
