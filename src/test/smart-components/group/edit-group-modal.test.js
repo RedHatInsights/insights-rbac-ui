@@ -68,7 +68,7 @@ describe('<EditGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store } initialEntries={ [ '/foo/url' ] }>
-        <Route to="/foo/url" render={ args => <EditGroupModal { ...initialProps } { ...args } /> }  />
+        <Route to="/foo/url" render={ args => <EditGroupModal { ...initialProps } { ...args } isOpen /> }  />
       </GroupWrapper>
     );
 
