@@ -53,7 +53,7 @@ const RemoveGroupModal = ({
       onClose={ onCancel }
       actions={ [
         <Button key="submit" isDisabled={ !checked }  variant="danger" type="button" onClick={ onSubmit }>
-          Delete group
+          { multipleGroups ? 'Delete groups' : 'Delete group' }
         </Button>,
         <Button key="cancel" variant="link" type="button" onClick={ onCancel }>
           Cancel
