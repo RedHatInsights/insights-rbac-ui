@@ -13,16 +13,11 @@ import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import AppTabs from '../app-tabs/app-tabs';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from '../role/role';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
-const tabItems = [
-  { eventKey: 0, title: 'Groups', name: '/groups' },
-  { eventKey: 1, title: 'Roles', name: '/roles' }
-];
 
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
@@ -93,7 +88,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
       <StackItem>
         <TopToolbar paddingBottm={ false }>
           <TopToolbarTitle title="User access management"/>
-          <AppTabs tabItems={ tabItems }/>
         </TopToolbar>
       </StackItem>
       <StackItem>

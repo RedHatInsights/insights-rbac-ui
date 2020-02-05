@@ -19,9 +19,19 @@ class App extends Component {
   }
 
   componentDidMount () {
+    const { history } = this.props;
     insights.chrome.init();
     insights.chrome.auth.getUser().then(() => this.setState({ auth: true }));
     insights.chrome.identifyApp('rbac');
+    this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
+      if (event.domEvent) {
+        history.push(`/${event.navId}`);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unregister && this.unregister();
   }
 
   render () {
