@@ -57,7 +57,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
         {
           title: 'Delete group',
           onClick: (_event, _rowId, group) => {
-            setRemoveGroupsList([group])
+            setRemoveGroupsList([ group ]);
             push(`/groups/removegroups`);
           }
         }
@@ -87,7 +87,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             isDisabled: !selectedRows.length > 0
           },
           onClick: () => {
-            setRemoveGroupsList(selectedRows)
+            setRemoveGroupsList(selectedRows);
             push(`/groups/removegroups`);
           }
         }

@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons'
+import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -21,32 +21,33 @@ const RemoveGroupModal = ({
   closeUrl
 }) => {
   useEffect(() => {
-    if(groups.length === 1) fetchGroup(groups[0].uuid);
+    if (groups.length === 1) { fetchGroup(groups[0].uuid) };
   }, []);
 
-  const [checked, setChecked] = useState(false);
+  const [ checked, setChecked ] = useState(false);
 
-  const multipleGroups = groups.length > 1
-  
+  const multipleGroups = groups.length > 1;
+
   const onSubmit = () => {
-    if(multipleGroups){
-        let uuids = groups.map((group) => group.uuid);
-        removeGroups(uuids).then(() => postMethod()).then(push(closeUrl));
+    if (multipleGroups) {
+      let uuids = groups.map((group) => group.uuid);
+      removeGroups(uuids).then(() => postMethod()).then(push(closeUrl));
     } else {
-        removeGroup([groups[0].uuid]).then(()=> postMethod()).then(push(closeUrl));
+      removeGroup([ groups[0].uuid ]).then(()=> postMethod()).then(push(closeUrl));
     }
-  }
+  };
 
   const onCancel = () => goBack();
 
   return (
     <Modal
-      isOpen={isModalOpen}
+      isOpen={ isModalOpen }
       isSmall
-      title = { <Text>
-                <ExclamationTriangleIcon className="delete-group-warning-icon" />
-                &nbsp; { multipleGroups ? "Delete groups?" : "Delete group?"}
-              </Text>} 
+      title = {
+      <Text>
+        <ExclamationTriangleIcon className="delete-group-warning-icon" />
+        &nbsp; { multipleGroups ? 'Delete groups?' : 'Delete group?' }
+      </Text> } 
       onClose={ onCancel }
       actions={ [
         <Button key="submit" isDisabled={ !checked }  variant="danger" type="button" onClick={ onSubmit }>
@@ -60,22 +61,22 @@ const RemoveGroupModal = ({
     >
       <TextContent>
         { multipleGroups ? 
-            <Text>
-            Deleting these <b>{ groups.length }</b> groups removes all roles
-            from the members inside the group.
-            </Text> :
-            isLoading ?
-                <FormItemLoader/> :
-                <Text>
-                    Deleting the <b>{ group.name }</b> group removes all roles
-                    from the members inside the group.
-                </Text>
+        <Text>
+          Deleting these <b>{ groups.length }</b> groups removes all roles
+          from the members inside the group.
+        </Text> :
+        isLoading ?
+        <FormItemLoader/> :
+        <Text>
+          Deleting the <b>{ group.name }</b> group removes all roles
+          from the members inside the group.
+        </Text>
         }
       </TextContent>
       &nbsp;
       <Checkbox
-        isChecked={checked}
-        onChange={()=> setChecked(!checked)}
+        isChecked={ checked }
+        onChange={ ()=> setChecked(!checked) }
         label="I understand that this action cannot be undone."
         id="delete-group-check"
       />
