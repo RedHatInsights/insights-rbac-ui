@@ -21,7 +21,9 @@ const RemoveGroupModal = ({
   closeUrl
 }) => {
   useEffect(() => {
-    if (groups.length === 1) { fetchGroup(groups[0].uuid) };
+    if (groups.length === 1) {
+      fetchGroup(groups[0].uuid)
+    };
   }, []);
 
   const [ checked, setChecked ] = useState(false);
@@ -44,10 +46,10 @@ const RemoveGroupModal = ({
       isOpen={ isModalOpen }
       isSmall
       title = {
-      <Text>
-        <ExclamationTriangleIcon className="delete-group-warning-icon" />
+        <Text>
+          <ExclamationTriangleIcon className="delete-group-warning-icon" />
         &nbsp; { multipleGroups ? 'Delete groups?' : 'Delete group?' }
-      </Text> } 
+        </Text> }
       onClose={ onCancel }
       actions={ [
         <Button key="submit" isDisabled={ !checked }  variant="danger" type="button" onClick={ onSubmit }>
@@ -60,17 +62,17 @@ const RemoveGroupModal = ({
       isFooterLeftAligned
     >
       <TextContent>
-        { multipleGroups ? 
-        <Text>
+        { multipleGroups ?
+          <Text>
           Deleting these <b>{ groups.length }</b> groups removes all roles
           from the members inside the group.
-        </Text> :
-        isLoading ?
-        <FormItemLoader/> :
-        <Text>
+          </Text> :
+          isLoading ?
+            <FormItemLoader/> :
+            <Text>
           Deleting the <b>{ group.name }</b> group removes all roles
           from the members inside the group.
-        </Text>
+            </Text>
         }
       </TextContent>
       &nbsp;
