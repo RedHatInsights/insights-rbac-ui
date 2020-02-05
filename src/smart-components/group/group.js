@@ -11,7 +11,6 @@ import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Button, Level, LevelItem } from '@patternfly/react-core';
 import EditGroup from './edit-group-modal';
-import './group.scss';
 
 const Group = ({
   match: { params: { uuid }},
