@@ -22,7 +22,7 @@ const RemoveGroupModal = ({
   }, []);
 
   const onSubmit = () =>
-    postMethod ? removeGroup(id).then(() => postMethod()).then(push(closeUrl)) :
+    postMethod ? removeGroup(id).then(() => postMethod([ id ])).then(push(closeUrl)) :
       removeGroup(id).then(() => push(closeUrl));
 
   const onCancel = () => goBack();

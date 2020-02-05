@@ -38,7 +38,11 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const routes = () => <Fragment>
     <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } /> } />
-    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ fetchData } /> } />
+    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ (ids) => {
+      fetchData();
+      setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
+      setFilterValue('');
+    } } /> } />
   </Fragment>;
 
   const actionResolver = () =>
