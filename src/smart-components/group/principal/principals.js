@@ -86,9 +86,9 @@ const GroupPrincipals = ({
         >
           <Button
             variant="primary"
-            aria-label="Add member"
+            aria-label="Add user"
           >
-        Add member
+        Add user
           </Button>
         </Link>,
         {
@@ -160,6 +160,7 @@ const GroupPrincipals = ({
               isLoading={ isLoading }
               setCheckedItems={ setCheckedPrincipals }
               toolbarButtons={ toolbarButtons }
+              emptyProps={ { title: 'There are no members in this group', description: [ 'Add a user to cofnigure user access', '' ]} }
             /> }
       </Section>
     </Fragment>
