@@ -57,12 +57,12 @@ export const removeGroups = (uuids) => ({
       fulfilled: {
         variant: 'success',
         title: uuids.length > 1 ? 'Groups deleted successfully' :
-        'Group deleted successfully'
+          'Group deleted successfully'
       },
       rejected: {
         variant: 'danger',
         title: uuids.length > 1 ? 'There was an error deleting the groups. Please try again.' :
-        'There was an error deleting the group. Please try again.'
+          'There was an error deleting the group. Please try again.'
       }
     }
   }

@@ -22,7 +22,7 @@ describe('group helper', () => {
 
   it('should call remove group', async () => {
     mock.onDelete(`${RBAC_API_BASE}/groups/removegroups`).reply(200);
-    const data = await removeGroups(['123']);
+    const data = await removeGroups([ '123' ]);
     expect(data.status).toBe(200);
   });
 });

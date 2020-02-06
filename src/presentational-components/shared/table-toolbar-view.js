@@ -4,7 +4,7 @@ import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-t
 import { TableToolbar } from '@redhat-cloud-services/frontend-components';
 import { Button, Pagination } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
-import { UsersIcon } from '@patternfly/react-icons';
+import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-filter';
@@ -29,7 +29,8 @@ export const TableToolbarView = ({
   checkedRows,
   isSelectable,
   fetchData,
-  setCheckedItems
+  setCheckedItems,
+  emptyProps
 }) => {
   const [ opened, openRow ] = useState({});
 
@@ -127,12 +128,13 @@ export const TableToolbarView = ({
       { !isLoading && rows.length === 0 && filterValue.length === 0 ?
         <EmptyWithAction
           title={ `Configure ${titlePlural}` }
-          icon={ UsersIcon }
+          icon={ PlusCircleIcon }
           description={ [
             `To configure user access to applicastions`,
             `create at least one ${titleSingular}`
           ] }
           actions={ toolbarButtons()[0] }
+          { ...emptyProps }
         /> :
         renderTable() }
     </Fragment>
