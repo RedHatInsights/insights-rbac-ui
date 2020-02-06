@@ -160,7 +160,7 @@ const GroupPrincipals = ({
               isLoading={ isLoading }
               setCheckedItems={ setCheckedPrincipals }
               toolbarButtons={ toolbarButtons }
-              emptyProps={ { title: 'There are no members in this group', description: [ 'Add a user to cofnigure user access', '' ]} }
+              emptyProps={ { title: 'There are no members in this group', description: [ 'Add a user to configure user access.', '' ]} }
             /> }
       </Section>
     </Fragment>

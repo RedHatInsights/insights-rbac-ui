@@ -173,7 +173,7 @@ const GroupRoles = ({
           toolbarButtons={ toolbarButtons }
           actionResolver={ actionResolver }
           routes={ routes }
-          emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to cofnigure user access', '' ]} }
+          emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
 
         />
       </Section>
