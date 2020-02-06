@@ -1,6 +1,6 @@
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import { mock } from '../../__mocks__/apiMock';
-import { fetchGroups, addGroup, removeGroup } from '../../../helpers/group/group-helper';
+import { fetchGroups, addGroup, removeGroups } from '../../../helpers/group/group-helper';
 
 describe('group helper', () => {
   it('should call list groups helper', async () => {
@@ -21,8 +21,8 @@ describe('group helper', () => {
   });
 
   it('should call remove group', async () => {
-    mock.onDelete(`${RBAC_API_BASE}/groups/123/`).reply(200);
-    const data = await removeGroup('123');
+    mock.onDelete(`${RBAC_API_BASE}/groups/removegroups`).reply(200);
+    const data = await removeGroups(['123']);
     expect(data.status).toBe(200);
   });
 });

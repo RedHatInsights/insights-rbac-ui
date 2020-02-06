@@ -43,7 +43,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
       fetchData();
       setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
       setFilterValue('');
-    } } isModalOpen={ true } groups={ removeGroupsList } /> } />
+    } } isModalOpen groupsUuid={ removeGroupsList } /> } />
   </Fragment>;
 
   const actionResolver = () =>

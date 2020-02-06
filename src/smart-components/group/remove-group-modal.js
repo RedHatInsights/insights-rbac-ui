@@ -5,38 +5,33 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { fetchGroup, removeGroup, removeGroups } from '../../redux/actions/group-actions';
+import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveGroupModal = ({
   history: { goBack, push },
-  removeGroup,
   removeGroups,
   group,
   isLoading,
   fetchGroup,
-  groups,
+  groupsUuid,
   isModalOpen,
   postMethod,
   closeUrl
 }) => {
   useEffect(() => {
-    if (groups.length === 1) {
-      fetchGroup(groups[0].uuid);
+    if (groupsUuid.length === 1) {
+      fetchGroup(groupsUuid[0].uuid);
     }
   }, []);
 
   const [ checked, setChecked ] = useState(false);
 
-  const multipleGroups = groups.length > 1;
+  const multipleGroups = groupsUuid.length > 1;
 
   const onSubmit = () => {
-    if (multipleGroups) {
-      let uuids = groups.map((group) => group.uuid);
-      removeGroups(uuids).then(() => postMethod()).then(push(closeUrl));
-    } else {
-      removeGroup([ groups[0].uuid ]).then(()=> postMethod()).then(push(closeUrl));
-    }
+    const uuids = groupsUuid.map((group) => group.uuid);
+    removeGroups(uuids).then(() => postMethod(uuids)).then(push(closeUrl));
   };
 
   const onCancel = () => goBack();
@@ -64,7 +59,7 @@ const RemoveGroupModal = ({
       <TextContent>
         { multipleGroups ?
           <Text>
-          Deleting these <b>{ groups.length }</b> groups removes all roles
+          Deleting these <b>{ groupsUuid.length }</b> groups removes all roles
           from the members inside the group.
           </Text> :
           isLoading ?
@@ -89,7 +84,7 @@ const RemoveGroupModal = ({
 RemoveGroupModal.defaultProps = {
   isModalOpen: false,
   group: {},
-  groups: [],
+  groupsUuid: [],
   isLoading: true,
   closeUrl: '/groups'
 };
@@ -100,13 +95,12 @@ RemoveGroupModal.propTypes = {
     push: PropTypes.func.isRequired
   }).isRequired,
   isModalOpen: PropTypes.bool,
-  removeGroup: PropTypes.func.isRequired,
   removeGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
-  groups: PropTypes.array,
+  groupsUuid: PropTypes.array,
   closeUrl: PropTypes.string
 };
 
@@ -117,7 +111,6 @@ const mapStateToProps = ({ groupReducer: { selectedGroup }}) => ({
 
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchGroup,
-  removeGroup,
   removeGroups
 }, dispatch);
 
