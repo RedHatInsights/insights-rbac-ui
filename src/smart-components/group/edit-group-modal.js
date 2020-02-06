@@ -84,7 +84,7 @@ const EditGroupModal = ({
     <Modal
       isLarge
       width={ '50%' }
-      title={ 'Edit group\'s informaiton' }
+      title={ 'Edit group\'s information' }
       isOpen={ isOpen }
       onClose={ onCancel }
     > { selectedGroup
