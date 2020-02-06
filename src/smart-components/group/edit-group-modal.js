@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
+import { Button, Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -70,11 +70,21 @@ const EditGroupModal = ({
     }]
   };
 
+  // eslint-disable-next-line react/prop-types
+  const formButtons = ({ pristine, valid, form: { submit }}) => {
+    return (
+      <div>
+        <Button isDisabled={ pristine || !valid } onClick={ submit } variant="primary">Submit</Button>
+        <Button variant='link' onClick={ onCancel }>Cancel</Button>
+      </div>
+    );
+  };
+
   return (
     <Modal
       isLarge
       width={ '50%' }
-      title={ 'Edit group\'s informaiton' }
+      title={ 'Edit group\'s information' }
       isOpen={ isOpen }
       onClose={ onCancel }
     > { selectedGroup
@@ -90,11 +100,9 @@ const EditGroupModal = ({
               schema={ schema }
               schemaType="mozilla"
               onSubmit={ onSubmit }
-              onCancel={ onCancel }
               formContainer="modal"
               initialValues={ { ...selectedGroup } }
-              buttonOrder= { [ 'submit', 'cancel' ] }
-              disableSubmit={ [ 'pristine' ] }
+              renderFormButtons={ formButtons }
             />
           </GridItem>
         </Grid>
