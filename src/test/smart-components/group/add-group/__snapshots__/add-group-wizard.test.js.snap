@@ -1,50 +1,18 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<AddGroupWizard /> should post a warning message on Cancel 1`] = `
-<ContextProvider
-  value={
-    Object {
-      "store": Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      },
-      "subscription": Subscription {
-        "handleChangeWrapper": [Function],
-        "listeners": Object {
-          "notify": [Function],
-        },
-        "onStateChange": [Function],
-        "parentSub": undefined,
-        "store": Object {
-          "clearActions": [Function],
-          "dispatch": [Function],
-          "getActions": [Function],
-          "getState": [Function],
-          "replaceReducer": [Function],
-          "subscribe": [Function],
-        },
-        "unsubscribe": null,
-      },
-    }
+<MemoryRouter
+  initialEntries={
+    Array [
+      "/groups/",
+      "/groups/add-group/",
+      "/groups/",
+    ]
   }
+  initialIndex={1}
 >
-  <MemoryRouter
-    initialEntries={
-      Array [
-        "/groups/",
-        "/groups/add-group/",
-        "/groups/",
-      ]
-    }
-    initialIndex={1}
-  >
-    <withRouter(Connect(AddGroupWizard))
-      uuid="123"
-    />
-  </MemoryRouter>
-</ContextProvider>
+  <withRouter(Connect(AddGroupWizard))
+    uuid="123"
+  />
+</MemoryRouter>
 `;

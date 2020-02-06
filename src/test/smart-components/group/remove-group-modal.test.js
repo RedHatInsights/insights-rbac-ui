@@ -11,6 +11,7 @@ import { RBAC_API_BASE } from '../../../utilities/constants';
 import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { REMOVE_GROUP, FETCH_GROUP } from '../../../redux/action-types';
+import { Button, Checkbox } from '@patternfly/react-core';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
@@ -29,8 +30,7 @@ describe('<RemoveGroupModal />', () => {
   beforeEach(() => {
     initialProps = {
       id: '123',
-      postMethod: jest.fn(),
-      isModalOpen: true
+      postMethod: jest.fn()
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -54,10 +54,10 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
       </GroupWrapper>
     );
-    wrapper.find('button').last().simulate('click');
+    wrapper.find(Button).last().simulate('click');
     expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
   });
 
@@ -70,10 +70,10 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
       </GroupWrapper>
     );
-    wrapper.find({ type: 'checkbox' }).first().simulate('click');
+    wrapper.find(Checkbox).first().simulate('click');
     expect.extend({
       toContainObj(received, argument) {
         const result = this.equals(received,
@@ -89,7 +89,7 @@ describe('<RemoveGroupModal />', () => {
       }
     });
 
-    wrapper.find('button').first().simulate('click');
+    wrapper.find(Button).first().simulate('click');
     setImmediate(() => {
       const actions = store.getActions();
       expect(actions).toContainObj({ type: `${FETCH_GROUP}_PENDING` });

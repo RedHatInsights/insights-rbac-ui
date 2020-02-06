@@ -1,45 +1,13 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<AddRoleWizard /> should post a warning message on Cancel 1`] = `
-<ContextProvider
-  value={
-    Object {
-      "store": Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      },
-      "subscription": Subscription {
-        "handleChangeWrapper": [Function],
-        "listeners": Object {
-          "notify": [Function],
-        },
-        "onStateChange": [Function],
-        "parentSub": undefined,
-        "store": Object {
-          "clearActions": [Function],
-          "dispatch": [Function],
-          "getActions": [Function],
-          "getState": [Function],
-          "replaceReducer": [Function],
-          "subscribe": [Function],
-        },
-        "unsubscribe": null,
-      },
-    }
+<MemoryRouter
+  initialEntries={
+    Array [
+      "/roles/add-role/",
+    ]
   }
 >
-  <MemoryRouter
-    initialEntries={
-      Array [
-        "/roles/add-role/",
-      ]
-    }
-  >
-    <withRouter(Connect(AddRoleWizard)) />
-  </MemoryRouter>
-</ContextProvider>
+  <withRouter(Connect(AddRoleWizard)) />
+</MemoryRouter>
 `;
