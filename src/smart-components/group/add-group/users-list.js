@@ -8,7 +8,7 @@ import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 const columns = [
-  { title: 'User name', orderBy: 'name' },
+  { title: 'Username', orderBy: 'name' },
   { title: 'Email' },
   { title: 'First name' },
   { title: 'Last name' }

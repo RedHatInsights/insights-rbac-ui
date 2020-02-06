@@ -11,7 +11,10 @@ const Users = () => {
     <Stack>
       <StackItem>
         <TopToolbar paddingBottm={ false }>
-          <TopToolbarTitle title="Users" />
+          <TopToolbarTitle
+            title="Users"
+            description='These are the users in your organization. To add new users to your organization go to user management list.'
+          />
         </TopToolbar>
       </StackItem>
       <StackItem>
