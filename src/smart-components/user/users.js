@@ -1,11 +1,10 @@
-import React, {  useState } from 'react';
+import React from 'react';
 import { Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import UsersList from '../group/add-group/users-list';
 
 const Users = () => {
-  const [ selectedRows, setSelectedRows ] = useState([]);
   const isProd = window.insights.chrome.isProd;
   const description = (<TextContent>
     <Text>
@@ -18,8 +17,8 @@ const Users = () => {
     </Text>
   </TextContent>);
 
-  const renderUsersList = () =>
-    <Stack>
+  return (
+    <Stack >
       <StackItem>
         <TopToolbar paddingBottm={ false }>
           <TopToolbarTitle
@@ -31,8 +30,6 @@ const Users = () => {
       <StackItem>
         <Section type="content" id={ 'users' }>
           <UsersList
-            selectedUsers={ selectedRows }
-            setSelectedUsers={ setSelectedRows }
             props={ {
               isSelectable: false,
               isCompact: false
@@ -40,9 +37,7 @@ const Users = () => {
           />
         </Section>
       </StackItem>
-    </Stack>;
-  return (
-    renderUsersList()
+    </Stack >
   );
 };
 

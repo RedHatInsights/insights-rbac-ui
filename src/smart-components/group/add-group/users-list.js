@@ -100,7 +100,9 @@ UsersList.propTypes = {
 
 UsersList.defaultProps = {
   users: [],
-  pagination: defaultCompactSettings
+  pagination: defaultCompactSettings,
+  selectedUsers: [],
+  setSelectedUsers: () => undefined
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);
