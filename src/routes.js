@@ -5,11 +5,13 @@ import { AppPlaceholder } from './presentational-components/shared/loader-placeh
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
+const Users = lazy(() => import('./smart-components/user/users'));
 
 const paths = {
   rbac: '/',
   groups: '/groups',
-  roles: '/roles'
+  roles: '/roles',
+  users: '/users'
 };
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
@@ -30,6 +32,7 @@ export const Routes = () => {
       <Switch>
         <InsightsRoute path={ paths.groups } component={ Groups } rootClass="groups" />
         <InsightsRoute path={ paths.roles } component={ Roles } rootClass="roles" />
+        <InsightsRoute path={ paths.users } component={ Users } rootClass="roles" />
         <Route render={ () => <Redirect to={ paths.groups } /> } />
       </Switch>
     </Suspense>

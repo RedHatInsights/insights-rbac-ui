@@ -8,7 +8,7 @@ import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 const columns = [
-  { title: 'User name', orderBy: 'name' },
+  { title: 'Username', orderBy: 'name' },
   { title: 'Email' },
   { title: 'First name' },
   { title: 'Last name' }
@@ -24,7 +24,7 @@ const createRows = (data, expanded, checkedRows = []) => {
   ]), []) : [];
 };
 
-const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers }) => {
+const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, props }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
@@ -59,6 +59,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     setCheckedItems={ setCheckedItems }
     titlePlural="users"
     titleSingular="user"
+    { ...props }
   />;
 };
 
@@ -93,12 +94,15 @@ UsersList.propTypes = {
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
     count: PropTypes.number
-  })
+  }),
+  props: PropTypes.object
 };
 
 UsersList.defaultProps = {
   users: [],
-  pagination: defaultCompactSettings
+  pagination: defaultCompactSettings,
+  selectedUsers: [],
+  setSelectedUsers: () => undefined
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);

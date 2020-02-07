@@ -38,7 +38,7 @@ export const TopToolbarTitle = ({ title, description, children }) => (
           { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
         </TextContent>
         { description &&
-          <TextContent className="pf-u-pt-sm pf-u-mb-md">
+          <TextContent className="pf-u-pt-sm pf-u-mb-md top-toolbar-description">
             <Text component={ TextVariants.p }>{ description }</Text>
           </TextContent> }
       </LevelItem>
