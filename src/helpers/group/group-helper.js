@@ -37,7 +37,7 @@ export async function addGroup(data) {
 }
 
 export async function removeGroups(uuids) {
-  return await uuids.map((uuid) => groupApi.deleteGroup(uuid));
+  return await Promise.all(uuids.map((uuid) => groupApi.deleteGroup(uuid)));
 }
 
 export async function deletePrincipalsFromGroup(groupId, users) {
