@@ -19,21 +19,19 @@ describe('<RemoveGroupModal />', () => {
   let mockStore;
   let initialState;
 
-  const GroupWrapper = ({ store, children }) => (
+  const GroupWrapper = ({ store }) => (
     <Provider store={ store }>
       <MemoryRouter initialEntries={ [ '/groups/', '/groups/123/', '/groups/' ] } initialIndex={ 1 }>
-        { children }
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps }
+          isModalOpen
+          groupsUuid={ [{ uuid: '1234' }] } /> } />
       </MemoryRouter>
     </Provider>
   );
 
-  const groupsToRemove = [{ uuid: '1234'}];
-
   beforeEach(() => {
     initialProps = {
-      id: '123',
-      postMethod: jest.fn(),
-      groupsUuid: groupsToRemove
+      postMethod: jest.fn()
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -56,11 +54,9 @@ describe('<RemoveGroupModal />', () => {
     mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, { data: []});
 
     const wrapper = mount(
-      <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
-      </GroupWrapper>
+      <GroupWrapper store={ store } />
     );
-    console.log(wrapper.debug());
+
     wrapper.find(Button).last().simulate('click');
     expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
   });
@@ -73,10 +69,9 @@ describe('<RemoveGroupModal />', () => {
     mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, { data: []});
 
     const wrapper = mount(
-      <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
-      </GroupWrapper>
+      <GroupWrapper store={ store }/>
     );
+
     wrapper.find(Checkbox).first().simulate('click');
     expect.extend({
       toContainObj(received, argument) {
