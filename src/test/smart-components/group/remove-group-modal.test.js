@@ -27,12 +27,13 @@ describe('<RemoveGroupModal />', () => {
     </Provider>
   );
 
-  const groupsToRemove = [{ uuid: '1234' }];
+  const groupsToRemove = [{ uuid: '1234'}];
 
   beforeEach(() => {
     initialProps = {
       id: '123',
-      postMethod: jest.fn()
+      postMethod: jest.fn(),
+      groupsUuid: groupsToRemove
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -56,10 +57,10 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen
-          groupsUuid={ groupsToRemove } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
       </GroupWrapper>
     );
+    console.log(wrapper.debug());
     wrapper.find(Button).last().simulate('click');
     expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
   });
@@ -73,8 +74,7 @@ describe('<RemoveGroupModal />', () => {
 
     const wrapper = mount(
       <GroupWrapper store={ store }>
-        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen
-          groupsUuid={ groupsToRemove } /> } />
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen /> } />
       </GroupWrapper>
     );
     wrapper.find(Checkbox).first().simulate('click');
