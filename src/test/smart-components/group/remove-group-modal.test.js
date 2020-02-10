@@ -27,7 +27,7 @@ describe('<RemoveGroupModal />', () => {
     </Provider>
   );
 
-  const groupsToRemove = [{uuid: '1234'}]
+  const groupsToRemove = [{ uuid: '1234' }];
 
   beforeEach(() => {
     initialProps = {
@@ -57,7 +57,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(
       <GroupWrapper store={ store }>
         <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen
-          groupsUuid={groupsToRemove} /> } />
+          groupsUuid={ groupsToRemove } /> } />
       </GroupWrapper>
     );
     wrapper.find(Button).last().simulate('click');
@@ -74,7 +74,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(
       <GroupWrapper store={ store }>
         <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } isModalOpen
-          groupsUuid={groupsToRemove} /> } />
+          groupsUuid={ groupsToRemove } /> } />
       </GroupWrapper>
     );
     wrapper.find(Checkbox).first().simulate('click');
