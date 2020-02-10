@@ -131,7 +131,7 @@ const GroupRoles = ({
             const multipleRolesSelected = selectedRoles.length > 1;
             setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
             setDeleteInfo({
-              title: 'Remove roles?',
+              title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',
               confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
               text: removeModalText(
                 name,
