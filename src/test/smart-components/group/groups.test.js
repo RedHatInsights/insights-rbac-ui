@@ -2,6 +2,7 @@ import React from 'react';
 import thunk from 'redux-thunk';
 import { shallow } from 'enzyme';
 import configureStore from 'redux-mock-store' ;
+import { Provider } from 'react-redux';
 import { shallowToJson } from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
@@ -23,13 +24,20 @@ describe('<Groups />', () => {
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(<Groups store={ store } { ...initialProps } />);
+    const wrapper = shallow(
+      <Provider store={ store }>
+        <Groups { ...initialProps } />
+      </Provider>
+    );
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('should render correctly in loading state', () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(<Groups store={ store } { ...initialProps } isLoading />);
+    const wrapper = shallow(
+      <Provider store={ store }>
+        <Groups { ...initialProps } isLoading />
+      </Provider>);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 });

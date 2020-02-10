@@ -2,27 +2,45 @@
 
 exports[`<Groups /> should render correctly 1`] = `
 <ContextProvider
-  value={null}
->
-  <Groups
-    fetchGroups={[Function]}
-    groups={Array []}
-    isLoading={false}
-    pagination={
-      Object {
-        "count": 0,
-        "limit": 10,
-        "offset": 0,
-      }
-    }
-    store={
-      Object {
+  value={
+    Object {
+      "store": Object {
         "clearActions": [Function],
         "dispatch": [Function],
         "getActions": [Function],
         "getState": [Function],
         "replaceReducer": [Function],
         "subscribe": [Function],
+      },
+      "subscription": Subscription {
+        "handleChangeWrapper": [Function],
+        "listeners": Object {
+          "notify": [Function],
+        },
+        "onStateChange": [Function],
+        "parentSub": undefined,
+        "store": Object {
+          "clearActions": [Function],
+          "dispatch": [Function],
+          "getActions": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+        },
+        "unsubscribe": null,
+      },
+    }
+  }
+>
+  <Groups
+    groups={Array []}
+    pagination={
+      Object {
+        "count": 1,
+        "itemCount": 1,
+        "limit": 50,
+        "numberOfItems": 50,
+        "offset": 0,
       }
     }
     userIdentity={Object {}}
@@ -32,27 +50,46 @@ exports[`<Groups /> should render correctly 1`] = `
 
 exports[`<Groups /> should render correctly in loading state 1`] = `
 <ContextProvider
-  value={null}
->
-  <Groups
-    fetchGroups={[Function]}
-    groups={Array []}
-    isLoading={false}
-    pagination={
-      Object {
-        "count": 0,
-        "limit": 10,
-        "offset": 0,
-      }
-    }
-    store={
-      Object {
+  value={
+    Object {
+      "store": Object {
         "clearActions": [Function],
         "dispatch": [Function],
         "getActions": [Function],
         "getState": [Function],
         "replaceReducer": [Function],
         "subscribe": [Function],
+      },
+      "subscription": Subscription {
+        "handleChangeWrapper": [Function],
+        "listeners": Object {
+          "notify": [Function],
+        },
+        "onStateChange": [Function],
+        "parentSub": undefined,
+        "store": Object {
+          "clearActions": [Function],
+          "dispatch": [Function],
+          "getActions": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+        },
+        "unsubscribe": null,
+      },
+    }
+  }
+>
+  <Groups
+    groups={Array []}
+    isLoading={true}
+    pagination={
+      Object {
+        "count": 1,
+        "itemCount": 1,
+        "limit": 50,
+        "numberOfItems": 50,
+        "offset": 0,
       }
     }
     userIdentity={Object {}}
