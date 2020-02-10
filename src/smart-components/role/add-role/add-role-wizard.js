@@ -99,7 +99,7 @@ const AddRoleWizard = ({
     addNotification({
       variant: 'warning',
       title: 'Adding role',
-      dismissable: true,
+      dismissDelay: 8000,
       description: 'Adding role was cancelled by the user.'
     });
     push('/roles');
