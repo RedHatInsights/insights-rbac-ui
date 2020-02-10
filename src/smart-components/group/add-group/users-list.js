@@ -54,7 +54,6 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       // eslint-disable-next-line react/display-name, react/prop-types
       toggleTemplate: ({ firstIndex, lastIndex }) => <b>{ `${firstIndex} - ${lastIndex}` }</b>
     } }
-    request={ fetchUsers }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
     filterPlaceholder="username"

@@ -127,7 +127,6 @@ const Groups = ({ history: { push }}) => {
             isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
             checkedRows={ selectedRows }
             setCheckedItems={ setCheckedItems }
-            request={ () => undefined }
             routes={ routes }
             actionResolver={ actionResolver }
             titlePlural="groups"

@@ -163,7 +163,6 @@ const GroupPrincipals = ({
               isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
               createRows={ createRows }
               columns={ columns }
-              request={ fetchGroup }
               routes={ routes }
               actionResolver={ actionResolver }
               filterPlaceholder="username"
