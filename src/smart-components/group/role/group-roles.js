@@ -133,7 +133,10 @@ const GroupRoles = ({
             setDeleteInfo({
               title: 'Remove roles?',
               confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
-              text: removeModalText(name, multipleRolesSelected ? selectedRoles.length : selectedRoles[0].label, multipleRolesSelected)
+              text: removeModalText(
+                name,
+                multipleRolesSelected ? selectedRoles.length : roles.find(role => role.uuid === selectedRoles[0].uuid).name,
+                multipleRolesSelected)
             });
             setShowRemoveModal(true);
           }
