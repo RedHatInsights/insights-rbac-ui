@@ -1,6 +1,4 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route, Switch } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
@@ -8,6 +6,7 @@ import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
+import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
@@ -21,17 +20,25 @@ import './groups.scss';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Roles', 'Members', 'Last modified' ];
 
-const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
+const Groups = ({ history: { push }}) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
   const [ removeGroupsList, setRemoveGroupsList ] = useState([]);
 
+  const dispatch = useDispatch();
+  const { groups, pagination, userIdentity, isLoading } = useSelector(({ groupReducer: { groups, isLoading }}) => ({
+    groups: groups.data,
+    pagination: groups.meta,
+    userIdentity: groups.identity,
+    isLoading
+  }), shallowEqual);
+
   useEffect(() => {
-    fetchGroups({ ...pagination, name: filterValue });
+    dispatch(fetchGroups({ ...pagination, name: filterValue }));
   }, []);
 
   const fetchData = (config) => {
-    fetchGroups(config);
+    dispatch(fetchGroups(config));
   };
 
   const setCheckedItems = (newSelection) => {
@@ -120,14 +127,14 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
             checkedRows={ selectedRows }
             setCheckedItems={ setCheckedItems }
-            request={ fetchGroups }
+            request={ () => undefined }
             routes={ routes }
             actionResolver={ actionResolver }
             titlePlural="groups"
             titleSingular="group"
             pagination={ pagination }
             filterValue={ filterValue }
-            fetchData={ (config) => fetchGroups(config) }
+            fetchData={ fetchData }
             setFilterValue={ ({ name }) => setFilterValue(name) }
             toolbarButtons={ toolbarButtons }
             isLoading={ isLoading }
@@ -146,18 +153,6 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   );
 };
 
-const mapStateToProps = ({ groupReducer: { groups, filterValue, isLoading }}) => ({
-  groups: groups.data,
-  pagination: groups.meta,
-  userIdentity: groups.identity,
-  isLoading,
-  searchFilter: filterValue
-});
-
-const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchGroups
-}, dispatch);
-
 Groups.propTypes = {
   userIdentity: PropTypes.shape({
     user: PropTypes.shape({
@@ -172,8 +167,6 @@ Groups.propTypes = {
   groups: PropTypes.array,
   platforms: PropTypes.array,
   isLoading: PropTypes.bool,
-  searchFilter: PropTypes.string,
-  fetchGroups: PropTypes.func.isRequired,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
@@ -187,4 +180,4 @@ Groups.defaultProps = {
   pagination: defaultSettings
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Groups);
+export default Groups;

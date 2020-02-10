@@ -2,6 +2,7 @@ export const defaultSettings = {
   limit: 50,
   offset: 0,
   itemCount: 1,
+  count: 1,
   numberOfItems: 50
 };
 
