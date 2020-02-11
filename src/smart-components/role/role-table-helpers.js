@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 import { Link } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
 
 export const createRows = (data) => (
   data.reduce((acc, { uuid, name, description, system, accessCount, modified }) => ([
@@ -12,13 +11,13 @@ export const createRows = (data) => (
       cells: [
         <Fragment key={ `${uuid}-name` }>
           <Link to={ `/roles/detail/${uuid}` }>
-            <Button variant="link"> { name } </Button>
+            { name }
           </Link>
         </Fragment>,
         description,
         <Fragment key={ `${uuid}-accessCount` }>
           <Link to={ `/roles/detail/${uuid}` }>
-            <Button variant="link"> { accessCount } </Button>
+            { accessCount }
           </Link>
         </Fragment>,
         <Fragment key={ `${uuid}-modified` }>

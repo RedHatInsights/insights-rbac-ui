@@ -15,10 +15,10 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 
 const columns = [
-  { title: 'Role', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' },
   { title: 'Permissions' },
-  { title: 'Last Modified', orderBy: 'modified' }
+  { title: 'Last modified', orderBy: 'modified' }
 ];
 
 const Roles = ({
@@ -94,6 +94,7 @@ const Roles = ({
             titlePlural="roles"
             titleSingular="role"
             toolbarButtons = { toolbarButtons }
+            filterPlaceholder="Filter by name"
           />
         </Section>
       </StackItem>

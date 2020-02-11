@@ -31,7 +31,8 @@ export const TableToolbarView = ({
   fetchData,
   setCheckedItems,
   isCollapsible,
-  emptyProps
+  emptyProps,
+  filterPlaceholder
 }) => {
   const [ opened, openRow ] = useState({});
 
@@ -91,6 +92,7 @@ export const TableToolbarView = ({
         pagination={ pagination }
         fetchData={ fetchData }
         toolbarButtons={ toolbarButtons }
+        filterPlaceholder={ filterPlaceholder }
       />
       { isLoading ? <ListLoader /> : <Table
         canSelectAll={ false }
