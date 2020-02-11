@@ -36,7 +36,7 @@ const AddGroupMembers = ({
     addNotification({
       variant: 'warning',
       title: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group`,
-      dismissable: true,
+      dismissDelay: 8000,
       description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was cancelled by the user.`
     });
     push(closeUrl);
