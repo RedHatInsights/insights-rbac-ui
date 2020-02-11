@@ -17,7 +17,7 @@ import Role from './role';
 const columns = [
   { title: 'Role', orderBy: 'name' },
   { title: 'Description' },
-  { title: 'Policies' },
+  { title: 'Permissions' },
   { title: 'Last Modified', orderBy: 'modified' }
 ];
 
@@ -55,10 +55,6 @@ const Roles = ({
     ];
   };
 
-  const areActionsDisabled = (_roleData) => {
-    return _roleData.policies.title > 1;
-  };
-
   const toolbarButtons = () => [
     <Fragment key="add-role">
       { userEntitlements && userEntitlements.cost_management ?
@@ -85,7 +81,6 @@ const Roles = ({
         <Section type="content" id={ 'tab-roles' }>
           <TableToolbarView
             actionResolver={ actionResolver }
-            areActionsDisabled={ areActionsDisabled }
             columns={ columns }
             createRows={ createRows }
             data={ roles }

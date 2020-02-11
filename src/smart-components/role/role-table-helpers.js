@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 
 export const createRows = (data) => (
-  data.reduce((acc, { uuid, name, description, system, policyCount, modified }) => ([
+  data.reduce((acc, { uuid, name, description, system, accessCount, modified }) => ([
     ...acc,
     {
       uuid,
@@ -16,7 +16,11 @@ export const createRows = (data) => (
           </Link>
         </Fragment>,
         description,
-        policyCount,
+        <Fragment key={ `${uuid}-accessCount` }>
+          <Link to={ `/roles/detail/${uuid}` }>
+            <Button variant="link"> { accessCount } </Button>
+          </Link>
+        </Fragment>,
         <Fragment key={ `${uuid}-modified` }>
           <DateFormat date={ modified } type="relative" />
         </Fragment>

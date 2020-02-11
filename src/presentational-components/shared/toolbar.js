@@ -157,11 +157,13 @@ Toolbar.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number
   }),
+  isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,
   toolbarButtons: PropTypes.func
 };
 
 Toolbar.defaultProps = {
+  isCollapsible: false,
   isSelectable: false,
   isLoading: false,
   data: [],
