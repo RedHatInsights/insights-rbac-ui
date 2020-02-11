@@ -1,5 +1,8 @@
+import React, { Fragment } from 'react';
+import { DateFormat } from '@redhat-cloud-services/frontend-components';
+
 export const createRows = (data) => (
-  data.reduce((acc, { permission }) => {
+  data.reduce((acc, { permission, modified }) => {
     const [ appName, type, operation ] = permission.split(':');
     return ([
       ...acc,
@@ -7,7 +10,10 @@ export const createRows = (data) => (
         cells: [
           appName,
           type,
-          operation
+          operation,
+          <Fragment key={ `${appName}-modified` }>
+            <DateFormat date={ modified } type="relative" />
+          </Fragment>
         ]
       }
     ]);

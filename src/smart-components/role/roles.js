@@ -15,10 +15,10 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 
 const columns = [
-  { title: 'Role', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' },
-  { title: 'Policies' },
-  { title: 'Last Modified', orderBy: 'modified' }
+  { title: 'Permissions' },
+  { title: 'Last modified', orderBy: 'modified' }
 ];
 
 const Roles = ({
@@ -55,10 +55,6 @@ const Roles = ({
     ];
   };
 
-  const areActionsDisabled = (_roleData) => {
-    return _roleData.policies.title > 1;
-  };
-
   const toolbarButtons = () => [
     <Fragment key="add-role">
       { userEntitlements && userEntitlements.cost_management ?
@@ -85,7 +81,6 @@ const Roles = ({
         <Section type="content" id={ 'tab-roles' }>
           <TableToolbarView
             actionResolver={ actionResolver }
-            areActionsDisabled={ areActionsDisabled }
             columns={ columns }
             createRows={ createRows }
             data={ roles }
@@ -99,6 +94,7 @@ const Roles = ({
             titlePlural="roles"
             titleSingular="role"
             toolbarButtons = { toolbarButtons }
+            filterPlaceholder="Filter by name"
           />
         </Section>
       </StackItem>

@@ -144,6 +144,7 @@ const GroupPrincipals = ({
             </Card> :
             <TableToolbarView
               data={ principals }
+              isCollapsible
               isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
               createRows={ createRows }
               columns={ columns }

@@ -60,7 +60,8 @@ export const filterConfigBuilder = (
   fetchData = () => undefined,
   filterValue = '',
   pagination = {},
-  titleSingular = ''
+  titleSingular = '',
+  filterPlaceholder
 ) => ({
   items: [{
     label: titleSingular,
@@ -68,7 +69,7 @@ export const filterConfigBuilder = (
     filterValues: {
       id: 'filter-by-string',
       key: 'filter-by-string',
-      placeholder: `Filter by ${titleSingular}`,
+      placeholder: filterPlaceholder || `Filter by ${titleSingular}`,
       value: filterValue,
       onChange: (_e, value) => {
         setFilterValue({
@@ -121,14 +122,15 @@ const Toolbar = ({
   setFilterValue,
   pagination,
   fetchData,
-  toolbarButtons
+  toolbarButtons,
+  filterPlaceholder
 }) => (
   <PrimaryToolbar
     { ...isSelectable && {
       bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data) }
     }
     filterConfig={
-      filterConfigBuilder(isLoading, setFilterValue, fetchData, filterValue, pagination, titleSingular)
+      filterConfigBuilder(isLoading, setFilterValue, fetchData, filterValue, pagination, titleSingular, filterPlaceholder)
     }
     actionsConfig={ {
       actions: toolbarButtons()
@@ -157,11 +159,14 @@ Toolbar.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number
   }),
+  filterPlaceholder: PropTypes.string,
+  isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,
   toolbarButtons: PropTypes.func
 };
 
 Toolbar.defaultProps = {
+  isCollapsible: false,
   isSelectable: false,
   isLoading: false,
   data: [],
