@@ -49,15 +49,20 @@ export const updateGroup = (groupData) => ({
   }
 });
 
-export const removeGroup = (group) => ({
-  type: ActionTypes.REMOVE_GROUP,
-  payload: GroupHelper.removeGroup(group),
+export const removeGroups = (uuids) => ({
+  type: ActionTypes.REMOVE_GROUPS,
+  payload: GroupHelper.removeGroups(uuids),
   meta: {
     notifications: {
       fulfilled: {
         variant: 'success',
-        title: 'Success removing group',
-        description: 'The group was removed successfully.'
+        title: uuids.length > 1 ? 'Groups deleted successfully' :
+          'Group deleted successfully'
+      },
+      rejected: {
+        variant: 'danger',
+        title: uuids.length > 1 ? 'There was an error deleting the groups. Please try again.' :
+          'There was an error deleting the group. Please try again.'
       }
     }
   }

@@ -5,12 +5,13 @@ import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store' ;
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
+import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { mock } from '../../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { REMOVE_GROUP, FETCH_GROUP } from '../../../redux/action-types';
+import { FETCH_GROUP, REMOVE_GROUPS } from '../../../redux/action-types';
+import { Button } from '@patternfly/react-core';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
@@ -18,17 +19,18 @@ describe('<RemoveGroupModal />', () => {
   let mockStore;
   let initialState;
 
-  const GroupWrapper = ({ store, children }) => (
+  const GroupWrapper = ({ store }) => (
     <Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/', '/groups/123/', '/groups/' ] } initialIndex={ 1 }>
-        { children }
+      <MemoryRouter initialEntries={ [ '/groups/', '/groups/removegroups' ] } initialIndex={ 2 }>
+        <Route path="/groups/removegroups" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps }
+          isModalOpen
+          groupsUuid={ [{ uuid: '123' }] } /> } />
       </MemoryRouter>
     </Provider>
   );
 
   beforeEach(() => {
     initialProps = {
-      id: '123',
       postMethod: jest.fn()
     };
     mockStore = configureStore(middlewares);
@@ -36,10 +38,6 @@ describe('<RemoveGroupModal />', () => {
       groupReducer: {
         ...groupsInitialState,
         isLoading: true,
-        group: {
-          name: 'Foo',
-          uuid: '1'
-        },
         selectedGroup: {
           loaded: true
         }
@@ -52,11 +50,10 @@ describe('<RemoveGroupModal />', () => {
     mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, { data: []});
 
     const wrapper = mount(
-      <GroupWrapper store={ store }>
-        <Route path="/groups/:id/" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
-      </GroupWrapper>
+      <GroupWrapper store={ store } />
     );
-    wrapper.find('button').first().simulate('click');
+
+    wrapper.find(Button).last().simulate('click');
     expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
   });
 
@@ -68,9 +65,7 @@ describe('<RemoveGroupModal />', () => {
     mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, { data: []});
 
     const wrapper = mount(
-      <GroupWrapper store={ store }>
-        <Route path="/groups/:id/" render={ (args) => <RemoveGroupModal { ...args } { ...initialProps } /> } />
-      </GroupWrapper>
+      <GroupWrapper store={ store }/>
     );
 
     expect.extend({
@@ -88,17 +83,20 @@ describe('<RemoveGroupModal />', () => {
       }
     });
 
-    wrapper.find('button').last().simulate('click');
+    const input = wrapper.find({ type: 'checkbox' }).first();
+    input.getDOMNode().checked = !input.getDOMNode().checked;
+    input.simulate('change');
+    wrapper.update();
+    wrapper.find(Button).at(1).simulate('click');
+
     setImmediate(() => {
       const actions = store.getActions();
       expect(actions).toContainObj({ type: `${FETCH_GROUP}_PENDING` });
-      expect(actions).toContainObj({ type: `${REMOVE_GROUP}_PENDING`,
-        meta: { notifications: { fulfilled: { description: 'The group was removed successfully.',
-          title: 'Success removing group', variant: 'success' }}}},);
-      expect(actions).toContainObj({ type: `${FETCH_GROUP}_PENDING` });
-      expect(actions).toContainObj({ type: ADD_NOTIFICATION,
-        payload: expect.objectContaining({ description: 'The group was removed successfully.' }) });
-      expect(actions).toContainObj({ type: `${REMOVE_GROUP}_FULFILLED` });
+      expect(actions).toContainObj({ type: `${REMOVE_GROUPS}_PENDING` },);
+      expect(actions).toContainObj({ type: `${FETCH_GROUP}_FULFILLED` });
+      expect(actions).toContainObj({ type: `@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION`,
+        payload: expect.objectContaining({ title: 'Group deleted successfully' }) });
+      expect(actions).toContainObj({ type: `${REMOVE_GROUPS}_FULFILLED` });
       expect(initialProps.postMethod).toHaveBeenCalled();
       done();
     });

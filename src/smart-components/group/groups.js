@@ -22,6 +22,7 @@ const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description'
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
+  const [ removeGroupsList, setRemoveGroupsList ] = useState([]);
 
   useEffect(() => {
     fetchGroups({ ...pagination, name: filterValue });
@@ -38,11 +39,11 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const routes = () => <Fragment>
     <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ fetchData } /> } />
     <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ fetchData } isOpen/> } />
-    <Route exact path="/groups/remove/:id" render={ props => <RemoveGroup { ...props } postMethod={ (ids) => {
+    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ (ids) => {
       fetchData();
       setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
       setFilterValue('');
-    } } /> } />
+    } } isModalOpen groupsUuid={ removeGroupsList } /> } />
   </Fragment>;
 
   const actionResolver = () =>
@@ -55,8 +56,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
         },
         {
           title: 'Delete group',
-          onClick: (_event, _rowId, group) =>
-            push(`/groups/remove/${group.uuid}`)
+          onClick: (_event, _rowId, group) => {
+            setRemoveGroupsList([ group ]);
+            push(`/groups/removegroups`);
+          }
         }
       ];
 
@@ -82,6 +85,10 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
           label: 'Delete Group(s)',
           props: {
             isDisabled: !selectedRows.length > 0
+          },
+          onClick: () => {
+            setRemoveGroupsList(selectedRows);
+            push(`/groups/removegroups`);
           }
         }
       ] : []
@@ -142,9 +149,8 @@ const mapDispatchToProps = dispatch => bindActionCreators({
 Groups.propTypes = {
   userIdentity: PropTypes.shape({
     user: PropTypes.shape({
-      /*eslint-disable camelcase*/
+      // eslint-disable-next-line camelcase
       is_org_admin: PropTypes.bool
-      /*eslint-enable camelcase*/
     })
   }),
   history: PropTypes.shape({
