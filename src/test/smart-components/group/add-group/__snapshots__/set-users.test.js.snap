@@ -1,23 +1,55 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<SetUsers /> should render correctly 1`] = `
-<MemoryRouter
-  initialEntries={
-    Array [
-      "/groups/",
-      "/groups/add-group/",
-      "/groups/",
-    ]
+<ContextProvider
+  value={
+    Object {
+      "store": Object {
+        "clearActions": [Function],
+        "dispatch": [Function],
+        "getActions": [Function],
+        "getState": [Function],
+        "replaceReducer": [Function],
+        "subscribe": [Function],
+      },
+      "subscription": Subscription {
+        "handleChangeWrapper": [Function],
+        "listeners": Object {
+          "notify": [Function],
+        },
+        "onStateChange": [Function],
+        "parentSub": undefined,
+        "store": Object {
+          "clearActions": [Function],
+          "dispatch": [Function],
+          "getActions": [Function],
+          "getState": [Function],
+          "replaceReducer": [Function],
+          "subscribe": [Function],
+        },
+        "unsubscribe": null,
+      },
+    }
   }
-  initialIndex={1}
 >
-  <SetUsers
-    createOption={[MockFunction]}
-    optionIdx={0}
-    selectedUsers={Array []}
-    setGroupData={[MockFunction]}
-    setOptionIdx={[MockFunction]}
-    setSelectedUsers={[MockFunction]}
-  />
-</MemoryRouter>
+  <MemoryRouter
+    initialEntries={
+      Array [
+        "/groups/",
+        "/groups/add-group/",
+        "/groups/",
+      ]
+    }
+    initialIndex={1}
+  >
+    <SetUsers
+      createOption={[MockFunction]}
+      optionIdx={0}
+      selectedUsers={Array []}
+      setGroupData={[MockFunction]}
+      setOptionIdx={[MockFunction]}
+      setSelectedUsers={[MockFunction]}
+    />
+  </MemoryRouter>
+</ContextProvider>
 `;
