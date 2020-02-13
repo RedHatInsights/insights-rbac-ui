@@ -37,10 +37,6 @@ const Groups = () => {
 
   const history = useHistory();
 
-  const fetchData = (config) => {
-    dispatch(fetchGroups(config));
-  };
-
   const setCheckedItems = (newSelection) => {
     setSelectedRows((rows) => newSelection(rows)
     .filter(({ platform_default: isPlatformDefault }) => !isPlatformDefault)
@@ -48,19 +44,46 @@ const Groups = () => {
   };
 
   const routes = () => <Fragment>
-    <Route exact path="/groups/add-group" render={ props => <AddGroupWizard { ...props } postMethod={ () => {
-      fetchData();
-      setFilterValue('');
-    } } /> } />
-    <Route exact path="/groups/edit/:id" render={ props => <EditGroup { ...props } postMethod={ () => {
-      fetchData();
-      setFilterValue('');
-    } } isOpen/> } />
-    <Route exact path="/groups/removegroups" render={ props => <RemoveGroup { ...props } postMethod={ (ids) => {
-      fetchData();
-      setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
-      setFilterValue('');
-    } } isModalOpen groupsUuid={ removeGroupsList } /> } />
+    <Route exact path="/groups/add-group"
+      render={ props =>
+        <AddGroupWizard
+          { ...props }
+          postMethod={
+            config => {
+              dispatch(fetchGroups(config));
+              setFilterValue('');
+            }
+          }
+        />
+      }
+    />
+    <Route exact path="/groups/edit/:id"
+      render={ props =>
+        <EditGroup
+          { ...props }
+          postMethod={
+            config =>
+            {
+              dispatch(fetchGroups(config));
+              setFilterValue('');
+            }
+          } isOpen />
+      }
+    />
+    <Route exact path="/groups/removegroups"
+      render={
+        props =>
+          <RemoveGroup { ...props }
+            postMethod={ (ids) => {
+              dispatch(fetchGroups());
+              setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
+              setFilterValue('');
+            } }
+            isModalOpen
+            groupsUuid={ removeGroupsList }
+          />
+      }
+    />
   </Fragment>;
 
   const actionResolver = ({ isPlatformDefault }) =>
@@ -133,7 +156,7 @@ const Groups = () => {
             titleSingular="group"
             pagination={ pagination }
             filterValue={ filterValue }
-            fetchData={ fetchData }
+            fetchData={ config => dispatch(fetchGroups(config)) }
             setFilterValue={ ({ name }) => setFilterValue(name) }
             toolbarButtons={ toolbarButtons }
             isLoading={ isLoading }
