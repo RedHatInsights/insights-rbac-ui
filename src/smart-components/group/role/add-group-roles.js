@@ -79,7 +79,7 @@ const AddGroupRoles = ({
                   isDisabled={ selectedRoles.length === 0 }
                   onClick={ onSubmit }
                 >
-                      Save
+                      Add to group
                 </Button>
               </SplitItem>
               <SplitItem>
