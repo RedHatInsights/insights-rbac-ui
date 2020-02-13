@@ -48,7 +48,7 @@ const AddGroupRoles = ({
 
   return (
     <Modal
-      title={ `Add roles to ${name} group` }
+      title="Add roles to group"
       width={ '70%' }
       isOpen
       onClose={ onCancel }>
@@ -59,7 +59,7 @@ const AddGroupRoles = ({
         <StackItem>
           <TextContent>
             <Text component={ TextVariants.h6 }>
-                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently in your group.</b>
+                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently </b> in <b> { name }</b>.
             </Text>
           </TextContent>
         </StackItem>
