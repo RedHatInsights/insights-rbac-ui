@@ -1,6 +1,5 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { Link, Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { expandable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
@@ -12,7 +11,6 @@ import { createRows } from './group-table-helpers';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
@@ -20,7 +18,7 @@ import './groups.scss';
 
 const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Roles', 'Members', 'Last modified' ];
 
-const Groups = ({ history: { push }}) => {
+const Groups = () => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRows, setSelectedRows ] = useState([]);
   const [ removeGroupsList, setRemoveGroupsList ] = useState([]);
@@ -36,6 +34,8 @@ const Groups = ({ history: { push }}) => {
   useEffect(() => {
     dispatch(fetchGroups({ ...pagination, name: filterValue }));
   }, []);
+
+  const history = useHistory();
 
   const fetchData = (config) => {
     dispatch(fetchGroups(config));
@@ -69,13 +69,13 @@ const Groups = ({ history: { push }}) => {
         {
           title: 'Edit group',
           onClick: (_event, _rowId, group) => {
-            push(`/groups/edit/${group.uuid}`);}
+            history.push(`/groups/edit/${group.uuid}`);}
         },
         {
           title: 'Delete group',
           onClick: (_event, _rowId, group) => {
             setRemoveGroupsList([ group ]);
-            push(`/groups/removegroups`);
+            history.push(`/groups/removegroups`);
           }
         }
       ];
@@ -96,7 +96,7 @@ const Groups = ({ history: { push }}) => {
           props: {
             isDisabled: !(selectedRows.length === 1)
           },
-          onClick: () => push(`/groups/edit/${selectedRows[0].uuid}`)
+          onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`)
         },
         {
           label: 'Delete Group(s)',
@@ -105,7 +105,7 @@ const Groups = ({ history: { push }}) => {
           },
           onClick: () => {
             setRemoveGroupsList(selectedRows);
-            push(`/groups/removegroups`);
+            history.push(`/groups/removegroups`);
           }
         }
       ] : []
@@ -150,33 +150,6 @@ const Groups = ({ history: { push }}) => {
       <Route path={ '/groups' } render={ () => renderGroupsList() } />
     </Switch>
   );
-};
-
-Groups.propTypes = {
-  userIdentity: PropTypes.shape({
-    user: PropTypes.shape({
-      // eslint-disable-next-line camelcase
-      is_org_admin: PropTypes.bool
-    })
-  }),
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }),
-  groups: PropTypes.array,
-  platforms: PropTypes.array,
-  isLoading: PropTypes.bool,
-  pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired
-  })
-};
-
-Groups.defaultProps = {
-  groups: [],
-  userIdentity: {},
-  pagination: defaultSettings
 };
 
 export default Groups;
