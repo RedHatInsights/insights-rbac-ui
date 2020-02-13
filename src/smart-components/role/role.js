@@ -22,7 +22,7 @@ const Role = () => {
 
   return <Fragment>
     <TopToolbar breadcrumbs={ [
-      ...[ groupUuid ? { title: 'User Access Management', to: '/groups' } : { title: 'Roles', to: '/roles' } ],
+      ...[ groupUuid ? { title: 'Groups', to: '/groups' } : { title: 'Roles', to: '/roles' } ],
       ...groupUuid ? [{
         title: group && group.name,
         to: `/groups/detail/${groupUuid}/roles`,

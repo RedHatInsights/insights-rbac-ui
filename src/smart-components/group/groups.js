@@ -97,8 +97,8 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   const renderGroupsList = () =>
     <Stack>
       <StackItem>
-        <TopToolbar paddingBottm={ false }>
-          <TopToolbarTitle title="User access management"/>
+        <TopToolbar paddingBottom>
+          <TopToolbarTitle title="Groups"/>
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -121,6 +121,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             setFilterValue={ ({ name }) => setFilterValue(name) }
             toolbarButtons={ toolbarButtons }
             isLoading={ isLoading }
+            filterPlaceholder="Filter by name"
           />
         </Section>
       </StackItem>

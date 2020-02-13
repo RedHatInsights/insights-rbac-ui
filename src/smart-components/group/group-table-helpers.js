@@ -1,6 +1,5 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 
 export const createRows = (data, opened, selectedRows = []) => (
@@ -11,7 +10,7 @@ export const createRows = (data, opened, selectedRows = []) => (
       cells: [
         <Fragment key={ uuid }>
           <Link to={ `/groups/detail/${uuid}` }>
-            <Button variant="link"> { name } </Button>
+            { name }
           </Link>
         </Fragment>,
         description,

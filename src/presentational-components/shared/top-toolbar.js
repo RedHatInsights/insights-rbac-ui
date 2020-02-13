@@ -8,7 +8,7 @@ import RbacBreadcrumbs from './breadcrubms';
 import './top-toolbar.scss';
 
 export const TopToolbar = ({ children,  breadcrumbs, paddingBottom }) => (
-  <div className={ `pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg ${paddingBottom ? 'pf-u-pb-sm' : ''} top-toolbar` }>
+  <div className={ `pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg ${paddingBottom ? 'pf-u-pb-md' : ''} top-toolbar` }>
     { breadcrumbs && (<Level className="pf-u-mb-md">
       <RbacBreadcrumbs { ...breadcrumbs } />
     </Level>)
