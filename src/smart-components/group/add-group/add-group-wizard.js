@@ -72,7 +72,8 @@ const AddGroupWizard = ({
   return (
     <Wizard
       isLarge
-      title={ 'Add group' }
+      title="Create and configure a group"
+      description="To give users access permissions, create a group and assign roles to it."
       isOpen
       onClose={ onCancel }
       onSave={ onSubmit }
