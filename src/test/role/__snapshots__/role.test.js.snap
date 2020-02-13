@@ -611,7 +611,7 @@ Array [
 
 exports[`role should render top toolbar 1`] = `
 <div
-  className="pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg  top-toolbar"
+  className="pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg top-toolbar"
 >
   <Level
     className="pf-u-mb-md"

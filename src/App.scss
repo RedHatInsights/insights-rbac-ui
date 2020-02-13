@@ -90,3 +90,7 @@
 .delete-group-warning-icon {
   color: var(--pf-global--warning-color--100);
 }
+
+.pf-c-table tbody tr.ins-c-rbac__group-default {
+  .pf-c-table__check:first-of-type input { display: none; }
+}

@@ -16,8 +16,10 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from '../role/role';
+import GroupRowWrapper from './group-row-wrapper';
+import './groups.scss';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Description', 'Members', 'Last modified' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Roles', 'Members', 'Last modified' ];
 
 const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups, userIdentity }) => {
   const [ filterValue, setFilterValue ] = useState('');
@@ -33,7 +35,9 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
   };
 
   const setCheckedItems = (newSelection) => {
-    setSelectedRows((rows) => newSelection(rows).map(({ uuid, name }) => ({ uuid, label: name })));
+    setSelectedRows((rows) => newSelection(rows)
+    .filter(({ platform_default: isPlatformDefault }) => !isPlatformDefault)
+    .map(({ uuid, name }) => ({ uuid, label: name })));
   };
 
   const routes = () => <Fragment>
@@ -46,8 +50,8 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
     } } isModalOpen groupsUuid={ removeGroupsList } /> } />
   </Fragment>;
 
-  const actionResolver = () =>
-    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+  const actionResolver = ({ isPlatformDefault }) =>
+    isPlatformDefault || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Edit group',
@@ -122,6 +126,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             toolbarButtons={ toolbarButtons }
             isLoading={ isLoading }
             filterPlaceholder="Filter by name"
+            rowWrapper={ GroupRowWrapper }
           />
         </Section>
       </StackItem>

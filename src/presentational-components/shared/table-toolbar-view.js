@@ -32,7 +32,8 @@ export const TableToolbarView = ({
   setCheckedItems,
   isCollapsible,
   emptyProps,
-  filterPlaceholder
+  filterPlaceholder,
+  rowWrapper
 }) => {
   const [ opened, openRow ] = useState({});
 
@@ -108,6 +109,7 @@ export const TableToolbarView = ({
         cells={ columns }
         { ...rows.length > 0 && { actionResolver } }
         areActionsDisabled={ areActionsDisabled }
+        rowWrapper={ rowWrapper }
       >
         <TableHeader />
         <TableBody />
@@ -146,6 +148,7 @@ export const TableToolbarView = ({
 
 TableToolbarView.propTypes = {
   ...Toolbar.propTypes,
+  rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
   createRows: propTypes.func.isRequired,

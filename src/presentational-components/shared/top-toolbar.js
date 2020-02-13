@@ -1,14 +1,17 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Level, LevelItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
+import clsx from 'clsx';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
-
 import RbacBreadcrumbs from './breadcrubms';
 
 import './top-toolbar.scss';
 
 export const TopToolbar = ({ children,  breadcrumbs, paddingBottom }) => (
-  <div className={ `pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg ${paddingBottom ? 'pf-u-pb-md' : ''} top-toolbar` }>
+  <div className={ clsx(
+    'pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg top-toolbar',
+    { 'pf-u-pb-md': paddingBottom }
+  ) }>
     { breadcrumbs && (<Level className="pf-u-mb-md">
       <RbacBreadcrumbs { ...breadcrumbs } />
     </Level>)
