@@ -19,7 +19,7 @@ const Group = ({
   isFetching
 }) => {
   const breadcrumbsList = () => [
-    { title: 'User Access Management', to: '/groups' },
+    { title: 'Groups', to: '/groups' },
     { title: group.name, isActive: true }
   ];
 
