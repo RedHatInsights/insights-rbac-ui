@@ -9,7 +9,10 @@ import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { Button, Level, LevelItem } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Button, Popover, Split, SplitItem } from '@patternfly/react-core';
+import { InfoCircleIcon } from '@patternfly/react-icons';
+import './group.scss';
+
 import EditGroup from './edit-group-modal';
 
 const Group = ({
@@ -28,6 +31,7 @@ const Group = ({
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` }
   ];
   const [ showEdit, setShowEdit ] = useState(false);
+  const [ showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo ] = useState(false);
 
   const fetchData = (apiProps) => {
     fetchGroup(apiProps);
@@ -37,19 +41,43 @@ const Group = ({
     fetchData(uuid);
   }, []);
 
+  const defaultGroupChangedIcon = (name) => (
+    <div
+      style={ { display: 'inline-flex' } }>
+      { name }
+      <div className="pf-u-ml-sm">
+        <Popover
+          aria-label="default-group-icon"
+          bodyContent={
+            <div>Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
+                The group name has changed to <b>Custom default user access</b>.</div>
+          }
+        >
+          <InfoCircleIcon className="ins-c-rbac__default-group-info-icon"/>
+        </Popover>
+
+      </div>
+    </div>
+  );
+
   return (
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
-        <Level>
-          <LevelItem>
-            <TopToolbarTitle title={ !isFetching && group ? group.name : undefined }
+        <Split gutter="md">
+          <SplitItem>
+            <TopToolbarTitle
+              title={ !isFetching && group
+                ? <div>{ group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name }</div>
+                : undefined }
               description={ !isFetching && group ? group.description : undefined } />
-            <AppTabs tabItems={ tabItems } />
-          </LevelItem>
-
-          <LevelItem>
-            <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
-          </LevelItem>
+          </SplitItem>
+          <SplitItem isFilled></SplitItem>
+          <SplitItem>
+            { group.platform_default
+              ? null
+              : <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
+            }
+          </SplitItem>
           <EditGroup
             isOpen={ showEdit }
             group={ group }
@@ -62,11 +90,27 @@ const Group = ({
             }
           />
 
-        </Level>
+        </Split>
+        { showDefaultGroupChangedInfo
+          ? <Alert
+            variant="info"
+            isInline
+            title="Default user access group has changed"
+            action={ <AlertActionCloseButton onClose={ () => setShowDefaultGroupChangedInfo(false) } /> }
+            className="pf-u-mb-lg pf-u-mt-sm"
+          >
+            Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
+                The group name has changed to <b>Custom default user access</b>.
+          </Alert>
+          : null
+        }
+        <AppTabs tabItems={ tabItems } />
 
       </TopToolbar>
       <Switch>
-        <Route path={ `/groups/detail/:uuid/roles` } component={ GroupRoles } />
+        <Route
+          path={ `/groups/detail/:uuid/roles` }
+          render={ props => <GroupRoles { ...props } onDefaultGroupChanged={ setShowDefaultGroupChangedInfo }/> } />
         <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
         <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/members` } /> } />
       </Switch>

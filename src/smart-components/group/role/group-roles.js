@@ -12,10 +12,10 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import RemoveRole from './remove-role-modal';
 
 const columns = [
-  { title: 'Role name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' },
   { title: 'Last modified' }
 ];
@@ -49,7 +49,10 @@ const GroupRoles = ({
   pagination,
   match: { params: { uuid }},
   userIdentity,
-  name
+  name,
+  isDefault,
+  isChanged,
+  onDefaultGroupChanged
 }) => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
@@ -102,6 +105,8 @@ const GroupRoles = ({
         addRolesToGroup={ addRoles }
         fetchRolesForGroup={ fetchRolesForGroup(pagination) }
         name={ name }
+        isDefault={ isDefault }
+        isChanged={ isChanged }
         { ...args }
       /> }
     />
@@ -138,7 +143,9 @@ const GroupRoles = ({
                 multipleRolesSelected ? selectedRoles.length : roles.find(role => role.uuid === selectedRoles[0].uuid).name,
                 multipleRolesSelected)
             });
+
             setShowRemoveModal(true);
+
           }
         }
       ] : []
@@ -146,17 +153,23 @@ const GroupRoles = ({
 
   return (
     <React.Fragment>
-      <RemoveModal
+      <RemoveRole
         text={ deleteInfo.text }
         title={ deleteInfo.title }
         isOpen={ showRemoveModal }
+        isChanged={ isChanged }
+        isDefault={ isDefault }
         confirmButtonLabel={ deleteInfo.confirmButtonLabel }
         onClose={ () => setShowRemoveModal(false) }
+
         onSubmit={ () => {
           setShowRemoveModal(false);
           confirmDelete();
+          setSelectedRoles([]);
+          onDefaultGroupChanged(isDefault);
         } }
       />
+
       <Section type="content" id={ 'tab-roles' }>
         <TableToolbarView
           columns={ columns }
@@ -177,6 +190,7 @@ const GroupRoles = ({
           actionResolver={ actionResolver }
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
+          filterPlaceholder="Filter by role name"
 
         />
       </Section>
@@ -198,7 +212,9 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
     userIdentity: groups.identity,
-    name: selectedGroup.name
+    name: selectedGroup.name,
+    isDefault: selectedGroup.platform_default,
+    isChanged: selectedGroup.system
   };};
 
 const mapDispatchToProps = dispatch => {
@@ -239,7 +255,10 @@ GroupRoles.propTypes = {
     user: PropTypes.shape({
       is_org_admin: PropTypes.bool
     })
-  })
+  }),
+  isDefault: PropTypes.bool,
+  isChanged: PropTypes.bool,
+  onDefaultGroupChanged: PropTypes.func
 };
 
 GroupRoles.defaultProps = {

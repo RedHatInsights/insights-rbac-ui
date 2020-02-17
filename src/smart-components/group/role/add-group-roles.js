@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
@@ -18,6 +18,7 @@ import {
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import '../../../App.scss';
+import DefaultGroupChange from './default-group-change-modal';
 
 const AddGroupRoles = ({
   history: { push },
@@ -28,8 +29,12 @@ const AddGroupRoles = ({
   closeUrl,
   addRolesToGroup,
   fetchRolesForGroup,
-  name
+  name,
+  isDefault,
+  isChanged
 }) => {
+  const [ showConfirmModal, setShowConfirmModal ] = useState(true);
+
   const onCancel = () => {
     addNotification({
       variant: 'warning',
@@ -46,12 +51,20 @@ const AddGroupRoles = ({
     return push(closeUrl);
   };
 
-  return (
-    <Modal
+  return (isDefault && !isChanged && showConfirmModal
+    ? <DefaultGroupChange
+      isOpen={ showConfirmModal }
+      onClose={ onCancel }
+      onSubmit={ () => setShowConfirmModal(false) }
+    />
+    : <Modal
       title="Add roles to group"
       width={ '70%' }
       isOpen
-      onClose={ onCancel }>
+      onClose={ () => {
+        onCancel();
+        setShowConfirmModal(true);
+      } }>
       <Stack gutter="md">
         { title && <StackItem>
           <Title size="xl">{ title }</Title>
@@ -110,7 +123,9 @@ AddGroupRoles.propTypes = {
   fetchRolesForGroup: PropTypes.func,
   closeUrl: PropTypes.string,
   title: PropTypes.string,
-  name: PropTypes.string
+  name: PropTypes.string,
+  isDefault: PropTypes.bool,
+  isChanged: PropTypes.bool
 };
 
 export default AddGroupRoles;
