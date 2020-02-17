@@ -13,9 +13,7 @@ import {
   Text,
   TextContent,
   TextVariants,
-  Title,
-  isDefault,
-  isChanged
+  Title
 } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { ExcludedRolesList } from '../add-group/roles-list';

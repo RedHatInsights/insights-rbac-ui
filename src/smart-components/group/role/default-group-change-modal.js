@@ -28,6 +28,5 @@ DefaultGroupChange.propTypes = {
   isOpen: PropTypes.bool
 };
 
-
 export default DefaultGroupChange;
 

@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { Button, Text, TextContent } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
@@ -12,11 +12,10 @@ import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import RemoveRole from './remove-role-modal';
 
 const columns = [
-  { title: 'Role name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' },
   { title: 'Last modified' }
 ];
@@ -191,6 +190,7 @@ const GroupRoles = ({
           actionResolver={ actionResolver }
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
+          filterPlaceholder="Filter by role name"
 
         />
       </Section>
