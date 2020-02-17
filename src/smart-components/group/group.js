@@ -64,14 +64,13 @@ const Group = ({
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
         <Split gutter="md">
-          <SplitItem>
+          <SplitItem isFilled>
             <TopToolbarTitle
               title={ !isFetching && group
                 ? <div>{ group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name }</div>
                 : undefined }
               description={ !isFetching && group ? group.description : undefined } />
           </SplitItem>
-          <SplitItem isFilled></SplitItem>
           <SplitItem>
             { group.platform_default
               ? null
@@ -104,9 +103,8 @@ const Group = ({
           </Alert>
           : null
         }
-        <AppTabs tabItems={ tabItems } />
-
       </TopToolbar>
+      <AppTabs isHeader tabItems={ tabItems } />
       <Switch>
         <Route
           path={ `/groups/detail/:uuid/roles` }

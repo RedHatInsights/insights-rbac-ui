@@ -1,23 +1,23 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Level, LevelItem, Text, TextContent, TextVariants  } from '@patternfly/react-core';
-import clsx from 'clsx';
+import { Level, Text, TextContent, TextVariants  } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
+import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
 
 import './top-toolbar.scss';
 
-export const TopToolbar = ({ children,  breadcrumbs, paddingBottom }) => (
-  <div className={ clsx(
-    'pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg top-toolbar',
-    { 'pf-u-pb-md': paddingBottom }
-  ) }>
-    { breadcrumbs && (<Level className="pf-u-mb-md">
-      <RbacBreadcrumbs { ...breadcrumbs } />
-    </Level>)
+export const TopToolbar = ({ children,  breadcrumbs, hasTabs }) => (
+  <Fragment>
+    { breadcrumbs &&
+      <section class="pf-c-page__main-breadcrumb">
+        <RbacBreadcrumbs { ...breadcrumbs } />
+      </section>
     }
-    { children }
-  </div>
+    <PageHeader className='ins-rbac-page-header'>
+      { children }
+    </PageHeader>
+  </Fragment>
 );
 
 TopToolbar.propTypes = {
@@ -35,18 +35,13 @@ TopToolbar.defaultProps = {
 
 export const TopToolbarTitle = ({ title, description, children }) => (
   <Fragment>
-    <Level>
-      <LevelItem>
-        <TextContent className="pf-u-mb-sm">
-          { <Text component={ TextVariants.h1 }>{ title || <ToolbarTitlePlaceholder /> }</Text> }
-        </TextContent>
-        { description &&
-          <TextContent className="pf-u-pt-sm pf-u-mb-md top-toolbar-description">
-            <Text component={ TextVariants.p }>{ description }</Text>
-          </TextContent> }
-      </LevelItem>
-      { children }
-    </Level>
+    <PageHeaderTitle title={title} className='ins-rbac-page-header__title'/>
+    { description &&
+      <TextContent className="ins-rbac-page-header__description">
+        <Text component={ TextVariants.p }>{ description }</Text>
+      </TextContent>
+    }
+    { children }
   </Fragment>
 );
 
