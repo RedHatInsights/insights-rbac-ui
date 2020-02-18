@@ -34,7 +34,6 @@ const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
           </StackItem>
           <StackItem>
             <FormGroup
-              label="Select roles"
               fieldId="select-role"
             >
               <Card>
