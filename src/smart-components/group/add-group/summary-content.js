@@ -55,9 +55,9 @@ const SummaryContent = (formData) => {
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
-                    className="groups-table-detail content"
+                    className="groups-table-detail content pf-u-mb-md"
                     component={ TextVariants.h5 }>
-                    { `${selectedUsers.map((user, index) => `${index !== 0 ? ' ' : ''}${user.label}`)}` }
+                    { selectedUsers.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{ role.label }</Text>) }
                   </Text>
                 </GridItem>
               </Grid>
@@ -69,7 +69,7 @@ const SummaryContent = (formData) => {
                   <Text
                     className="groups-table-detail content"
                     component={ TextVariants.h5 }>
-                    { `${selectedRoles.map((role, index) => `${index !== 0 ? ' ' : ''}${role.label}`)}` }
+                    { selectedRoles.map((role, index) => <Text className= "pf-u-mb-0" key={ index }>{ role.label }</Text>)  }
                   </Text>
                 </GridItem>
               </Grid>
