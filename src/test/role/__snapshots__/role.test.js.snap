@@ -609,4 +609,20 @@ Array [
 ]
 `;
 
-exports[`role should render top toolbar 1`] = `null`;
+exports[`role should render top toolbar 1`] = `
+<TopToolbar
+  breadcrumbs={
+    Array [
+      Object {
+        "title": "Roles",
+        "to": "/roles",
+      },
+      Object {
+        "isActive": true,
+        "title": "Some name",
+      },
+    ]
+  }
+  paddingBottom={false}
+/>
+`;

@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Text, TextContent, TextVariants  } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
+import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
 
 import './top-toolbar.scss';
 
