@@ -610,15 +610,19 @@ Array [
 `;
 
 exports[`role should render top toolbar 1`] = `
-<div
-  className="pf-u-pt-xl pf-u-pr-xl pf-u-pl-lg top-toolbar"
->
-  <Level
-    className="pf-u-mb-md"
-  />
-  <TopToolbarTitle
-    description="Some cool description"
-    title="Some name"
-  />
-</div>
+<TopToolbar
+  breadcrumbs={
+    Array [
+      Object {
+        "title": "Roles",
+        "to": "/roles",
+      },
+      Object {
+        "isActive": true,
+        "title": "Some name",
+      },
+    ]
+  }
+  paddingBottom={false}
+/>
 `;

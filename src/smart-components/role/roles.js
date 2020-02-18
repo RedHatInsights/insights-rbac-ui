@@ -74,7 +74,7 @@ const Roles = ({
     <Stack>
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title="User access management" />
+          <TopToolbarTitle title="Roles" />
         </TopToolbar>
       </StackItem>
       <StackItem>
