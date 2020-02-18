@@ -108,7 +108,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
       <StackItem>
         <Section type="content" id={ 'tab-groups' }>
           <TableToolbarView
-            data={ groups }
+            data={ groups.map(group => group.platform_default ? { ...group, principalCount: 'All' } : group) }
             createRows={ createRows }
             columns={ columns }
             isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
