@@ -43,8 +43,8 @@ class App extends Component {
       return <AppPlaceholder />;
     }
 
-    if(!isAdmin) {
-      return <DeniedState/>
+    if (!isAdmin) {
+      return <DeniedState/>;
     }
 
     return (
