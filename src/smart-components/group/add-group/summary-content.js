@@ -21,41 +21,42 @@ const SummaryContent = (formData) => {
   return (
     <Fragment>
       <Stack gutter="md">
-        <StackItem className="pf-u-mb-md">
-          <Title size="xl"> Review </Title>
-        </StackItem>
         <StackItem>
           <Stack gutter="md">
             <StackItem>
               <TextContent>
-                <Text className="data-table-detail heading" component={ TextVariants.h5 }>
-                Review and confirm your inputs. If there is anything incorrect, click Back and revise.</Text>
+                <Title headingLevel="h4" size="xl"> Add members to the group </Title>
+                <Text
+                  className="pf-u-mt-0"
+                  component={ TextVariants.h6 }>
+                 Confirm the details for this group, or click Back to revise.
+                </Text>
               </TextContent>
             </StackItem>
-            <StackItem>
+            <StackItem className="ins-c-rbac__summary">
               <Grid gutter="md">
                 <GridItem span={ 2 }>
-                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Group name</Text>
+                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group name</Text>
                 </GridItem>
                 <GridItem span={ 10 }>
-                  <Text className="data-table-detail content content pf-u-mb-md" component={ TextVariants.p }>{ name }</Text>
+                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ name }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Group description</Text>
+                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group description</Text>
                 </GridItem>
                 <GridItem span = { 10 }>
-                  <Text className="data-table-detail content content pf-u-mb-md" component={ TextVariants.p }>{ description }</Text>
+                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ description }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Member(s)</Text>
+                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Member(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
-                    className="groups-table-detail content pf-u-mb-md"
+                    className="groups-table-detail content"
                     component={ TextVariants.h5 }>
                     { selectedUsers.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{ role.label }</Text>) }
                   </Text>
@@ -63,7 +64,7 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Role(s)</Text>
+                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Role(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
