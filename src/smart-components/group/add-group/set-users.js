@@ -24,7 +24,12 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select users from your organization to add to this group.' }</Text>
+              <Title headingLevel="h4" size="xl"> Add members to the group </Title>
+              <Text
+                className="pf-u-mt-0"
+                component={ TextVariants.h6 }>
+                { description || 'Select users from your organization to add to this group.' }
+              </Text>
             </TextContent>
           </StackItem>
           <StackItem>

@@ -24,12 +24,16 @@ const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select at least one role to add to this group' }</Text>
+              <Title headingLevel="h4" size="xl"> Assign roles to the group </Title>
+              <Text
+                className="pf-u-mt-0"
+                component={ TextVariants.h6 }>
+                { description || 'Select one or more roles to add to this group.' }
+              </Text>
             </TextContent>
           </StackItem>
           <StackItem>
             <FormGroup
-              label="Select roles"
               fieldId="select-role"
             >
               <Card>

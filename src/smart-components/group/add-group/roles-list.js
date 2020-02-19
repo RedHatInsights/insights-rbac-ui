@@ -10,7 +10,7 @@ import { defaultSettings } from '../../../helpers/shared/pagination';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 
 const columns = [
-  { title: 'Role name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' }
 ];
 
