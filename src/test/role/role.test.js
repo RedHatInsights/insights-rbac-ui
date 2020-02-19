@@ -210,7 +210,7 @@ describe('role', () => {
       </Provider>);
     });
     wrapper.update();
-    expect(toJson(wrapper.find('.top-toolbar'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(toJson(wrapper.find('TopToolbar'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
   it('should render second page of table', async () => {
