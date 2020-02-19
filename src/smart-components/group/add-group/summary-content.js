@@ -21,7 +21,7 @@ const SummaryContent = (formData) => {
   return (
     <Fragment>
       <Stack gutter="md">
-        <StackItem>
+        <StackItem className="pf-u-mb-md">
           <Title size="xl"> Review </Title>
         </StackItem>
         <StackItem>
