@@ -53,10 +53,9 @@ export const TableToolbarView = ({
           `Try changing your filter settings.`
         ] }
         actions={ [
-          <EmptyStatePrimary>
+          <EmptyStatePrimary key="clear-filters">
             <Button
               variant="link"
-              key="clear-filters"
               onClick={ () => {
                 setFilterValue({
                   ...pagination,
