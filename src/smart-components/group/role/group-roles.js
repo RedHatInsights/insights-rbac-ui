@@ -214,7 +214,7 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
     userIdentity: groups.identity,
     name: selectedGroup.name,
     isDefault: selectedGroup.platform_default,
-    isChanged: selectedGroup.system
+    isChanged: !selectedGroup.system
   };};
 
 const mapDispatchToProps = dispatch => {
