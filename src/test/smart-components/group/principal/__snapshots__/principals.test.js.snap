@@ -484,10 +484,10 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
         <th
           class=""
           data-key="1"
-          data-label="Username"
+          data-label="Name"
           scope="col"
         >
-          Username
+          Name
         </th>
         <th
           class=""
@@ -557,7 +557,7 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
         <td
           class=""
           data-key="1"
-          data-label="Username"
+          data-label="Name"
         >
           test-username
         </td>
@@ -595,7 +595,7 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
           class=""
           colspan="5"
           data-key="1"
-          data-label="Username"
+          data-label="Name"
           id="expanded-content1"
         >
           <div
@@ -1027,10 +1027,10 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         <th
           class=""
           data-key="1"
-          data-label="Username"
+          data-label="Name"
           scope="col"
         >
-          Username
+          Name
         </th>
         <th
           class=""
@@ -1100,7 +1100,7 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         <td
           class=""
           data-key="1"
-          data-label="Username"
+          data-label="Name"
         >
           test-username
         </td>
@@ -1138,7 +1138,7 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
           class=""
           colspan="5"
           data-key="1"
-          data-label="Username"
+          data-label="Name"
           id="expanded-content1"
         >
           <div

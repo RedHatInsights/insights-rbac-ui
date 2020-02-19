@@ -14,7 +14,7 @@ import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
-const columns = [{ title: 'Username', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
+const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
 
 const GroupPrincipals = ({
   match: { params: { uuid }},
