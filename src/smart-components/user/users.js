@@ -8,7 +8,7 @@ const Users = () => {
   const isProd = window.insights.chrome.isProd;
   const description = (<TextContent>
     <Text>
-    These are the users in your organization. To add new users to your organization go to{ ' ' }
+    These are the users in your organization. To add new users to your organization, go to{ ' ' }
       <Text
         component={ TextVariants.a }
         href={ `https://www.${isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }>

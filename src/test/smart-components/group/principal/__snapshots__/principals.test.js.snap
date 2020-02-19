@@ -30,7 +30,7 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
                 class="pf-c-form-control ins-c-conditional-filter "
                 disabled=""
                 id="filter-by-string"
-                placeholder="Filter by principal"
+                placeholder="Filter by username"
                 type="text"
                 value=""
                 widget-type="InsightsInput"
@@ -308,7 +308,7 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
                 aria-invalid="false"
                 class="pf-c-form-control ins-c-conditional-filter "
                 id="filter-by-string"
-                placeholder="Filter by principal"
+                placeholder="Filter by username"
                 type="text"
                 value=""
                 widget-type="InsightsInput"
@@ -476,26 +476,29 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
       class=""
     >
       <tr>
-        <td
-          class=""
-          data-key="0"
-          data-label=""
-        />
         <th
           class=""
-          data-key="1"
-          data-label="Name"
+          data-key="0"
+          data-label="Username"
           scope="col"
         >
-          Name
+          Username
         </th>
         <th
           class=""
-          data-key="2"
+          data-key="1"
           data-label="Email"
           scope="col"
         >
           Email
+        </th>
+        <th
+          class=""
+          data-key="2"
+          data-label="Last name"
+          scope="col"
+        >
+          Last name
         </th>
         <th
           class=""
@@ -505,17 +508,9 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
         >
           First name
         </th>
-        <th
-          class=""
-          data-key="4"
-          data-label="Last name"
-          scope="col"
-        >
-          Last name
-        </th>
         <td
           class=""
-          data-key="5"
+          data-key="4"
           data-label=""
         />
       </tr>
@@ -527,46 +522,25 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
         class=""
       >
         <td
-          class="pf-c-table__toggle"
-          data-key="0"
-        >
-          <button
-            aria-expanded="false"
-            aria-label="Details"
-            aria-labelledby="simple-node0 expandable-toggle0"
-            class="pf-c-button pf-m-plain"
-            id="expandable-toggle0"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </td>
-        <td
           class=""
-          data-key="1"
-          data-label="Name"
+          data-key="0"
+          data-label="Username"
         >
           test-username
         </td>
         <td
           class=""
-          data-key="2"
+          data-key="1"
           data-label="Email"
         >
           test-email
+        </td>
+        <td
+          class=""
+          data-key="2"
+          data-label="Last name"
+        >
+          test-last-name
         </td>
         <td
           class=""
@@ -576,76 +550,8 @@ exports[`<GroupPrincipals /> should render correctly with members 1`] = `
           tes-first-name
         </td>
         <td
-          class=""
+          class="pf-c-table__action"
           data-key="4"
-          data-label="Last name"
-        >
-          test-last-name
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-      <tr
-        class="pf-c-table__expandable-row"
-        hidden=""
-      >
-        <td
-          class=""
-          colspan="5"
-          data-key="1"
-          data-label="Name"
-          id="expanded-content1"
-        >
-          <div
-            class="pf-c-table__expandable-row-content"
-          >
-            <div
-              class="pf-c-content"
-            >
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Username
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-username
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Email
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-email
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Name
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                tes-first-name test-last-name
-              </h5>
-            </div>
-          </div>
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
         />
       </tr>
     </tbody>
@@ -851,7 +757,7 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
                 aria-invalid="false"
                 class="pf-c-form-control ins-c-conditional-filter "
                 id="filter-by-string"
-                placeholder="Filter by principal"
+                placeholder="Filter by username"
                 type="text"
                 value=""
                 widget-type="InsightsInput"
@@ -1019,26 +925,29 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       class=""
     >
       <tr>
-        <td
-          class=""
-          data-key="0"
-          data-label=""
-        />
         <th
           class=""
-          data-key="1"
-          data-label="Name"
+          data-key="0"
+          data-label="Username"
           scope="col"
         >
-          Name
+          Username
         </th>
         <th
           class=""
-          data-key="2"
+          data-key="1"
           data-label="Email"
           scope="col"
         >
           Email
+        </th>
+        <th
+          class=""
+          data-key="2"
+          data-label="Last name"
+          scope="col"
+        >
+          Last name
         </th>
         <th
           class=""
@@ -1048,17 +957,9 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         >
           First name
         </th>
-        <th
-          class=""
-          data-key="4"
-          data-label="Last name"
-          scope="col"
-        >
-          Last name
-        </th>
         <td
           class=""
-          data-key="5"
+          data-key="4"
           data-label=""
         />
       </tr>
@@ -1070,46 +971,25 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         class=""
       >
         <td
-          class="pf-c-table__toggle"
-          data-key="0"
-        >
-          <button
-            aria-expanded="false"
-            aria-label="Details"
-            aria-labelledby="simple-node0 expandable-toggle0"
-            class="pf-c-button pf-m-plain"
-            id="expandable-toggle0"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </td>
-        <td
           class=""
-          data-key="1"
-          data-label="Name"
+          data-key="0"
+          data-label="Username"
         >
           test-username
         </td>
         <td
           class=""
-          data-key="2"
+          data-key="1"
           data-label="Email"
         >
           test-email
+        </td>
+        <td
+          class=""
+          data-key="2"
+          data-label="Last name"
+        >
+          test-last-name
         </td>
         <td
           class=""
@@ -1119,76 +999,8 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
           tes-first-name
         </td>
         <td
-          class=""
+          class="pf-c-table__action"
           data-key="4"
-          data-label="Last name"
-        >
-          test-last-name
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-      <tr
-        class="pf-c-table__expandable-row"
-        hidden=""
-      >
-        <td
-          class=""
-          colspan="5"
-          data-key="1"
-          data-label="Name"
-          id="expanded-content1"
-        >
-          <div
-            class="pf-c-table__expandable-row-content"
-          >
-            <div
-              class="pf-c-content"
-            >
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Username
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-username
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Email
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-email
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Name
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                tes-first-name test-last-name
-              </h5>
-            </div>
-          </div>
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
         />
       </tr>
     </tbody>
