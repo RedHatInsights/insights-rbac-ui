@@ -21,7 +21,7 @@ const DeniedState = () => {
       <Main>
         <EmptyState variant={ EmptyStateVariant.full }>
           <EmptyStateIcon icon={ LockIcon } />
-          <Title headingLevel="h5" size="lg"> You do not have permissions to User access </Title>
+          <Title headingLevel="h5" size="lg"> You do not have permissions to view and manage User access </Title>
           <EmptyStateBody>
             Contact your organization administrator(s) for more information.
           </EmptyStateBody>
