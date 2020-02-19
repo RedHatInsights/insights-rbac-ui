@@ -3,7 +3,6 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
-import { expandable } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchGroup } from '../../../redux/actions/group-actions';
@@ -14,7 +13,12 @@ import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Email', 'First name', 'Last name' ];
+const columns = [
+  { title: 'Username' },
+  'Email',
+  'Last name',
+  'First name'
+];
 
 const GroupPrincipals = ({
   match: { params: { uuid }},
@@ -86,9 +90,9 @@ const GroupPrincipals = ({
         >
           <Button
             variant="primary"
-            aria-label="Add user"
+            aria-label="Add member"
           >
-        Add user
+        Add member
           </Button>
         </Link>,
         {
@@ -144,13 +148,13 @@ const GroupPrincipals = ({
             </Card> :
             <TableToolbarView
               data={ principals }
-              isCollapsible
               isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
               createRows={ createRows }
               columns={ columns }
               request={ fetchGroup }
               routes={ routes }
               actionResolver={ actionResolver }
+              filterPlaceholder="Filter by username"
               titlePlural="principals"
               titleSingular="principal"
               pagination={ pagination }
