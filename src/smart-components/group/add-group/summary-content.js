@@ -35,23 +35,23 @@ const SummaryContent = (formData) => {
             <StackItem>
               <Grid gutter="md">
                 <GridItem span={ 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Group name</Text>
+                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Group name</Text>
                 </GridItem>
                 <GridItem span={ 10 }>
-                  <Text className="data-table-detail content" component={ TextVariants.p }>{ name }</Text>
+                  <Text className="data-table-detail content content pf-u-mb-md" component={ TextVariants.p }>{ name }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Group description</Text>
+                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Group description</Text>
                 </GridItem>
                 <GridItem span = { 10 }>
-                  <Text className="data-table-detail content" component={ TextVariants.p }>{ description }</Text>
+                  <Text className="data-table-detail content content pf-u-mb-md" component={ TextVariants.p }>{ description }</Text>
                 </GridItem>
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Member(s)</Text>
+                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Member(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
@@ -63,7 +63,7 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid gutter="md">
                 <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading" component={ TextVariants.h5 }>Role(s)</Text>
+                  <Text className="data-table-detail heading content pf-u-mb-md" component={ TextVariants.h5 }>Role(s)</Text>
                 </GridItem>
                 <GridItem span= { 10 }>
                   <Text
