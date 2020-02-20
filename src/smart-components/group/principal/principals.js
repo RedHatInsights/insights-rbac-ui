@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -24,17 +24,27 @@ const GroupPrincipals = ({
   match: { params: { uuid }},
   fetchGroup,
   removeMembersFromGroup,
-  pagination,
   principals,
   isLoading,
   userIdentity,
   group
 }) => {
+  const [ filteredPrincipals, setFilteredPrincipals ] = useState([]);
+  const [ pagination, setPagination ] = useState(defaultSettings);
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
   const [ showRemoveModal, setShowRemoveModal ] = useState(false);
   const [ confirmDelete, setConfirmDelete ] = useState(() => null);
   const [ deleteInfo, setDeleteInfo ] = useState({});
+
+  useEffect(() => {
+    const filtered = principals.filter(({ username }) => username.includes(filterValue));
+    setPagination({
+      ...pagination,
+      count: filterValue ? filtered.length : principals.length
+    });
+    setFilteredPrincipals(filtered);
+  }, [ principals ]);
 
   const fetchData = () => {
     fetchGroup(uuid);
@@ -53,8 +63,8 @@ const GroupPrincipals = ({
     return removeMembersFromGroup(uuid, userNames).then(() => { setSelectedPrincipals([]); fetchData();});
   };
 
-  const actionResolver = (_principalData, { rowIndex }) =>
-    (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
+  const actionResolver = () =>
+    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
           title: 'Delete',
@@ -147,7 +157,10 @@ const GroupPrincipals = ({
               </CardBody>
             </Card> :
             <TableToolbarView
-              data={ principals }
+              data={
+                filteredPrincipals
+                .slice(pagination.offset, pagination.offset + pagination.limit)
+              }
               isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
               createRows={ createRows }
               columns={ columns }
@@ -159,7 +172,10 @@ const GroupPrincipals = ({
               titleSingular="principal"
               pagination={ pagination }
               filterValue={ filterValue }
-              fetchData={ () => fetchGroup(uuid) }
+              fetchData={ ({ limit, offset, count }) => {
+                setPagination({ limit, offset, count });
+                fetchGroup(uuid);
+              } }
               setFilterValue={ ({ name }) => setFilterValue(name) }
               checkedRows={ selectedPrincipals }
               isLoading={ isLoading }
