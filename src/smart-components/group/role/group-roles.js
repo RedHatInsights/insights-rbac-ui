@@ -24,6 +24,7 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   return data ? data.reduce((acc, { uuid, name, description, modified }) => ([
     ...acc, {
       uuid,
+      title: name,
       cells: [
         <Fragment key={ `${uuid}-name` }>
           <Link to={ `/groups/detail/${groupUuid}/roles/detail/${uuid}` }>
@@ -87,7 +88,7 @@ const GroupRoles = ({
             setDeleteInfo({
               title: 'Remove role?',
               confirmButtonLabel: 'Remove role',
-              text: removeModalText(name, role['role-name'].title, false)
+              text: removeModalText(name, role.title, false)
             });
             setShowRemoveModal(true);
           }
