@@ -67,7 +67,7 @@ const Group = ({
           <SplitItem isFilled>
             <TopToolbarTitle
               title={ !isFetching && group
-                ? <div>{ group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name }</div>
+                ? <Fragment>{ group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name }</Fragment>
                 : undefined }
               description={ !isFetching && group ? group.description : undefined } />
           </SplitItem>

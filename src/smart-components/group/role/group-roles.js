@@ -55,6 +55,7 @@ const GroupRoles = ({
   isChanged,
   onDefaultGroupChanged
 }) => {
+  const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ selectedAddRoles, setSelectedAddRoles ] = useState([]);
@@ -178,11 +179,15 @@ const GroupRoles = ({
           createRows={ (...props) => createRows(uuid, ...props) }
           data={ roles }
           filterValue={ filterValue }
-          fetchData={ config => fetchRolesForGroup(config)(uuid) }
-          setFilterValue={ ({ name }) => setFilterValue(name) }
+          fetchData={ (config) => {
+            fetchRolesForGroup(config)(uuid);
+          } }
+          setFilterValue={ ({ name, description }) => {
+            typeof name !== 'undefined' && setFilterValue(name);
+            typeof description !== 'undefined' && setDescriptionValue(description);
+          } }
           isLoading={ isLoading }
           pagination={ pagination }
-          request={ fetchRolesForGroup(pagination) }
           checkedRows={ selectedRoles }
           setCheckedItems={ setCheckedItems }
           titlePlural="roles"
@@ -191,7 +196,10 @@ const GroupRoles = ({
           actionResolver={ actionResolver }
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
-          filterPlaceholder="Filter by name"
+          textFilters={ [
+            { key: 'name', value: filterValue },
+            { key: 'description', value: descriptionValue }
+          ] }
         />
       </Section>
     </React.Fragment>
@@ -224,7 +232,7 @@ const mapDispatchToProps = dispatch => {
     },
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
-    fetchRolesForGroup: (pagination) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, pagination, options)),
+    fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
     addNotification: (...props) => dispatch(addNotification(...props))
   };
 };

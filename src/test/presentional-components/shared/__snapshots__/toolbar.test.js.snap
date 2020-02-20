@@ -7,6 +7,12 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   bulkSelect={
     Object {
       "checked": true,
@@ -83,6 +89,12 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   bulkSelect={
     Object {
       "checked": false,
@@ -156,6 +168,12 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   bulkSelect={
     Object {
       "checked": true,
@@ -199,6 +217,12 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   bulkSelect={
     Object {
       "checked": false,
@@ -235,11 +259,147 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
 />
 `;
 
+exports[`<Toolbar> filters should render with placeholder 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-string",
+            "isDisabled": false,
+            "key": "filter-by-string",
+            "onChange": [Function],
+            "placeholder": "Filter by test",
+            "value": "some",
+          },
+          "label": "Test",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
+exports[`<Toolbar> filters should render with text filters 1`] = `
+<PrimaryToolbar
+  actionsConfig={
+    Object {
+      "actions": Array [],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
+  filterConfig={
+    Object {
+      "items": Array [
+        Object {
+          "filterValues": Object {
+            "id": "filter-by-name",
+            "isDisabled": false,
+            "key": "filter-by-name",
+            "onChange": [Function],
+            "placeholder": "Filter by name",
+            "value": "",
+          },
+          "label": "Name",
+          "type": "text",
+        },
+      ],
+    }
+  }
+  pagination={
+    Object {
+      "itemCount": undefined,
+      "limit": 50,
+      "numberOfItems": 50,
+      "offset": 0,
+      "onPerPageSelect": [Function],
+      "onSetPage": [Function],
+      "page": 1,
+      "perPage": 50,
+      "perPageOptions": Array [
+        Object {
+          "title": "5",
+          "value": 5,
+        },
+        Object {
+          "title": "10",
+          "value": 10,
+        },
+        Object {
+          "title": "20",
+          "value": 20,
+        },
+        Object {
+          "title": "50",
+          "value": 50,
+        },
+      ],
+    }
+  }
+  toggleIsExpanded={[Function]}
+/>
+`;
+
 exports[`<Toolbar> isSelectable is loading - false 1`] = `
 <PrimaryToolbar
   actionsConfig={
     Object {
       "actions": Array [],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
     }
   }
   bulkSelect={
@@ -315,6 +475,12 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   bulkSelect={
     Object {
       "checked": false,
@@ -363,6 +529,12 @@ exports[`<Toolbar> should render buttons 1`] = `
           "title": "fff",
         },
       ],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
     }
   }
   filterConfig={
@@ -424,6 +596,12 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
       "actions": Array [],
     }
   }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
+    }
+  }
   filterConfig={
     Object {
       "items": Array [
@@ -481,6 +659,12 @@ exports[`<Toolbar> should render pagination 1`] = `
   actionsConfig={
     Object {
       "actions": Array [],
+    }
+  }
+  activeFiltersConfig={
+    Object {
+      "filters": Array [],
+      "onDelete": [Function],
     }
   }
   filterConfig={
@@ -544,11 +728,7 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [
-        Object {
-          "name": "some",
-        },
-      ],
+      "filters": Array [],
       "onDelete": [Function],
     }
   }
@@ -620,11 +800,7 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [
-        Object {
-          "name": "some",
-        },
-      ],
+      "filters": Array [],
       "onDelete": [Function],
     }
   }
@@ -713,11 +889,7 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [
-        Object {
-          "name": "some",
-        },
-      ],
+      "filters": Array [],
       "onDelete": [Function],
     }
   }

@@ -94,7 +94,7 @@ const Roles = ({
             titlePlural="roles"
             titleSingular="role"
             toolbarButtons = { toolbarButtons }
-            filterPlaceholder="Filter by name"
+            filterPlaceholder="name"
           />
         </Section>
       </StackItem>
