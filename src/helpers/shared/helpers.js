@@ -33,3 +33,5 @@ export const selectedRows = (newSelection, isSelected) => (selected) => {
     ...newSelection
   ].filter((row, key, arr) => arr.findIndex(({ uuid }) => row.uuid === uuid) === key);
 };
+
+export const firstUpperCase = (text) => text.charAt(0).toUpperCase() + text.slice(1);
