@@ -2,7 +2,7 @@ import React from 'react';
 import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
 import { ConditionalFilter } from '@redhat-cloud-services/frontend-components/components/ConditionalFilter';
 import PropTypes from 'prop-types';
-import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch } from '../../helpers/shared/helpers';
+import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '') => ({
@@ -63,15 +63,37 @@ export const filterConfigBuilder = (
   pagination = {},
   titleSingular = '',
   filterPlaceholder,
-  filterItems
+  filterItems,
+  textFilters
 ) => ({
-  items: [{
-    label: titleSingular,
+  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value }) => ({
+    label: firstUpperCase(key),
+    type: 'text',
+    filterValues: {
+      id: `filter-by-${key}`,
+      key: `filter-by-${key}`,
+      placeholder: `Filter by ${key}`,
+      value,
+      onChange: (_e, filterBy) => {
+        setFilterValue({
+          ...pagination,
+          offset: 0,
+          [key]: filterBy
+        });
+        debouncedFetch(() => fetchData({
+          ...pagination,
+          offset: 0,
+          [key]: filterBy
+        }));
+      },
+      isDisabled: isLoading
+    }})) : [{
+    label: firstUpperCase(filterPlaceholder || titleSingular),
     type: 'text',
     filterValues: {
       id: 'filter-by-string',
       key: 'filter-by-string',
-      placeholder: filterPlaceholder || `Filter by ${titleSingular}`,
+      placeholder: `Filter by ${filterPlaceholder || titleSingular}`,
       value: filterValue,
       onChange: (_e, value) => {
         setFilterValue({
@@ -87,28 +109,44 @@ export const filterConfigBuilder = (
       },
       isDisabled: isLoading
     }
-  }, ...filterItems || [] ]
+  }], ...filterItems || [] ]
 });
 
 export const activeFiltersConfigBuilder = (
   filterValue = '',
+  textFilters,
   pagination = {},
   setFilterValue  = () => undefined,
   fetchData = () => undefined
 ) => ({
-  filters: [{
+  filters: textFilters ? textFilters.map(({ key, value }) => value && ({
+    category: firstUpperCase(key),
+    type: key,
+    chips: [{ name: value }]
+  })).filter(Boolean) : [{
     name: filterValue
   }],
-  onDelete: () => {
+  onDelete: (_e, [ deleted ], isAll) => {
     setFilterValue({
       ...pagination,
       offset: 0,
-      name: ''
+      name: '',
+      ...textFilters ? textFilters.reduce((acc, { key, value }) => ({
+        ...acc,
+        [key]: deleted.type === key || isAll ? '' : value
+      }), {}) : {
+        name: 'sf'
+      }
     });
     fetchData({
       ...pagination,
       offset: 0,
-      name: ''
+      ...textFilters ? textFilters.reduce((acc, { key, value }) => ({
+        ...acc,
+        [key]: deleted.type === key || isAll ? '' : value
+      }), {}) : {
+        name: ''
+      }
     });
   }
 });
@@ -126,7 +164,8 @@ const Toolbar = ({
   fetchData,
   toolbarButtons,
   filterPlaceholder,
-  filterItems
+  filterItems,
+  textFilters
 }) => (
   <PrimaryToolbar
     { ...isSelectable && {
@@ -141,7 +180,8 @@ const Toolbar = ({
         pagination,
         titleSingular,
         filterPlaceholder,
-        filterItems
+        filterItems,
+        textFilters
       )
     }
     actionsConfig={ {
@@ -150,8 +190,8 @@ const Toolbar = ({
     { ...!isLoading && {
       pagination: paginationBuilder(pagination, fetchData, filterValue)
     } }
-    { ...filterValue.length > 0 && {
-      activeFiltersConfig: activeFiltersConfigBuilder(filterValue, pagination, setFilterValue, fetchData)
+    { ...(filterValue.length > 0 || textFilters) && {
+      activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData)
     }
     }
   />
@@ -166,6 +206,10 @@ Toolbar.propTypes = {
   titleSingular: PropTypes.string,
   filterValue: PropTypes.array,
   setFilterValue: PropTypes.func,
+  textFilters: PropTypes.arrayOf(PropTypes.shape({
+    value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+    key: PropTypes.string
+  })),
   pagination: PropTypes.shape({
     limit: PropTypes.number,
     offset: PropTypes.number,
@@ -190,7 +234,8 @@ Toolbar.defaultProps = {
   setFilterValue: () => undefined,
   fetchData: () => undefined,
   toolbarButtons: () => [],
-  filterItems: []
+  filterItems: [],
+  textFilters: []
 };
 
 export default Toolbar;

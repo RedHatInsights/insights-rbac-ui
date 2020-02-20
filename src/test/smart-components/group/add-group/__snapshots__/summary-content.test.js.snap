@@ -27,21 +27,6 @@ exports[`<SummaryContent /> should render correctly 1`] = `
         <div
           className="pf-l-stack__item"
         >
-          <Title
-            size="xl"
-          >
-            <h1
-              className="pf-c-title pf-m-xl"
-            >
-               Review 
-            </h1>
-          </Title>
-        </div>
-      </StackItem>
-      <StackItem>
-        <div
-          className="pf-l-stack__item"
-        >
           <Stack
             gutter="md"
           >
@@ -56,24 +41,36 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                     <div
                       className="pf-c-content"
                     >
-                      <Text
-                        className="data-table-detail heading"
-                        component="h5"
+                      <Title
+                        headingLevel="h4"
+                        size="xl"
                       >
-                        <h5
-                          className="data-table-detail heading"
+                        <h4
+                          className="pf-c-title pf-m-xl"
+                        >
+                           Add members to the group 
+                        </h4>
+                      </Title>
+                      <Text
+                        className="pf-u-mt-0"
+                        component="h6"
+                      >
+                        <h6
+                          className="pf-u-mt-0"
                           data-pf-content={true}
                         >
-                          Review and confirm your inputs. If there is anything incorrect, click Back and revise.
-                        </h5>
+                          Confirm the details for this group, or click Back to revise.
+                        </h6>
                       </Text>
                     </div>
                   </TextContent>
                 </div>
               </StackItem>
-              <StackItem>
+              <StackItem
+                className="ins-c-rbac__summary"
+              >
                 <div
-                  className="pf-l-stack__item"
+                  className="pf-l-stack__item ins-c-rbac__summary"
                 >
                   <Grid
                     gutter="md"
@@ -88,11 +85,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-2-col"
                         >
                           <Text
-                            className="data-table-detail heading"
+                            className="data-table-detail heading content"
                             component="h5"
                           >
                             <h5
-                              className="data-table-detail heading"
+                              className="data-table-detail heading content"
                               data-pf-content={true}
                             >
                               Group name
@@ -107,11 +104,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-10-col"
                         >
                           <Text
-                            className="data-table-detail content"
+                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content"
+                              className="data-table-detail content content"
                               data-pf-content={true}
                             />
                           </Text>
@@ -132,11 +129,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-2-col"
                         >
                           <Text
-                            className="data-table-detail heading"
+                            className="data-table-detail heading content"
                             component="h5"
                           >
                             <h5
-                              className="data-table-detail heading"
+                              className="data-table-detail heading content"
                               data-pf-content={true}
                             >
                               Group description
@@ -151,11 +148,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-10-col"
                         >
                           <Text
-                            className="data-table-detail content"
+                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content"
+                              className="data-table-detail content content"
                               data-pf-content={true}
                             />
                           </Text>
@@ -176,11 +173,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-2-col"
                         >
                           <Text
-                            className="data-table-detail heading"
+                            className="data-table-detail heading content"
                             component="h5"
                           >
                             <h5
-                              className="data-table-detail heading"
+                              className="data-table-detail heading content"
                               data-pf-content={true}
                             >
                               Member(s)
@@ -220,11 +217,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-2-col"
                         >
                           <Text
-                            className="data-table-detail heading"
+                            className="data-table-detail heading content"
                             component="h5"
                           >
                             <h5
-                              className="data-table-detail heading"
+                              className="data-table-detail heading content"
                               data-pf-content={true}
                             >
                               Role(s)

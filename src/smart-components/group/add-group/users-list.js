@@ -57,7 +57,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     request={ fetchUsers }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
-    filterPlaceholder="Filter by username"
+    filterPlaceholder="username"
     titlePlural="users"
     titleSingular="user"
     { ...props }
