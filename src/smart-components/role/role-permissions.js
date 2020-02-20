@@ -74,6 +74,7 @@ const Permissions = () => {
       } }
       titlePlural="permissions"
       titleSingular="permission"
+      filterPlaceholder="Filter by application"
     />
   </section>;
 };
