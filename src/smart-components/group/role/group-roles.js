@@ -190,8 +190,7 @@ const GroupRoles = ({
           actionResolver={ actionResolver }
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
-          filterPlaceholder="Filter by role name"
-
+          filterPlaceholder="Filter by name"
         />
       </Section>
     </React.Fragment>

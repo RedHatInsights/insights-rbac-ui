@@ -1,5 +1,6 @@
 import React from 'react';
 import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
+import { ConditionalFilter } from '@redhat-cloud-services/frontend-components/components/ConditionalFilter';
 import PropTypes from 'prop-types';
 import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -61,7 +62,8 @@ export const filterConfigBuilder = (
   filterValue = '',
   pagination = {},
   titleSingular = '',
-  filterPlaceholder
+  filterPlaceholder,
+  filterItems
 ) => ({
   items: [{
     label: titleSingular,
@@ -85,7 +87,7 @@ export const filterConfigBuilder = (
       },
       isDisabled: isLoading
     }
-  }]
+  }, ...filterItems || [] ]
 });
 
 export const activeFiltersConfigBuilder = (
@@ -123,14 +125,24 @@ const Toolbar = ({
   pagination,
   fetchData,
   toolbarButtons,
-  filterPlaceholder
+  filterPlaceholder,
+  filterItems
 }) => (
   <PrimaryToolbar
     { ...isSelectable && {
       bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data) }
     }
     filterConfig={
-      filterConfigBuilder(isLoading, setFilterValue, fetchData, filterValue, pagination, titleSingular, filterPlaceholder)
+      filterConfigBuilder(
+        isLoading,
+        setFilterValue,
+        fetchData,
+        filterValue,
+        pagination,
+        titleSingular,
+        filterPlaceholder,
+        filterItems
+      )
     }
     actionsConfig={ {
       actions: toolbarButtons()
@@ -159,6 +171,7 @@ Toolbar.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number
   }),
+  filterItems: ConditionalFilter.propTypes.items,
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,
@@ -176,7 +189,8 @@ Toolbar.defaultProps = {
   setCheckedItems: () => undefined,
   setFilterValue: () => undefined,
   fetchData: () => undefined,
-  toolbarButtons: () => []
+  toolbarButtons: () => [],
+  filterItems: []
 };
 
 export default Toolbar;
