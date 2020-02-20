@@ -72,6 +72,7 @@ const AddGroupWizard = ({
   return (
     <Wizard
       isLarge
+      isCompactNav
       title="Create and configure a group"
       description="To give users access permissions, create a group and assign roles to it."
       isOpen
