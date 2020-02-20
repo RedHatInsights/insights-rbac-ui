@@ -131,7 +131,7 @@ const Groups = ({ fetchGroups, isLoading, pagination, history: { push }, groups,
             setFilterValue={ ({ name }) => setFilterValue(name) }
             toolbarButtons={ toolbarButtons }
             isLoading={ isLoading }
-            filterPlaceholder="Filter by name"
+            filterPlaceholder="name"
             rowWrapper={ GroupRowWrapper }
           />
         </Section>
