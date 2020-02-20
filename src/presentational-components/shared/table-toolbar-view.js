@@ -33,7 +33,8 @@ export const TableToolbarView = ({
   isCollapsible,
   emptyProps,
   filterPlaceholder,
-  rowWrapper
+  rowWrapper,
+  textFilters
 }) => {
   const [ opened, openRow ] = useState({});
 
@@ -94,6 +95,7 @@ export const TableToolbarView = ({
         fetchData={ fetchData }
         toolbarButtons={ toolbarButtons }
         filterPlaceholder={ filterPlaceholder }
+        textFilters={ textFilters }
       />
       { isLoading ? <ListLoader /> : <Table
         canSelectAll={ false }
@@ -130,7 +132,7 @@ export const TableToolbarView = ({
   return (
     <Fragment>
       { routes() }
-      { !isLoading && rows.length === 0 && filterValue.length === 0 ?
+      { !isLoading && rows.length === 0 && (filterValue.length === 0 && textFilters.every(({ value }) => !!value)) ?
         <EmptyWithAction
           title={ `Configure ${titlePlural}` }
           icon={ PlusCircleIcon }
