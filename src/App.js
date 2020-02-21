@@ -11,17 +11,19 @@ import { IntlProvider } from 'react-intl';
 
 import '@redhat-cloud-services/frontend-components-notifications/index.css';
 import './App.scss';
+import DeniedState from './presentational-components/states/DeniedState';
 
 class App extends Component {
   state = {
     chromeNavAvailable: true,
-    auth: false
+    userReady: false,
+    isAdmin: undefined
   }
 
   componentDidMount () {
     const { history } = this.props;
     insights.chrome.init();
-    insights.chrome.auth.getUser().then(() => this.setState({ auth: true }));
+    insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
     insights.chrome.identifyApp('rbac');
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
@@ -35,9 +37,14 @@ class App extends Component {
   }
 
   render () {
-    const { auth } = this.state;
-    if (!auth) {
+    const { userReady, isAdmin } = this.state;
+
+    if (!userReady) {
       return <AppPlaceholder />;
+    }
+
+    if (!isAdmin) {
+      return <DeniedState/>;
     }
 
     return (
