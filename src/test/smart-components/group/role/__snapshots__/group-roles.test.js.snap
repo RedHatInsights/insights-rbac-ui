@@ -9,6 +9,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     addRoles={[Function]}
     fetchRoles={[Function]}
     fetchRolesForGroup={[Function]}
+    isChanged={true}
     isLoading={true}
     pagination={
       Object {
@@ -46,6 +47,7 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
     addRoles={[Function]}
     fetchRoles={[Function]}
     fetchRolesForGroup={[Function]}
+    isChanged={true}
     isLoading={true}
     pagination={
       Object {
