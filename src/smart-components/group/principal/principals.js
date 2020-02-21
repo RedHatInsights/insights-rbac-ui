@@ -40,7 +40,7 @@ const GroupPrincipals = ({
     fetchGroup(uuid);
   };
 
-  const removeModalText = (name, group, plural) => (plural
+  const removeModalText = (name, group, plural) => (console.log(name), plural
     ? <p>These <b> { `${name}` }</b> members will lose all the roles associated with the <b>{ `${group}` }</b> group.</p>
     : <p> <b>{ `${name}` }</b> will lose all the roles associated with the <b> { `${group}` }</b> group.</p>
   );
@@ -57,13 +57,12 @@ const GroupPrincipals = ({
     (rowIndex % 2 === 1) || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)' },
+          title: 'Remove',
           onClick: (_event, _rowId, principal) => {
             setConfirmDelete(() => () => removeMembers([ principal.username ]));
             setDeleteInfo({
               title: 'Remove member?',
-              text: removeModalText(principal.username, group.name, false),
+              text: removeModalText(principal.username.title, group.name, false),
               confirmButtonLabel: 'Remove member'
             });
             setShowRemoveModal(true);
