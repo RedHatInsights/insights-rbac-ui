@@ -74,7 +74,7 @@ const Group = ({
           <SplitItem>
             { group.platform_default
               ? null
-              : <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit Group</Button>
+              : <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit group</Button>
             }
           </SplitItem>
           <EditGroup

@@ -19,11 +19,15 @@ export const addGroup = (groupData) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success adding group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The group was added successfully.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The group was not added successfuly.'
       }
     }
@@ -38,11 +42,15 @@ export const updateGroup = (groupData) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success updating group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The group was updated successfully.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed updating group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The group was not updated successfuly.'
       }
     }
@@ -56,11 +64,15 @@ export const removeGroups = (uuids) => ({
     notifications: {
       fulfilled: {
         variant: 'success',
+        dismissDelay: 8000,
+        dismissable: false,
         title: uuids.length > 1 ? 'Groups deleted successfully' :
           'Group deleted successfully'
       },
       rejected: {
         variant: 'danger',
+        dismissDelay: 8000,
+        dismissable: false,
         title: uuids.length > 1 ? 'There was an error deleting the groups. Please try again.' :
           'There was an error deleting the group. Please try again.'
       }
@@ -80,11 +92,15 @@ export const addMembersToGroup = (groupId, members) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success adding members to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The members were successfully added to the group.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding members to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The members were not added successfully.'
       }
     }
@@ -99,11 +115,15 @@ export const removeMembersFromGroup = (groupId, members) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success removing members from group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The members were successfully removed from the group.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed removing members to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The members were not removed successfully.'
       }
     }
@@ -128,11 +148,15 @@ export const addRolesToGroup = (groupId, roles) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success adding roles to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The roles were successfully added to the group.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding roles to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The roles were not added successfully.'
       }
     }
@@ -147,11 +171,15 @@ export const removeRolesFromGroup = (groupId, roles) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success removing roles from group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The roles were successfully removed from the group.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed removing roles to group',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The roles were not removed successfully.'
       }
     }

@@ -24,6 +24,8 @@ const AddGroupMembers = ({
       addNotification({
         variant: 'info',
         title: `Adding member${userList.length > 1 ? 's' : ''} to group`,
+        dismissDelay: 8000,
+        dismissable: false,
         description: `Adding member${userList.length > 1 ? 's' : ''} to group initiated.`
       });
       addMembersToGroup(uuid, userList).then(() => fetchGroup(uuid));
@@ -37,6 +39,7 @@ const AddGroupMembers = ({
       variant: 'warning',
       title: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group`,
       dismissDelay: 8000,
+      dismissable: false,
       description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was cancelled by the user.`
     });
     push(closeUrl);

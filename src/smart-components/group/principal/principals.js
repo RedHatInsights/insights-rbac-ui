@@ -67,13 +67,12 @@ const GroupPrincipals = ({
     !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
-          title: 'Delete',
-          style: { color: 'var(--pf-global--danger-color--100)' },
+          title: 'Remove',
           onClick: (_event, _rowId, principal) => {
             setConfirmDelete(() => () => removeMembers([ principal.username ]));
             setDeleteInfo({
               title: 'Remove member?',
-              text: removeModalText(principal.username, group.name, false),
+              text: removeModalText(principal.username.title, group.name, false),
               confirmButtonLabel: 'Remove member'
             });
             setShowRemoveModal(true);
