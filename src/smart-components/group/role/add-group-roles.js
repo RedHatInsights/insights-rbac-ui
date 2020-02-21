@@ -2,10 +2,7 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  ActionGroup,
   Button,
-  Split,
-  SplitItem,
   Card,
   Modal,
   Stack,
@@ -40,6 +37,7 @@ const AddGroupRoles = ({
       variant: 'warning',
       title: 'Adding members to group',
       dismissDelay: 8000,
+      dismissable: false,
       description: 'Adding members to group was cancelled by the user.'
     });
     push(closeUrl);
@@ -64,7 +62,25 @@ const AddGroupRoles = ({
       onClose={ () => {
         onCancel();
         setShowConfirmModal(true);
-      } }>
+      } }
+      actions={ [
+        <Button
+          aria-label="Save"
+          variant="primary"
+          key="confirm"
+          isDisabled={ selectedRoles.length === 0 }
+          onClick={ onSubmit }>
+            Add to group
+        </Button>,
+        <Button
+          aria-label='Cancel'
+          variant='link'
+          key="cancel"
+          onClick={ onCancel }>
+          Cancel
+        </Button>
+      ] }
+      isFooterLeftAligned>
       <Stack gutter="md">
         { title && <StackItem>
           <Title size="xl">{ title }</Title>
@@ -80,30 +96,6 @@ const AddGroupRoles = ({
           <Card>
             <ExcludedRolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
           </Card>
-        </StackItem>
-        <StackItem>
-          <ActionGroup>
-            <Split gutter="md">
-              <SplitItem>
-                <Button
-                  aria-label="Save"
-                  variant="primary"
-                  type="button"
-                  isDisabled={ selectedRoles.length === 0 }
-                  onClick={ onSubmit }
-                >
-                      Add to group
-                </Button>
-              </SplitItem>
-              <SplitItem>
-                <Button
-                  aria-label='Cancel'
-                  variant='secondary'
-                  type='button'
-                  onClick={ onCancel }>Cancel</Button>
-              </SplitItem>
-            </Split>
-          </ActionGroup>
         </StackItem>
       </Stack>
     </Modal>
