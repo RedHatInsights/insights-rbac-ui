@@ -2,7 +2,7 @@ import React, { Fragment, useState } from 'react';
 import propTypes from 'prop-types';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components';
-import { Button, Pagination } from '@patternfly/react-core';
+import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
@@ -54,24 +54,25 @@ export const TableToolbarView = ({
           `Try changing your filter settings.`
         ] }
         actions={ [
-          <Button
-            variant="link"
-            key="clear-filters"
-            onClick={ () => {
-              setFilterValue({
-                ...pagination,
-                offset: 0,
-                name: ''
-              });
-              fetchData({
-                ...pagination,
-                offset: 0,
-                name: ''
-              });
-            } }
-          >
-            Clear all filters
-          </Button>
+          <EmptyStatePrimary key="clear-filters">
+            <Button
+              variant="link"
+              onClick={ () => {
+                setFilterValue({
+                  ...pagination,
+                  offset: 0,
+                  name: ''
+                });
+                fetchData({
+                  ...pagination,
+                  offset: 0,
+                  name: ''
+                });
+              } }
+            >
+              Clear all filters
+            </Button>
+          </EmptyStatePrimary>
         ] }
       />
     ),
