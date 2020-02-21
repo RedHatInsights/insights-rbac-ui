@@ -40,7 +40,7 @@ const GroupPrincipals = ({
     fetchGroup(uuid);
   };
 
-  const removeModalText = (name, group, plural) => (console.log(name), plural
+  const removeModalText = (name, group, plural) => (plural
     ? <p>These <b> { `${name}` }</b> members will lose all the roles associated with the <b>{ `${group}` }</b> group.</p>
     : <p> <b>{ `${name}` }</b> will lose all the roles associated with the <b> { `${group}` }</b> group.</p>
   );
