@@ -19,11 +19,15 @@ export const createPolicy = (policyData) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success adding policy',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The policy was added successfully.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding policy',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The policy was not added successfully.'
       }
     }
@@ -38,6 +42,8 @@ export const removePolicy = (policy) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success removing policy',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The policy was removed successfully.'
       }
     }
@@ -52,11 +58,15 @@ export const updatePolicy = (uuid, policyData) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success updating policy',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The policy was updated successfully.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed updating policy',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The policy was not updated successfully.'
       }
     }

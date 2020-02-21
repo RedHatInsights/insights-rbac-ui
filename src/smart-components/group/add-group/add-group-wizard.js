@@ -64,6 +64,7 @@ const AddGroupWizard = ({
       variant: 'warning',
       title: 'Adding group',
       dismissDelay: 8000,
+      dismissable: false,
       description: 'Adding group was cancelled by the user.'
     });
     push('/groups');

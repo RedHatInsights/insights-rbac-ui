@@ -48,6 +48,7 @@ const EditGroupModal = ({
     addNotification({
       variant: 'warning',
       dismissDelay: 8000,
+      dismissable: false,
       title: selectedGroup ? 'Editing group' : 'Adding group',
       description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });

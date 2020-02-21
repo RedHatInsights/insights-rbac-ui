@@ -37,6 +37,7 @@ const AddGroupRoles = ({
       variant: 'warning',
       title: 'Adding members to group',
       dismissDelay: 8000,
+      dismissable: false,
       description: 'Adding members to group was cancelled by the user.'
     });
     push(closeUrl);
