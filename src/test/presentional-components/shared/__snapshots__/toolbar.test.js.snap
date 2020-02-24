@@ -524,7 +524,8 @@ exports[`<Toolbar> should render buttons 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -712,7 +713,8 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
