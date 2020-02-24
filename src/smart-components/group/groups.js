@@ -43,24 +43,19 @@ const Groups = () => {
     .map(({ uuid, name }) => ({ uuid, label: name })));
   };
 
-  const routes = () => <Fragment>
-    <Route exact path="/groups/add-group"
-      render={ props =>
+  const routes = () =>
+    <Fragment>
+      <Route exact path="/groups/add-group">
         <AddGroupWizard
-          { ...props }
           postMethod={
             config => {
               dispatch(fetchGroups(config));
               setFilterValue('');
             }
-          }
-        />
-      }
-    />
-    <Route exact path="/groups/edit/:id"
-      render={ props =>
+          } />
+      </Route>
+      <Route exact path="/groups/edit/:id">
         <EditGroup
-          { ...props }
           postMethod={
             config =>
             {
@@ -68,23 +63,19 @@ const Groups = () => {
               setFilterValue('');
             }
           } isOpen />
-      }
-    />
-    <Route exact path="/groups/removegroups"
-      render={
-        props =>
-          <RemoveGroup { ...props }
-            postMethod={ (ids) => {
-              dispatch(fetchGroups());
-              setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
-              setFilterValue('');
-            } }
-            isModalOpen
-            groupsUuid={ removeGroupsList }
-          />
-      }
-    />
-  </Fragment>;
+      </Route>
+      <Route exact path="/groups/removegroups">
+        <RemoveGroup
+          postMethod={ (ids) => {
+            dispatch(fetchGroups());
+            setSelectedRows(selectedRows.filter(row => (!ids.includes(row.uuid))));
+            setFilterValue('');
+          } }
+          isModalOpen
+          groupsUuid={ removeGroupsList }
+        />
+      </Route>
+    </Fragment>;
 
   const actionResolver = ({ isPlatformDefault }) =>
     isPlatformDefault || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :

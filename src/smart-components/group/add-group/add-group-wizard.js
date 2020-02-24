@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -14,7 +14,6 @@ import SetUsers from './set-users';
 import SetRoles from './set-roles';
 
 const AddGroupWizard = ({
-  history: { push },
   addNotification,
   addGroup,
   postMethod,
@@ -24,6 +23,8 @@ const AddGroupWizard = ({
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ formData, setValues ] = useState({});
   const [ isGroupInfoValid, setIsGroupInfoValid ] = useState(false);
+
+  const history = useHistory();
 
   const handleChange = data => {
     setValues({ ...formData,  ...data });
@@ -56,7 +57,7 @@ const AddGroupWizard = ({
     };
     await addGroup(user_data);
     postMethod();
-    push(closeUrl);
+    history.push(closeUrl);
   };
 
   const onCancel = () => {
@@ -67,7 +68,7 @@ const AddGroupWizard = ({
       dismissable: false,
       description: 'Adding group was cancelled by the user.'
     });
-    push('/groups');
+    history.push('/groups');
   };
 
   return (
@@ -94,9 +95,6 @@ AddGroupWizard.defaultProps = {
 };
 
 AddGroupWizard.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
-  }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { withRouter, useHistory, useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -10,8 +10,6 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 const EditGroupModal = ({
-  history: { push },
-  match: { params: { id }},
   addNotification,
   updateGroup,
   postMethod,
@@ -22,12 +20,15 @@ const EditGroupModal = ({
 }) => {
   const [ selectedGroup, setSelectedGroup ] = useState(undefined);
 
+  const history = useHistory();
+  const match = useRouteMatch('/groups/edit/:id');
+
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
   };
 
   const fetchData = () => {
-    fetchGroup(id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
+    fetchGroup(match.params.id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
   };
 
   useEffect(() => {
@@ -40,8 +41,8 @@ const EditGroupModal = ({
 
   const onSubmit = data => {
     const user_data = { ...data };
-    postMethod ? updateGroup(user_data).then(() => postMethod()).then(push(closeUrl)) :
-      updateGroup(user_data).then(() => push(closeUrl));
+    postMethod ? updateGroup(user_data).then(() => postMethod()).then(history.push(closeUrl)) :
+      updateGroup(user_data).then(() => history.push(closeUrl));
   };
 
   const onCancel = () => {
@@ -53,7 +54,7 @@ const EditGroupModal = ({
       description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
     });
     onClose();
-    push(closeUrl);
+    history.push(closeUrl);
   };
 
   const schema = {
@@ -125,9 +126,7 @@ EditGroupModal.propTypes = {
   }).isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
-  selectedGroup: PropTypes.object.isRequired,
   inputValue: PropTypes.string,
-  match: PropTypes.object,
   updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   closeUrl: PropTypes.string,
