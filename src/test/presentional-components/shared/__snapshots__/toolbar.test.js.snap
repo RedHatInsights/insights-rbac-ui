@@ -7,12 +7,6 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   bulkSelect={
     Object {
       "checked": true,
@@ -89,12 +83,6 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   bulkSelect={
     Object {
       "checked": false,
@@ -168,12 +156,6 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   bulkSelect={
     Object {
       "checked": true,
@@ -215,12 +197,6 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
   actionsConfig={
     Object {
       "actions": Array [],
-    }
-  }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
     }
   }
   bulkSelect={
@@ -268,7 +244,11 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [],
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
       "onDelete": [Function],
     }
   }
@@ -396,12 +376,6 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   bulkSelect={
     Object {
       "checked": false,
@@ -475,12 +449,6 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   bulkSelect={
     Object {
       "checked": false,
@@ -529,12 +497,6 @@ exports[`<Toolbar> should render buttons 1`] = `
           "title": "fff",
         },
       ],
-    }
-  }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
     }
   }
   filterConfig={
@@ -596,12 +558,6 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
       "actions": Array [],
     }
   }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
-    }
-  }
   filterConfig={
     Object {
       "items": Array [
@@ -659,12 +615,6 @@ exports[`<Toolbar> should render pagination 1`] = `
   actionsConfig={
     Object {
       "actions": Array [],
-    }
-  }
-  activeFiltersConfig={
-    Object {
-      "filters": Array [],
-      "onDelete": [Function],
     }
   }
   filterConfig={
@@ -728,7 +678,11 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [],
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
       "onDelete": [Function],
     }
   }
@@ -800,7 +754,11 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [],
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
       "onDelete": [Function],
     }
   }
@@ -889,7 +847,11 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
   }
   activeFiltersConfig={
     Object {
-      "filters": Array [],
+      "filters": Array [
+        Object {
+          "name": "some",
+        },
+      ],
       "onDelete": [Function],
     }
   }
