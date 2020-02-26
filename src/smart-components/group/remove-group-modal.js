@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
@@ -111,4 +111,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   removeGroups
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal));
+export default connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal);

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter, useHistory } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -121,4 +121,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchUsers
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
+export default connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard);

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { withRouter, useHistory, useRouteMatch } from 'react-router-dom';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -121,9 +121,6 @@ EditGroupModal.defaultProps = {
 };
 
 EditGroupModal.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
-  }).isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
@@ -146,4 +143,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchGroup
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(EditGroupModal));
+export default connect(mapStateToProps, mapDispatchToProps)(EditGroupModal);
