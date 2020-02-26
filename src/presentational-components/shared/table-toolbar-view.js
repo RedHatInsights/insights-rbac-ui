@@ -1,4 +1,4 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import propTypes from 'prop-types';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import { TableToolbar } from '@redhat-cloud-services/frontend-components';
@@ -34,9 +34,17 @@ export const TableToolbarView = ({
   emptyProps,
   filterPlaceholder,
   rowWrapper,
-  textFilters
+  textFilters,
+  sortBy
 }) => {
   const [ opened, openRow ] = useState({});
+  const [ sortByState, setSortByState ] = useState({ index: undefined, direction: undefined });
+  useEffect(() => {
+    setSortByState({
+      ...sortByState,
+      ...sortBy
+    });
+  }, [ sortBy ]);
 
   const rows = createRows(data, opened, checkedRows);
 
@@ -113,6 +121,18 @@ export const TableToolbarView = ({
         { ...rows.length > 0 && { actionResolver } }
         areActionsDisabled={ areActionsDisabled }
         rowWrapper={ rowWrapper }
+        sortBy={ sortByState }
+        onSort={ (e, index, direction) => {
+          const key = columns[index - 1].key;
+          setSortByState({ index, direction });
+          fetchData({
+            ...pagination,
+            offset: 0,
+            name: '',
+            orderBy: direction === 'desc' ? `-${key}` : key
+          });
+        }
+        }
       >
         <TableHeader />
         <TableBody />
