@@ -130,7 +130,6 @@ EditGroupModal.propTypes = {
   isOpen: PropTypes.bool,
   group: PropTypes.object,
   onClose: PropTypes.func
-
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading }}) => ({

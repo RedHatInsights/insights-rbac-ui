@@ -49,7 +49,11 @@ describe('<EditGroupModal />', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = shallow(<EditGroupModal { ...initialProps } />);
+    const store = mockStore(initialState);
+    const wrapper = shallow(
+      <Provider store={ store }>
+        <EditGroupModal { ...initialProps } />
+      </Provider>);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
