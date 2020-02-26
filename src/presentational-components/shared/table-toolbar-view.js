@@ -123,13 +123,12 @@ export const TableToolbarView = ({
         rowWrapper={ rowWrapper }
         sortBy={ sortByState }
         onSort={ (e, index, direction) => {
-          const key = columns[index - isSelectable].key;
           setSortByState({ index, direction });
           fetchData({
             ...pagination,
             offset: 0,
             name: '',
-            orderBy: direction === 'desc' ? `-${key}` : key
+            orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`
           });
         }
         }

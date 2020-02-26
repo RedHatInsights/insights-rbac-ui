@@ -18,8 +18,8 @@ import './groups.scss';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [ sortable ]},
-  { title: 'Description', key: 'description', transforms: [ sortable ]},
-  { title: 'Members', key: 'principalCount', transforms: [ sortable ]},
+  { title: 'Roles' },
+  { title: 'Members' },
   { title: 'Last modified', key: 'modified', transforms: [ sortable ]}
 ];
 
