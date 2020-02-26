@@ -141,4 +141,29 @@ describe('<Groups />', () => {
     ];
     expect(store.getActions()).toEqual(expectedCancelPayload);
   });
+
+  it('should fetch groups on sort click', async() => {
+    const store = mockStore(initialState);
+    mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=&order_by=name`).replyOnce(200, {});
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={ store }>
+          <Router initialEntries={ [ '/groups' ] }>
+            <Groups />
+          </Router>
+        </Provider>
+      );
+    });
+    store.clearActions();
+    await act(async () => {
+      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
+    });
+    const expectedPayloadAfter = [
+      { type: 'FETCH_GROUPS_PENDING' },
+      { type: 'FETCH_GROUPS_FULFILLED', payload: {}}
+    ];
+    expect(store.getActions()).toEqual(expectedPayloadAfter);
+  });
 });

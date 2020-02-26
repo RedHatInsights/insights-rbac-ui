@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
-import { expandable } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
@@ -16,7 +16,12 @@ import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
 import './groups.scss';
 
-const columns = [{ title: 'Name', cellFormatters: [ expandable ]}, 'Roles', 'Members', 'Last modified' ];
+const columns = [
+  { title: 'Name', key: 'name', transforms: [ sortable ]},
+  { title: 'Roles' },
+  { title: 'Members' },
+  { title: 'Last modified', key: 'modified', transforms: [ sortable ]}
+];
 
 const Groups = () => {
   const [ filterValue, setFilterValue ] = useState('');

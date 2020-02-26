@@ -31,9 +31,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -73,9 +76,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -115,9 +121,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -157,9 +166,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -234,9 +246,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -276,9 +291,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -318,9 +336,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -360,9 +381,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -437,9 +461,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -479,9 +506,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -521,9 +551,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
@@ -563,9 +596,12 @@ Array [
             "onCollapse": undefined,
             "onExpand": undefined,
             "onSelect": undefined,
-            "onSort": undefined,
+            "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": undefined,
+            "sortBy": Object {
+              "direction": undefined,
+              "index": undefined,
+            },
           },
           "header": Object {
             "formatters": Array [],
