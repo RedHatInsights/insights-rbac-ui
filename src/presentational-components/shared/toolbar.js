@@ -204,7 +204,7 @@ Toolbar.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.array,
   titleSingular: PropTypes.string,
-  filterValue: PropTypes.array,
+  filterValue: PropTypes.oneOfType([ PropTypes.array, PropTypes.string ]),
   setFilterValue: PropTypes.func,
   textFilters: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),

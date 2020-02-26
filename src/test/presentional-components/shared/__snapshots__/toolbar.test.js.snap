@@ -44,7 +44,8 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -117,7 +118,8 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -272,7 +274,8 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -337,7 +340,8 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -410,7 +414,8 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -519,7 +524,8 @@ exports[`<Toolbar> should render buttons 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -578,7 +584,8 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,
@@ -706,7 +713,8 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 1,
+      "itemCount": 1,
       "limit": 50,
       "numberOfItems": 50,
       "offset": 0,

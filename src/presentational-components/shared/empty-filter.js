@@ -23,15 +23,11 @@ const EmptyWithFilter = ({ title, icon, description, actions, ...props }) => (
 );
 
 EmptyWithFilter.propTypes = {
-  icon: PropTypes.node,
+  icon: PropTypes.func,
   title: PropTypes.node,
   description: PropTypes.node,
   actions: PropTypes.arrayOf(PropTypes.node),
   className: PropTypes.string
-};
-
-EmptyWithFilter.propTypes = {
-  actions: []
 };
 
 export default EmptyWithFilter;

@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
@@ -9,7 +9,6 @@ import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveGroupModal = ({
-  history: { goBack, push },
   removeGroups,
   group,
   isLoading,
@@ -25,16 +24,18 @@ const RemoveGroupModal = ({
     }
   }, []);
 
+  const history = useHistory();
+
   const [ checked, setChecked ] = useState(false);
 
   const multipleGroups = groupsUuid.length > 1;
 
   const onSubmit = () => {
     const uuids = groupsUuid.map((group) => group.uuid);
-    removeGroups(uuids).then(() => postMethod(uuids)).then(push(closeUrl));
+    removeGroups(uuids).then(() => postMethod(uuids)).then(history.push(closeUrl));
   };
 
-  const onCancel = () => goBack();
+  const onCancel = () => history.goBack();
 
   return (
     <Modal
@@ -90,10 +91,6 @@ RemoveGroupModal.defaultProps = {
 };
 
 RemoveGroupModal.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }).isRequired,
   isModalOpen: PropTypes.bool,
   removeGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
@@ -114,4 +111,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   removeGroups
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal));
+export default connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal);

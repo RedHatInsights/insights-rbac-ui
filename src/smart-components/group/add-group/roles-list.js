@@ -49,7 +49,6 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
     setFilterValue={ ({ name }) => setFilterValue(name) }
     isLoading={ isLoading }
     pagination={ pagination }
-    request={ fetchRoles }
     checkedRows={ selectedRoles }
     setCheckedItems={ setCheckedItems }
     titlePlural="roles"

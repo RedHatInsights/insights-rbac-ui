@@ -49,7 +49,11 @@ describe('<EditGroupModal />', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = shallow(<EditGroupModal { ...initialProps } />);
+    const store = mockStore(initialState);
+    const wrapper = shallow(
+      <Provider store={ store }>
+        <EditGroupModal { ...initialProps } />
+      </Provider>);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
@@ -67,8 +71,8 @@ describe('<EditGroupModal />', () => {
       }));
 
     const wrapper = mount(
-      <GroupWrapper store={ store } initialEntries={ [ '/foo/url' ] }>
-        <Route to="/foo/url" render={ args => <EditGroupModal { ...initialProps } { ...args } isOpen /> }  />
+      <GroupWrapper store={ store } initialEntries={ [ '/groups/edit/:id' ] }>
+        <Route to="/groups/edit/:id" render={ args => <EditGroupModal { ...initialProps } { ...args } isOpen /> }  />
       </GroupWrapper>
     );
 
