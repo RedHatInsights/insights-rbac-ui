@@ -123,7 +123,7 @@ export const activeFiltersConfigBuilder = (
   setFilterValue  = () => undefined,
   fetchData = () => undefined
 ) => ({
-  filters: textFilters ? textFilters.map(({ key, value }) => value && ({
+  filters: (textFilters && textFilters.length > 0) ? textFilters.map(({ key, value }) => value && ({
     category: firstUpperCase(key),
     type: key,
     chips: [{ name: value }]
@@ -194,7 +194,7 @@ const Toolbar = ({
     { ...!isLoading && {
       pagination: paginationBuilder(pagination, fetchData, filterValue)
     } }
-    { ...(filterValue.length > 0 || textFilters) && {
+    { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && {
       activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData)
     }
     }
@@ -208,7 +208,7 @@ Toolbar.propTypes = {
   isLoading: PropTypes.bool,
   data: PropTypes.array,
   titleSingular: PropTypes.string,
-  filterValue: PropTypes.array,
+  filterValue: PropTypes.oneOfType([ PropTypes.array, PropTypes.string ]),
   setFilterValue: PropTypes.func,
   textFilters: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),

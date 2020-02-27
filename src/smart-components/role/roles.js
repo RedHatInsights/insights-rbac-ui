@@ -89,7 +89,6 @@ const Roles = ({
             setFilterValue={ ({ name }) => setFilterValue(name) }
             isLoading={ isLoading }
             pagination={ pagination }
-            request={ fetchRoles }
             routes={ routes }
             titlePlural="roles"
             titleSingular="role"
