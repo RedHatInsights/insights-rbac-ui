@@ -83,6 +83,10 @@ export const filterConfigBuilder = (
         debouncedFetch(() => fetchData({
           ...pagination,
           offset: 0,
+          ...textFilters.reduce((acc, curr) => ({
+            ...acc,
+            [curr.key]: curr.value
+          }), {}),
           [key]: filterBy
         }));
       },
