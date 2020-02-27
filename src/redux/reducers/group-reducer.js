@@ -3,7 +3,8 @@ import {
   FETCH_GROUPS,
   RESET_SELECTED_GROUP,
   FETCH_ROLES_FOR_GROUP,
-  FETCH_ADD_ROLES_FOR_GROUP
+  FETCH_ADD_ROLES_FOR_GROUP,
+  FETCH_MEMBERS_FOR_GROUP
 } from '../../redux/action-types';
 
 // Initial State
@@ -16,7 +17,7 @@ export const groupsInitialState = {
       offset: 0
     }
   },
-  selectedGroup: { addRoles: {}},
+  selectedGroup: { addRoles: {}, members: {}},
   isLoading: false,
   isRecordLoading: false
 };
@@ -42,6 +43,24 @@ const setRolesForGroup = (state, { payload }) => ({
   selectedGroup: { ...state.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true }
 });
 
+const setMembersForGroupLoading = (state = {}) => ({
+  ...state,
+  selectedGroup: {
+    ...state.selectedGroup || {},
+    members: { isLoading: true }
+  }
+});
+const setMembersForGroup = (state, { payload }) => ({
+  ...state,
+  selectedGroup: {
+    ...state.selectedGroup || {},
+    members: {
+      isLoading: false,
+      ...payload
+    }
+  }
+});
+
 const setAddRolesLoading = state => ({
   ...state,
   selectedGroup: { ...state.selectedGroup, addRoles: { loaded: false }}
@@ -58,6 +77,8 @@ export default {
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
+  [`${FETCH_MEMBERS_FOR_GROUP}_PENDING`]: setMembersForGroupLoading,
+  [`${FETCH_MEMBERS_FOR_GROUP}_FULFILLED`]: setMembersForGroup,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_FULFILLED`]: setAddRolesForGroup,
   [RESET_SELECTED_GROUP]: resetSelectedGroup
