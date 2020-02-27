@@ -27,6 +27,11 @@ const selector = ({ groupReducer: { groups, selectedGroup }}) => ({
   isLoading: selectedGroup.members.isLoading
 });
 
+const removeModalText = (name, group, plural) => (plural
+  ? <p>These <b> { `${name}` }</b> members will lose all the roles associated with the <b>{ `${group}` }</b> group.</p>
+  : <p> <b>{ `${name}` }</b> will lose all the roles associated with the <b> { `${group}` }</b> group.</p>
+);
+
 const GroupPrincipals = () => {
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedPrincipals, setSelectedPrincipals ] = useState([]);
@@ -53,11 +58,6 @@ const GroupPrincipals = () => {
   useEffect(() => {
     fetchData();
   }, []);
-
-  const removeModalText = (name, group, plural) => (plural
-    ? <p>These <b> { `${name}` }</b> members will lose all the roles associated with the <b>{ `${group}` }</b> group.</p>
-    : <p> <b>{ `${name}` }</b> will lose all the roles associated with the <b> { `${group}` }</b> group.</p>
-  );
 
   const setCheckedPrincipals = (newSelection) => {
     setSelectedPrincipals((principals) => newSelection(principals));
