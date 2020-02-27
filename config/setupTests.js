@@ -34,6 +34,7 @@ global.insights = {
   chrome: {
     auth: {
       getUser: () => new Promise(resolve => resolve(true))
-    }
+    },
+    isBeta: () => true
   }
 };

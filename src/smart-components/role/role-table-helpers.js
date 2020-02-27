@@ -3,7 +3,7 @@ import { DateFormat } from '@redhat-cloud-services/frontend-components';
 import { Link } from 'react-router-dom';
 
 export const createRows = (data) => (
-  data.reduce((acc, { uuid, name, description, system, accessCount, modified }) => ([
+  data.reduce((acc, { uuid, name, description, system, accessCount, groups_in_count: groupsCount, modified }) => ([
     ...acc,
     {
       uuid,
@@ -20,6 +20,7 @@ export const createRows = (data) => (
             { accessCount }
           </Link>
         </Fragment>,
+        groupsCount,
         <Fragment key={ `${uuid}-modified` }>
           <DateFormat date={ modified } type="relative" />
         </Fragment>

@@ -1,10 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Link, Route, Switch } from 'react-router-dom';
+import { shallowEqual, useSelector, useDispatch  } from 'react-redux';
+import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import PropTypes from 'prop-types';
+import { cellWidth } from '@patternfly/react-table';
 import { createRows } from './role-table-helpers';
-import { defaultSettings } from '../../helpers/shared/pagination';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -15,24 +14,36 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 
 const columns = [
-  { title: 'Name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name', transforms: [ cellWidth(20) ]},
   { title: 'Description' },
-  { title: 'Permissions' },
-  { title: 'Last modified', orderBy: 'modified' }
+  { title: 'Permissions', transforms: [ cellWidth(5) ]},
+  { title: 'Groups', transforms: [ cellWidth(5) ]},
+  { title: 'Last modified', orderBy: 'modified', transforms: [ cellWidth(10) ]}
 ];
 
-const Roles = ({
-  fetchRoles,
-  roles,
-  isLoading,
-  history: { push },
-  pagination,
-  userIdentity,
-  userEntitlements
-}) => {
+const selector = ({ roleReducer: { roles, isLoading }}) => ({
+  roles: roles.data,
+  pagination: roles.meta,
+  userIdentity: roles.identity,
+  userEntitlements: roles.entitlements,
+  isLoading
+});
+
+const Roles = () => {
   const [ filterValue, setFilterValue ] = useState('');
+  const dispatch = useDispatch();
+  const { push } = useHistory();
+  const {
+    roles,
+    isLoading,
+    pagination,
+    userIdentity,
+    userEntitlements
+  } = useSelector(selector, shallowEqual);
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
+
   useEffect(() => {
-    fetchRoles({ ...pagination, name: filterValue });
+    fetchData({ ...pagination, name: filterValue });
   }, []);
 
   const routes = () => <Fragment>
@@ -85,7 +96,7 @@ const Roles = ({
             createRows={ createRows }
             data={ roles }
             filterValue={ filterValue }
-            fetchData={ (config) => fetchRoles(mappedProps(config)) }
+            fetchData={ (config) => fetchData(mappedProps(config)) }
             setFilterValue={ ({ name }) => setFilterValue(name) }
             isLoading={ isLoading }
             pagination={ pagination }
@@ -107,49 +118,4 @@ const Roles = ({
   );
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
-  roles: roles.data,
-  pagination: roles.meta,
-  userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
-  isLoading
-});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchRoles: (apiProps) => {
-      dispatch(fetchRolesWithPolicies(apiProps));
-    }
-  };
-};
-
-Roles.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }),
-  roles: PropTypes.array,
-  platforms: PropTypes.array,
-  isLoading: PropTypes.bool,
-  fetchRoles: PropTypes.func.isRequired,
-  pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired
-  }),
-  userIdentity: PropTypes.shape({
-    user: PropTypes.shape({
-      [PropTypes.string]: PropTypes.oneOfType([ PropTypes.string, PropTypes.bool ])
-    })
-  }),
-  userEntitlements: PropTypes.shape({
-    [PropTypes.string]: PropTypes.bool
-  })
-};
-
-Roles.defaultProps = {
-  roles: [],
-  pagination: defaultSettings
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Roles);
+export default Roles;
