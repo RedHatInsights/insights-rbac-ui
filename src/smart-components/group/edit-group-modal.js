@@ -28,7 +28,7 @@ const EditGroupModal = ({
   };
 
   const fetchData = () => {
-    fetchGroup(match.params.id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
+    match && fetchGroup(match.params.id).payload.then((data) => setGroupData(data)).catch(() => setGroupData(undefined));
   };
 
   useEffect(() => {
