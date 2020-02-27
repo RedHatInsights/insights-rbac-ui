@@ -135,6 +135,11 @@ export const fetchRolesForGroup = (groupId, pagination, options) => ({
   payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options)
 });
 
+export const fetchMembersForGroup = (groupId, usernames, options) => ({
+  type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
+  payload: GroupHelper.fetchPrincipalsForGroup(groupId, usernames, options)
+});
+
 export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ADD_ROLES_FOR_GROUP,
   payload: GroupHelper.fetchRolesForGroup(groupId, true, pagination, options)
