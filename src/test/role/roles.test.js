@@ -12,14 +12,11 @@ import { mock } from '../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../utilities/constants';
 
 describe('<Roles />', () => {
-
-  let initialProps;
   const middlewares = [ promiseMiddleware(), notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
   beforeEach(() => {
-    initialProps = {};
     mockStore = configureStore(middlewares);
     initialState = { roleReducer: {
       ...rolesInitialState,
