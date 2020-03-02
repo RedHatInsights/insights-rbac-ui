@@ -77,7 +77,8 @@ const GroupRoles = ({
   isChanged,
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
-  disableAddRoles
+  disableAddRoles,
+  addNotification
 }) => {
   const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
@@ -138,6 +139,7 @@ const GroupRoles = ({
         name={ name }
         isDefault={ isDefault }
         isChanged={ isChanged }
+        addNotification={ addNotification }
         { ...args }
       /> }
     />
@@ -294,7 +296,8 @@ GroupRoles.propTypes = {
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
-  disableAddRoles: PropTypes.bool.isRequired
+  disableAddRoles: PropTypes.bool.isRequired,
+  addNotification: PropTypes.func
 };
 
 GroupRoles.defaultProps = {
