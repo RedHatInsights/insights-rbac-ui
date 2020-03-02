@@ -7,9 +7,10 @@ exports[`<Roles /> should render correctly 1`] = `
   columns={
     Array [
       Object {
-        "orderBy": "name",
+        "key": "name",
         "title": "Name",
         "transforms": Array [
+          [Function],
           [Function],
         ],
       },
@@ -29,9 +30,10 @@ exports[`<Roles /> should render correctly 1`] = `
         ],
       },
       Object {
-        "orderBy": "modified",
+        "key": "modified",
         "title": "Last modified",
         "transforms": Array [
+          [Function],
           [Function],
         ],
       },
@@ -91,9 +93,10 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   columns={
     Array [
       Object {
-        "orderBy": "name",
+        "key": "name",
         "title": "Name",
         "transforms": Array [
+          [Function],
           [Function],
         ],
       },
@@ -113,9 +116,10 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
         ],
       },
       Object {
-        "orderBy": "modified",
+        "key": "modified",
         "title": "Last modified",
         "transforms": Array [
+          [Function],
           [Function],
         ],
       },
