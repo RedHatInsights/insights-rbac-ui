@@ -110,7 +110,7 @@ const Group = ({
           path={ `/groups/detail/:uuid/roles` }
           render={ props => <GroupRoles { ...props } onDefaultGroupChanged={ setShowDefaultGroupChangedInfo }/> } />
         <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
-        <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/members` } /> } />
+        <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/roles` } /> } />
       </Switch>
       { !group && <ListLoader/> }
     </Fragment>
