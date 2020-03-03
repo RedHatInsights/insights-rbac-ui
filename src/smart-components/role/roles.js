@@ -31,7 +31,7 @@ const selector = ({ roleReducer: { roles, isLoading }}) => ({
 
 const Roles = () => {
   const [ filterValue, setFilterValue ] = useState('');
-  const [ isCostAdmin, setIsCostAdmin ] = useState('false');
+  const [ isCostAdmin, setIsCostAdmin ] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
   const {
@@ -75,7 +75,7 @@ const Roles = () => {
 
   const toolbarButtons = () => [
     <Fragment key="add-role">
-      { userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
+      { userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
         <Link to="/roles/add-role" >
           <Button
             variant="primary"
