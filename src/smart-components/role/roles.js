@@ -31,6 +31,7 @@ const selector = ({ roleReducer: { roles, isLoading }}) => ({
 
 const Roles = () => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ isCostAdmin, setIsCostAdmin ] = useState('false');
   const dispatch = useDispatch();
   const { push } = useHistory();
   const {
@@ -44,6 +45,12 @@ const Roles = () => {
 
   useEffect(() => {
     fetchData({ ...pagination, name: filterValue });
+    window.insights.chrome.getUserPermissions().then(
+      allPermissions => {
+        const permissionList = allPermissions.map(permissions => permissions.permission);
+        setIsCostAdmin(permissionList.includes('cost-management:*:*'));
+      }
+    );
   }, []);
 
   const routes = () => <Fragment>
@@ -68,13 +75,13 @@ const Roles = () => {
 
   const toolbarButtons = () => [
     <Fragment key="add-role">
-      { userEntitlements && userEntitlements.cost_management ?
+      { userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
         <Link to="/roles/add-role" >
           <Button
             variant="primary"
             aria-label="Create role"
           >
-          Add role
+          Create Role
           </Button>
         </Link> :
         <Fragment /> }
