@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch  } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { cellWidth, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import { cellWidth } from '@patternfly/react-table';
 import { createRows } from './role-table-helpers';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
@@ -14,11 +14,11 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 
 const columns = [
-  { title: 'Name', orderBy: 'name', transforms: [ cellWidth(20) ]},
+  { title: 'Name', key: 'name', transforms: [ cellWidth(20), sortable ]},
   { title: 'Description' },
   { title: 'Permissions', transforms: [ cellWidth(5) ]},
   { title: 'Groups', transforms: [ cellWidth(5) ]},
-  { title: 'Last modified', orderBy: 'modified', transforms: [ cellWidth(10) ]}
+  { title: 'Last modified', key: 'modified', transforms: [ cellWidth(10), sortable ]}
 ];
 
 const selector = ({ roleReducer: { roles, isLoading }}) => ({
