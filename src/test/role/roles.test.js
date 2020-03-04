@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route } from 'react-router-dom';
@@ -41,6 +42,7 @@ describe('<Roles />', () => {
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
+    mock.onGet(`/api/rbac/v1/roles/?name=&scope=account&add_fields=groups_in_count`).reply(200, {});
     const wrapper = mount(<Provider store={ store }>
       <MemoryRouter initialEntries={ [ '/roles' ] }>
         <Route path="/roles" component={ Roles } />
@@ -84,5 +86,30 @@ describe('<Roles />', () => {
       </MemoryRouter>
     </Provider>);
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+  });
+
+  it('should fetch roles on sort click', async() => {
+    const store = mockStore(initialState);
+    mock.onGet(`/api/rbac/v1/roles/?name=&scope=account&add_fields=groups_in_count`).reply(200, {});
+    mock.onGet(`/api/rbac/v1/roles/?limit=50&scope=account&order_by=name&add_fields=groups_in_count`).replyOnce(200, {});
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={ store }>
+          <MemoryRouter initialEntries={ [ '/roles' ] }>
+            <Route path="/roles" component={ Roles } />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    store.clearActions();
+    await act(async () => {
+      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
+    });
+    const expectedPayloadAfter = [
+      { type: 'FETCH_ROLES_PENDING' },
+      { type: 'FETCH_ROLES_FULFILLED', payload: {}}
+    ];
+    expect(store.getActions()).toEqual(expectedPayloadAfter);
   });
 });
