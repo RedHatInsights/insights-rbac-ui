@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { Button } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
@@ -39,6 +39,28 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
     }
   ]), []) : [];
 };
+
+const addRoleButton = (isDisabled) => (isDisabled
+  ? <Tooltip
+    content={ <div>All available roles have already been added to the group</div> }
+
+  >
+    <div>
+      <Button
+        variant="primary"
+        aria-label="Add role"
+        isDisabled={ isDisabled }
+      >
+      Add role
+      </Button>
+    </div>
+  </Tooltip>
+  : <Button
+    variant="primary"
+    aria-label="Add role"
+  >
+    Add role
+  </Button>);
 
 const GroupRoles = ({
   roles,
@@ -128,13 +150,7 @@ const GroupRoles = ({
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
         >
-          <Button
-            variant="primary"
-            aria-label="Add role"
-            isDisabled={ disableAddRoles }
-          >
-        Add role
-          </Button>
+          { addRoleButton(disableAddRoles) }
         </Link>,
         {
           label: 'Remove from group',
