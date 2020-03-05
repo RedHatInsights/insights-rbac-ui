@@ -98,7 +98,7 @@ const AddRoleWizard = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: 'Creating role was cancelled by the user',
+      title: 'Creating role was canceled by the user',
       dismissDelay: 8000,
       dismissable: false
     });
