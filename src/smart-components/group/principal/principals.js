@@ -160,7 +160,7 @@ const GroupPrincipals = () => {
               </CardBody>
             </Card> :
             <TableToolbarView
-              data={ principals }
+              data={ (principals || []).map(user => ({ ...user, uuid: user.username })) }
               isSelectable={ userIdentity && userIdentity.user && userIdentity.user.is_org_admin }
               createRows={ createRows }
               columns={ columns }

@@ -12,7 +12,6 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import '../../../App.scss';
 import DefaultGroupChange from './default-group-change-modal';
@@ -28,17 +27,18 @@ const AddGroupRoles = ({
   fetchRolesForGroup,
   name,
   isDefault,
-  isChanged
+  isChanged,
+  addNotification
 }) => {
   const [ showConfirmModal, setShowConfirmModal ] = useState(true);
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: 'Adding members to group',
+      title: 'Adding roles to group',
       dismissDelay: 8000,
       dismissable: false,
-      description: 'Adding members to group was canceled by the user.'
+      description: 'Adding roles to group was canceled by the user.'
     });
     push(closeUrl);
   };
@@ -117,7 +117,8 @@ AddGroupRoles.propTypes = {
   title: PropTypes.string,
   name: PropTypes.string,
   isDefault: PropTypes.bool,
-  isChanged: PropTypes.bool
+  isChanged: PropTypes.bool,
+  addNotification: PropTypes.func
 };
 
 export default AddGroupRoles;
