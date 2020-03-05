@@ -3,13 +3,13 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { Button } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles } from '../../../redux/actions/role-actions';
-import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
+import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
@@ -40,6 +40,28 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   ]), []) : [];
 };
 
+const addRoleButton = (isDisabled) => (isDisabled
+  ? <Tooltip
+    content={ <div>All available roles have already been added to the group</div> }
+
+  >
+    <div>
+      <Button
+        variant="primary"
+        aria-label="Add role"
+        isDisabled={ isDisabled }
+      >
+      Add role
+      </Button>
+    </div>
+  </Tooltip>
+  : <Button
+    variant="primary"
+    aria-label="Add role"
+  >
+    Add role
+  </Button>);
+
 const GroupRoles = ({
   roles,
   fetchRoles,
@@ -53,7 +75,9 @@ const GroupRoles = ({
   name,
   isDefault,
   isChanged,
-  onDefaultGroupChanged
+  onDefaultGroupChanged,
+  fetchAddRolesForGroup,
+  disableAddRoles
 }) => {
   const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
@@ -66,6 +90,11 @@ const GroupRoles = ({
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);
   }, []);
+
+  useEffect(() => {
+    fetchAddRolesForGroup(uuid);
+  }, [ roles ]);
+
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
       return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
@@ -121,12 +150,7 @@ const GroupRoles = ({
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
         >
-          <Button
-            variant="primary"
-            aria-label="Add role"
-          >
-        Add role
-          </Button>
+          { addRoleButton(disableAddRoles) }
         </Link>,
         {
           label: 'Remove from group',
@@ -222,7 +246,8 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
     userIdentity: groups.identity,
     name: selectedGroup.name,
     isDefault: selectedGroup.platform_default,
-    isChanged: !selectedGroup.system
+    isChanged: !selectedGroup.system,
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0)
   };};
 
 const mapDispatchToProps = dispatch => {
@@ -233,6 +258,7 @@ const mapDispatchToProps = dispatch => {
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
     fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
+    fetchAddRolesForGroup: (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {})),
     addNotification: (...props) => dispatch(addNotification(...props))
   };
 };
@@ -247,6 +273,7 @@ GroupRoles.propTypes = {
   searchFilter: PropTypes.string,
   fetchRoles: PropTypes.func.isRequired,
   fetchRolesForGroup: PropTypes.func.isRequired,
+  fetchAddRolesForGroup: PropTypes.func.isRequired,
   selectedRoles: PropTypes.array,
   addRoles: PropTypes.func,
   name: PropTypes.string,
@@ -266,7 +293,8 @@ GroupRoles.propTypes = {
   }),
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
-  onDefaultGroupChanged: PropTypes.func
+  onDefaultGroupChanged: PropTypes.func,
+  disableAddRoles: PropTypes.bool.isRequired
 };
 
 GroupRoles.defaultProps = {
