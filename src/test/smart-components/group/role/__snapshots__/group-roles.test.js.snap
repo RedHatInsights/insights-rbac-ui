@@ -7,6 +7,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   <GroupRoles
     addNotification={[Function]}
     addRoles={[Function]}
+    disableAddRoles={true}
+    fetchAddRolesForGroup={[Function]}
     fetchRoles={[Function]}
     fetchRolesForGroup={[Function]}
     isChanged={true}
@@ -45,6 +47,8 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
   <GroupRoles
     addNotification={[Function]}
     addRoles={[Function]}
+    disableAddRoles={true}
+    fetchAddRolesForGroup={[Function]}
     fetchRoles={[Function]}
     fetchRolesForGroup={[Function]}
     isChanged={true}
