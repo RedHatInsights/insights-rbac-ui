@@ -140,6 +140,7 @@ const GroupRoles = ({
         isDefault={ isDefault }
         isChanged={ isChanged }
         addNotification={ addNotification }
+        onDefaultGroupChanged= { onDefaultGroupChanged }
         { ...args }
       /> }
     />
