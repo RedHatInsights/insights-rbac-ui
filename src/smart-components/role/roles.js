@@ -57,11 +57,7 @@ const Roles = () => {
       {
         title: 'Delete',
         onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`),
-        props: {
-          isDisabled: true
-        },
-        isDisabled: true
+          push(`/roles/remove/${role.uuid}`)
       }
     ];
   };
