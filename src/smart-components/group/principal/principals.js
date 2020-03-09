@@ -88,7 +88,7 @@ const GroupPrincipals = () => {
     <Route path={ `/groups/detail/:uuid/members/add_members` }
       render={ args => <AddGroupMembers
         fetchData={ fetchData }
-        closeUrl={ `/groups/detail/${uuid}/principals` }
+        closeUrl={ `/groups/detail/${uuid}/members` }
         { ...args }
       /> }
     />
