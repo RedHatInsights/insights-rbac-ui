@@ -52,7 +52,7 @@ const Roles = () => {
   </Fragment>;
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity.user.is_org_admin;
+    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
     return (system || !userAllowed) ? [] : [
       {
         title: 'Delete',
