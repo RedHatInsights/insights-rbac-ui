@@ -29,6 +29,7 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
         "first_name": "test",
         "last_name": "test",
         "username": "test",
+        "uuid": "test",
       },
     ]
   }
@@ -194,6 +195,7 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         "first_name": "test",
         "last_name": "test",
         "username": "test",
+        "uuid": "test",
       },
     ]
   }
