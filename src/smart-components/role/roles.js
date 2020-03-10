@@ -45,7 +45,7 @@ const Roles = () => {
 
   useEffect(() => {
     fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions().then(
+    window.insights.chrome.getUserPermissions('cost-management').then(
       allPermissions => {
         const permissionList = allPermissions.map(permissions => permissions.permission);
         setIsCostAdmin(permissionList.includes('cost-management:*:*'));

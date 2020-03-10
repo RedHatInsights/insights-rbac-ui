@@ -35,7 +35,7 @@ global.insights = {
     auth: {
       getUser: () => new Promise(resolve => resolve(true))
     },
-    getUserPermissions: () => new Promise(resolve => resolve(true)),
+    getUserPermissions: () => Promise.resolve([]),
     isBeta: () => true
   }
 };
