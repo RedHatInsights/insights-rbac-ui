@@ -88,7 +88,7 @@ const GroupPrincipals = () => {
     <Route path={ `/groups/detail/:uuid/members/add_members` }
       render={ args => <AddGroupMembers
         fetchData={ fetchData }
-        closeUrl={ `/groups/detail/${uuid}/principals` }
+        closeUrl={ `/groups/detail/${uuid}/members` }
         { ...args }
       /> }
     />
@@ -116,12 +116,12 @@ const GroupPrincipals = () => {
           },
           onClick: () => {
             const multipleMembersSelected = selectedPrincipals.length > 1;
-            setConfirmDelete(() => () => removeMembers(selectedPrincipals.map(user => user.name)));
+            setConfirmDelete(() => () => removeMembers(selectedPrincipals.map(user => user.name || user.username)));
             setDeleteInfo({
               title: 'Remove members?',
               confirmButtonLabel: multipleMembersSelected ? 'Remove members' : 'Remove member',
               text: removeModalText(
-                multipleMembersSelected ? selectedPrincipals.length : selectedPrincipals[0].name,
+                multipleMembersSelected ? selectedPrincipals.length : (selectedPrincipals[0].name || selectedPrincipals[0].username),
                 groupName,
                 multipleMembersSelected
               )
