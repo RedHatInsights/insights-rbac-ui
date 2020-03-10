@@ -34,7 +34,7 @@ const setGroup = (state, { payload }) => ({
       ...payload.uuid === group.uuid && { ...payload, loaded: true }
     }))
   },
-  selectedGroup: { ...state.selectedGroup, ...payload, loaded: true }
+  selectedGroup: { ...state.selectedGroup, members: { ...state.selectedGroup.members, data: payload.principals }, ...payload, loaded: true }
 });
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
