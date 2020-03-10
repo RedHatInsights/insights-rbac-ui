@@ -152,7 +152,7 @@ export const TableToolbarView = ({
   return (
     <Fragment>
       { routes() }
-      { !isLoading && rows.length === 0 && (filterValue.length === 0 && textFilters.every(({ value }) => !!value)) ?
+      { !isLoading && rows.length === 0 && (filterValue.length === 0 && textFilters.every(({ value }) => !value)) ?
         <EmptyWithAction
           title={ `Configure ${titlePlural}` }
           icon={ PlusCircleIcon }
