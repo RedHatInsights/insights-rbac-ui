@@ -40,7 +40,7 @@ const AddGroupMembers = ({
       title: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group`,
       dismissDelay: 8000,
       dismissable: false,
-      description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was cancelled by the user.`
+      description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was canceled by the user.`
     });
     push(closeUrl);
   };
