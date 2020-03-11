@@ -42,7 +42,7 @@ const RoleInformation = (formData, onHandleChange) => {
               id="description"
               name="description"
               value={ description }
-              onChange={ (_, event) => onHandleChange({ description: event.currentTarget.value }) }
+              onChange={ (_, event) => onHandleChange({ description: event.currentTarget.value }, true) }
             />
           </FormGroup>
         </Form>
