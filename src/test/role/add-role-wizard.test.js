@@ -59,7 +59,7 @@ describe('<AddRoleWizard />', () => {
     const expectedActions = expect.arrayContaining([
       expect.objectContaining({
         type: ADD_NOTIFICATION,
-        payload: expect.objectContaining({ title: 'Adding role', variant: 'warning' })
+        payload: expect.objectContaining({ title: 'Creating role was canceled by the user', variant: 'warning' })
       }) ]);
 
     wrapper.find('Button').at(0).simulate('click');
