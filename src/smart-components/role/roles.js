@@ -59,16 +59,12 @@ const Roles = () => {
   </Fragment>;
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity.user.is_org_admin;
+    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
     return (system || !userAllowed) ? [] : [
       {
         title: 'Delete',
         onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`),
-        props: {
-          isDisabled: true
-        },
-        isDisabled: true
+          push(`/roles/remove/${role.uuid}`)
       }
     ];
   };
