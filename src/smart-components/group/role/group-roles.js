@@ -9,7 +9,7 @@ import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles } from '../../../redux/actions/role-actions';
-import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
+import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
@@ -78,7 +78,8 @@ const GroupRoles = ({
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
   disableAddRoles,
-  addNotification
+  addNotification,
+  fetchGroup
 }) => {
   const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
@@ -115,7 +116,7 @@ const GroupRoles = ({
         {
           title: 'Remove from group',
           onClick: (_event, _rowId, role) => {
-            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid)));
+            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchGroup(uuid)));
             setDeleteInfo({
               title: 'Remove role?',
               confirmButtonLabel: 'Remove role',
@@ -131,11 +132,11 @@ const GroupRoles = ({
     <Route path={ `/groups/detail/:uuid/roles/add_roles` }
       render={ args => <AddGroupRoles
         fetchData={ fetchRoles }
+        fetchGroup={ fetchGroup }
         selectedRoles={ selectedAddRoles }
         setSelectedRoles={ setSelectedAddRoles }
         closeUrl={ `/groups/detail/${uuid}/roles` }
         addRolesToGroup={ addRoles }
-        fetchRolesForGroup={ fetchRolesForGroup(pagination) }
         name={ name }
         isDefault={ isDefault }
         isChanged={ isChanged }
@@ -262,7 +263,8 @@ const mapDispatchToProps = dispatch => {
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
     fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
     fetchAddRolesForGroup: (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {})),
-    addNotification: (...props) => dispatch(addNotification(...props))
+    addNotification: (...props) => dispatch(addNotification(...props)),
+    fetchGroup: (apiProps) => dispatch(fetchGroup(apiProps))
   };
 };
 
@@ -298,7 +300,8 @@ GroupRoles.propTypes = {
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
   disableAddRoles: PropTypes.bool.isRequired,
-  addNotification: PropTypes.func
+  addNotification: PropTypes.func,
+  fetchGroup: PropTypes.func
 };
 
 GroupRoles.defaultProps = {
