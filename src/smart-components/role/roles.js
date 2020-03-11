@@ -77,7 +77,7 @@ const Roles = () => {
             variant="primary"
             aria-label="Create role"
           >
-          Create Role
+          Create role
           </Button>
         </Link> :
         <Fragment /> }
