@@ -227,7 +227,7 @@ const GroupRoles = ({
           textFilters={ [
             { key: 'name', value: filterValue },
             { key: 'description', value: descriptionValue }
-          ].filter(filter => filter.value && filter.value.length > 0) }
+          ] }
         />
       </Section>
     </React.Fragment>

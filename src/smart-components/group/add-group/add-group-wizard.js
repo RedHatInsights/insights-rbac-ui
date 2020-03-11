@@ -66,7 +66,7 @@ const AddGroupWizard = ({
       title: 'Adding group',
       dismissDelay: 8000,
       dismissable: false,
-      description: 'Adding group was cancelled by the user.'
+      description: 'Adding group was canceled by the user.'
     });
     history.push('/groups');
   };

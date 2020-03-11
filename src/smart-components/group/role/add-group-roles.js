@@ -39,7 +39,7 @@ const AddGroupRoles = ({
       title: 'Adding roles to group',
       dismissDelay: 8000,
       dismissable: false,
-      description: 'Adding roles to group was cancelled by the user.'
+      description: 'Adding roles to group was canceled by the user.'
     });
     push(closeUrl);
   };
