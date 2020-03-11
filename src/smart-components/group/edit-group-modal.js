@@ -51,7 +51,7 @@ const EditGroupModal = ({
       dismissDelay: 8000,
       dismissable: false,
       title: selectedGroup ? 'Editing group' : 'Adding group',
-      description: selectedGroup ? 'Edit group was cancelled by the user.' : 'Adding group was cancelled by the user.'
+      description: selectedGroup ? 'Edit group was canceled by the user.' : 'Adding group was canceled by the user.'
     });
     onClose();
     history.push(closeUrl);
