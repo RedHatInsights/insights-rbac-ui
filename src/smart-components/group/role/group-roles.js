@@ -114,7 +114,7 @@ const GroupRoles = ({
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         {
-          title: 'Remove from group',
+          title: 'Remove',
           onClick: (_event, _rowId, role) => {
             setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchGroup(uuid)));
             setDeleteInfo({
@@ -157,7 +157,7 @@ const GroupRoles = ({
           { addRoleButton(disableAddRoles) }
         </Link>,
         {
-          label: 'Remove from group',
+          label: 'Remove',
           props: {
             isDisabled: !selectedRoles || !selectedRoles.length > 0,
             variant: 'danger'
