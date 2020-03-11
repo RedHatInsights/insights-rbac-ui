@@ -24,12 +24,12 @@ const AddGroupRoles = ({
   title,
   closeUrl,
   addRolesToGroup,
-  fetchRolesForGroup,
   name,
   isDefault,
   isChanged,
   addNotification,
-  onDefaultGroupChanged
+  onDefaultGroupChanged,
+  fetchGroup
 }) => {
   const [ showConfirmModal, setShowConfirmModal ] = useState(true);
 
@@ -46,7 +46,7 @@ const AddGroupRoles = ({
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map(role => role.uuid);
-    addRolesToGroup(uuid, rolesList, () => fetchRolesForGroup(uuid));
+    addRolesToGroup(uuid, rolesList, () => fetchGroup(uuid));
     if (isDefault && !isChanged) {
       onDefaultGroupChanged(true);
     }
@@ -117,14 +117,14 @@ AddGroupRoles.propTypes = {
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   addRolesToGroup: PropTypes.func,
-  fetchRolesForGroup: PropTypes.func,
   closeUrl: PropTypes.string,
   title: PropTypes.string,
   name: PropTypes.string,
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   addNotification: PropTypes.func,
-  onDefaultGroupChanged: PropTypes.func
+  onDefaultGroupChanged: PropTypes.func,
+  fetchGroup: PropTypes.func
 };
 
 export default AddGroupRoles;
