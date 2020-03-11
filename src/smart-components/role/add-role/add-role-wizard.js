@@ -136,7 +136,7 @@ const AddRoleWizard = ({
           </Button>
         ] }
         isFooterLeftAligned>
-          <WarningModalText type='role'/>
+        <WarningModalText type='role'/>
       </Modal>
     </React.Fragment>
   );
