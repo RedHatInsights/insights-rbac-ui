@@ -3,7 +3,7 @@ import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Wizard, Modal, Button } from '@patternfly/react-core';
+import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import { fetchRoles } from '../../../redux/actions/role-actions';
@@ -12,7 +12,7 @@ import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
 import SetUsers from './set-users';
 import SetRoles from './set-roles';
-import { WarningModalHeader, WarningModalText } from '../../common/warningModal';
+import { WarningModal } from '../../common/warningModal';
 import '../../common/hideWizard.scss';
 
 const AddGroupWizard = ({
@@ -88,24 +88,11 @@ const AddGroupWizard = ({
         onSave={ onSubmit }
         steps={ steps }
       />
-      <Modal
-        title={ <WarningModalHeader type='group'/> }
-        isSmall
-        className='ins-c-wizard__cancel-warning'
+      <WarningModal
+        type='group'
         isOpen={ cancelWarningVisible }
-        onClose={ () => setcancelWarningVisible(false) }
-        actions={ [
-          <Button key="confirm" variant="danger" onClick={ onCancel }>
-            Yes, I want to exit
-          </Button>,
-          <Button key="cancel" variant="link" onClick={ () => setcancelWarningVisible(false) }>
-            No, I want to continue
-          </Button>
-        ] }
-        isFooterLeftAligned
-      >
-        <WarningModalText type='group'/>
-      </Modal>
+        onModalCancel={ () => setcancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
     </React.Fragment>
   );
 

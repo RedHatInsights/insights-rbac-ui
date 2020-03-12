@@ -3,14 +3,14 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Wizard, Modal, Button } from '@patternfly/react-core';
+import { Wizard } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { createRole, fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
 import ResourceDefinitions from './resource-definitions';
 import RoleInformation from './role-information';
 import PermissionInformation from './permission-information';
-import { WarningModalHeader, WarningModalText } from '../../common/warningModal';
+import { WarningModal } from '../../common/warningModal';
 import '../../common/hideWizard.scss';
 
 const AddRoleWizard = ({
@@ -121,23 +121,11 @@ const AddRoleWizard = ({
         onSave={ onSubmit }
         steps={ steps }
       />
-      <Modal
-        title={ <WarningModalHeader type='role'/> }
-        isSmall
-        className='ins-c-wizard__cancel-warning'
+      <WarningModal
+        type='role'
         isOpen={ cancelWarningVisible }
-        onClose={ () => setcancelWarningVisible(false) }
-        actions={ [
-          <Button key="confirm" variant="danger" onClick={ onCancel }>
-            Yes, I want to exit
-          </Button>,
-          <Button key="cancel" variant="link" onClick={ () => setcancelWarningVisible(false) }>
-            No, I want to continue
-          </Button>
-        ] }
-        isFooterLeftAligned>
-        <WarningModalText type='role'/>
-      </Modal>
+        onModalCancel={ () => setcancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
     </React.Fragment>
   );
 };
