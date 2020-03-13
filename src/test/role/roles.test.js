@@ -13,7 +13,7 @@ import { mock } from '../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../utilities/constants';
 
 describe('<Roles />', () => {
-  const middlewares = [ promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 

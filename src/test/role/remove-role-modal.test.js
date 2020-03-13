@@ -14,7 +14,7 @@ import { REMOVE_ROLE, FETCH_ROLE, FETCH_ROLES } from '../../redux/action-types';
 
 describe('<RemoveRoleModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 

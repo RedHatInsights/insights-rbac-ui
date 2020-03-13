@@ -18,32 +18,41 @@ exports[`<FilterToolbarItem /> should render correctly 1`] = `
           <div
             className="toolbar-filter-input-group"
           >
-            <TextInput
+            <ForwardRef
               aria-label="Foo"
-              className=""
-              isDisabled={false}
-              isReadOnly={false}
-              isRequired={false}
-              isValid={true}
               onChange={[MockFunction]}
               placeholder="Foo"
               type="text"
-              validated="default"
               value=""
             >
-              <input
-                aria-invalid={false}
+              <TextInputBase
                 aria-label="Foo"
-                className="pf-c-form-control"
-                disabled={false}
-                onChange={[Function]}
+                className=""
+                innerRef={null}
+                isDisabled={false}
+                isReadOnly={false}
+                isRequired={false}
+                isValid={true}
+                onChange={[MockFunction]}
                 placeholder="Foo"
-                readOnly={false}
-                required={false}
                 type="text"
+                validated="default"
                 value=""
-              />
-            </TextInput>
+              >
+                <input
+                  aria-invalid={false}
+                  aria-label="Foo"
+                  className="pf-c-form-control"
+                  disabled={false}
+                  onChange={[Function]}
+                  placeholder="Foo"
+                  readOnly={false}
+                  required={false}
+                  type="text"
+                  value=""
+                />
+              </TextInputBase>
+            </ForwardRef>
             <SearchIcon
               color="currentColor"
               noVerticalAlign={false}

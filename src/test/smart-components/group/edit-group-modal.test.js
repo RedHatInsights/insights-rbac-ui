@@ -15,7 +15,7 @@ import { componentTypes } from '@data-driven-forms/react-form-renderer/dist/inde
 
 describe('<EditGroupModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 

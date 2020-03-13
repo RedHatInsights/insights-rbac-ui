@@ -92,38 +92,49 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                       Name
                     </span>
                   </label>
-                  <TextInput
+                  <ForwardRef
                     aria-describedby="policy-name"
-                    aria-label={null}
-                    className=""
                     id="policy-name"
-                    isDisabled={false}
-                    isReadOnly={false}
-                    isRequired={false}
-                    isValid={true}
                     name="policy-name"
                     onBlur={[Function]}
                     onChange={[Function]}
                     type="text"
-                    validated="default"
                     value="Test policy name"
                   >
-                    <input
+                    <TextInputBase
                       aria-describedby="policy-name"
-                      aria-invalid={false}
                       aria-label={null}
-                      className="pf-c-form-control"
-                      disabled={false}
+                      className=""
                       id="policy-name"
+                      innerRef={null}
+                      isDisabled={false}
+                      isReadOnly={false}
+                      isRequired={false}
+                      isValid={true}
                       name="policy-name"
                       onBlur={[Function]}
                       onChange={[Function]}
-                      readOnly={false}
-                      required={false}
                       type="text"
+                      validated="default"
                       value="Test policy name"
-                    />
-                  </TextInput>
+                    >
+                      <input
+                        aria-describedby="policy-name"
+                        aria-invalid={false}
+                        aria-label={null}
+                        className="pf-c-form-control"
+                        disabled={false}
+                        id="policy-name"
+                        name="policy-name"
+                        onBlur={[Function]}
+                        onChange={[Function]}
+                        readOnly={false}
+                        required={false}
+                        type="text"
+                        value="Test policy name"
+                      />
+                    </TextInputBase>
+                  </ForwardRef>
                 </div>
               </FormGroup>
             </div>

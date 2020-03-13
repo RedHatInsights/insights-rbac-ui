@@ -15,7 +15,7 @@ import { Button } from '@patternfly/react-core';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
