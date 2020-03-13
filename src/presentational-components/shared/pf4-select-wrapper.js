@@ -18,7 +18,6 @@ const Select = ({
   options,
   isReadOnly,
   isDisabled,
-  FieldProvider,
   isRequired,
   ...rest
 }) => (
@@ -42,7 +41,6 @@ Select.propTypes = {
 };
 
 const Pf4SelectWrapper = ({
-  componentType,
   label,
   isRequired,
   helperText,

@@ -48,10 +48,8 @@ const Group = ({
       <div className="pf-u-ml-sm">
         <Popover
           aria-label="default-group-icon"
-          bodyContent={
-            <div>Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
-                The group name has changed to <b>Custom default user access</b>.</div>
-          }
+          bodyContent={ <div>Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
+                The group name has changed to <b>Custom default user access</b>.</div> }
         >
           <InfoCircleIcon className="ins-c-rbac__default-group-info-icon"/>
         </Popover>
@@ -85,8 +83,7 @@ const Group = ({
             postMethod={ () => {
               fetchData(uuid);
               setShowEdit(false);
-            }
-            }
+            } }
           />
 
         </Split>
@@ -137,7 +134,9 @@ Group.propTypes = {
   group: PropTypes.shape({
     uuid: PropTypes.string,
     name: PropTypes.string,
-    description: PropTypes.string
+    description: PropTypes.string,
+    platform_default: PropTypes.string,
+    system: PropTypes.string
   }),
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func
