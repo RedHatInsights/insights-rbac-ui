@@ -10,6 +10,8 @@ import SummaryContent from './summary-content';
 import ResourceDefinitions from './resource-definitions';
 import RoleInformation from './role-information';
 import PermissionInformation from './permission-information';
+import { WarningModal } from '../../common/warningModal';
+import '../../common/hideWizard.scss';
 
 const AddRoleWizard = ({
   addNotification,
@@ -105,16 +107,27 @@ const AddRoleWizard = ({
     push('/roles');
   };
 
+  const [ cancelWarningVisible, setcancelWarningVisible ] = useState(false);
+
   return (
-    <Wizard
-      isLarge
-      title="Add role"
-      isOpen
-      onClose={ onCancel }
-      onNext={ onNext }
-      onSave={ onSubmit }
-      steps={ steps }
-    />);
+    <React.Fragment>
+      <Wizard
+        className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
+        isLarge
+        title="Add role"
+        isOpen
+        onClose={ () => setcancelWarningVisible(true) }
+        onNext={ onNext }
+        onSave={ onSubmit }
+        steps={ steps }
+      />
+      <WarningModal
+        type='role'
+        isOpen={ cancelWarningVisible }
+        onModalCancel={ () => setcancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
+    </React.Fragment>
+  );
 };
 
 AddRoleWizard.defaultProps = {
