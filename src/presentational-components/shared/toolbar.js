@@ -173,10 +173,8 @@ const Toolbar = ({
 }) => (
   <PrimaryToolbar
     { ...isSelectable && {
-      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data) }
-    }
-    filterConfig={
-      filterConfigBuilder(
+      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data) } }
+    filterConfig={ filterConfigBuilder(
         isLoading,
         setFilterValue,
         fetchData,
@@ -186,8 +184,7 @@ const Toolbar = ({
         filterPlaceholder,
         filterItems,
         textFilters
-      )
-    }
+      ) }
     actionsConfig={ {
       actions: toolbarButtons()
     } }
@@ -196,8 +193,7 @@ const Toolbar = ({
     } }
     { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && {
       activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData)
-    }
-    }
+    } }
   />
 );
 

@@ -15,7 +15,7 @@ import { mount } from 'enzyme/build/index';
 describe('<AddRoleWizard />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const RoleWrapper = ({ store, children }) => (

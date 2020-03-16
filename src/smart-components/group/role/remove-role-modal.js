@@ -12,8 +12,7 @@ const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       isOpen={ showConfirmModal && isOpen }
       onClose={ () => {
         onClose();
-      }
-      }
+      } }
       onSubmit={ () => {
         setShowConfirmModal(false);
       } }

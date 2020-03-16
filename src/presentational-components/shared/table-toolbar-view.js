@@ -130,8 +130,7 @@ export const TableToolbarView = ({
             name: '',
             orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`
           });
-        }
-        }
+        } }
       >
         <TableHeader />
         <TableBody />
@@ -178,7 +177,10 @@ TableToolbarView.propTypes = {
   titlePlural: propTypes.string,
   routes: propTypes.func,
   actionResolver: propTypes.func,
-  areActionsDisabled: propTypes.func
+  areActionsDisabled: propTypes.func,
+  pagination: propTypes.shape({
+    noBottom: propTypes.bool
+  })
 };
 
 TableToolbarView.defaultProps = {

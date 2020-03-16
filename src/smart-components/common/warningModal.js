@@ -6,12 +6,10 @@ import './warningModal.scss';
 
 export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel }) => (
   <Modal
-    title={
-      <span className='ins-c-wizard__cancel-warning-header'>
+    title={ <span className='ins-c-wizard__cancel-warning-header'>
         <ExclamationTriangleIcon size='md' className='ins-c-wizard__cancel-warning-header--icon'/>
         Exit { type } creation
-      </span>
-    }
+      </span> }
     isSmall
     className='ins-c-wizard__cancel-warning'
     isOpen={ isOpen }

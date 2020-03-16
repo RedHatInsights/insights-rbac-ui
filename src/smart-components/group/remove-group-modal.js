@@ -41,8 +41,7 @@ const RemoveGroupModal = ({
     <Modal
       isOpen={ isModalOpen }
       isSmall
-      title = {
-        <Text>
+      title = { <Text>
           <ExclamationTriangleIcon className="delete-group-warning-icon" />
         &nbsp; { multipleGroups ? 'Delete groups?' : 'Delete group?' }
         </Text> }

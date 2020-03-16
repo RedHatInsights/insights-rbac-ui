@@ -9,7 +9,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 
 describe('group actions', () => {
 
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   beforeEach(() => {

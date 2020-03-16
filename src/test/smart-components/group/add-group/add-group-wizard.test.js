@@ -16,7 +16,7 @@ import { mount } from 'enzyme/build/index';
 describe('<AddGroupWizard />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const GroupWrapper = ({ store, children }) => (

@@ -15,7 +15,7 @@ import { Button } from '@patternfly/react-core';
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
@@ -92,7 +92,7 @@ describe('<RemoveGroupModal />', () => {
     setImmediate(() => {
       const actions = store.getActions();
       expect(actions).toContainObj({ type: `${FETCH_GROUP}_PENDING` });
-      expect(actions).toContainObj({ type: `${REMOVE_GROUPS}_PENDING` },);
+      expect(actions).toContainObj({ type: `${REMOVE_GROUPS}_PENDING` });
       expect(actions).toContainObj({ type: `${FETCH_GROUP}_FULFILLED` });
       expect(actions).toContainObj({ type: `@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION`,
         payload: expect.objectContaining({ title: 'Group deleted successfully' }) });

@@ -74,7 +74,8 @@ AddGroupMembers.defaultProps = {
 
 AddGroupMembers.propTypes = {
   history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,

@@ -14,7 +14,7 @@ import { REMOVE_ROLE, FETCH_ROLE, FETCH_ROLES } from '../../redux/action-types';
 
 describe('<RemoveRoleModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
@@ -92,7 +92,7 @@ describe('<RemoveRoleModal />', () => {
       expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
       expect(actions).toContainObj({ type: `${REMOVE_ROLE}_PENDING`,
         meta: { notifications: { fulfilled: { description: 'The role was removed successfully.',
-          title: 'Success removing role', variant: 'success', dismissDelay: 8000, dismissable: false }}}},);
+          title: 'Success removing role', variant: 'success', dismissDelay: 8000, dismissable: false }}}});
       expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
       expect(actions).toContainObj({ type: ADD_NOTIFICATION,
         payload: expect.objectContaining({ description: 'The role was removed successfully.' }) });

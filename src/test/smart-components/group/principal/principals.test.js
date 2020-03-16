@@ -11,7 +11,7 @@ import { RBAC_API_BASE } from '../../../../utilities/constants';
 
 describe('<GroupPrincipals />', () => {
 
-  const middlewares = [ promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 

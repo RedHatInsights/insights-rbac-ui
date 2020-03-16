@@ -15,7 +15,7 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 describe('<Groups />', () => {
 
   let enhanceState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
