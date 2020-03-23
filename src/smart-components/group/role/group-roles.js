@@ -153,6 +153,7 @@ const GroupRoles = ({
         <Link
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
+          onClick={ (e) => disableAddRoles && e.preventDefault() }
         >
           { addRoleButton(disableAddRoles) }
         </Link>,
