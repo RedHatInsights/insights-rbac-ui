@@ -13,6 +13,8 @@ import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRole
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
+import classNames from 'classnames';
+import './group-roles.scss';
 
 const columns = [
   { title: 'Name', orderBy: 'name' },
@@ -151,6 +153,7 @@ const GroupRoles = ({
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         <Link
+          className={ classNames({ 'ins-c-rbac__add-role-disabled': disableAddRoles }) }
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
           onClick={ (e) => disableAddRoles && e.preventDefault() }
