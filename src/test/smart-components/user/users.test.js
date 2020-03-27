@@ -44,7 +44,7 @@ describe('<Users />', () => {
   });
 
   it('should render user list correctly', async() => {
-    mock.onGet(`/api/rbac/v1/principals/?limit=10`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
@@ -61,7 +61,7 @@ describe('<Users />', () => {
 
   it('should fetch users on mount', () => {
     const store = mockStore(initialState);
-    mock.onGet(`/api/rbac/v1/principals/?limit=10`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
     mount(
       <Provider store={ store }>
         <Router>
@@ -71,6 +71,30 @@ describe('<Users />', () => {
     );
     const expectedPayload = [
       { type: 'FETCH_USERS_PENDING' }
+    ];
+    expect(store.getActions()).toEqual(expectedPayload);
+  });
+
+  it('should fetch users on sort click', async() => {
+    const store = mockStore(initialState);
+    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=desc`).replyOnce(200, {});
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={ store }>
+          <Router initialEntries={ [ '/users' ] }>
+            <Users />
+          </Router>
+        </Provider>
+      );
+    });
+    store.clearActions();
+    await act(async () => {
+      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
+    });
+    const expectedPayload = [
+      expect.objectContaining({ type: 'FETCH_USERS_PENDING' })
     ];
     expect(store.getActions()).toEqual(expectedPayload);
   });
