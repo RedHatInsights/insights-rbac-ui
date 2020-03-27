@@ -6,9 +6,10 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { sortable } from '@patternfly/react-table';
 
 const columns = [
-  { title: 'Username', orderBy: 'name' },
+  { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
   { title: 'First name' },
   { title: 'Last name' }
