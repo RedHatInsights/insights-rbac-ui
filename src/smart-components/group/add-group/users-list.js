@@ -50,7 +50,6 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     isLoading={ isLoading }
     pagination={ {
       ...pagination,
-      noBottom: true,
       // eslint-disable-next-line react/display-name, react/prop-types
       toggleTemplate: ({ firstIndex, lastIndex }) => <b>{ `${firstIndex} - ${lastIndex}` }</b>
     } }
@@ -92,7 +91,7 @@ UsersList.propTypes = {
   selectedUsers: PropTypes.array,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
+    offset: PropTypes.number,
     count: PropTypes.number
   }),
   props: PropTypes.object
