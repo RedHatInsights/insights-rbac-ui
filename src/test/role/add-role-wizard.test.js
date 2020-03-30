@@ -15,7 +15,7 @@ import { mount } from 'enzyme/build/index';
 describe('<AddRoleWizard />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const RoleWrapper = ({ store, children }) => (
@@ -63,6 +63,9 @@ describe('<AddRoleWizard />', () => {
       }) ]);
 
     wrapper.find('Button').at(0).simulate('click');
+    wrapper.update();
+    wrapper.find('.pf-m-danger').simulate('click');
+
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedActions);
       done();

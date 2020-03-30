@@ -52,22 +52,18 @@ const Groups = () => {
     <Fragment>
       <Route exact path="/groups/add-group">
         <AddGroupWizard
-          postMethod={
-            config => {
+          postMethod={ config => {
               dispatch(fetchGroups(config));
               setFilterValue('');
-            }
-          } />
+            } } />
       </Route>
       <Route exact path="/groups/edit/:id">
         <EditGroup
-          postMethod={
-            config =>
+          postMethod={ config =>
             {
               dispatch(fetchGroups(config));
               setFilterValue('');
-            }
-          } isOpen />
+            } } isOpen />
       </Route>
       <Route exact path="/groups/removegroups">
         <RemoveGroup

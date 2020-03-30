@@ -49,6 +49,7 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
         }
       >
         <FormSelect
+          FieldProvider={[Function]}
           className=""
           id="bazz"
           isDisabled={false}
@@ -62,6 +63,7 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
           value=""
         >
           <select
+            FieldProvider={[Function]}
             aria-invalid={false}
             className="pf-c-form-control"
             disabled={false}
@@ -161,6 +163,7 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
         }
       >
         <FormSelect
+          FieldProvider={[Function]}
           className=""
           id="bazz"
           isDisabled={false}
@@ -174,6 +177,7 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
           value=""
         >
           <select
+            FieldProvider={[Function]}
             aria-invalid={true}
             className="pf-c-form-control"
             disabled={false}
@@ -291,6 +295,7 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
         }
       >
         <FormSelect
+          FieldProvider={[Function]}
           className=""
           id="bazz"
           isDisabled={false}
@@ -304,6 +309,7 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
           value=""
         >
           <select
+            FieldProvider={[Function]}
             aria-invalid={false}
             className="pf-c-form-control"
             disabled={false}

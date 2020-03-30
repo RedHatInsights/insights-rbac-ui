@@ -109,6 +109,7 @@ const AddGroupRoles = ({
 
 AddGroupRoles.propTypes = {
   history: PropTypes.shape({
+    push: PropTypes.any,
     goBack: PropTypes.func.isRequired
   }).isRequired,
   match: PropTypes.shape({
