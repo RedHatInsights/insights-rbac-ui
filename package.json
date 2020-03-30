@@ -13,7 +13,7 @@
     "@redhat-cloud-services/frontend-components": "1.0.2",
     "@redhat-cloud-services/frontend-components-notifications": "1.0.1",
     "@redhat-cloud-services/frontend-components-utilities": "1.0.0",
-    "@redhat-cloud-services/rbac-client": "^1.0.54",
+    "@redhat-cloud-services/rbac-client": "^1.0.56",
     "axios-mock-adapter": "^1.17.0",
     "babel-loader": "^8.0.6",
     "classnames": "^2.2.6",
