@@ -34,10 +34,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -80,10 +77,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -126,10 +120,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -172,10 +163,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -253,10 +241,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -299,10 +284,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -345,10 +327,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -391,10 +370,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -472,10 +448,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -518,10 +491,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -564,10 +534,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],
@@ -610,10 +577,7 @@ Array [
             "onSelect": undefined,
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
-            "sortBy": Object {
-              "direction": undefined,
-              "index": undefined,
-            },
+            "sortBy": Object {},
           },
           "header": Object {
             "formatters": Array [],

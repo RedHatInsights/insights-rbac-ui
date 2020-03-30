@@ -22,10 +22,10 @@ describe('<Users />', () => {
     enhanceState = {
       data: [
         {
-          username: 'catalogiqeusr',
-          email: 'brahmani+qa@redhat.com',
-          first_name: 'Catalog User',
-          last_name: 'Rahmanim',
+          username: 'user',
+          email: 'user@redhat.com',
+          first_name: 'User',
+          last_name: 'User',
           is_active: true
         }
       ],
@@ -77,8 +77,8 @@ describe('<Users />', () => {
 
   it('should fetch users on sort click', async() => {
     const store = mockStore(initialState);
-    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
-    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=desc`).replyOnce(200, {});
+    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=asc').replyOnce(200, {});
+    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=desc').replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -94,7 +94,9 @@ describe('<Users />', () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
     const expectedPayload = [
-      expect.objectContaining({ type: 'FETCH_USERS_PENDING' })
+      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+
+      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })
     ];
     expect(store.getActions()).toEqual(expectedPayload);
   });
