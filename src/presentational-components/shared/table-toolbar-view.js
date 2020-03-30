@@ -41,8 +41,8 @@ export const TableToolbarView = ({
   const [ sortByState, setSortByState ] = useState({ index: undefined, direction: undefined });
   useEffect(() => {
     setSortByState({
-      ...sortByState,
-      ...sortBy
+      ...sortBy,
+      ...sortByState.index !== undefined && sortByState
     });
   }, [ sortBy ]);
 

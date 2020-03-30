@@ -56,6 +56,10 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     } }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
+    sortBy={ {
+      index: 0,
+      direction: 'asc'
+    } }
     filterPlaceholder="username"
     titlePlural="users"
     titleSingular="user"
