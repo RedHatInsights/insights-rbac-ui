@@ -12,7 +12,7 @@ describe('group helper', () => {
     expect(data).toEqual(mockedData);
   });
 
-  it.only('should call addGroup', async () => {
+  it('should call addGroup', async () => {
     const newGroup = { uuid: '123', name: 'group name', user_list: [{ username: 'user1', uuid: '12' }]};
     mock.onPost(`${RBAC_API_BASE}/groups/`).reply(200, newGroup)
     .onPost(`${RBAC_API_BASE}/groups/123/principals/`).reply(200, newGroup);
@@ -21,8 +21,9 @@ describe('group helper', () => {
   });
 
   it('should call remove group', async () => {
-    mock.onDelete(`${RBAC_API_BASE}/groups/removegroups`).reply(200);
-    const data = await removeGroups([ '123' ]);
-    expect(data.status).toBe(200);
+    const uuid = '123';
+    mock.onDelete(`${RBAC_API_BASE}/groups/${uuid}/`).reply(200);
+    const data = await removeGroups([ uuid ]);
+    expect(data[0].status).toBe(200);
   });
 });
