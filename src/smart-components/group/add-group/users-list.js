@@ -49,11 +49,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     fetchData={ (config) => fetchUsers(mappedProps(config)) }
     setFilterValue={ ({ name }) => setFilterValue(name) }
     isLoading={ isLoading }
-    pagination={ {
-      ...pagination,
-      // eslint-disable-next-line react/display-name, react/prop-types
-      toggleTemplate: ({ firstIndex, lastIndex }) => <b>{ `${firstIndex} - ${lastIndex}` }</b>
-    } }
+    pagination={ pagination }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
     sortBy={ {
