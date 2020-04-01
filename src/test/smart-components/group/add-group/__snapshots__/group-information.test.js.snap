@@ -65,34 +65,44 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                       *
                     </span>
                   </label>
-                  <TextInput
+                  <ForwardRef
                     aria-describedby="group-name"
-                    aria-label={null}
-                    className=""
                     id="group-name"
-                    isDisabled={false}
-                    isReadOnly={false}
                     isRequired={true}
-                    isValid={true}
                     name="group-name"
                     onChange={[Function]}
                     type="text"
-                    validated="default"
                   >
-                    <input
+                    <TextInputBase
                       aria-describedby="group-name"
-                      aria-invalid={false}
                       aria-label={null}
-                      className="pf-c-form-control"
-                      disabled={false}
+                      className=""
                       id="group-name"
+                      innerRef={null}
+                      isDisabled={false}
+                      isReadOnly={false}
+                      isRequired={true}
+                      isValid={true}
                       name="group-name"
                       onChange={[Function]}
-                      readOnly={false}
-                      required={true}
                       type="text"
-                    />
-                  </TextInput>
+                      validated="default"
+                    >
+                      <input
+                        aria-describedby="group-name"
+                        aria-invalid={false}
+                        aria-label={null}
+                        className="pf-c-form-control"
+                        disabled={false}
+                        id="group-name"
+                        name="group-name"
+                        onChange={[Function]}
+                        readOnly={false}
+                        required={true}
+                        type="text"
+                      />
+                    </TextInputBase>
+                  </ForwardRef>
                 </div>
               </FormGroup>
               <FormGroup

@@ -13,7 +13,7 @@ import AddGroupWizard from '../../../../smart-components/group/add-group/add-gro
 describe('<SetRoles />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const GroupWrapper = ({ store, children }) => (

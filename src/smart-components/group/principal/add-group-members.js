@@ -48,7 +48,7 @@ const AddGroupMembers = ({
   return (
     <Modal
       title="Add members to the group"
-      width={ '40%' }
+      width={ '75%' }
       isOpen
       isFooterLeftAligned
       actions={ [
@@ -74,7 +74,8 @@ AddGroupMembers.defaultProps = {
 
 AddGroupMembers.propTypes = {
   history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,

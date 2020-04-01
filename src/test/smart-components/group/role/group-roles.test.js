@@ -12,7 +12,7 @@ import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 describe('<GroupPrincipals />', () => {
 
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 

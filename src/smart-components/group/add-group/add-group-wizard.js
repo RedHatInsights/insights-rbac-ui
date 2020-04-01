@@ -12,6 +12,8 @@ import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
 import SetUsers from './set-users';
 import SetRoles from './set-roles';
+import { WarningModal } from '../../common/warningModal';
+import '../../common/hideWizard.scss';
 
 const AddGroupWizard = ({
   addNotification,
@@ -71,17 +73,28 @@ const AddGroupWizard = ({
     history.push('/groups');
   };
 
+  const [ cancelWarningVisible, setcancelWarningVisible ] = useState(false);
+
   return (
-    <Wizard
-      isLarge
-      isCompactNav
-      title="Create and configure a group"
-      description="To give users access permissions, create a group and assign roles to it."
-      isOpen
-      onClose={ onCancel }
-      onSave={ onSubmit }
-      steps={ steps }
-    />);
+    <React.Fragment>
+      <Wizard
+        className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
+        isLarge
+        isCompactNav
+        title="Create and configure a group"
+        description="To give users access permissions, create a group and assign roles to it."
+        isOpen
+        onClose={ () => setcancelWarningVisible(true) }
+        onSave={ onSubmit }
+        steps={ steps }
+      />
+      <WarningModal
+        type='group'
+        isOpen={ cancelWarningVisible }
+        onModalCancel={ () => setcancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
+    </React.Fragment>
+  );
 
 };
 

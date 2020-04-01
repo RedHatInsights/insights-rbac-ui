@@ -6,8 +6,7 @@ import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {
   return (<RemoveModal
-    text={
-      <TextContent>
+    text={ <TextContent>
         <Text>
           Once you edit the <b>Default user access</b> group, the system will no longer update it with new default access roles.
               The group name will change to <b>Custom default user access</b>.

@@ -4,7 +4,7 @@ const groupApi = getGroupApi();
 
 export async function fetchGroups({ limit, offset, name, orderBy }) {
   const [ groups, auth ] = await Promise.all([
-    groupApi.listGroups(limit, offset, name, undefined, undefined, orderBy),
+    groupApi.listGroups(limit, offset, name, undefined, undefined, undefined, undefined, undefined, orderBy),
     insights.chrome.auth.getUser()
   ]);
   return {

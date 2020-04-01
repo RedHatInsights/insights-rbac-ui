@@ -12,7 +12,7 @@ import toJson from 'enzyme-to-json';
 
 describe('role', () => {
 
-  const middlewares = [ promiseMiddleware() ];
+  const middlewares = [ promiseMiddleware ];
   let mockStore;
 
   beforeEach(() => {

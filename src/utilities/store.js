@@ -1,7 +1,7 @@
 
 import promiseMiddleware from 'redux-promise-middleware';
 import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/files/ReducerRegistry';
-import { notifications, notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { notifications, notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
 
 import reduxLogger from 'redux-logger';
 import thunk from 'redux-thunk';
@@ -10,7 +10,7 @@ import groupReducer, { groupsInitialState } from '../redux/reducers/group-reduce
 import policyReducer, { policiesInitialState } from '../redux/reducers/policy-reducer';
 import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 
-const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware(), notificationsMiddleware({
+const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware, notificationsMiddleware({
   errorTitleKey: [ 'message' ],
   errorDescriptionKey: [ 'errors', 'stack' ]
 }), reduxLogger ]);

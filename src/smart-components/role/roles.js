@@ -55,7 +55,13 @@ const Roles = () => {
 
   const routes = () => <Fragment>
     <Route exact path="/roles/add-role" component={ AddRoleWizard } />
-    <Route exact path="/roles/remove/:id" component={ RemoveRole } />
+    <Route exact path="/roles/remove/:id">
+      <RemoveRole
+        postMethod={ () => {
+          fetchData();
+          setFilterValue('');
+        } } />
+    </Route>
   </Fragment>;
 
   const actionResolver = ({ system }) => {
@@ -64,7 +70,7 @@ const Roles = () => {
       {
         title: 'Delete',
         onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`)
+        push(`/roles/remove/${role.uuid}`)
       }
     ];
   };

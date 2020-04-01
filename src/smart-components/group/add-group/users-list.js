@@ -6,9 +6,10 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { sortable } from '@patternfly/react-table';
 
 const columns = [
-  { title: 'Username', orderBy: 'name' },
+  { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
   { title: 'First name' },
   { title: 'Last name' }
@@ -50,12 +51,15 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     isLoading={ isLoading }
     pagination={ {
       ...pagination,
-      noBottom: true,
       // eslint-disable-next-line react/display-name, react/prop-types
       toggleTemplate: ({ firstIndex, lastIndex }) => <b>{ `${firstIndex} - ${lastIndex}` }</b>
     } }
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
+    sortBy={ {
+      index: 0,
+      direction: 'asc'
+    } }
     filterPlaceholder="username"
     titlePlural="users"
     titleSingular="user"
@@ -92,7 +96,7 @@ UsersList.propTypes = {
   selectedUsers: PropTypes.array,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
+    offset: PropTypes.number,
     count: PropTypes.number
   }),
   props: PropTypes.object

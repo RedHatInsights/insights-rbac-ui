@@ -11,7 +11,7 @@ import SetUsers from '../../../../smart-components/group/add-group/set-users';
 
 let initialProps;
 let initialState;
-const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
 let mockStore;
 
 describe('<SetUsers />', () => {
