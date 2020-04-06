@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Button, Modal } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
+import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 
 const AddGroupMembers = ({
@@ -14,7 +14,7 @@ const AddGroupMembers = ({
   addNotification,
   closeUrl,
   addMembersToGroup,
-  fetchGroup
+  fetchMembersForGroup
 }) => {
   const [ selectedUsers, setSelectedUsers ] = useState([]);
 
@@ -28,7 +28,7 @@ const AddGroupMembers = ({
         dismissable: false,
         description: `Adding member${userList.length > 1 ? 's' : ''} to group initiated.`
       });
-      addMembersToGroup(uuid, userList).then(() => fetchGroup(uuid));
+      addMembersToGroup(uuid, userList).then(() => fetchMembersForGroup(uuid));
     }
 
     push(closeUrl);
@@ -80,7 +80,7 @@ AddGroupMembers.propTypes = {
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchData: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
+  fetchMembersForGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
@@ -97,7 +97,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   addMembersToGroup,
-  fetchGroup
+  fetchMembersForGroup
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));
