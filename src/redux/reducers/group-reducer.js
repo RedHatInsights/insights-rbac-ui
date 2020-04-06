@@ -6,6 +6,7 @@ import {
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_MEMBERS_FOR_GROUP
 } from '../../redux/action-types';
+import _ from 'lodash';
 
 // Initial State
 export const groupsInitialState = {
@@ -34,7 +35,7 @@ const setGroup = (state, { payload }) => ({
       ...payload.uuid === group.uuid && { ...payload, loaded: true }
     }))
   },
-  selectedGroup: { ...state.selectedGroup, members: { ...state.selectedGroup.members, data: payload.principals }, ...payload, loaded: true }
+  selectedGroup: { ...state.selectedGroup, members: { ...state.selectedGroup.members, data: payload.principals }, ..._.omit(payload, 'principals'), loaded: true }
 });
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({

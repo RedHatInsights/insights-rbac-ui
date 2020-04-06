@@ -60,12 +60,10 @@ export async function addRolesToGroup(groupId, roles) {
   return await groupApi.addRoleToGroup(groupId, { roles });
 }
 
-export async function fetchPrincipalsForGroup(groupId, usernames, pagination, options = {}) {
-  return await groupApi.getPrincipalsFromGroup(groupId, usernames, {
-    ...options,
+export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
+  return await groupApi.getPrincipalsFromGroup(groupId, usernames, undefined, {
     query: {
-      ...options.query,
-      ...pagination
+      ...options
     }
   });
 }
