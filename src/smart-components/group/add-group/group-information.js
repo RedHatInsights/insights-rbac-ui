@@ -35,7 +35,7 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
                   onHandleChange({ name: event.currentTarget.value });} }
               />
             </FormGroup>
-            <FormGroup label="Group description" fieldId="group-description">
+            <FormGroup label="Group description" fieldId="group-description" isRequired>
               <TextArea
                 type="text"
                 id="group-description"
