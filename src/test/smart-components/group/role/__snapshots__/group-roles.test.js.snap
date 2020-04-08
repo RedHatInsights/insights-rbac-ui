@@ -16,11 +16,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     isLoading={true}
     pagination={
       Object {
-        "count": undefined,
-        "itemCount": 1,
-        "limit": 50,
-        "numberOfItems": 50,
-        "offset": 0,
+        "limit": 10,
       }
     }
     removeRoles={[Function]}
@@ -57,11 +53,7 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
     isLoading={true}
     pagination={
       Object {
-        "count": undefined,
-        "itemCount": 1,
-        "limit": 50,
-        "numberOfItems": 50,
-        "offset": 0,
+        "limit": 10,
       }
     }
     removeRoles={[Function]}
