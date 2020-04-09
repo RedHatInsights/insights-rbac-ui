@@ -28,7 +28,14 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
               <Text
                 className="pf-u-mt-0"
                 component={ TextVariants.h6 }>
-                { description || 'Select users from your organization to add to this group.' }
+                { description || <Fragment>
+                    Select users from your organization to add to this group. This list only shows active users; to see all users in your organization go to your{ ' ' }
+                    <Text
+                        component={ TextVariants.a }
+                        href={ `https://www.${window.insights.chrome.isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }>
+                    user management list.
+                    </Text>
+                </Fragment> }
               </Text>
             </TextContent>
           </StackItem>
