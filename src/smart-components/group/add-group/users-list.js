@@ -56,7 +56,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       index: 0,
       direction: 'asc'
     } }
-    filterPlaceholder="username"
+    filterPlaceholder="exact username"
     titlePlural="users"
     titleSingular="user"
     { ...props }
