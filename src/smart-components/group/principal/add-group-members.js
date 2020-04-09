@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, Fragment } from 'react';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Modal, StackItem, Stack, Text, TextVariants, TextContent, Title } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
@@ -60,7 +60,25 @@ const AddGroupMembers = ({
         </Button>
       ] }
       onClose={ onCancel }>
-      <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+          <Stack gutter="md">
+          <StackItem>
+            <TextContent>
+              <Text
+                className="pf-u-mt-0"
+                component={ TextVariants.h6 }>
+                This table only shows active users in your organization; to see all users in your organization go to your{ ' ' }
+                <Text
+                    component={ TextVariants.a }
+                    href={ `https://www.${window.insights.chrome.isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }>
+                user management list.
+                </Text>
+              </Text>
+            </TextContent>
+          </StackItem>
+          <StackItem>
+            <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+          </StackItem>
+        </Stack>
     </Modal>
   );
 };
