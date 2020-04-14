@@ -96,7 +96,7 @@ describe('<AddGroupWizard />', () => {
 
     wrapper.find('Button').at(0).simulate('click');
     wrapper.update();
-    wrapper.find('.pf-m-danger').simulate('click');
+    wrapper.find('.pf-c-modal-box__footer .pf-m-primary').simulate('click');
 
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedActions);
