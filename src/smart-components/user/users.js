@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section } from '@redhat-cloud-services/frontend-components';
@@ -8,11 +8,7 @@ import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 const Users = () => {
   const description = (
     <ActiveUser
-      description={ (
-        <Fragment>
-          These are the <b>active</b> users in your organization. To view all users in your organization or add new users, go to your
-        </Fragment>
-      ) }
+      description="These are the users in your organization. To add new users to your organization, go to"
     />);
 
   return (
