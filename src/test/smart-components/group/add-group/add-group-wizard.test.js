@@ -94,9 +94,9 @@ describe('<AddGroupWizard />', () => {
         payload: expect.objectContaining({ title: 'Adding group', variant: 'warning' })
       }) ]);
 
-    wrapper.find('Button').at(0).simulate('click');
+    wrapper.find('.pf-c-button.pf-m-primary').simulate('click');
     wrapper.update();
-    wrapper.find('.pf-c-modal-box__footer .pf-m-primary').simulate('click');
+    wrapper.find('.pf-m-link').simulate('click');
 
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedActions);

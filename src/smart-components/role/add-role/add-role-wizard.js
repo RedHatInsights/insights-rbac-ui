@@ -107,7 +107,7 @@ const AddRoleWizard = ({
     push('/roles');
   };
 
-  const [ cancelWarningVisible, setcancelWarningVisible ] = useState(false);
+  const [ cancelWarningVisible, setCancelWarningVisible ] = useState(false);
 
   return (
     <React.Fragment>
@@ -116,7 +116,9 @@ const AddRoleWizard = ({
         isLarge
         title="Add role"
         isOpen
-        onClose={ () => setcancelWarningVisible(true) }
+        onClose={ () => {
+          !Object.values(formData).filter(Boolean).length > 0 && onCancel() || setCancelWarningVisible(true);
+        } }
         onNext={ onNext }
         onSave={ onSubmit }
         steps={ steps }
@@ -124,7 +126,7 @@ const AddRoleWizard = ({
       <WarningModal
         type='role'
         isOpen={ cancelWarningVisible }
-        onModalCancel={ () => setcancelWarningVisible(false) }
+        onModalCancel={ () => setCancelWarningVisible(false) }
         onConfirmCancel={ onCancel }/>
     </React.Fragment>
   );
