@@ -107,7 +107,6 @@ exports[`<GroupInformation /> should render correctly 1`] = `
               </FormGroup>
               <FormGroup
                 fieldId="group-description"
-                isRequired={true}
                 label="Group description"
               >
                 <div
@@ -121,12 +120,6 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                       className="pf-c-form__label-text"
                     >
                       Group description
-                    </span>
-                    <span
-                      aria-hidden="true"
-                      className="pf-c-form__label-required"
-                    >
-                      *
                     </span>
                   </label>
                   <TextArea
