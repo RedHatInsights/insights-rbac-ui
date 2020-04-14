@@ -3,10 +3,11 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Modal, StackItem, Stack } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
+import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
 const AddGroupMembers = ({
   history: { push },
@@ -60,7 +61,14 @@ const AddGroupMembers = ({
         </Button>
       ] }
       onClose={ onCancel }>
-        <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+          <Stack gutter="md">
+          <StackItem>
+            <ActiveUser description='This table only shows active users in your organization; to see all users in your organization go to your'/>
+          </StackItem>
+          <StackItem>
+            <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+          </StackItem>
+        </Stack>
     </Modal>
   );
 };
