@@ -73,7 +73,7 @@ const AddGroupWizard = ({
     history.push('/groups');
   };
 
-  const [ cancelWarningVisible, setcancelWarningVisible ] = useState(false);
+  const [ cancelWarningVisible, setCancelWarningVisible ] = useState(false);
 
   return (
     <React.Fragment>
@@ -84,14 +84,20 @@ const AddGroupWizard = ({
         title="Create and configure a group"
         description="To give users access permissions, create a group and assign roles to it."
         isOpen
-        onClose={ () => setcancelWarningVisible(true) }
+        onClose={ () => {
+          if (Object.values(formData).filter(Boolean).length > 0 || selectedRoles.length > 0 || selectedUsers.length > 0) {
+            setCancelWarningVisible(true);
+          } else {
+            onCancel();
+          }
+        } }
         onSave={ onSubmit }
         steps={ steps }
       />
       <WarningModal
         type='group'
         isOpen={ cancelWarningVisible }
-        onModalCancel={ () => setcancelWarningVisible(false) }
+        onModalCancel={ () => setCancelWarningVisible(false) }
         onConfirmCancel={ onCancel }/>
     </React.Fragment>
   );
