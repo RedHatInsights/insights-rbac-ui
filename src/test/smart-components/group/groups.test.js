@@ -83,7 +83,7 @@ describe('<Groups />', () => {
   it('should fetch groups on next page click', async() => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
-    mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=10&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=10&name=&order_by=`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
