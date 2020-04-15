@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
-export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '') => ({
+export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '', sortBy = '') => ({
   ...pagination,
   itemCount: pagination.count,
   perPage: pagination.limit,
@@ -14,7 +14,8 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
     fetchData({
       ...pagination,
       offset: (page - 1) * pagination.limit,
-      name: filterValue
+      name: filterValue,
+      orderBy: sortBy
     });
   },
   perPageOptions: [
@@ -28,7 +29,8 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
       ...pagination,
       offset: 0,
       limit: perPage,
-      name: filterValue
+      name: filterValue,
+      orderBy: sortBy
     });
   }
 });
@@ -64,7 +66,8 @@ export const filterConfigBuilder = (
   titleSingular = '',
   filterPlaceholder,
   filterItems,
-  textFilters
+  textFilters,
+  sortBy
 ) => ({
   items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value }) => ({
     label: firstUpperCase(key),
@@ -83,6 +86,7 @@ export const filterConfigBuilder = (
         debouncedFetch(() => fetchData({
           ...pagination,
           offset: 0,
+          orderBy: sortBy,
           ...textFilters.reduce((acc, curr) => ({
             ...acc,
             [curr.key]: curr.value
@@ -108,7 +112,8 @@ export const filterConfigBuilder = (
         debouncedFetch(() => fetchData({
           ...pagination,
           offset: 0,
-          name: value
+          name: value,
+          orderBy: sortBy
         }));
       },
       isDisabled: isLoading
@@ -121,7 +126,8 @@ export const activeFiltersConfigBuilder = (
   textFilters,
   pagination = {},
   setFilterValue  = () => undefined,
-  fetchData = () => undefined
+  fetchData = () => undefined,
+  sortBy
 ) => ({
   filters: (textFilters && textFilters.length > 0) ? textFilters.map(({ key, value }) => value && ({
     category: firstUpperCase(key),
@@ -139,12 +145,13 @@ export const activeFiltersConfigBuilder = (
         ...acc,
         [key]: deleted.type === key || isAll ? '' : value
       }), {}) : {
-        name: 'sf'
+        name: ''
       }
     });
     fetchData({
       ...pagination,
       offset: 0,
+      orderBy: sortBy,
       ...textFilters ? textFilters.reduce((acc, { key, value }) => ({
         ...acc,
         [key]: deleted.type === key || isAll ? '' : value
@@ -166,6 +173,7 @@ const Toolbar = ({
   setFilterValue,
   pagination,
   fetchData,
+  sortBy,
   toolbarButtons,
   filterPlaceholder,
   filterItems,
@@ -183,16 +191,17 @@ const Toolbar = ({
         titleSingular,
         filterPlaceholder,
         filterItems,
-        textFilters
+        textFilters,
+        sortBy
       ) }
     actionsConfig={ {
       actions: toolbarButtons()
     } }
     { ...!isLoading && {
-      pagination: paginationBuilder(pagination, fetchData, filterValue)
+      pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy)
     } }
     { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && {
-      activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData)
+      activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData, sortBy)
     } }
   />
 );
@@ -215,6 +224,7 @@ Toolbar.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number
   }),
+  sortBy: PropTypes.string,
   filterItems: ConditionalFilter.propTypes.items,
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
@@ -232,6 +242,7 @@ Toolbar.defaultProps = {
   pagination: defaultSettings,
   setCheckedItems: () => undefined,
   setFilterValue: () => undefined,
+  sortBy: undefined,
   fetchData: () => undefined,
   toolbarButtons: () => [],
   filterItems: [],
