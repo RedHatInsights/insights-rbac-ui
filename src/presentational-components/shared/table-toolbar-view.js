@@ -100,7 +100,10 @@ export const TableToolbarView = ({
         titleSingular={ titleSingular }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
-        sortBy={ sortByState.index !== undefined && `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}` || undefined }
+        sortBy={ (
+            sortByState.index !== undefined && sortByState.index - isSelectable >= 0
+            && `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}`
+        ) || undefined }
         pagination={ pagination }
         fetchData={ fetchData }
         toolbarButtons={ toolbarButtons }
