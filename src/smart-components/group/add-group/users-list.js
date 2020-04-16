@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { mappedProps } from '../../../helpers/shared/helpers';
@@ -6,7 +6,9 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { Label } from '@patternfly/react-core';
 import { sortable } from '@patternfly/react-table';
+import UsersRow from '../../../presentational-components/shared/UsersRow';
 
 const columns = [
   { title: 'Username', key: 'username', transforms: [ sortable ]},
@@ -16,10 +18,22 @@ const columns = [
 ];
 
 const createRows = (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { username, email, first_name, last_name }) => ([
+  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name, last_name }) => ([
     ...acc, {
       uuid: username,
-      cells: [ username, email, first_name, last_name ],
+      cells: [{
+          title: (
+          <Fragment>
+            <Label isCompact className={ `ins-c-rbac__user-label ${isActive ? '' : 'ins-m-inactive'}` }>
+              {isActive ? 'Active' : 'Inactive'}
+            </Label>
+            {username}
+          </Fragment>
+        ),
+        props: {
+          data: { isActive }
+        }
+      }, email, first_name, last_name ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];
@@ -56,6 +70,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       index: 0,
       direction: 'asc'
     } }
+    rowWrapper={ UsersRow }
     filterPlaceholder="exact username"
     titlePlural="users"
     titleSingular="user"

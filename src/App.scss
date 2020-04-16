@@ -102,3 +102,13 @@
     }
   }
 }
+
+.ins-c-rbac__user-label {
+  margin-right: var(--pf-global--spacer--sm);
+
+  &.ins-m-inactive { background-color: var(--pf-global--disabled-color--100); }
+}
+
+.ins-c-rbac__user-row {
+  &.ins-m-inactive { color: var(--pf-global--disabled-color--200); }
+}
