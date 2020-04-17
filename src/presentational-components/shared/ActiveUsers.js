@@ -9,7 +9,10 @@ const ActiveUser = ({ description, linkTitle }) => (
             {description}{ ' ' }
         <Text
             component={ TextVariants.a }
-            href={ `https://www.${window.insights.chrome.isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }>
+            href={ `https://www.${window.insights.chrome.isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }
+            target="_blank"
+            rel='noopener noreferrer'
+        >
                 {linkTitle}
         </Text>
         </Text>
