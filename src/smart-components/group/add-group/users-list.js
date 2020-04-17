@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { mappedProps } from '../../../helpers/shared/helpers';
@@ -7,10 +7,11 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
-import { sortable } from '@patternfly/react-table';
+import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 
 const columns = [
+  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
   { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
   { title: 'First name' },
@@ -23,17 +24,14 @@ const createRows = (data, expanded, checkedRows = []) => {
       uuid: username,
       cells: [{
           title: (
-          <Fragment>
             <Label isCompact className={ `ins-c-rbac__user-label ${isActive ? '' : 'ins-m-inactive'}` }>
-              {isActive ? 'Active' : 'Inactive'}
-            </Label>
-            {username}
-          </Fragment>
+            {isActive ? 'Active' : 'Inactive'}
+          </Label>
         ),
         props: {
           data: { isActive }
         }
-      }, email, first_name, last_name ],
+      }, username, email, first_name, last_name ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];
@@ -67,7 +65,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
     sortBy={ {
-      index: 0,
+      index: 1,
       direction: 'asc'
     } }
     rowWrapper={ UsersRow }
