@@ -48,20 +48,9 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                         <h4
                           className="pf-c-title pf-m-xl"
                         >
-                           Add members to the group 
+                           Confirm the details for this group, or click Back to revise 
                         </h4>
                       </Title>
-                      <Text
-                        className="pf-u-mt-0"
-                        component="h6"
-                      >
-                        <h6
-                          className="pf-u-mt-0"
-                          data-pf-content={true}
-                        >
-                          Confirm the details for this group, or click Back to revise.
-                        </h6>
-                      </Text>
                     </div>
                   </TextContent>
                 </div>
