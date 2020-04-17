@@ -25,7 +25,7 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
             <TextContent>
               <Title headingLevel="h4" size="xl"> Add members to the group </Title>
               <ActiveUser
-                description={ description || 'These are all the users in your Red Hat organization. To manage users, go to your' }
+                description={ description || 'These are all of the users in your Red Hat organization. To manage users, go to your' }
               />
             </TextContent>
           </StackItem>
