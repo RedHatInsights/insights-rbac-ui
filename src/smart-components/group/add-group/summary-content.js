@@ -25,12 +25,7 @@ const SummaryContent = (formData) => {
           <Stack gutter="md">
             <StackItem>
               <TextContent>
-                <Title headingLevel="h4" size="xl"> Add members to the group </Title>
-                <Text
-                  className="pf-u-mt-0"
-                  component={ TextVariants.h6 }>
-                 Confirm the details for this group, or click Back to revise.
-                </Text>
+                <Title headingLevel="h4" size="xl"> Confirm the details for this group, or click Back to revise </Title>
               </TextContent>
             </StackItem>
             <StackItem className="ins-c-rbac__summary">
