@@ -6,9 +6,12 @@ import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { sortable } from '@patternfly/react-table';
+import { Label } from '@patternfly/react-core';
+import { sortable, cellWidth } from '@patternfly/react-table';
+import UsersRow from '../../../presentational-components/shared/UsersRow';
 
 const columns = [
+  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
   { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
   { title: 'First name' },
@@ -16,10 +19,19 @@ const columns = [
 ];
 
 const createRows = (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { username, email, first_name, last_name }) => ([
+  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name, last_name }) => ([
     ...acc, {
       uuid: username,
-      cells: [ username, email, first_name, last_name ],
+      cells: [{
+          title: (
+            <Label isCompact className={ `ins-c-rbac__user-label ${isActive ? '' : 'ins-m-inactive'}` }>
+            {isActive ? 'Active' : 'Inactive'}
+          </Label>
+        ),
+        props: {
+          data: { isActive }
+        }
+      }, username, email, first_name, last_name ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];
@@ -53,9 +65,10 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     checkedRows={ selectedUsers }
     setCheckedItems={ setCheckedItems }
     sortBy={ {
-      index: 0,
+      index: 1,
       direction: 'asc'
     } }
+    rowWrapper={ UsersRow }
     filterPlaceholder="exact username"
     titlePlural="users"
     titleSingular="user"
