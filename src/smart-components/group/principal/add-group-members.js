@@ -63,7 +63,7 @@ const AddGroupMembers = ({
       onClose={ onCancel }>
         <Stack gutter="md">
           <StackItem>
-            <ActiveUser description="These are all the users in your Red Hat organization. To manage users, go to your"/>
+            <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your"/>
           </StackItem>
           <StackItem>
             <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />

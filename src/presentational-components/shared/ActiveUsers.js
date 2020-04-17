@@ -5,7 +5,7 @@ const ActiveUser = ({ description, linkTitle }) => (
     <TextContent>
         <Text
         className="pf-u-mt-0"
-        component={ TextVariants.h6 }>
+        component={ TextVariants.h7 }>
             {description}{ ' ' }
         <Text
             component={ TextVariants.a }
