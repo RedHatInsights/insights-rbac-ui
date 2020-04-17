@@ -6,13 +6,12 @@ import {
   FormGroup,
   Stack,
   StackItem,
-  Text,
   TextContent,
-  TextVariants,
   Title
 } from '@patternfly/react-core';
 import UsersList from './users-list';
 import '../../../App.scss';
+import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
 const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
   return (
@@ -25,11 +24,9 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
           <StackItem>
             <TextContent>
               <Title headingLevel="h4" size="xl"> Add members to the group </Title>
-              <Text
-                className="pf-u-mt-0"
-                component={ TextVariants.h6 }>
-                { description || 'Select users from your organization to add to this group.' }
-              </Text>
+              <ActiveUser
+                description={ description || 'These are all the users in your Red Hat organization. To manage users, go to your' }
+              />
             </TextContent>
           </StackItem>
           <StackItem>
