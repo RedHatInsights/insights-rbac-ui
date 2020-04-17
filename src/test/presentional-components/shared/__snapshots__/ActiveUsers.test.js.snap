@@ -4,7 +4,6 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
 <TextContent>
   <Text
     className="pf-u-mt-0"
-    component="h6"
   >
      
     <Text
@@ -23,7 +22,6 @@ exports[`<ActiveUsers /> should render correctly with description 1`] = `
 <TextContent>
   <Text
     className="pf-u-mt-0"
-    component="h6"
   >
     some description
      
@@ -43,7 +41,6 @@ exports[`<ActiveUsers /> should render correctly with link title 1`] = `
 <TextContent>
   <Text
     className="pf-u-mt-0"
-    component="h6"
   >
      
     <Text

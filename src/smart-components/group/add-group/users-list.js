@@ -46,7 +46,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
 
   const setCheckedItems = (newSelection) => {
     setSelectedUsers((users) => {
-      return newSelection(users).map(({ uuid, name, username, label }) => ({ uuid, label: label || name || username }));
+      return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
     });
   };
 

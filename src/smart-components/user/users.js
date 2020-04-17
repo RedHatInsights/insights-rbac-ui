@@ -8,7 +8,7 @@ import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 const Users = () => {
   const description = (
     <ActiveUser
-      description="These are all the users in your Red Hat organization. To add new users or manage existing users, go to your"
+      description="These are all of the users in your Red Hat organization. To add new users or manage existing users, go to your"
     />);
 
   return (
