@@ -16,7 +16,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     isLoading={true}
     pagination={
       Object {
-        "limit": 10,
+        "limit": 20,
+        "offset": 0,
       }
     }
     removeRoles={[Function]}
@@ -53,7 +54,8 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
     isLoading={true}
     pagination={
       Object {
-        "limit": 10,
+        "limit": 20,
+        "offset": 0,
       }
     }
     removeRoles={[Function]}

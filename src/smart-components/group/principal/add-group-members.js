@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Button, Modal, StackItem, Stack } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
-import UsersList from '../add-group/users-list';
+import { CompactUsersList } from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
 const AddGroupMembers = ({
@@ -66,7 +66,7 @@ const AddGroupMembers = ({
             <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your"/>
           </StackItem>
           <StackItem>
-            <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+            <CompactUsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
           </StackItem>
         </Stack>
     </Modal>

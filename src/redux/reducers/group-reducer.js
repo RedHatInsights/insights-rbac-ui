@@ -7,18 +7,15 @@ import {
   FETCH_MEMBERS_FOR_GROUP
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
 export const groupsInitialState = {
   groups: {
     data: [],
-    meta: {
-      count: 0,
-      limit: 10,
-      offset: 0
-    }
+    meta: defaultSettings
   },
-  selectedGroup: { addRoles: {}, members: {}, pagination: { limit: 10 }},
+  selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, pagination: defaultSettings },
   isLoading: false,
   isRecordLoading: false
 };
