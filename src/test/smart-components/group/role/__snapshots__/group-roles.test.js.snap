@@ -16,6 +16,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     isLoading={true}
     pagination={
       Object {
+        "itemCount": 0,
         "limit": 20,
         "offset": 0,
       }
@@ -54,6 +55,7 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
     isLoading={true}
     pagination={
       Object {
+        "itemCount": 0,
         "limit": 20,
         "offset": 0,
       }
