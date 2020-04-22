@@ -11,6 +11,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import AddRoleWizard from '../../smart-components/role/add-role/add-role-wizard';
 import { ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/index';
 import { mount } from 'enzyme/build/index';
+import { WarningModal } from '../../smart-components/common/warningModal';
 
 describe('<AddRoleWizard />', () => {
   let initialProps;
@@ -48,7 +49,25 @@ describe('<AddRoleWizard />', () => {
     });
   });
 
-  it('should post a warning message on Cancel', (done) => {
+  it('should show a warning modal on Cancel', () => {
+    const store = mockStore(initialState);
+
+    const wrapper = mount(
+      <RoleWrapper store={ store }>
+        <Route path="/roles/add-role/" render={ () => <AddRoleWizard { ...initialProps } /> } />
+      </RoleWrapper>
+    );
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).not.toBeTruthy();
+    const input = wrapper.find('input#name');
+    input.getDOMNode().value = 'foo';
+    input.simulate('change');
+    wrapper.update();
+    wrapper.find('.pf-m-link').simulate('click');
+    wrapper.update();
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).toBeTruthy();
+  });
+
+  it('should not show a warning modal on Cancel when clean', (done) => {
     const store = mockStore(initialState);
 
     const wrapper = mount(
@@ -61,13 +80,14 @@ describe('<AddRoleWizard />', () => {
         type: ADD_NOTIFICATION,
         payload: expect.objectContaining({ title: 'Creating role was canceled by the user', variant: 'warning' })
       }) ]);
-
-    wrapper.find('Button').at(0).simulate('click');
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).not.toBeTruthy();
+    wrapper.find('.pf-c-button.pf-m-primary').simulate('click');
     wrapper.update();
-    wrapper.find('.pf-m-danger').simulate('click');
+    wrapper.find('.pf-m-link').simulate('click');
 
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedActions);
+      expect(wrapper.find(WarningModal)).toHaveLength(0);
       done();
     });
   });

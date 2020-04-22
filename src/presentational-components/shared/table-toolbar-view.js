@@ -100,6 +100,10 @@ export const TableToolbarView = ({
         titleSingular={ titleSingular }
         filterValue={ filterValue }
         setFilterValue={ setFilterValue }
+        sortBy={ (
+            sortByState.index !== undefined && sortByState.index - isSelectable >= 0
+            && `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}`
+        ) || undefined }
         pagination={ pagination }
         fetchData={ fetchData }
         toolbarButtons={ toolbarButtons }
@@ -127,7 +131,7 @@ export const TableToolbarView = ({
           fetchData({
             ...pagination,
             offset: 0,
-            name: '',
+            name: filterValue,
             orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`
           });
         } }
