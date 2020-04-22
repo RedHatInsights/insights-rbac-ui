@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
@@ -31,7 +33,7 @@ const createRows = (data, expanded, checkedRows = []) => {
         props: {
           data: { isActive }
         }
-      }, username, email, first_name, last_name ],
+      }, { title: <Link to={ `/users/detail/${username}` }>{username}</Link> }, email, first_name, last_name ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];

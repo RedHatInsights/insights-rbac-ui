@@ -6,8 +6,8 @@ export async function createRole(data) {
   return await roleApi.createRoles(data);
 }
 
-export function fetchRoles({ limit, offset }) {
-  return roleApi.listRoles(limit, offset);
+export function fetchRoles({ limit, offset, name, scope, orderBy, addFields, username }) {
+  return roleApi.listRoles(limit, offset, name, scope, orderBy, addFields, username);
 }
 
 export async function fetchRolesWithPolicies({ limit, offset, name, orderBy }) {
