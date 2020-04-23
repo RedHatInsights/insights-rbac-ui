@@ -1,10 +1,13 @@
 import { FETCH_USERS } from '../../redux/action-types';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
 export const usersInitialState = {
   selectedUser: {},
   isUserDataLoading: false,
-  users: []
+  users: {
+    meta: defaultSettings
+  }
 };
 
 const setLoadingState = state => ({ ...state, isUserDataLoading: true });

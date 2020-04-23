@@ -51,7 +51,7 @@ const GroupPrincipals = () => {
 
   const dispatch = useDispatch();
 
-  const fetchData = (usernames, options) => {
+  const fetchData = (usernames, options = pagination) => {
     dispatch(fetchMembersForGroup(uuid, usernames, options));
   };
 

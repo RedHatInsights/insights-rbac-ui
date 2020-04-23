@@ -63,10 +63,8 @@ exports[`<Roles /> should render correctly 1`] = `
   isSelectable={false}
   pagination={
     Object {
-      "count": 1,
-      "itemCount": 1,
-      "limit": 50,
-      "numberOfItems": 50,
+      "itemCount": 0,
+      "limit": 20,
       "offset": 0,
     }
   }
@@ -149,10 +147,8 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   isSelectable={false}
   pagination={
     Object {
-      "count": 1,
-      "itemCount": 1,
-      "limit": 50,
-      "numberOfItems": 50,
+      "itemCount": 0,
+      "limit": 20,
       "offset": 0,
     }
   }
