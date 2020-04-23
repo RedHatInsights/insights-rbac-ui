@@ -5,6 +5,7 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import { createRows } from './role-permissions-table-helpers';
 import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 const columns = [
   { title: 'Application' },
@@ -16,9 +17,7 @@ const columns = [
 const Permissions = () => {
   const [ config, setConfig ] = useState({
     pagination: {
-      limit: 10,
-      offset: 0,
-      count: 0,
+      ...defaultSettings,
       filter: ''
     }
   });
