@@ -2,6 +2,7 @@ import {
   FETCH_ROLE,
   FETCH_ROLES
 } from '../../redux/action-types';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
 export const rolesInitialState = {
@@ -9,11 +10,7 @@ export const rolesInitialState = {
   isRecordLoading: false,
   roles: {
     data: [],
-    meta: {
-      count: 0,
-      limit: 5,
-      offset: 0
-    }
+    meta: defaultSettings
   },
   selectedRole: {}
 };

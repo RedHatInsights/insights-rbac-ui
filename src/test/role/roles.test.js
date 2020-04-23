@@ -91,7 +91,7 @@ describe('<Roles />', () => {
   it('should fetch roles on sort click', async() => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/roles/?name=&scope=account&add_fields=groups_in_count`).reply(200, {});
-    mock.onGet(`/api/rbac/v1/roles/?limit=50&scope=account&order_by=name&add_fields=groups_in_count`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/roles/?limit=20&scope=account&order_by=name&add_fields=groups_in_count`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(

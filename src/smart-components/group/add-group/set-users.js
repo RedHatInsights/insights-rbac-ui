@@ -9,7 +9,7 @@ import {
   TextContent,
   Title
 } from '@patternfly/react-core';
-import UsersList from './users-list';
+import { CompactUsersList } from './users-list';
 import '../../../App.scss';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
@@ -34,7 +34,7 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
               fieldId="select-user"
             >
               <Card>
-                <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+                <CompactUsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
               </Card>
             </FormGroup>
           </StackItem>

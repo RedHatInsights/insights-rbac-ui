@@ -2,13 +2,13 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
 import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
+import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 
 const columns = [
   { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
@@ -85,10 +85,21 @@ const mapStateToProps = ({ userReducer: { users, isUserDataLoading }}) => {
 
 const mapDispatchToProps = dispatch => {
   return {
-    fetchUsers: (apiProps = { limit: 10, offset: 0 }) => {
+    fetchUsers: (apiProps = defaultSettings) => {
       dispatch(fetchUsers(mappedProps(apiProps)));
     },
     addNotification: (...props) => dispatch(addNotification(...props))
+  };
+};
+
+const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
+  return {
+    ...ownProps,
+    ...propsFromState,
+    ...propsFromDispatch,
+    fetchUsers: (apiProps) => {
+      return propsFromDispatch.fetchUsers(apiProps ? apiProps : defaultCompactSettings);
+    }
   };
 };
 
@@ -113,9 +124,9 @@ UsersList.propTypes = {
 
 UsersList.defaultProps = {
   users: [],
-  pagination: defaultCompactSettings,
   selectedUsers: [],
   setSelectedUsers: () => undefined
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);
+export const CompactUsersList = connect(mapStateToProps, mapDispatchToProps, mergeProps)(UsersList);

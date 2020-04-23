@@ -44,7 +44,7 @@ describe('<Users />', () => {
   });
 
   it('should render user list correctly', async() => {
-    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/principals/?limit=20&sort_order=asc`).replyOnce(200, {});
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
@@ -61,7 +61,7 @@ describe('<Users />', () => {
 
   it('should fetch users on mount', () => {
     const store = mockStore(initialState);
-    mock.onGet(`/api/rbac/v1/principals/?limit=10&sort_order=asc`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/principals/?limit=20&sort_order=asc`).replyOnce(200, {});
     mount(
       <Provider store={ store }>
         <Router>
@@ -77,7 +77,7 @@ describe('<Users />', () => {
 
   it('should fetch users on sort click', async() => {
     const store = mockStore(initialState);
-    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=asc').replyOnce(200, {});
+    mock.onGet('/api/rbac/v1/principals/?limit=20&sort_order=asc').replyOnce(200, {});
     mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=desc').replyOnce(200, {});
     let wrapper;
     await act(async () => {
