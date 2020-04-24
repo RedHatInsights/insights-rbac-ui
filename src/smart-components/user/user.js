@@ -66,6 +66,7 @@ const User = ({
                 compoundParent: 1,
                 cells: [{
                     title: <Table
+                        props={ { colSpan: 2, className: 'pf-m-no-padding' } }
                         aria-label="Simple Table"
                         variant={ TableVariant.compact }
                         cells={ [ 'Name', 'Description' ] }
@@ -84,6 +85,7 @@ const User = ({
                 cells: [{
                     title: !isRecordLoading && rolesWithAccess && rolesWithAccess[uuid]
                         ? <Table
+                            props={ { colSpan: 3, className: 'pf-m-no-padding' } }
                             aria-label="Simple Table"
                             variant={ TableVariant.compact }
                             cells={ [ 'Application', 'Resource type', 'Operation' ] }
@@ -205,25 +207,16 @@ User.propTypes = {
     isRecordLoading: PropTypes.bool
 };
 
-User.defaultProps = {
+const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess, isRecordLoading }}) => ({
+    roles,
+    isLoading,
+    rolesWithAccess,
+    isRecordLoading
+});
 
-};
-
-const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess, isRecordLoading }}) => {
-
-    return {
-       roles,
-       isLoading,
-       rolesWithAccess,
-       isRecordLoading
-    };
-};
-
-const mapDispatchToProps = dispatch => {
-    return {
-        fetchRoles: (apiProps = { limit: 10, offset: 0 }) => dispatch(fetchRoles(apiProps)),
-        fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid))
-    };
-};
+const mapDispatchToProps = dispatch => ({
+    fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
+    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid))
+});
 
 export default connect(mapStateToProps, mapDispatchToProps)(User);

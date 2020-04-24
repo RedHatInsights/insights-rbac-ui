@@ -26,6 +26,7 @@ const Users = () => {
     <StackItem>
       <Section type="content" id={ 'users' }>
         <UsersList
+          userLinks
           props={ {
             isSelectable: false,
             isCompact: false
