@@ -35,7 +35,7 @@ const setGroup = (state, { payload }) => ({
   selectedGroup: {
     ...state.selectedGroup,
     members: { ...state.selectedGroup.members, data: payload.principals },
-    ...omit(payload, 'principals'),
+    ...omit(payload, [ 'principals', 'roles' ]),
     loaded: true,
     pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 }
   }
