@@ -64,7 +64,7 @@ describe('<Users />', () => {
     mock.onGet(`/api/rbac/v1/principals/?limit=20&sort_order=asc`).replyOnce(200, {});
     mount(
       <Provider store={ store }>
-        <Router>
+        <Router initialEntries={ [ '/users' ] }>
           <Users />
         </Router>,
       </Provider>
