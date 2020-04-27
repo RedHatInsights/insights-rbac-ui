@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -12,7 +12,12 @@ const Users = () => {
   const description = (
     <ActiveUser
       description="These are all of the users in your Red Hat organization. To add new users or manage existing users, go to your"
-    />);
+    />
+  );
+
+  useEffect(() => {
+    insights.chrome.appNavClick({ id: 'users', secondaryNav: true });
+  }, []);
 
   const renderUsers = () => <Stack >
     <StackItem>
