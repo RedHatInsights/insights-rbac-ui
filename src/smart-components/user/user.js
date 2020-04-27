@@ -44,7 +44,6 @@ const User = ({
     rolesWithAccess
 }) => {
 
-    const [ rows, setRows ] = useState([]);
     const [ filter, setFilter ] = useState('');
     const [ expanded, setExpanded ] = useState({});
 
@@ -86,10 +85,7 @@ const User = ({
                             aria-label="Simple Table"
                             variant={ TableVariant.compact }
                             cells={ [ 'Application', 'Resource type', 'Operation' ] }
-                            rows={ rolesWithAccess[uuid].access.map(access => {
-                                const permissions = access.permission.split(':');
-                                return { cells: permissions };
-                            }) }>
+                            rows={ rolesWithAccess[uuid].access.map(access => ({ cells: access.permission.split(':') })) }>
                             <TableHeader />
                             <TableBody />
                         </Table>
@@ -108,38 +104,16 @@ const User = ({
 
     }, []);
 
-    useEffect(() => {
-        if (!isLoading) {
-            setRows(createRows(roles.data));
-        }
-    }, [ roles ]);
-
-    useEffect(() => {
-        setRows(createRows(roles.data));
-    }, [ rolesWithAccess ]);
-
-    const onExpand = (event, rowIndex, colIndex, isOpen, rowData) => {
-        const r = [ ...rows ];
+    const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
         if (!isOpen) {
             setExpanded({ ...expanded, [rowData.uuid]: colIndex });
             // Permissions
             if (colIndex === 2) {
                 fetchRoleForUser(rowData.uuid);
             }
-
-            // set all other expanded cells false in this row if we are expanding
-            r[rowIndex].cells.forEach(cell => {
-                if (cell.props) {cell.props.isOpen = false;}
-            });
-            r[rowIndex].cells[colIndex].props.isOpen = true;
-            r[rowIndex].isOpen = true;
         } else {
             setExpanded({ ...expanded, [rowData.uuid]: -1 });
-            r[rowIndex].cells[colIndex].props.isOpen = false;
-            r[rowIndex].isOpen = r[rowIndex].cells.some(cell => cell.props && cell.props.isOpen);
         }
-
-        setRows(r);
     };
 
     return (<Stack >
