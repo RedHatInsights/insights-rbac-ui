@@ -62,8 +62,8 @@ const User = ({
                 parent: 3 * i,
                 compoundParent: 1,
                 cells: [{
+                    props: { colSpan: 4, className: 'pf-m-no-padding' },
                     title: <Table
-                        props={ { colSpan: 4, className: 'pf-m-no-padding' } }
                         aria-label="Simple Table"
                         variant={ TableVariant.compact }
                         cells={ [ 'Name', 'Description' ] }
@@ -80,9 +80,9 @@ const User = ({
                 parent: 3 * i,
                 compoundParent: 2,
                 cells: [{
+                    props: { colSpan: 4, className: 'pf-m-no-padding' },
                     title: rolesWithAccess && rolesWithAccess[uuid]
                         ? <Table
-                            props={ { colSpan: 4, className: 'pf-m-no-padding' } }
                             aria-label="Simple Table"
                             variant={ TableVariant.compact }
                             cells={ [ 'Application', 'Resource type', 'Operation' ] }
