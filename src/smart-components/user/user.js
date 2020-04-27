@@ -166,9 +166,9 @@ const User = ({
                         setFilterValue={ ({ name }) =>  setFilter(name) }
                         isLoading={ isLoading }
                         pagination={ roles.meta }
-                        filterPlaceholder="exact username"
-                        titlePlural="users"
-                        titleSingular="user"
+                        filterPlaceholder="role name"
+                        titlePlural="roles"
+                        titleSingular="role"
                         />
                 </Section>
             </StackItem>
