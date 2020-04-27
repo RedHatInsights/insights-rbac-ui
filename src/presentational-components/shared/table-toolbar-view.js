@@ -35,7 +35,9 @@ export const TableToolbarView = ({
   filterPlaceholder,
   rowWrapper,
   textFilters,
-  sortBy
+  sortBy,
+  isExpandable,
+  onExpand
 }) => {
   const [ opened, openRow ] = useState({});
   const [ sortByState, setSortByState ] = useState({ index: undefined, direction: undefined });
@@ -120,6 +122,7 @@ export const TableToolbarView = ({
           onSelect: (_e, isSelected, _idx, { uuid, cells: [ name ] }) =>
             setCheckedItems(selectedRows([{ uuid, name }], isSelected))
         } }
+        { ...isExpandable && { onExpand } }
         rows={ rows.length > 0 ? rows : [{ fullWidth: true, cells: [ renderEmpty() ]}] }
         cells={ columns }
         { ...rows.length > 0 && { actionResolver } }
@@ -184,7 +187,9 @@ TableToolbarView.propTypes = {
   areActionsDisabled: propTypes.func,
   pagination: propTypes.shape({
     noBottom: propTypes.bool
-  })
+  }),
+  isExpandable: propTypes.bool,
+  onExpand: propTypes.func
 };
 
 TableToolbarView.defaultProps = {
