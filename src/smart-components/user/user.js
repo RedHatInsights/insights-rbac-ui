@@ -5,8 +5,8 @@ import { Link } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
-import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -41,14 +41,11 @@ const User = ({
     fetchRoleForUser,
     roles,
     isLoading,
-    rolesWithAccess,
-    isRecordLoading
+    rolesWithAccess
 }) => {
 
     const [ rows, setRows ] = useState([]);
     const [ filter, setFilter ] = useState('');
-    const [ page, setPage ] = useState(1);
-    const [ perPage, setPerPage ] = useState(20);
     const [ expanded, setExpanded ] = useState({});
 
     const createRows = (data) => {
@@ -66,7 +63,7 @@ const User = ({
                 compoundParent: 1,
                 cells: [{
                     title: <Table
-                        props={ { colSpan: 2, className: 'pf-m-no-padding' } }
+                        props={ { colSpan: 4, className: 'pf-m-no-padding' } }
                         aria-label="Simple Table"
                         variant={ TableVariant.compact }
                         cells={ [ 'Name', 'Description' ] }
@@ -83,9 +80,9 @@ const User = ({
                 parent: 3 * i,
                 compoundParent: 2,
                 cells: [{
-                    title: !isRecordLoading && rolesWithAccess && rolesWithAccess[uuid]
+                    title: rolesWithAccess && rolesWithAccess[uuid]
                         ? <Table
-                            props={ { colSpan: 3, className: 'pf-m-no-padding' } }
+                            props={ { colSpan: 4, className: 'pf-m-no-padding' } }
                             aria-label="Simple Table"
                             variant={ TableVariant.compact }
                             cells={ [ 'Application', 'Resource type', 'Operation' ] }
@@ -121,13 +118,6 @@ const User = ({
         setRows(createRows(roles.data));
     }, [ rolesWithAccess ]);
 
-    useEffect(() => {
-        debouncedFetch(perPage, perPage * (page - 1), filter, [ 'groups_in' ], username);
-    }, [ filter ]);
-    useEffect(() => {
-        fetchRoles({ limit: perPage, offset: perPage * (page - 1), name: filter, addFields: [ 'groups_in' ], username });
-    }, [ page, perPage ]);
-
     const onExpand = (event, rowIndex, colIndex, isOpen, rowData) => {
         const r = [ ...rows ];
         if (!isOpen) {
@@ -152,9 +142,6 @@ const User = ({
         setRows(r);
     };
 
-    const onSetPage = (_e, page) => setPage(page);
-    const onPerPageSelect = (_e, perPage) => setPerPage(perPage);
-
     return (<Stack >
             <StackItem>
                 <TopToolbar paddingBottm={ false }>
@@ -165,35 +152,27 @@ const User = ({
                 </TopToolbar>
             </StackItem>
             <StackItem>
-                <Section type="content" id={ 'user-detail2' }>
-                <PrimaryToolbar
-                    filterConfig={ { items: [{ label: 'Role',
-                        filterValues: {
-                            value: filter,
-                            placeholder: 'Filter by role name',
-                            onChange: (e, selected) =>setFilter(selected)
-                        }
-                    }]} }
-                    pagination={ { itemCount: roles.meta.count, page, perPage, onSetPage, onPerPageSelect } }
-                />
-                { isLoading
-                ? <ListLoader />
-                : <Table
-                    className='ins-c-activity-table'
-                    aria-label="Collapsible table"
-                    onExpand={ onExpand }
-                    rows={ rows }
-                    cells={ columns }>
-                    <TableHeader >
-
-                    </TableHeader>
-
-                    <TableBody />
-                </Table>
-                }
+                <Section type="content" id={ 'user-detail' }>
+                        <TableToolbarView
+                        columns={ columns }
+                        isCompact={ false }
+                        isExpandable={ true }
+                        onExpand={ onExpand }
+                        createRows={ createRows }
+                        data={ roles.data }
+                        filterValue={ filter }
+                        fetchData={ ({ limit, offset, name }) => {
+                            debouncedFetch(limit, offset, name, [ 'groups_in' ], username);} }
+                        setFilterValue={ ({ name }) =>  setFilter(name) }
+                        isLoading={ isLoading }
+                        pagination={ roles.meta }
+                        filterPlaceholder="exact username"
+                        titlePlural="users"
+                        titleSingular="user"
+                        />
                 </Section>
             </StackItem>
-            </Stack>
+        </Stack>
     );
 };
 
@@ -203,15 +182,13 @@ User.propTypes = {
     fetchRoleForUser: PropTypes.func,
     roles: PropTypes.object,
     isLoading: PropTypes.bool,
-    rolesWithAccess: PropTypes.object,
-    isRecordLoading: PropTypes.bool
+    rolesWithAccess: PropTypes.object
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess, isRecordLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess }}) => ({
     roles,
     isLoading,
-    rolesWithAccess,
-    isRecordLoading
+    rolesWithAccess
 });
 
 const mapDispatchToProps = dispatch => ({
