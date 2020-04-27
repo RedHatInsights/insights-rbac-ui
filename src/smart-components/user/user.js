@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import AwesomeDebouncePromise from 'awesome-debounce-promise';
 import { Link } from 'react-router-dom';
+import debounce from 'lodash/debounce';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
@@ -105,8 +105,9 @@ const User = ({
 
     useEffect(() => {
         fetchRoles({ limit: 20, offset: 0, addFields: [ 'groups_in' ], username });
-        // eslint-disable-next-line new-cap
-        debouncedFetch = AwesomeDebouncePromise(fetchRoles, 500);
+        debouncedFetch = debounce(
+                (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }),
+            500);
 
     }, []);
 
@@ -121,9 +122,8 @@ const User = ({
     }, [ rolesWithAccess ]);
 
     useEffect(() => {
-        debouncedFetch({ limit: perPage, offset: perPage * (page - 1), name: filter, addFields: [ 'groups_in' ], username });
+        debouncedFetch(perPage, perPage * (page - 1), filter, [ 'groups_in' ], username);
     }, [ filter ]);
-
     useEffect(() => {
         fetchRoles({ limit: perPage, offset: perPage * (page - 1), name: filter, addFields: [ 'groups_in' ], username });
     }, [ page, perPage ]);
@@ -201,7 +201,7 @@ User.propTypes = {
     match: PropTypes.object,
     fetchRoles: PropTypes.func,
     fetchRoleForUser: PropTypes.func,
-    roles: PropTypes.array,
+    roles: PropTypes.object,
     isLoading: PropTypes.bool,
     rolesWithAccess: PropTypes.object,
     isRecordLoading: PropTypes.bool
