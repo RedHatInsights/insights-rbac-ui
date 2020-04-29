@@ -80,8 +80,7 @@ const GroupRoles = ({
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
   disableAddRoles,
-  addNotification,
-  fetchGroup
+  addNotification
 }) => {
   const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
@@ -118,7 +117,7 @@ const GroupRoles = ({
         {
           title: 'Remove',
           onClick: (_event, _rowId, role) => {
-            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchGroup(uuid)));
+            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
             setDeleteInfo({
               title: 'Remove role?',
               confirmButtonLabel: 'Remove role',
@@ -134,7 +133,7 @@ const GroupRoles = ({
     <Route path={ `/groups/detail/:uuid/roles/add_roles` }
       render={ args => <AddGroupRoles
         fetchData={ fetchRoles }
-        fetchGroup={ fetchGroup }
+        fetchRolesForGroup={ () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid) }
         selectedRoles={ selectedAddRoles }
         setSelectedRoles={ setSelectedAddRoles }
         closeUrl={ `/groups/detail/${uuid}/roles` }
@@ -168,7 +167,7 @@ const GroupRoles = ({
           },
           onClick: () => {
             const multipleRolesSelected = selectedRoles.length > 1;
-            setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
+            setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
             setDeleteInfo({
               title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',
               confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
@@ -304,8 +303,7 @@ GroupRoles.propTypes = {
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
   disableAddRoles: PropTypes.bool.isRequired,
-  addNotification: PropTypes.func,
-  fetchGroup: PropTypes.func
+  addNotification: PropTypes.func
 };
 
 GroupRoles.defaultProps = {
