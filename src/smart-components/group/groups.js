@@ -37,6 +37,7 @@ const Groups = () => {
   }), shallowEqual);
 
   useEffect(() => {
+    insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
     dispatch(fetchGroups({ ...pagination, name: filterValue }));
   }, []);
 
