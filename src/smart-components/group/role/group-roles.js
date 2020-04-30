@@ -200,7 +200,7 @@ const GroupRoles = ({
           setShowRemoveModal(false);
           confirmDelete();
           setSelectedRoles([]);
-          onDefaultGroupChanged(isDefault);
+          onDefaultGroupChanged(isDefault && !isChanged);
         } }
       />
 
