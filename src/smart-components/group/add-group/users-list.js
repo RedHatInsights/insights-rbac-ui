@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { Link } from 'react-router-dom';
+
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
@@ -18,7 +20,7 @@ const columns = [
   { title: 'Last name' }
 ];
 
-const createRows = (data, expanded, checkedRows = []) => {
+const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
   return data ? data.reduce((acc, { username, is_active: isActive, email, first_name, last_name }) => ([
     ...acc, {
       uuid: username,
@@ -31,13 +33,13 @@ const createRows = (data, expanded, checkedRows = []) => {
         props: {
           data: { isActive }
         }
-      }, username, email, first_name, last_name ],
+      }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, first_name, last_name ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];
 };
 
-const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, props }) => {
+const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
   const [ filterValue, setFilterValue ] = useState('');
 
   useEffect(() => {
@@ -55,7 +57,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     isSelectable={ true }
     isCompact={ true }
     borders={ false }
-    createRows={ createRows }
+    createRows={ createRows(userLinks) }
     data={ users }
     filterValue={ filterValue }
     fetchData={ (config) => fetchUsers(mappedProps(config)) }
@@ -119,13 +121,15 @@ UsersList.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number
   }),
+  userLinks: PropTypes.bool,
   props: PropTypes.object
 };
 
 UsersList.defaultProps = {
   users: [],
   selectedUsers: [],
-  setSelectedUsers: () => undefined
+  setSelectedUsers: () => undefined,
+  userLinks: false
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);

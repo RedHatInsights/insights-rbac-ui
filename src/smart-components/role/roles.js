@@ -44,6 +44,7 @@ const Roles = () => {
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
+    insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...pagination, name: filterValue });
     window.insights.chrome.getUserPermissions('cost-management').then(
       allPermissions => {
