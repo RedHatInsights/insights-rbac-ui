@@ -35,6 +35,7 @@ global.insights = {
     auth: {
       getUser: () => new Promise(resolve => resolve(true))
     },
+    appNavClick: () => Promise.resolve(),
     getUserPermissions: () => Promise.resolve([]),
     isBeta: () => true
   }
