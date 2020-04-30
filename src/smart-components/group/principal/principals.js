@@ -64,7 +64,10 @@ const GroupPrincipals = () => {
   };
 
   const removeMembers = (userNames) => {
-    return dispatch(removeMembersFromGroup(uuid, userNames)).then(() => { setSelectedPrincipals([]); fetchData();});
+    return dispatch(removeMembersFromGroup(uuid, userNames)).then(() => {
+      setSelectedPrincipals([]);
+      fetchData(undefined, { ...pagination, offset: 0 });
+    });
   };
 
   const actionResolver = () =>
