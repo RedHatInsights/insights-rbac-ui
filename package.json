@@ -12,7 +12,7 @@
     "@patternfly/react-table": "^2.28.9",
     "@redhat-cloud-services/frontend-components": "1.0.2",
     "@redhat-cloud-services/frontend-components-notifications": "1.0.1",
-    "@redhat-cloud-services/frontend-components-utilities": "1.0.0",
+    "@redhat-cloud-services/frontend-components-utilities": "1.0.3",
     "@redhat-cloud-services/rbac-client": "^1.0.61",
     "axios-mock-adapter": "^1.17.0",
     "babel-loader": "^8.0.6",
