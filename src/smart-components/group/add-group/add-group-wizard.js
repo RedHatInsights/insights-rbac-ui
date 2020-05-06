@@ -37,12 +37,12 @@ const AddGroupWizard = ({
       component: new GroupInformation(formData, handleChange, setIsGroupInfoValid),
       enableNext: isGroupInfoValid
     },
-    { name: 'Add members',
-      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
-    },
     {
       name: 'Assign roles',
       component: new SetRoles({ formData, selectedRoles, setSelectedRoles })
+    },
+    { name: 'Add members',
+      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
     },
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
