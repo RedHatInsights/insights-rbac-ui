@@ -169,7 +169,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                               className="data-table-detail heading content"
                               data-pf-content={true}
                             >
-                              Member(s)
+                              Role(s)
                             </h5>
                           </Text>
                         </div>
@@ -213,7 +213,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                               className="data-table-detail heading content"
                               data-pf-content={true}
                             >
-                              Role(s)
+                              Member(s)
                             </h5>
                           </Text>
                         </div>
