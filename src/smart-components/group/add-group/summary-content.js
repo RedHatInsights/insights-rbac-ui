@@ -46,6 +46,18 @@ const SummaryContent = (formData) => {
                 </GridItem>
               </Grid>
               <Grid gutter="md">
+                <GridItem span={ 2 }>
+                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Role(s)</Text>
+                </GridItem>
+                <GridItem span={ 10 }>
+                  <Text
+                    className="groups-table-detail content"
+                    component={ TextVariants.h5 }>
+                    {selectedRoles.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{role.label}</Text>)}
+                  </Text>
+                </GridItem>
+              </Grid>
+              <Grid gutter="md">
                 <GridItem span = { 2 }>
                   <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Member(s)</Text>
                 </GridItem>
@@ -54,18 +66,6 @@ const SummaryContent = (formData) => {
                     className="groups-table-detail content"
                     component={ TextVariants.h5 }>
                     { selectedUsers.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{ role.label }</Text>) }
-                  </Text>
-                </GridItem>
-              </Grid>
-              <Grid gutter="md">
-                <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Role(s)</Text>
-                </GridItem>
-                <GridItem span= { 10 }>
-                  <Text
-                    className="groups-table-detail content"
-                    component={ TextVariants.h5 }>
-                    { selectedRoles.map((role, index) => <Text className= "pf-u-mb-0" key={ index }>{ role.label }</Text>)  }
                   </Text>
                 </GridItem>
               </Grid>
