@@ -41,6 +41,7 @@ const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
 
 const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ emailValue, setEmailValue ] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -60,8 +61,13 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     createRows={ createRows(userLinks) }
     data={ users }
     filterValue={ filterValue }
-    fetchData={ (config) => fetchUsers(mappedProps(config)) }
-    setFilterValue={ ({ name }) => setFilterValue(name) }
+    fetchData={ (config) => {
+      fetchUsers(mappedProps(config));
+    } }
+    setFilterValue={ ({ username, email }) => {
+      typeof username !== 'undefined' && setFilterValue(username);
+      typeof email !== 'undefined' && setEmailValue(email);
+    } }
     isLoading={ isLoading }
     pagination={ pagination }
     checkedRows={ selectedUsers }
@@ -71,9 +77,12 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       direction: 'asc'
     } }
     rowWrapper={ UsersRow }
-    filterPlaceholder="exact username"
     titlePlural="users"
     titleSingular="user"
+    textFilters={ [
+      { key: 'username', value: filterValue, isExact: true },
+      { key: 'email', value: emailValue, isExact: true }
+    ] }
     { ...props }
   />;
 };
