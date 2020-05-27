@@ -100,4 +100,26 @@ describe('<Users />', () => {
     ];
     expect(store.getActions()).toEqual(expectedPayload);
   });
+
+  it('should fetch users on filter', async() => {
+    const store = mockStore(initialState);
+    mock.onGet('/api/rbac/v1/principals/?limit=20&sort_order=asc').replyOnce(200, {});
+    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=desc').replyOnce(200, {});
+    const wrapper = mount(<Provider store={ store }>
+      <Router initialEntries={ [ '/users' ] }>
+        <Users />
+      </Router>
+    </Provider>);
+    const target = wrapper.find('input#filter-by-username');
+    target.getDOMNode().value = 'something';
+    await act(async () => {
+      target.simulate('change');
+    });
+    const expectedPayload = [
+      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+
+      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })
+    ];
+    expect(store.getActions()).toEqual(expectedPayload);
+  });
 });
