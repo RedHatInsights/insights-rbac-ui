@@ -1,6 +1,5 @@
 import React from 'react';
-import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components/components/PrimaryToolbar';
-import { ConditionalFilter } from '@redhat-cloud-services/frontend-components/components/ConditionalFilter';
+import { PrimaryToolbar, ConditionalFilter } from '@redhat-cloud-services/frontend-components';
 import PropTypes from 'prop-types';
 import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
