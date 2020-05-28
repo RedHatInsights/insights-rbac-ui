@@ -228,8 +228,8 @@ const GroupRoles = ({
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
           textFilters={ [
-            { key: 'name', value: filterValue, isExact: false },
-            { key: 'description', value: descriptionValue, isExact: false }
+            { key: 'name', value: filterValue },
+            { key: 'description', value: descriptionValue }
           ] }
         />
       </Section>

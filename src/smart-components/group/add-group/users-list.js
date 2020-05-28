@@ -80,8 +80,8 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     titlePlural="users"
     titleSingular="user"
     textFilters={ [
-      { key: 'username', value: filterValue, isExact: true },
-      { key: 'email', value: emailValue, isExact: true }
+      { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
+      { key: 'email', value: emailValue, placeholder: 'Filter by exact email' }
     ] }
     { ...props }
   />;

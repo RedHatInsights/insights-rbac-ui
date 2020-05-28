@@ -69,13 +69,13 @@ export const filterConfigBuilder = (
   textFilters,
   sortBy
 ) => ({
-  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, isExact }) => ({
+  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder }) => ({
     label: firstUpperCase(key),
     type: 'text',
     filterValues: {
       id: `filter-by-${key}`,
       key: `filter-by-${key}`,
-      placeholder: `Filter by ${isExact ? 'exact ' : '' }${key}`,
+      placeholder: placeholder ? placeholder : `Filter by ${key}`,
       value,
       onChange: (_e, filterBy) => {
         setFilterValue({
@@ -218,7 +218,7 @@ Toolbar.propTypes = {
   textFilters: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
     key: PropTypes.string,
-    isExact: PropTypes.bool
+    placeholder: PropTypes.string
   })),
   pagination: PropTypes.shape({
     limit: PropTypes.number,
