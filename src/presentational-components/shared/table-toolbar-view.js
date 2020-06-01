@@ -163,7 +163,7 @@ export const TableToolbarView = ({
           title={ `Configure ${titlePlural}` }
           icon={ PlusCircleIcon }
           description={ [
-            `To configure user access to applicastions`,
+            `To configure user access to applications`,
             `create at least one ${titleSingular}`
           ] }
           actions={ toolbarButtons()[0] }
