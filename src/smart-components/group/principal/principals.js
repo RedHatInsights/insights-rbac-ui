@@ -1,4 +1,5 @@
 /* eslint-disable camelcase */
+import { cellWidth } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useParams } from 'react-router-dom';
@@ -10,12 +11,14 @@ import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } fro
 import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import UsersRow from '../../../presentational-components/shared/UsersRow';
 
 const columns = [
+  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
   { title: 'Username' },
-  'Email',
-  'Last name',
-  'First name'
+  { title: 'Email' },
+  { title: 'Last name' },
+  { title: 'First name' }
 ];
 
 const selector = ({ groupReducer: { groups, selectedGroup }}) => ({
@@ -178,6 +181,7 @@ const GroupPrincipals = () => {
               setFilterValue={ ({ name }) => setFilterValue(name) }
               checkedRows={ selectedPrincipals }
               isLoading={ isLoading }
+              rowWrapper={ UsersRow }
               setCheckedItems={ setCheckedPrincipals }
               toolbarButtons={ toolbarButtons }
               emptyProps={ { title: 'There are no members in this group', description: [ 'Add a user to configure user access.', '' ]} }

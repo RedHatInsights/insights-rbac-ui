@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
-
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers } from '../../../redux/actions/user-actions';
@@ -11,6 +10,7 @@ import { Label } from '@patternfly/react-core';
 import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
+import classNames from 'classnames';
 
 const columns = [
   { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
@@ -21,19 +21,19 @@ const columns = [
 ];
 
 const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name, last_name }) => ([
+  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName }) => ([
     ...acc, {
       uuid: username,
       cells: [{
           title: (
-            <Label isCompact className={ `ins-c-rbac__user-label ${isActive ? '' : 'ins-m-inactive'}` }>
-            {isActive ? 'Active' : 'Inactive'}
-          </Label>
+            <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
+              {isActive ? 'Active' : 'Inactive'}
+            </Label>
         ),
         props: {
           data: { isActive }
         }
-      }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, first_name, last_name ],
+      }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, firstName, lastName ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];
