@@ -19,8 +19,10 @@ describe('<GroupPrincipals />', () => {
     mockStore = configureStore(middlewares);
     initialState = { groupReducer: { groups: {}, selectedGroup: { members: {
       isLoading: false,
-      meta: { count: 1, offset: 0, limit: 10 },
-      data: [{ username: 'test', email: 'test', first_name: 'test', last_name: 'test' }]
+      meta: { count: 2, offset: 0, limit: 10 },
+      data: [
+        { username: 'test', email: 'test', first_name: 'test', last_name: 'test', is_active: true },
+        { username: 'test2', email: 'test2', first_name: 'test2', last_name: 'test2', is_active: false }]
     }}}};
     mock.onGet(`${RBAC_API_BASE}/groups/test-group/principals/`).replyOnce(200);
   });
