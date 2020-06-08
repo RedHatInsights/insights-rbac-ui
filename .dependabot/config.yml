@@ -6,7 +6,6 @@ update_configs:
     default_reviewers:
       - "karelhala"
       - "ryelo"
-      - "tahmidefaz"
       - "panspagetka"
     allowed_updates:
       - match:
