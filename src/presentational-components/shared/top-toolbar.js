@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextContent, TextVariants  } from '@patternfly/react-core';
+import { Text, TextContent, TextVariants, Flex, FlexItem, FlexModifiers } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
@@ -33,9 +33,16 @@ TopToolbar.defaultProps = {
   paddingBottom: false
 };
 
-export const TopToolbarTitle = ({ title, description, children }) => (
+export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
   <Fragment>
-    <PageHeaderTitle title={ title || <ToolbarTitlePlaceholder /> } className='ins-rbac-page-header__title'/>
+    <Flex>
+      <FlexItem breakpointMods={ [{ modifier: FlexModifiers['spacer-sm'] }] }>
+        <PageHeaderTitle title={ title || <ToolbarTitlePlaceholder /> } className='ins-rbac-page-header__title'/>
+      </FlexItem>
+      <FlexItem breakpointMods={ [{ modifier: FlexModifiers['align-self-center'] }] }>
+        { renderTitleTag && renderTitleTag() }
+      </FlexItem>
+    </Flex>
     { description &&
       <TextContent className="ins-rbac-page-header__description">
         <Text component={ TextVariants.p }>{ description }</Text>
@@ -47,6 +54,7 @@ export const TopToolbarTitle = ({ title, description, children }) => (
 
 TopToolbarTitle.propTypes = {
   title: PropTypes.string,
+  renderTitleTag: PropTypes.func,
   description: PropTypes.string,
   children: PropTypes.oneOfType([
     PropTypes.node,
