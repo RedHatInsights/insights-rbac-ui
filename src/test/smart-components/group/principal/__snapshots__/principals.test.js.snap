@@ -14,11 +14,24 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   columns={
     Array [
       Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+      Object {
         "title": "Username",
       },
-      "Email",
-      "Last name",
-      "First name",
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
     ]
   }
   createRows={[Function]}
@@ -27,9 +40,18 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
       Object {
         "email": "test",
         "first_name": "test",
+        "is_active": true,
         "last_name": "test",
         "username": "test",
         "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
       },
     ]
   }
@@ -52,12 +74,13 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   isSelectable={false}
   pagination={
     Object {
-      "count": 1,
+      "count": 2,
       "limit": 10,
       "offset": 0,
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   textFilters={Array []}
@@ -180,11 +203,24 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   columns={
     Array [
       Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+      Object {
         "title": "Username",
       },
-      "Email",
-      "Last name",
-      "First name",
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
     ]
   }
   createRows={[Function]}
@@ -193,9 +229,18 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       Object {
         "email": "test",
         "first_name": "test",
+        "is_active": true,
         "last_name": "test",
         "username": "test",
         "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
       },
     ]
   }
@@ -218,12 +263,13 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   isSelectable={false}
   pagination={
     Object {
-      "count": 1,
+      "count": 2,
       "limit": 10,
       "offset": 0,
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   textFilters={Array []}
