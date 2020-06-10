@@ -3,12 +3,16 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
+import { Section, DateFormat, Skeleton } from '@redhat-cloud-services/frontend-components';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
+import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
+import classNames from 'classnames';
+import { defaultSettings } from '../../helpers/shared/pagination';
+import './user.scss';
 
 import {
     Table,
@@ -39,10 +43,16 @@ const User = ({
     match: { params: { username }},
     fetchRoles,
     fetchRoleForUser,
+    fetchUsers,
     roles,
     isLoading,
-    rolesWithAccess
+    rolesWithAccess,
+    user
 }) => {
+
+    useEffect(() => {
+        fetchUsers({ ...defaultSettings, limit: 0,  username });
+      }, []);
 
     const [ filter, setFilter ] = useState('');
     const [ expanded, setExpanded ] = useState({});
@@ -120,8 +130,13 @@ const User = ({
             <StackItem>
                 <TopToolbar paddingBottm={ false }>
                     <TopToolbarTitle
-                    title={ username }
-                    description={ `${username}'s roles, groups and permissions.` }
+                        title={ username }
+                        renderTitleTag={ () => user ? (
+                            <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active }) }>
+                                { user?.is_active ? 'Active' : 'Inactive'}
+                            </Label>
+                        ) : <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton> }
+                        description={ `${username}'s roles, groups and permissions.` }
                     />
                 </TopToolbar>
             </StackItem>
@@ -154,20 +169,27 @@ User.propTypes = {
     match: PropTypes.object,
     fetchRoles: PropTypes.func,
     fetchRoleForUser: PropTypes.func,
+    fetchUsers: PropTypes.func,
     roles: PropTypes.object,
     isLoading: PropTypes.bool,
-    rolesWithAccess: PropTypes.object
+    rolesWithAccess: PropTypes.object,
+    user: PropTypes.object
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess }}) => ({
+const mapStateToProps = ({
+    roleReducer: { roles, isLoading, rolesWithAccess },
+    userReducer: { users: { data }}
+}) => ({
     roles,
     isLoading,
-    rolesWithAccess
+    rolesWithAccess,
+    user: data && data[0]
 });
 
 const mapDispatchToProps = dispatch => ({
     fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
-    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid))
+    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid)),
+    fetchUsers: (apiProps) => dispatch(fetchUsers(apiProps))
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(User);

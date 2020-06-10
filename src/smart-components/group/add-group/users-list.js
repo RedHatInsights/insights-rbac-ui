@@ -92,7 +92,8 @@ const mapStateToProps = ({ userReducer: { users, isUserDataLoading }}) => {
     users: users.data && users.data.map(data => ({ ...data, uuid: data.username })),
     pagination: users.meta,
     isLoading: isUserDataLoading
-  };};
+  };
+};
 
 const mapDispatchToProps = dispatch => {
   return {
