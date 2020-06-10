@@ -121,7 +121,7 @@ export const removeMembersFromGroup = (groupId, members) => ({
       },
       rejected: {
         variant: 'danger',
-        title: 'Failed removing members to group',
+        title: 'Failed removing members from group',
         dismissDelay: 8000,
         dismissable: false,
         description: 'The members were not removed successfully.'
@@ -182,7 +182,7 @@ export const removeRolesFromGroup = (groupId, roles) => ({
       },
       rejected: {
         variant: 'danger',
-        title: 'Failed removing roles to group',
+        title: 'Failed removing roles from group',
         dismissDelay: 8000,
         dismissable: false,
         description: 'The roles were not removed successfully.'
