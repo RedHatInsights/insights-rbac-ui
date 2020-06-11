@@ -122,12 +122,13 @@ const GroupPrincipals = () => {
           },
           onClick: () => {
             const multipleMembersSelected = selectedPrincipals.length > 1;
-            setConfirmDelete(() => () => removeMembers(selectedPrincipals.map(user => user.name || user.username)));
+            const removeText = multipleMembersSelected ? 'Remove members?' : 'Remove member?';
+            setConfirmDelete(() => () => removeMembers(selectedPrincipals.map(user => user.uuid)));
             setDeleteInfo({
-              title: 'Remove members?',
-              confirmButtonLabel: multipleMembersSelected ? 'Remove members' : 'Remove member',
+              title: removeText,
+              confirmButtonLabel: removeText,
               text: removeModalText(
-                multipleMembersSelected ? selectedPrincipals.length : (selectedPrincipals[0].name || selectedPrincipals[0].username),
+                multipleMembersSelected ? selectedPrincipals.length : selectedPrincipals[0].uuid,
                 groupName,
                 multipleMembersSelected
               )
