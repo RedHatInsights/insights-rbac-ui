@@ -1,58 +1,2122 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<GroupPrincipals /> should render correctly 1`] = `
-<ContextProvider
-  value={null}
+<TableToolbarView
+  actionResolver={[Function]}
+  borders={true}
+  checkedRows={Array []}
+  columns={
+    Array [
+      Object {
+        "orderBy": "name",
+        "title": "Name",
+      },
+      Object {
+        "title": "Description",
+      },
+      Object {
+        "title": "Last modified",
+      },
+    ]
+  }
+  createRows={[Function]}
+  data={
+    Array [
+      Object {
+        "description": "Description",
+        "modified": "2020-03-31T19:06:06.682885Z",
+        "name": "User role",
+        "platform_default": true,
+        "system": true,
+        "uuid": "123",
+      },
+    ]
+  }
+  emptyProps={
+    Object {
+      "description": Array [
+        "Add a role to configure user access.",
+        "",
+      ],
+      "title": "There are no roles in this group",
+    }
+  }
+  fetchData={[Function]}
+  filterItems={Array []}
+  filterValue=""
+  isCollapsible={false}
+  isCompact={false}
+  isLoading={true}
+  isSelectable={true}
+  pagination={
+    Object {
+      "count": 1,
+      "itemCount": 0,
+      "limit": 20,
+      "offset": 0,
+    }
+  }
+  routes={[Function]}
+  setCheckedItems={[Function]}
+  setFilterValue={[Function]}
+  textFilters={
+    Array [
+      Object {
+        "key": "name",
+        "value": "",
+      },
+      Object {
+        "key": "description",
+        "value": "",
+      },
+    ]
+  }
+  titlePlural="roles"
+  titleSingular="role"
+  toolbarButtons={[Function]}
 >
-  <GroupRoles
-    addNotification={[Function]}
-    addRoles={[Function]}
-    disableAddRoles={true}
-    fetchAddRolesForGroup={[Function]}
-    fetchGroup={[Function]}
-    fetchRoles={[Function]}
-    fetchRolesForGroup={[Function]}
-    isChanged={true}
+  <Route
+    path="/groups/detail/:uuid/roles/add_roles"
+    render={[Function]}
+  />
+  <Toolbar
+    checkedRows={Array []}
+    data={
+      Array [
+        Object {
+          "description": "Description",
+          "modified": "2020-03-31T19:06:06.682885Z",
+          "name": "User role",
+          "platform_default": true,
+          "system": true,
+          "uuid": "123",
+        },
+      ]
+    }
+    fetchData={[Function]}
+    filterItems={Array []}
+    filterValue=""
+    isCollapsible={false}
     isLoading={true}
+    isSelectable={true}
     pagination={
       Object {
+        "count": 1,
         "itemCount": 0,
         "limit": 20,
         "offset": 0,
       }
     }
-    removeRoles={[Function]}
-    roles={Array []}
-    selectedRoles={Array []}
-    store={
-      Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      }
+    setCheckedItems={[Function]}
+    setFilterValue={[Function]}
+    textFilters={
+      Array [
+        Object {
+          "key": "name",
+          "value": "",
+        },
+        Object {
+          "key": "description",
+          "value": "",
+        },
+      ]
     }
-    userIdentity={Object {}}
-  />
-</ContextProvider>
+    titleSingular="role"
+    toolbarButtons={[Function]}
+  >
+    <PrimaryToolbar
+      actionsConfig={
+        Object {
+          "actions": Array [
+            <Link
+              className=""
+              onClick={[Function]}
+              to="/groups/detail/123/roles/add_roles"
+            >
+              <Unknown
+                aria-label="Add role"
+                id="add-role-btn"
+                variant="primary"
+              >
+                Add role
+              </Unknown>
+            </Link>,
+            Object {
+              "label": "Remove",
+              "onClick": [Function],
+              "props": Object {
+                "isDisabled": true,
+                "variant": "danger",
+              },
+            },
+          ],
+        }
+      }
+      activeFiltersConfig={
+        Object {
+          "filters": Array [],
+          "onDelete": [Function],
+        }
+      }
+      bulkSelect={
+        Object {
+          "checked": false,
+          "count": 0,
+          "items": Array [
+            Object {
+              "onClick": [Function],
+              "title": "Select none (0)",
+            },
+            Object {},
+          ],
+          "onSelect": [Function],
+        }
+      }
+      filterConfig={
+        Object {
+          "items": Array [
+            Object {
+              "filterValues": Object {
+                "id": "filter-by-name",
+                "isDisabled": true,
+                "key": "filter-by-name",
+                "onChange": [Function],
+                "placeholder": "Filter by name",
+                "value": "",
+              },
+              "label": "Name",
+              "type": "text",
+            },
+            Object {
+              "filterValues": Object {
+                "id": "filter-by-description",
+                "isDisabled": true,
+                "key": "filter-by-description",
+                "onChange": [Function],
+                "placeholder": "Filter by description",
+                "value": "",
+              },
+              "label": "Description",
+              "type": "text",
+            },
+          ],
+        }
+      }
+      toggleIsExpanded={[Function]}
+    >
+      <DataToolbar
+        className=" ins-c-primary-toolbar"
+        id="ins-primary-data-toolbar"
+        toggleIsExpanded={[Function]}
+      >
+        <div
+          className="pf-c-data-toolbar  ins-c-primary-toolbar"
+          id="ins-primary-data-toolbar"
+        >
+          <DataToolbarContent
+            breakpointMods={Array []}
+            isExpanded={false}
+            key=".0"
+            showClearFiltersButton={false}
+            toolbarId="ins-primary-data-toolbar"
+          >
+            <div
+              className="pf-c-data-toolbar__content"
+            >
+              <div
+                className="pf-c-data-toolbar__content-section"
+              >
+                <ForwardRef
+                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                  variant="filter-group"
+                >
+                  <DataToolbarGroupWithRef
+                    breakpointMods={Array []}
+                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                    innerRef={null}
+                    variant="filter-group"
+                  >
+                    <div
+                      className="pf-c-data-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                    >
+                      <DataToolbarItem>
+                        <div
+                          className="pf-c-data-toolbar__item"
+                        >
+                          <BulkSelect
+                            checked={false}
+                            className=""
+                            count={0}
+                            isDisabled={false}
+                            items={
+                              Array [
+                                Object {
+                                  "onClick": [Function],
+                                  "title": "Select none (0)",
+                                },
+                                Object {},
+                              ]
+                            }
+                            onSelect={[Function]}
+                          >
+                            <Dropdown
+                              className="ins-c-bulk-select"
+                              dropdownItems={
+                                Array [
+                                  <DropdownItem
+                                    component="button"
+                                    onClick={[Function]}
+                                  >
+                                    Select none (0)
+                                  </DropdownItem>,
+                                  <DropdownItem
+                                    component="button"
+                                    onClick={[Function]}
+                                  />,
+                                ]
+                              }
+                              isOpen={false}
+                              onSelect={[Function]}
+                              toggle={
+                                <DropdownToggle
+                                  isDisabled={false}
+                                  onToggle={[Function]}
+                                  splitButtonItems={
+                                    Array [
+                                      <React.Fragment>
+                                        <DropdownToggleCheckbox
+                                          aria-label="Select all"
+                                          className=""
+                                          id="toggle-checkbox"
+                                          isChecked={false}
+                                          isDisabled={false}
+                                          isValid={true}
+                                          onChange={[Function]}
+                                        >
+                                          
+                                        </DropdownToggleCheckbox>
+                                      </React.Fragment>,
+                                    ]
+                                  }
+                                />
+                              }
+                            >
+                              <Component
+                                className="ins-c-bulk-select"
+                                dropdownItems={
+                                  Array [
+                                    <DropdownItem
+                                      component="button"
+                                      onClick={[Function]}
+                                    >
+                                      Select none (0)
+                                    </DropdownItem>,
+                                    <DropdownItem
+                                      component="button"
+                                      onClick={[Function]}
+                                    />,
+                                  ]
+                                }
+                                isOpen={false}
+                                toggle={
+                                  <DropdownToggle
+                                    isDisabled={false}
+                                    onToggle={[Function]}
+                                    splitButtonItems={
+                                      Array [
+                                        <React.Fragment>
+                                          <DropdownToggleCheckbox
+                                            aria-label="Select all"
+                                            className=""
+                                            id="toggle-checkbox"
+                                            isChecked={false}
+                                            isDisabled={false}
+                                            isValid={true}
+                                            onChange={[Function]}
+                                          >
+                                            
+                                          </DropdownToggleCheckbox>
+                                        </React.Fragment>,
+                                      ]
+                                    }
+                                  />
+                                }
+                              >
+                                <ComponentWithOuia
+                                  component={[Function]}
+                                  componentProps={
+                                    Object {
+                                      "className": "ins-c-bulk-select",
+                                      "dropdownItems": Array [
+                                        <DropdownItem
+                                          component="button"
+                                          onClick={[Function]}
+                                        >
+                                          Select none (0)
+                                        </DropdownItem>,
+                                        <DropdownItem
+                                          component="button"
+                                          onClick={[Function]}
+                                        />,
+                                      ],
+                                      "isOpen": false,
+                                      "toggle": <DropdownToggle
+                                        isDisabled={false}
+                                        onToggle={[Function]}
+                                        splitButtonItems={
+                                          Array [
+                                            <React.Fragment>
+                                              <DropdownToggleCheckbox
+                                                aria-label="Select all"
+                                                className=""
+                                                id="toggle-checkbox"
+                                                isChecked={false}
+                                                isDisabled={false}
+                                                isValid={true}
+                                                onChange={[Function]}
+                                              >
+                                                
+                                              </DropdownToggleCheckbox>
+                                            </React.Fragment>,
+                                          ]
+                                        }
+                                      />,
+                                    }
+                                  }
+                                  consumerContext={null}
+                                >
+                                  <DropdownWithContext
+                                    autoFocus={true}
+                                    className="ins-c-bulk-select"
+                                    direction="down"
+                                    dropdownItems={
+                                      Array [
+                                        <DropdownItem
+                                          component="button"
+                                          onClick={[Function]}
+                                        >
+                                          Select none (0)
+                                        </DropdownItem>,
+                                        <DropdownItem
+                                          component="button"
+                                          onClick={[Function]}
+                                        />,
+                                      ]
+                                    }
+                                    isGrouped={false}
+                                    isOpen={false}
+                                    isPlain={false}
+                                    onSelect={[Function]}
+                                    ouiaComponentType="Dropdown"
+                                    ouiaContext={
+                                      Object {
+                                        "isOuia": false,
+                                        "ouiaId": null,
+                                      }
+                                    }
+                                    position="left"
+                                    toggle={
+                                      <DropdownToggle
+                                        isDisabled={false}
+                                        onToggle={[Function]}
+                                        splitButtonItems={
+                                          Array [
+                                            <React.Fragment>
+                                              <DropdownToggleCheckbox
+                                                aria-label="Select all"
+                                                className=""
+                                                id="toggle-checkbox"
+                                                isChecked={false}
+                                                isDisabled={false}
+                                                isValid={true}
+                                                onChange={[Function]}
+                                              >
+                                                
+                                              </DropdownToggleCheckbox>
+                                            </React.Fragment>,
+                                          ]
+                                        }
+                                      />
+                                    }
+                                  >
+                                    <div
+                                      className="pf-c-dropdown ins-c-bulk-select"
+                                    >
+                                      <DropdownToggle
+                                        ariaHasPopup={true}
+                                        id="pf-toggle-id-5"
+                                        isDisabled={false}
+                                        isOpen={false}
+                                        isPlain={false}
+                                        key=".0"
+                                        onEnter={[Function]}
+                                        onToggle={[Function]}
+                                        parentRef={
+                                          Object {
+                                            "current": <div
+                                              class="pf-c-dropdown ins-c-bulk-select"
+                                            >
+                                              <div
+                                                class="pf-c-dropdown__toggle pf-m-split-button"
+                                              >
+                                                <label
+                                                  class="pf-c-dropdown__toggle-check"
+                                                  for="toggle-checkbox"
+                                                >
+                                                  <input
+                                                    aria-invalid="false"
+                                                    aria-label="Select all"
+                                                    id="toggle-checkbox"
+                                                    type="checkbox"
+                                                  />
+                                                  
+                                                </label>
+                                                <button
+                                                  aria-expanded="false"
+                                                  aria-haspopup="true"
+                                                  aria-label="Select"
+                                                  class="pf-c-dropdown__toggle-button"
+                                                  id="pf-toggle-id-5"
+                                                  type="button"
+                                                >
+                                                  <svg
+                                                    aria-hidden="true"
+                                                    class=""
+                                                    fill="currentColor"
+                                                    height="1em"
+                                                    role="img"
+                                                    style="vertical-align: -0.125em;"
+                                                    viewBox="0 0 320 512"
+                                                    width="1em"
+                                                  >
+                                                    <path
+                                                      d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                      transform=""
+                                                    />
+                                                  </svg>
+                                                </button>
+                                              </div>
+                                            </div>,
+                                          }
+                                        }
+                                        splitButtonItems={
+                                          Array [
+                                            <React.Fragment>
+                                              <DropdownToggleCheckbox
+                                                aria-label="Select all"
+                                                className=""
+                                                id="toggle-checkbox"
+                                                isChecked={false}
+                                                isDisabled={false}
+                                                isValid={true}
+                                                onChange={[Function]}
+                                              >
+                                                
+                                              </DropdownToggleCheckbox>
+                                            </React.Fragment>,
+                                          ]
+                                        }
+                                      >
+                                        <div
+                                          className="pf-c-dropdown__toggle pf-m-split-button"
+                                        >
+                                          <DropdownToggleCheckbox
+                                            aria-label="Select all"
+                                            className=""
+                                            id="toggle-checkbox"
+                                            isChecked={false}
+                                            isDisabled={false}
+                                            isValid={true}
+                                            onChange={[Function]}
+                                          >
+                                            <label
+                                              className="pf-c-dropdown__toggle-check"
+                                              htmlFor="toggle-checkbox"
+                                            >
+                                              <input
+                                                aria-invalid={false}
+                                                aria-label="Select all"
+                                                checked={false}
+                                                disabled={false}
+                                                id="toggle-checkbox"
+                                                onChange={[Function]}
+                                                type="checkbox"
+                                              />
+                                            </label>
+                                          </DropdownToggleCheckbox>
+                                          <Toggle
+                                            aria-label="Select"
+                                            ariaHasPopup={true}
+                                            bubbleEvent={false}
+                                            className=""
+                                            id="pf-toggle-id-5"
+                                            isActive={false}
+                                            isDisabled={false}
+                                            isFocused={false}
+                                            isHovered={false}
+                                            isOpen={false}
+                                            isPlain={false}
+                                            isPrimary={false}
+                                            isSplitButton={true}
+                                            onEnter={[Function]}
+                                            onToggle={[Function]}
+                                            parentRef={
+                                              Object {
+                                                "current": <div
+                                                  class="pf-c-dropdown ins-c-bulk-select"
+                                                >
+                                                  <div
+                                                    class="pf-c-dropdown__toggle pf-m-split-button"
+                                                  >
+                                                    <label
+                                                      class="pf-c-dropdown__toggle-check"
+                                                      for="toggle-checkbox"
+                                                    >
+                                                      <input
+                                                        aria-invalid="false"
+                                                        aria-label="Select all"
+                                                        id="toggle-checkbox"
+                                                        type="checkbox"
+                                                      />
+                                                      
+                                                    </label>
+                                                    <button
+                                                      aria-expanded="false"
+                                                      aria-haspopup="true"
+                                                      aria-label="Select"
+                                                      class="pf-c-dropdown__toggle-button"
+                                                      id="pf-toggle-id-5"
+                                                      type="button"
+                                                    >
+                                                      <svg
+                                                        aria-hidden="true"
+                                                        class=""
+                                                        fill="currentColor"
+                                                        height="1em"
+                                                        role="img"
+                                                        style="vertical-align: -0.125em;"
+                                                        viewBox="0 0 320 512"
+                                                        width="1em"
+                                                      >
+                                                        <path
+                                                          d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                          transform=""
+                                                        />
+                                                      </svg>
+                                                    </button>
+                                                  </div>
+                                                </div>,
+                                              }
+                                            }
+                                          >
+                                            <button
+                                              aria-expanded={false}
+                                              aria-haspopup={true}
+                                              aria-label="Select"
+                                              className="pf-c-dropdown__toggle-button"
+                                              disabled={false}
+                                              id="pf-toggle-id-5"
+                                              onClick={[Function]}
+                                              onKeyDown={[Function]}
+                                              type="button"
+                                            >
+                                              <CaretDownIcon
+                                                className=""
+                                                color="currentColor"
+                                                noVerticalAlign={false}
+                                                size="sm"
+                                                title={null}
+                                              >
+                                                <svg
+                                                  aria-hidden={true}
+                                                  aria-labelledby={null}
+                                                  className=""
+                                                  fill="currentColor"
+                                                  height="1em"
+                                                  role="img"
+                                                  style={
+                                                    Object {
+                                                      "verticalAlign": "-0.125em",
+                                                    }
+                                                  }
+                                                  viewBox="0 0 320 512"
+                                                  width="1em"
+                                                >
+                                                  <path
+                                                    d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                    transform=""
+                                                  />
+                                                </svg>
+                                              </CaretDownIcon>
+                                            </button>
+                                          </Toggle>
+                                        </div>
+                                      </DropdownToggle>
+                                    </div>
+                                  </DropdownWithContext>
+                                </ComponentWithOuia>
+                              </Component>
+                            </Dropdown>
+                          </BulkSelect>
+                        </div>
+                      </DataToolbarItem>
+                      <DataToolbarItem
+                        className="ins-c-primary-toolbar__filter"
+                      >
+                        <div
+                          className="pf-c-data-toolbar__item ins-c-primary-toolbar__filter"
+                        >
+                          <ConditionalFilter
+                            hideLabel={false}
+                            isDisabled={false}
+                            items={
+                              Array [
+                                Object {
+                                  "filterValues": Object {
+                                    "id": "filter-by-name",
+                                    "isDisabled": true,
+                                    "key": "filter-by-name",
+                                    "onChange": [Function],
+                                    "placeholder": "Filter by name",
+                                    "value": "",
+                                  },
+                                  "label": "Name",
+                                  "type": "text",
+                                },
+                                Object {
+                                  "filterValues": Object {
+                                    "id": "filter-by-description",
+                                    "isDisabled": true,
+                                    "key": "filter-by-description",
+                                    "onChange": [Function],
+                                    "placeholder": "Filter by description",
+                                    "value": "",
+                                  },
+                                  "label": "Description",
+                                  "type": "text",
+                                },
+                              ]
+                            }
+                            value=""
+                          >
+                            <Split
+                              className="ins-c-conditional-filter"
+                            >
+                              <div
+                                className="pf-l-split ins-c-conditional-filter"
+                              >
+                                <SplitItem>
+                                  <div
+                                    className="pf-l-split__item"
+                                  >
+                                    <Dropdown
+                                      className="ins-c-conditional-filter__group"
+                                      dropdownItems={
+                                        Array [
+                                          <DropdownItem
+                                            component="button"
+                                            isHovered={true}
+                                            onClick={[Function]}
+                                          >
+                                            Name
+                                          </DropdownItem>,
+                                          <DropdownItem
+                                            component="button"
+                                            isHovered={false}
+                                            onClick={[Function]}
+                                          >
+                                            Description
+                                          </DropdownItem>,
+                                        ]
+                                      }
+                                      isOpen={false}
+                                      onSelect={[Function]}
+                                      toggle={
+                                        <DropdownToggle
+                                          className=""
+                                          isDisabled={false}
+                                          onToggle={[Function]}
+                                        >
+                                          <FilterIcon
+                                            color="currentColor"
+                                            noVerticalAlign={false}
+                                            size="sm"
+                                            title={null}
+                                          />
+                                          <span
+                                            className="ins-c-conditional-filter__value-selector"
+                                          >
+                                            Name
+                                          </span>
+                                        </DropdownToggle>
+                                      }
+                                    >
+                                      <Component
+                                        className="ins-c-conditional-filter__group"
+                                        dropdownItems={
+                                          Array [
+                                            <DropdownItem
+                                              component="button"
+                                              isHovered={true}
+                                              onClick={[Function]}
+                                            >
+                                              Name
+                                            </DropdownItem>,
+                                            <DropdownItem
+                                              component="button"
+                                              isHovered={false}
+                                              onClick={[Function]}
+                                            >
+                                              Description
+                                            </DropdownItem>,
+                                          ]
+                                        }
+                                        isOpen={false}
+                                        toggle={
+                                          <DropdownToggle
+                                            className=""
+                                            isDisabled={false}
+                                            onToggle={[Function]}
+                                          >
+                                            <FilterIcon
+                                              color="currentColor"
+                                              noVerticalAlign={false}
+                                              size="sm"
+                                              title={null}
+                                            />
+                                            <span
+                                              className="ins-c-conditional-filter__value-selector"
+                                            >
+                                              Name
+                                            </span>
+                                          </DropdownToggle>
+                                        }
+                                      >
+                                        <ComponentWithOuia
+                                          component={[Function]}
+                                          componentProps={
+                                            Object {
+                                              "className": "ins-c-conditional-filter__group",
+                                              "dropdownItems": Array [
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={true}
+                                                  onClick={[Function]}
+                                                >
+                                                  Name
+                                                </DropdownItem>,
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={false}
+                                                  onClick={[Function]}
+                                                >
+                                                  Description
+                                                </DropdownItem>,
+                                              ],
+                                              "isOpen": false,
+                                              "toggle": <DropdownToggle
+                                                className=""
+                                                isDisabled={false}
+                                                onToggle={[Function]}
+                                              >
+                                                <FilterIcon
+                                                  color="currentColor"
+                                                  noVerticalAlign={false}
+                                                  size="sm"
+                                                  title={null}
+                                                />
+                                                <span
+                                                  className="ins-c-conditional-filter__value-selector"
+                                                >
+                                                  Name
+                                                </span>
+                                              </DropdownToggle>,
+                                            }
+                                          }
+                                          consumerContext={null}
+                                        >
+                                          <DropdownWithContext
+                                            autoFocus={true}
+                                            className="ins-c-conditional-filter__group"
+                                            direction="down"
+                                            dropdownItems={
+                                              Array [
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={true}
+                                                  onClick={[Function]}
+                                                >
+                                                  Name
+                                                </DropdownItem>,
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={false}
+                                                  onClick={[Function]}
+                                                >
+                                                  Description
+                                                </DropdownItem>,
+                                              ]
+                                            }
+                                            isGrouped={false}
+                                            isOpen={false}
+                                            isPlain={false}
+                                            onSelect={[Function]}
+                                            ouiaComponentType="Dropdown"
+                                            ouiaContext={
+                                              Object {
+                                                "isOuia": false,
+                                                "ouiaId": null,
+                                              }
+                                            }
+                                            position="left"
+                                            toggle={
+                                              <DropdownToggle
+                                                className=""
+                                                isDisabled={false}
+                                                onToggle={[Function]}
+                                              >
+                                                <FilterIcon
+                                                  color="currentColor"
+                                                  noVerticalAlign={false}
+                                                  size="sm"
+                                                  title={null}
+                                                />
+                                                <span
+                                                  className="ins-c-conditional-filter__value-selector"
+                                                >
+                                                  Name
+                                                </span>
+                                              </DropdownToggle>
+                                            }
+                                          >
+                                            <div
+                                              className="pf-c-dropdown ins-c-conditional-filter__group"
+                                            >
+                                              <DropdownToggle
+                                                ariaHasPopup={true}
+                                                className=""
+                                                id="pf-toggle-id-6"
+                                                isDisabled={false}
+                                                isOpen={false}
+                                                isPlain={false}
+                                                key=".0"
+                                                onEnter={[Function]}
+                                                onToggle={[Function]}
+                                                parentRef={
+                                                  Object {
+                                                    "current": <div
+                                                      class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                    >
+                                                      <button
+                                                        aria-expanded="false"
+                                                        aria-haspopup="true"
+                                                        class="pf-c-dropdown__toggle"
+                                                        id="pf-toggle-id-6"
+                                                        type="button"
+                                                      >
+                                                        <span
+                                                          class="pf-c-dropdown__toggle-text"
+                                                        >
+                                                          <svg
+                                                            aria-hidden="true"
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style="vertical-align: -0.125em;"
+                                                            viewBox="0 0 512 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                              transform=""
+                                                            />
+                                                          </svg>
+                                                          <span
+                                                            class="ins-c-conditional-filter__value-selector"
+                                                          >
+                                                            Name
+                                                          </span>
+                                                        </span>
+                                                        <svg
+                                                          aria-hidden="true"
+                                                          class="pf-c-dropdown__toggle-icon"
+                                                          fill="currentColor"
+                                                          height="1em"
+                                                          role="img"
+                                                          style="vertical-align: -0.125em;"
+                                                          viewBox="0 0 320 512"
+                                                          width="1em"
+                                                        >
+                                                          <path
+                                                            d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                            transform=""
+                                                          />
+                                                        </svg>
+                                                      </button>
+                                                    </div>,
+                                                  }
+                                                }
+                                              >
+                                                <Toggle
+                                                  ariaHasPopup={true}
+                                                  bubbleEvent={false}
+                                                  className=""
+                                                  id="pf-toggle-id-6"
+                                                  isActive={false}
+                                                  isDisabled={false}
+                                                  isFocused={false}
+                                                  isHovered={false}
+                                                  isOpen={false}
+                                                  isPlain={false}
+                                                  isPrimary={false}
+                                                  isSplitButton={false}
+                                                  onEnter={[Function]}
+                                                  onToggle={[Function]}
+                                                  parentRef={
+                                                    Object {
+                                                      "current": <div
+                                                        class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                      >
+                                                        <button
+                                                          aria-expanded="false"
+                                                          aria-haspopup="true"
+                                                          class="pf-c-dropdown__toggle"
+                                                          id="pf-toggle-id-6"
+                                                          type="button"
+                                                        >
+                                                          <span
+                                                            class="pf-c-dropdown__toggle-text"
+                                                          >
+                                                            <svg
+                                                              aria-hidden="true"
+                                                              fill="currentColor"
+                                                              height="1em"
+                                                              role="img"
+                                                              style="vertical-align: -0.125em;"
+                                                              viewBox="0 0 512 512"
+                                                              width="1em"
+                                                            >
+                                                              <path
+                                                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                                transform=""
+                                                              />
+                                                            </svg>
+                                                            <span
+                                                              class="ins-c-conditional-filter__value-selector"
+                                                            >
+                                                              Name
+                                                            </span>
+                                                          </span>
+                                                          <svg
+                                                            aria-hidden="true"
+                                                            class="pf-c-dropdown__toggle-icon"
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style="vertical-align: -0.125em;"
+                                                            viewBox="0 0 320 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                              transform=""
+                                                            />
+                                                          </svg>
+                                                        </button>
+                                                      </div>,
+                                                    }
+                                                  }
+                                                >
+                                                  <button
+                                                    aria-expanded={false}
+                                                    aria-haspopup={true}
+                                                    className="pf-c-dropdown__toggle"
+                                                    disabled={false}
+                                                    id="pf-toggle-id-6"
+                                                    onClick={[Function]}
+                                                    onKeyDown={[Function]}
+                                                    type="button"
+                                                  >
+                                                    <span
+                                                      className="pf-c-dropdown__toggle-text"
+                                                    >
+                                                      <FilterIcon
+                                                        color="currentColor"
+                                                        noVerticalAlign={false}
+                                                        size="sm"
+                                                        title={null}
+                                                      >
+                                                        <svg
+                                                          aria-hidden={true}
+                                                          aria-labelledby={null}
+                                                          fill="currentColor"
+                                                          height="1em"
+                                                          role="img"
+                                                          style={
+                                                            Object {
+                                                              "verticalAlign": "-0.125em",
+                                                            }
+                                                          }
+                                                          viewBox="0 0 512 512"
+                                                          width="1em"
+                                                        >
+                                                          <path
+                                                            d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                            transform=""
+                                                          />
+                                                        </svg>
+                                                      </FilterIcon>
+                                                      <span
+                                                        className="ins-c-conditional-filter__value-selector"
+                                                      >
+                                                        Name
+                                                      </span>
+                                                    </span>
+                                                    <CaretDownIcon
+                                                      className="pf-c-dropdown__toggle-icon"
+                                                      color="currentColor"
+                                                      noVerticalAlign={false}
+                                                      size="sm"
+                                                      title={null}
+                                                    >
+                                                      <svg
+                                                        aria-hidden={true}
+                                                        aria-labelledby={null}
+                                                        className="pf-c-dropdown__toggle-icon"
+                                                        fill="currentColor"
+                                                        height="1em"
+                                                        role="img"
+                                                        style={
+                                                          Object {
+                                                            "verticalAlign": "-0.125em",
+                                                          }
+                                                        }
+                                                        viewBox="0 0 320 512"
+                                                        width="1em"
+                                                      >
+                                                        <path
+                                                          d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                          transform=""
+                                                        />
+                                                      </svg>
+                                                    </CaretDownIcon>
+                                                  </button>
+                                                </Toggle>
+                                              </DropdownToggle>
+                                            </div>
+                                          </DropdownWithContext>
+                                        </ComponentWithOuia>
+                                      </Component>
+                                    </Dropdown>
+                                  </div>
+                                </SplitItem>
+                                <SplitItem
+                                  isFilled={true}
+                                >
+                                  <div
+                                    className="pf-l-split__item pf-m-fill"
+                                  >
+                                    <Text
+                                      id="filter-by-name"
+                                      isDisabled={true}
+                                      key="filter-by-name"
+                                      onChange={[Function]}
+                                      onSubmit={[Function]}
+                                      placeholder="Filter by name"
+                                      value=""
+                                    >
+                                      <ForwardRef
+                                        className="ins-c-conditional-filter "
+                                        id="filter-by-name"
+                                        isDisabled={true}
+                                        onChange={[Function]}
+                                        onKeyDown={[Function]}
+                                        placeholder="Filter by name"
+                                        value=""
+                                        widget-type="InsightsInput"
+                                      >
+                                        <TextInputBase
+                                          aria-label={null}
+                                          className="ins-c-conditional-filter "
+                                          id="filter-by-name"
+                                          innerRef={null}
+                                          isDisabled={true}
+                                          isReadOnly={false}
+                                          isRequired={false}
+                                          isValid={true}
+                                          onChange={[Function]}
+                                          onKeyDown={[Function]}
+                                          placeholder="Filter by name"
+                                          type="text"
+                                          validated="default"
+                                          value=""
+                                          widget-type="InsightsInput"
+                                        >
+                                          <input
+                                            aria-invalid={false}
+                                            aria-label={null}
+                                            className="pf-c-form-control ins-c-conditional-filter "
+                                            disabled={true}
+                                            id="filter-by-name"
+                                            onChange={[Function]}
+                                            onKeyDown={[Function]}
+                                            placeholder="Filter by name"
+                                            readOnly={false}
+                                            required={false}
+                                            type="text"
+                                            value=""
+                                            widget-type="InsightsInput"
+                                          />
+                                        </TextInputBase>
+                                      </ForwardRef>
+                                      <SearchIcon
+                                        className="ins-c-search-icon"
+                                        color="currentColor"
+                                        noVerticalAlign={false}
+                                        size="sm"
+                                        title={null}
+                                      >
+                                        <svg
+                                          aria-hidden={true}
+                                          aria-labelledby={null}
+                                          className="ins-c-search-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          style={
+                                            Object {
+                                              "verticalAlign": "-0.125em",
+                                            }
+                                          }
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                            transform=""
+                                          />
+                                        </svg>
+                                      </SearchIcon>
+                                    </Text>
+                                  </div>
+                                </SplitItem>
+                              </div>
+                            </Split>
+                          </ConditionalFilter>
+                        </div>
+                      </DataToolbarItem>
+                    </div>
+                  </DataToolbarGroupWithRef>
+                </ForwardRef>
+                <Actions
+                  actions={
+                    Array [
+                      <Link
+                        className=""
+                        onClick={[Function]}
+                        to="/groups/detail/123/roles/add_roles"
+                      >
+                        <Unknown
+                          aria-label="Add role"
+                          id="add-role-btn"
+                          variant="primary"
+                        >
+                          Add role
+                        </Unknown>
+                      </Link>,
+                      Object {
+                        "label": "Remove",
+                        "onClick": [Function],
+                        "props": Object {
+                          "isDisabled": true,
+                          "variant": "danger",
+                        },
+                      },
+                    ]
+                  }
+                  dropdownProps={Object {}}
+                  exportConfig={Object {}}
+                  onSelect={[Function]}
+                  overflowActions={Array []}
+                >
+                  <DataToolbarItem
+                    className="ins-c-primary-toolbar__first-action pf-m-spacer-sm"
+                  >
+                    <div
+                      className="pf-c-data-toolbar__item ins-c-primary-toolbar__first-action pf-m-spacer-sm"
+                    >
+                      <Link
+                        className=""
+                        key="add-to-group"
+                        onClick={[Function]}
+                        to="/groups/detail/123/roles/add_roles"
+                      >
+                        <LinkAnchor
+                          className=""
+                          href="/groups/detail/123/roles/add_roles"
+                          navigate={[Function]}
+                          onClick={[Function]}
+                        >
+                          <a
+                            className=""
+                            href="/groups/detail/123/roles/add_roles"
+                            onClick={[Function]}
+                          >
+                            <Component
+                              aria-label="Add role"
+                              id="add-role-btn"
+                              variant="primary"
+                            >
+                              <ComponentWithOuia
+                                component={[Function]}
+                                componentProps={
+                                  Object {
+                                    "aria-label": "Add role",
+                                    "children": "Add role",
+                                    "id": "add-role-btn",
+                                    "variant": "primary",
+                                  }
+                                }
+                                consumerContext={null}
+                              >
+                                <Button
+                                  aria-label="Add role"
+                                  id="add-role-btn"
+                                  ouiaContext={
+                                    Object {
+                                      "isOuia": false,
+                                      "ouiaId": null,
+                                    }
+                                  }
+                                  variant="primary"
+                                >
+                                  <button
+                                    aria-disabled={null}
+                                    aria-label="Add role"
+                                    className="pf-c-button pf-m-primary"
+                                    disabled={false}
+                                    id="add-role-btn"
+                                    tabIndex={null}
+                                    type="button"
+                                  >
+                                    Add role
+                                  </button>
+                                </Button>
+                              </ComponentWithOuia>
+                            </Component>
+                          </a>
+                        </LinkAnchor>
+                      </Link>
+                    </div>
+                  </DataToolbarItem>
+                  <DataToolbarItem
+                    className=" ins-c-primary-toolbar__actions pf-m-spacer-sm"
+                  >
+                    <div
+                      className="pf-c-data-toolbar__item  ins-c-primary-toolbar__actions pf-m-spacer-sm"
+                    >
+                      <Dropdown
+                        dropdownItems={
+                          Array [
+                            <DropdownItem
+                              className="ins-c-primary-toolbar__first-action "
+                              component="div"
+                              onClick={[Function]}
+                              to="/groups/detail/123/roles/add_roles"
+                            >
+                              <Link
+                                className=""
+                                onClick={[Function]}
+                                to="/groups/detail/123/roles/add_roles"
+                              >
+                                <Unknown
+                                  aria-label="Add role"
+                                  id="add-role-btn"
+                                  variant="primary"
+                                >
+                                  Add role
+                                </Unknown>
+                              </Link>
+                            </DropdownItem>,
+                            <DropdownItem
+                              component="button"
+                              isDisabled={true}
+                              onClick={[Function]}
+                              variant="danger"
+                            >
+                              Remove
+                            </DropdownItem>,
+                          ]
+                        }
+                        isOpen={false}
+                        isPlain={true}
+                        onSelect={[Function]}
+                        toggle={
+                          <KebabToggle
+                            onToggle={[Function]}
+                          />
+                        }
+                      >
+                        <Component
+                          dropdownItems={
+                            Array [
+                              <DropdownItem
+                                className="ins-c-primary-toolbar__first-action "
+                                component="div"
+                                onClick={[Function]}
+                                to="/groups/detail/123/roles/add_roles"
+                              >
+                                <Link
+                                  className=""
+                                  onClick={[Function]}
+                                  to="/groups/detail/123/roles/add_roles"
+                                >
+                                  <Unknown
+                                    aria-label="Add role"
+                                    id="add-role-btn"
+                                    variant="primary"
+                                  >
+                                    Add role
+                                  </Unknown>
+                                </Link>
+                              </DropdownItem>,
+                              <DropdownItem
+                                component="button"
+                                isDisabled={true}
+                                onClick={[Function]}
+                                variant="danger"
+                              >
+                                Remove
+                              </DropdownItem>,
+                            ]
+                          }
+                          isOpen={false}
+                          isPlain={true}
+                          toggle={
+                            <KebabToggle
+                              onToggle={[Function]}
+                            />
+                          }
+                        >
+                          <ComponentWithOuia
+                            component={[Function]}
+                            componentProps={
+                              Object {
+                                "dropdownItems": Array [
+                                  <DropdownItem
+                                    className="ins-c-primary-toolbar__first-action "
+                                    component="div"
+                                    onClick={[Function]}
+                                    to="/groups/detail/123/roles/add_roles"
+                                  >
+                                    <Link
+                                      className=""
+                                      onClick={[Function]}
+                                      to="/groups/detail/123/roles/add_roles"
+                                    >
+                                      <Unknown
+                                        aria-label="Add role"
+                                        id="add-role-btn"
+                                        variant="primary"
+                                      >
+                                        Add role
+                                      </Unknown>
+                                    </Link>
+                                  </DropdownItem>,
+                                  <DropdownItem
+                                    component="button"
+                                    isDisabled={true}
+                                    onClick={[Function]}
+                                    variant="danger"
+                                  >
+                                    Remove
+                                  </DropdownItem>,
+                                ],
+                                "isOpen": false,
+                                "isPlain": true,
+                                "toggle": <KebabToggle
+                                  onToggle={[Function]}
+                                />,
+                              }
+                            }
+                            consumerContext={null}
+                          >
+                            <DropdownWithContext
+                              autoFocus={true}
+                              className=""
+                              direction="down"
+                              dropdownItems={
+                                Array [
+                                  <DropdownItem
+                                    className="ins-c-primary-toolbar__first-action "
+                                    component="div"
+                                    onClick={[Function]}
+                                    to="/groups/detail/123/roles/add_roles"
+                                  >
+                                    <Link
+                                      className=""
+                                      onClick={[Function]}
+                                      to="/groups/detail/123/roles/add_roles"
+                                    >
+                                      <Unknown
+                                        aria-label="Add role"
+                                        id="add-role-btn"
+                                        variant="primary"
+                                      >
+                                        Add role
+                                      </Unknown>
+                                    </Link>
+                                  </DropdownItem>,
+                                  <DropdownItem
+                                    component="button"
+                                    isDisabled={true}
+                                    onClick={[Function]}
+                                    variant="danger"
+                                  >
+                                    Remove
+                                  </DropdownItem>,
+                                ]
+                              }
+                              isGrouped={false}
+                              isOpen={false}
+                              isPlain={true}
+                              onSelect={[Function]}
+                              ouiaComponentType="Dropdown"
+                              ouiaContext={
+                                Object {
+                                  "isOuia": false,
+                                  "ouiaId": null,
+                                }
+                              }
+                              position="left"
+                              toggle={
+                                <KebabToggle
+                                  onToggle={[Function]}
+                                />
+                              }
+                            >
+                              <div
+                                className="pf-c-dropdown"
+                              >
+                                <KebabToggle
+                                  ariaHasPopup={true}
+                                  id="pf-toggle-id-7"
+                                  isOpen={false}
+                                  isPlain={true}
+                                  key=".0"
+                                  onEnter={[Function]}
+                                  onToggle={[Function]}
+                                  parentRef={
+                                    Object {
+                                      "current": <div
+                                        class="pf-c-dropdown"
+                                      >
+                                        <button
+                                          aria-expanded="false"
+                                          aria-haspopup="true"
+                                          aria-label="Actions"
+                                          class="pf-c-dropdown__toggle pf-m-plain"
+                                          id="pf-toggle-id-7"
+                                          type="button"
+                                        >
+                                          <svg
+                                            aria-hidden="true"
+                                            fill="currentColor"
+                                            height="1em"
+                                            role="img"
+                                            style="vertical-align: -0.125em;"
+                                            viewBox="0 0 192 512"
+                                            width="1em"
+                                          >
+                                            <path
+                                              d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                              transform=""
+                                            />
+                                          </svg>
+                                        </button>
+                                      </div>,
+                                    }
+                                  }
+                                >
+                                  <Toggle
+                                    aria-label="Actions"
+                                    ariaHasPopup={true}
+                                    bubbleEvent={false}
+                                    className=""
+                                    id="pf-toggle-id-7"
+                                    isActive={false}
+                                    isDisabled={false}
+                                    isFocused={false}
+                                    isHovered={false}
+                                    isOpen={false}
+                                    isPlain={true}
+                                    isPrimary={false}
+                                    isSplitButton={false}
+                                    onEnter={[Function]}
+                                    onToggle={[Function]}
+                                    parentRef={
+                                      Object {
+                                        "current": <div
+                                          class="pf-c-dropdown"
+                                        >
+                                          <button
+                                            aria-expanded="false"
+                                            aria-haspopup="true"
+                                            aria-label="Actions"
+                                            class="pf-c-dropdown__toggle pf-m-plain"
+                                            id="pf-toggle-id-7"
+                                            type="button"
+                                          >
+                                            <svg
+                                              aria-hidden="true"
+                                              fill="currentColor"
+                                              height="1em"
+                                              role="img"
+                                              style="vertical-align: -0.125em;"
+                                              viewBox="0 0 192 512"
+                                              width="1em"
+                                            >
+                                              <path
+                                                d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                                transform=""
+                                              />
+                                            </svg>
+                                          </button>
+                                        </div>,
+                                      }
+                                    }
+                                  >
+                                    <button
+                                      aria-expanded={false}
+                                      aria-haspopup={true}
+                                      aria-label="Actions"
+                                      className="pf-c-dropdown__toggle pf-m-plain"
+                                      disabled={false}
+                                      id="pf-toggle-id-7"
+                                      onClick={[Function]}
+                                      onKeyDown={[Function]}
+                                      type="button"
+                                    >
+                                      <EllipsisVIcon
+                                        color="currentColor"
+                                        noVerticalAlign={false}
+                                        size="sm"
+                                        title={null}
+                                      >
+                                        <svg
+                                          aria-hidden={true}
+                                          aria-labelledby={null}
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          style={
+                                            Object {
+                                              "verticalAlign": "-0.125em",
+                                            }
+                                          }
+                                          viewBox="0 0 192 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                            transform=""
+                                          />
+                                        </svg>
+                                      </EllipsisVIcon>
+                                    </button>
+                                  </Toggle>
+                                </KebabToggle>
+                              </div>
+                            </DropdownWithContext>
+                          </ComponentWithOuia>
+                        </Component>
+                      </Dropdown>
+                    </div>
+                  </DataToolbarItem>
+                </Actions>
+              </div>
+              <DataToolbarExpandableContent
+                chipContainerRef={
+                  Object {
+                    "current": null,
+                  }
+                }
+                clearFiltersButtonText="Clear all filters"
+                expandableContentRef={
+                  Object {
+                    "current": <div
+                      class="pf-c-data-toolbar__expandable-content"
+                      id="ins-primary-data-toolbar-expandable-content-3"
+                    >
+                      <div
+                        class="pf-c-data-toolbar__group"
+                      />
+                    </div>,
+                  }
+                }
+                id="ins-primary-data-toolbar-expandable-content-3"
+                isExpanded={false}
+                showClearFiltersButton={false}
+              >
+                <div
+                  className="pf-c-data-toolbar__expandable-content"
+                  id="ins-primary-data-toolbar-expandable-content-3"
+                >
+                  <ForwardRef>
+                    <DataToolbarGroupWithRef
+                      breakpointMods={Array []}
+                      innerRef={null}
+                    >
+                      <div
+                        className="pf-c-data-toolbar__group"
+                      />
+                    </DataToolbarGroupWithRef>
+                  </ForwardRef>
+                </div>
+              </DataToolbarExpandableContent>
+            </div>
+          </DataToolbarContent>
+          <DataToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-data-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-data-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-data-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <DataToolbarGroupWithRef
+                  breakpointMods={Array []}
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-data-toolbar__group"
+                  />
+                </DataToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </DataToolbarChipGroupContent>
+        </div>
+      </DataToolbar>
+    </PrimaryToolbar>
+  </Toolbar>
+  <ListLoader
+    items={5}
+  >
+    <DataList
+      aria-label="datalist-placeholder"
+    >
+      <ul
+        aria-label="datalist-placeholder"
+        className="pf-c-data-list"
+      >
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="0"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="1"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="2"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="3"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="4"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+      </ul>
+    </DataList>
+  </ListLoader>
+  <TableToolbar
+    isFooter={false}
+  >
+    <Toolbar
+      className="ins-c-table__toolbar"
+    >
+      <div
+        className="pf-l-toolbar ins-c-table__toolbar"
+      >
+         
+      </div>
+    </Toolbar>
+  </TableToolbar>
+</TableToolbarView>
 `;
 
-exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
-<ContextProvider
-  value={null}
+exports[`<GroupPrincipals /> should render empty correctly 1`] = `
+<TableToolbarView
+  actionResolver={[Function]}
+  borders={true}
+  checkedRows={Array []}
+  columns={
+    Array [
+      Object {
+        "orderBy": "name",
+        "title": "Name",
+      },
+      Object {
+        "title": "Description",
+      },
+      Object {
+        "title": "Last modified",
+      },
+    ]
+  }
+  createRows={[Function]}
+  data={Array []}
+  emptyProps={
+    Object {
+      "description": Array [
+        "Add a role to configure user access.",
+        "",
+      ],
+      "title": "There are no roles in this group",
+    }
+  }
+  fetchData={[Function]}
+  filterItems={Array []}
+  filterValue=""
+  isCollapsible={false}
+  isCompact={false}
+  isLoading={true}
+  isSelectable={false}
+  pagination={
+    Object {
+      "itemCount": 0,
+      "limit": 20,
+      "offset": 0,
+    }
+  }
+  routes={[Function]}
+  setCheckedItems={[Function]}
+  setFilterValue={[Function]}
+  textFilters={
+    Array [
+      Object {
+        "key": "name",
+        "value": "",
+      },
+      Object {
+        "key": "description",
+        "value": "",
+      },
+    ]
+  }
+  titlePlural="roles"
+  titleSingular="role"
+  toolbarButtons={[Function]}
 >
-  <GroupRoles
-    addNotification={[Function]}
-    addRoles={[Function]}
-    disableAddRoles={true}
-    fetchAddRolesForGroup={[Function]}
-    fetchGroup={[Function]}
-    fetchRoles={[Function]}
-    fetchRolesForGroup={[Function]}
-    isChanged={true}
+  <Route
+    path="/groups/detail/:uuid/roles/add_roles"
+    render={[Function]}
+  />
+  <Toolbar
+    checkedRows={Array []}
+    data={Array []}
+    fetchData={[Function]}
+    filterItems={Array []}
+    filterValue=""
+    isCollapsible={false}
     isLoading={true}
+    isSelectable={false}
     pagination={
       Object {
         "itemCount": 0,
@@ -60,20 +2124,1053 @@ exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
         "offset": 0,
       }
     }
-    removeRoles={[Function]}
-    roles={Array []}
-    selectedRoles={Array []}
-    store={
-      Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      }
+    setCheckedItems={[Function]}
+    setFilterValue={[Function]}
+    textFilters={
+      Array [
+        Object {
+          "key": "name",
+          "value": "",
+        },
+        Object {
+          "key": "description",
+          "value": "",
+        },
+      ]
     }
-    userIdentity={Object {}}
-  />
-</ContextProvider>
+    titleSingular="role"
+    toolbarButtons={[Function]}
+  >
+    <PrimaryToolbar
+      actionsConfig={
+        Object {
+          "actions": Array [],
+        }
+      }
+      activeFiltersConfig={
+        Object {
+          "filters": Array [],
+          "onDelete": [Function],
+        }
+      }
+      filterConfig={
+        Object {
+          "items": Array [
+            Object {
+              "filterValues": Object {
+                "id": "filter-by-name",
+                "isDisabled": true,
+                "key": "filter-by-name",
+                "onChange": [Function],
+                "placeholder": "Filter by name",
+                "value": "",
+              },
+              "label": "Name",
+              "type": "text",
+            },
+            Object {
+              "filterValues": Object {
+                "id": "filter-by-description",
+                "isDisabled": true,
+                "key": "filter-by-description",
+                "onChange": [Function],
+                "placeholder": "Filter by description",
+                "value": "",
+              },
+              "label": "Description",
+              "type": "text",
+            },
+          ],
+        }
+      }
+      toggleIsExpanded={[Function]}
+    >
+      <DataToolbar
+        className=" ins-c-primary-toolbar"
+        id="ins-primary-data-toolbar"
+        toggleIsExpanded={[Function]}
+      >
+        <div
+          className="pf-c-data-toolbar  ins-c-primary-toolbar"
+          id="ins-primary-data-toolbar"
+        >
+          <DataToolbarContent
+            breakpointMods={Array []}
+            isExpanded={false}
+            key=".0"
+            showClearFiltersButton={false}
+            toolbarId="ins-primary-data-toolbar"
+          >
+            <div
+              className="pf-c-data-toolbar__content"
+            >
+              <div
+                className="pf-c-data-toolbar__content-section"
+              >
+                <ForwardRef
+                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                  variant="filter-group"
+                >
+                  <DataToolbarGroupWithRef
+                    breakpointMods={Array []}
+                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                    innerRef={null}
+                    variant="filter-group"
+                  >
+                    <div
+                      className="pf-c-data-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
+                    >
+                      <DataToolbarItem
+                        className="ins-c-primary-toolbar__filter"
+                      >
+                        <div
+                          className="pf-c-data-toolbar__item ins-c-primary-toolbar__filter"
+                        >
+                          <ConditionalFilter
+                            hideLabel={false}
+                            isDisabled={false}
+                            items={
+                              Array [
+                                Object {
+                                  "filterValues": Object {
+                                    "id": "filter-by-name",
+                                    "isDisabled": true,
+                                    "key": "filter-by-name",
+                                    "onChange": [Function],
+                                    "placeholder": "Filter by name",
+                                    "value": "",
+                                  },
+                                  "label": "Name",
+                                  "type": "text",
+                                },
+                                Object {
+                                  "filterValues": Object {
+                                    "id": "filter-by-description",
+                                    "isDisabled": true,
+                                    "key": "filter-by-description",
+                                    "onChange": [Function],
+                                    "placeholder": "Filter by description",
+                                    "value": "",
+                                  },
+                                  "label": "Description",
+                                  "type": "text",
+                                },
+                              ]
+                            }
+                            value=""
+                          >
+                            <Split
+                              className="ins-c-conditional-filter"
+                            >
+                              <div
+                                className="pf-l-split ins-c-conditional-filter"
+                              >
+                                <SplitItem>
+                                  <div
+                                    className="pf-l-split__item"
+                                  >
+                                    <Dropdown
+                                      className="ins-c-conditional-filter__group"
+                                      dropdownItems={
+                                        Array [
+                                          <DropdownItem
+                                            component="button"
+                                            isHovered={true}
+                                            onClick={[Function]}
+                                          >
+                                            Name
+                                          </DropdownItem>,
+                                          <DropdownItem
+                                            component="button"
+                                            isHovered={false}
+                                            onClick={[Function]}
+                                          >
+                                            Description
+                                          </DropdownItem>,
+                                        ]
+                                      }
+                                      isOpen={false}
+                                      onSelect={[Function]}
+                                      toggle={
+                                        <DropdownToggle
+                                          className=""
+                                          isDisabled={false}
+                                          onToggle={[Function]}
+                                        >
+                                          <FilterIcon
+                                            color="currentColor"
+                                            noVerticalAlign={false}
+                                            size="sm"
+                                            title={null}
+                                          />
+                                          <span
+                                            className="ins-c-conditional-filter__value-selector"
+                                          >
+                                            Name
+                                          </span>
+                                        </DropdownToggle>
+                                      }
+                                    >
+                                      <Component
+                                        className="ins-c-conditional-filter__group"
+                                        dropdownItems={
+                                          Array [
+                                            <DropdownItem
+                                              component="button"
+                                              isHovered={true}
+                                              onClick={[Function]}
+                                            >
+                                              Name
+                                            </DropdownItem>,
+                                            <DropdownItem
+                                              component="button"
+                                              isHovered={false}
+                                              onClick={[Function]}
+                                            >
+                                              Description
+                                            </DropdownItem>,
+                                          ]
+                                        }
+                                        isOpen={false}
+                                        toggle={
+                                          <DropdownToggle
+                                            className=""
+                                            isDisabled={false}
+                                            onToggle={[Function]}
+                                          >
+                                            <FilterIcon
+                                              color="currentColor"
+                                              noVerticalAlign={false}
+                                              size="sm"
+                                              title={null}
+                                            />
+                                            <span
+                                              className="ins-c-conditional-filter__value-selector"
+                                            >
+                                              Name
+                                            </span>
+                                          </DropdownToggle>
+                                        }
+                                      >
+                                        <ComponentWithOuia
+                                          component={[Function]}
+                                          componentProps={
+                                            Object {
+                                              "className": "ins-c-conditional-filter__group",
+                                              "dropdownItems": Array [
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={true}
+                                                  onClick={[Function]}
+                                                >
+                                                  Name
+                                                </DropdownItem>,
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={false}
+                                                  onClick={[Function]}
+                                                >
+                                                  Description
+                                                </DropdownItem>,
+                                              ],
+                                              "isOpen": false,
+                                              "toggle": <DropdownToggle
+                                                className=""
+                                                isDisabled={false}
+                                                onToggle={[Function]}
+                                              >
+                                                <FilterIcon
+                                                  color="currentColor"
+                                                  noVerticalAlign={false}
+                                                  size="sm"
+                                                  title={null}
+                                                />
+                                                <span
+                                                  className="ins-c-conditional-filter__value-selector"
+                                                >
+                                                  Name
+                                                </span>
+                                              </DropdownToggle>,
+                                            }
+                                          }
+                                          consumerContext={null}
+                                        >
+                                          <DropdownWithContext
+                                            autoFocus={true}
+                                            className="ins-c-conditional-filter__group"
+                                            direction="down"
+                                            dropdownItems={
+                                              Array [
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={true}
+                                                  onClick={[Function]}
+                                                >
+                                                  Name
+                                                </DropdownItem>,
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={false}
+                                                  onClick={[Function]}
+                                                >
+                                                  Description
+                                                </DropdownItem>,
+                                              ]
+                                            }
+                                            isGrouped={false}
+                                            isOpen={false}
+                                            isPlain={false}
+                                            onSelect={[Function]}
+                                            ouiaComponentType="Dropdown"
+                                            ouiaContext={
+                                              Object {
+                                                "isOuia": false,
+                                                "ouiaId": null,
+                                              }
+                                            }
+                                            position="left"
+                                            toggle={
+                                              <DropdownToggle
+                                                className=""
+                                                isDisabled={false}
+                                                onToggle={[Function]}
+                                              >
+                                                <FilterIcon
+                                                  color="currentColor"
+                                                  noVerticalAlign={false}
+                                                  size="sm"
+                                                  title={null}
+                                                />
+                                                <span
+                                                  className="ins-c-conditional-filter__value-selector"
+                                                >
+                                                  Name
+                                                </span>
+                                              </DropdownToggle>
+                                            }
+                                          >
+                                            <div
+                                              className="pf-c-dropdown ins-c-conditional-filter__group"
+                                            >
+                                              <DropdownToggle
+                                                ariaHasPopup={true}
+                                                className=""
+                                                id="pf-toggle-id-1"
+                                                isDisabled={false}
+                                                isOpen={false}
+                                                isPlain={false}
+                                                key=".0"
+                                                onEnter={[Function]}
+                                                onToggle={[Function]}
+                                                parentRef={
+                                                  Object {
+                                                    "current": <div
+                                                      class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                    >
+                                                      <button
+                                                        aria-expanded="false"
+                                                        aria-haspopup="true"
+                                                        class="pf-c-dropdown__toggle"
+                                                        id="pf-toggle-id-1"
+                                                        type="button"
+                                                      >
+                                                        <span
+                                                          class="pf-c-dropdown__toggle-text"
+                                                        >
+                                                          <svg
+                                                            aria-hidden="true"
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style="vertical-align: -0.125em;"
+                                                            viewBox="0 0 512 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                              transform=""
+                                                            />
+                                                          </svg>
+                                                          <span
+                                                            class="ins-c-conditional-filter__value-selector"
+                                                          >
+                                                            Name
+                                                          </span>
+                                                        </span>
+                                                        <svg
+                                                          aria-hidden="true"
+                                                          class="pf-c-dropdown__toggle-icon"
+                                                          fill="currentColor"
+                                                          height="1em"
+                                                          role="img"
+                                                          style="vertical-align: -0.125em;"
+                                                          viewBox="0 0 320 512"
+                                                          width="1em"
+                                                        >
+                                                          <path
+                                                            d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                            transform=""
+                                                          />
+                                                        </svg>
+                                                      </button>
+                                                    </div>,
+                                                  }
+                                                }
+                                              >
+                                                <Toggle
+                                                  ariaHasPopup={true}
+                                                  bubbleEvent={false}
+                                                  className=""
+                                                  id="pf-toggle-id-1"
+                                                  isActive={false}
+                                                  isDisabled={false}
+                                                  isFocused={false}
+                                                  isHovered={false}
+                                                  isOpen={false}
+                                                  isPlain={false}
+                                                  isPrimary={false}
+                                                  isSplitButton={false}
+                                                  onEnter={[Function]}
+                                                  onToggle={[Function]}
+                                                  parentRef={
+                                                    Object {
+                                                      "current": <div
+                                                        class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                      >
+                                                        <button
+                                                          aria-expanded="false"
+                                                          aria-haspopup="true"
+                                                          class="pf-c-dropdown__toggle"
+                                                          id="pf-toggle-id-1"
+                                                          type="button"
+                                                        >
+                                                          <span
+                                                            class="pf-c-dropdown__toggle-text"
+                                                          >
+                                                            <svg
+                                                              aria-hidden="true"
+                                                              fill="currentColor"
+                                                              height="1em"
+                                                              role="img"
+                                                              style="vertical-align: -0.125em;"
+                                                              viewBox="0 0 512 512"
+                                                              width="1em"
+                                                            >
+                                                              <path
+                                                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                                transform=""
+                                                              />
+                                                            </svg>
+                                                            <span
+                                                              class="ins-c-conditional-filter__value-selector"
+                                                            >
+                                                              Name
+                                                            </span>
+                                                          </span>
+                                                          <svg
+                                                            aria-hidden="true"
+                                                            class="pf-c-dropdown__toggle-icon"
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style="vertical-align: -0.125em;"
+                                                            viewBox="0 0 320 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                              transform=""
+                                                            />
+                                                          </svg>
+                                                        </button>
+                                                      </div>,
+                                                    }
+                                                  }
+                                                >
+                                                  <button
+                                                    aria-expanded={false}
+                                                    aria-haspopup={true}
+                                                    className="pf-c-dropdown__toggle"
+                                                    disabled={false}
+                                                    id="pf-toggle-id-1"
+                                                    onClick={[Function]}
+                                                    onKeyDown={[Function]}
+                                                    type="button"
+                                                  >
+                                                    <span
+                                                      className="pf-c-dropdown__toggle-text"
+                                                    >
+                                                      <FilterIcon
+                                                        color="currentColor"
+                                                        noVerticalAlign={false}
+                                                        size="sm"
+                                                        title={null}
+                                                      >
+                                                        <svg
+                                                          aria-hidden={true}
+                                                          aria-labelledby={null}
+                                                          fill="currentColor"
+                                                          height="1em"
+                                                          role="img"
+                                                          style={
+                                                            Object {
+                                                              "verticalAlign": "-0.125em",
+                                                            }
+                                                          }
+                                                          viewBox="0 0 512 512"
+                                                          width="1em"
+                                                        >
+                                                          <path
+                                                            d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                            transform=""
+                                                          />
+                                                        </svg>
+                                                      </FilterIcon>
+                                                      <span
+                                                        className="ins-c-conditional-filter__value-selector"
+                                                      >
+                                                        Name
+                                                      </span>
+                                                    </span>
+                                                    <CaretDownIcon
+                                                      className="pf-c-dropdown__toggle-icon"
+                                                      color="currentColor"
+                                                      noVerticalAlign={false}
+                                                      size="sm"
+                                                      title={null}
+                                                    >
+                                                      <svg
+                                                        aria-hidden={true}
+                                                        aria-labelledby={null}
+                                                        className="pf-c-dropdown__toggle-icon"
+                                                        fill="currentColor"
+                                                        height="1em"
+                                                        role="img"
+                                                        style={
+                                                          Object {
+                                                            "verticalAlign": "-0.125em",
+                                                          }
+                                                        }
+                                                        viewBox="0 0 320 512"
+                                                        width="1em"
+                                                      >
+                                                        <path
+                                                          d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                          transform=""
+                                                        />
+                                                      </svg>
+                                                    </CaretDownIcon>
+                                                  </button>
+                                                </Toggle>
+                                              </DropdownToggle>
+                                            </div>
+                                          </DropdownWithContext>
+                                        </ComponentWithOuia>
+                                      </Component>
+                                    </Dropdown>
+                                  </div>
+                                </SplitItem>
+                                <SplitItem
+                                  isFilled={true}
+                                >
+                                  <div
+                                    className="pf-l-split__item pf-m-fill"
+                                  >
+                                    <Text
+                                      id="filter-by-name"
+                                      isDisabled={true}
+                                      key="filter-by-name"
+                                      onChange={[Function]}
+                                      onSubmit={[Function]}
+                                      placeholder="Filter by name"
+                                      value=""
+                                    >
+                                      <ForwardRef
+                                        className="ins-c-conditional-filter "
+                                        id="filter-by-name"
+                                        isDisabled={true}
+                                        onChange={[Function]}
+                                        onKeyDown={[Function]}
+                                        placeholder="Filter by name"
+                                        value=""
+                                        widget-type="InsightsInput"
+                                      >
+                                        <TextInputBase
+                                          aria-label={null}
+                                          className="ins-c-conditional-filter "
+                                          id="filter-by-name"
+                                          innerRef={null}
+                                          isDisabled={true}
+                                          isReadOnly={false}
+                                          isRequired={false}
+                                          isValid={true}
+                                          onChange={[Function]}
+                                          onKeyDown={[Function]}
+                                          placeholder="Filter by name"
+                                          type="text"
+                                          validated="default"
+                                          value=""
+                                          widget-type="InsightsInput"
+                                        >
+                                          <input
+                                            aria-invalid={false}
+                                            aria-label={null}
+                                            className="pf-c-form-control ins-c-conditional-filter "
+                                            disabled={true}
+                                            id="filter-by-name"
+                                            onChange={[Function]}
+                                            onKeyDown={[Function]}
+                                            placeholder="Filter by name"
+                                            readOnly={false}
+                                            required={false}
+                                            type="text"
+                                            value=""
+                                            widget-type="InsightsInput"
+                                          />
+                                        </TextInputBase>
+                                      </ForwardRef>
+                                      <SearchIcon
+                                        className="ins-c-search-icon"
+                                        color="currentColor"
+                                        noVerticalAlign={false}
+                                        size="sm"
+                                        title={null}
+                                      >
+                                        <svg
+                                          aria-hidden={true}
+                                          aria-labelledby={null}
+                                          className="ins-c-search-icon"
+                                          fill="currentColor"
+                                          height="1em"
+                                          role="img"
+                                          style={
+                                            Object {
+                                              "verticalAlign": "-0.125em",
+                                            }
+                                          }
+                                          viewBox="0 0 512 512"
+                                          width="1em"
+                                        >
+                                          <path
+                                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                            transform=""
+                                          />
+                                        </svg>
+                                      </SearchIcon>
+                                    </Text>
+                                  </div>
+                                </SplitItem>
+                              </div>
+                            </Split>
+                          </ConditionalFilter>
+                        </div>
+                      </DataToolbarItem>
+                    </div>
+                  </DataToolbarGroupWithRef>
+                </ForwardRef>
+              </div>
+              <DataToolbarExpandableContent
+                chipContainerRef={
+                  Object {
+                    "current": null,
+                  }
+                }
+                clearFiltersButtonText="Clear all filters"
+                expandableContentRef={
+                  Object {
+                    "current": <div
+                      class="pf-c-data-toolbar__expandable-content"
+                      id="ins-primary-data-toolbar-expandable-content-1"
+                    >
+                      <div
+                        class="pf-c-data-toolbar__group"
+                      />
+                    </div>,
+                  }
+                }
+                id="ins-primary-data-toolbar-expandable-content-1"
+                isExpanded={false}
+                showClearFiltersButton={false}
+              >
+                <div
+                  className="pf-c-data-toolbar__expandable-content"
+                  id="ins-primary-data-toolbar-expandable-content-1"
+                >
+                  <ForwardRef>
+                    <DataToolbarGroupWithRef
+                      breakpointMods={Array []}
+                      innerRef={null}
+                    >
+                      <div
+                        className="pf-c-data-toolbar__group"
+                      />
+                    </DataToolbarGroupWithRef>
+                  </ForwardRef>
+                </div>
+              </DataToolbarExpandableContent>
+            </div>
+          </DataToolbarContent>
+          <DataToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-data-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-data-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-data-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <DataToolbarGroupWithRef
+                  breakpointMods={Array []}
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-data-toolbar__group"
+                  />
+                </DataToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </DataToolbarChipGroupContent>
+        </div>
+      </DataToolbar>
+    </PrimaryToolbar>
+  </Toolbar>
+  <ListLoader
+    items={5}
+  >
+    <DataList
+      aria-label="datalist-placeholder"
+    >
+      <ul
+        aria-label="datalist-placeholder"
+        className="pf-c-data-list"
+      >
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="0"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="1"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="2"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="3"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          key="4"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          isDark={false}
+                          size="lg"
+                        >
+                          <div
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                             
+                          </div>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+      </ul>
+    </DataList>
+  </ListLoader>
+  <TableToolbar
+    isFooter={false}
+  >
+    <Toolbar
+      className="ins-c-table__toolbar"
+    >
+      <div
+        className="pf-l-toolbar ins-c-table__toolbar"
+      >
+         
+      </div>
+    </Toolbar>
+  </TableToolbar>
+</TableToolbarView>
 `;
