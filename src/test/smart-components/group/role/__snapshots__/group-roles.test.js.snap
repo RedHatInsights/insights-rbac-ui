@@ -135,7 +135,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
             >
               <Unknown
                 aria-label="Add role"
-                id="add-role-btn"
                 variant="primary"
               >
                 Add role
@@ -1218,7 +1217,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                       >
                         <Unknown
                           aria-label="Add role"
-                          id="add-role-btn"
                           variant="primary"
                         >
                           Add role
@@ -1264,7 +1262,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                           >
                             <Component
                               aria-label="Add role"
-                              id="add-role-btn"
                               variant="primary"
                             >
                               <ComponentWithOuia
@@ -1273,7 +1270,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   Object {
                                     "aria-label": "Add role",
                                     "children": "Add role",
-                                    "id": "add-role-btn",
                                     "variant": "primary",
                                   }
                                 }
@@ -1281,7 +1277,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Button
                                   aria-label="Add role"
-                                  id="add-role-btn"
                                   ouiaContext={
                                     Object {
                                       "isOuia": false,
@@ -1295,7 +1290,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     aria-label="Add role"
                                     className="pf-c-button pf-m-primary"
                                     disabled={false}
-                                    id="add-role-btn"
                                     tabIndex={null}
                                     type="button"
                                   >
@@ -1331,7 +1325,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Unknown
                                   aria-label="Add role"
-                                  id="add-role-btn"
                                   variant="primary"
                                 >
                                   Add role
@@ -1373,7 +1366,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 >
                                   <Unknown
                                     aria-label="Add role"
-                                    id="add-role-btn"
                                     variant="primary"
                                   >
                                     Add role
@@ -1416,7 +1408,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     >
                                       <Unknown
                                         aria-label="Add role"
-                                        id="add-role-btn"
                                         variant="primary"
                                       >
                                         Add role
@@ -1460,7 +1451,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     >
                                       <Unknown
                                         aria-label="Add role"
-                                        id="add-role-btn"
                                         variant="primary"
                                       >
                                         Add role

@@ -58,7 +58,6 @@ const addRoleButton = (isDisabled) => (isDisabled
     </div>
   </Tooltip>
   : <Button
-    id="add-role-btn"
     variant="primary"
     aria-label="Add role"
   >
