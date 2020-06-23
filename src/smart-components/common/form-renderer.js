@@ -1,40 +1,39 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import ReactFormRender, { componentTypes } from '@data-driven-forms/react-form-renderer';
-import { layoutMapper, formFieldsMapper } from '@data-driven-forms/pf4-component-mapper';
 import Pf4SelectWrapper from '../../presentational-components/shared/pf4-select-wrapper';
+import { componentMapper, FormTemplate } from '@data-driven-forms/pf4-component-mapper';
+import FormButtons from './FormButtons';
 
-const buttonPositioning = {
-  default: {},
-  modal: {
-    buttonOrder: [ 'cancel', 'reset', 'save' ],
-    buttonClassName: 'modal-form-right-align'
-  }
-};
-
-const FormRenderer = ({ componentMapper, formContainer, ...rest }) => (
-  <div className={ buttonPositioning[formContainer].buttonClassName }>
+const FormRenderer = ({ schema, onCancel, onSubmit, initialValues }) => {
+  return (
     <ReactFormRender
-      formFieldsMapper={ {
-        ...formFieldsMapper,
-        componentMapper,
+      componentMapper={ {
+        ...componentMapper,
         [componentTypes.SELECT]: Pf4SelectWrapper
       } }
-      layoutMapper={ layoutMapper }
-      { ...buttonPositioning[formContainer] }
-      { ...rest }
+      FormTemplate={ (props) => <FormTemplate { ...props } FormButtons={ FormButtons }></FormTemplate> }
+      initialValues={ initialValues }
+      onSubmit={ onSubmit }
+      onCancel={ onCancel }
+      schema={ schema }
     />
-  </div>
-);
+  );
+};
 
 FormRenderer.propTypes = {
   componentMapper: PropTypes.object,
-  formContainer: PropTypes.oneOf([ 'default', 'modal' ])
+  schema: PropTypes.object,
+  onSubmit: PropTypes.func,
+  onCancel: PropTypes.func,
+  initialValues: PropTypes.object
 };
 
 FormRenderer.defaultProps = {
-  componentMapper: {},
-  formContainer: 'default'
+  schema: {},
+  onSubmit: null,
+  onCancel: null,
+  initialValues: {}
 };
 
 export default FormRenderer;

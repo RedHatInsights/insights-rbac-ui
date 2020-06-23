@@ -68,15 +68,15 @@ const EditGroupModal = ({
     }, {
       name: 'description',
       label: 'Description',
-      component: componentTypes.TEXTAREA_FIELD
+      component: componentTypes.TEXTAREA
     }]
   };
 
   // eslint-disable-next-line react/prop-types
-  const formButtons = ({ pristine, valid, form: { submit }}) => {
+  const formButtons = ({ pristine, valid }) => {
     return (
       <div>
-        <Button isDisabled={ pristine || !valid } onClick={ submit } variant="primary">Submit</Button>
+        <Button type="submit" isDisabled={ pristine || !valid } variant="primary">Submit</Button>
         <Button variant='link' onClick={ onCancel }>Cancel</Button>
       </div>
     );
@@ -101,6 +101,7 @@ const EditGroupModal = ({
             <FormRenderer
               schema={ schema }
               schemaType="mozilla"
+              onCancel={ onCancel }
               onSubmit={ onSubmit }
               formContainer="modal"
               initialValues={ { ...selectedGroup } }
