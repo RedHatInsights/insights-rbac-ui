@@ -9,7 +9,8 @@ const mapper = {
   EmptyStateVariant: 'EmptyState',
   TextListItemVariants: 'TextListItem',
   TextListVariants: 'TextList',
-  FlexModifiers: 'FlexUtils'
+  FlexModifiers: 'FlexUtils',
+  WizardContextConsumer: 'WizardContext'
 };
 
 const FECMapper = {

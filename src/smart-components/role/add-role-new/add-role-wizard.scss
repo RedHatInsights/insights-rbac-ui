@@ -1,0 +1,10 @@
+.pf-c-form {
+    .pf-c-form__group {
+        .pf-c-radio {
+            padding-bottom: 8px;
+             &:last-child{
+                padding-bottom: 0px;
+            }
+        }
+    }
+}
