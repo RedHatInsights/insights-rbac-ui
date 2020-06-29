@@ -1,19 +1,3 @@
-// export const asyncValidator = async (value, sourceId = undefined) => {
-//     let response;
-//     try {
-//         response = await findSource(value);
-//     } catch (error) {
-//         console.error(handleError(error));
-//         return undefined;
-//     }
-
-//     if (response.data.sources.find(({ id }) => id !== sourceId)) {
-//         throw 'Name has already been taken';
-//     }
-
-//     return undefined;
-// };
-
 export default {
     fields: [
         {

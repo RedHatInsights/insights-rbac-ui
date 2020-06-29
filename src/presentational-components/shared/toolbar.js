@@ -199,6 +199,9 @@ const Toolbar = ({
     { ...!isLoading && {
       pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy)
     } }
+      { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && {
+        activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData, sortBy)
+    } }
   />
 );
 
