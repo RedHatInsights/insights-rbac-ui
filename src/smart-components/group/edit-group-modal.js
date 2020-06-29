@@ -3,7 +3,8 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/dist/cjs/validator-types';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
 import { Button, Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -68,15 +69,15 @@ const EditGroupModal = ({
     }, {
       name: 'description',
       label: 'Description',
-      component: componentTypes.TEXTAREA_FIELD
+      component: componentTypes.TEXTAREA
     }]
   };
 
   // eslint-disable-next-line react/prop-types
-  const formButtons = ({ pristine, valid, form: { submit }}) => {
+  const formButtons = ({ pristine, valid }) => {
     return (
       <div>
-        <Button isDisabled={ pristine || !valid } onClick={ submit } variant="primary">Submit</Button>
+        <Button type="submit" isDisabled={ pristine || !valid } variant="primary">Submit</Button>
         <Button variant='link' onClick={ onCancel }>Cancel</Button>
       </div>
     );
@@ -101,6 +102,7 @@ const EditGroupModal = ({
             <FormRenderer
               schema={ schema }
               schemaType="mozilla"
+              onCancel={ onCancel }
               onSubmit={ onSubmit }
               formContainer="modal"
               initialValues={ { ...selectedGroup } }
