@@ -113,7 +113,6 @@ const AddRoleWizard = ({
     <React.Fragment>
       <Wizard
         className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
-        isLarge
         title="Add role"
         isOpen
         onClose={ () => {

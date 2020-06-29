@@ -96,10 +96,11 @@ const Groups = () => {
         }
       ];
 
+  // TODO check this later
   const toolbarButtons = () => [
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
-        <Link to="/groups/add-group" key="add-group">
+        <Link to="/groups/add-group" key="add-group" className='pf-m-visible-on-md'>
           <Button
             variant="primary"
             aria-label="Create group"
@@ -107,6 +108,15 @@ const Groups = () => {
         Create group
           </Button>
         </Link>,
+        {
+          label: 'Create group',
+          props: {
+            className: 'pf-m-hidden-on-md'
+          },
+          onClick: () => {
+            history.push(`/groups/add-group`);
+          }
+        },
         {
           label: 'Edit group',
           props: {

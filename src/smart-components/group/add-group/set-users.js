@@ -17,9 +17,9 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
   return (
     <Fragment>
       <Form>
-        <Stack gutter="md">
+        <Stack hasGutter>
           { title && <StackItem>
-            <Title size="xl">{ title }</Title>
+            <Title headingLevel="h4" size="xl">{ title }</Title>
           </StackItem> }
           <StackItem>
             <TextContent>

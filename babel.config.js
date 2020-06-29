@@ -9,7 +9,7 @@ const mapper = {
   EmptyStateVariant: 'EmptyState',
   TextListItemVariants: 'TextListItem',
   TextListVariants: 'TextList',
-  FlexModifiers: 'FlexUtils'
+  ModalVariant: 'Modal'
 };
 
 const FECMapper = {

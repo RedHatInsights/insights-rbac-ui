@@ -40,9 +40,9 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       ] }
       isFooterLeftAligned
     >
-      <Split gutter="md">
+      <Split hasGutter>
         <SplitItem isFilled>
-          <Stack gutter="md">
+          <Stack hasGutter>
             <TextContent>
               { text }
             </TextContent>
