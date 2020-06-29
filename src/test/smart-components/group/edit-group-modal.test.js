@@ -11,7 +11,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import EditGroupModal from '../../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { componentTypes } from '@data-driven-forms/react-form-renderer';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 
 describe('<EditGroupModal />', () => {
   let initialProps;
