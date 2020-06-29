@@ -1,13 +1,5 @@
 @import '~@redhat-cloud-services/frontend-components/components/index.css';
 
-.modal-form-right-align {
-  .pf-m-action:last-child {
-    .data-driven-forms__pf4-button-group:first-child {
-      margin-left: auto
-    }
-  }
-}
-
 .groups-table-detail {
   &.heading {
     margin: 0 !important
