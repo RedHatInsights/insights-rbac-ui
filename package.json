@@ -11,7 +11,7 @@
     "@patternfly/react-icons": "^3.15.17",
     "@patternfly/react-table": "2.28.48",
     "@redhat-cloud-services/frontend-components": "2.0.6",
-    "@redhat-cloud-services/frontend-components-notifications": "2.0.3",
+    "@redhat-cloud-services/frontend-components-notifications": "2.0.4",
     "@redhat-cloud-services/frontend-components-utilities": "2.0.2",
     "@redhat-cloud-services/rbac-client": "^1.0.65",
     "axios-mock-adapter": "^1.17.0",
