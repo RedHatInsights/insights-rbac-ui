@@ -111,7 +111,6 @@ const User = ({
         debouncedFetch = debounce(
                 (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }),
             500);
-
     }, []);
 
     const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
@@ -131,7 +130,7 @@ const User = ({
                 <TopToolbar paddingBottm={ false }>
                     <TopToolbarTitle
                         title={ username }
-                        renderTitleTag={ () => user ? (
+                        renderTitleTag={ () => !isLoading ? (
                             <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active }) }>
                                 { user?.is_active ? 'Active' : 'Inactive'}
                             </Label>
@@ -179,11 +178,11 @@ User.propTypes = {
 const mapStateToProps = ({
     roleReducer: { roles, isLoading, rolesWithAccess },
     userReducer: { users: { data }}
-}) => ({
+}, username) => ({
     roles,
     isLoading,
     rolesWithAccess,
-    user: data && data[0]
+    user: data && data.filter(user => user.username === username)
 });
 
 const mapDispatchToProps = dispatch => ({
