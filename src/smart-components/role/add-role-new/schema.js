@@ -67,7 +67,7 @@ export default {
                         },
                         {
                             component: 'base-role-table',
-                            name: 'base-role',
+                            name: 'copy-base-role',
                             label: 'Base role',
                             isRequired: true,
                             condition: {
@@ -88,7 +88,7 @@ export default {
                     fields: [
                         {
                             component: 'text-field',
-                            name: 'role-name',
+                            name: 'role-copy-name',
                             type: 'text',
                             label: 'Role name',
                             isRequired: true,
@@ -100,7 +100,7 @@ export default {
                         },
                         {
                             component: 'text-field',
-                            name: 'role-description',
+                            name: 'role-copy-description',
                             type: 'text',
                             label: 'Role description'
                         }

@@ -45,8 +45,8 @@ const BaseRoleTable = (props) => {
                         onChange={ () => {
                             setBaseRole(role);
                             input.onChange(role);
-                            formOptions.change('role-name', `Copy of ${role.name}`);
-                            formOptions.change('role-description', role.description);
+                            formOptions.change('role-copy-name', `Copy of ${role.name}`);
+                            formOptions.change('role-copy-description', role.description);
                         } }
                     />
                 },
