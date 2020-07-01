@@ -8,7 +8,7 @@ import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import AddRoleWizard from './add-role/add-role-wizard';
+import AddRoleWizard from './add-role-new/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';

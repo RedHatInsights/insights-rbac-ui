@@ -59,3 +59,8 @@ export const fetchRoleForUser = apiProps => ({
   type: ActionTypes.FETCH_ROLE_FOR_USER,
   payload: RoleHelper.fetchRole(apiProps)
 });
+
+export const fetchRolesForWizard = (options = {}) => ({
+  type: ActionTypes.FETCH_ROLES_FOR_WIZARD,
+  payload: RoleHelper.fetchRoles(options)
+});
