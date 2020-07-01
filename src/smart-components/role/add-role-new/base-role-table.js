@@ -4,7 +4,8 @@ import { Radio } from '@patternfly/react-core';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { useFieldApi } from '@data-driven-forms/react-form-renderer/dist/cjs/';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 
 const columns = [ '', 'Name', 'Description' ];
 const selector = ({ roleReducer: { rolesForWizard, isLoading }}) => ({
@@ -21,6 +22,7 @@ const BaseRoleTable = (props) => {
     const [ baseRole, setBaseRole ] = useState({});
     const { roles, pagination } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
+    const formOptions = useFormApi();
 
     useEffect(()=> {
         fetchData({
@@ -43,6 +45,8 @@ const BaseRoleTable = (props) => {
                         onChange={ () => {
                             setBaseRole(role);
                             input.onChange(role);
+                            formOptions.change('role-copy-name', `Copy of ${role.name}`);
+                            formOptions.change('role-copy-description', role.description);
                         } }
                     />
                 },
