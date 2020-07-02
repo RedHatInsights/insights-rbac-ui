@@ -10,6 +10,8 @@ const mapper = {
   TextListItemVariants: 'TextListItem',
   TextListVariants: 'TextList',
   ModalVariant: 'Modal'
+  FlexModifiers: 'FlexUtils',
+  WizardContextConsumer: 'WizardContext'
 };
 
 const FECMapper = {

@@ -1,7 +1,8 @@
 import {
   FETCH_ROLE,
   FETCH_ROLES,
-  FETCH_ROLE_FOR_USER
+  FETCH_ROLE_FOR_USER,
+  FETCH_ROLES_FOR_WIZARD
 } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
@@ -10,6 +11,10 @@ export const rolesInitialState = {
   isLoading: false,
   isRecordLoading: false,
   roles: {
+    data: [],
+    meta: defaultSettings
+  },
+  rolesForWizard: {
     data: [],
     meta: defaultSettings
   },
@@ -26,11 +31,16 @@ const setRolesWithAccess = (state, { payload }) => ({
   isRecordLoading: false
 });
 
+const setRolesForWizard = (state, { payload }) => ({ ...state, rolesForWizard: payload, isWizardLoading: false });
+const setWizardLoadingState = state => ({ ...state, isWizardLoading: true });
+
 export default {
   [`${FETCH_ROLE}_FULFILLED`]: setRole,
   [`${FETCH_ROLE}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLES}_FULFILLED`]: setRoles,
   [`${FETCH_ROLES}_PENDING`]: setLoadingState,
   [`${FETCH_ROLE_FOR_USER}_FULFILLED`]: setRolesWithAccess,
-  [`${FETCH_ROLE_FOR_USER}_PENDING`]: setRecordLoadingState
+  [`${FETCH_ROLE_FOR_USER}_PENDING`]: setRecordLoadingState,
+  [`${FETCH_ROLES_FOR_WIZARD}_FULFILLED`]: setRolesForWizard,
+  [`${FETCH_ROLES_FOR_WIZARD}_PENDING`]: setWizardLoadingState
 };
