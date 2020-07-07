@@ -25,6 +25,7 @@ const BaseRoleTable = (props) => {
     const formOptions = useFormApi();
 
     useEffect(()=> {
+        setBaseRole(input.value);
         fetchData({
             limit: 50,
             offset: 0,
