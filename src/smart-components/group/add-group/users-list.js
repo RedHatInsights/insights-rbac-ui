@@ -26,7 +26,7 @@ const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
       uuid: username,
       cells: [{
           title: (
-            <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
+            <Label isCompact color={ isActive && 'green' } className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
               {isActive ? 'Active' : 'Inactive'}
             </Label>
         ),
