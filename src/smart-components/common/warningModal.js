@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, Button } from '@patternfly/react-core';
+import { Modal, ModalVariant, Button } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import './warningModal.scss';
 
@@ -10,7 +10,7 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel }) =
         <ExclamationTriangleIcon size='md' className='ins-c-wizard__cancel-warning-header--icon'/>
         Exit { type } creation?
       </span> }
-    isSmall
+    variant={ ModalVariant.small }
     className='ins-c-wizard__cancel-warning'
     isOpen={ isOpen }
     onClose={ onModalCancel }
