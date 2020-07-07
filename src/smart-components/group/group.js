@@ -61,7 +61,7 @@ const Group = ({
   return (
     <Fragment>
       <TopToolbar breadcrumbs={ breadcrumbsList() }>
-        <Split gutter="md">
+        <Split hasGutter>
           <SplitItem isFilled>
             <TopToolbarTitle
               title={ !isFetching && group

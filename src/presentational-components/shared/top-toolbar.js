@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextContent, TextVariants, Flex, FlexItem, FlexModifiers } from '@patternfly/react-core';
+import { Text, TextContent, TextVariants, Flex, FlexItem } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrubms';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
@@ -36,10 +36,10 @@ TopToolbar.defaultProps = {
 export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
   <Fragment>
     <Flex>
-      <FlexItem breakpointMods={ [{ modifier: FlexModifiers['spacer-sm'] }] }>
+      <FlexItem spaceItems={ { modifier: 'spaceItemsSm' } }>
         <PageHeaderTitle title={ title || <ToolbarTitlePlaceholder /> } className='ins-rbac-page-header__title'/>
       </FlexItem>
-      <FlexItem breakpointMods={ [{ modifier: FlexModifiers['align-self-center'] }] }>
+      <FlexItem alignSelf={ { modifier: 'alignSelfCenter' } }>
         { renderTitleTag && renderTitleTag() }
       </FlexItem>
     </Flex>

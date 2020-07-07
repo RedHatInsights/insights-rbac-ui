@@ -14,9 +14,9 @@ const RoleInformation = (formData, onHandleChange) => {
   const { description = '', name = '' } = formData;
 
   return (
-    <Stack gutter="md">
+    <Stack hasGutter>
       <StackItem>
-        <Title size="xl">Name and description</Title>
+        <Title headingLevel="h4" size="xl">Name and description</Title>
       </StackItem>
       <StackItem>
         <Form>
