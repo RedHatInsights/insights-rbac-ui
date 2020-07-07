@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/cjs/validator-types';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Button, Modal, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -85,14 +85,14 @@ const EditGroupModal = ({
 
   return (
     <Modal
-      isLarge
+      size={ ModalVariant.large }
       width={ '50%' }
       title={ 'Edit group\'s information' }
       isOpen={ isOpen }
       onClose={ onCancel }
     > { selectedGroup
         ?
-        <Grid gutter="md">
+        <Grid hasGutter>
           <TextContent>
             <Text>
               { `Make any changes to ${selectedGroup.name} group.` }

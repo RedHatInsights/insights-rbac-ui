@@ -18,16 +18,16 @@ const SummaryContent = (formData) => {
   const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
   return (
     <Fragment>
-      <Stack gutter="md">
+      <Stack hasGutter>
         <StackItem>
-          <Stack gutter="md">
+          <Stack hasGutter>
             <StackItem>
               <TextContent>
                 <Title headingLevel="h4" size="xl"> Confirm the details for this group, or click Back to revise </Title>
               </TextContent>
             </StackItem>
             <StackItem className="ins-c-rbac__summary">
-              <Grid gutter="md">
+              <Grid hasGutter>
                 <GridItem span={ 2 }>
                   <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group name</Text>
                 </GridItem>
@@ -35,7 +35,7 @@ const SummaryContent = (formData) => {
                   <Text className="data-table-detail content content" component={ TextVariants.p }>{ name }</Text>
                 </GridItem>
               </Grid>
-              <Grid gutter="md">
+              <Grid hasGutter>
                 <GridItem span = { 2 }>
                   <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group description</Text>
                 </GridItem>
@@ -43,7 +43,7 @@ const SummaryContent = (formData) => {
                   <Text className="data-table-detail content content" component={ TextVariants.p }>{ description }</Text>
                 </GridItem>
               </Grid>
-              <Grid gutter="md">
+              <Grid hasGutter>
                 <GridItem span={ 2 }>
                   <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Role(s)</Text>
                 </GridItem>
@@ -55,7 +55,7 @@ const SummaryContent = (formData) => {
                   </Text>
                 </GridItem>
               </Grid>
-              <Grid gutter="md">
+              <Grid hasGutter>
                 <GridItem span = { 2 }>
                   <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Member(s)</Text>
                 </GridItem>

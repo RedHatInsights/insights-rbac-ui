@@ -13,7 +13,6 @@ import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRole
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
-import classNames from 'classnames';
 import './group-roles.scss';
 
 const columns = [
@@ -42,27 +41,24 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   ]), []) : [];
 };
 
-const addRoleButton = (isDisabled) => (isDisabled
-  ? <Tooltip
-    content={ <div>All available roles have already been added to the group</div> }
+const addRoleButton = (isDisabled) => {
 
-  >
-    <div>
-      <Button
-        variant="primary"
-        aria-label="Add role"
-        isDisabled={ isDisabled }
-      >
-      Add role
-      </Button>
-    </div>
-  </Tooltip>
-  : <Button
+  const addRoleButtonContent = (
+    <Button
     variant="primary"
     aria-label="Add role"
-  >
-    Add role
-  </Button>);
+    isAriaDisabled={ isDisabled }>
+      Add role
+    </Button>
+  );
+
+  return (isDisabled
+  ? <Tooltip content="All available roles have already been added to the group">
+    { addRoleButtonContent }
+  </Tooltip>
+  :  addRoleButtonContent
+  );
+};
 
 const GroupRoles = ({
   roles,
@@ -152,13 +148,23 @@ const GroupRoles = ({
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         <Link
-          className={ classNames({ 'ins-c-rbac__add-role-disabled': disableAddRoles }) }
+          className={ `pf-m-visible-on-md ins-c-button__add-role${disableAddRoles && '-disabled'}` }
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
           onClick={ (e) => disableAddRoles && e.preventDefault() }
         >
           { addRoleButton(disableAddRoles) }
         </Link>,
+        {
+          label: 'Add role',
+          props: {
+            isDisabled: disableAddRoles,
+            className: 'pf-m-hidden-on-md'
+          },
+          onClick: () => {
+            (e) => disableAddRoles && e.preventDefault();
+          }
+        },
         {
           label: 'Remove',
           props: {

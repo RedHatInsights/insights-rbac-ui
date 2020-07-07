@@ -81,7 +81,7 @@ describe('<GroupPrincipals />', () => {
         </MemoryRouter>
       </Provider>
     );
-    expect(wrapper.find('.pf-c-data-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
+    expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
     expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
   });
 
@@ -94,7 +94,7 @@ describe('<GroupPrincipals />', () => {
         </MemoryRouter>
       </Provider>
     );
-    expect(wrapper.find('.pf-c-data-toolbar button[disabled=false].pf-m-primary')).toHaveLength(1);
+    expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(1);
     expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
   });
 

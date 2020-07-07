@@ -24,12 +24,12 @@ const SummaryContent = (formData) => {
   } = formData;
 
   return (
-    <Stack gutter="md">
+    <Stack hasGutter>
       <StackItem>
-        <Title size="xl">Confirm details</Title>
+        <Title headingLevel="h4" size="xl">Confirm details</Title>
       </StackItem>
       <StackItem>
-        <Stack gutter="md">
+        <Stack hasGutter>
           <StackItem>
             <TextContent>
               <Text component={ TextVariants.h5 }>

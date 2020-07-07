@@ -9,6 +9,7 @@ const mapper = {
   EmptyStateVariant: 'EmptyState',
   TextListItemVariants: 'TextListItem',
   TextListVariants: 'TextList',
+  ModalVariant: 'Modal',
   FlexModifiers: 'FlexUtils',
   WizardContextConsumer: 'WizardContext'
 };

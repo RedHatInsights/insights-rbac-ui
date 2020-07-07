@@ -22,7 +22,7 @@ const PolicyInfoText = ({ title, editType }) => {
     </TextContent> :
     <Fragment>
       <StackItem>
-        <Title size="xl">{ title }</Title>
+        <Title headingLevel="h4" size="xl">{ title }</Title>
       </StackItem>
       <TextContent>
         <Text component={ TextVariants.h6 }>Policies are the permissions set for this group.
@@ -65,7 +65,7 @@ const PolicyInformation = ({ title, editType, formData, onHandleChange, setIsPol
   return (
     <Fragment>
       <Form>
-        <Stack gutter="md">
+        <Stack hasGutter>
           <StackItem>
             <PolicyInfoText title= { title } editType = { editType }/>
           </StackItem>

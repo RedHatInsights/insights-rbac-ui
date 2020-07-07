@@ -80,9 +80,9 @@ const ResourceDefinitions = (formData, handleChange) => {
   };
 
   return (
-    <Stack gutter="md">
+    <Stack hasGutter>
       <StackItem>
-        <Title size="xl">Resource definitions</Title>
+        <Title headingLevel="h4" size="xl">Resource definitions</Title>
       </StackItem>
       <StackItem>
         <TextContent>
