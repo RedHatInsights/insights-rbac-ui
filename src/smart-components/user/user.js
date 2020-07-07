@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import { Link, withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -111,7 +111,6 @@ const User = ({
         debouncedFetch = debounce(
                 (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }),
             500);
-
     }, []);
 
     const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
@@ -131,7 +130,7 @@ const User = ({
                 <TopToolbar paddingBottm={ false }>
                     <TopToolbarTitle
                         title={ username }
-                        renderTitleTag={ () => user ? (
+                        renderTitleTag={ () => user && !isLoading ? (
                             <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active }) }>
                                 { user?.is_active ? 'Active' : 'Inactive'}
                             </Label>
@@ -179,17 +178,16 @@ User.propTypes = {
 const mapStateToProps = ({
     roleReducer: { roles, isLoading, rolesWithAccess },
     userReducer: { users: { data }}
-}) => ({
+}, { match: { params: { username }}}) => ({
     roles,
     isLoading,
     rolesWithAccess,
-    user: data && data[0]
+    user: data && data.filter(user => user.username === username)[0]
 });
-
 const mapDispatchToProps = dispatch => ({
     fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
     fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid)),
     fetchUsers: (apiProps) => dispatch(fetchUsers(apiProps))
 });
 
-export default connect(mapStateToProps, mapDispatchToProps)(User);
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(User));
