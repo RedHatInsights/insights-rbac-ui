@@ -1,4 +1,4 @@
-@import '~@redhat-cloud-services/frontend-components/components/index.css';
+@import '~@redhat-cloud-services/frontend-components/index.css';
 
 .groups-table-detail {
   &.heading {
@@ -110,4 +110,8 @@
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
+}
+
+.pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
+  display: none;
 }
