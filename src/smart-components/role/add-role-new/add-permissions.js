@@ -9,6 +9,7 @@ import {
     TableVariant
 } from '@patternfly/react-table';
 import { getPrincipalAccess } from '../../../redux/actions/access-actions';
+import { Spinner } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
@@ -110,7 +111,7 @@ const AddPermissionsTable = (props) => {
     };
 
     return (isLoading
-        ? 'LOADING'
+        ? <Spinner/>
         : <div>
 
             <PrimaryToolbar
