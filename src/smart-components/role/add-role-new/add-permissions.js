@@ -18,7 +18,7 @@ const selector = ({ accessReducer: { access, isLoading }}) => ({
     isLoading
 });
 const types = [ 'application', 'resource', 'operation' ];
-const accessWrapper = (rawData) => (filters = []) => {
+export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: []}) => {
     const uniqData = [ ...new Set(rawData.map(({ permission }) => permission)) ];
     const data = uniqData.map(permission => permission.split(':').reduce((acc, val, i) => ({ ...acc, [types[i]]: val }), {}));
     const filterApplication = (item) => (filters.applications.length === 0 || filters.applications.includes(item.application));
@@ -29,7 +29,6 @@ const accessWrapper = (rawData) => (filters = []) => {
     return {
         data,
         filteredData,
-        first: rawData[0],
         applications: [ ...new Set(data.filter(permission => filterResource(permission) && filterOperation(permission)).map(({ application }) => application)) ],
         resources: [ ...new Set(data.filter(permission => filterApplication(permission) && filterOperation(permission)).map(({ resource }) => resource)) ],
         operations: [ ...new Set(data.filter(permission => filterApplication(permission) && filterResource(permission)).map(({ operation }) => operation)) ]
@@ -37,7 +36,6 @@ const accessWrapper = (rawData) => (filters = []) => {
 };
 
 const AddPermissionsTable = (props) => {
-
     const dispatch = useDispatch();
     const fetchData = () => dispatch(getPrincipalAccess());
     const { access, isLoading } = useSelector(selector, shallowEqual);
@@ -67,11 +65,11 @@ const AddPermissionsTable = (props) => {
     }, []);
 
     useEffect(() => {
-        setPermissions(accessWrapper(access)(filters));
+        setPermissions(accessWrapper(access, filters));
     }, [ access ]);
 
     useEffect(() => {
-        setPermissions(accessWrapper(access)(filters));
+        setPermissions(accessWrapper(access, filters));
     }, [ filters ]);
 
     useEffect(() => {
@@ -113,7 +111,6 @@ const AddPermissionsTable = (props) => {
     return (isLoading
         ? <Spinner/>
         : <div>
-
             <PrimaryToolbar
                 filterConfig={ {
                     items: [
