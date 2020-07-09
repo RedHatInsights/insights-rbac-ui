@@ -1789,15 +1789,57 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   <TableToolbar
     isFooter={false}
   >
-    <PageHeaderTools
+    <Toolbar
       className="ins-c-table__toolbar"
     >
-      <div
-        className="pf-c-page__header-tools ins-c-table__toolbar"
+      <GenerateId
+        prefix="pf-random-id-"
       >
-         
-      </div>
-    </PageHeaderTools>
+        <div
+          className="pf-c-toolbar ins-c-table__toolbar"
+          id="pf-random-id-1"
+        >
+           
+          <ToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <ToolbarGroupWithRef
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-toolbar__group"
+                  />
+                </ToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </ToolbarChipGroupContent>
+        </div>
+      </GenerateId>
+    </Toolbar>
   </TableToolbar>
 </TableToolbarView>
 `;
@@ -2836,15 +2878,57 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   <TableToolbar
     isFooter={false}
   >
-    <PageHeaderTools
+    <Toolbar
       className="ins-c-table__toolbar"
     >
-      <div
-        className="pf-c-page__header-tools ins-c-table__toolbar"
+      <GenerateId
+        prefix="pf-random-id-"
       >
-         
-      </div>
-    </PageHeaderTools>
+        <div
+          className="pf-c-toolbar ins-c-table__toolbar"
+          id="pf-random-id-0"
+        >
+           
+          <ToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <ToolbarGroupWithRef
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-toolbar__group"
+                  />
+                </ToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </ToolbarChipGroupContent>
+        </div>
+      </GenerateId>
+    </Toolbar>
   </TableToolbar>
 </TableToolbarView>
 `;
