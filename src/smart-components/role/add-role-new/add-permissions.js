@@ -1,19 +1,8 @@
-/* eslint-disable */
-
 import React, { useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { PrimaryToolbar } from '@redhat-cloud-services/frontend-components';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableVariant
-} from '@patternfly/react-table';
-import { getPrincipalAccess } from '../../../redux/actions/access-actions';
-import { Spinner } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { getPrincipalAccess } from '../../../redux/actions/access-actions';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
 const selector = ({ accessReducer: { access, isLoading }}) => ({
@@ -77,10 +66,9 @@ const AddPermissionsTable = (props) => {
         input.onChange(selectedPermissions);
     }, [ selectedPermissions ]);
 
-    const f = (newSelection,b) => {
-        const a = newSelection(selectedPermissions).map(({ uuid } ) => ({ uuid }));
-        setSelectedPermissions(a);
-    }
+    const setCheckedItems = (newSelection) => {
+        setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
+    };
 
     return <div>
         <TableToolbarView
@@ -91,31 +79,31 @@ const AddPermissionsTable = (props) => {
             createRows={ createRows }
             data={ permissions.filteredData.slice(pagination.offset, pagination.offset + pagination.limit) }
             filterValue={ '' }
-            fetchData={ ({limit, offset }) => setPagination({ limit, offset }) }
-            setFilterValue={({ applications, resources, operations }) => {
-                typeof applications !== 'undefined' && setFilters({...filters, applications});
+            fetchData={ ({ limit, offset }) => setPagination({ limit, offset }) }
+            setFilterValue={ ({ applications, resources, operations }) => {
+                typeof applications !== 'undefined' && setFilters({ ...filters, applications });
                 typeof resources !== 'undefined' && setFilters({ ...filters, resources });
                 typeof operations !== 'undefined' && setFilters({ ...filters, operations });
             } }
             isLoading={ isLoading }
-            pagination={{ ...pagination, count: permissions.filteredData.length } }
+            pagination={ { ...pagination, count: permissions.filteredData.length } }
             checkedRows={ selectedPermissions }
-            setCheckedItems={ f }
+            setCheckedItems={ setCheckedItems }
             titlePlural="permissions"
             titleSingular="permission"
             hideFilterChips
             textFilters={ [
-                { 
-                    key: 'applications', value: filters.applications, placeholder: 'Filter by exact application', type: 'checkbox',
+                {
+                    key: 'applications', value: filters.applications, placeholder: 'Filter by application', type: 'checkbox',
                     items: permissions.applications.map(app => ({ label: app, value: app }))
                  },
-                { 
-                    key: 'resources', value: filters.resources, placeholder: 'Filter by exact resource', type: 'checkbox',
+                {
+                    key: 'resources', value: filters.resources, placeholder: 'Filter by resource type', type: 'checkbox',
                     items: permissions.resources.map(res => ({ label: res, value: res }))
 
                 },
-                { 
-                    key: 'operations', value: filters.operations, placeholder: 'Filter by exact operation', type: 'checkbox',
+                {
+                    key: 'operations', value: filters.operations, placeholder: 'Filter by operation', type: 'checkbox',
                     items: permissions.operations.map(op => ({ label: op, value: op }))
                 }
             ] }
