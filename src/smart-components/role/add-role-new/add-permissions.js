@@ -103,6 +103,7 @@ const AddPermissionsTable = (props) => {
             setCheckedItems={ f }
             titlePlural="permissions"
             titleSingular="permission"
+            hideFilterChips
             textFilters={ [
                 { 
                     key: 'applications', value: filters.applications, placeholder: 'Filter by exact application', type: 'checkbox',

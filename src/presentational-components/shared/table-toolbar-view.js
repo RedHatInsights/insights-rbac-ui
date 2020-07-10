@@ -37,7 +37,8 @@ export const TableToolbarView = ({
   textFilters,
   sortBy,
   isExpandable,
-  onExpand
+  onExpand,
+  hideFilterChips
 }) => {
   const [ opened, openRow ] = useState({});
   const [ sortByState, setSortByState ] = useState({ index: undefined, direction: undefined });
@@ -111,6 +112,7 @@ export const TableToolbarView = ({
         toolbarButtons={ toolbarButtons }
         filterPlaceholder={ filterPlaceholder }
         textFilters={ textFilters }
+        hideFilterChips={ hideFilterChips }
       />
       { isLoading ? <ListLoader /> : <Table
         canSelectAll={ false }
@@ -189,12 +191,14 @@ TableToolbarView.propTypes = {
     noBottom: propTypes.bool
   }),
   isExpandable: propTypes.bool,
-  onExpand: propTypes.func
+  onExpand: propTypes.func,
+  hideFilterChips: propTypes.bool
 };
 
 TableToolbarView.defaultProps = {
   ...Toolbar.defaultProps,
   isCompact: false,
   borders: true,
-  routes: () => null
+  routes: () => null,
+  hideFilterChips: false
 };
