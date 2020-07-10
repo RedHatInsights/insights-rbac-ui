@@ -68,14 +68,15 @@ export const filterConfigBuilder = (
   textFilters,
   sortBy
 ) => ({
-  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder }) => ({
+  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder, type = 'text', items }) => ({
     label: firstUpperCase(key),
-    type: 'text',
+    type,
     filterValues: {
       id: `filter-by-${key}`,
       key: `filter-by-${key}`,
       placeholder: placeholder ? placeholder : `Filter by ${key}`,
       value,
+      items,
       onChange: (_e, filterBy) => {
         setFilterValue({
           ...pagination,
