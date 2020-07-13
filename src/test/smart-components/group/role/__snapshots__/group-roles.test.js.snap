@@ -44,6 +44,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
   isLoading={true}
@@ -96,6 +97,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
     isSelectable={true}
@@ -187,6 +189,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
@@ -199,6 +202,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
@@ -603,6 +607,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
@@ -615,6 +620,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",
@@ -1877,6 +1883,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
   isLoading={true}
@@ -1917,6 +1924,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
     isSelectable={false}
@@ -1963,6 +1971,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
@@ -1975,6 +1984,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
@@ -2034,6 +2044,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
@@ -2046,6 +2057,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",

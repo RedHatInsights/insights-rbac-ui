@@ -9,12 +9,14 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/co
 import schema from './schema';
 
 import BaseRoleTable from './base-role-table';
+import AddPermissionsTable from './add-permissions';
 import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate { ...props } showFormControls={ false } />;
 
 export const mapperExtension = {
-    'base-role-table': BaseRoleTable
+    'base-role-table': BaseRoleTable,
+    'add-permissions-table': AddPermissionsTable
 };
 
 const AddRoleWizard = ({

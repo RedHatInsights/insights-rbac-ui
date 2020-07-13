@@ -68,14 +68,15 @@ export const filterConfigBuilder = (
   textFilters,
   sortBy
 ) => ({
-  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder }) => ({
+  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder, type = 'text', items }) => ({
     label: firstUpperCase(key),
-    type: 'text',
+    type,
     filterValues: {
       id: `filter-by-${key}`,
       key: `filter-by-${key}`,
       placeholder: placeholder ? placeholder : `Filter by ${key}`,
       value,
+      items,
       onChange: (_e, filterBy) => {
         setFilterValue({
           ...pagination,
@@ -176,7 +177,8 @@ const Toolbar = ({
   toolbarButtons,
   filterPlaceholder,
   filterItems,
-  textFilters
+  textFilters,
+  hideFilterChips
 }) => (
   <PrimaryToolbar
     { ...isSelectable && {
@@ -199,7 +201,7 @@ const Toolbar = ({
     { ...!isLoading && {
       pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy)
     } }
-      { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && {
+      { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && !hideFilterChips && {
         activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData, sortBy)
     } }
   />
@@ -229,7 +231,8 @@ Toolbar.propTypes = {
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,
-  toolbarButtons: PropTypes.func
+  toolbarButtons: PropTypes.func,
+  hideFilterChips: PropTypes.bool
 };
 
 Toolbar.defaultProps = {
@@ -246,7 +249,8 @@ Toolbar.defaultProps = {
   fetchData: () => undefined,
   toolbarButtons: () => [],
   filterItems: [],
-  textFilters: []
+  textFilters: [],
+  hideFilterChips: false
 };
 
 export default Toolbar;

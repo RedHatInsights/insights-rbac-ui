@@ -110,6 +110,10 @@ export default {
                     name: 'add-permissions',
                     title: 'Add permissions',
                     fields: [
+                        {
+                            component: 'add-permissions-table',
+                            name: 'add-permissions-table'
+                        }
                     ]
                 }
             ]
