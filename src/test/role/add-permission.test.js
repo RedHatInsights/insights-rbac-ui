@@ -31,14 +31,14 @@ describe('Access compose filter', () => {
         it('should return all data', () => {
             const out = accessWrapper(simpleData);
             expect(out.data).toEqual([
-            { application: 'coolApp', resource: 'coolResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' }
             ]);
         });
 
         it('should return all unique data', () => {
             const out = accessWrapper(duplicateData);
             expect(out.data).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' }
             ]);
         });
 
@@ -67,31 +67,31 @@ describe('Access compose filter', () => {
         it('returns all permissions with coolApp application filter', () => {
             const out = accessWrapper(data, { applications: [ 'coolApp' ], resources: [], operations: []});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'write' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'execute' },
-                { application: 'coolApp', resource: 'anotherResource', operation: 'read' },
-                { application: 'coolApp', resource: 'anotherResource', operation: 'write' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'write', uuid: 'coolApp:coolResource:write' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'execute', uuid: 'coolApp:coolResource:execute' },
+                { application: 'coolApp', resource: 'anotherResource', operation: 'read', uuid: 'coolApp:anotherResource:read' },
+                { application: 'coolApp', resource: 'anotherResource', operation: 'write', uuid: 'coolApp:anotherResource:write' }
             ]);
         });
 
         it('returns all permissions with coolResource resource filter', () => {
             const out = accessWrapper(data, { applications: [], resources: [ 'coolResource' ], operations: []});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'write' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'execute' },
-                { application: 'duplicate', resource: 'coolResource', operation: 'meow' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'write', uuid: 'coolApp:coolResource:write' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'execute', uuid: 'coolApp:coolResource:execute' },
+                { application: 'duplicate', resource: 'coolResource', operation: 'meow', uuid: 'duplicate:coolResource:meow' }
             ]);
         });
 
         it('returns all permissions with read operation filter', () => {
             const out = accessWrapper(data, { applications: [], resources: [], operations: [ 'read' ]});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'coolApp', resource: 'anotherResource', operation: 'read' },
-                { application: 'differentApp', resource: 'firstResource', operation: 'read' },
-                { application: 'differentApp', resource: 'secondResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'coolApp', resource: 'anotherResource', operation: 'read', uuid: 'coolApp:anotherResource:read' },
+                { application: 'differentApp', resource: 'firstResource', operation: 'read', uuid: 'differentApp:firstResource:read' },
+                { application: 'differentApp', resource: 'secondResource', operation: 'read', uuid: 'differentApp:secondResource:read' }
             ]);
         });
 
@@ -131,32 +131,32 @@ describe('Access compose filter', () => {
         it('returns all permissions with coolApp and coolResource filter', () => {
             const out = accessWrapper(data, { applications: [ 'coolApp' ], resources: [ 'coolResource' ], operations: []});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'write' },
-                { application: 'coolApp', resource: 'coolResource', operation: 'execute' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'write', uuid: 'coolApp:coolResource:write' },
+                { application: 'coolApp', resource: 'coolResource', operation: 'execute', uuid: 'coolApp:coolResource:execute' }
             ]);
         });
 
         it('returns all permissions with coolApp and coolResource and readfilter', () => {
             const out = accessWrapper(data, { applications: [ 'coolApp' ], resources: [ 'coolResource' ], operations: [ 'read' ]});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' }
             ]);
         });
 
         it('returns all permissions with coolApp and (coolResource or anotherResource) and read filter', () => {
             const out = accessWrapper(data, { applications: [ 'coolApp' ], resources: [ 'coolResource', 'anotherResource' ], operations: [ 'read' ]});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'coolApp', resource: 'anotherResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'coolApp', resource: 'anotherResource', operation: 'read', uuid: 'coolApp:anotherResource:read' }
             ]);
         });
 
         it('returns all permissions with (coolApp or differentApp) and (coolResource or firstResource) and read filter', () => {
             const out = accessWrapper(data, { applications: [ 'coolApp', 'differentApp' ], resources: [ 'coolResource', 'firstResource' ], operations: [ 'read' ]});
             expect(out.filteredData).toEqual([
-                { application: 'coolApp', resource: 'coolResource', operation: 'read' },
-                { application: 'differentApp', resource: 'firstResource', operation: 'read' }
+                { application: 'coolApp', resource: 'coolResource', operation: 'read', uuid: 'coolApp:coolResource:read' },
+                { application: 'differentApp', resource: 'firstResource', operation: 'read', uuid: 'differentApp:firstResource:read' }
             ]);
         });
 
