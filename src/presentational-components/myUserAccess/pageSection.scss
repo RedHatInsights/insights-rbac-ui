@@ -1,0 +1,5 @@
+.ins-l-myUserAccess-section {
+    & + .ins-l-myUserAccess-section {
+        margin-top: var(--pf-global--gutter);
+    }
+}

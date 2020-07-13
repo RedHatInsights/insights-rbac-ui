@@ -24,7 +24,7 @@ class App extends Component {
     const { history } = this.props;
     insights.chrome.init();
     insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
-    insights.chrome.identifyApp('rbac');
+    insights.chrome.getApp() === 'rbac' ? insights.chrome.identifyApp('rbac') : insights.chrome.identifyApp('my-user-access');
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
         history.push(`/${event.navId}`);
@@ -43,7 +43,7 @@ class App extends Component {
       return <AppPlaceholder />;
     }
 
-    if (!isAdmin) {
+    if (!isAdmin && insights.chrome.getApp() === 'rbac') {
       return <DeniedState/>;
     }
 
