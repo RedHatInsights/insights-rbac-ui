@@ -321,6 +321,7 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
           "filterValues": Object {
             "id": "filter-by-name",
             "isDisabled": false,
+            "items": undefined,
             "key": "filter-by-name",
             "onChange": [Function],
             "placeholder": "Filter by name",

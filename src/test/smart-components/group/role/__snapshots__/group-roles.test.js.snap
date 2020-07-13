@@ -44,6 +44,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
   isLoading={true}
@@ -96,6 +97,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
     isSelectable={true}
@@ -187,6 +189,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
@@ -199,6 +202,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
@@ -603,6 +607,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
@@ -615,6 +620,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",
@@ -1789,15 +1795,57 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   <TableToolbar
     isFooter={false}
   >
-    <PageHeaderTools
+    <Toolbar
       className="ins-c-table__toolbar"
     >
-      <div
-        className="pf-c-page__header-tools ins-c-table__toolbar"
+      <GenerateId
+        prefix="pf-random-id-"
       >
-         
-      </div>
-    </PageHeaderTools>
+        <div
+          className="pf-c-toolbar ins-c-table__toolbar"
+          id="pf-random-id-1"
+        >
+           
+          <ToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <ToolbarGroupWithRef
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-toolbar__group"
+                  />
+                </ToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </ToolbarChipGroupContent>
+        </div>
+      </GenerateId>
+    </Toolbar>
   </TableToolbar>
 </TableToolbarView>
 `;
@@ -1835,6 +1883,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
   isLoading={true}
@@ -1875,6 +1924,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
     isSelectable={false}
@@ -1921,6 +1971,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
@@ -1933,6 +1984,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
@@ -1992,6 +2044,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
@@ -2004,6 +2057,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",
@@ -2836,15 +2890,57 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   <TableToolbar
     isFooter={false}
   >
-    <PageHeaderTools
+    <Toolbar
       className="ins-c-table__toolbar"
     >
-      <div
-        className="pf-c-page__header-tools ins-c-table__toolbar"
+      <GenerateId
+        prefix="pf-random-id-"
       >
-         
-      </div>
-    </PageHeaderTools>
+        <div
+          className="pf-c-toolbar ins-c-table__toolbar"
+          id="pf-random-id-0"
+        >
+           
+          <ToolbarChipGroupContent
+            chipGroupContentRef={
+              Object {
+                "current": <div
+                  class="pf-c-toolbar__content pf-m-hidden"
+                  hidden=""
+                >
+                  <div
+                    class="pf-c-toolbar__group"
+                  />
+                </div>,
+              }
+            }
+            clearFiltersButtonText="Clear all filters"
+            collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
+            numberOfFilters={0}
+            showClearFiltersButton={false}
+          >
+            <div
+              className="pf-c-toolbar__content pf-m-hidden"
+              hidden={true}
+            >
+              <ForwardRef
+                className=""
+              >
+                <ToolbarGroupWithRef
+                  className=""
+                  innerRef={null}
+                >
+                  <div
+                    className="pf-c-toolbar__group"
+                  />
+                </ToolbarGroupWithRef>
+              </ForwardRef>
+            </div>
+          </ToolbarChipGroupContent>
+        </div>
+      </GenerateId>
+    </Toolbar>
   </TableToolbar>
 </TableToolbarView>
 `;
