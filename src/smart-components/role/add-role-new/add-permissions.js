@@ -73,7 +73,8 @@ const AddPermissionsTable = (props) => {
 
     return <div>
         <ChipGroup categoryName='Selected permissions'>
-            {selectedPermissions.map(({ uuid }) => (
+            { /* immutable reverse */ }
+            {selectedPermissions.reduce((acc, i) => [ i, ...acc ], []).map(({ uuid }) => (
                 <Chip key={ uuid } onClick={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
                     {uuid}
                 </Chip>
