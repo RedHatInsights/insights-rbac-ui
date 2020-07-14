@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { getPrincipalAccess } from '../../../redux/actions/access-actions';
-import { Chip, ChipGroup } from '@patternfly/react-core';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
 const selector = ({ accessReducer: { access, isLoading }}) => ({
@@ -29,13 +29,14 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
 };
 
 const AddPermissionsTable = (props) => {
+    console.log(props);
     const dispatch = useDispatch();
     const fetchData = () => dispatch(getPrincipalAccess());
     const { access, isLoading } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
-    const [ selectedPermissions, setSelectedPermissions ] = useState([]);
+    const { selectedPermissions, setSelectedPermissions } = props;
     const [ pagination, setPagination ] = useState({ limit: 10, offset: 0 });
 
     const createRows = (permissions) => permissions.map(
@@ -72,14 +73,6 @@ const AddPermissionsTable = (props) => {
     };
 
     return <div>
-        <ChipGroup categoryName='Selected permissions'>
-            { /* immutable reverse */ }
-            {selectedPermissions.reduce((acc, i) => [ i, ...acc ], []).map(({ uuid }) => (
-                <Chip key={ uuid } onClick={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
-                    {uuid}
-                </Chip>
-            ))}
-        </ChipGroup>
         <TableToolbarView
             columns={ columns }
             isSelectable={ true }
@@ -119,6 +112,11 @@ const AddPermissionsTable = (props) => {
             { ...props }
         />
     </div >;
+};
+
+AddPermissionsTable.propTypes = {
+    selectedPermissions: PropTypes.array,
+    setSelectedPermissions: PropTypes.func
 };
 
 export default AddPermissionsTable;

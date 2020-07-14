@@ -1,3 +1,4 @@
+import AddPermissionTemplate from './add-permissions-template';
 export default {
     fields: [
         {
@@ -109,6 +110,7 @@ export default {
                 {
                     name: 'add-permissions',
                     title: 'Add permissions',
+                    StepTemplate: AddPermissionTemplate,
                     fields: [
                         {
                             component: 'add-permissions-table',
