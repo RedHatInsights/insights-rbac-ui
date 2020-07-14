@@ -6,29 +6,27 @@ import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 
 import './pageSection.scss';
 
-const MUAPageSection = ({ title, children, popOverContent }) => {
-    return (
-        <section className='ins-l-myUserAccess-section'>
-            <Stack hasGutter>
-                <StackItem>
-                    <Title headingLevel="h2" size="2xl">
-                        { title }
-                        { popOverContent &&
-                            <Popover
-                                bodyContent={ <div> { popOverContent } </div> }
-                                aria-label={ popOverContent }
-                                closeBtnAriaLabel="Close popover"
-                                position='right'>
-                                <Button variant='plain'><OutlinedQuestionCircleIcon size='sm'/></Button>
-                            </Popover>
-                        }
-                    </Title>
-                </StackItem>
-                <StackItem> { children } </StackItem>
-            </Stack>
-        </section>
-    );
-};
+const MUAPageSection = ({ title, children, popOverContent }) => (
+  <section className='ins-l-myUserAccess-section'>
+    <Stack hasGutter>
+      <StackItem>
+        <Title headingLevel="h2" size="2xl">
+          { title }
+          { popOverContent &&
+            <Popover
+              bodyContent={ <div> { popOverContent } </div> }
+              aria-label={ popOverContent }
+              closeBtnAriaLabel="Close popover"
+              position='right'>
+              <Button variant='plain'><OutlinedQuestionCircleIcon size='sm'/></Button>
+            </Popover>
+          }
+        </Title>
+      </StackItem>
+      <StackItem> { children } </StackItem>
+    </Stack>
+  </section>
+);
 
 MUAPageSection.propTypes = {
     title: PropTypes.node,

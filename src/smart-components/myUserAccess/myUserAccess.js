@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { PageHeader, PageHeaderTitle, Main } from '@redhat-cloud-services/frontend-components';
-import { Text, TextContent } from '@patternfly/react-core';
+import { Text, TextContent, Spinner } from '@patternfly/react-core';
 import OrgAdminLabel from '../../presentational-components/myUserAccess/orgAdminLabel';
 
 import './myUserAccess.scss';
@@ -9,39 +9,35 @@ import MUAOrgEntitlements from '../../presentational-components/myUserAccess/org
 
 const MyUserAccess = () => {
 
-    const [ isOrgAdmin, setIsOrgAdmin ] = useState();
-    const [ entitlements, setEntitlements ] = useState();
-    const [ isUserReady, setIsUserReady ] = useState(false);
+    const [ user, setUser ] = useState({});
 
     useEffect(() => {
-        insights.chrome.auth.getUser().then((user) => {
-          setIsOrgAdmin(user.identity.user.is_org_admin);
-          setEntitlements(user.entitlements);
-          setIsUserReady(true);
-        });
+      insights.chrome.auth.getUser().then(({ identity, entitlements }) => (
+        setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin })
+      ));
     }, []);
 
     return (
       <React.Fragment>
-        { isUserReady ?
+        { Object.prototype.hasOwnProperty.call(user, 'entitlements') && Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') ?
           <React.Fragment>
             <PageHeader>
               <TextContent>
                 <PageHeaderTitle title={ <React.Fragment>
-                    <span> My user access </span>
-                    { isOrgAdmin && <OrgAdminLabel/> }
+                    <span> My User Access </span>
+                    { user.isOrgAdmin && <OrgAdminLabel/> }
                     </React.Fragment> }/>
                 <Text component="p" className='ins-p-myUserAccess--subtitle'>
                   <span>Understand your Red Hat access by exploring your organization&apos;s entitlements and your individual user roles.</span>
-                  { isOrgAdmin && <span> As an admin, you can manage other users&apos; permissions with &apos;User access&apos;</span>}
+                  { user.isOrgAdmin && <span> As an admin, you can manage other users&apos; permissions with <b>User Access</b>.</span>}
                 </Text>
               </TextContent>
             </PageHeader>
             <Main>
-              { entitlements && <MUAPageSection
+              { user.entitlements && <MUAPageSection
                   title='Organization entitlements'
                   popOverContent='Your organization is subscribed to the following bundles'>
-                    <MUAOrgEntitlements entitlements={ entitlements }/>
+                    <MUAOrgEntitlements entitlements={ user.entitlements }/>
                 </MUAPageSection>
               }
               <MUAPageSection title='My roles'>
@@ -49,7 +45,7 @@ const MyUserAccess = () => {
               </MUAPageSection>
             </Main>
           </React.Fragment>
-          : <span> test </span>
+          : <Spinner/>
         }
       </React.Fragment>
     );

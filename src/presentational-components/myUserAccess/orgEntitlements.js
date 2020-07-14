@@ -7,22 +7,23 @@ import MUABundleCard from './bundleCard';
 
 const MUAOrgEntitlements = ({ entitlements }) => {
 
-  let entitledBundles = [];
-
-  Object.entries(entitlements).map(([ key, value ]) => value.is_entitled === true && entitledBundles.push(key));
+  const entitledBundles = Object.entries(entitlements).filter(([ , { is_entitled }]) => is_entitled);
 
   return (
     <Grid sm={ 12 } md={ 6 } lg={ 4 } hasGutter className='ins-l-mua-bundles'>
-      { bundleData.map(data => entitledBundles.includes(data.entitlement) &&
-        <GridItem key={ data.entitlement }>
-          <MUABundleCard
-            entitlement={ data.entitlement }
-            title={ data.title }
-            body={ data.body }
-            url={ data.url }
-            appList={ data.apps }/>
-        </GridItem>
-      )}
+      { entitledBundles.map(([ key ]) => {
+        const data = bundleData.find(({ entitlement }) => entitlement === key);
+        return (
+          data ? <GridItem key={ data.entitlement }>
+            <MUABundleCard
+              entitlement={ data.entitlement }
+              title={ data.title }
+              body={ data.body }
+              url={ data.url }
+              appList={ data.apps }/>
+          </GridItem> : <React.Fragment />
+        );
+      })}
     </Grid>
   );
 };
