@@ -3,6 +3,7 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { getPrincipalAccess } from '../../../redux/actions/access-actions';
+import { Chip, ChipGroup } from '@patternfly/react-core';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
 const selector = ({ accessReducer: { access, isLoading }}) => ({
@@ -71,6 +72,13 @@ const AddPermissionsTable = (props) => {
     };
 
     return <div>
+        <ChipGroup categoryName='Selected permissions'>
+            {selectedPermissions.map(({ uuid }) => (
+                <Chip key={ uuid } onClick={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
+                    {uuid}
+                </Chip>
+            ))}
+        </ChipGroup>
         <TableToolbarView
             columns={ columns }
             isSelectable={ true }

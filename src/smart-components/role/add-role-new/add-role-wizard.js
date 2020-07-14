@@ -5,7 +5,7 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import FormRenderer from '@data-driven-forms/react-form-renderer/dist/cjs/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/cjs/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
-
+import { Chip, ChipGroup } from '@patternfly/react-core';
 import schema from './schema';
 
 import BaseRoleTable from './base-role-table';
@@ -35,14 +35,27 @@ const AddRoleWizard = ({
         push('/roles');
     };
 
-    return <FormRenderer
-        schema={ schema }
-        subscription={ { values: true } }
-        FormTemplate={ FormTemplate }
-        componentMapper={ { ...componentMapper, ...mapperExtension } }
-        onSubmit={ console.log }
-        onCancel={ onCancel }
-    />;
+    const chips = [ 'Chip one', 'Really long chip that goes on and on', 'Chip three', 'Chip four', 'Chip five' ];
+
+    return <div>
+        <ChipGroup>
+            {chips.map(currentChip => (
+                <Chip key={ currentChip } onClick={ () => this.deleteItem(currentChip) }>
+                    {currentChip}
+                </Chip>
+            ))}
+        </ChipGroup>
+        <div>AHOJ</div>
+        <FormRenderer
+            schema={ schema }
+            subscription={ { values: true } }
+            FormTemplate={ FormTemplate }
+            componentMapper={ { ...componentMapper, ...mapperExtension } }
+            onSubmit={ console.log }
+            onCancel={ onCancel }
+        />;
+    </div>;
+
 };
 
 AddRoleWizard.propTypes = {
