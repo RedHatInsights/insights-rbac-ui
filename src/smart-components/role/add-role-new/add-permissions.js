@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -27,14 +28,13 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
     };
 };
 
-const AddPermissionsTable = (props) => {
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
     const dispatch = useDispatch();
     const fetchData = () => dispatch(getPrincipalAccess());
     const { access, isLoading } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
-    const [ selectedPermissions, setSelectedPermissions ] = useState([]);
     const [ pagination, setPagination ] = useState({ limit: 10, offset: 0 });
 
     const createRows = (permissions) => permissions.map(
@@ -110,6 +110,11 @@ const AddPermissionsTable = (props) => {
             { ...props }
         />
     </div >;
+};
+
+AddPermissionsTable.propTypes = {
+    selectedPermissions: PropTypes.array,
+    setSelectedPermissions: PropTypes.func
 };
 
 export default AddPermissionsTable;
