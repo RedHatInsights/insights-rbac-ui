@@ -28,15 +28,13 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
     };
 };
 
-const AddPermissionsTable = (props) => {
-    console.log(props);
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
     const dispatch = useDispatch();
     const fetchData = () => dispatch(getPrincipalAccess());
     const { access, isLoading } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
-    const { selectedPermissions, setSelectedPermissions } = props;
     const [ pagination, setPagination ] = useState({ limit: 10, offset: 0 });
 
     const createRows = (permissions) => permissions.map(
