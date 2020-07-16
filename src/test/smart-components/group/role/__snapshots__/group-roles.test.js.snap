@@ -44,6 +44,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  filters={
+    Array [
+      Object {
+        "key": "name",
+        "value": "",
+      },
+      Object {
+        "key": "description",
+        "value": "",
+      },
+    ]
+  }
   hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
@@ -60,18 +72,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  textFilters={
-    Array [
-      Object {
-        "key": "name",
-        "value": "",
-      },
-      Object {
-        "key": "description",
-        "value": "",
-      },
-    ]
-  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -97,6 +97,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    filters={
+      Array [
+        Object {
+          "key": "name",
+          "value": "",
+        },
+        Object {
+          "key": "description",
+          "value": "",
+        },
+      ]
+    }
     hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
@@ -111,18 +123,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
-    textFilters={
-      Array [
-        Object {
-          "key": "name",
-          "value": "",
-        },
-        Object {
-          "key": "description",
-          "value": "",
-        },
-      ]
-    }
     titleSingular="role"
     toolbarButtons={[Function]}
   >
@@ -1883,6 +1883,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterValue=""
+  filters={
+    Array [
+      Object {
+        "key": "name",
+        "value": "",
+      },
+      Object {
+        "key": "description",
+        "value": "",
+      },
+    ]
+  }
   hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
@@ -1898,18 +1910,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  textFilters={
-    Array [
-      Object {
-        "key": "name",
-        "value": "",
-      },
-      Object {
-        "key": "description",
-        "value": "",
-      },
-    ]
-  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -1924,6 +1924,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     fetchData={[Function]}
     filterItems={Array []}
     filterValue=""
+    filters={
+      Array [
+        Object {
+          "key": "name",
+          "value": "",
+        },
+        Object {
+          "key": "description",
+          "value": "",
+        },
+      ]
+    }
     hideFilterChips={false}
     isCollapsible={false}
     isLoading={true}
@@ -1937,18 +1949,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
-    textFilters={
-      Array [
-        Object {
-          "key": "name",
-          "value": "",
-        },
-        Object {
-          "key": "description",
-          "value": "",
-        },
-      ]
-    }
     titleSingular="role"
     toolbarButtons={[Function]}
   >

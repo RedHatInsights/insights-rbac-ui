@@ -65,10 +65,10 @@ export const filterConfigBuilder = (
   titleSingular = '',
   filterPlaceholder,
   filterItems,
-  textFilters,
+  filters,
   sortBy
 ) => ({
-  items: [ ...textFilters && textFilters.length > 0 ? textFilters.map(({ key, value, placeholder, type = 'text', items }) => ({
+  items: [ ...filters && filters.length > 0 ? filters.map(({ key, value, placeholder, type = 'text', items }) => ({
     label: firstUpperCase(key),
     type,
     filterValues: {
@@ -87,7 +87,7 @@ export const filterConfigBuilder = (
           ...pagination,
           offset: 0,
           orderBy: sortBy,
-          ...textFilters.reduce((acc, curr) => ({
+          ...filters.reduce((acc, curr) => ({
             ...acc,
             [curr.key]: curr.value
           }), {}),
@@ -123,13 +123,13 @@ export const filterConfigBuilder = (
 
 export const activeFiltersConfigBuilder = (
   filterValue = '',
-  textFilters,
+  filters,
   pagination = {},
   setFilterValue  = () => undefined,
   fetchData = () => undefined,
   sortBy
 ) => ({
-  filters: (textFilters && textFilters.length > 0) ? textFilters.map(({ key, value }) => value && ({
+  filters: (filters && filters.length > 0) ? filters.map(({ key, value }) => value && ({
     category: firstUpperCase(key),
     type: key,
     chips: [{ name: value }]
@@ -141,7 +141,7 @@ export const activeFiltersConfigBuilder = (
       ...pagination,
       offset: 0,
       name: '',
-      ...textFilters ? textFilters.reduce((acc, { key, value }) => ({
+      ...filters ? filters.reduce((acc, { key, value }) => ({
         ...acc,
         [key]: deleted.type === key || isAll ? '' : value
       }), {}) : {
@@ -152,7 +152,7 @@ export const activeFiltersConfigBuilder = (
       ...pagination,
       offset: 0,
       orderBy: sortBy,
-      ...textFilters ? textFilters.reduce((acc, { key, value }) => ({
+      ...filters ? filters.reduce((acc, { key, value }) => ({
         ...acc,
         [key]: deleted.type === key || isAll ? '' : value
       }), {}) : {
@@ -177,7 +177,7 @@ const Toolbar = ({
   toolbarButtons,
   filterPlaceholder,
   filterItems,
-  textFilters,
+  filters,
   hideFilterChips
 }) => (
   <PrimaryToolbar
@@ -192,7 +192,7 @@ const Toolbar = ({
         titleSingular,
         filterPlaceholder,
         filterItems,
-        textFilters,
+        filters,
         sortBy
       ) }
     actionsConfig={ {
@@ -201,8 +201,8 @@ const Toolbar = ({
     { ...!isLoading && {
       pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy)
     } }
-      { ...(filterValue.length > 0 || (textFilters && textFilters.length > 0)) && !hideFilterChips && {
-        activeFiltersConfig: activeFiltersConfigBuilder(filterValue, textFilters, pagination, setFilterValue, fetchData, sortBy)
+      { ...(filterValue.length > 0 || (filters && filters.length > 0)) && !hideFilterChips && {
+        activeFiltersConfig: activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy)
     } }
   />
 );
@@ -216,7 +216,7 @@ Toolbar.propTypes = {
   titleSingular: PropTypes.string,
   filterValue: PropTypes.oneOfType([ PropTypes.array, PropTypes.string ]),
   setFilterValue: PropTypes.func,
-  textFilters: PropTypes.arrayOf(PropTypes.shape({
+  filters: PropTypes.arrayOf(PropTypes.shape({
     value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
     key: PropTypes.string,
     placeholder: PropTypes.string
@@ -249,7 +249,7 @@ Toolbar.defaultProps = {
   fetchData: () => undefined,
   toolbarButtons: () => [],
   filterItems: [],
-  textFilters: [],
+  filters: [],
   hideFilterChips: false
 };
 
