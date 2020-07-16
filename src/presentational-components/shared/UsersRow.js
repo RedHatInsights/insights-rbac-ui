@@ -1,11 +1,13 @@
 import React from 'react';
 import { RowWrapper } from '@patternfly/react-table';
 import PropTypes from 'prop-types';
+import classNames from 'classnames';
 
 const UsersRow = ({ row, ...props }) => {
   const { status } = row;
+  const { 'data-is-active': isActive } = status?.props;
   return <RowWrapper
-    className={ `ins-c-rbac__user-row ${status?.props?.data?.isActive ? '' : 'ins-m-inactive'}` }
+    className={ classNames('ins-c-rbac__user-row', { 'ins-m-inactive': !isActive }) }
     row={ row }
     { ...props }
   />;

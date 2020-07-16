@@ -31,7 +31,7 @@ const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
             </Label>
         ),
         props: {
-          data: { isActive }
+          'data-is-active': isActive
         }
       }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, firstName, lastName ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
