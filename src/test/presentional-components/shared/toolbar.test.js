@@ -133,7 +133,7 @@ describe('<Toolbar>', () => {
     });
 
     it('should render with text filters', () => {
-      const wrapper = shallow(<Toolbar filterValue='some' textFilters={ [{ key: 'name', value: '' }] } />);
+      const wrapper = shallow(<Toolbar filterValue='some' filters={ [{ key: 'name', value: '' }] } />);
       expect(toJson(wrapper)).toMatchSnapshot();
     });
 
@@ -141,7 +141,7 @@ describe('<Toolbar>', () => {
       const setFilterValue = jest.fn();
       const wrapper = mount(<Toolbar
         filterValue='some'
-        textFilters={ [{ key: 'name', value: '' }] }
+        filters={ [{ key: 'name', value: '' }] }
         setFilterValue={ setFilterValue }
       />);
       const target = wrapper.find('input#filter-by-name');

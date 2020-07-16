@@ -92,7 +92,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             titlePlural="permissions"
             titleSingular="permission"
             hideFilterChips
-            textFilters={ [
+            filters={ [
                 {
                     key: 'applications', value: filters.applications, placeholder: 'Filter by application', type: 'checkbox',
                     items: permissions.applications.map(app => ({ label: app, value: app }))

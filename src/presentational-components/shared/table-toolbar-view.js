@@ -34,7 +34,7 @@ export const TableToolbarView = ({
   emptyProps,
   filterPlaceholder,
   rowWrapper,
-  textFilters,
+  filters,
   sortBy,
   isExpandable,
   onExpand,
@@ -111,7 +111,7 @@ export const TableToolbarView = ({
         fetchData={ fetchData }
         toolbarButtons={ toolbarButtons }
         filterPlaceholder={ filterPlaceholder }
-        textFilters={ textFilters }
+        filters={ filters }
         hideFilterChips={ hideFilterChips }
       />
       { isLoading ? <ListLoader /> : <Table
@@ -160,7 +160,7 @@ export const TableToolbarView = ({
   return (
     <Fragment>
       { routes() }
-      { !isLoading && rows.length === 0 && (filterValue.length === 0 && textFilters.every(({ value }) => !value)) ?
+      { !isLoading && rows.length === 0 && (filterValue.length === 0 && filters.every(({ value }) => !value)) ?
         <EmptyWithAction
           title={ `Configure ${titlePlural}` }
           icon={ PlusCircleIcon }

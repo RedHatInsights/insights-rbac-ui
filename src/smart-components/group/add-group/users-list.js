@@ -79,7 +79,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     rowWrapper={ UsersRow }
     titlePlural="users"
     titleSingular="user"
-    textFilters={ [
+    filters={ [
       { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
       { key: 'email', value: emailValue, placeholder: 'Filter by exact email' }
     ] }
