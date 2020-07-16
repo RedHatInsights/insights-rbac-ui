@@ -4,7 +4,6 @@ import { fetchGroups, addGroup, removeGroups } from '../../../helpers/group/grou
 import { getUserMock } from '../../../../config/setupTests';
 
 describe('group helper', () => {
-  console.log(getUserMock);
   it('should call list groups helper', async () => {
     const mockedData = {
       data: [],
