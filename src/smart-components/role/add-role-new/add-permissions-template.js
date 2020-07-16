@@ -8,6 +8,8 @@ const AddPermissionTemplate = ({ formFields }) => {
 
     const addPermissions = formFields[0][0];
     return <React.Fragment>
+        { selectedPermissions.length > 0
+        ? <div className='ins-c-rbac-seleted-chips'>
         <ChipGroup categoryName='Selected permissions'>
             { /* immutable reverse */}
             {selectedPermissions.reduce((acc, i) => [ i, ...acc ], []).map(({ uuid }) => (
@@ -16,7 +18,10 @@ const AddPermissionTemplate = ({ formFields }) => {
                 </Chip>
             ))}
         </ChipGroup>
-        <Title headingLevel="h1" size="xl" clasName='add-permission-title'>
+        </div>
+        : null
+        }
+        <Title headingLevel="h1" size="xl" className='ins-c-rbac-add-permission-title'>
             Add permissions
         </Title>
         <TextContent>

@@ -233,7 +233,7 @@ const GroupRoles = ({
           actionResolver={ actionResolver }
           routes={ routes }
           emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
-          textFilters={ [
+          filters={ [
             { key: 'name', value: filterValue },
             { key: 'description', value: descriptionValue }
           ] }

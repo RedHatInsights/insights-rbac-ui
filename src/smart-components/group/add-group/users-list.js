@@ -31,7 +31,7 @@ const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
             </Label>
         ),
         props: {
-          data: { isActive }
+          'data-is-active': isActive
         }
       }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, firstName, lastName ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
@@ -79,7 +79,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     rowWrapper={ UsersRow }
     titlePlural="users"
     titleSingular="user"
-    textFilters={ [
+    filters={ [
       { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
       { key: 'email', value: emailValue, placeholder: 'Filter by exact email' }
     ] }
