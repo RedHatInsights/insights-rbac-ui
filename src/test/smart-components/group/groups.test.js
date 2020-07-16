@@ -11,6 +11,7 @@ import { mock } from '../../__mocks__/apiMock';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { getUserMock } from '../../../../config/setupTests';
 
 describe('<Groups />', () => {
 
@@ -100,7 +101,9 @@ describe('<Groups />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_GROUPS_PENDING' },
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {}}
+      { type: 'FETCH_GROUPS_FULFILLED', payload: {
+        ...getUserMock
+      }}
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });
@@ -137,7 +140,9 @@ describe('<Groups />', () => {
       wrapper.find('#ins-primary-data-toolbar .ins-c-chip-filters').simulate('click');
     });
     const expectedCancelPayload = [
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {}}
+      { type: 'FETCH_GROUPS_FULFILLED', payload: {
+        ...getUserMock
+      }}
     ];
     expect(store.getActions()).toEqual(expectedCancelPayload);
   });
@@ -162,7 +167,9 @@ describe('<Groups />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_GROUPS_PENDING' },
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {}}
+      { type: 'FETCH_GROUPS_FULFILLED', payload: {
+          ...getUserMock
+      }}
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });

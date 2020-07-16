@@ -1,11 +1,13 @@
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import { mock } from '../../__mocks__/apiMock';
 import { fetchGroups, addGroup, removeGroups } from '../../../helpers/group/group-helper';
+import { getUserMock } from '../../../../config/setupTests';
 
 describe('group helper', () => {
   it('should call list groups helper', async () => {
     const mockedData = {
-      data: []
+      data: [],
+      ...getUserMock
     };
     mock.onGet(`${RBAC_API_BASE}/groups/?limit=10&offset=0`).reply(200, mockedData);
     const data = await fetchGroups({ limit: 10, offset: 0 });

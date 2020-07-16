@@ -11,6 +11,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { rolesInitialState } from '../../redux/reducers/role-reducer';
 import { mock } from '../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../utilities/constants';
+import { getUserMock } from '../../../config/setupTests';
 
 describe('<Roles />', () => {
   const middlewares = [ promiseMiddleware, notificationsMiddleware() ];
@@ -108,7 +109,9 @@ describe('<Roles />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_ROLES_PENDING' },
-      { type: 'FETCH_ROLES_FULFILLED', payload: {}}
+      { type: 'FETCH_ROLES_FULFILLED', payload: {
+        ...getUserMock
+      }}
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });
