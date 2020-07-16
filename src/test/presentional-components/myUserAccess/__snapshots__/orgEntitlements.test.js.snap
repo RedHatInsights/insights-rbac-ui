@@ -1,0 +1,30 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MUAOrgEntitlements /> should render correctly 1`] = `
+<MUAOrgEntitlements
+  entitlements={
+    Object {
+      "bundle1": Object {
+        "is_entitled": false,
+        "is_trial": false,
+      },
+      "bundle2": Object {
+        "is_entitled": true,
+        "is_trial": false,
+      },
+    }
+  }
+>
+  <Grid
+    className="ins-l-mua-bundles"
+    hasGutter={true}
+    lg={4}
+    md={6}
+    sm={12}
+  >
+    <div
+      className="pf-l-grid pf-m-all-12-col-on-sm pf-m-all-6-col-on-md pf-m-all-4-col-on-lg pf-m-gutter ins-l-mua-bundles"
+    />
+  </Grid>
+</MUAOrgEntitlements>
+`;

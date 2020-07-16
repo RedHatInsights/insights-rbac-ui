@@ -11,7 +11,8 @@ const mapper = {
   TextListVariants: 'TextList',
   ModalVariant: 'Modal',
   FlexModifiers: 'FlexUtils',
-  WizardContextConsumer: 'WizardContext'
+  WizardContextConsumer: 'WizardContext',
+  TooltipPosition: 'Tooltip'
 };
 
 const FECMapper = {

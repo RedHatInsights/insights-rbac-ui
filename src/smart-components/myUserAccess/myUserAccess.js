@@ -29,18 +29,19 @@ const MyUserAccess = () => {
                     </React.Fragment> }/>
                 <Text component="p" className='ins-p-myUserAccess--subtitle'>
                   <span>Understand your Red Hat access by exploring your organization&apos;s entitlements and your individual user roles.</span>
-                  { user.isOrgAdmin && <span> As an admin, you can manage other users&apos; permissions with <b>User Access</b>.</span>}
                 </Text>
               </TextContent>
             </PageHeader>
             <Main>
               { user.entitlements && <MUAPageSection
-                  title='Organization entitlements'
-                  popOverContent='Your organization is subscribed to the following bundles'>
+                  title='Organization subscriptions'
+                  description='Your organization is subscribed to the following bundles.'>
                     <MUAOrgEntitlements entitlements={ user.entitlements }/>
                 </MUAPageSection>
               }
-              <MUAPageSection title='My roles'>
+              <MUAPageSection
+                title='My roles'
+                description='Roles are sets of permissions that provide access to a given service.'>
                   TODO
               </MUAPageSection>
             </Main>

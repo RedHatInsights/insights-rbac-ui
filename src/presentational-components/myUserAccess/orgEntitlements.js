@@ -7,6 +7,8 @@ import MUABundleCard from './bundleCard';
 
 const MUAOrgEntitlements = ({ entitlements }) => {
 
+  console.log(entitlements);
+
   const entitledBundles = Object.entries(entitlements).filter(([ , { is_entitled }]) => is_entitled);
 
   return (
