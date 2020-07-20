@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
+import { Modal, ModalVariant, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
@@ -40,7 +40,7 @@ const RemoveGroupModal = ({
   return (
     <Modal
       isOpen={ isModalOpen }
-      isSmall
+      variant={ ModalVariant.small }
       title = { <Text>
           <ExclamationTriangleIcon className="delete-group-warning-icon" />
         &nbsp; { multipleGroups ? 'Delete groups?' : 'Delete group?' }
