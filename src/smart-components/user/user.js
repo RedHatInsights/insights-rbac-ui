@@ -125,9 +125,14 @@ const User = ({
         }
     };
 
+    const breadcrumbsList = () => [
+        { title: 'Users', to: '/users' },
+        { title: username, isActive: true }
+    ];
+
     return (<Stack >
             <StackItem>
-                <TopToolbar paddingBottm={ false }>
+                <TopToolbar paddingBottm={ false } breadcrumbs={ breadcrumbsList() }>
                     <TopToolbarTitle
                         title={ username }
                         renderTitleTag={ () => user && !isLoading ? (

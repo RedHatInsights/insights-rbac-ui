@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Modal, ModalVariant, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchRole, removeRole } from '../../redux/actions/role-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
@@ -32,7 +32,7 @@ const RemoveRoleModal = ({
   return (
     <Modal
       isOpen
-      isSmall
+      variant={ ModalVariant.small }
       title = { '' }
       onClose={ onCancel }
       actions={ [

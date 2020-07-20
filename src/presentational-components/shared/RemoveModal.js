@@ -6,6 +6,7 @@ import {
   Button,
   Checkbox,
   Modal,
+  ModalVariant,
   Split,
   SplitItem,
   Stack,
@@ -20,7 +21,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
 
       title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { title } </div> }
       isOpen={ isOpen }
-      isSmall
+      variant={ ModalVariant.small }
       onClose={ onClose }
       actions={ [
         <Button
