@@ -2,9 +2,11 @@ import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
 
-export async function fetchGroups({ limit, offset, name, orderBy }) {
+// listGroups: function (limit, offset, name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options) {
+
+export async function fetchGroups({ limit, offset, name, orderBy, nameMatch }) {
   const [ groups, auth ] = await Promise.all([
-    groupApi.listGroups(limit, offset, name, undefined, undefined, undefined, undefined, undefined, orderBy),
+    groupApi.listGroups(limit, offset, name, nameMatch, undefined, undefined, undefined, undefined, undefined, orderBy),
     insights.chrome.auth.getUser()
   ]);
   return {
