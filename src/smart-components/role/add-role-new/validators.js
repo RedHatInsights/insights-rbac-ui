@@ -6,15 +6,13 @@ const asyncValidator = async (groupName) => {
         return undefined;
     }
 
-    let response;
-    try {
-        response = await fetchRoles({ limit: 10, offset: 0, name: groupName, nameMatch: 'exact' });
-    } catch (error) {
+    const response = await fetchRoles({ limit: 10, offset: 0, name: groupName, nameMatch: 'exact' })
+    .catch(error => {
         console.error(error);
         return undefined;
-    }
+    });
 
-    if (response.data.length > 0) {
+    if (response?.data?.length > 0) {
         throw 'Name has already been taken';
     }
 
