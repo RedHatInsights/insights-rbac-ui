@@ -129,25 +129,32 @@ export const activeFiltersConfigBuilder = (
   fetchData = () => undefined,
   sortBy
 ) => ({
-  filters: (filters && filters.length > 0) ? filters.map(({ key, value }) => value && ({
-    category: firstUpperCase(key),
-    type: key,
-    chips: [{ name: value }]
+  filters: (filters && filters.length > 0) ? filters.map(({ key: type, value: options }) => options.length !== 0 && ({
+    category: firstUpperCase(type),
+    type,
+    chips: Array.isArray(options) ? options.map(filter => ({ name: filter })) : [{ name: options }]
   })).filter(Boolean) : [{
     name: filterValue
   }],
   onDelete: (_e, [ deleted ], isAll) => {
+    const setKeyValue = (value, type) => {
+      if (isAll) {
+        return type === 'checkbox' ? [] : '';
+      } else {
+        return type === 'checkbox' ? value.filter(option => option !== deleted.chips[0].name) : '';
+      }
+    };
+
     setFilterValue({
       ...pagination,
       offset: 0,
       name: '',
-      ...filters ? filters.reduce((acc, { key, value }) => ({
+      ...filters ? filters.reduce((acc, { key, value, type }) => ({
         ...acc,
-        [key]: deleted.type === key || isAll ? '' : value
+        [key]: setKeyValue(value, type)
       }), {}) : {
         name: ''
-      }
-    });
+      }});
     fetchData({
       ...pagination,
       offset: 0,
@@ -217,7 +224,7 @@ Toolbar.propTypes = {
   filterValue: PropTypes.oneOfType([ PropTypes.array, PropTypes.string ]),
   setFilterValue: PropTypes.func,
   filters: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+    value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number, PropTypes.array ]),
     key: PropTypes.string,
     placeholder: PropTypes.string
   })),

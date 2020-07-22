@@ -81,9 +81,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             filterValue={ '' }
             fetchData={ ({ limit, offset }) => setPagination({ limit, offset }) }
             setFilterValue={ ({ applications, resources, operations }) => {
-                typeof applications !== 'undefined' && setFilters({ ...filters, applications });
-                typeof resources !== 'undefined' && setFilters({ ...filters, resources });
-                typeof operations !== 'undefined' && setFilters({ ...filters, operations });
+                setFilters({
+                    ...filters,
+                    ...(applications ? { applications } : {}),
+                    ...(resources ? { resources } : {}),
+                    ...(operations ? { operations } : {})
+                });
             } }
             isLoading={ isLoading }
             pagination={ { ...pagination, count: permissions.filteredData.length } }
@@ -91,7 +94,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             setCheckedItems={ setCheckedItems }
             titlePlural="permissions"
             titleSingular="permission"
-            hideFilterChips
             filters={ [
                 {
                     key: 'applications', value: filters.applications, placeholder: 'Filter by application', type: 'checkbox',
