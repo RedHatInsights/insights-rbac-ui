@@ -6,6 +6,7 @@ import OrgAdminLabel from '../../presentational-components/myUserAccess/orgAdmin
 import './myUserAccess.scss';
 import MUAPageSection from '../../presentational-components/myUserAccess/pageSection';
 import MUAOrgEntitlements from '../../presentational-components/myUserAccess/orgEntitlements';
+import MUATable from './MUATable';
 
 const MyUserAccess = () => {
 
@@ -13,7 +14,7 @@ const MyUserAccess = () => {
 
     useEffect(() => {
       insights.chrome.auth.getUser().then(({ identity, entitlements }) => (
-        setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin })
+        setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin, username: identity?.user?.username })
       ));
     }, []);
 
@@ -42,7 +43,7 @@ const MyUserAccess = () => {
               <MUAPageSection
                 title='My roles'
                 description='Roles are sets of permissions that provide access to a given service.'>
-                  TODO
+                  <MUATable username={ user.username }/>
               </MUAPageSection>
             </Main>
           </React.Fragment>
