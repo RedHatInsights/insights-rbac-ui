@@ -144,14 +144,14 @@ export const activeFiltersConfigBuilder = (
         return type === 'checkbox' ? value.filter(option => option !== deleted.chips[0].name) : '';
       }
     };
-    
+
     setFilterValue({
       ...pagination,
       offset: 0,
       name: '',
       ...filters ? filters.reduce((acc, { key, value, type }) => ({
         ...acc,
-        [key]: setKeyValue(key, value, type)
+        [key]: setKeyValue(value, type)
       }), {}) : {
         name: ''
       }});
@@ -224,7 +224,7 @@ Toolbar.propTypes = {
   filterValue: PropTypes.oneOfType([ PropTypes.array, PropTypes.string ]),
   setFilterValue: PropTypes.func,
   filters: PropTypes.arrayOf(PropTypes.shape({
-    value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number ]),
+    value: PropTypes.oneOfType([ PropTypes.string, PropTypes.number, PropTypes.array ]),
     key: PropTypes.string,
     placeholder: PropTypes.string
   })),
