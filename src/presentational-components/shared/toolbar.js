@@ -93,15 +93,32 @@ export const activeFiltersConfigBuilder = (
   setFilterValue  = () => undefined,
   fetchData = () => undefined
 ) => ({
-  filters: [{
+  filters: (filters && filters.length > 0) ? filters.map(({ key: type, value: options }) => options.length !== 0 && ({
+    category: firstUpperCase(type),
+    type,
+    chips: Array.isArray(options) ? options.map(filter => ({ name: filter })) : [{ name: options }]
+  })).filter(Boolean) : [{
     name: filterValue
   }],
-  onDelete: () => {
+  onDelete: (_e, [ deleted ], isAll) => {
+    const setKeyValue = (value, type) => {
+      if (isAll) {
+        return type === 'checkbox' ? [] : '';
+      } else {
+        return type === 'checkbox' ? value.filter(option => option !== deleted.chips[0].name) : '';
+      }
+    };
+
     setFilterValue({
       ...pagination,
       offset: 0,
-      name: ''
-    });
+      name: '',
+      ...filters ? filters.reduce((acc, { key, value, type }) => ({
+        ...acc,
+        [key]: setKeyValue(key, value, type)
+      }), {}) : {
+        name: ''
+      }});
     fetchData({
       ...pagination,
       offset: 0,
