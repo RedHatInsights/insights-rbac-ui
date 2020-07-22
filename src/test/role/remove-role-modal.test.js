@@ -10,11 +10,11 @@ import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-service
 import { RBAC_API_BASE } from '../../utilities/constants';
 import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 import { rolesInitialState } from '../../redux/reducers/role-reducer';
-import { REMOVE_ROLE, FETCH_ROLE, FETCH_ROLES } from '../../redux/action-types';
+import { REMOVE_ROLE, FETCH_ROLE } from '../../redux/action-types';
 
 describe('<RemoveRoleModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
@@ -58,6 +58,7 @@ describe('<RemoveRoleModal />', () => {
 
   it('should call the remove action', (done) => {
     const store = mockStore(initialState);
+    const postMethod = jest.fn();
 
     mock.onGet(`${RBAC_API_BASE}/roles/123/`).reply(200, { data: []});
 
@@ -67,7 +68,7 @@ describe('<RemoveRoleModal />', () => {
 
     const wrapper = mount(
       <RoleWrapper store={ store }>
-        <Route path="/roles/:id/" render={ (args) => <RemoveRoleModal { ...args } { ...initialProps } /> } />
+        <Route path="/roles/:id/" render={ (args) => <RemoveRoleModal { ...args } { ...initialProps } postMethod={ postMethod } /> } />
       </RoleWrapper>
     );
 
@@ -92,13 +93,11 @@ describe('<RemoveRoleModal />', () => {
       expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
       expect(actions).toContainObj({ type: `${REMOVE_ROLE}_PENDING`,
         meta: { notifications: { fulfilled: { description: 'The role was removed successfully.',
-          title: 'Success removing role', variant: 'success' }}}},);
+          title: 'Success removing role', variant: 'success', dismissDelay: 8000, dismissable: false }}}});
       expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
       expect(actions).toContainObj({ type: ADD_NOTIFICATION,
         payload: expect.objectContaining({ description: 'The role was removed successfully.' }) });
-      expect(actions).toContainObj({ type: `${REMOVE_ROLE}_FULFILLED` });
-      expect(actions).toContainObj({ type: `${FETCH_ROLES}_PENDING` });
-      expect(actions).toContainObj({ type: `${FETCH_ROLES}_FULFILLED` });
+      expect(postMethod).toHaveBeenCalledTimes(1);
       done();
     });
   });

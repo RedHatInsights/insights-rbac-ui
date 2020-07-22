@@ -10,6 +10,8 @@ import SummaryContent from './summary-content';
 import ResourceDefinitions from './resource-definitions';
 import RoleInformation from './role-information';
 import PermissionInformation from './permission-information';
+import { WarningModal } from '../../common/warningModal';
+import '../../common/hideWizard.scss';
 
 const AddRoleWizard = ({
   addNotification,
@@ -98,23 +100,35 @@ const AddRoleWizard = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: 'Adding role',
-      dismissable: true,
-      description: 'Adding role was cancelled by the user.'
+      title: 'Creating role was canceled by the user',
+      dismissDelay: 8000,
+      dismissable: false
     });
     push('/roles');
   };
 
+  const [ cancelWarningVisible, setCancelWarningVisible ] = useState(false);
+
   return (
-    <Wizard
-      isLarge
-      title="Add role"
-      isOpen
-      onClose={ onCancel }
-      onNext={ onNext }
-      onSave={ onSubmit }
-      steps={ steps }
-    />);
+    <React.Fragment>
+      <Wizard
+        className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
+        title="Add role"
+        isOpen
+        onClose={ () => {
+          !Object.values(formData).filter(Boolean).length > 0 && onCancel() || setCancelWarningVisible(true);
+        } }
+        onNext={ onNext }
+        onSave={ onSubmit }
+        steps={ steps }
+      />
+      <WarningModal
+        type='role'
+        isOpen={ cancelWarningVisible }
+        onModalCancel={ () => setCancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
+    </React.Fragment>
+  );
 };
 
 AddRoleWizard.defaultProps = {

@@ -6,10 +6,11 @@ import { fetchGroups } from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS } from '../../../redux/action-types';
 import { mock } from '../../__mocks__/apiMock';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { getUserMock } from '../../../../config/setupTests';
 
 describe('group actions', () => {
 
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   beforeEach(() => {
@@ -26,7 +27,9 @@ describe('group actions', () => {
           name: 'groupName',
           uuid: '1234',
           members: undefined
-        }]},
+        }],
+        ...getUserMock
+      },
       type: `${FETCH_GROUPS}_FULFILLED`
     }];
 

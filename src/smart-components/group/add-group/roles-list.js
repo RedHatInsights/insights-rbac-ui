@@ -10,7 +10,7 @@ import { defaultSettings } from '../../../helpers/shared/pagination';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 
 const columns = [
-  { title: 'Role name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' }
 ];
 
@@ -49,7 +49,6 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
     setFilterValue={ ({ name }) => setFilterValue(name) }
     isLoading={ isLoading }
     pagination={ pagination }
-    request={ fetchRoles }
     checkedRows={ selectedRoles }
     setCheckedItems={ setCheckedItems }
     titlePlural="roles"

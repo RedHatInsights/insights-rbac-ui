@@ -3,9 +3,9 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { Modal, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Modal, ModalVariant, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchRoles, fetchRole, removeRole } from '../../redux/actions/role-actions';
+import { fetchRole, removeRole } from '../../redux/actions/role-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
 const RemoveRoleModal = ({
@@ -15,7 +15,7 @@ const RemoveRoleModal = ({
   role,
   isLoading,
   fetchRole,
-  fetchRoles
+  postMethod
 }) => {
   useEffect(() => {
     fetchRole(id);
@@ -23,7 +23,7 @@ const RemoveRoleModal = ({
 
   const onSubmit = () => removeRole(id)
   .then(() => {
-    fetchRoles();
+    postMethod();
     push('/roles');
   });
 
@@ -32,7 +32,7 @@ const RemoveRoleModal = ({
   return (
     <Modal
       isOpen
-      isSmall
+      variant={ ModalVariant.small }
       title = { '' }
       onClose={ onCancel }
       actions={ [
@@ -73,7 +73,6 @@ RemoveRoleModal.defaultProps = {
 RemoveRoleModal.propTypes = {
   addNotification: PropTypes.func.isRequired,
   fetchRole: PropTypes.func.isRequired,
-  fetchRoles: PropTypes.func.isRequired,
   isLoading: PropTypes.bool,
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
@@ -84,6 +83,7 @@ RemoveRoleModal.propTypes = {
       id: PropTypes.string
     }).isRequired
   }).isRequired,
+  postMethod: PropTypes.func,
   removeRole: PropTypes.func.isRequired,
   role: PropTypes.object
 };
@@ -97,7 +97,6 @@ const mapStateToProps = ({ roleReducer: { roles, selectedRole, isRecordLoading }
 const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   fetchRole,
-  fetchRoles,
   removeRole
 }, dispatch);
 

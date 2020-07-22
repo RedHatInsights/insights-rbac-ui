@@ -11,12 +11,12 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { RBAC_API_BASE } from '../../../../utilities/constants';
 import AddGroupWizard from '../../../../smart-components/group/add-group/add-group-wizard';
 import { ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/index';
-import { mount } from 'enzyme/build/index';
+import { WarningModal } from '../../../../smart-components/common/warningModal';
 
 describe('<AddGroupWizard />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const GroupWrapper = ({ store, children }) => (
@@ -65,7 +65,40 @@ describe('<AddGroupWizard />', () => {
     });
   });
 
-  it('should post a warning message on Cancel', (done) => {
+  it('should show a warning modal on Cancel', () => {
+    const store = mockStore(initialState);
+
+    apiClientMock.put(`${RBAC_API_BASE}/groups/`, mockOnce((req, res) => {
+      expect(req).toBeTruthy();
+      return res.status(200);
+    }));
+
+    apiClientMock.get(`${RBAC_API_BASE}/groups/`, mockOnce((req, res) => {
+      expect(req).toBeTruthy();
+      return res.status(200).body({ data: []});
+    }));
+
+    apiClientMock.get(`${RBAC_API_BASE}/roles/`, mockOnce((req, res) => {
+      expect(req).toBeTruthy();
+      return res.status(200).body({ data: []});
+    }));
+
+    const wrapper = mount(
+      <GroupWrapper store={ store }>
+        <Route path="/groups/add-group/" render={ () => <AddGroupWizard { ...initialProps } /> } />
+      </GroupWrapper>
+    );
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).not.toBeTruthy();
+    const input = wrapper.find('input#group-name');
+    input.getDOMNode().value = 'foo';
+    input.simulate('change');
+    wrapper.update();
+    wrapper.find('.pf-m-link').simulate('click');
+    wrapper.update();
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).toBeTruthy();
+  });
+
+  it('should not show a warning modal on Cancel when clean', (done) => {
     const store = mockStore(initialState);
 
     apiClientMock.put(`${RBAC_API_BASE}/groups/`, mockOnce((req, res) => {
@@ -93,10 +126,12 @@ describe('<AddGroupWizard />', () => {
         type: ADD_NOTIFICATION,
         payload: expect.objectContaining({ title: 'Adding group', variant: 'warning' })
       }) ]);
+    expect(wrapper.find(WarningModal).getElement().props.isOpen).not.toBeTruthy();
+    wrapper.find('.pf-m-link').simulate('click');
 
-    wrapper.find('Button').at(0).simulate('click');
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedActions);
+      expect(wrapper.find(WarningModal)).toHaveLength(0);
       done();
     });
   });

@@ -3,19 +3,20 @@ import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { Button } from '@patternfly/react-core';
+import { Button, Tooltip } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles } from '../../../redux/actions/role-actions';
-import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup } from '../../../redux/actions/group-actions';
+import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import RemoveRole from './remove-role-modal';
+import './group-roles.scss';
 
 const columns = [
-  { title: 'Role name', orderBy: 'name' },
+  { title: 'Name', orderBy: 'name' },
   { title: 'Description' },
   { title: 'Last modified' }
 ];
@@ -24,10 +25,11 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   return data ? data.reduce((acc, { uuid, name, description, modified }) => ([
     ...acc, {
       uuid,
+      title: name,
       cells: [
         <Fragment key={ `${uuid}-name` }>
           <Link to={ `/groups/detail/${groupUuid}/roles/detail/${uuid}` }>
-            <Button variant="link"> { name } </Button>
+            { name }
           </Link>
         </Fragment>,
         description,
@@ -37,6 +39,25 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
     }
   ]), []) : [];
+};
+
+const addRoleButton = (isDisabled) => {
+
+  const addRoleButtonContent = (
+    <Button
+    variant="primary"
+    aria-label="Add role"
+    isAriaDisabled={ isDisabled }>
+      Add role
+    </Button>
+  );
+
+  return (isDisabled
+  ? <Tooltip content="All available roles have already been added to the group">
+    { addRoleButtonContent }
+  </Tooltip>
+  :  addRoleButtonContent
+  );
 };
 
 const GroupRoles = ({
@@ -49,8 +70,15 @@ const GroupRoles = ({
   pagination,
   match: { params: { uuid }},
   userIdentity,
-  name
+  name,
+  isDefault,
+  isChanged,
+  onDefaultGroupChanged,
+  fetchAddRolesForGroup,
+  disableAddRoles,
+  addNotification
 }) => {
+  const [ descriptionValue, setDescriptionValue ] = useState('');
   const [ filterValue, setFilterValue ] = useState('');
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ selectedAddRoles, setSelectedAddRoles ] = useState([]);
@@ -61,6 +89,11 @@ const GroupRoles = ({
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);
   }, []);
+
+  useEffect(() => {
+    fetchAddRolesForGroup(uuid);
+  }, [ roles ]);
+
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
       return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
@@ -78,13 +111,13 @@ const GroupRoles = ({
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         {
-          title: 'Remove from group',
+          title: 'Remove',
           onClick: (_event, _rowId, role) => {
-            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup(pagination)(uuid)));
+            setConfirmDelete(() => () => removeRoles(uuid, [ role.uuid ], () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
             setDeleteInfo({
               title: 'Remove role?',
               confirmButtonLabel: 'Remove role',
-              text: removeModalText(name, role['role-name'].title, false)
+              text: removeModalText(name, role.title, false)
             });
             setShowRemoveModal(true);
           }
@@ -96,12 +129,16 @@ const GroupRoles = ({
     <Route path={ `/groups/detail/:uuid/roles/add_roles` }
       render={ args => <AddGroupRoles
         fetchData={ fetchRoles }
+        fetchRolesForGroup={ () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid) }
         selectedRoles={ selectedAddRoles }
         setSelectedRoles={ setSelectedAddRoles }
         closeUrl={ `/groups/detail/${uuid}/roles` }
         addRolesToGroup={ addRoles }
-        fetchRolesForGroup={ fetchRolesForGroup(pagination) }
         name={ name }
+        isDefault={ isDefault }
+        isChanged={ isChanged }
+        addNotification={ addNotification }
+        onDefaultGroupChanged= { onDefaultGroupChanged }
         { ...args }
       /> }
     />
@@ -111,31 +148,43 @@ const GroupRoles = ({
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
         <Link
+          className={ `pf-m-visible-on-md ins-c-button__add-role${disableAddRoles && '-disabled'}` }
           to={ `/groups/detail/${uuid}/roles/add_roles` }
           key="add-to-group"
+          onClick={ (e) => disableAddRoles && e.preventDefault() }
         >
-          <Button
-            variant="primary"
-            aria-label="Add a role"
-          >
-        Add a role
-          </Button>
+          { addRoleButton(disableAddRoles) }
         </Link>,
         {
-          label: 'Remove from group',
+          label: 'Add role',
+          props: {
+            isDisabled: disableAddRoles,
+            className: 'pf-m-hidden-on-md'
+          },
+          onClick: () => {
+            (e) => disableAddRoles && e.preventDefault();
+          }
+        },
+        {
+          label: 'Remove',
           props: {
             isDisabled: !selectedRoles || !selectedRoles.length > 0,
             variant: 'danger'
           },
           onClick: () => {
             const multipleRolesSelected = selectedRoles.length > 1;
-            setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup(pagination)(uuid)));
+            setConfirmDelete(() => () => removeRoles(uuid, selectedRoles.map(role => role.uuid), () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
             setDeleteInfo({
-              title: 'Remove roles?',
+              title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',
               confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
-              text: removeModalText(name, multipleRolesSelected ? selectedRoles.length : selectedRoles[0].label, multipleRolesSelected)
+              text: removeModalText(
+                name,
+                multipleRolesSelected ? selectedRoles.length : roles.find(role => role.uuid === selectedRoles[0].uuid).name,
+                multipleRolesSelected)
             });
+
             setShowRemoveModal(true);
+
           }
         }
       ] : []
@@ -143,17 +192,23 @@ const GroupRoles = ({
 
   return (
     <React.Fragment>
-      <RemoveModal
+      <RemoveRole
         text={ deleteInfo.text }
         title={ deleteInfo.title }
         isOpen={ showRemoveModal }
+        isChanged={ isChanged }
+        isDefault={ isDefault }
         confirmButtonLabel={ deleteInfo.confirmButtonLabel }
         onClose={ () => setShowRemoveModal(false) }
+
         onSubmit={ () => {
           setShowRemoveModal(false);
           confirmDelete();
+          setSelectedRoles([]);
+          onDefaultGroupChanged(isDefault && !isChanged);
         } }
       />
+
       <Section type="content" id={ 'tab-roles' }>
         <TableToolbarView
           columns={ columns }
@@ -161,11 +216,15 @@ const GroupRoles = ({
           createRows={ (...props) => createRows(uuid, ...props) }
           data={ roles }
           filterValue={ filterValue }
-          fetchData={ config => fetchRolesForGroup(config)(uuid) }
-          setFilterValue={ ({ name }) => setFilterValue(name) }
+          fetchData={ (config) => {
+            fetchRolesForGroup(config)(uuid);
+          } }
+          setFilterValue={ ({ name, description }) => {
+            typeof name !== 'undefined' && setFilterValue(name);
+            typeof description !== 'undefined' && setDescriptionValue(description);
+          } }
           isLoading={ isLoading }
           pagination={ pagination }
-          request={ fetchRolesForGroup(pagination) }
           checkedRows={ selectedRoles }
           setCheckedItems={ setCheckedItems }
           titlePlural="roles"
@@ -173,6 +232,11 @@ const GroupRoles = ({
           toolbarButtons={ toolbarButtons }
           actionResolver={ actionResolver }
           routes={ routes }
+          emptyProps={ { title: 'There are no roles in this group', description: [ 'Add a role to configure user access.', '' ]} }
+          filters={ [
+            { key: 'name', value: filterValue },
+            { key: 'description', value: descriptionValue }
+          ] }
         />
       </Section>
     </React.Fragment>
@@ -193,7 +257,10 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups }}) => {
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
     userIdentity: groups.identity,
-    name: selectedGroup.name
+    name: selectedGroup.name,
+    isDefault: selectedGroup.platform_default,
+    isChanged: !selectedGroup.system,
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0)
   };};
 
 const mapDispatchToProps = dispatch => {
@@ -203,8 +270,10 @@ const mapDispatchToProps = dispatch => {
     },
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
-    fetchRolesForGroup: (pagination) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, pagination, options)),
-    addNotification: (...props) => dispatch(addNotification(...props))
+    fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
+    fetchAddRolesForGroup: (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {})),
+    addNotification: (...props) => dispatch(addNotification(...props)),
+    fetchGroup: (apiProps) => dispatch(fetchGroup(apiProps))
   };
 };
 
@@ -218,6 +287,7 @@ GroupRoles.propTypes = {
   searchFilter: PropTypes.string,
   fetchRoles: PropTypes.func.isRequired,
   fetchRolesForGroup: PropTypes.func.isRequired,
+  fetchAddRolesForGroup: PropTypes.func.isRequired,
   selectedRoles: PropTypes.array,
   addRoles: PropTypes.func,
   name: PropTypes.string,
@@ -234,7 +304,12 @@ GroupRoles.propTypes = {
     user: PropTypes.shape({
       is_org_admin: PropTypes.bool
     })
-  })
+  }),
+  isDefault: PropTypes.bool,
+  isChanged: PropTypes.bool,
+  onDefaultGroupChanged: PropTypes.func,
+  disableAddRoles: PropTypes.bool.isRequired,
+  addNotification: PropTypes.func
 };
 
 GroupRoles.defaultProps = {

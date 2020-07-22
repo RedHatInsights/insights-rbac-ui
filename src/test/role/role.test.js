@@ -12,7 +12,7 @@ import toJson from 'enzyme-to-json';
 
 describe('role', () => {
 
-  const middlewares = [ promiseMiddleware() ];
+  const middlewares = [ promiseMiddleware ];
   let mockStore;
 
   beforeEach(() => {
@@ -210,7 +210,7 @@ describe('role', () => {
       </Provider>);
     });
     wrapper.update();
-    expect(toJson(wrapper.find('.top-toolbar'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(toJson(wrapper.find('TopToolbar'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
   it('should render second page of table', async () => {
@@ -223,7 +223,7 @@ describe('role', () => {
           selectedRole: {
             name: 'Some name',
             description: 'Some cool description',
-            access: [ ...new Array(18) ].map(() => ({ permission: 'some:permission' }))
+            access: [ ...new Array(28) ].map(() => ({ permission: 'some:permission' }))
           }
         }
       }) }>
@@ -235,7 +235,7 @@ describe('role', () => {
       </Provider>);
     });
     wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(10);
+    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(20);
     wrapper.find('.pf-c-pagination__nav button[data-action="next"]').first().simulate('click');
     wrapper.update();
     expect(wrapper.find('.pf-c-table tbody tr').length).toBe(8);
@@ -268,7 +268,7 @@ describe('role', () => {
       </Provider>);
     });
     wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(10);
+    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(19);
     wrapper.find('.ins-c-primary-toolbar__filter input').first().simulate('change', { target: { value: 'thing' }});
     wrapper.update();
     expect(wrapper.find('.pf-c-table tbody tr').length).toBe(1);

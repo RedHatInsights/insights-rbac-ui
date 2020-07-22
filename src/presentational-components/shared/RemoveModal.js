@@ -1,28 +1,32 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 
 import {
-  Modal,
   Button,
+  Checkbox,
+  Modal,
+  ModalVariant,
   Split,
   SplitItem,
   Stack,
   TextContent
 } from '@patternfly/react-core';
 
-const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel }) => {
+const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, withCheckbox }) => {
+  const [ checked, setChecked ] = useState(false);
 
   return (
     <Modal className="ins-c-rbac__dialog--warning"
 
       title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { title } </div> }
       isOpen={ isOpen }
-      isSmall
+      variant={ ModalVariant.small }
       onClose={ onClose }
       actions={ [
         <Button
           key="confirm"
+          isDisabled={ withCheckbox && !checked }
           variant="danger"
           onClick={ onSubmit }>
           { confirmButtonLabel }
@@ -37,15 +41,25 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       ] }
       isFooterLeftAligned
     >
-      <Split gutter="md">
+      <Split hasGutter>
         <SplitItem isFilled>
-          <Stack gutter="md">
+          <Stack hasGutter>
             <TextContent>
               { text }
             </TextContent>
           </Stack>
+
         </SplitItem>
       </Split>
+      { withCheckbox
+        ? <Checkbox
+          isChecked={ checked }
+          onChange={ () => setChecked(!checked) }
+          label="I understand, and I want to continue."
+          id="remove-modal-check"
+          className="pf-u-mt-lg"
+        />
+        : null }
     </Modal>
   );
 };
@@ -56,7 +70,12 @@ RemoveModal.propTypes = {
   confirmButtonLabel: PropTypes.string,
   onSubmit: PropTypes.func,
   onClose: PropTypes.func,
-  isOpen: PropTypes.bool
+  isOpen: PropTypes.bool,
+  withCheckbox: PropTypes.bool
+};
+
+RemoveModal.defaultProps = {
+  withCheckbox: false
 };
 
 export default RemoveModal;

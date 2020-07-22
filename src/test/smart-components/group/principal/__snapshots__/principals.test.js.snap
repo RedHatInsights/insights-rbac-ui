@@ -1,1366 +1,282 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render correctly in loading state 1`] = `
-<section
-  class="ins-l-content"
-  id="tab-principals"
->
-   
-  <div
-    class="pf-c-data-toolbar  ins-c-primary-toolbar"
-    id="ins-primary-data-toolbar"
-  >
-    <div
-      class="pf-c-data-toolbar__content"
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
-      >
-        <div
-          class="pf-c-data-toolbar__item ins-c-primary-toolbar__filter"
-        >
-          <div
-            class="pf-l-split ins-c-conditional-filter"
-          >
-            <div
-              class="pf-l-split__item pf-m-fill"
-            >
-              <input
-                aria-invalid="false"
-                class="pf-c-form-control ins-c-conditional-filter "
-                disabled=""
-                id="filter-by-string"
-                placeholder="Filter by principal"
-                type="text"
-                value=""
-                widget-type="InsightsInput"
-              />
-              <svg
-                aria-hidden="true"
-                class="ins-c-search-icon"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 512 512"
-                width="1em"
-              >
-                <path
-                  d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                  transform=""
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-c-data-toolbar__content pf-m-hidden"
-      hidden=""
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group"
-      />
-    </div>
-    <div
-      class="pf-c-data-toolbar__expandable-content"
-      id="ins-primary-data-toolbar-expandable-content"
-    >
-      <div
-        class="pf-c-data-toolbar__group"
-      />
-    </div>
-  </div>
-  <ul
-    aria-label="datalist-placeholder"
-    class="pf-c-data-list"
-  >
-    <li
-      aria-labelledby="datalist-item-placeholder"
-      class="pf-c-data-list__item"
-    >
-      <div
-        aria-label="datalist-item-placeholder-row"
-        class="pf-c-data-list__item-row"
-      >
-        <div
-          class="pf-c-data-list__item-content"
-        >
-          <div
-            class="pf-c-data-list__cell"
-          >
-            <div
-              class="ins-c-skeleton ins-c-skeleton__lg"
-            >
-               
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-    <li
-      aria-labelledby="datalist-item-placeholder"
-      class="pf-c-data-list__item"
-    >
-      <div
-        aria-label="datalist-item-placeholder-row"
-        class="pf-c-data-list__item-row"
-      >
-        <div
-          class="pf-c-data-list__item-content"
-        >
-          <div
-            class="pf-c-data-list__cell"
-          >
-            <div
-              class="ins-c-skeleton ins-c-skeleton__lg"
-            >
-               
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-    <li
-      aria-labelledby="datalist-item-placeholder"
-      class="pf-c-data-list__item"
-    >
-      <div
-        aria-label="datalist-item-placeholder-row"
-        class="pf-c-data-list__item-row"
-      >
-        <div
-          class="pf-c-data-list__item-content"
-        >
-          <div
-            class="pf-c-data-list__cell"
-          >
-            <div
-              class="ins-c-skeleton ins-c-skeleton__lg"
-            >
-               
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-    <li
-      aria-labelledby="datalist-item-placeholder"
-      class="pf-c-data-list__item"
-    >
-      <div
-        aria-label="datalist-item-placeholder-row"
-        class="pf-c-data-list__item-row"
-      >
-        <div
-          class="pf-c-data-list__item-content"
-        >
-          <div
-            class="pf-c-data-list__cell"
-          >
-            <div
-              class="ins-c-skeleton ins-c-skeleton__lg"
-            >
-               
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-    <li
-      aria-labelledby="datalist-item-placeholder"
-      class="pf-c-data-list__item"
-    >
-      <div
-        aria-label="datalist-item-placeholder-row"
-        class="pf-c-data-list__item-row"
-      >
-        <div
-          class="pf-c-data-list__item-content"
-        >
-          <div
-            class="pf-c-data-list__cell"
-          >
-            <div
-              class="ins-c-skeleton ins-c-skeleton__lg"
-            >
-               
-            </div>
-          </div>
-        </div>
-      </div>
-    </li>
-  </ul>
-  <div
-    class="pf-l-toolbar ins-c-table__toolbar"
-  >
-     
-  </div>
-   
-</section>
+exports[`<GroupPrincipals /> should render correctly loader 1`] = `
+<ListLoader
+  items={5}
+/>
+`;
+
+exports[`<GroupPrincipals /> should render correctly with data 1`] = `
+<TableToolbarView
+  actionResolver={[Function]}
+  borders={true}
+  checkedRows={Array []}
+  columns={
+    Array [
+      Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+      Object {
+        "title": "Username",
+      },
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
+    ]
+  }
+  createRows={[Function]}
+  data={
+    Array [
+      Object {
+        "email": "test",
+        "first_name": "test",
+        "is_active": true,
+        "last_name": "test",
+        "username": "test",
+        "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
+      },
+    ]
+  }
+  emptyProps={
+    Object {
+      "description": Array [
+        "Add a user to configure user access.",
+        "",
+      ],
+      "title": "There are no members in this group",
+    }
+  }
+  fetchData={[Function]}
+  filterItems={Array []}
+  filterPlaceholder="username"
+  filterValue=""
+  filters={Array []}
+  hideFilterChips={false}
+  isCollapsible={false}
+  isCompact={false}
+  isLoading={false}
+  isSelectable={false}
+  pagination={
+    Object {
+      "count": 2,
+      "limit": 10,
+      "offset": 0,
+    }
+  }
+  routes={[Function]}
+  rowWrapper={[Function]}
+  setCheckedItems={[Function]}
+  setFilterValue={[Function]}
+  titlePlural="members"
+  titleSingular="member"
+  toolbarButtons={[Function]}
+/>
 `;
 
 exports[`<GroupPrincipals /> should render correctly with default group 1`] = `
-<section
-  class="ins-l-content"
-  id="tab-principals"
->
-   
-  <article
-    class="pf-c-card"
+Array [
+  <Section
+    id="tab-principals"
+    type="content"
   >
-    <div
-      class="pf-c-card__body"
+    <section
+      className="ins-l-content"
+      id="tab-principals"
     >
-      <div
-        class="pf-l-bullseye"
-      >
-        <div
-          class="pf-c-content"
+       
+      <Card>
+        <article
+          className="pf-c-card"
         >
-          <h1
-            class=""
-            data-pf-content="true"
+          <CardBody>
+            <div
+              className="pf-c-card__body"
+            >
+              <Bullseye>
+                <div
+                  className="pf-l-bullseye"
+                >
+                  <TextContent>
+                    <div
+                      className="pf-c-content"
+                    >
+                      <Text
+                        component="h1"
+                      >
+                        <h1
+                          className=""
+                          data-pf-content={true}
+                        >
+                          All users in this organization are members of this group.
+                        </h1>
+                      </Text>
+                    </div>
+                  </TextContent>
+                </div>
+              </Bullseye>
+            </div>
+          </CardBody>
+        </article>
+      </Card>
+       
+    </section>
+  </Section>,
+  <section
+    className="ins-l-content"
+    id="tab-principals"
+  >
+     
+    <Card>
+      <article
+        className="pf-c-card"
+      >
+        <CardBody>
+          <div
+            className="pf-c-card__body"
           >
-            All users in this organization are members of this group.
-          </h1>
-        </div>
-      </div>
-    </div>
-  </article>
-   
-</section>
+            <Bullseye>
+              <div
+                className="pf-l-bullseye"
+              >
+                <TextContent>
+                  <div
+                    className="pf-c-content"
+                  >
+                    <Text
+                      component="h1"
+                    >
+                      <h1
+                        className=""
+                        data-pf-content={true}
+                      >
+                        All users in this organization are members of this group.
+                      </h1>
+                    </Text>
+                  </div>
+                </TextContent>
+              </div>
+            </Bullseye>
+          </div>
+        </CardBody>
+      </article>
+    </Card>
+     
+  </section>,
+]
 `;
 
 exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
-<section
-  class="ins-l-content"
-  id="tab-principals"
->
-   
-  <div
-    class="pf-l-bullseye"
-  >
-    <div
-      class="pf-c-empty-state"
-    >
-      <svg
-        aria-hidden="true"
-        class="pf-c-empty-state__icon"
-        fill="currentColor"
-        height="1em"
-        role="img"
-        style="vertical-align:-0.125em"
-        viewBox="0 0 640 512"
-        width="1em"
-      >
-        <path
-          d="M96 224c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm448 0c35.3 0 64-28.7 64-64s-28.7-64-64-64-64 28.7-64 64 28.7 64 64 64zm32 32h-64c-17.6 0-33.5 7.1-45.1 18.6 40.3 22.1 68.9 62 75.1 109.4h66c17.7 0 32-14.3 32-32v-32c0-35.3-28.7-64-64-64zm-256 0c61.9 0 112-50.1 112-112S381.9 32 320 32 208 82.1 208 144s50.1 112 112 112zm76.8 32h-8.3c-20.8 10-43.9 16-68.5 16s-47.6-6-68.5-16h-8.3C179.6 288 128 339.6 128 403.2V432c0 26.5 21.5 48 48 48h288c26.5 0 48-21.5 48-48v-28.8c0-63.6-51.6-115.2-115.2-115.2zm-223.7-13.4C161.5 263.1 145.6 256 128 256H64c-35.3 0-64 28.7-64 64v32c0 17.7 14.3 32 32 32h65.9c6.3-47.4 34.9-87.3 75.2-109.4z"
-          transform=""
-        />
-      </svg>
-      <h5
-        class="pf-c-title pf-m-lg"
-      >
-        Configure principals
-      </h5>
-      <div
-        class="pf-c-empty-state__body"
-      >
-        To configure user access to applicastions 
-        <br />
-        create at least one principal 
-        <br />
-      </div>
-    </div>
-  </div>
-   
-</section>
-`;
-
-exports[`<GroupPrincipals /> should render correctly with members 1`] = `
-<section
-  class="ins-l-content"
-  id="tab-principals"
->
-   
-  <div
-    class="pf-c-data-toolbar  ins-c-primary-toolbar"
-    id="ins-primary-data-toolbar"
-  >
-    <div
-      class="pf-c-data-toolbar__content"
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
-      >
-        <div
-          class="pf-c-data-toolbar__item ins-c-primary-toolbar__filter"
-        >
-          <div
-            class="pf-l-split ins-c-conditional-filter"
-          >
-            <div
-              class="pf-l-split__item pf-m-fill"
-            >
-              <input
-                aria-invalid="false"
-                class="pf-c-form-control ins-c-conditional-filter "
-                id="filter-by-string"
-                placeholder="Filter by principal"
-                type="text"
-                value=""
-                widget-type="InsightsInput"
-              />
-              <svg
-                aria-hidden="true"
-                class="ins-c-search-icon"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 512 512"
-                width="1em"
-              >
-                <path
-                  d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                  transform=""
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-c-data-toolbar__item ins-c-primary-toolbar__pagination"
-      >
-        <div
-          class="pf-c-pagination pf-m-compact"
-          count="1"
-          id="pagination-options-menu"
-          limit="50"
-          numberofitems="50"
-          offset="0"
-        >
-          <div
-            class="pf-c-pagination__total-items"
-          >
-            <b>
-              1 - 1
-            </b>
-             of 
-            <b>
-              1
-            </b>
-             
-          </div>
-          <div
-            class="pf-c-options-menu"
-          >
-            <div
-              class="pf-c-options-menu__toggle pf-m-plain pf-m-text"
-            >
-              <span
-                class="pf-c-options-menu__toggle-text"
-              >
-                <b>
-                  1 - 1
-                </b>
-                 of 
-                <b>
-                  1
-                </b>
-                 
-              </span>
-              <button
-                aria-expanded="false"
-                aria-label="Items per page"
-                class="  pf-c-options-menu__toggle-button"
-                id="pagination-options-menu-toggle"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class=""
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  style="vertical-align:-0.125em"
-                  viewBox="0 0 320 512"
-                  width="1em"
-                >
-                  <path
-                    d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                    transform=""
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <nav
-            aria-label="Pagination"
-            class="pf-c-pagination__nav"
-          >
-            <button
-              aria-label="Go to previous page"
-              class="pf-c-button pf-m-plain"
-              data-action="previous"
-              disabled=""
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 256 512"
-                width="1em"
-              >
-                <path
-                  d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-                  transform=""
-                />
-              </svg>
-            </button>
-            <button
-              aria-label="Go to next page"
-              class="pf-c-button pf-m-plain"
-              data-action="next"
-              disabled=""
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 256 512"
-                width="1em"
-              >
-                <path
-                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                  transform=""
-                />
-              </svg>
-            </button>
-          </nav>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-c-data-toolbar__content pf-m-hidden"
-      hidden=""
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group"
-      />
-    </div>
-    <div
-      class="pf-c-data-toolbar__expandable-content"
-      id="ins-primary-data-toolbar-expandable-content"
-    >
-      <div
-        class="pf-c-data-toolbar__group"
-      />
-    </div>
-  </div>
-  <table
-    aria-label="principals table"
-    class="pf-c-table pf-m-grid-md"
-    role="grid"
-  >
-    <thead
-      class=""
-    >
-      <tr>
-        <td
-          class=""
-          data-key="0"
-          data-label=""
-        />
-        <th
-          class=""
-          data-key="1"
-          data-label="Name"
-          scope="col"
-        >
-          Name
-        </th>
-        <th
-          class=""
-          data-key="2"
-          data-label="Email"
-          scope="col"
-        >
-          Email
-        </th>
-        <th
-          class=""
-          data-key="3"
-          data-label="First name"
-          scope="col"
-        >
-          First name
-        </th>
-        <th
-          class=""
-          data-key="4"
-          data-label="Last name"
-          scope="col"
-        >
-          Last name
-        </th>
-        <td
-          class=""
-          data-key="5"
-          data-label=""
-        />
-      </tr>
-    </thead>
-    <tbody
-      class=""
-    >
-      <tr
-        class=""
-      >
-        <td
-          class="pf-c-table__toggle"
-          data-key="0"
-        >
-          <button
-            aria-expanded="false"
-            aria-label="Details"
-            aria-labelledby="simple-node0 expandable-toggle0"
-            class="pf-c-button pf-m-plain"
-            id="expandable-toggle0"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </td>
-        <td
-          class=""
-          data-key="1"
-          data-label="Name"
-        >
-          test-username
-        </td>
-        <td
-          class=""
-          data-key="2"
-          data-label="Email"
-        >
-          test-email
-        </td>
-        <td
-          class=""
-          data-key="3"
-          data-label="First name"
-        >
-          tes-first-name
-        </td>
-        <td
-          class=""
-          data-key="4"
-          data-label="Last name"
-        >
-          test-last-name
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-      <tr
-        class="pf-c-table__expandable-row"
-        hidden=""
-      >
-        <td
-          class=""
-          colspan="5"
-          data-key="1"
-          data-label="Name"
-          id="expanded-content1"
-        >
-          <div
-            class="pf-c-table__expandable-row-content"
-          >
-            <div
-              class="pf-c-content"
-            >
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Username
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-username
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Email
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-email
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Name
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                tes-first-name test-last-name
-              </h5>
-            </div>
-          </div>
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-    </tbody>
-  </table>
-  <div
-    class="pf-l-toolbar ins-c-table__toolbar"
-  >
-     
-    <div
-      class="pf-c-pagination pf-m-footer"
-      count="1"
-      id="pagination-options-menu"
-      limit="50"
-      numberofitems="50"
-      offset="0"
-    >
-      <div
-        class="pf-c-options-menu pf-m-top"
-      >
-        <div
-          class="pf-c-options-menu__toggle pf-m-plain pf-m-text"
-        >
-          <span
-            class="pf-c-options-menu__toggle-text"
-          >
-            <b>
-              1 - 1
-            </b>
-             of 
-            <b>
-              1
-            </b>
-             
-          </span>
-          <button
-            aria-expanded="false"
-            aria-label="Items per page"
-            class="  pf-c-options-menu__toggle-button"
-            id="pagination-options-menu-toggle"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              class=""
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <nav
-        aria-label="Pagination"
-        class="pf-c-pagination__nav"
-      >
-        <button
-          aria-label="Go to first page"
-          class="pf-c-button pf-m-plain"
-          data-action="first"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 448 512"
-            width="1em"
-          >
-            <path
-              d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <button
-          aria-label="Go to previous page"
-          class="pf-c-button pf-m-plain"
-          data-action="previous"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 256 512"
-            width="1em"
-          >
-            <path
-              d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <div
-          class="pf-c-pagination__nav-page-select"
-        >
-          <input
-            aria-label="Current page"
-            class="pf-c-form-control"
-            disabled=""
-            max="1"
-            min="1"
-            type="number"
-            value="1"
-          />
-          <span
-            aria-hidden="true"
-          >
-            of 1
-          </span>
-        </div>
-        <button
-          aria-label="Go to next page"
-          class="pf-c-button pf-m-plain"
-          data-action="next"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 256 512"
-            width="1em"
-          >
-            <path
-              d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <button
-          aria-label="Go to last page"
-          class="pf-c-button pf-m-plain"
-          data-action="last"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 448 512"
-            width="1em"
-          >
-            <path
-              d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-              transform=""
-            />
-          </svg>
-        </button>
-      </nav>
-    </div>
-  </div>
-   
-</section>
+<EmptyWithFilter
+  description={
+    Array [
+      "Add a user to configure user access.",
+      "",
+    ]
+  }
+  icon={[Function]}
+  title="There are no members in this group"
+/>
 `;
 
 exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] = `
-<section
-  class="ins-l-content"
-  id="tab-principals"
->
-   
-  <div
-    class="pf-c-data-toolbar  ins-c-primary-toolbar"
-    id="ins-primary-data-toolbar"
-  >
-    <div
-      class="pf-c-data-toolbar__content"
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
-      >
-        <div
-          class="pf-c-data-toolbar__item ins-c-primary-toolbar__filter"
-        >
-          <div
-            class="pf-l-split ins-c-conditional-filter"
-          >
-            <div
-              class="pf-l-split__item pf-m-fill"
-            >
-              <input
-                aria-invalid="false"
-                class="pf-c-form-control ins-c-conditional-filter "
-                id="filter-by-string"
-                placeholder="Filter by principal"
-                type="text"
-                value=""
-                widget-type="InsightsInput"
-              />
-              <svg
-                aria-hidden="true"
-                class="ins-c-search-icon"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 512 512"
-                width="1em"
-              >
-                <path
-                  d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                  transform=""
-                />
-              </svg>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div
-        class="pf-c-data-toolbar__item ins-c-primary-toolbar__pagination"
-      >
-        <div
-          class="pf-c-pagination pf-m-compact"
-          count="1"
-          id="pagination-options-menu"
-          limit="50"
-          numberofitems="50"
-          offset="0"
-        >
-          <div
-            class="pf-c-pagination__total-items"
-          >
-            <b>
-              1 - 1
-            </b>
-             of 
-            <b>
-              1
-            </b>
-             
-          </div>
-          <div
-            class="pf-c-options-menu"
-          >
-            <div
-              class="pf-c-options-menu__toggle pf-m-plain pf-m-text"
-            >
-              <span
-                class="pf-c-options-menu__toggle-text"
-              >
-                <b>
-                  1 - 1
-                </b>
-                 of 
-                <b>
-                  1
-                </b>
-                 
-              </span>
-              <button
-                aria-expanded="false"
-                aria-label="Items per page"
-                class="  pf-c-options-menu__toggle-button"
-                id="pagination-options-menu-toggle"
-                type="button"
-              >
-                <svg
-                  aria-hidden="true"
-                  class=""
-                  fill="currentColor"
-                  height="1em"
-                  role="img"
-                  style="vertical-align:-0.125em"
-                  viewBox="0 0 320 512"
-                  width="1em"
-                >
-                  <path
-                    d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                    transform=""
-                  />
-                </svg>
-              </button>
-            </div>
-          </div>
-          <nav
-            aria-label="Pagination"
-            class="pf-c-pagination__nav"
-          >
-            <button
-              aria-label="Go to previous page"
-              class="pf-c-button pf-m-plain"
-              data-action="previous"
-              disabled=""
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 256 512"
-                width="1em"
-              >
-                <path
-                  d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-                  transform=""
-                />
-              </svg>
-            </button>
-            <button
-              aria-label="Go to next page"
-              class="pf-c-button pf-m-plain"
-              data-action="next"
-              disabled=""
-              type="button"
-            >
-              <svg
-                aria-hidden="true"
-                fill="currentColor"
-                height="1em"
-                role="img"
-                style="vertical-align:-0.125em"
-                viewBox="0 0 256 512"
-                width="1em"
-              >
-                <path
-                  d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-                  transform=""
-                />
-              </svg>
-            </button>
-          </nav>
-        </div>
-      </div>
-    </div>
-    <div
-      class="pf-c-data-toolbar__content pf-m-hidden"
-      hidden=""
-    >
-      <div
-        class="pf-c-data-toolbar__group pf-m-filter-group"
-      />
-    </div>
-    <div
-      class="pf-c-data-toolbar__expandable-content"
-      id="ins-primary-data-toolbar-expandable-content"
-    >
-      <div
-        class="pf-c-data-toolbar__group"
-      />
-    </div>
-  </div>
-  <table
-    aria-label="principals table"
-    class="pf-c-table pf-m-grid-md"
-    role="grid"
-  >
-    <thead
-      class=""
-    >
-      <tr>
-        <td
-          class=""
-          data-key="0"
-          data-label=""
-        />
-        <th
-          class=""
-          data-key="1"
-          data-label="Name"
-          scope="col"
-        >
-          Name
-        </th>
-        <th
-          class=""
-          data-key="2"
-          data-label="Email"
-          scope="col"
-        >
-          Email
-        </th>
-        <th
-          class=""
-          data-key="3"
-          data-label="First name"
-          scope="col"
-        >
-          First name
-        </th>
-        <th
-          class=""
-          data-key="4"
-          data-label="Last name"
-          scope="col"
-        >
-          Last name
-        </th>
-        <td
-          class=""
-          data-key="5"
-          data-label=""
-        />
-      </tr>
-    </thead>
-    <tbody
-      class=""
-    >
-      <tr
-        class=""
-      >
-        <td
-          class="pf-c-table__toggle"
-          data-key="0"
-        >
-          <button
-            aria-expanded="false"
-            aria-label="Details"
-            aria-labelledby="simple-node0 expandable-toggle0"
-            class="pf-c-button pf-m-plain"
-            id="expandable-toggle0"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </td>
-        <td
-          class=""
-          data-key="1"
-          data-label="Name"
-        >
-          test-username
-        </td>
-        <td
-          class=""
-          data-key="2"
-          data-label="Email"
-        >
-          test-email
-        </td>
-        <td
-          class=""
-          data-key="3"
-          data-label="First name"
-        >
-          tes-first-name
-        </td>
-        <td
-          class=""
-          data-key="4"
-          data-label="Last name"
-        >
-          test-last-name
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-      <tr
-        class="pf-c-table__expandable-row"
-        hidden=""
-      >
-        <td
-          class=""
-          colspan="5"
-          data-key="1"
-          data-label="Name"
-          id="expanded-content1"
-        >
-          <div
-            class="pf-c-table__expandable-row-content"
-          >
-            <div
-              class="pf-c-content"
-            >
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Username
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-username
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Email
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                test-email
-              </h5>
-              <small
-                class="principals-table-detail heading"
-                data-pf-content="true"
-              >
-                Name
-              </small>
-              <h5
-                class="principals-table-detail content"
-                data-pf-content="true"
-              >
-                tes-first-name test-last-name
-              </h5>
-            </div>
-          </div>
-        </td>
-        <td
-          class="pf-c-table__action"
-          data-key="5"
-        />
-      </tr>
-    </tbody>
-  </table>
-  <div
-    class="pf-l-toolbar ins-c-table__toolbar"
-  >
-     
-    <div
-      class="pf-c-pagination pf-m-footer"
-      count="1"
-      id="pagination-options-menu"
-      limit="50"
-      numberofitems="50"
-      offset="0"
-    >
-      <div
-        class="pf-c-options-menu pf-m-top"
-      >
-        <div
-          class="pf-c-options-menu__toggle pf-m-plain pf-m-text"
-        >
-          <span
-            class="pf-c-options-menu__toggle-text"
-          >
-            <b>
-              1 - 1
-            </b>
-             of 
-            <b>
-              1
-            </b>
-             
-          </span>
-          <button
-            aria-expanded="false"
-            aria-label="Items per page"
-            class="  pf-c-options-menu__toggle-button"
-            id="pagination-options-menu-toggle"
-            type="button"
-          >
-            <svg
-              aria-hidden="true"
-              class=""
-              fill="currentColor"
-              height="1em"
-              role="img"
-              style="vertical-align:-0.125em"
-              viewBox="0 0 320 512"
-              width="1em"
-            >
-              <path
-                d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                transform=""
-              />
-            </svg>
-          </button>
-        </div>
-      </div>
-      <nav
-        aria-label="Pagination"
-        class="pf-c-pagination__nav"
-      >
-        <button
-          aria-label="Go to first page"
-          class="pf-c-button pf-m-plain"
-          data-action="first"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 448 512"
-            width="1em"
-          >
-            <path
-              d="M223.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L319.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L393.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34zm-192 34l136 136c9.4 9.4 24.6 9.4 33.9 0l22.6-22.6c9.4-9.4 9.4-24.6 0-33.9L127.9 256l96.4-96.4c9.4-9.4 9.4-24.6 0-33.9L201.7 103c-9.4-9.4-24.6-9.4-33.9 0l-136 136c-9.5 9.4-9.5 24.6-.1 34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <button
-          aria-label="Go to previous page"
-          class="pf-c-button pf-m-plain"
-          data-action="previous"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 256 512"
-            width="1em"
-          >
-            <path
-              d="M31.7 239l136-136c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9L127.9 256l96.4 96.4c9.4 9.4 9.4 24.6 0 33.9L201.7 409c-9.4 9.4-24.6 9.4-33.9 0l-136-136c-9.5-9.4-9.5-24.6-.1-34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <div
-          class="pf-c-pagination__nav-page-select"
-        >
-          <input
-            aria-label="Current page"
-            class="pf-c-form-control"
-            disabled=""
-            max="1"
-            min="1"
-            type="number"
-            value="1"
-          />
-          <span
-            aria-hidden="true"
-          >
-            of 1
-          </span>
-        </div>
-        <button
-          aria-label="Go to next page"
-          class="pf-c-button pf-m-plain"
-          data-action="next"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 256 512"
-            width="1em"
-          >
-            <path
-              d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34z"
-              transform=""
-            />
-          </svg>
-        </button>
-        <button
-          aria-label="Go to last page"
-          class="pf-c-button pf-m-plain"
-          data-action="last"
-          disabled=""
-          type="button"
-        >
-          <svg
-            aria-hidden="true"
-            fill="currentColor"
-            height="1em"
-            role="img"
-            style="vertical-align:-0.125em"
-            viewBox="0 0 448 512"
-            width="1em"
-          >
-            <path
-              d="M224.3 273l-136 136c-9.4 9.4-24.6 9.4-33.9 0l-22.6-22.6c-9.4-9.4-9.4-24.6 0-33.9l96.4-96.4-96.4-96.4c-9.4-9.4-9.4-24.6 0-33.9L54.3 103c9.4-9.4 24.6-9.4 33.9 0l136 136c9.5 9.4 9.5 24.6.1 34zm192-34l-136-136c-9.4-9.4-24.6-9.4-33.9 0l-22.6 22.6c-9.4 9.4-9.4 24.6 0 33.9l96.4 96.4-96.4 96.4c-9.4 9.4-9.4 24.6 0 33.9l22.6 22.6c9.4 9.4 24.6 9.4 33.9 0l136-136c9.4-9.2 9.4-24.4 0-33.8z"
-              transform=""
-            />
-          </svg>
-        </button>
-      </nav>
-    </div>
-  </div>
-   
-</section>
+<TableToolbarView
+  actionResolver={[Function]}
+  borders={true}
+  checkedRows={Array []}
+  columns={
+    Array [
+      Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+      Object {
+        "title": "Username",
+      },
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
+    ]
+  }
+  createRows={[Function]}
+  data={
+    Array [
+      Object {
+        "email": "test",
+        "first_name": "test",
+        "is_active": true,
+        "last_name": "test",
+        "username": "test",
+        "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
+      },
+    ]
+  }
+  emptyProps={
+    Object {
+      "description": Array [
+        "Add a user to configure user access.",
+        "",
+      ],
+      "title": "There are no members in this group",
+    }
+  }
+  fetchData={[Function]}
+  filterItems={Array []}
+  filterPlaceholder="username"
+  filterValue=""
+  filters={Array []}
+  hideFilterChips={false}
+  isCollapsible={false}
+  isCompact={false}
+  isLoading={false}
+  isSelectable={false}
+  pagination={
+    Object {
+      "count": 2,
+      "limit": 10,
+      "offset": 0,
+    }
+  }
+  routes={[Function]}
+  rowWrapper={[Function]}
+  setCheckedItems={[Function]}
+  setFilterValue={[Function]}
+  titlePlural="members"
+  titleSingular="member"
+  toolbarButtons={[Function]}
+/>
 `;

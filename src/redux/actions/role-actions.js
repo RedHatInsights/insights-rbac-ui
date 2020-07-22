@@ -9,11 +9,15 @@ export const createRole = (roleData) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success adding role',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The role was added successfully.'
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding role',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The role was not added successfuly.'
       }
     }
@@ -43,9 +47,20 @@ export const removeRole = (role) => ({
       fulfilled: {
         variant: 'success',
         title: 'Success removing role',
+        dismissDelay: 8000,
+        dismissable: false,
         description: 'The role was removed successfully.'
       }
     }
   }
 });
 
+export const fetchRoleForUser = apiProps => ({
+  type: ActionTypes.FETCH_ROLE_FOR_USER,
+  payload: RoleHelper.fetchRole(apiProps)
+});
+
+export const fetchRolesForWizard = (options = {}) => ({
+  type: ActionTypes.FETCH_ROLES_FOR_WIZARD,
+  payload: RoleHelper.fetchRoles(options)
+});

@@ -1,2 +1,2 @@
-export const RBAC_API_BASE = `${process.env.BASE_PATH}/rbac/v1`;
+export const RBAC_API_BASE = `/api/rbac/v1`;
 

@@ -1,13 +1,5 @@
 @import '~@redhat-cloud-services/frontend-components/index.css';
 
-.modal-form-right-align {
-  .pf-m-action:last-child {
-    .data-driven-forms__pf4-button-group:first-child {
-      margin-left: auto
-    }
-  }
-}
-
 .groups-table-detail {
   &.heading {
     margin: 0 !important
@@ -85,4 +77,41 @@
   .ins-c-rbac__delete-icon {
     color: var(--pf-global--warning-color--100);
   }
+}
+
+.delete-group-warning-icon {
+  color: var(--pf-global--warning-color--100);
+}
+
+.pf-c-table {
+  thead tr th.ins-m-width-5 { width: 5%; }
+
+  tbody tr.ins-c-rbac__group-default {
+    .pf-c-table__check:first-of-type input { display: none; }
+  }
+}
+
+.ins-c-rbac__summary {
+  .pf-l-grid {
+    .pf-l-grid__item {
+      margin-bottom: var(--pf-global--gutter--md);
+    }
+  }
+}
+
+.ins-c-rbac__user-label {
+  margin-right: var(--pf-global--spacer--sm);
+
+}
+
+
+
+@media only screen and (max-width: 768px) {
+  .ins-c-rbac__user-row .pf-c-label{
+    width: max-content;
+  }
+}
+
+.pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
+  display: none;
 }

@@ -3,10 +3,11 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Button, Modal } from '@patternfly/react-core';
+import { Button, Modal, StackItem, Stack } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroup, addMembersToGroup } from '../../../redux/actions/group-actions';
-import UsersList from '../add-group/users-list';
+import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
+import { CompactUsersList } from '../add-group/users-list';
+import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
 const AddGroupMembers = ({
   history: { push },
@@ -14,7 +15,7 @@ const AddGroupMembers = ({
   addNotification,
   closeUrl,
   addMembersToGroup,
-  fetchGroup
+  fetchMembersForGroup
 }) => {
   const [ selectedUsers, setSelectedUsers ] = useState([]);
 
@@ -24,9 +25,11 @@ const AddGroupMembers = ({
       addNotification({
         variant: 'info',
         title: `Adding member${userList.length > 1 ? 's' : ''} to group`,
+        dismissDelay: 8000,
+        dismissable: false,
         description: `Adding member${userList.length > 1 ? 's' : ''} to group initiated.`
       });
-      addMembersToGroup(uuid, userList).then(() => fetchGroup(uuid));
+      addMembersToGroup(uuid, userList).then(() => fetchMembersForGroup(uuid));
     }
 
     push(closeUrl);
@@ -36,8 +39,9 @@ const AddGroupMembers = ({
     addNotification({
       variant: 'warning',
       title: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group`,
-      dismissable: true,
-      description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was cancelled by the user.`
+      dismissDelay: 8000,
+      dismissable: false,
+      description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was canceled by the user.`
     });
     push(closeUrl);
   };
@@ -45,7 +49,7 @@ const AddGroupMembers = ({
   return (
     <Modal
       title="Add members to the group"
-      width={ '40%' }
+      width={ '75%' }
       isOpen
       isFooterLeftAligned
       actions={ [
@@ -57,7 +61,14 @@ const AddGroupMembers = ({
         </Button>
       ] }
       onClose={ onCancel }>
-      <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+        <Stack hasGutter>
+          <StackItem>
+            <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your"/>
+          </StackItem>
+          <StackItem>
+            <CompactUsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+          </StackItem>
+        </Stack>
     </Modal>
   );
 };
@@ -71,12 +82,13 @@ AddGroupMembers.defaultProps = {
 
 AddGroupMembers.propTypes = {
   history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
+    goBack: PropTypes.func.isRequired,
+    push: PropTypes.func
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchData: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
+  fetchMembersForGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
@@ -93,7 +105,7 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   addNotification,
   addGroup,
   addMembersToGroup,
-  fetchGroup
+  fetchMembersForGroup
 }, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));

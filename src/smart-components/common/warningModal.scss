@@ -1,0 +1,8 @@
+.ins-c-wizard__cancel-warning-header {
+    display: flex;
+    align-items: center;
+    &--icon {
+        fill: var(--pf-global--warning-color--100);
+        margin-right: var(--pf-global--spacer--md);
+    }
+}

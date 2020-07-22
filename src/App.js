@@ -1,5 +1,5 @@
-import PropTypes from 'prop-types';
 import React, { Component } from 'react';
+import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
@@ -11,23 +11,40 @@ import { IntlProvider } from 'react-intl';
 
 import '@redhat-cloud-services/frontend-components-notifications/index.css';
 import './App.scss';
+import DeniedState from './presentational-components/states/DeniedState';
 
 class App extends Component {
   state = {
     chromeNavAvailable: true,
-    auth: false
+    userReady: false,
+    isAdmin: undefined
   }
 
   componentDidMount () {
+    const { history } = this.props;
     insights.chrome.init();
-    insights.chrome.auth.getUser().then(() => this.setState({ auth: true }));
-    insights.chrome.identifyApp('rbac');
+    insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
+    insights.chrome.identifyApp(insights.chrome.getApp());
+    this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
+      if (event.domEvent) {
+        history.push(`/${event.navId}`);
+      }
+    });
+  }
+
+  componentWillUnmount() {
+    this.unregister && this.unregister();
   }
 
   render () {
-    const { auth } = this.state;
-    if (!auth) {
+    const { userReady, isAdmin } = this.state;
+
+    if (!userReady) {
       return <AppPlaceholder />;
+    }
+
+    if (!isAdmin && insights.chrome.getApp() === 'rbac') {
+      return <DeniedState/>;
     }
 
     return (

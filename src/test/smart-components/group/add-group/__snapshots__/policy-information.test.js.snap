@@ -21,7 +21,7 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
       noValidate={true}
     >
       <Stack
-        gutter="md"
+        hasGutter={true}
       >
         <div
           className="pf-l-stack pf-m-gutter"
@@ -39,13 +39,14 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                     className="pf-l-stack__item"
                   >
                     <Title
+                      headingLevel="h4"
                       size="xl"
                     >
-                      <h1
+                      <h4
                         className="pf-c-title pf-m-xl"
                       >
                         Policy info title
-                      </h1>
+                      </h4>
                     </Title>
                   </div>
                 </StackItem>
@@ -81,49 +82,69 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
               >
                 <div
                   className="pf-c-form__group"
+                  isValid={true}
                 >
-                  <label
-                    className="pf-c-form__label"
-                    htmlFor="policy-name"
+                  <div
+                    className="pf-c-form__group-label"
                   >
-                    <span
-                      className="pf-c-form__label-text"
+                    <label
+                      className="pf-c-form__label"
+                      htmlFor="policy-name"
                     >
-                      Name
-                    </span>
-                  </label>
-                  <TextInput
-                    aria-describedby="policy-name"
-                    aria-label={null}
-                    className=""
-                    id="policy-name"
-                    isDisabled={false}
-                    isReadOnly={false}
-                    isRequired={false}
-                    isValid={true}
-                    name="policy-name"
-                    onBlur={[Function]}
-                    onChange={[Function]}
-                    type="text"
-                    validated="default"
-                    value="Test policy name"
+                      <span
+                        className="pf-c-form__label-text"
+                      >
+                        Name
+                      </span>
+                    </label>
+                     
+                  </div>
+                  <div
+                    className="pf-c-form__group-control"
                   >
-                    <input
+                    <ForwardRef
                       aria-describedby="policy-name"
-                      aria-invalid={false}
-                      aria-label={null}
-                      className="pf-c-form-control"
-                      disabled={false}
                       id="policy-name"
                       name="policy-name"
                       onBlur={[Function]}
                       onChange={[Function]}
-                      readOnly={false}
-                      required={false}
                       type="text"
                       value="Test policy name"
-                    />
-                  </TextInput>
+                    >
+                      <TextInputBase
+                        aria-describedby="policy-name"
+                        aria-label={null}
+                        className=""
+                        id="policy-name"
+                        innerRef={null}
+                        isDisabled={false}
+                        isReadOnly={false}
+                        isRequired={false}
+                        name="policy-name"
+                        onBlur={[Function]}
+                        onChange={[Function]}
+                        type="text"
+                        validated="default"
+                        value="Test policy name"
+                      >
+                        <input
+                          aria-describedby="policy-name"
+                          aria-invalid={false}
+                          aria-label={null}
+                          className="pf-c-form-control"
+                          disabled={false}
+                          id="policy-name"
+                          name="policy-name"
+                          onBlur={[Function]}
+                          onChange={[Function]}
+                          readOnly={false}
+                          required={false}
+                          type="text"
+                          value="Test policy name"
+                        />
+                      </TextInputBase>
+                    </ForwardRef>
+                  </div>
                 </div>
               </FormGroup>
             </div>
@@ -139,41 +160,49 @@ exports[`<PolicyInformation /> should render correctly 1`] = `
                 <div
                   className="pf-c-form__group"
                 >
-                  <label
-                    className="pf-c-form__label"
-                    htmlFor="policy-description"
+                  <div
+                    className="pf-c-form__group-label"
                   >
-                    <span
-                      className="pf-c-form__label-text"
+                    <label
+                      className="pf-c-form__label"
+                      htmlFor="policy-description"
                     >
-                      Description
-                    </span>
-                  </label>
-                  <TextArea
-                    aria-label={null}
-                    className=""
-                    id="policy-description"
-                    isRequired={false}
-                    isValid={true}
-                    name="policy-description"
-                    onChange={[Function]}
-                    resizeOrientation="both"
-                    type="text"
-                    validated="default"
-                    value="Test policy description"
+                      <span
+                        className="pf-c-form__label-text"
+                      >
+                        Description
+                      </span>
+                    </label>
+                     
+                  </div>
+                  <div
+                    className="pf-c-form__group-control"
                   >
-                    <textarea
-                      aria-invalid={false}
+                    <TextArea
                       aria-label={null}
-                      className="pf-c-form-control"
+                      className=""
                       id="policy-description"
+                      isRequired={false}
                       name="policy-description"
                       onChange={[Function]}
-                      required={false}
+                      resizeOrientation="both"
                       type="text"
+                      validated="default"
                       value="Test policy description"
-                    />
-                  </TextArea>
+                    >
+                      <textarea
+                        aria-invalid={false}
+                        aria-label={null}
+                        className="pf-c-form-control"
+                        id="policy-description"
+                        name="policy-description"
+                        onChange={[Function]}
+                        required={false}
+                        type="text"
+                        value="Test policy description"
+                      />
+                    </TextArea>
+                  </div>
                 </div>
               </FormGroup>
             </div>

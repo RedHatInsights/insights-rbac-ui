@@ -1,20 +1,20 @@
-import { FETCH_USER, FETCH_USERS } from '../../redux/action-types';
+import { FETCH_USERS } from '../../redux/action-types';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
 export const usersInitialState = {
   selectedUser: {},
   isUserDataLoading: false,
-  users: []
+  users: {
+    meta: defaultSettings
+  }
 };
 
 const setLoadingState = state => ({ ...state, isUserDataLoading: true });
 
-const setUser = (state, { payload }) => ({ ...state, selectedUser: payload, isUserDataLoading: false });
 const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoading: false });
 
 export default {
-  [`${FETCH_USER}_PENDING`]: setLoadingState,
-  [`${FETCH_USER}_FULFILLED`]: setUser,
   [`${FETCH_USERS}_PENDING`]: setLoadingState,
   [`${FETCH_USERS}_FULFILLED`]: setUsers
 };

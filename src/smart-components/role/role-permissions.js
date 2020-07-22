@@ -3,20 +3,21 @@ import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './role-permissions-table-helpers';
+import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 const columns = [
   { title: 'Application' },
   { title: 'Resource type' },
-  { title: 'Operation' }
+  { title: 'Operation' },
+  { title: 'Last commit', transforms: [ cellWidth(15) ]}
 ];
 
 const Permissions = () => {
   const [ config, setConfig ] = useState({
     pagination: {
-      limit: 10,
-      offset: 0,
-      count: 0,
+      ...defaultSettings,
       filter: ''
     }
   });
@@ -39,7 +40,8 @@ const Permissions = () => {
 
   const filteredRows = (role && role.access) ?
     (role.access || [])
-    .filter(({ permission }) => permission === '*' || filter ? permission.includes(filter) : true) :
+    .filter(({ permission }) => permission === '*' || filter ? permission.includes(filter) : true)
+    .map(acc => ({ ...acc, modified: role.modified })) :
     [];
 
   return <section className="pf-c-page__main-section ins-c-role__permissions">

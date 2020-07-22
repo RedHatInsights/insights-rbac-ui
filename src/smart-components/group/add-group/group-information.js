@@ -13,9 +13,9 @@ import {
 const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
   return (
     <Fragment>
-      <Stack gutter="md">
+      <Stack hasGutter>
         <StackItem>
-          <Title size="xl"> Enter group details </Title>
+          <Title headingLevel="h4" size="xl"> Enter group details </Title>
         </StackItem>
         <StackItem>
           <Form>

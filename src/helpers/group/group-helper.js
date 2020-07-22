@@ -4,7 +4,7 @@ const groupApi = getGroupApi();
 
 export async function fetchGroups({ limit, offset, name, orderBy }) {
   const [ groups, auth ] = await Promise.all([
-    groupApi.listGroups(limit, offset, name, orderBy),
+    groupApi.listGroups(limit, offset, name, undefined, undefined, undefined, undefined, undefined, orderBy),
     insights.chrome.auth.getUser()
   ]);
   return {
@@ -19,17 +19,6 @@ export async function fetchGroup(uuid) {
 
 export async function updateGroup(data) {
   await groupApi.updateGroup(data.uuid, data);
-
-  const members_list = data.principals ? data.principals.map(user => user.username) : [];
-  let addUsers = data.user_list.filter(item => !members_list.includes(item.username));
-  let removeUsers = members_list.filter(item => !(data.user_list.map(user => user.username).includes(item)));
-  if (addUsers.length > 0) {
-    await groupApi.addPrincipalToGroup(data.uuid, { principals: addUsers });
-  }
-
-  if (removeUsers.length > 0) {
-    await groupApi.deletePrincipalFromGroup(data.uuid, removeUsers.join(','));
-  }
 }
 
 export async function addGroup(data) {
@@ -47,8 +36,8 @@ export async function addGroup(data) {
   return ret;
 }
 
-export async function removeGroup(groupId) {
-  return await groupApi.deleteGroup(groupId);
+export async function removeGroups(uuids) {
+  return await Promise.all(uuids.map((uuid) => groupApi.deleteGroup(uuid)));
 }
 
 export async function deletePrincipalsFromGroup(groupId, users) {
@@ -59,8 +48,8 @@ export async function addPrincipalsToGroup(groupId, users) {
   return await groupApi.addPrincipalToGroup(groupId, { principals: users });
 }
 
-export async function fetchRolesForGroup(groupId, excluded, { limit, offset }, options = {}) {
-  return await groupApi.listRolesForGroup(groupId, excluded, limit, offset, options);
+export async function fetchRolesForGroup(groupId, excluded, { limit, offset, name, description }, options = {}) {
+  return await groupApi.listRolesForGroup(groupId, excluded, name, description, limit, offset, undefined, options);
 }
 
 export async function deleteRolesFromGroup(groupId, roles) {
@@ -71,3 +60,10 @@ export async function addRolesToGroup(groupId, roles) {
   return await groupApi.addRoleToGroup(groupId, { roles });
 }
 
+export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
+  return await groupApi.getPrincipalsFromGroup(groupId, usernames, undefined, {
+    query: {
+      ...options
+    }
+  });
+}

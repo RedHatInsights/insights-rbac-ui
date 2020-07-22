@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
+import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -12,9 +12,10 @@ import SummaryContent from './summary-content';
 import GroupInformation from './group-information';
 import SetUsers from './set-users';
 import SetRoles from './set-roles';
+import { WarningModal } from '../../common/warningModal';
+import '../../common/hideWizard.scss';
 
 const AddGroupWizard = ({
-  history: { push },
   addNotification,
   addGroup,
   postMethod,
@@ -25,6 +26,8 @@ const AddGroupWizard = ({
   const [ formData, setValues ] = useState({});
   const [ isGroupInfoValid, setIsGroupInfoValid ] = useState(false);
 
+  const history = useHistory();
+
   const handleChange = data => {
     setValues({ ...formData,  ...data });
   };
@@ -34,12 +37,12 @@ const AddGroupWizard = ({
       component: new GroupInformation(formData, handleChange, setIsGroupInfoValid),
       enableNext: isGroupInfoValid
     },
-    { name: 'Add members',
-      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
-    },
     {
       name: 'Assign roles',
       component: new SetRoles({ formData, selectedRoles, setSelectedRoles })
+    },
+    { name: 'Add members',
+      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
     },
     { name: 'Review',
       component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
@@ -56,28 +59,46 @@ const AddGroupWizard = ({
     };
     await addGroup(user_data);
     postMethod();
-    push(closeUrl);
+    history.push(closeUrl);
   };
 
   const onCancel = () => {
     addNotification({
       variant: 'warning',
       title: 'Adding group',
-      dismissable: true,
-      description: 'Adding group was cancelled by the user.'
+      dismissDelay: 8000,
+      dismissable: false,
+      description: 'Adding group was canceled by the user.'
     });
-    push('/groups');
+    history.push('/groups');
   };
 
+  const [ cancelWarningVisible, setCancelWarningVisible ] = useState(false);
+
   return (
-    <Wizard
-      isLarge
-      title={ 'Add group' }
-      isOpen
-      onClose={ onCancel }
-      onSave={ onSubmit }
-      steps={ steps }
-    />);
+    <React.Fragment>
+      <Wizard
+        className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
+        title="Create and configure a group"
+        description="To give users access permissions, create a group and assign roles to it."
+        isOpen
+        onClose={ () => {
+          if (Object.values(formData).filter(Boolean).length > 0 || selectedRoles.length > 0 || selectedUsers.length > 0) {
+            setCancelWarningVisible(true);
+          } else {
+            onCancel();
+          }
+        } }
+        onSave={ onSubmit }
+        steps={ steps }
+      />
+      <WarningModal
+        type='group'
+        isOpen={ cancelWarningVisible }
+        onModalCancel={ () => setCancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
+    </React.Fragment>
+  );
 
 };
 
@@ -91,9 +112,6 @@ AddGroupWizard.defaultProps = {
 };
 
 AddGroupWizard.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired
-  }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
@@ -120,4 +138,4 @@ const mapDispatchToProps = (dispatch) => bindActionCreators({
   fetchUsers
 }, dispatch);
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard));
+export default connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard);

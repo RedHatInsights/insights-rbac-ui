@@ -1,5 +1,5 @@
 import React from 'react';
-import { shallow } from 'enzyme';
+import { shallow, mount } from 'enzyme';
 import toJson from 'enzyme-to-json';
 import Toolbar, {
   paginationBuilder,
@@ -50,13 +50,6 @@ describe('<Toolbar>', () => {
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 
-  /*
-  filterValue,
-  setFilterValue,
-  pagination,
-  fetchData,
-  toolbarButtons
-  */
   describe('isSelectable', () => {
     [ true, false ].map((isLoading) => {
       it(`is loading - ${isLoading}`, () => {
@@ -130,6 +123,33 @@ describe('<Toolbar>', () => {
         ]) }
       />);
       expect(toJson(wrapper)).toMatchSnapshot();
+    });
+  });
+
+  describe('filters', () => {
+    it('should render with placeholder', () => {
+      const wrapper = shallow(<Toolbar filterValue='some' filterPlaceholder='test' />);
+      expect(toJson(wrapper)).toMatchSnapshot();
+    });
+
+    it('should render with text filters', () => {
+      const wrapper = shallow(<Toolbar filterValue='some' filters={ [{ key: 'name', value: '' }] } />);
+      expect(toJson(wrapper)).toMatchSnapshot();
+    });
+
+    it('call filter update with correct value', () => {
+      const setFilterValue = jest.fn();
+      const wrapper = mount(<Toolbar
+        filterValue='some'
+        filters={ [{ key: 'name', value: '' }] }
+        setFilterValue={ setFilterValue }
+      />);
+      const target = wrapper.find('input#filter-by-name');
+      target.getDOMNode().value = 'something';
+      target.simulate('change');
+      wrapper.update();
+      expect(setFilterValue).toHaveBeenCalled();
+      expect(setFilterValue.mock.calls[0][0]).toMatchObject({ name: 'something' });
     });
   });
 });

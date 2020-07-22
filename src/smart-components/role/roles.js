@@ -1,79 +1,90 @@
 import React, { Fragment, useState, useEffect } from 'react';
-import { connect } from 'react-redux';
-import { Link, Route, Switch } from 'react-router-dom';
+import { shallowEqual, useSelector, useDispatch  } from 'react-redux';
+import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { cellWidth, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import PropTypes from 'prop-types';
-import AppTabs from '../app-tabs/app-tabs';
 import { createRows } from './role-table-helpers';
-import { defaultSettings } from '../../helpers/shared/pagination';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import AddRoleWizard from './add-role/add-role-wizard';
+import AddRoleWizard from './add-role-new/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 
 const columns = [
-  { title: 'Role', orderBy: 'name' },
+  { title: 'Name', key: 'name', transforms: [ cellWidth(20), sortable ]},
   { title: 'Description' },
-  { title: 'Policies' },
-  { title: 'Last Modified', orderBy: 'modified' }
+  { title: 'Permissions', transforms: [ cellWidth(5) ]},
+  { title: 'Groups', transforms: [ cellWidth(5) ]},
+  { title: 'Last modified', key: 'modified', transforms: [ cellWidth(10), sortable ]}
 ];
 
-const tabItems = [
-  { eventKey: 0, title: 'Groups', name: '/groups' },
-  { eventKey: 1, title: 'Roles', name: '/roles' }
-];
+const selector = ({ roleReducer: { roles, isLoading }}) => ({
+  roles: roles.data,
+  pagination: roles.meta,
+  userIdentity: roles.identity,
+  userEntitlements: roles.entitlements,
+  isLoading
+});
 
-const Roles = ({
-  fetchRoles,
-  roles,
-  isLoading,
-  history: { push },
-  pagination,
-  userIdentity,
-  userEntitlements
-}) => {
+const Roles = () => {
   const [ filterValue, setFilterValue ] = useState('');
+  const [ isCostAdmin, setIsCostAdmin ] = useState(false);
+  const dispatch = useDispatch();
+  const { push } = useHistory();
+  const {
+    roles,
+    isLoading,
+    pagination,
+    userIdentity,
+    userEntitlements
+  } = useSelector(selector, shallowEqual);
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
+
   useEffect(() => {
-    fetchRoles({ ...pagination, name: filterValue });
+    insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
+    fetchData({ ...pagination, name: filterValue });
+    window.insights.chrome.getUserPermissions('cost-management').then(
+      allPermissions => {
+        const permissionList = allPermissions.map(permissions => permissions.permission);
+        setIsCostAdmin(permissionList.includes('cost-management:*:*'));
+      }
+    );
   }, []);
 
   const routes = () => <Fragment>
     <Route exact path="/roles/add-role" component={ AddRoleWizard } />
-    <Route exact path="/roles/remove/:id" component={ RemoveRole } />
+    <Route exact path="/roles/remove/:id">
+      <RemoveRole
+        postMethod={ () => {
+          fetchData();
+          setFilterValue('');
+        } } />
+    </Route>
   </Fragment>;
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity.user.is_org_admin;
+    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
     return (system || !userAllowed) ? [] : [
       {
         title: 'Delete',
         onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`),
-        props: {
-          isDisabled: true
-        },
-        isDisabled: true
+        push(`/roles/remove/${role.uuid}`)
       }
     ];
   };
 
-  const areActionsDisabled = (_roleData) => {
-    return _roleData.policies.title > 1;
-  };
-
   const toolbarButtons = () => [
     <Fragment key="add-role">
-      { userEntitlements && userEntitlements.cost_management ?
+      { userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
         <Link to="/roles/add-role" >
           <Button
             variant="primary"
             aria-label="Create role"
           >
-          Add role
+          Create role
           </Button>
         </Link> :
         <Fragment /> }
@@ -84,28 +95,26 @@ const Roles = ({
     <Stack>
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title="User access management" />
-          <AppTabs tabItems={ tabItems }/>
+          <TopToolbarTitle title="Roles" />
         </TopToolbar>
       </StackItem>
       <StackItem>
         <Section type="content" id={ 'tab-roles' }>
           <TableToolbarView
             actionResolver={ actionResolver }
-            areActionsDisabled={ areActionsDisabled }
             columns={ columns }
             createRows={ createRows }
             data={ roles }
             filterValue={ filterValue }
-            fetchData={ (config) => fetchRoles(mappedProps(config)) }
+            fetchData={ (config) => fetchData(mappedProps(config)) }
             setFilterValue={ ({ name }) => setFilterValue(name) }
             isLoading={ isLoading }
             pagination={ pagination }
-            request={ fetchRoles }
             routes={ routes }
             titlePlural="roles"
             titleSingular="role"
             toolbarButtons = { toolbarButtons }
+            filterPlaceholder="name"
           />
         </Section>
       </StackItem>
@@ -119,49 +128,4 @@ const Roles = ({
   );
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
-  roles: roles.data,
-  pagination: roles.meta,
-  userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
-  isLoading
-});
-
-const mapDispatchToProps = dispatch => {
-  return {
-    fetchRoles: (apiProps) => {
-      dispatch(fetchRolesWithPolicies(apiProps));
-    }
-  };
-};
-
-Roles.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }),
-  roles: PropTypes.array,
-  platforms: PropTypes.array,
-  isLoading: PropTypes.bool,
-  fetchRoles: PropTypes.func.isRequired,
-  pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired
-  }),
-  userIdentity: PropTypes.shape({
-    user: PropTypes.shape({
-      [PropTypes.string]: PropTypes.oneOfType([ PropTypes.string, PropTypes.bool ])
-    })
-  }),
-  userEntitlements: PropTypes.shape({
-    [PropTypes.string]: PropTypes.bool
-  })
-};
-
-Roles.defaultProps = {
-  roles: [],
-  pagination: defaultSettings
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Roles);
+export default Roles;

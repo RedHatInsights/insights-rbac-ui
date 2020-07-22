@@ -6,25 +6,27 @@ import {
   FormGroup,
   Stack,
   StackItem,
-  Text,
   TextContent,
-  TextVariants,
   Title
 } from '@patternfly/react-core';
-import UsersList from './users-list';
+import { CompactUsersList } from './users-list';
 import '../../../App.scss';
+import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
 const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
   return (
     <Fragment>
       <Form>
-        <Stack gutter="md">
+        <Stack hasGutter>
           { title && <StackItem>
-            <Title size="xl">{ title }</Title>
+            <Title headingLevel="h4" size="xl">{ title }</Title>
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Text component={ TextVariants.h6 }>{ description || 'Select users from your organization to add to this group.' }</Text>
+              <Title headingLevel="h4" size="xl"> Add members to the group </Title>
+              <ActiveUser
+                description={ description || 'These are all of the users in your Red Hat organization. To manage users, go to your' }
+              />
             </TextContent>
           </StackItem>
           <StackItem>
@@ -32,7 +34,7 @@ const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
               fieldId="select-user"
             >
               <Card>
-                <UsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
+                <CompactUsersList selectedUsers={ selectedUsers } setSelectedUsers={ setSelectedUsers } />
               </Card>
             </FormGroup>
           </StackItem>

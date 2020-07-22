@@ -1,20 +1,20 @@
 import React, { Fragment } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 
 export const createRows = (data, opened, selectedRows = []) => (
-  data.reduce((acc, { uuid, name, description, principalCount, modified }) => ([
+  data.reduce((acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault }) => ([
     ...acc,
     {
       uuid,
+      isPlatformDefault,
       cells: [
         <Fragment key={ uuid }>
           <Link to={ `/groups/detail/${uuid}` }>
-            <Button variant="link"> { name } </Button>
+            { name }
           </Link>
         </Fragment>,
-        description,
+        roleCount,
         principalCount,
         <Fragment key={ `${uuid}-modified` }>
           <DateFormat date={ modified } type="relative" />

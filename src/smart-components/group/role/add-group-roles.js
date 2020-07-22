@@ -1,11 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 
 import {
-  ActionGroup,
   Button,
-  Split,
-  SplitItem,
   Card,
   Modal,
   Stack,
@@ -15,9 +12,9 @@ import {
   TextVariants,
   Title
 } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import '../../../App.scss';
+import DefaultGroupChange from './default-group-change-modal';
 
 const AddGroupRoles = ({
   history: { push },
@@ -27,39 +24,76 @@ const AddGroupRoles = ({
   title,
   closeUrl,
   addRolesToGroup,
-  fetchRolesForGroup,
-  name
+  name,
+  isDefault,
+  isChanged,
+  addNotification,
+  onDefaultGroupChanged,
+  fetchRolesForGroup
 }) => {
+  const [ showConfirmModal, setShowConfirmModal ] = useState(true);
+
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: 'Adding members to group',
-      dismissable: true,
-      description: 'Adding members to group was cancelled by the user.'
+      title: 'Adding roles to group',
+      dismissDelay: 8000,
+      dismissable: false,
+      description: 'Adding roles to group was canceled by the user.'
     });
     push(closeUrl);
   };
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map(role => role.uuid);
-    addRolesToGroup(uuid, rolesList, () => fetchRolesForGroup(uuid));
+    addRolesToGroup(uuid, rolesList, fetchRolesForGroup);
+    if (isDefault && !isChanged) {
+      onDefaultGroupChanged(true);
+    }
+
     return push(closeUrl);
   };
 
-  return (
-    <Modal
-      title={ `Add roles to ${name} group` }
+  return (isDefault && !isChanged && showConfirmModal
+    ? <DefaultGroupChange
+      isOpen={ showConfirmModal }
+      onClose={ onCancel }
+      onSubmit={ () => setShowConfirmModal(false) }
+    />
+    : <Modal
+      title="Add roles to group"
       width={ '70%' }
       isOpen
-      onClose={ onCancel }>
-      <Stack gutter="md">
+      onClose={ () => {
+        onCancel();
+        setShowConfirmModal(true);
+      } }
+      actions={ [
+        <Button
+          aria-label="Save"
+          variant="primary"
+          key="confirm"
+          isDisabled={ selectedRoles.length === 0 }
+          onClick={ onSubmit }>
+            Add to group
+        </Button>,
+        <Button
+          aria-label='Cancel'
+          variant='link'
+          key="cancel"
+          onClick={ onCancel }>
+          Cancel
+        </Button>
+      ] }
+      isFooterLeftAligned>
+      <Stack hasGutter>
         { title && <StackItem>
-          <Title size="xl">{ title }</Title>
+          <Title headingLevel="h4" size="xl">{ title }</Title>
         </StackItem> }
         <StackItem>
           <TextContent>
             <Text component={ TextVariants.h6 }>
-                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently in your group.</b>
+                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently </b> in <b> { name }</b>.
             </Text>
           </TextContent>
         </StackItem>
@@ -68,30 +102,6 @@ const AddGroupRoles = ({
             <ExcludedRolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
           </Card>
         </StackItem>
-        <StackItem>
-          <ActionGroup>
-            <Split gutter="md">
-              <SplitItem>
-                <Button
-                  aria-label="Save"
-                  variant="primary"
-                  type="button"
-                  isDisabled={ selectedRoles.length === 0 }
-                  onClick={ onSubmit }
-                >
-                      Save
-                </Button>
-              </SplitItem>
-              <SplitItem>
-                <Button
-                  aria-label='Cancel'
-                  variant='secondary'
-                  type='button'
-                  onClick={ onCancel }>Cancel</Button>
-              </SplitItem>
-            </Split>
-          </ActionGroup>
-        </StackItem>
       </Stack>
     </Modal>
   );
@@ -99,6 +109,7 @@ const AddGroupRoles = ({
 
 AddGroupRoles.propTypes = {
   history: PropTypes.shape({
+    push: PropTypes.any,
     goBack: PropTypes.func.isRequired
   }).isRequired,
   match: PropTypes.shape({
@@ -107,10 +118,14 @@ AddGroupRoles.propTypes = {
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   addRolesToGroup: PropTypes.func,
-  fetchRolesForGroup: PropTypes.func,
   closeUrl: PropTypes.string,
   title: PropTypes.string,
-  name: PropTypes.string
+  name: PropTypes.string,
+  isDefault: PropTypes.bool,
+  isChanged: PropTypes.bool,
+  addNotification: PropTypes.func,
+  onDefaultGroupChanged: PropTypes.func,
+  fetchRolesForGroup: PropTypes.func
 };
 
 export default AddGroupRoles;

@@ -14,9 +14,9 @@ const RoleInformation = (formData, onHandleChange) => {
   const { description = '', name = '' } = formData;
 
   return (
-    <Stack gutter="md">
+    <Stack hasGutter>
       <StackItem>
-        <Title size="xl">Name and description</Title>
+        <Title headingLevel="h4" size="xl">Name and description</Title>
       </StackItem>
       <StackItem>
         <Form>
@@ -42,7 +42,7 @@ const RoleInformation = (formData, onHandleChange) => {
               id="description"
               name="description"
               value={ description }
-              onChange={ (_, event) => onHandleChange({ description: event.currentTarget.value }) }
+              onChange={ (_, event) => onHandleChange({ description: event.currentTarget.value }, true) }
             />
           </FormGroup>
         </Form>

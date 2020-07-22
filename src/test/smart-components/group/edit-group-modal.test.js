@@ -11,11 +11,11 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import EditGroupModal from '../../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { componentTypes } from '@data-driven-forms/react-form-renderer/dist/index';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 
 describe('<EditGroupModal />', () => {
   let initialProps;
-  const middlewares = [ thunk, promiseMiddleware(), notificationsMiddleware() ];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
@@ -49,7 +49,11 @@ describe('<EditGroupModal />', () => {
   });
 
   it('should render correctly', () => {
-    const wrapper = shallow(<EditGroupModal { ...initialProps } />);
+    const store = mockStore(initialState);
+    const wrapper = shallow(
+      <Provider store={ store }>
+        <EditGroupModal { ...initialProps } />
+      </Provider>);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
@@ -67,8 +71,8 @@ describe('<EditGroupModal />', () => {
       }));
 
     const wrapper = mount(
-      <GroupWrapper store={ store } initialEntries={ [ '/foo/url' ] }>
-        <Route to="/foo/url" render={ args => <EditGroupModal { ...initialProps } { ...args } /> }  />
+      <GroupWrapper store={ store } initialEntries={ [ '/groups/edit/:id' ] }>
+        <Route to="/groups/edit/:id" render={ args => <EditGroupModal { ...initialProps } { ...args } isOpen /> }  />
       </GroupWrapper>
     );
 

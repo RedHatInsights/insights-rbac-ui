@@ -32,9 +32,9 @@ const PermissionInformation = (formData, onHandleChange) => {
   };
 
   return (
-    <Stack gutter="md">
+    <Stack hasGutter>
       <StackItem>
-        <Title size="xl">Permission</Title>
+        <Title headingLevel="h4" size="xl">Permission</Title>
       </StackItem>
       <StackItem>
         <TextContent>
