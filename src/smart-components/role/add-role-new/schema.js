@@ -1,4 +1,6 @@
 import AddPermissionTemplate from './add-permissions-template';
+import { debouncedAsyncValidator } from './validators';
+
 export default {
     fields: [
         {
@@ -51,6 +53,7 @@ export default {
                                 is: 'create'
                             },
                             validate: [
+                                debouncedAsyncValidator,
                                 {
                                     type: 'required'
                                 }
@@ -94,6 +97,7 @@ export default {
                             label: 'Role name',
                             isRequired: true,
                             validate: [
+                                debouncedAsyncValidator,
                                 {
                                     type: 'required'
                                 }
