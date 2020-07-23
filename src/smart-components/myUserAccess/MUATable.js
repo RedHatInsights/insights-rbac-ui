@@ -30,7 +30,6 @@ const columns = [
 let debouncedFetch;
 
 const MUATable = ({
-    username,
     fetchRoles,
     fetchRoleForUser,
     roles,
@@ -75,9 +74,9 @@ const MUATable = ({
     };
 
     useEffect(() => {
-        fetchRoles({ limit: 20, offset: 0, username });
+        fetchRoles({ limit: 20, offset: 0, scope: 'principal' });
         debouncedFetch = debounce(
-                (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }),
+                (limit, offset, name, addFields) => fetchRoles({ limit, offset, name, addFields }),
             500);
     }, []);
 
@@ -103,7 +102,7 @@ const MUATable = ({
             data={ roles.data }
             filterValue={ filter }
             fetchData={ ({ limit, offset, name }) => {
-                debouncedFetch(limit, offset, name, username);} }
+                debouncedFetch(limit, offset, name);} }
             setFilterValue={ ({ name }) =>  setFilter(name) }
             isLoading={ isLoading }
             pagination={ roles.meta }
@@ -114,7 +113,6 @@ const MUATable = ({
 };
 
 MUATable.propTypes = {
-    username: PropTypes.string,
     fetchRoles: PropTypes.func,
     fetchRoleForUser: PropTypes.func,
     fetchUsers: PropTypes.func,
@@ -133,7 +131,7 @@ const mapStateToProps = ({
 });
 const mapDispatchToProps = dispatch => ({
     fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
-    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid))
+    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid)),
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUATable));
