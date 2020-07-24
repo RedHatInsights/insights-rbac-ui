@@ -4,7 +4,7 @@ import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
+import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 // import classNames from 'classnames';
 // import './user.scss';
@@ -31,7 +31,7 @@ let debouncedFetch;
 
 const MUATable = ({
     fetchRoles,
-    fetchRoleForUser,
+    fetchRoleForPrincipal,
     roles,
     isLoading,
     rolesWithAccess
@@ -85,7 +85,7 @@ const MUATable = ({
             setExpanded({ ...expanded, [rowData.uuid]: colIndex });
             // Permissions
             if (colIndex === 2) {
-                fetchRoleForUser(rowData.uuid);
+                fetchRoleForPrincipal(rowData.uuid);
             }
         } else {
             setExpanded({ ...expanded, [rowData.uuid]: -1 });
@@ -114,7 +114,7 @@ const MUATable = ({
 
 MUATable.propTypes = {
     fetchRoles: PropTypes.func,
-    fetchRoleForUser: PropTypes.func,
+    fetchRoleForPrincipal: PropTypes.func,
     fetchUsers: PropTypes.func,
     roles: PropTypes.object,
     isLoading: PropTypes.bool,
@@ -131,7 +131,7 @@ const mapStateToProps = ({
 });
 const mapDispatchToProps = dispatch => ({
     fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
-    fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid)),
+    fetchRoleForPrincipal: (uuid) => dispatch(fetchRoleForPrincipal(uuid))
 });
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUATable));

@@ -2,6 +2,7 @@ import {
   FETCH_ROLE,
   FETCH_ROLES,
   FETCH_ROLE_FOR_USER,
+  FETCH_ROLE_FOR_PRINCIPAL,
   FETCH_ROLES_FOR_WIZARD
 } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -41,6 +42,8 @@ export default {
   [`${FETCH_ROLES}_PENDING`]: setLoadingState,
   [`${FETCH_ROLE_FOR_USER}_FULFILLED`]: setRolesWithAccess,
   [`${FETCH_ROLE_FOR_USER}_PENDING`]: setRecordLoadingState,
+  [`${FETCH_ROLE_FOR_PRINCIPAL}_FULFILLED`]: setRolesWithAccess,
+  [`${FETCH_ROLE_FOR_PRINCIPAL}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLES_FOR_WIZARD}_FULFILLED`]: setRolesForWizard,
   [`${FETCH_ROLES_FOR_WIZARD}_PENDING`]: setWizardLoadingState
 };
