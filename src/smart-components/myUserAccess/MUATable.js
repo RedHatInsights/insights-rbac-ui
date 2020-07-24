@@ -6,8 +6,6 @@ import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-// import classNames from 'classnames';
-// import './user.scss';
 
 import {
     Table,
@@ -118,8 +116,7 @@ MUATable.propTypes = {
     fetchUsers: PropTypes.func,
     roles: PropTypes.object,
     isLoading: PropTypes.bool,
-    rolesWithAccess: PropTypes.object,
-    user: PropTypes.object
+    rolesWithAccess: PropTypes.object
 };
 
 const mapStateToProps = ({

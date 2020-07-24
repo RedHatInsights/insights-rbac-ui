@@ -14,7 +14,7 @@ const MyUserAccess = () => {
 
     useEffect(() => {
       insights.chrome.auth.getUser().then(({ identity, entitlements }) => (
-        setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin, username: identity?.user?.username })
+        setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin })
       ));
     }, []);
 
@@ -43,7 +43,7 @@ const MyUserAccess = () => {
               <MUAPageSection
                 title='My roles'
                 description='Roles are sets of permissions that provide access to a given service.'>
-                  <MUATable username={ user.username }/>
+                  <MUATable/>
               </MUAPageSection>
             </Main>
           </React.Fragment>
