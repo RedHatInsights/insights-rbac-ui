@@ -6,7 +6,6 @@ import { AppPlaceholder } from './presentational-components/shared/loader-placeh
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
-const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/myUserAccess'));
 
 const paths = {
   rbac: '/',
