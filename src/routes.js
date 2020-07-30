@@ -12,8 +12,7 @@ const paths = {
   rbac: '/',
   groups: '/groups',
   roles: '/roles',
-  users: '/users',
-  myUserAccess: '/my-user-access'
+  users: '/users'
 };
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
@@ -35,8 +34,7 @@ export const Routes = () => {
         <InsightsRoute path={ paths.groups } component={ Groups } rootClass="groups" />
         <InsightsRoute path={ paths.roles } component={ Roles } rootClass="roles" />
         <InsightsRoute path={ paths.users } component={ Users } rootClass="roles" />
-        <InsightsRoute path={ paths.myUserAccess } component={ MyUserAccess } rootClass="myUserAccess"/>
-        <Route render={ () => <Redirect to={ paths.myUserAccess } /> } />
+        <Route render={ () => <Redirect to={ paths.groups } /> } />
       </Switch>
     </Suspense>
   );
