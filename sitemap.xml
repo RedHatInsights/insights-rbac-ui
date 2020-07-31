@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:news="http://www.google.com/schemas/sitemap-news/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml" xmlns:mobile="http://www.google.com/schemas/sitemap-mobile/1.0" xmlns:image="http://www.google.com/schemas/sitemap-image/1.1" xmlns:video="http://www.google.com/schemas/sitemap-video/1.1">
+<url> <loc>http://cloud.redhat.com/</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/add-group</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/removegroups</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/edit/:id</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:uuid</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:uuid/roles</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:uuid/roles/add_roles</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:uuid/members</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:uuid/members/add_members</loc> </url>
+<url> <loc>http://cloud.redhat.com/groups/detail/:groupUuid/roles/detail/:uuid</loc> </url>
+<url> <loc>http://cloud.redhat.com/roles</loc> </url>
+<url> <loc>http://cloud.redhat.com/roles/add-role</loc> </url>
+<url> <loc>http://cloud.redhat.com/roles/remove/:id</loc> </url>
+<url> <loc>http://cloud.redhat.com/roles/detail/:uuid</loc> </url>
+<url> <loc>http://cloud.redhat.com/users</loc> </url>
+<url> <loc>http://cloud.redhat.com/users/detail/:username</loc> </url>
+<url> <loc>http://cloud.redhat.com/my-user-access</loc> </url>
+</urlset>
