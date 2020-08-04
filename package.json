@@ -132,7 +132,7 @@
     },
     "group-detail": "/groups/detail/:uuid",
     "group-detail-roles": "/groups/detail/:uuid/roles",
-    "group-add-roles": "/groups/detail/:uuid/roles/add_roles`",
+    "group-add-roles": "/groups/detail/:uuid/roles/add_roles",
     "group-detail-members": "/groups/detail/:uuid/members",
     "group-add-members": "/groups/detail/:uuid/members/add_members",
     "group-detail-role-detail": "/groups/detail/:groupUuid/roles/detail/:uuid",
