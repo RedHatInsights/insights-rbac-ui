@@ -1,13 +1,15 @@
+/* eslint-disable  */
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { getPrincipalAccess } from '../../../redux/actions/access-actions';
+import { listPermissions } from '../../../redux/actions/permission-action';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
-const selector = ({ accessReducer: { access, isLoading }}) => ({
-    access: access.data,
+const selector = ({ accessReducer: { access }, permissionReducer: { permission, isLoading} }) => ({
+    access: permission.data,
+    pagination: permission.meta,
     isLoading
 });
 const types = [ 'application', 'resource', 'operation' ];
@@ -30,12 +32,11 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
     const dispatch = useDispatch();
-    const fetchData = () => dispatch(getPrincipalAccess());
-    const { access, isLoading } = useSelector(selector, shallowEqual);
+    const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
+    const { access, isLoading, pagination } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
-    const [ pagination, setPagination ] = useState({ limit: 10, offset: 0 });
 
     const createRows = (permissions) => permissions.map(
         ({ application, resource, operation, uuid }) => ({
@@ -51,7 +52,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     );
 
     useEffect(() => {
-        fetchData();
+        fetchData(pagination);
     }, []);
 
     useEffect(() => {
@@ -77,9 +78,10 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             isCompact={ true }
             borders={ false }
             createRows={ createRows }
-            data={ permissions.filteredData.slice(pagination.offset, pagination.offset + pagination.limit) }
+            data={ permissions.filteredData //.slice(pagination.offset, pagination.offset + pagination.limit) }
+            }
             filterValue={ '' }
-            fetchData={ ({ limit, offset }) => setPagination({ limit, offset }) }
+            fetchData={ ({ limit, offset }) => fetchData({limit, offset}) }
             setFilterValue={ ({ applications, resources, operations }) => {
                 setFilters({
                     ...filters,

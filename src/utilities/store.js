@@ -10,6 +10,7 @@ import groupReducer, { groupsInitialState } from '../redux/reducers/group-reduce
 import policyReducer, { policiesInitialState } from '../redux/reducers/policy-reducer';
 import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
+import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 
 const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware, notificationsMiddleware({
   errorTitleKey: [ 'message' ],
@@ -22,6 +23,7 @@ registry.register({
   policyReducer: applyReducerHash(policyReducer, policiesInitialState),
   roleReducer: applyReducerHash(roleReducer, rolesInitialState),
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
+  permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
   notifications
 });
 
