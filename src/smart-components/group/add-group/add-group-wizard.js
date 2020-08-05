@@ -13,6 +13,7 @@ import GroupInformation from './group-information';
 import SetUsers from './set-users';
 import SetRoles from './set-roles';
 import { WarningModal } from '../../common/warningModal';
+import GroupNameErrorState from './group-name-error-state';
 import '../../common/hideWizard.scss';
 
 const AddGroupWizard = ({
@@ -25,6 +26,7 @@ const AddGroupWizard = ({
   const [ selectedRoles, setSelectedRoles ] = useState([]);
   const [ formData, setValues ] = useState({});
   const [ isGroupInfoValid, setIsGroupInfoValid ] = useState(false);
+  const [ hideFooter, setHideFooter ] = useState(false);
 
   const history = useHistory();
 
@@ -34,7 +36,7 @@ const AddGroupWizard = ({
 
   const steps = [
     { name: 'General information',
-      component: new GroupInformation(formData, handleChange, setIsGroupInfoValid),
+      component: new GroupInformation(formData, handleChange, setIsGroupInfoValid, isGroupInfoValid),
       enableNext: isGroupInfoValid
     },
     {
@@ -45,7 +47,8 @@ const AddGroupWizard = ({
       component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
     },
     { name: 'Review',
-      component: new SummaryContent({ values: formData, selectedUsers, selectedRoles }),
+      component: isGroupInfoValid ?
+        new SummaryContent({ values: formData, selectedUsers, selectedRoles, setHideFooter }) : <GroupNameErrorState setHideFooter={ setHideFooter }/>,
       nextButtonText: 'Confirm',
       enableNext: isGroupInfoValid
     }
@@ -57,9 +60,13 @@ const AddGroupWizard = ({
       user_list: selectedUsers ? selectedUsers.map(user => ({ username: user.label })) : undefined,
       roles_list: selectedRoles ? selectedRoles.map(role => role.uuid) : undefined
     };
-    await addGroup(user_data);
-    postMethod();
-    history.push(closeUrl);
+    try {
+      await addGroup(user_data);
+      postMethod();
+      history.push(closeUrl);
+    } catch (e) {
+      setIsGroupInfoValid(false);
+    }
   };
 
   const onCancel = () => {
@@ -91,6 +98,7 @@ const AddGroupWizard = ({
         } }
         onSave={ onSubmit }
         steps={ steps }
+        footer={ hideFooter ? <div/> : undefined }
       />
       <WarningModal
         type='group'
