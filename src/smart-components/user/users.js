@@ -7,6 +7,7 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import UsersList from '../group/add-group/users-list';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
+import { routes as paths } from '../../../package.json';
 
 const Users = () => {
   const description = (
@@ -43,8 +44,8 @@ const Users = () => {
 
   return (
     <Switch>
-      <Route exact path={ '/users/detail/:username' } render={ props => <User {...props}/> } />
-      <Route path={ '/users' } render={ () => renderUsers() } />
+      <Route exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
+      <Route path={ paths.users } render={ () => renderUsers() } />
     </Switch>
 
   );

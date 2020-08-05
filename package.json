@@ -27,6 +27,7 @@
     "react-intl": "^4.7.5",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
+    "react-router-sitemap": "^1.2.0",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-mock-store": "^1.5.4",
@@ -114,9 +115,33 @@
     "build:prod": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "deploy": "npm-run-all build:prod",
     "verify": "npm-run-all build lint test",
-    "nightly": "npm run deploy"
+    "nightly": "npm run deploy",
+    "sitemap": "node --experimental-modules src/sitemap-builder.mjs"
   },
   "insights": {
     "appname": "rbac"
+  },
+  "routes": {
+    "rbac": "/",
+    "groups": "/groups",
+    "add-group": "/groups/add-group",
+    "remove-group": "/groups/removegroups",
+    "group-edit": {
+      "path": "/groups/edit/:id",
+      "description": "Edit single group"
+    },
+    "group-detail": "/groups/detail/:uuid",
+    "group-detail-roles": "/groups/detail/:uuid/roles",
+    "group-add-roles": "/groups/detail/:uuid/roles/add_roles",
+    "group-detail-members": "/groups/detail/:uuid/members",
+    "group-add-members": "/groups/detail/:uuid/members/add_members",
+    "group-detail-role-detail": "/groups/detail/:groupUuid/roles/detail/:uuid",
+    "roles": "/roles",
+    "add-role": "/roles/add-role",
+    "remove-role": "/roles/remove/:id",
+    "role-detail": "/roles/detail/:uuid",
+    "users": "/users",
+    "user-detail": "/users/detail/:username",
+    "my-user-access": "/my-user-access"
   }
 }
