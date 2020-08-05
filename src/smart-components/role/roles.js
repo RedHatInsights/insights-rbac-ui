@@ -12,6 +12,7 @@ import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
+import { routes as paths } from '../../../package.json';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [ cellWidth(20), sortable ]},
@@ -55,8 +56,8 @@ const Roles = () => {
   }, []);
 
   const routes = () => <Fragment>
-    <Route exact path="/roles/add-role" component={ AddRoleWizard } />
-    <Route exact path="/roles/remove/:id">
+    <Route exact path={ paths['add-role'] } component={ AddRoleWizard } />
+    <Route exact path={ paths['remove-role'] } >
       <RemoveRole
         postMethod={ () => {
           fetchData();
@@ -79,7 +80,7 @@ const Roles = () => {
   const toolbarButtons = () => [
     <Fragment key="add-role">
       { userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
-        <Link to="/roles/add-role" >
+        <Link to={ paths['add-role'] }  >
           <Button
             variant="primary"
             aria-label="Create role"
@@ -122,8 +123,8 @@ const Roles = () => {
 
   return (
     <Switch>
-      <Route path={ '/roles/detail/:uuid' } render={ props => <Role { ...props }/> } />
-      <Route path={ '/roles' } render={ () => renderRolesList() } />
+      <Route path={ paths['role-detail'] }  render={ props => <Role { ...props }/> } />
+      <Route path={ paths.roles  } render={ () => renderRolesList() } />
     </Switch>
   );
 };

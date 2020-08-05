@@ -12,6 +12,7 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 import { Alert, AlertActionCloseButton, Button, Popover, Split, SplitItem } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
 import './group.scss';
+import { routes } from '../../../package.json';
 
 import EditGroup from './edit-group-modal';
 
@@ -104,9 +105,9 @@ const Group = ({
       <AppTabs isHeader tabItems={ tabItems } />
       <Switch>
         <Route
-          path={ `/groups/detail/:uuid/roles` }
+          path={ routes['group-detail-roles'] }
           render={ props => <GroupRoles { ...props } onDefaultGroupChanged={ setShowDefaultGroupChangedInfo }/> } />
-        <Route path={ `/groups/detail/:uuid/members` } component={ GroupPrincipals } />
+        <Route path={ routes['group-detail-members'] } component={ GroupPrincipals } />
         <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/roles` } /> } />
       </Switch>
       { !group && <ListLoader/> }
