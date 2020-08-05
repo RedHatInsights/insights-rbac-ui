@@ -13,6 +13,7 @@ import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRole
 import AddGroupRoles from './add-group-roles';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
+import { routes as paths } from '../../../../package.json';
 import './group-roles.scss';
 
 const columns = [
@@ -126,7 +127,7 @@ const GroupRoles = ({
   ];
 
   const routes = () => <Fragment>
-    <Route path={ `/groups/detail/:uuid/roles/add_roles` }
+    <Route path={ paths['group-add-roles'] }
       render={ args => <AddGroupRoles
         fetchData={ fetchRoles }
         fetchRolesForGroup={ () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid) }
