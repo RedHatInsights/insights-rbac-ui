@@ -3,14 +3,19 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions } from '../../../redux/actions/permission-action';
+import { fetchRole } from '../../../redux/actions/role-actions';
+
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
-const selector = ({ accessReducer: { access }, permissionReducer: { permission, isLoading} }) => ({
+const selector = ({ accessReducer: { access }, permissionReducer: { permission, isLoading}, roleReducer: { isRecordLoading, selectedRole } }) => ({
     access: permission.data,
     pagination: permission.meta,
-    isLoading
+    isLoading: isLoading || isRecordLoading,
+    baseRole: selectedRole
 });
 const types = [ 'application', 'resource', 'operation' ];
 export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: []}) => {
@@ -40,8 +45,9 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
     const dispatch = useDispatch();
     const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
-    const { access, isLoading, pagination } = useSelector(selector, shallowEqual);
-    const { input } = useFieldApi(props);
+    const { access, isLoading, pagination, baseRole } = useSelector(selector, shallowEqual);
+    const { input, ...rest } = useFieldApi(props);
+    const formOptions = useFormApi();
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
 
@@ -59,7 +65,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     );
 
     useEffect(() => {
+        const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
+        if (baseRoleUuid) {
+            dispatch(fetchRole(baseRoleUuid));
+        }
         fetchData(pagination);
+
     }, []);
 
     useEffect(() => {
@@ -73,6 +84,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     useEffect(() => {
         input.onChange(selectedPermissions);
     }, [ selectedPermissions ]);
+
+    useEffect(() => {
+        const basePermissionsions = (baseRole?.access || []).map(permission => ({uuid: permission.permission}));
+        setSelectedPermissions(basePermissionsions);
+    }, [ baseRole ]);
 
     const setCheckedItems = (newSelection) => {
         setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
