@@ -16,10 +16,17 @@ const types = [ 'application', 'resource', 'operation' ];
 export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: []}) => {
     const uniqData = [ ...new Set(rawData.map(({ permission }) => permission)) ];
     const data = uniqData.map(permission => ({ ...permission.split(':').reduce((acc, val, i) => ({ ...acc, [types[i]]: val }), {}), uuid: permission }));
+
     const filterApplication = (item) => (filters.applications.length === 0 || filters.applications.includes(item.application));
     const filterResource = (item) => (filters.resources.length === 0 || filters.resources.includes(item.resource));
     const filterOperation = (item) => (filters.operations.length === 0 || filters.operations.includes(item.operation));
-    const filteredData = data.filter(permission => filterApplication(permission) && filterResource(permission) && filterOperation(permission));
+    const filterSplats = ({application, resource, operation}) => ([application, resource, operation].every(permission => permission !== '*'))
+
+    const filteredData = data.filter(permission => filterApplication(permission)
+      && filterResource(permission)
+      && filterOperation(permission)
+      && filterSplats(permission)
+    );
 
     return {
         data,
