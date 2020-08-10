@@ -1,7 +1,6 @@
 import { LIST_PERMISSIONS } from '../action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
-// Initial State
 export const permissionInitialState = {
     isLoading: false,
     permission: {
