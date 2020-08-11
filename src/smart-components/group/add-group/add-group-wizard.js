@@ -65,7 +65,11 @@ const AddGroupWizard = ({
       postMethod();
       history.push(closeUrl);
     } catch (e) {
-      setIsGroupInfoValid(false);
+      if (e.errors.find(item => item.source === 'name' && item.status === 400)) {
+        setIsGroupInfoValid(false);
+      } else {
+        throw e;
+      }
     }
   };
 
