@@ -27,7 +27,6 @@
     "react-intl": "^4.7.5",
     "react-redux": "^7.2.0",
     "react-router-dom": "^5.2.0",
-    "react-router-sitemap": "^1.2.0",
     "redux": "^4.0.5",
     "redux-logger": "^3.0.6",
     "redux-mock-store": "^1.5.4",
@@ -72,7 +71,7 @@
     "@babel/preset-flow": "^7.10.1",
     "@babel/preset-react": "^7.10.1",
     "babel-core": "^7.0.0-bridge.0",
-    "@redhat-cloud-services/frontend-components-config": "2.1.0",
+    "@redhat-cloud-services/frontend-components-config": "2.1.4",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.1.0",
     "babel-plugin-dual-import": "^1.2.1",
@@ -115,8 +114,7 @@
     "build:prod": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "deploy": "npm-run-all build:prod",
     "verify": "npm-run-all build lint test",
-    "nightly": "npm run deploy",
-    "sitemap": "node --experimental-modules src/sitemap-builder.mjs"
+    "nightly": "npm run deploy"
   },
   "insights": {
     "appname": "rbac"
