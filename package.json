@@ -115,8 +115,7 @@
     "build:prod": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "deploy": "npm-run-all build:prod",
     "verify": "npm-run-all build lint test",
-    "nightly": "npm run deploy",
-    "sitemap": "node --experimental-modules src/sitemap-builder.mjs"
+    "nightly": "npm run deploy"
   },
   "insights": {
     "appname": "rbac"
