@@ -120,6 +120,8 @@
     "appname": "rbac"
   },
   "routes": {
+    "prefix": "settings",
+    "appname": "rbac",
     "rbac": "/",
     "groups": "/groups",
     "add-group": "/groups/add-group",
