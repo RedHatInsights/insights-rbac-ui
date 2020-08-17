@@ -2,22 +2,34 @@ import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { getPrincipalAccess } from '../../../redux/actions/access-actions';
+import { listPermissions } from '../../../redux/actions/permission-action';
+import { fetchRole } from '../../../redux/actions/role-actions';
 
 const columns = [ 'Application', 'Resource type', 'Operation' ];
-const selector = ({ accessReducer: { access, isLoading }}) => ({
-    access: access.data,
-    isLoading
+const selector = ({ permissionReducer: { permission, isLoading }, roleReducer: { isRecordLoading, selectedRole }}) => ({
+    access: permission.data,
+    pagination: permission.meta,
+    isLoading: isLoading || isRecordLoading,
+    baseRole: selectedRole
 });
 const types = [ 'application', 'resource', 'operation' ];
 export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: []}) => {
     const uniqData = [ ...new Set(rawData.map(({ permission }) => permission)) ];
     const data = uniqData.map(permission => ({ ...permission.split(':').reduce((acc, val, i) => ({ ...acc, [types[i]]: val }), {}), uuid: permission }));
+
     const filterApplication = (item) => (filters.applications.length === 0 || filters.applications.includes(item.application));
     const filterResource = (item) => (filters.resources.length === 0 || filters.resources.includes(item.resource));
     const filterOperation = (item) => (filters.operations.length === 0 || filters.operations.includes(item.operation));
-    const filteredData = data.filter(permission => filterApplication(permission) && filterResource(permission) && filterOperation(permission));
+    const filterSplats = ({ application, resource, operation }) => ([ application, resource, operation ].every(permission => permission !== '*'));
+
+    const filteredData = data.filter(permission => filterApplication(permission)
+      && filterResource(permission)
+      && filterOperation(permission)
+      && filterSplats(permission)
+    );
 
     return {
         data,
@@ -30,12 +42,12 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
     const dispatch = useDispatch();
-    const fetchData = () => dispatch(getPrincipalAccess());
-    const { access, isLoading } = useSelector(selector, shallowEqual);
+    const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
+    const { access, isLoading, pagination, baseRole } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
+    const formOptions = useFormApi();
     const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
-    const [ pagination, setPagination ] = useState({ limit: 10, offset: 0 });
 
     const createRows = (permissions) => permissions.map(
         ({ application, resource, operation, uuid }) => ({
@@ -51,7 +63,13 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     );
 
     useEffect(() => {
-        fetchData();
+        const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
+        if (baseRoleUuid) {
+            dispatch(fetchRole(baseRoleUuid));
+        }
+
+        fetchData(pagination);
+
     }, []);
 
     useEffect(() => {
@@ -66,6 +84,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         input.onChange(selectedPermissions);
     }, [ selectedPermissions ]);
 
+    useEffect(() => {
+        const basePermissionsions = (baseRole?.access || []).map(permission => ({ uuid: permission.permission }));
+        setSelectedPermissions(basePermissionsions);
+    }, [ baseRole ]);
+
     const setCheckedItems = (newSelection) => {
         setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
     };
@@ -77,9 +100,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             isCompact={ true }
             borders={ false }
             createRows={ createRows }
-            data={ permissions.filteredData.slice(pagination.offset, pagination.offset + pagination.limit) }
+            data={ permissions.filteredData }
             filterValue={ '' }
-            fetchData={ ({ limit, offset }) => setPagination({ limit, offset }) }
+            fetchData={ ({ limit, offset }) => fetchData({ limit, offset }) }
             setFilterValue={ ({ applications, resources, operations }) => {
                 setFilters({
                     ...filters,
