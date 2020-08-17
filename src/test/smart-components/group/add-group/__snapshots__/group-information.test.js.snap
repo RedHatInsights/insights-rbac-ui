@@ -44,8 +44,10 @@ exports[`<GroupInformation /> should render correctly 1`] = `
             >
               <FormGroup
                 fieldId="group-name"
+                helperTextInvalid="Required value"
                 isRequired={true}
                 label="Group name"
+                validated="success"
               >
                 <div
                   className="pf-c-form__group"
@@ -82,6 +84,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                       name="group-name"
                       onChange={[Function]}
                       type="text"
+                      validated="default"
                     >
                       <TextInputBase
                         aria-describedby="group-name"
