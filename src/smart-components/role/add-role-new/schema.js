@@ -89,6 +89,7 @@ export default {
                 {
                     title: 'Name and description',
                     name: 'name-and-description',
+                    nextStep: 'add-permissions',
                     fields: [
                         {
                             component: 'text-field',
