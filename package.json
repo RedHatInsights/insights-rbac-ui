@@ -11,10 +11,10 @@
     "@patternfly/react-core": "^4.24.0",
     "@patternfly/react-icons": "^4.4.2",
     "@patternfly/react-table": "4.8.6",
-    "@redhat-cloud-services/frontend-components": "2.1.3",
-    "@redhat-cloud-services/frontend-components-notifications": "2.1.0",
-    "@redhat-cloud-services/frontend-components-utilities": "2.1.0",
-    "@redhat-cloud-services/rbac-client": "^1.0.67",
+    "@redhat-cloud-services/frontend-components": "2.3.10",
+    "@redhat-cloud-services/frontend-components-notifications": "2.1.2",
+    "@redhat-cloud-services/frontend-components-utilities": "2.1.1",
+    "@redhat-cloud-services/rbac-client": "^1.0.71",
     "axios-mock-adapter": "^1.18.1",
     "babel-loader": "^8.1.0",
     "classnames": "^2.2.6",
@@ -71,7 +71,7 @@
     "@babel/preset-flow": "^7.10.1",
     "@babel/preset-react": "^7.10.1",
     "babel-core": "^7.0.0-bridge.0",
-    "@redhat-cloud-services/frontend-components-config": "2.1.0",
+    "@redhat-cloud-services/frontend-components-config": "2.1.4",
     "babel-eslint": "^10.1.0",
     "babel-jest": "^26.1.0",
     "babel-plugin-dual-import": "^1.2.1",
@@ -118,5 +118,28 @@
   },
   "insights": {
     "appname": "rbac"
+  },
+  "routes": {
+    "rbac": "/",
+    "groups": "/groups",
+    "add-group": "/groups/add-group",
+    "remove-group": "/groups/removegroups",
+    "group-edit": {
+      "path": "/groups/edit/:id",
+      "description": "Edit single group"
+    },
+    "group-detail": "/groups/detail/:uuid",
+    "group-detail-roles": "/groups/detail/:uuid/roles",
+    "group-add-roles": "/groups/detail/:uuid/roles/add_roles",
+    "group-detail-members": "/groups/detail/:uuid/members",
+    "group-add-members": "/groups/detail/:uuid/members/add_members",
+    "group-detail-role-detail": "/groups/detail/:groupUuid/roles/detail/:uuid",
+    "roles": "/roles",
+    "add-role": "/roles/add-role",
+    "remove-role": "/roles/remove/:id",
+    "role-detail": "/roles/detail/:uuid",
+    "users": "/users",
+    "user-detail": "/users/detail/:username",
+    "my-user-access": "/my-user-access"
   }
 }

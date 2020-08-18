@@ -12,6 +12,7 @@ import AddGroupMembers from './add-group-members';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
+import { routes as paths } from '../../../../package.json';
 
 const columns = [
   { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
@@ -91,7 +92,7 @@ const GroupPrincipals = () => {
       ];
 
   const routes = () => <Fragment>
-    <Route path={ `/groups/detail/:uuid/members/add_members` }
+    <Route path={ paths['group-add-members'] }
       render={ args => <AddGroupMembers
         fetchData={ fetchData }
         closeUrl={ `/groups/detail/${uuid}/members` }

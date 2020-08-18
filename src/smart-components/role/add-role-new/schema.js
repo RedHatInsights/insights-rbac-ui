@@ -1,4 +1,6 @@
 import AddPermissionTemplate from './add-permissions-template';
+import { debouncedAsyncValidator } from './validators';
+
 export default {
     fields: [
         {
@@ -51,6 +53,7 @@ export default {
                                 is: 'create'
                             },
                             validate: [
+                                debouncedAsyncValidator,
                                 {
                                     type: 'required'
                                 }
@@ -86,6 +89,7 @@ export default {
                 {
                     title: 'Name and description',
                     name: 'name-and-description',
+                    nextStep: 'add-permissions',
                     fields: [
                         {
                             component: 'text-field',
@@ -94,6 +98,7 @@ export default {
                             label: 'Role name',
                             isRequired: true,
                             validate: [
+                                debouncedAsyncValidator,
                                 {
                                     type: 'required'
                                 }

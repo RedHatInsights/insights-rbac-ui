@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState } from 'react';
 import PropTypes from 'prop-types';
 import {
   Form,
@@ -9,8 +9,10 @@ import {
   TextArea,
   Title
 } from '@patternfly/react-core';
+import { debouncedAsyncValidator } from './validators';
 
-const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
+const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid, isGroupInfoValid) => {
+  const [ isLoading, setIsLoading ] = useState(false);
   return (
     <Fragment>
       <Stack hasGutter>
@@ -23,6 +25,9 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
               label="Group name"
               isRequired
               fieldId="group-name"
+              helperTextInvalid={ formValue.name?.trim().length > 0 && !isLoading ?
+                'This group name already exists. Please input a unique group name.' : 'Required value' }
+              validated={ isGroupInfoValid || formValue.name === undefined ? 'success' : 'error' }
             >
               <TextInput
                 isRequired
@@ -31,8 +36,17 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid) => {
                 name="group-name"
                 aria-describedby="group-name"
                 value={ formValue.name }
-                onChange={ (_, event) => { setIsGroupInfoValid(event.currentTarget.value.trim().length > 0);
-                  onHandleChange({ name: event.currentTarget.value });} }
+                validated={ isGroupInfoValid || formValue.name === undefined ? 'default' : 'error' }
+                onChange={ (_, event) => {
+                  const { value } = event.currentTarget;
+                  onHandleChange({ name: value });
+                  setIsLoading(true);
+                  (async () => {
+                    const isUnique = formValue.name !== undefined && await debouncedAsyncValidator(value);
+                    setIsGroupInfoValid(value.trim().length > 0 && isUnique);
+                    setIsLoading(false);
+                  })();
+                } }
               />
             </FormGroup>
             <FormGroup label="Group description" fieldId="group-description">

@@ -14,6 +14,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
+import { routes as paths } from '../../../package.json';
 import './groups.scss';
 
 const columns = [
@@ -51,14 +52,14 @@ const Groups = () => {
 
   const routes = () =>
     <Fragment>
-      <Route exact path="/groups/add-group">
+      <Route exact path={ paths['add-group'] }>
         <AddGroupWizard
           postMethod={ config => {
               dispatch(fetchGroups(config));
               setFilterValue('');
             } } />
       </Route>
-      <Route exact path="/groups/edit/:id">
+      <Route exact path={ paths['group-edit'] }>
         <EditGroup
           postMethod={ config =>
             {
@@ -66,7 +67,7 @@ const Groups = () => {
               setFilterValue('');
             } } isOpen />
       </Route>
-      <Route exact path="/groups/removegroups">
+      <Route exact path={ paths['remove-group'] }>
         <RemoveGroup
           postMethod={ (ids) => {
             dispatch(fetchGroups());
@@ -91,7 +92,7 @@ const Groups = () => {
           title: 'Delete group',
           onClick: (_event, _rowId, group) => {
             setRemoveGroupsList([ group ]);
-            history.push(`/groups/removegroups`);
+            history.push(paths['remove-group']);
           }
         }
       ];
@@ -100,7 +101,7 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...userIdentity && userIdentity.user && userIdentity.user.is_org_admin ?
       [
-        <Link to="/groups/add-group" key="add-group" className='pf-m-visible-on-md'>
+        <Link to={ paths['add-group'] } key="add-group" className='pf-m-visible-on-md'>
           <Button
             variant="primary"
             aria-label="Create group"
@@ -114,7 +115,7 @@ const Groups = () => {
             className: 'pf-m-hidden-on-md'
           },
           onClick: () => {
-            history.push(`/groups/add-group`);
+            history.push(paths['add-group']);
           }
         },
         {
@@ -131,7 +132,7 @@ const Groups = () => {
           },
           onClick: () => {
             setRemoveGroupsList(selectedRows);
-            history.push(`/groups/removegroups`);
+            history.push(paths['remove-group']);
           }
         }
       ] : []
@@ -171,9 +172,9 @@ const Groups = () => {
     </Stack>;
   return (
     <Switch>
-      <Route path={ '/groups/detail/:groupUuid/roles/detail/:uuid' } render={ props => <Role { ...props }/> } />
-      <Route path={ '/groups/detail/:uuid' } render={ props => <Group { ...props }/> } />
-      <Route path={ '/groups' } render={ () => renderGroupsList() } />
+      <Route path={ paths['group-detail-role-detail'] } render={ props => <Role { ...props }/> } />
+      <Route path={ paths['group-detail'] } render={ props => <Group { ...props }/> } />
+      <Route path={ paths.groups } render={ () => renderGroupsList() } />
     </Switch>
   );
 };

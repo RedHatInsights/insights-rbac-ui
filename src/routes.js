@@ -2,19 +2,12 @@ import { Route, Switch, Redirect } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import React, { lazy, Suspense } from 'react';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
+import { routes } from '../package.json';
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/myUserAccess'));
-
-const paths = {
-  rbac: '/',
-  groups: '/groups',
-  roles: '/roles',
-  users: '/users',
-  myUserAccess: '/my-user-access'
-};
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
   const root = document.getElementById('root');
@@ -32,11 +25,11 @@ export const Routes = () => {
   return (
     <Suspense fallback={ <AppPlaceholder /> }>
       <Switch>
-        <InsightsRoute path={ paths.groups } component={ Groups } rootClass="groups" />
-        <InsightsRoute path={ paths.roles } component={ Roles } rootClass="roles" />
-        <InsightsRoute path={ paths.users } component={ Users } rootClass="roles" />
-        <InsightsRoute path={ paths.myUserAccess } component={ MyUserAccess } rootClass="myUserAccess"/>
-        <Route render={ () => <Redirect to={ paths.myUserAccess } /> } />
+        <InsightsRoute path={ routes.groups } component={ Groups } rootClass="groups" />
+        <InsightsRoute path={ routes.roles } component={ Roles } rootClass="roles" />
+        <InsightsRoute path={ routes.users } component={ Users } rootClass="roles" />
+        <InsightsRoute path={ routes.myUserAccess } component={ MyUserAccess } rootClass="myUserAccess"/>
+        <Route render={ () => <Redirect to={ routes.myUserAccess } /> } />
       </Switch>
     </Suspense>
   );
