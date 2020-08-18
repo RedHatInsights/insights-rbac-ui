@@ -1,7 +1,7 @@
 import AddPermissionTemplate from './add-permissions-template';
 import { debouncedAsyncValidator } from './validators';
 
-export default {
+export default (container) => ({
     fields: [
         {
             component: 'wizard',
@@ -10,6 +10,7 @@ export default {
             inModal: true,
             showTitles: true,
             title: 'Create role',
+            container,
             fields: [
                 {
                     title: 'Create role',
@@ -126,4 +127,4 @@ export default {
             ]
         }
     ]
-};
+});
