@@ -117,10 +117,21 @@ export default (container) => ({
                     name: 'add-permissions',
                     title: 'Add permissions',
                     StepTemplate: AddPermissionTemplate,
+                    nextStep: 'review',
                     fields: [
                         {
                             component: 'add-permissions-table',
                             name: 'add-permissions-table'
+                        }
+                    ]
+                },
+                {
+                    name: 'review',
+                    title: 'Review',
+                    fields: [
+                        {
+                            component: 'review',
+                            name: 'review'
                         }
                     ]
                 }
