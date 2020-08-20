@@ -1,12 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import { PageHeader, PageHeaderTitle, Main } from '@redhat-cloud-services/frontend-components';
+import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
 import { Text, TextContent, Spinner } from '@patternfly/react-core';
 import OrgAdminLabel from '../../presentational-components/myUserAccess/orgAdminLabel';
 
 import './myUserAccess.scss';
-import MUAPageSection from '../../presentational-components/myUserAccess/pageSection';
-import MUAOrgEntitlements from '../../presentational-components/myUserAccess/orgEntitlements';
-import MUATable from './MUATable';
+import MUAContent from './MUAContent';
 
 const MyUserAccess = () => {
 
@@ -33,19 +31,9 @@ const MyUserAccess = () => {
                 </Text>
               </TextContent>
             </PageHeader>
-            <Main>
-              { user.entitlements && <MUAPageSection
-                  title='Organization subscriptions'
-                  description='Your organization is subscribed to the following bundles.'>
-                    <MUAOrgEntitlements entitlements={ user.entitlements }/>
-                </MUAPageSection>
-              }
-              <MUAPageSection
-                title='My roles'
-                description='Roles are sets of permissions that provide access to a given service.'>
-                  <MUATable/>
-              </MUAPageSection>
-            </Main>
+            <section className='ins-l-myUserAccess-split'>
+                <MUAContent entitlements={ user.entitlements } />
+            </section>
           </React.Fragment>
           : <Spinner/>
         }

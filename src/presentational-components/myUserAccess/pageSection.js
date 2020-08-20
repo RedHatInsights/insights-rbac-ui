@@ -9,7 +9,7 @@ const MUAPageSection = ({ title, children, description }) => (
   <section className='ins-l-myUserAccess-section'>
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h2" size="2xl">
+        <Title headingLevel="h3" size="xl">
           { title }
         </Title>
         <p> { description }</p>
