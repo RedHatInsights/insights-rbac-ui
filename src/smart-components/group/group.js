@@ -115,9 +115,9 @@ const Group = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }}) => ({
+const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading }}) => ({
   group: selectedGroup,
-  isFetching: isLoading
+  isFetching: isRecordLoading
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
