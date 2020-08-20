@@ -10,13 +10,15 @@ import schemaBuilder from './schema';
 import { WarningModal } from '../../../smart-components/common/warningModal';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
+import ReviewStep from './review';
 import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate { ...props } showFormControls={ false } />;
 
 export const mapperExtension = {
     'base-role-table': BaseRoleTable,
-    'add-permissions-table': AddPermissionsTable
+    'add-permissions-table': AddPermissionsTable,
+    review: ReviewStep
 };
 
 const AddRoleWizard = ({
