@@ -24,7 +24,7 @@ const Group = ({
 }) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
-    { title: group.name, isActive: true }
+    { title: isFetching ? undefined : group.name, isActive: true }
   ];
 
   const tabItems = [
