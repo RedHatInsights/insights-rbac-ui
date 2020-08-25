@@ -1,4 +1,4 @@
-import { accessWrapper } from '../../smart-components/role/add-role-new/add-permissions';
+import { accessWrapper, resolveSplats } from '../../smart-components/role/add-role-new/add-permissions';
 
 const data = [
     { permission: 'coolApp:coolResource:read' },
@@ -178,3 +178,64 @@ describe('Access compose filter', () => {
     });
 });
 
+describe('Resolving splats', () => {
+    describe('Empty data', () => {
+        it('Both empty', () => {
+            const out = resolveSplats([], []);
+            expect(out).toEqual([]);
+        });
+
+        it('Selected permissions empty', () => {
+            const out = resolveSplats([], [{ application: 'app', resource: 'res', operation: 'op' }]);
+            expect(out).toEqual([]);
+        });
+
+        it('Permissions empty', () => {
+            const out = resolveSplats([{ uuid: 'app:res:verb' }], []);
+            expect(out).toEqual([{ uuid: 'app:res:verb' }]);
+        });
+    });
+
+    describe('Not empty', () => {
+        it('Nothing to resolve', () => {
+            const out = resolveSplats([{ uuid: 'app:res:verb' }], [{ application: 'app', resource: 'res', operation: 'op' }]);
+            expect(out).toEqual([{ uuid: 'app:res:verb' }]);
+        });
+
+        it('Resolve one', () => {
+            const out = resolveSplats([{ uuid: 'app:*:*' }], [{ application: 'app', resource: 'res', operation: 'op' }]);
+            expect(out).toEqual([{ uuid: 'app:res:op' }]);
+        });
+
+        it('Resolve verbs all verb for cool resource', () => {
+            const out = resolveSplats(
+                [{ uuid: 'app:cool:*' }],
+                [{ application: 'app', resource: 'notCool', operation: 'op' }, { application: 'app', resource: 'notCool', operation: 'op2' },
+                    { application: 'app', resource: 'cool', operation: 'op' }, { application: 'app', resource: 'cool', operation: 'op2' }]
+            );
+            expect(out).toEqual([{ uuid: 'app:cool:op' }, { uuid: 'app:cool:op2' }]);
+        });
+
+        it('Resolve all for app', () => {
+            const out = resolveSplats(
+                [{ uuid: 'app:*:*' }],
+                [{ application: 'app', resource: 'notCool', operation: 'op' }, { application: 'app', resource: 'notCool', operation: 'op2' },
+                { application: 'app', resource: 'cool', operation: 'op' }, { application: 'app', resource: 'cool', operation: 'op2' },
+                { application: 'anotherApp', resource: 'cool', operation: 'op' }, { application: 'anotherApp', resource: 'cool', operation: 'op2' }]
+            );
+            expect(out).toEqual([{ uuid: 'app:notCool:op' }, { uuid: 'app:notCool:op2' }, { uuid: 'app:cool:op' }, { uuid: 'app:cool:op2' }]);
+        });
+
+        it('Resolve all for app and leave other selected be', () => {
+            const out = resolveSplats(
+                [{ uuid: 'app:*:*' }, { uuid: 'anotherApp:superCool:write' }],
+                [{ application: 'app', resource: 'notCool', operation: 'op' }, { application: 'app', resource: 'notCool', operation: 'op2' },
+                { application: 'app', resource: 'cool', operation: 'op' }, { application: 'app', resource: 'cool', operation: 'op2' },
+                { application: 'anotherApp', resource: 'cool', operation: 'op' }, { application: 'anotherApp', resource: 'cool', operation: 'op2' }]
+            );
+            expect(out).toEqual([{ uuid: 'app:notCool:op' }, { uuid: 'app:notCool:op2' },
+                { uuid: 'app:cool:op' }, { uuid: 'app:cool:op2' }, { uuid: 'anotherApp:superCool:write' }]
+            );
+        });
+    });
+});
