@@ -3,7 +3,7 @@ import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-com
 import { Text, TextContent, Spinner } from '@patternfly/react-core';
 import OrgAdminLabel from '../../presentational-components/myUserAccess/orgAdminLabel';
 
-import './myUserAccess.scss';
+import './MUAHome.scss';
 import MUAContent from './MUAContent';
 
 const MyUserAccess = () => {

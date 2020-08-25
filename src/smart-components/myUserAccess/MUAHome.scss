@@ -24,4 +24,9 @@
         }
     }
 
+    .ins-l-myUserAccess-section {
+        height: 80vh;
+        overflow: scroll;
+        .pf-c-title { margin-bottom: var(--pf-global--spacer--md); }
+    }
 }

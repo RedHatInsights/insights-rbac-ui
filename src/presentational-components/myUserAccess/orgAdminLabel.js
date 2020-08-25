@@ -5,7 +5,7 @@ const OrgAdminLabel = () => (
     <Tooltip
         position={ TooltipPosition.right }
         content={ <span> You can manage other users&apos; permissions with &apos;User access&apos; </span> }>
-        <Label color='blue'> Org. Administrator </Label>
+        <Label color='purple'> Org. Administrator </Label>
     </Tooltip>
 );
 

@@ -2,8 +2,6 @@ import { getRoleApi } from '../shared/user-login';
 
 const roleApi = getRoleApi();
 
-console.log(roleApi.listRoles, roleApi.getRole);
-
 export async function createRole(data) {
   return await roleApi.createRoles(data);
 }
