@@ -22,9 +22,11 @@ export const groupsInitialState = {
 
 const setLoadingState = state => ({ ...state, isLoading: true });
 const setRecordLoadingState = state => ({ ...state, isRecordLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false }});
+const setRecordRolesLoadingState = state => ({ ...state, isRecordRolesLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false }});
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
 const setGroup = (state, { payload }) => ({
   ...state,
+  isRecordLoading: false,
   groups: {
     ...state.groups,
     data: state.groups.data.map((group) => ({
@@ -43,7 +45,7 @@ const setGroup = (state, { payload }) => ({
 const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
-  isRecordLoading: false,
+  isRecordRolesLoading: false,
   selectedGroup: { ...state.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true }
 });
 
@@ -79,7 +81,7 @@ export default {
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
-  [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordLoadingState,
+  [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
   [`${FETCH_MEMBERS_FOR_GROUP}_PENDING`]: setMembersForGroupLoading,
   [`${FETCH_MEMBERS_FOR_GROUP}_FULFILLED`]: setMembersForGroup,
