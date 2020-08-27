@@ -2,9 +2,8 @@
 	display: grid;
     grid-template-rows: 1fr 250px; // second thing here is the height of the content area
     
-	// border: 1px solid var(--pf-global--BorderColor--300);
 	.title {
-		border-bottom: 1px solid var(--pf-global--BorderColor--300); // change gray
+		border-bottom: 1px solid var(--pf-global--BorderColor--300);
 		span { font-weight: 700; }
 	}
 	.title, .row {
