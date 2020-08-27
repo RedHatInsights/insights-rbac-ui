@@ -24,7 +24,7 @@ const Group = ({
 }) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
-    { title: group.name, isActive: true }
+    { title: isFetching ? undefined : group.name, isActive: true }
   ];
 
   const tabItems = [
@@ -115,9 +115,9 @@ const Group = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isLoading }}) => ({
+const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading }}) => ({
   group: selectedGroup,
-  isFetching: isLoading
+  isFetching: isRecordLoading || isRecordRolesLoading
 });
 
 const mapDispatchToProps = dispatch => bindActionCreators({
