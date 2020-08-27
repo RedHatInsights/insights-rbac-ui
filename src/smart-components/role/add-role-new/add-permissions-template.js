@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Chip, ChipGroup, Text, TextContent, Title } from '@patternfly/react-core';
+
 import './add-role-wizard.scss';
 
 const AddPermissionTemplate = ({ formFields }) => {

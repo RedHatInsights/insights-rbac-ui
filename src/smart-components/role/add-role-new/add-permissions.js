@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import flatMap from 'lodash/flatMap';
 
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions } from '../../../redux/actions/permission-action';
@@ -32,12 +33,29 @@ export const accessWrapper = (rawData, filters = { applications: [], resources: 
     );
 
     return {
-        data,
+        data: data.filter(permission => filterSplats(permission)),
         filteredData,
         applications: [ ...new Set(data.filter(permission => filterResource(permission) && filterOperation(permission)).map(({ application }) => application)) ],
         resources: [ ...new Set(data.filter(permission => filterApplication(permission) && filterOperation(permission)).map(({ resource }) => resource)) ],
         operations: [ ...new Set(data.filter(permission => filterApplication(permission) && filterResource(permission)).map(({ operation }) => operation)) ]
     };
+};
+
+export const resolveSplats = (selectedPermissions, permissions) => {
+    return (permissions.length > 0
+        ? flatMap(selectedPermissions, ({ uuid: permission }) => {
+            if (permission.includes('*')) {
+                const [ application, resource, operation ] = permission.split(':');
+                return permissions.filter(p => (p.application === application
+                    && (resource === '*' || resource === p.resource)
+                    && (operation === '*' || operation === p.operation))
+                ).map(({ application, resource, operation }) => ({ uuid: `${application}:${resource}:${operation}` }));
+            }
+
+            return { uuid: permission };
+
+        })
+        : selectedPermissions);
 };
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
@@ -46,7 +64,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     const { access, isLoading, pagination, baseRole } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const formOptions = useFormApi();
-    const [ permissions, setPermissions ] = useState({ filteredData: [], applications: [], resources: [], operations: []});
+    // TODO: use reducer when cleaning this code
+    const [ permissions, setPermissions ] = useState({ data: [], filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
 
     const createRows = (permissions) => permissions.map(
@@ -85,9 +104,15 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }, [ selectedPermissions ]);
 
     useEffect(() => {
-        const basePermissionsions = (baseRole?.access || []).map(permission => ({ uuid: permission.permission }));
-        setSelectedPermissions(basePermissionsions);
-    }, [ baseRole ]);
+        if (baseRole) {
+            setSelectedPermissions(() => resolveSplats(
+                (baseRole?.access || []).map(permission => ({ uuid: permission.permission })),
+                permissions.data
+            ));
+        } else {
+            setSelectedPermissions(() => resolveSplats(selectedPermissions, permissions.data));
+        }
+    }, [ permissions.data, baseRole ]);
 
     const setCheckedItems = (newSelection) => {
         setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
