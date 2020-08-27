@@ -1,7 +1,4 @@
-/* eslint-disable react/jsx-key */
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import React from 'react';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import {
     Stack,
@@ -9,15 +6,8 @@ import {
     Grid,
     GridItem,
     Text,
-    TextContent,
     TextVariants
 } from '@patternfly/react-core';
-import {
-    Table,
-    TableHeader,
-    TableBody,
-    TableVariant
-} from '@patternfly/react-table';
 import './review.scss';
 
 const mockData = [
@@ -46,7 +36,7 @@ const table = (columns, rows) => (
         </section>
         <section className="data">
             {rows.map(row => (
-                <div className='row'>
+                <div key = { `row-${row.cells}` } className='row'>
                     {row.cells.map(cell => <span key={ cell }>{cell}</span>)}
                 </div>
             ))}
@@ -54,10 +44,8 @@ const table = (columns, rows) => (
     </div>
 );
 
-const ReviewStep = (props) => {
-    const { input } = useFieldApi(props);
+const ReviewStep = () => {
     const formOptions = useFormApi();
-    console.log(formOptions.getState().values);
     const {
         'role-name': name,
         'role-description': description,
