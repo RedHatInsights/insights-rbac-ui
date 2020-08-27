@@ -128,7 +128,7 @@ export default (container) => ({
                 },
                 {
                     name: 'review',
-                    title: 'Review',
+                    title: 'Review details',
                     StepTemplate: ReviewTemplate,
                     fields: [
                         {
