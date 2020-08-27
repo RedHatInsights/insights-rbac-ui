@@ -21,7 +21,6 @@ export async function fetchRole(uuid) {
   return await roleApi.getRole(uuid);
 }
 
-// TODO: make this not 403
 export async function fetchRoleForPrincipal(uuid) {
   return await roleApi.getRole(uuid, 'principal');
 }
