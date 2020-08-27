@@ -3,68 +3,17 @@
 exports[`<OrgAdminLabel /> should render correctly 1`] = `
 <OrgAdminLabel>
   <Tooltip
-    appendTo={[Function]}
-    aria="describedby"
-    boundary="window"
-    className=""
     content={
       <span>
          You can manage other users' permissions with 'User access' 
       </span>
     }
-    distance={15}
-    enableFlip={true}
-    entryDelay={500}
-    exitDelay={500}
-    flipBehavior={
-      Array [
-        "top",
-        "right",
-        "bottom",
-        "left",
-        "top",
-        "right",
-        "bottom",
-      ]
-    }
-    id=""
-    isAppLauncher={false}
-    isContentLeftAligned={false}
-    isVisible={false}
-    maxWidth="18.75rem"
     position="right"
-    tippyProps={Object {}}
-    trigger="mouseenter focus"
-    zIndex={9999}
   >
-    <PopoverBase
+    <Popper
       appendTo={[Function]}
-      aria="describedby"
-      arrow={true}
-      boundary="window"
-      content={
-        <div
-          className=""
-          id=""
-          role="tooltip"
-        >
-          <TooltipContent
-            isLeftAligned={false}
-          >
-            <span>
-               You can manage other users' permissions with 'User access' 
-            </span>
-          </TooltipContent>
-        </div>
-      }
-      delay={
-        Array [
-          500,
-          500,
-        ]
-      }
       distance={15}
-      flip={true}
+      enableFlip={true}
       flipBehavior={
         Array [
           "top",
@@ -77,77 +26,76 @@ exports[`<OrgAdminLabel /> should render correctly 1`] = `
         ]
       }
       isVisible={false}
-      lazy={true}
-      maxWidth="18.75rem"
-      onCreate={[Function]}
+      onBlur={[Function]}
+      onDocumentClick={false}
+      onDocumentKeyDown={[Function]}
+      onFocus={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+      onTriggerEnter={[Function]}
       placement="right"
-      popperOptions={
-        Object {
-          "modifiers": Object {
-            "hide": Object {
-              "enabled": true,
-            },
-            "preventOverflow": Object {
-              "enabled": true,
-            },
-          },
-        }
-      }
-      theme="pf-tooltip"
-      trigger="mouseenter focus"
-      zIndex={9999}
-    >
-      <Label
-        color="blue"
-      >
-        <span
-          className="pf-c-label pf-m-blue"
-        >
-          <span
-            className="pf-c-label__content"
-          >
-             Org. Administrator 
-          </span>
-        </span>
-      </Label>
-      <Portal
-        containerInfo={
-          <div>
-            <div
-              class=""
-              id=""
-              role="tooltip"
-            >
-              <div
-                class="pf-c-tooltip__content"
-              >
-                <span>
-                   You can manage other users' permissions with 'User access' 
-                </span>
-              </div>
-            </div>
-          </div>
-        }
-      >
+      popper={
         <div
-          className=""
-          id=""
+          className="pf-c-tooltip"
+          id="pf-tooltip-1"
           role="tooltip"
+          style={
+            Object {
+              "maxWidth": null,
+              "opacity": 0,
+              "transition": "opacity 300ms cubic-bezier(.54, 1.5, .38, 1.11)",
+            }
+          }
         >
+          <TooltipArrow />
           <TooltipContent
             isLeftAligned={false}
           >
-            <div
-              className="pf-c-tooltip__content"
-            >
-              <span>
-                 You can manage other users' permissions with 'User access' 
-              </span>
-            </div>
+            <span>
+               You can manage other users' permissions with 'User access' 
+            </span>
           </TooltipContent>
         </div>
-      </Portal>
-    </PopoverBase>
+      }
+      popperMatchesTriggerWidth={false}
+      positionModifiers={
+        Object {
+          "bottom": "pf-m-bottom",
+          "left": "pf-m-left",
+          "right": "pf-m-right",
+          "top": "pf-m-top",
+        }
+      }
+      trigger={
+        <Label
+          aria-describedby="pf-tooltip-1"
+          color="blue"
+        >
+           Org. Administrator 
+        </Label>
+      }
+      zIndex={9999}
+    >
+      <FindRefWrapper
+        onFoundRef={[Function]}
+      >
+        <Label
+          aria-describedby="pf-tooltip-1"
+          color="blue"
+        >
+          <span
+            aria-describedby="pf-tooltip-1"
+            className="pf-c-label pf-m-blue"
+          >
+            <span
+              className="pf-c-label__content"
+            >
+               Org. Administrator 
+            </span>
+          </span>
+        </Label>
+      </FindRefWrapper>
+    </Popper>
   </Tooltip>
 </OrgAdminLabel>
 `;
