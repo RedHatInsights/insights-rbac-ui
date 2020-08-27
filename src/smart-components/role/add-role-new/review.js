@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-key */
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
@@ -17,6 +18,7 @@ import {
     TableBody,
     TableVariant
 } from '@patternfly/react-table';
+import './review.scss';
 
 const mockData = [
     { cells: [ 'cost:aws.account:read', 'Project 1' ]},
@@ -37,12 +39,30 @@ const mockData = [
     { cells: [ 'cost:aws:something12', 'Project 12' ]}
 ];
 
+const table = (columns, rows) => (
+    <div className='sticky'>
+        <section className="title">
+            {columns.map(col => <span key={ col }>{col}</span>)}
+        </section>
+        <section className="data">
+            {rows.map(row => (
+                <div className='row'>
+                    {row.cells.map(cell => <span key={ cell }>{cell}</span>)}
+                </div>
+            ))}
+        </section>
+    </div>
+);
+
 const ReviewStep = (props) => {
     const { input } = useFieldApi(props);
     const formOptions = useFormApi();
+    console.log(formOptions.getState().values);
     const {
         'role-name': name,
         'role-description': description,
+        'role-copy-name': copyName,
+        'role-copy-description': copyDescription,
         'add-permissions-table': permissions
     } = formOptions.getState().values;
     const columns = [ 'Application', 'Resource type', 'Operation' ];
@@ -52,60 +72,37 @@ const ReviewStep = (props) => {
 
     return <React.Fragment>
         <Stack hasGutter>
-            <StackItem>
-                <TextContent>
-                    <Text component={ TextVariants.p }>Review and confirm the details for your role, or click Back to revise.</Text>
-                </TextContent>
-            </StackItem>
             <StackItem className="ins-c-rbac__summary">
-                <Grid hasGutter>
+                <Grid>
                     <GridItem span={ 2 }>
                         <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Name</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        <Text component={ TextVariants.p }>{name}</Text>
+                        <Text component={ TextVariants.p }>{name || copyName}</Text>
                     </GridItem>
                 </Grid>
-                <Grid hasGutter>
+                <Grid>
                     <GridItem span={ 2 }>
                         <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Description</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        <Text component={ TextVariants.p }>{description}</Text>
+                        <Text component={ TextVariants.p }>{description || copyDescription}</Text>
                     </GridItem>
                 </Grid>
-                <Grid hasGutter>
+                <Grid>
                     <GridItem span={ 2 }>
                         <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Permissions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        <Table
-                            aria-label="Simple Table"
-                            cells={ columns }
-                            rows={ rows }
-                            variant={ TableVariant.compact }
-                            isStickyHeader
-                        >
-                            <TableHeader />
-                            <TableBody />
-                        </Table>
+                      {table(columns, rows)}
                     </GridItem>
                 </Grid>
-                <Grid hasGutter>
+                <Grid>
                     <GridItem span={ 2 }>
                         <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Resource definitions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        <Table
-                            aria-label="Simple Table"
-                            cells={ [ 'Permission', 'Resource definitions' ] }
-                            rows={ mockData }
-                            variant={ TableVariant.compact }
-                            isStickyHeader
-                        >
-                            <TableHeader />
-                            <TableBody />
-                        </Table>
+                        {table([ 'Permission', 'Resource definitions' ], mockData)}
                     </GridItem>
                 </Grid>
             </StackItem>
