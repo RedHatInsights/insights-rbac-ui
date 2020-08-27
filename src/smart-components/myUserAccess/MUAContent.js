@@ -6,12 +6,13 @@ import {
   Title
 } from '@patternfly/react-core';
 
-import MUATable from './MUATable';
+import MUARolesTable from './MUARolesTable';
+import MUAAccessTable from './MUAAccessTable';
 import MUACard from '../../presentational-components/myUserAccess/MUACard';
 
 import './MUAContent.scss';
 
-const MUAContent = ({ entitlements }) => {
+const MUAContent = ({ entitlements, isOrgAdmin }) => {
 
   const entitledBundles = Object.entries(entitlements).filter(([ , { is_entitled }]) => is_entitled);
   const unEntitledBundles = Object.entries(entitlements).filter(([ , { is_entitled }]) => !is_entitled);
@@ -32,15 +33,24 @@ const MUAContent = ({ entitlements }) => {
         </Stack>
       </section>
       <section className='ins-l-myUserAccess-section ins-l-myUserAccess-section__table'>
-        <Title headingLevel="h3" size="xl"> Your roles </Title>
-        <MUATable/>
+        { isOrgAdmin
+          ? <React.Fragment>
+              <Title headingLevel="h3" size="xl"> Your roles </Title>
+              <MUARolesTable/>
+            </React.Fragment>
+          : <React.Fragment>
+              <Title headingLevel="h3" size="xl"> Your permissions </Title>
+              <MUAAccessTable/>
+            </React.Fragment>
+        }
       </section>
     </React.Fragment>
   );
 };
 
 MUAContent.propTypes = {
-    entitlements: PropTypes.object
+  entitlements: PropTypes.object,
+  isOrgAdmin: PropTypes.bool
 };
 
 export default MUAContent;

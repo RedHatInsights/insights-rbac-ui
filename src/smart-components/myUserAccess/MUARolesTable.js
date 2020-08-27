@@ -21,13 +21,13 @@ const columns = [
     'Description',
     {
         title: 'Permissions',
-        cellTransforms: [ compoundExpand, cellWidth(15) ]
+        cellTransforms: [ compoundExpand, cellWidth(20) ]
     }
 ];
 
 let debouncedFetch;
 
-const MUATable = ({
+const MUARolesTable = ({
     fetchRoles,
     fetchRoleForPrincipal,
     roles,
@@ -110,7 +110,7 @@ const MUATable = ({
     );
 };
 
-MUATable.propTypes = {
+MUARolesTable.propTypes = {
     fetchRoles: PropTypes.func,
     fetchRoleForPrincipal: PropTypes.func,
     fetchUsers: PropTypes.func,
@@ -131,4 +131,4 @@ const mapDispatchToProps = dispatch => ({
     fetchRoleForPrincipal: (uuid) => dispatch(fetchRoleForPrincipal(uuid))
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUATable));
+export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUARolesTable));
