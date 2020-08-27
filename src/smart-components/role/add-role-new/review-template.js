@@ -5,7 +5,6 @@ import './review.scss';
 
 const ReviewTemplate = ({ formFields }) => {
 
-    const review = formFields[0][0];
     return <React.Fragment>
         <Title headingLevel="h1" size="xl" className='ins-c-rbac__gutter-sm'>
             Review details
@@ -15,7 +14,7 @@ const ReviewTemplate = ({ formFields }) => {
                 Review and confirm the details for your role, or click Back to revise.
             </Text>
         </TextContent>
-        {[ [{ ...review }] ]}
+        {[ [{ ...formFields?.[0]?.[0] }] ]}
     </React.Fragment>;
 };
 
