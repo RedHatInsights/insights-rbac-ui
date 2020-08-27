@@ -49,8 +49,6 @@ const MUAAccessTable = () => {
     .map(acc => ({ ...acc })) :
     [];
 
-  console.log(permissions, isLoading);
-
   return <TableToolbarView
     columns={ columns }
     createRows={ createRows }
