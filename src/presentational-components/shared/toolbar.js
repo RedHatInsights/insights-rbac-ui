@@ -1,6 +1,7 @@
 import React from 'react';
 import { PrimaryToolbar, ConditionalFilter } from '@redhat-cloud-services/frontend-components';
 import PropTypes from 'prop-types';
+import { pickBy } from 'lodash';
 import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
@@ -66,9 +67,17 @@ export const filterConfigBuilder = (
   filterPlaceholder,
   filterItems,
   filters,
+  isFilterable,
+  onShowMore,
+  showMoreTitle,
+  onFilter,
+  onChange,
+  value,
   sortBy
 ) => ({
-  items: [ ...filters && filters.length > 0 ? filters.map(({ key, value, placeholder, type = 'text', items }) => ({
+  onChange,
+  value,
+  items: [ ...filters && filters.length > 0 ? filters.map(({ key, value, placeholder, type = 'text', groups, items }) => ({
     label: firstUpperCase(key),
     type,
     filterValues: {
@@ -76,12 +85,16 @@ export const filterConfigBuilder = (
       key: `filter-by-${key}`,
       placeholder: placeholder ? placeholder : `Filter by ${key}`,
       value,
+      isFilterable,
+      groups,
       items,
       onChange: (_e, filterBy) => {
+        const newFilter = typeof filterBy !== 'string' ? Object.keys(pickBy(filterBy[0], value => value)) : filterBy;
         setFilterValue({
+          ...filterValue,
           ...pagination,
           offset: 0,
-          [key]: filterBy
+          [key]: newFilter
         });
         debouncedFetch(() => fetchData({
           ...pagination,
@@ -91,10 +104,13 @@ export const filterConfigBuilder = (
             ...acc,
             [curr.key]: curr.value
           }), {}),
-          [key]: filterBy
+          [key]: newFilter
         }));
       },
-      isDisabled: isLoading
+      isDisabled: isLoading,
+      onShowMore,
+      showMoreTitle,
+      onFilter
     }})) : [{
     label: firstUpperCase(filterPlaceholder || titleSingular),
     type: 'text',
@@ -139,9 +155,9 @@ export const activeFiltersConfigBuilder = (
   onDelete: (_e, [ deleted ], isAll) => {
     const setKeyValue = (value, type) => {
       if (isAll) {
-        return type === 'checkbox' ? [] : '';
+        return type === 'group' ? [] : '';
       } else {
-        return type === 'checkbox' ? value.filter(option => option !== deleted.chips[0].name) : '';
+        return type === 'group' ? value.filter(option => option !== deleted.chips[0].name) : '';
       }
     };
 
@@ -185,6 +201,12 @@ const Toolbar = ({
   filterPlaceholder,
   filterItems,
   filters,
+  isFilterable,
+  onShowMore,
+  showMoreTitle,
+  onFilter,
+  onChange,
+  value,
   hideFilterChips
 }) => (
   <PrimaryToolbar
@@ -200,6 +222,12 @@ const Toolbar = ({
         filterPlaceholder,
         filterItems,
         filters,
+        isFilterable,
+        onShowMore,
+        showMoreTitle,
+        onFilter,
+        onChange,
+        value,
         sortBy
       ) }
     actionsConfig={ {
@@ -228,6 +256,12 @@ Toolbar.propTypes = {
     key: PropTypes.string,
     placeholder: PropTypes.string
   })),
+  isFilterable: PropTypes.bool,
+  onShowMore: PropTypes.func,
+  showMoreTitle: PropTypes.string,
+  onFilter: PropTypes.func,
+  onChange: PropTypes.func,
+  value: PropTypes.any,
   pagination: PropTypes.shape({
     limit: PropTypes.number,
     offset: PropTypes.number,
@@ -257,6 +291,7 @@ Toolbar.defaultProps = {
   toolbarButtons: () => [],
   filterItems: [],
   filters: [],
+  isFilterable: false,
   hideFilterChips: false
 };
 
