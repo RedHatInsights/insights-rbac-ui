@@ -63,7 +63,7 @@ const ReviewStep = () => {
             <StackItem className="ins-c-rbac__summary">
                 <Grid>
                     <GridItem span={ 2 }>
-                        <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Name</Text>
+                        <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Name</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
                         <Text component={ TextVariants.p }>{name || copyName}</Text>
@@ -71,7 +71,7 @@ const ReviewStep = () => {
                 </Grid>
                 <Grid>
                     <GridItem span={ 2 }>
-                        <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Description</Text>
+                        <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Description</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
                         <Text component={ TextVariants.p }>{description || copyDescription}</Text>
@@ -79,7 +79,7 @@ const ReviewStep = () => {
                 </Grid>
                 <Grid>
                     <GridItem span={ 2 }>
-                        <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Permissions</Text>
+                        <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Permissions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
                       {table(columns, rows)}
@@ -87,7 +87,7 @@ const ReviewStep = () => {
                 </Grid>
                 <Grid>
                     <GridItem span={ 2 }>
-                        <Text component={ TextVariants.h4 } style={ { 'font-weight': 'bold' } }>Resource definitions</Text>
+                        <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Resource definitions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
                         {table([ 'Permission', 'Resource definitions' ], mockData)}
