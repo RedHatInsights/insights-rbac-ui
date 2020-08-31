@@ -29,18 +29,16 @@ const mockData = [
     { cells: [ 'cost:aws:something12', 'Project 12' ]}
 ];
 
-const table = (columns, rows) => (
-    <div className='sticky'>
-        <section className="title">
-            {columns.map(col => <span key={ col }>{col}</span>)}
-        </section>
-        <section className="data">
+const stickyTable = (columns, rows) => (
+    <div className='ins-c-rbac__sticky'>
+        <Grid className="title">
+            {columns.map(col => <GridItem  span={ 12 / columns.length } key={ col }>{col}</GridItem>)}
+        </Grid>
+        <Grid className='data'>
             {rows.map(row => (
-                <div key = { `row-${row.cells}` } className='row'>
-                    {row.cells.map(cell => <span key={ cell }>{cell}</span>)}
-                </div>
+                row.cells.map(cell => <GridItem span={ 12 / columns.length  } key={ cell }>{cell}</GridItem>)
             ))}
-        </section>
+        </Grid>
     </div>
 );
 
@@ -82,7 +80,7 @@ const ReviewStep = () => {
                         <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Permissions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                      {table(columns, rows)}
+                        {stickyTable(columns, rows)}
                     </GridItem>
                 </Grid>
                 <Grid>
@@ -90,7 +88,7 @@ const ReviewStep = () => {
                         <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Resource definitions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        {table([ 'Permission', 'Resource definitions' ], mockData)}
+                        {stickyTable([ 'Permission', 'Resource definitions' ], mockData)}
                     </GridItem>
                 </Grid>
             </StackItem>
