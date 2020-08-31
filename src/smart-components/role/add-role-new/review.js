@@ -31,10 +31,10 @@ const mockData = [
 
 const stickyTable = (columns, rows) => (
     <div className='ins-c-rbac__sticky'>
-        <Grid className="title">
+        <Grid className="ins-c-rbac__sticky--title">
             {columns.map(col => <GridItem  span={ 12 / columns.length } key={ col }>{col}</GridItem>)}
         </Grid>
-        <Grid className='data'>
+        <Grid className='ins-c-rbac__sticky--data'>
             {rows.map(row => (
                 row.cells.map(cell => <GridItem span={ 12 / columns.length  } key={ cell }>{cell}</GridItem>)
             ))}
