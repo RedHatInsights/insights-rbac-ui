@@ -36,18 +36,14 @@ const MUAAccessTable = () => {
       ...config,
       pagination: {
         ...config.pagination,
-        count: permissions ? permissions.lengths : 0
+        count: permissions?.length || 0
       }
     });
   }, []);
 
   const { pagination, filter } = config;
 
-  const filteredRows = (permissions && permissions.data) ?
-    (permissions.data || [])
-    .filter(({ permission }) => permission === '*' || filter ? permission.includes(filter) : true)
-    .map(acc => ({ ...acc })) :
-    [];
+  const filteredRows = permissions?.data?.filter(({ permission }) => permission === '*' || filter ? permission.includes(filter) : true);
 
   return <TableToolbarView
     columns={ columns }

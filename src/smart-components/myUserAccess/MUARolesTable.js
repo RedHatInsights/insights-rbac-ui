@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -25,8 +25,6 @@ const columns = [
     }
 ];
 
-let debouncedFetch;
-
 const MUARolesTable = ({
     fetchRoles,
     fetchRoleForPrincipal,
@@ -38,9 +36,13 @@ const MUARolesTable = ({
     const [ filter, setFilter ] = useState('');
     const [ expanded, setExpanded ] = useState({});
 
+    useEffect(() => {
+        fetchRoles({ limit: 20, offset: 0, scope: 'principal' });
+    }, []);
+
     const createRows = (data) => {
 
-        return data ? data.reduce((acc, { uuid, name, description, accessCount }, i) => ([
+        return data?.reduce((acc, { uuid, name, description, accessCount }, i) => ([
             ...acc, {
                 uuid,
                 cells: [{ title: name, props: { component: 'th', isOpen: false }},
@@ -54,7 +56,7 @@ const MUARolesTable = ({
                 compoundParent: 2,
                 cells: [{
                     props: { colSpan: 4, className: 'pf-m-no-padding' },
-                    title: rolesWithAccess && rolesWithAccess[uuid]
+                    title: rolesWithAccess?.[uuid]
                         ? <Table
                             aria-label="Simple Table"
                             borders={ false }
@@ -68,15 +70,12 @@ const MUARolesTable = ({
 
                 }]
             }
-        ]), []) : [];
+        ]), []);
     };
 
-    useEffect(() => {
-        fetchRoles({ limit: 20, offset: 0, scope: 'principal' });
-        debouncedFetch = debounce(
-                (limit, offset, name, addFields) => fetchRoles({ limit, offset, name, addFields }),
-            500);
-    }, []);
+    let debouncedFetch = useCallback(debounce(
+        (limit, offset, name, addFields) => fetchRoles({ limit, offset, name, addFields }), 800
+    ), []);
 
     const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
         if (!isOpen) {

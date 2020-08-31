@@ -33,15 +33,9 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
         </Stack>
       </section>
       <section className='ins-l-myUserAccess-section ins-l-myUserAccess-section__table'>
-        { isOrgAdmin
-          ? <React.Fragment>
-              <Title headingLevel="h3" size="xl"> Your roles </Title>
-              <MUARolesTable/>
-            </React.Fragment>
-          : <React.Fragment>
-              <Title headingLevel="h3" size="xl"> Your permissions </Title>
-              <MUAAccessTable/>
-            </React.Fragment>
+        <Title headingLevel="h3" size="xl"> Your {isOrgAdmin ? 'roles' : 'permissions'} </Title>
+        {
+          isOrgAdmin ? <MUARolesTable/> : <MUAAccessTable />
         }
       </section>
     </React.Fragment>
