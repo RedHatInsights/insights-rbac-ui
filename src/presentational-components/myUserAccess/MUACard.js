@@ -10,8 +10,6 @@ import {
 
 import { bundleData } from './bundles';
 
-import './MUACard.scss';
-
 const MUACard = ({ header, entitlements, isDisabled }) => {
 
   return (
