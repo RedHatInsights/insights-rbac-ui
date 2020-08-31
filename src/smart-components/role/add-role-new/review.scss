@@ -1,17 +1,16 @@
-.sticky {
-	display: grid;
-    grid-template-rows: 1fr 250px; // second thing here is the height of the content area
-    
+.ins-c-rbac__sticky {
 	.title {
-		border-bottom: 1px solid var(--pf-global--BorderColor--300);
-		span { font-weight: var(--pf-global--FontWeight--bold); }
-	}
-	.title, .row {
-		display: grid;
-		grid-template-columns: 250px 250px 150px; // column width for each one
-		span { padding:  var(--pf-global--spacer--sm); }
-	}
+        margin-bottom: var(--pf-global--spacer--sm);
+		border-bottom: 1px solid var(--pf-global--palette--black-300);
+        .pf-l-grid__item {
+            font-weight: var(--pf-global--FontWeight--bold);
+            margin-bottom: var(--pf-global--spacer--sm) !important;
+
+        }
+    }
+
 	.data {
+         max-height: 240px;
         overflow: auto;
         -ms-overflow-style: none;  /* IE and Edge */
         scrollbar-width: none;  /* Firefox */
@@ -21,13 +20,11 @@
     .data::-webkit-scrollbar {
         display: none;
     }
-	& + .sticky { margin-top: var(--pf-global--spacer--md); }
 }
 
 .ins-c-rbac__summary .pf-l-grid .pf-l-grid__item {
     margin-bottom: var(--pf-global--spacer--md)
 }
-
 
 .ins-c-rbac__gutter-sm {
     margin-bottom: var(--pf-global--spacer--sm)
