@@ -1,6 +1,6 @@
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewTemplate from './review-template';
-import { debouncedAsyncValidator } from './validators';
+import { debouncedAsyncValidator, ValidatorReset } from './validators';
 
 export default (container) => ({
     fields: [
@@ -85,6 +85,24 @@ export default (container) => ({
                                     type: 'required'
                                 }
                             ]
+                        },
+                        {
+                            condition: {
+                                when: 'role-type',
+                                is: 'create'
+                            },
+                            component: 'description',
+                            name: 'fixasyncvalidation',
+                            Content: ValidatorReset
+                        },
+                        {
+                            condition: {
+                                when: 'role-type',
+                                is: 'copy'
+                            },
+                            component: 'description',
+                            name: 'fixasyncvalidation2',
+                            Content: ValidatorReset
                         }
                     ]
                 },
