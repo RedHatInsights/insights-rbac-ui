@@ -41,16 +41,19 @@ const AddGroupWizard = ({
     },
     {
       name: 'Assign roles',
-      component: new SetRoles({ formData, selectedRoles, setSelectedRoles })
+      component: new SetRoles({ formData, selectedRoles, setSelectedRoles }),
+      canJumpTo: isGroupInfoValid
     },
     { name: 'Add members',
-      component: new SetUsers({ formData, selectedUsers, setSelectedUsers })
+      component: new SetUsers({ formData, selectedUsers, setSelectedUsers }),
+      canJumpTo: isGroupInfoValid
     },
     { name: 'Review',
       component: isGroupInfoValid ?
         new SummaryContent({ values: formData, selectedUsers, selectedRoles, setHideFooter }) : <GroupNameErrorState setHideFooter={ setHideFooter }/>,
       nextButtonText: 'Confirm',
-      enableNext: isGroupInfoValid
+      enableNext: isGroupInfoValid,
+      canJumpTo: isGroupInfoValid
     }
   ];
 
