@@ -67,6 +67,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     // TODO: use reducer when cleaning this code
     const [ permissions, setPermissions ] = useState({ data: [], filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
+    const roleType = formOptions.getState().values['role-type']; // create/copy
 
     const createRows = (permissions) => permissions.map(
         ({ application, resource, operation, uuid }) => ({
@@ -83,7 +84,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 
     useEffect(() => {
         const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
-        if (baseRoleUuid) {
+        if (roleType === 'copy' && baseRoleUuid) {
             dispatch(fetchRole(baseRoleUuid));
         }
 
