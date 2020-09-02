@@ -62,9 +62,10 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
 const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
   const [filterValue, setFilterValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
+  const [statusValue, setStatusValue] = useState(['active']);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(mappedProps({ ...defaultSettings, status: ['active'] }));
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -81,13 +82,14 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       borders={false}
       createRows={createRows(userLinks)}
       data={users}
-      filterValue={filterValue}
       fetchData={(config) => {
-        fetchUsers(mappedProps(config));
+        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
+        fetchUsers(mappedProps({ ...config, status }));
       }}
-      setFilterValue={({ username, email }) => {
+      setFilterValue={({ username, email, status }) => {
         typeof username !== 'undefined' && setFilterValue(username);
         typeof email !== 'undefined' && setEmailValue(email);
+        typeof statusValue !== undefined && setStatusValue(status);
       }}
       isLoading={isLoading}
       pagination={pagination}
@@ -103,6 +105,16 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       filters={[
         { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
         { key: 'email', value: emailValue, placeholder: 'Filter by exact email' },
+        {
+          key: 'status',
+          value: statusValue,
+          label: 'Status',
+          type: 'checkbox',
+          items: [
+            { label: 'Active', value: 'active' },
+            { label: 'Inactive', value: 'inactive' },
+          ],
+        },
       ]}
       {...props}
     />

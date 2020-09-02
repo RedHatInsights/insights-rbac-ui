@@ -58,7 +58,7 @@ const AddGroupMembers = ({
         <Button key="confirm" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
           Add to group
         </Button>,
-        <Button key="cancel" variant="link" onClick={onCancel}>
+        <Button id="add-groups-cancel" key="cancel" variant="link" onClick={onCancel}>
           Cancel
         </Button>,
       ]}
