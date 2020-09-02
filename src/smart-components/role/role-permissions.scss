@@ -1,5 +1,8 @@
 .ins-c-role__permissions {
   .pf-c-content {
-    padding-bottom: var(--pf-global--spacer--lg);
+    padding-bottom: var(--pf-global--spacer--sm);
+    h1 {
+      font-weight: lighter;
+    }
   }
 }

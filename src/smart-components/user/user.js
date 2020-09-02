@@ -136,7 +136,9 @@ const User = ({
                     <TopToolbarTitle
                         title={ username }
                         renderTitleTag={ () => user && !isLoading ? (
-                            <Label isCompact className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active }) }>
+                            <Label
+                              color={ user?.is_active && 'green' } isCompact
+                              className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active }) }>
                                 { user?.is_active ? 'Active' : 'Inactive'}
                             </Label>
                         ) : <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton> }

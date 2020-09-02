@@ -8,7 +8,6 @@ import {
   StackItem,
   Text,
   TextContent,
-  TextVariants,
   Title
 } from '@patternfly/react-core';
 import RolesList from './roles-list';
@@ -24,10 +23,8 @@ const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
           </StackItem> }
           <StackItem>
             <TextContent>
-              <Title headingLevel="h4" size="xl"> Assign roles to the group </Title>
-              <Text
-                className="pf-u-mt-0"
-                component={ TextVariants.h6 }>
+              <Title headingLevel="h4" size="xl"> Add roles </Title>
+              <Text>
                 { description || 'Select one or more roles to add to this group.' }
               </Text>
             </TextContent>

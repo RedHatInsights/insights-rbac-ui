@@ -48,7 +48,7 @@ const AddGroupMembers = ({
 
   return (
     <Modal
-      title="Add members to the group"
+      title="Add members to group"
       width={ '75%' }
       isOpen
       isFooterLeftAligned
