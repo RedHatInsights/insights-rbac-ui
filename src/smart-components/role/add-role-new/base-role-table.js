@@ -19,13 +19,11 @@ const BaseRoleTable = (props) => {
     const dispatch = useDispatch();
     const fetchData = (options) => dispatch(fetchRolesForWizard(options));
     const [ filterValue, setFilterValue ] = useState('');
-    const [ baseRole, setBaseRole ] = useState({});
     const { roles, pagination } = useSelector(selector, shallowEqual);
     const { input } = useFieldApi(props);
     const formOptions = useFormApi();
 
     useEffect(()=> {
-        setBaseRole(input.value);
         fetchData({
             limit: 50,
             offset: 0,
@@ -42,12 +40,13 @@ const BaseRoleTable = (props) => {
                         name={ `${role.name}-radio` }
                         aria-label={ `${role.name}-radio` }
                         value={ role.uuid }
-                        isChecked={ baseRole.uuid === role.uuid }
+                        isChecked={ input.value.uuid === role.uuid }
                         onChange={ () => {
-                            setBaseRole(role);
-                            input.onChange(role);
-                            formOptions.change('role-copy-name', `Copy of ${role.name}`);
-                            formOptions.change('role-copy-description', role.description);
+                            formOptions.batch(() => {
+                                input.onChange(role);
+                                formOptions.change('role-copy-name', `Copy of ${role.name}`);
+                                formOptions.change('role-copy-description', role.description);
+                            });
                         } }
                     />
                 },

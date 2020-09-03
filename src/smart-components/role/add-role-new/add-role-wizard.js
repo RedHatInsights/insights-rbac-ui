@@ -15,10 +15,14 @@ import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate { ...props } showFormControls={ false } />;
 
+// eslint-disable-next-line
+const Description = ({ Content, ...rest }) => <Content {...rest} />;
+
 export const mapperExtension = {
     'base-role-table': BaseRoleTable,
     'add-permissions-table': AddPermissionsTable,
-    review: ReviewStep
+    review: ReviewStep,
+    description: Description
 };
 
 const AddRoleWizard = ({
