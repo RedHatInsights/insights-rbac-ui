@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Label, ChipGroup, Text, TextContent, Title } from '@patternfly/react-core';
+import { Chip, ChipGroup, Text, TextContent, Title } from '@patternfly/react-core';
 
 import './add-role-wizard.scss';
 
@@ -14,9 +14,10 @@ const AddPermissionTemplate = ({ formFields }) => {
         <ChipGroup categoryName='Selected permissions'>
             { /* immutable reverse */}
             {selectedPermissions.reduce((acc, i) => [ i, ...acc ], []).map(({ uuid }) => (
-                <Label key={ uuid } color="blue" isTruncated onClose={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
+                <Chip
+                    key={ uuid } color="blue" isTruncated onClick={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
                     {uuid}
-                </Label>
+                </Chip>
             ))}
         </ChipGroup>
         </div>
