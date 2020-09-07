@@ -339,6 +339,7 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
             "onFilter": undefined,
             "onShowMore": undefined,
             "placeholder": "Filter by name",
+            "selected": undefined,
             "showMoreTitle": undefined,
             "value": "",
           },

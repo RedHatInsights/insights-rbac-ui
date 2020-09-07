@@ -77,7 +77,7 @@ export const filterConfigBuilder = (
 ) => ({
   onChange,
   value,
-  items: [ ...filters && filters.length > 0 ? filters.map(({ key, value, placeholder, type = 'text', groups, items }) => ({
+  items: [ ...filters && filters.length > 0 ? filters.map(({ key, value, selected, placeholder, type = 'text', groups, items }) => ({
     label: firstUpperCase(key),
     type,
     filterValues: {
@@ -85,6 +85,7 @@ export const filterConfigBuilder = (
       key: `filter-by-${key}`,
       placeholder: placeholder ? placeholder : `Filter by ${key}`,
       value,
+      selected,
       isFilterable,
       groups,
       items,
