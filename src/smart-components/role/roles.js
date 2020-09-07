@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch  } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
-import { cellWidth, sortable } from '@patternfly/react-table';
+import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -17,9 +17,9 @@ import { routes as paths } from '../../../package.json';
 const columns = [
   { title: 'Name', key: 'name', transforms: [ cellWidth(20), sortable ]},
   { title: 'Description' },
-  { title: 'Permissions', transforms: [ cellWidth(5) ]},
-  { title: 'Groups', transforms: [ cellWidth(5) ]},
-  { title: 'Last modified', key: 'modified', transforms: [ cellWidth(10), sortable ]}
+  { title: 'Permissions', transforms: [ nowrap ]},
+  { title: 'Groups', transforms: [ nowrap ]},
+  { title: 'Last modified', key: 'modified', transforms: [ nowrap, sortable ]}
 ];
 
 const selector = ({ roleReducer: { roles, isLoading }}) => ({

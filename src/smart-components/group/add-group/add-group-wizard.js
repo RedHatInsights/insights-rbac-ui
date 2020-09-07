@@ -36,12 +36,12 @@ const AddGroupWizard = ({
   };
 
   const steps = [
-    { name: 'General information',
+    { name: 'Name and description',
       component: new GroupInformation(formData, handleChange, setIsGroupInfoValid, isGroupInfoValid, isValidating, setIsValidating),
       enableNext: isGroupInfoValid && !isValidating
     },
     {
-      name: 'Assign roles',
+      name: 'Add roles',
       component: new SetRoles({ formData, selectedRoles, setSelectedRoles }),
       canJumpTo: isGroupInfoValid && !isValidating
     },
@@ -49,7 +49,7 @@ const AddGroupWizard = ({
       component: new SetUsers({ formData, selectedUsers, setSelectedUsers }),
       canJumpTo: isGroupInfoValid && !isValidating
     },
-    { name: 'Review',
+    { name: 'Review details',
       component: isGroupInfoValid ?
         new SummaryContent({ values: formData, selectedUsers, selectedRoles, setHideFooter }) : <GroupNameErrorState setHideFooter={ setHideFooter }/>,
       nextButtonText: 'Confirm',
@@ -94,8 +94,8 @@ const AddGroupWizard = ({
     <React.Fragment>
       <Wizard
         className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
-        title="Create and configure a group"
-        description="To give users access permissions, create a group and assign roles to it."
+        title="Create group"
+        description="To give users access permissions, create a group and add roles and members to it."
         isOpen
         onClose={ () => {
           if (Object.values(formData).filter(Boolean).length > 0 || selectedRoles.length > 0 || selectedUsers.length > 0) {
