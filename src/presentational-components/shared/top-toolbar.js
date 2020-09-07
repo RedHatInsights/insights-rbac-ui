@@ -36,7 +36,7 @@ TopToolbar.defaultProps = {
 export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
   <Fragment>
     <Flex>
-      <FlexItem spaceItems={ { modifier: 'spaceItemsSm' } }>
+      <FlexItem className="pf-u-mb-sm" spaceItems={ { modifier: 'spaceItemsSm' } }>
         <PageHeaderTitle title={ title || <ToolbarTitlePlaceholder /> } className='ins-rbac-page-header__title'/>
       </FlexItem>
       <FlexItem alignSelf={ { modifier: 'alignSelfCenter' } }>
