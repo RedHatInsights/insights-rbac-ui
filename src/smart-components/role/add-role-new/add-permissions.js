@@ -68,6 +68,10 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     const [ permissions, setPermissions ] = useState({ data: [], filteredData: [], applications: [], resources: [], operations: []});
     const [ filters, setFilters ] = useState({ applications: [], resources: [], operations: []});
     const roleType = formOptions.getState().values['role-type']; // create/copy
+    const [ isToggled, setIsToggled ] = useState(false);
+    const [ filterBy, setFilterBy ] = useState('');
+    const [ value, setValue ] = useState();
+    const maxFilterItems = 10;
 
     const createRows = (permissions) => permissions.map(
         ({ application, resource, operation, uuid }) => ({
@@ -119,6 +123,28 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
     };
 
+    const calculateSelected = (filter) => filter.reduce((acc, curr) => ({
+        0: {
+          ...acc?.['0'],
+          [curr]: true
+        }
+      }), { 0: {}});
+
+    const preparedFilterItems = {
+            applications: [ ...permissions.applications ].filter(item => item.includes(filterBy))
+                .map(app => ({ label: app, value: app })),
+            resources: [ ...permissions.resources ].filter(item => item.includes(filterBy))
+                .map(res => ({ label: res, value: res })),
+            operations: [ ...permissions.operations ].filter(item => item.includes(filterBy))
+                .map(op => ({ label: op, value: op }))
+    };
+
+    const emptyItem = {
+        label: <div> No results found</div>,
+        isDisabled: true
+    };
+
+    const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[(value ? value : 0)]].length > maxFilterItems;
     return <div>
         <TableToolbarView
             columns={ columns }
@@ -132,9 +158,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             setFilterValue={ ({ applications, resources, operations }) => {
                 setFilters({
                     ...filters,
-                    ...(applications ? { applications } : {}),
-                    ...(resources ? { resources } : {}),
-                    ...(operations ? { operations } : {})
+                    ...(applications ? { applications } : filters.applications),
+                    ...(resources ? { resources } : filters.resources),
+                    ...(operations ? { operations } : filters.operations)
                 });
             } }
             isLoading={ isLoading }
@@ -143,21 +169,60 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             setCheckedItems={ setCheckedItems }
             titlePlural="permissions"
             titleSingular="permission"
+            showMoreTitle={ isToggled ? 'See less' : 'See more' }
+            onFilter={ (filterBy) => setFilterBy(filterBy) }
+            onShowMore={ filterItemOverflow ?
+                () => {
+                    setIsToggled(() => !isToggled);
+                }
+                : undefined }
+            onChange={ (e, value) => {
+                setFilterBy('');
+                setValue(value);
+            } }
+            value={ value }
             filters={ [
                 {
-                    key: 'applications', value: filters.applications, placeholder: 'Filter by application', type: 'checkbox',
-                    items: permissions.applications.map(app => ({ label: app, value: app }))
+                    key: 'applications',
+                    value: filters.applications,
+                    placeholder: 'Filter by application',
+                    type: 'group',
+                    selected: calculateSelected(filters.applications),
+                    groups: [{
+                        type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
+                        items: preparedFilterItems.applications.length > 0
+                            ? [ ...preparedFilterItems.applications ].slice(0, isToggled ? undefined : maxFilterItems)
+                            : [ emptyItem ]
+                    }]
                  },
                 {
-                    key: 'resources', value: filters.resources, placeholder: 'Filter by resource type', type: 'checkbox',
-                    items: permissions.resources.map(res => ({ label: res, value: res }))
-
+                    key: 'resources',
+                    value: filters.resources,
+                    placeholder: 'Filter by resource type',
+                    type: 'group',
+                    selected: calculateSelected(filters.resources),
+                    groups: [{
+                        type: preparedFilterItems.resources.length > 0 ? 'checkbox' : 'plain',
+                        items: preparedFilterItems.resources.length > 0
+                            ? [ ...preparedFilterItems.resources ].slice(0, isToggled ? undefined : maxFilterItems)
+                            : [ emptyItem ]
+                    }]
                 },
                 {
-                    key: 'operations', value: filters.operations, placeholder: 'Filter by operation', type: 'checkbox',
-                    items: permissions.operations.map(op => ({ label: op, value: op }))
+                    key: 'operations',
+                    value: filters.operations,
+                    placeholder: 'Filter by operation',
+                    type: 'group',
+                    selected: calculateSelected(filters.operations),
+                    groups: [{
+                        type: preparedFilterItems.operations.length > 0 ? 'checkbox' : 'plain',
+                        items: preparedFilterItems.operations.length > 0
+                            ? [ ...preparedFilterItems.operations ].slice(0, isToggled ? undefined : maxFilterItems)
+                            : [ emptyItem ]
+                    }]
                 }
             ] }
+            isFilterable={ true }
             { ...props }
         />
     </div >;
