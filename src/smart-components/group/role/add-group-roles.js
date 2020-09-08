@@ -92,8 +92,8 @@ const AddGroupRoles = ({
         </StackItem> }
         <StackItem>
           <TextContent>
-            <Text component={ TextVariants.h6 }>
-                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently </b> in <b> { name }</b>.
+            <Text component={ TextVariants.p }>
+                  This role list has been filtered to only show roles that are not currently in <b> { name }</b>.
             </Text>
           </TextContent>
         </StackItem>

@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/cjs/validator-types';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Button, Modal, ModalVariant, Grid, GridItem, TextContent, Text } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -92,24 +92,17 @@ const EditGroupModal = ({
       onClose={ onCancel }
     > { selectedGroup
         ?
-        <Grid hasGutter>
-          <TextContent>
-            <Text>
-              { `Make any changes to ${selectedGroup.name} group.` }
-            </Text>
-          </TextContent>
-          <GridItem>
-            <FormRenderer
-              schema={ schema }
-              schemaType="mozilla"
-              onCancel={ onCancel }
-              onSubmit={ onSubmit }
-              formContainer="modal"
-              initialValues={ { ...selectedGroup } }
-              renderFormButtons={ formButtons }
-            />
-          </GridItem>
-        </Grid>
+
+      <FormRenderer
+        schema={ schema }
+        schemaType="mozilla"
+        onCancel={ onCancel }
+        onSubmit={ onSubmit }
+        formContainer="modal"
+        initialValues={ { ...selectedGroup } }
+        renderFormButtons={ formButtons }
+      />
+
         : <Skeleton/>
       }
     </Modal>
