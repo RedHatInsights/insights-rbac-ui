@@ -9,6 +9,13 @@
     }
 }
 
+.pf-c-select__menu {
+    .ins-c-select__scrollable-section {
+        max-height: 365px; 
+        overflow: auto;
+    }
+}
+
 .ins-c-rbac-add-permission-title {
     display: block;
 }
