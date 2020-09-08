@@ -59,6 +59,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={true}
   isSelectable={true}
   pagination={
@@ -111,6 +112,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     }
     hideFilterChips={false}
     isCollapsible={false}
+    isFilterable={false}
     isLoading={true}
     isSelectable={true}
     pagination={
@@ -187,12 +189,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
           "items": Array [
             Object {
               "filterValues": Object {
+                "groups": undefined,
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "isFilterable": false,
                 "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
+                "onFilter": undefined,
+                "onShowMore": undefined,
                 "placeholder": "Filter by name",
+                "selected": undefined,
+                "showMoreTitle": undefined,
                 "value": "",
               },
               "label": "Name",
@@ -200,18 +208,26 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
             },
             Object {
               "filterValues": Object {
+                "groups": undefined,
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "isFilterable": false,
                 "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
+                "onFilter": undefined,
+                "onShowMore": undefined,
                 "placeholder": "Filter by description",
+                "selected": undefined,
+                "showMoreTitle": undefined,
                 "value": "",
               },
               "label": "Description",
               "type": "text",
             },
           ],
+          "onChange": undefined,
+          "value": undefined,
         }
       }
       toggleIsExpanded={[Function]}
@@ -605,12 +621,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               Array [
                                 Object {
                                   "filterValues": Object {
+                                    "groups": undefined,
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "isFilterable": false,
                                     "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
+                                    "onFilter": undefined,
+                                    "onShowMore": undefined,
                                     "placeholder": "Filter by name",
+                                    "selected": undefined,
+                                    "showMoreTitle": undefined,
                                     "value": "",
                                   },
                                   "label": "Name",
@@ -618,12 +640,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 },
                                 Object {
                                   "filterValues": Object {
+                                    "groups": undefined,
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "isFilterable": false,
                                     "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
+                                    "onFilter": undefined,
+                                    "onShowMore": undefined,
                                     "placeholder": "Filter by description",
+                                    "selected": undefined,
+                                    "showMoreTitle": undefined,
                                     "value": "",
                                   },
                                   "label": "Description",
@@ -974,6 +1002,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     <Text
                                       id="filter-by-name"
                                       isDisabled={true}
+                                      isFilterable={false}
                                       key="filter-by-name"
                                       onChange={[Function]}
                                       onSubmit={[Function]}
@@ -984,6 +1013,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         className="ins-c-conditional-filter "
                                         id="filter-by-name"
                                         isDisabled={true}
+                                        isFilterable={false}
                                         onChange={[Function]}
                                         onKeyDown={[Function]}
                                         placeholder="Filter by name"
@@ -996,6 +1026,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
+                                          isFilterable={false}
                                           isReadOnly={false}
                                           isRequired={false}
                                           onChange={[Function]}
@@ -1012,6 +1043,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             className="pf-c-form-control ins-c-conditional-filter "
                                             disabled={true}
                                             id="filter-by-name"
+                                            isFilterable={false}
                                             onChange={[Function]}
                                             onKeyDown={[Function]}
                                             placeholder="Filter by name"
@@ -1898,6 +1930,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   hideFilterChips={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={true}
   isSelectable={false}
   pagination={
@@ -1938,6 +1971,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     hideFilterChips={false}
     isCollapsible={false}
+    isFilterable={false}
     isLoading={true}
     isSelectable={false}
     pagination={
@@ -1969,12 +2003,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
           "items": Array [
             Object {
               "filterValues": Object {
+                "groups": undefined,
                 "id": "filter-by-name",
                 "isDisabled": true,
+                "isFilterable": false,
                 "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
+                "onFilter": undefined,
+                "onShowMore": undefined,
                 "placeholder": "Filter by name",
+                "selected": undefined,
+                "showMoreTitle": undefined,
                 "value": "",
               },
               "label": "Name",
@@ -1982,18 +2022,26 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             },
             Object {
               "filterValues": Object {
+                "groups": undefined,
                 "id": "filter-by-description",
                 "isDisabled": true,
+                "isFilterable": false,
                 "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
+                "onFilter": undefined,
+                "onShowMore": undefined,
                 "placeholder": "Filter by description",
+                "selected": undefined,
+                "showMoreTitle": undefined,
                 "value": "",
               },
               "label": "Description",
               "type": "text",
             },
           ],
+          "onChange": undefined,
+          "value": undefined,
         }
       }
       toggleIsExpanded={[Function]}
@@ -2042,12 +2090,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                               Array [
                                 Object {
                                   "filterValues": Object {
+                                    "groups": undefined,
                                     "id": "filter-by-name",
                                     "isDisabled": true,
+                                    "isFilterable": false,
                                     "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
+                                    "onFilter": undefined,
+                                    "onShowMore": undefined,
                                     "placeholder": "Filter by name",
+                                    "selected": undefined,
+                                    "showMoreTitle": undefined,
                                     "value": "",
                                   },
                                   "label": "Name",
@@ -2055,12 +2109,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                 },
                                 Object {
                                   "filterValues": Object {
+                                    "groups": undefined,
                                     "id": "filter-by-description",
                                     "isDisabled": true,
+                                    "isFilterable": false,
                                     "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
+                                    "onFilter": undefined,
+                                    "onShowMore": undefined,
                                     "placeholder": "Filter by description",
+                                    "selected": undefined,
+                                    "showMoreTitle": undefined,
                                     "value": "",
                                   },
                                   "label": "Description",
@@ -2411,6 +2471,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                     <Text
                                       id="filter-by-name"
                                       isDisabled={true}
+                                      isFilterable={false}
                                       key="filter-by-name"
                                       onChange={[Function]}
                                       onSubmit={[Function]}
@@ -2421,6 +2482,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         className="ins-c-conditional-filter "
                                         id="filter-by-name"
                                         isDisabled={true}
+                                        isFilterable={false}
                                         onChange={[Function]}
                                         onKeyDown={[Function]}
                                         placeholder="Filter by name"
@@ -2433,6 +2495,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
+                                          isFilterable={false}
                                           isReadOnly={false}
                                           isRequired={false}
                                           onChange={[Function]}
@@ -2449,6 +2512,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             className="pf-c-form-control ins-c-conditional-filter "
                                             disabled={true}
                                             id="filter-by-name"
+                                            isFilterable={false}
                                             onChange={[Function]}
                                             onKeyDown={[Function]}
                                             placeholder="Filter by name"

@@ -35,6 +35,12 @@ export const TableToolbarView = ({
   filterPlaceholder,
   rowWrapper,
   filters,
+  isFilterable,
+  onShowMore,
+  showMoreTitle,
+  onFilter,
+  onChange,
+  value,
   sortBy,
   isExpandable,
   onExpand,
@@ -112,6 +118,12 @@ export const TableToolbarView = ({
         toolbarButtons={ toolbarButtons }
         filterPlaceholder={ filterPlaceholder }
         filters={ filters }
+        isFilterable={ isFilterable }
+        onShowMore={ onShowMore }
+        showMoreTitle={ showMoreTitle }
+        onFilter={ onFilter }
+        onChange={ onChange }
+        value={ value }
         hideFilterChips={ hideFilterChips }
       />
       { isLoading ? <ListLoader /> : <Table
