@@ -28,7 +28,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
             <h4
               className="pf-c-title pf-m-xl"
             >
-               Enter group details 
+               Name and description 
             </h4>
           </Title>
         </div>
