@@ -10,12 +10,11 @@ import {
   Title
 } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
-
 const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid, isGroupInfoValid, isValidating, setIsValidating) => (
   <Fragment>
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h4" size="xl"> Enter group details </Title>
+        <Title headingLevel="h4" size="xl"> Name and description </Title>
       </StackItem>
       <StackItem>
         <Form>
