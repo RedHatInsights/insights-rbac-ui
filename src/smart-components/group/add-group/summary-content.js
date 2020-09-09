@@ -29,27 +29,26 @@ const SummaryContent = (formData) => {
             <StackItem className="ins-c-rbac__summary">
               <Grid hasGutter>
                 <GridItem span={ 3 }>
-                  <Text className="data-table-detail heading content pf-c-title" component={ TextVariants.h6 }>Group name</Text>
+                  <Text className="pf-c-title" component={ TextVariants.h6 }>Group name</Text>
                 </GridItem>
                 <GridItem span={ 9 }>
-                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ name }</Text>
+                  <Text component={ TextVariants.p }>{ name }</Text>
                 </GridItem>
               </Grid>
               <Grid hasGutter>
                 <GridItem span = { 3 }>
-                  <Text className="data-table-detail heading content pf-c-title" component={ TextVariants.h6 }>Group description</Text>
+                  <Text className="pf-c-title" component={ TextVariants.h6 }>Group description</Text>
                 </GridItem>
                 <GridItem span = { 9 }>
-                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ description }</Text>
+                  <Text component={ TextVariants.p }>{ description }</Text>
                 </GridItem>
               </Grid>
               <Grid hasGutter>
                 <GridItem span={ 3 }>
-                  <Text className="data-table-detail heading content pf-c-title" component={ TextVariants.h6 }>Roles</Text>
+                  <Text className="pf-c-title" component={ TextVariants.h6 }>Roles</Text>
                 </GridItem>
                 <GridItem span={ 9 }>
                   <Text
-                    className="groups-table-detail content"
                     component={ TextVariants.p }>
                     {selectedRoles.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{role.label}</Text>)}
                   </Text>
@@ -57,11 +56,10 @@ const SummaryContent = (formData) => {
               </Grid>
               <Grid hasGutter>
                 <GridItem span = { 3 }>
-                  <Text className="data-table-detail heading content pf-c-title" component={ TextVariants.h6 }>Members</Text>
+                  <Text className="pf-c-title" component={ TextVariants.h6 }>Members</Text>
                 </GridItem>
                 <GridItem span= { 9 }>
                   <Text
-                    className="groups-table-detail content"
                     component={ TextVariants.p }>
                     { selectedUsers.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{ role.label }</Text>) }
                   </Text>
