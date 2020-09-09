@@ -74,11 +74,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-3-col"
                         >
                           <Text
-                            className="data-table-detail heading content pf-c-title"
+                            className="pf-c-title"
                             component="h6"
                           >
                             <h6
-                              className="data-table-detail heading content pf-c-title"
+                              className="pf-c-title"
                               data-pf-content={true}
                             >
                               Group name
@@ -93,11 +93,10 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-9-col"
                         >
                           <Text
-                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -118,11 +117,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-3-col"
                         >
                           <Text
-                            className="data-table-detail heading content pf-c-title"
+                            className="pf-c-title"
                             component="h6"
                           >
                             <h6
-                              className="data-table-detail heading content pf-c-title"
+                              className="pf-c-title"
                               data-pf-content={true}
                             >
                               Group description
@@ -137,11 +136,10 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-9-col"
                         >
                           <Text
-                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -162,11 +160,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-3-col"
                         >
                           <Text
-                            className="data-table-detail heading content pf-c-title"
+                            className="pf-c-title"
                             component="h6"
                           >
                             <h6
-                              className="data-table-detail heading content pf-c-title"
+                              className="pf-c-title"
                               data-pf-content={true}
                             >
                               Roles
@@ -181,11 +179,10 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-9-col"
                         >
                           <Text
-                            className="groups-table-detail content"
                             component="p"
                           >
                             <p
-                              className="groups-table-detail content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -206,11 +203,11 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-3-col"
                         >
                           <Text
-                            className="data-table-detail heading content pf-c-title"
+                            className="pf-c-title"
                             component="h6"
                           >
                             <h6
-                              className="data-table-detail heading content pf-c-title"
+                              className="pf-c-title"
                               data-pf-content={true}
                             >
                               Members
@@ -225,11 +222,10 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                           className="pf-l-grid__item pf-m-9-col"
                         >
                           <Text
-                            className="groups-table-detail content"
                             component="p"
                           >
                             <p
-                              className="groups-table-detail content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
