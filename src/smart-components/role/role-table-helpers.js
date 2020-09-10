@@ -3,7 +3,7 @@ import { DateFormat } from '@redhat-cloud-services/frontend-components';
 import { Link } from 'react-router-dom';
 
 export const createRows = (data) => (
-  data.reduce((acc, { uuid, display_name, description, system, accessCount, groups_in_count: groupsCount, modified }) => ([
+  data.reduce((acc, { uuid, display_name, name, description, system, accessCount, groups_in_count: groupsCount, modified }) => ([
     ...acc,
     {
       uuid,
@@ -11,7 +11,7 @@ export const createRows = (data) => (
       cells: [
         <Fragment key={ `${uuid}-name` }>
           <Link to={ `/roles/detail/${uuid}` }>
-            { display_name }
+            { display_name || name }
           </Link>
         </Fragment>,
         description,

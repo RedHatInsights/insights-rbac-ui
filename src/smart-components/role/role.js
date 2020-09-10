@@ -28,9 +28,9 @@ const Role = () => {
         to: `/groups/detail/${groupUuid}/roles`,
         isLoading: group && group.loaded
       }] : [],
-      { title: isRecordLoading ? undefined : role && role.display_name, isActive: true }
+      { title: isRecordLoading ? undefined : role && (role.display_name || role.name), isActive: true }
     ] }>
-      <TopToolbarTitle title={ !isRecordLoading && role ? role.display_name : undefined }
+      <TopToolbarTitle title={ !isRecordLoading && role ? role.display_name || role.name : undefined }
         description={ !isRecordLoading && role ? role.description : undefined }/>
     </TopToolbar>
     { (isRecordLoading || !role) ? <ListLoader/> : <Permissions /> }
