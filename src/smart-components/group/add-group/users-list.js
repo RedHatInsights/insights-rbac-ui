@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
@@ -11,29 +11,36 @@ import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import classNames from 'classnames';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
-  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]},
+  { title: 'Org. Administrator', key: 'org-admin' },
   { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
   { title: 'First name' },
-  { title: 'Last name' }
+  { title: 'Last name' },
+  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]}
 ];
 
-const createRows = (userLinks) => (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName }) => ([
+const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
+  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => ([
     ...acc, {
       uuid: username,
-      cells: [{
-          title: (
-            <Label isCompact color={ isActive && 'green' } className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
-              {isActive ? 'Active' : 'Inactive'}
-            </Label>
+      cells: [
+        isOrgAdmin ? <Fragment><CheckIcon className="pf-u-mr-sm" />Yes</Fragment> : <Fragment><CloseIcon className="pf-u-mr-sm" />No</Fragment>,
+        { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username },
+       email,
+       firstName,
+       lastName, {
+        title: (
+          <Label isCompact color={ isActive && 'green' } className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
+            {isActive ? 'Active' : 'Inactive'}
+          </Label>
         ),
         props: {
           'data-is-active': isActive
         }
-      }, { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username }, email, firstName, lastName ],
+       }],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
     }
   ]), []) : [];

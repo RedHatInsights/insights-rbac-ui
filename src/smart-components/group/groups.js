@@ -84,12 +84,12 @@ const Groups = () => {
     isPlatformDefault || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin) ? null :
       [
         {
-          title: 'Edit group',
+          title: 'Edit',
           onClick: (_event, _rowId, group) => {
             history.push(`/groups/edit/${group.uuid}`);}
         },
         {
-          title: 'Delete group',
+          title: 'Delete',
           onClick: (_event, _rowId, group) => {
             setRemoveGroupsList([ group ]);
             history.push(paths['remove-group']);
@@ -119,14 +119,14 @@ const Groups = () => {
           }
         },
         {
-          label: 'Edit group',
+          label: 'Edit',
           props: {
             isDisabled: !(selectedRows.length === 1)
           },
           onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`)
         },
         {
-          label: 'Delete Group(s)',
+          label: 'Delete',
           props: {
             isDisabled: !selectedRows.length > 0
           },
