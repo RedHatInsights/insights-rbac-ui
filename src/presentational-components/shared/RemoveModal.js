@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-
+import global_warning_color_100 from '@patternfly/react-tokens/dist/js/global_warning_color_100';
 import {
   Button,
   Checkbox,
@@ -17,9 +17,8 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
   const [ checked, setChecked ] = useState(false);
 
   return (
-    <Modal className="ins-c-rbac__dialog--warning"
-
-      title={ <div> <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> { title } </div> }
+    <Modal
+      title={ <div> <ExclamationTriangleIcon color={ global_warning_color_100.value } /> { title } </div> }
       isOpen={ isOpen }
       variant={ ModalVariant.small }
       onClose={ onClose }
