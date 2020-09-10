@@ -1,15 +1,5 @@
 @import '~@redhat-cloud-services/frontend-components/index.css';
 
-.table-fix {
-  .pf-c-table__toggle {
-    padding-top: 0;
-  }
-}
-
-.select-style {
-  padding-bottom: 200px;
-}
-
 .toolbar-filter-input-group {
   position: relative;
   width: 300px;
@@ -88,8 +78,6 @@
   margin-right: var(--pf-global--spacer--sm);
 
 }
-
-
 
 @media only screen and (max-width: 768px) {
   .ins-c-rbac__user-row .pf-c-label{
