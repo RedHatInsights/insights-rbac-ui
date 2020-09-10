@@ -5,6 +5,7 @@ import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Modal, ModalVariant, Button, Text, TextContent, Checkbox } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import global_warning_color_100 from '@patternfly/react-tokens/dist/js/global_warning_color_100';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 
@@ -42,7 +43,7 @@ const RemoveGroupModal = ({
       isOpen={ isModalOpen }
       variant={ ModalVariant.small }
       title = { <Text>
-          <ExclamationTriangleIcon className="delete-group-warning-icon" />
+          <ExclamationTriangleIcon color={ global_warning_color_100.value } />
         &nbsp; { multipleGroups ? 'Delete groups?' : 'Delete group?' }
         </Text> }
       onClose={ onCancel }
