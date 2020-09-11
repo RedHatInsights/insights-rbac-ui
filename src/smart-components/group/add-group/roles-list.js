@@ -15,10 +15,10 @@ const columns = [
 ];
 
 const createRows = (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc,  { uuid, name, description }) => ([
+  return data ? data.reduce((acc, { uuid, display_name, name, description }) => ([
     ...acc, {
       uuid,
-      cells: [ name, description ],
+      cells: [ display_name || name, description ],
       selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
     }
   ]), []) : [];
