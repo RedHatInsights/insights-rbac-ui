@@ -6,7 +6,7 @@ exports[`<MUAPageSection /> should render correctly 1`] = `
   title="test title"
 >
   <section
-    className="ins-l-myUserAccess-section"
+    className="pf-u-mt-sm"
   >
     <Stack
       hasGutter={true}
@@ -19,11 +19,12 @@ exports[`<MUAPageSection /> should render correctly 1`] = `
             className="pf-l-stack__item"
           >
             <Title
+              className="pf-u-mb-sm"
               headingLevel="h2"
               size="2xl"
             >
               <h2
-                className="pf-c-title pf-m-2xl"
+                className="pf-c-title pf-m-2xl pf-u-mb-sm"
               >
                 test title
               </h2>

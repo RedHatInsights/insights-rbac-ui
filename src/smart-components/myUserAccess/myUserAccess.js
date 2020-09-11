@@ -21,7 +21,7 @@ const MyUserAccess = () => {
       <React.Fragment>
         { Object.prototype.hasOwnProperty.call(user, 'entitlements') && Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') ?
           <React.Fragment>
-            <PageHeader>
+            <PageHeader className="pf-u-mb-xs">
               <TextContent>
                 <PageHeaderTitle title={ <React.Fragment>
                     <span> My User Access </span>

@@ -1,15 +1,12 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-
 import { Stack, StackItem, Title } from '@patternfly/react-core';
 
-import './pageSection.scss';
-
 const MUAPageSection = ({ title, children, description }) => (
-  <section className='ins-l-myUserAccess-section'>
+  <section className='pf-u-mt-sm'>
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h2" size="2xl">
+        <Title headingLevel="h2" size="2xl" className="pf-u-mb-sm">
           { title }
         </Title>
         <p> { description }</p>
