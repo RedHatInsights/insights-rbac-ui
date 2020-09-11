@@ -55,7 +55,7 @@ const RemoveRoleModal = ({
         <GridItem span={ 6 }>
           <TextContent>
             { !isLoading && <Text component={ TextVariants.h1 }>
-              { role.name }
+              { role.display_name || role.name }
             </Text> }
           </TextContent>
           { isLoading && <FormItemLoader/> }

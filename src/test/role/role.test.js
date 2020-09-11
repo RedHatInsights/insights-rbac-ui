@@ -56,7 +56,7 @@ describe('role', () => {
           roleReducer: {
             isRecordLoading: false,
             selectedRole: {
-              name: 'Some name'
+              display_name: 'Some name'
             }
           }
         }) }>
@@ -119,7 +119,7 @@ describe('role', () => {
           roleReducer: {
             isRecordLoading: false,
             selectedRole: {
-              name: 'Some name'
+              display_name: 'Some name'
             }
           },
           groupReducer: {
@@ -167,7 +167,7 @@ describe('role', () => {
         roleReducer: {
           isRecordLoading: false,
           selectedRole: {
-            name: 'Some name',
+            display_name: 'Some name',
             access: [
               { permission: 'some:permission' },
               { permission: 'some:*:bla' }
@@ -195,7 +195,7 @@ describe('role', () => {
         roleReducer: {
           isRecordLoading: false,
           selectedRole: {
-            name: 'Some name',
+            display_name: 'Some name',
             description: 'Some cool description',
             access: [
               { permission: 'some:permission' },
@@ -221,7 +221,7 @@ describe('role', () => {
         roleReducer: {
           isRecordLoading: false,
           selectedRole: {
-            name: 'Some name',
+            display_name: 'Some name',
             description: 'Some cool description',
             access: [ ...new Array(28) ].map(() => ({ permission: 'some:permission' }))
           }
@@ -250,7 +250,7 @@ describe('role', () => {
         roleReducer: {
           isRecordLoading: false,
           selectedRole: {
-            name: 'Some name',
+            display_name: 'Some name',
             description: 'Some cool description',
             access:
             [
