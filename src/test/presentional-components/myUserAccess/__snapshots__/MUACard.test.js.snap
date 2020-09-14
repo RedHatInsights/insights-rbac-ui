@@ -1,0 +1,40 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MUACard /> should render correctly 1`] = `
+<MUACard
+  header="Test"
+>
+  <Title
+    headingLevel="h3"
+    size="xl"
+  >
+    <h3
+      className="pf-c-title pf-m-xl"
+    >
+       
+      Test
+       
+    </h3>
+  </Title>
+</MUACard>
+`;
+
+exports[`<MUACard /> should render correctly disabled 1`] = `
+<MUACard
+  header="Test"
+  isDisabled={true}
+>
+  <Title
+    headingLevel="h3"
+    size="xl"
+  >
+    <h3
+      className="pf-c-title pf-m-xl"
+    >
+       
+      Test
+       
+    </h3>
+  </Title>
+</MUACard>
+`;

@@ -21,6 +21,10 @@ export async function fetchRole(uuid) {
   return await roleApi.getRole(uuid);
 }
 
+export async function fetchRoleForPrincipal(uuid) {
+  return await roleApi.getRole(uuid, 'principal');
+}
+
 export async function removeRole(roleId) {
   return await roleApi.deleteRole(roleId);
 }
