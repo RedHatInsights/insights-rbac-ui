@@ -7,6 +7,7 @@ import { routes } from '../package.json';
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
+const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
   const root = document.getElementById('root');
