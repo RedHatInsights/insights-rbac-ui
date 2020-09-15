@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
@@ -7,7 +7,10 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 
+const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
+
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core';
 
 const columns = [
   'Roles',
@@ -18,8 +21,19 @@ const columns = [
   },
 ];
 
-const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, rolesWithAccess, filters, setFilters, apps }) => {
+const MUARolesTable = ({
+  fetchRoles,
+  fetchRoleForPrincipal,
+  roles,
+  isLoading,
+  rolesWithAccess,
+  filters,
+  setFilters,
+  apps,
+  showResourceDefinitions,
+}) => {
   const [expanded, setExpanded] = useState({});
+  const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, scope: 'principal', application: apps.join(',') });
@@ -47,21 +61,47 @@ const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, ro
           compoundParent: 2,
           cells: [
             {
-              props: { colSpan: 4, className: 'pf-m-no-padding' },
-              title: rolesWithAccess?.[uuid] ? (
-                <Table
-                  aria-label="Simple Table"
-                  borders={false}
-                  variant={TableVariant.compact}
-                  cells={['Application', 'Resource type', 'Operation']}
-                  rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
-                >
-                  <TableHeader />
-                  <TableBody />
-                </Table>
-              ) : (
-                <ListLoader />
-              ),
+              uuid: `${uuid}-groups`,
+              parent: 2 * i,
+              compoundParent: 2,
+              cells: [
+                {
+                  props: { colSpan: 4, className: 'pf-m-no-padding' },
+                  title: rolesWithAccess?.[uuid] ? (
+                    <Table
+                      aria-label="Simple Table"
+                      borders={false}
+                      variant={TableVariant.compact}
+                      cells={['Application', 'Resource type', 'Operation', ...(showResourceDefinitions ? ['Resource definitions'] : [])]}
+                      rows={rolesWithAccess[uuid].access.map((access) => ({
+                        cells: [
+                          ...access.permission.split(':'),
+                          ...(showResourceDefinitions
+                            ? [
+                                <Fragment key="rd">
+                                  <Button
+                                    onClick={() =>
+                                      setRdConfig({ rdOpen: true, rdPermission: access.permission, resourceDefinitions: access.resourceDefinitions })
+                                    }
+                                    variant="link"
+                                    isDisabled={access.resourceDefinitions.length === 0}
+                                  >
+                                    {access.resourceDefinitions.length || 'N/A'}
+                                  </Button>
+                                </Fragment>,
+                              ]
+                            : []),
+                        ],
+                      }))}
+                    >
+                      <TableHeader />
+                      <TableBody />
+                    </Table>
+                  ) : (
+                    <ListLoader />
+                  ),
+                },
+              ],
             },
           ],
         },
@@ -91,24 +131,36 @@ const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, ro
   };
 
   return (
-    <TableToolbarView
-      filters={filters}
-      columns={columns}
-      isCompact={false}
-      isExpandable={true}
-      onExpand={onExpand}
-      createRows={createRows}
-      data={roles.data}
-      fetchData={({ limit, offset, name, application }) => {
-        debouncedFetch(limit, offset, name, application);
-      }}
-      setFilterValue={setFilters}
-      isLoading={isLoading}
-      pagination={roles.meta}
-      filterPlaceholder="role name"
-      titlePlural="roles"
-      titleSingular="role"
-    />
+    <Fragment>
+      <TableToolbarView
+        filters={filters}
+        columns={columns}
+        isCompact={false}
+        isExpandable={true}
+        onExpand={onExpand}
+        createRows={createRows}
+        data={roles.data}
+        fetchData={({ limit, offset, name, application }) => {
+          debouncedFetch(limit, offset, name, application);
+        }}
+        setFilterValue={setFilters}
+        isLoading={isLoading}
+        pagination={roles.meta}
+        filterPlaceholder="role name"
+        titlePlural="roles"
+        titleSingular="role"
+      />
+      <Suspense fallback={<Fragment />}>
+        {rdOpen && (
+          <ResourceDefinitionsModal
+            resourceDefinitions={resourceDefinitions}
+            isOpen={rdOpen}
+            handleClose={() => setRdConfig({ rdOpen: false })}
+            permission={rdPermission}
+          />
+        )}
+      </Suspense>
+    </Fragment>
   );
 };
 
@@ -122,6 +174,7 @@ MUARolesTable.propTypes = {
   filters: PropTypes.arrayOf(PropTypes.object).isRequired,
   setFilters: PropTypes.func.isRequired,
   apps: PropTypes.arrayOf(PropTypes.string).isRequired,
+  showResourceDefinitions: PropTypes.bool,
 };
 
 const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess } }) => ({

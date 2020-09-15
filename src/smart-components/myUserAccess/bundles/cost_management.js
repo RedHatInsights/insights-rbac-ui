@@ -23,7 +23,7 @@ const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) => [
     : []),
 ];
 
-const InsightsBundle = ({ apps }) => {
+const CostManagementBundle = ({ apps }) => {
   const isOrgAdmin = useContext(OrgAdminContext);
   const [name, setName] = useState('');
   const [application, setApplication] = useState([]);
@@ -33,23 +33,20 @@ const InsightsBundle = ({ apps }) => {
     }
 
     if (application) {
-      /**
-       * The string is returned on clear all filters
-       */
       setApplication(typeof application === 'string' ? [] : application);
     }
   };
 
   const filters = createFilter({ apps, isOrgAdmin, name, application });
   return isOrgAdmin ? (
-    <MUARolesTable setFilters={handleSetFilters} filters={filters} apps={apps} />
+    <MUARolesTable setFilters={handleSetFilters} filters={filters} apps={apps} showResourceDefinitions />
   ) : (
     <MUAAccessTable setFilters={handleSetFilters} filters={filters} apps={apps} hasActiveFilters={name.length > 0 || application.length > 0} />
   );
 };
 
-InsightsBundle.propTypes = {
+CostManagementBundle.propTypes = {
   apps: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-export default InsightsBundle;
+export default CostManagementBundle;
