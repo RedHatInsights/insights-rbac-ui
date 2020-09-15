@@ -18,9 +18,12 @@ const columns = [
   },
 ];
 
-const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, rolesWithAccess }) => {
-  const [filter, setFilter] = useState('');
+const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, rolesWithAccess, filters, setFilters, apps }) => {
   const [expanded, setExpanded] = useState({});
+
+  useEffect(() => {
+    fetchRoles({ limit: 20, offset: 0, scope: 'principal', application: apps.join(',') });
+  }, []);
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, scope: 'principal' });
@@ -68,7 +71,10 @@ const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, ro
   };
 
   let debouncedFetch = useCallback(
-    debounce((limit, offset, name, addFields) => fetchRoles({ limit, offset, name, addFields }), 800),
+    debounce((limit, offset, name, application, addFields) => {
+      const applicationParam = application?.length > 0 ? application : apps;
+      return fetchRoles({ limit, offset, name, application: applicationParam.join(','), addFields });
+    }, 800),
     []
   );
 
@@ -86,17 +92,17 @@ const MUARolesTable = ({ fetchRoles, fetchRoleForPrincipal, roles, isLoading, ro
 
   return (
     <TableToolbarView
+      filters={filters}
       columns={columns}
       isCompact={false}
       isExpandable={true}
       onExpand={onExpand}
       createRows={createRows}
       data={roles.data}
-      filterValue={filter}
-      fetchData={({ limit, offset, name }) => {
-        debouncedFetch(limit, offset, name);
+      fetchData={({ limit, offset, name, application }) => {
+        debouncedFetch(limit, offset, name, application);
       }}
-      setFilterValue={({ name }) => setFilter(name)}
+      setFilterValue={setFilters}
       isLoading={isLoading}
       pagination={roles.meta}
       filterPlaceholder="role name"
@@ -113,6 +119,9 @@ MUARolesTable.propTypes = {
   roles: PropTypes.object,
   isLoading: PropTypes.bool,
   rolesWithAccess: PropTypes.object,
+  filters: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setFilters: PropTypes.func.isRequired,
+  apps: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess } }) => ({
