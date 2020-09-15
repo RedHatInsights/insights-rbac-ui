@@ -7,19 +7,19 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
-import { sortable, cellWidth } from '@patternfly/react-table';
+import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import classNames from 'classnames';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
-  { title: 'Org. Administrator', key: 'org-admin' },
+  { title: 'Org. Administrator', key: 'org-admin', transforms: [ nowrap ]},
   { title: 'Username', key: 'username', transforms: [ sortable ]},
   { title: 'Email' },
-  { title: 'First name' },
-  { title: 'Last name' },
-  { title: 'Status', transforms: [ cellWidth(10), () => ({ className: 'ins-m-width-5' }) ]}
+  { title: 'First name', transforms: [ nowrap ]},
+  { title: 'Last name', transforms: [ nowrap ]},
+  { title: 'Status', transforms: [ nowrap ]}
 ];
 
 const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
@@ -27,7 +27,7 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
     ...acc, {
       uuid: username,
       cells: [
-        isOrgAdmin ? <Fragment><CheckIcon className="pf-u-mr-sm" />Yes</Fragment> : <Fragment><CloseIcon className="pf-u-mr-sm" />No</Fragment>,
+        isOrgAdmin ? <Fragment><span><CheckIcon className="pf-u-mr-sm" />Yes</span></Fragment> : <Fragment><span><CloseIcon className="pf-u-mr-sm" />No</span></Fragment>,
         { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username },
        email,
        firstName,
