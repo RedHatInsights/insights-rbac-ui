@@ -10,25 +10,6 @@ import {
 } from '@patternfly/react-core';
 import './review.scss';
 
-const mockData = [
-    { cells: [ 'cost:aws.account:read', 'Project 1' ]},
-    { cells: [ 'cost:azure:read', 'Cluster 1, Cluster 2, Cluster 3' ]},
-    { cells: [ 'cost:aws.account:write', 'Project 1' ]},
-    { cells: [ 'cost:aws.account:execute', 'Project 1' ]},
-    { cells: [ 'cost:aws:something', 'Project 1' ]},
-    { cells: [ 'cost:aws:something2', 'Project 2' ]},
-    { cells: [ 'cost:aws:something3', 'Project 3' ]},
-    { cells: [ 'cost:aws:something4', 'Project 4' ]},
-    { cells: [ 'cost:aws:something5', 'Project 5' ]},
-    { cells: [ 'cost:aws:something6', 'Project 6' ]},
-    { cells: [ 'cost:aws:something7', 'Project 7' ]},
-    { cells: [ 'cost:aws:something8', 'Project 8' ]},
-    { cells: [ 'cost:aws:something9', 'Project 9' ]},
-    { cells: [ 'cost:aws:something10', 'Project 10' ]},
-    { cells: [ 'cost:aws:something11', 'Project 11' ]},
-    { cells: [ 'cost:aws:something12', 'Project 12' ]}
-];
-
 const stickyTable = (columns, rows) => (
     <div className='ins-c-rbac__sticky'>
         <Grid className="ins-c-rbac__sticky--title">
@@ -49,7 +30,8 @@ const ReviewStep = () => {
         'role-description': description,
         'role-copy-name': copyName,
         'role-copy-description': copyDescription,
-        'add-permissions-table': permissions
+        'add-permissions-table': permissions,
+        'resource-definitions': resourceDefinitions
     } = formOptions.getState().values;
     const columns = [ 'Application', 'Resource type', 'Operation' ];
     const rows = permissions.map(permission => ({
@@ -83,14 +65,17 @@ const ReviewStep = () => {
                         {stickyTable(columns, rows)}
                     </GridItem>
                 </Grid>
+                {
+                    resourceDefinitions &&
                 <Grid>
                     <GridItem span={ 2 }>
                         <Text component={ TextVariants.h4 } className='ins-c-rbac__bold-text'>Resource definitions</Text>
                     </GridItem>
                     <GridItem span={ 10 }>
-                        {stickyTable([ 'Permission', 'Resource definitions' ], mockData)}
+                        {stickyTable([ 'Permission', 'Resource definitions' ], resourceDefinitions)}
                     </GridItem>
                 </Grid>
+                }
             </StackItem>
         </Stack>
     </React.Fragment>;
