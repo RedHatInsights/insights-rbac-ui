@@ -1,7 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<OrgAdminLabel /> should render correctly 1`] = `
-<OrgAdminLabel>
+exports[`<StatusLabel /> should render correctly 1`] = `
+<StatusLabel>
+  <Label
+    color="purple"
+  >
+    <span
+      className="pf-c-label pf-m-purple"
+    >
+      <span
+        className="pf-c-label__content"
+      >
+         User 
+      </span>
+    </span>
+  </Label>
+</StatusLabel>
+`;
+
+exports[`<StatusLabel /> should render correctly as admin 1`] = `
+<StatusLabel
+  isOrgAdmin={true}
+>
   <Tooltip
     content={
       <span>
@@ -69,7 +89,7 @@ exports[`<OrgAdminLabel /> should render correctly 1`] = `
       trigger={
         <Label
           aria-describedby="pf-tooltip-1"
-          color="blue"
+          color="purple"
         >
            Org. Administrator 
         </Label>
@@ -81,11 +101,11 @@ exports[`<OrgAdminLabel /> should render correctly 1`] = `
       >
         <Label
           aria-describedby="pf-tooltip-1"
-          color="blue"
+          color="purple"
         >
           <span
             aria-describedby="pf-tooltip-1"
-            className="pf-c-label pf-m-blue"
+            className="pf-c-label pf-m-purple"
           >
             <span
               className="pf-c-label__content"
@@ -97,5 +117,5 @@ exports[`<OrgAdminLabel /> should render correctly 1`] = `
       </FindRefWrapper>
     </Popper>
   </Tooltip>
-</OrgAdminLabel>
+</StatusLabel>
 `;
