@@ -25,6 +25,19 @@
         padding-bottom: var(--pf-global--spacer--md);
         .pf-c-chip-group {
             background-color: var(--pf-global--BackgroundColor--100);
+            .pf-c-chip-group__list{
+                .pf-c-chip-group__list-item {
+                    .pf-c-chip {
+                        background-color: var(--pf-global--palette--blue-50);
+                        border-radius: var(--pf-global--BorderRadius--lg);
+                        .pf-c-chip__text{
+                            font-size: var(--pf-global--FontSize--sm);
+                        }
+                    }
+                }
+            }
         }
+    }
 }
-}
+
+
