@@ -1,0 +1,32 @@
+.page__myUserAccess {
+    .pf-c-page-header {
+        .ins-p-myUserAccess--subtitle span { display: block; }
+
+        .pf-c-title {
+            display: flex;
+            align-items: center;
+            .pf-c-label { margin-left: var(--pf-global--spacer--md); }
+        }
+        box-shadow: var(--pf-global--BoxShadow--md);
+        position: relative;
+    }
+
+    .ins-l-myUserAccess-split {
+        display: grid;
+        grid-template-columns: 1fr 2fr;
+        column-gap: 24px;
+        padding: 0 24px;
+        background: white;
+        .ins-l-myUserAccess-section .pf-c-title { margin-top: 15px; }
+        .ins-l-myUserAccess-section:first-of-type {
+            border-right: 1px solid var(--pf-global--BorderColor--100);
+            padding-right: 24px;
+        }
+    }
+
+    .ins-l-myUserAccess-section {
+        height: 80vh;
+        overflow: scroll;
+        .pf-c-title { margin-bottom: var(--pf-global--spacer--md); }
+    }
+}

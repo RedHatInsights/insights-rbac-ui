@@ -5,12 +5,11 @@ import { isEmpty } from 'lodash';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import FormSpy from '@data-driven-forms/react-form-renderer/dist/cjs/form-spy';
 import { ActionGroup } from '@patternfly/react-core';
-import './formButtons.scss';
 
 const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) => {
     const { onCancel } = useFormApi();
     const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || !submitSucceeded && pristine;
-    return (<ActionGroup className="ins-m__action-group">
+    return (<ActionGroup className="pf-u-mt-0">
         <Button
             type="submit"
             isDisabled={ noChanges }
