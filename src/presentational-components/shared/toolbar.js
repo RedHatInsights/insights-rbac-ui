@@ -96,7 +96,8 @@ export const filterConfigBuilder = (
             groups,
             items,
             onChange: (_e, filterBy) => {
-              const newFilter = typeof filterBy !== 'string' ? Object.keys(pickBy(filterBy[0], (value) => value)) : filterBy;
+              const newFilter =
+                typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[0], (value) => value)) : filterBy;
               setFilterValue({
                 ...filterValue,
                 ...pagination,
@@ -183,45 +184,36 @@ export const activeFiltersConfigBuilder = (
           },
         ],
   onDelete: (_e, [deleted], isAll) => {
-    const setKeyValue = (value, type) => {
+    const setKeyValue = (value, type, key) => {
       if (isAll) {
-        return type === 'group' ? [] : '';
-      } else {
-        return type === 'group' ? value.filter((option) => option !== deleted.chips[0].name) : '';
+        return type === 'group' || type === 'checkbox' ? [] : '';
       }
+
+      if (key !== deleted.type) {
+        return value;
+      }
+
+      if (type === 'checkbox') {
+        return value.filter((value) => value !== deleted.chips[0]?.name);
+      }
+
+      return '';
     };
+
+    const filtersValue = filters.reduce((acc, { key, value, type }) => ({ ...acc, [key]: setKeyValue(value, type, key) }), {});
 
     setFilterValue({
       ...pagination,
       offset: 0,
       name: '',
-      ...(filters
-        ? filters.reduce(
-            (acc, { key, value, type }) => ({
-              ...acc,
-              [key]: setKeyValue(value, type),
-            }),
-            {}
-          )
-        : {
-            name: '',
-          }),
+      ...filtersValue,
     });
     fetchData({
       ...pagination,
       offset: 0,
       orderBy: sortBy,
-      ...(filters
-        ? filters.reduce(
-            (acc, { key, value }) => ({
-              ...acc,
-              [key]: deleted.type === key || isAll ? '' : value,
-            }),
-            {}
-          )
-        : {
-            name: '',
-          }),
+      name: '',
+      ...filtersValue,
     });
   },
 });
