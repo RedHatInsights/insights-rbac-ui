@@ -3,18 +3,20 @@ import PropTypes from 'prop-types';
 
 import { Stack, StackItem, Title } from '@patternfly/react-core';
 
-import MUARolesTable from './MUARolesTable';
-import MUAAccessTable from './MUAAccessTable';
+// import MUARolesTable from './MUARolesTable';
+// import MUAAccessTable from './MUAAccessTable';
 import MUACard from '../../presentational-components/myUserAccess/MUACard';
 
 import './MUAContent.scss';
+import MuaBundleRoute from './MUABundleRoute';
+import OrgAdminContext from '../../utilities/org-admin-context';
 
 const MUAContent = ({ entitlements, isOrgAdmin }) => {
   const entitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => is_entitled);
   const unEntitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => !is_entitled);
 
   return (
-    <React.Fragment>
+    <OrgAdminContext.Provider value={isOrgAdmin}>
       <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__cards">
         <Stack hasGutter className="pf-u-pr-md pf-u-pl-md">
           <StackItem className="ins-l-myUserAccess-section__cards--entitled">
@@ -30,11 +32,15 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
       </section>
       <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__table">
         <Title headingLevel="h3" size="xl">
-          Your {isOrgAdmin ? 'roles' : 'permissions'}
+          {' '}
+          Your {isOrgAdmin ? 'roles' : 'permissions'}{' '}
         </Title>
-        {isOrgAdmin ? <MUARolesTable /> : <MUAAccessTable />}
+        {/*
+          isOrgAdmin ? <MUARolesTable/> : <MUAAccessTable />
+        */}
+        <MuaBundleRoute />
       </section>
-    </React.Fragment>
+    </OrgAdminContext.Provider>
   );
 };
 
