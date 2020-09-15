@@ -35,3 +35,10 @@
         padding-top: var(--pf-global--spacer--md);
     }
 }
+
+.ins-c-mua-bundles__cardlink {
+    color: inherit;
+    &:hover {
+        text-decoration: none;
+    }
+}
