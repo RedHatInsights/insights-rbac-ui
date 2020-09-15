@@ -15,8 +15,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
   return (
     <React.Fragment>
       <Title headingLevel="h3" size="xl">
-        {' '}
-        {header}{' '}
+        {header}
       </Title>
       <Stack hasGutter>
         {entitlements &&

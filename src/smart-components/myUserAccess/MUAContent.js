@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 
 import { Stack, StackItem, Title } from '@patternfly/react-core';
 
-// import MUARolesTable from './MUARolesTable';
-// import MUAAccessTable from './MUAAccessTable';
 import MUACard from '../../presentational-components/myUserAccess/MUACard';
 
 import './MUAContent.scss';
@@ -32,12 +30,8 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
       </section>
       <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__table">
         <Title headingLevel="h3" size="xl">
-          {' '}
-          Your {isOrgAdmin ? 'roles' : 'permissions'}{' '}
+          Your {isOrgAdmin ? 'roles' : 'permissions'}
         </Title>
-        {/*
-          isOrgAdmin ? <MUARolesTable/> : <MUAAccessTable />
-        */}
         <MuaBundleRoute />
       </section>
     </OrgAdminContext.Provider>

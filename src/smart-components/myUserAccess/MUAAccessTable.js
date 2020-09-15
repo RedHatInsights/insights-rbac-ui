@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -7,7 +8,7 @@ import { createRows } from './mua-table-helpers';
 
 const columns = [{ title: 'Application' }, { title: 'Resource type' }, { title: 'Operation' }];
 
-const MUAAccessTable = () => {
+const MUAAccessTable = ({ filters, setFilters, apps }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading } = useSelector(
     (state) => ({
@@ -17,64 +18,37 @@ const MUAAccessTable = () => {
     shallowEqual
   );
 
-  const [config, setConfig] = useState({
-    pagination: {
-      ...defaultSettings,
-      filter: '',
-    },
-  });
-
-  const fetchData = () => {
-    dispatch(getPrincipalAccess());
+  const fetchData = ({ application, ...apiProps }) => {
+    const applicationParam = application?.length > 0 ? application : apps;
+    dispatch(getPrincipalAccess({ application: applicationParam.join(','), ...apiProps }));
   };
 
   useEffect(() => {
-    fetchData();
-    setConfig({
-      ...config,
-      pagination: {
-        ...config.pagination,
-        count: permissions?.length || 0,
-      },
-    });
+    fetchData(defaultSettings);
   }, []);
 
-  const { pagination, filter } = config;
-
-  const filteredRows = permissions?.data?.filter(({ permission }) => (permission === '*' || filter ? permission.includes(filter) : true));
+  const filteredRows = permissions?.data;
 
   return (
     <TableToolbarView
       columns={columns}
       createRows={createRows}
-      data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
-      filterValue={filter}
-      fetchData={({ limit, offset, name }) =>
-        setConfig({
-          ...config,
-          filter: name,
-          pagination: {
-            ...config.pagination,
-            limit,
-            offset,
-          },
-        })
-      }
-      setFilterValue={({ name }) =>
-        setConfig({
-          ...config,
-          filter: name,
-        })
-      }
+      data={filteredRows}
+      fetchData={fetchData}
+      filters={filters}
+      setFilterValue={setFilters}
       isLoading={isLoading}
-      pagination={{
-        ...pagination,
-        count: filteredRows.length,
-      }}
+      pagination={permissions?.meta}
       titlePlural="permissions"
       titleSingular="permission"
     />
   );
+};
+
+MUAAccessTable.propTypes = {
+  filters: PropTypes.arrayOf(PropTypes.object).isRequired,
+  setFilters: PropTypes.func.isRequired,
+  apps: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
 export default MUAAccessTable;
