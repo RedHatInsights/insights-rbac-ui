@@ -11,6 +11,7 @@ export const bundleData = [
       policies: '/policies',
       compliance: '/compliance',
     },
+    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance'],
   },
   {
     entitlement: 'openshift',
@@ -34,6 +35,7 @@ export const bundleData = [
     apps: {
       'cost management': '/',
     },
+    appsIds: ['cost-management'],
   },
   {
     entitlement: 'migrations',

@@ -8,7 +8,7 @@ import { createRows } from './mua-table-helpers';
 
 const columns = [{ title: 'Application' }, { title: 'Resource type' }, { title: 'Operation' }];
 
-const MUAAccessTable = ({ filters, setFilters, apps }) => {
+const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading } = useSelector(
     (state) => ({
@@ -27,7 +27,7 @@ const MUAAccessTable = ({ filters, setFilters, apps }) => {
     fetchData(defaultSettings);
   }, []);
 
-  const filteredRows = permissions?.data;
+  const filteredRows = permissions?.data || [];
 
   return (
     <TableToolbarView
@@ -41,6 +41,8 @@ const MUAAccessTable = ({ filters, setFilters, apps }) => {
       pagination={permissions?.meta}
       titlePlural="permissions"
       titleSingular="permission"
+      noData={!isLoading && !hasActiveFilters && filteredRows.length === 0}
+      noDataDescription={['You do not have individual permissions for Red Hat Insights.', 'Contact your Org. Administrator for more information.']}
     />
   );
 };
@@ -49,6 +51,7 @@ MUAAccessTable.propTypes = {
   filters: PropTypes.arrayOf(PropTypes.object).isRequired,
   setFilters: PropTypes.func.isRequired,
   apps: PropTypes.arrayOf(PropTypes.string).isRequired,
+  hasActiveFilters: PropTypes.bool,
 };
 
 export default MUAAccessTable;
