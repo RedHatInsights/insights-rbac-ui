@@ -22,7 +22,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
           entitlements?.map(([key]) => {
             const data = bundleData.find(({ entitlement }) => entitlement === key);
             return data ? (
-              <StackItem>
+              <StackItem key={key}>
                 <NavLink className="ins-c-mua-bundles__cardlink" to={{ pathname: routes['my-user-access'], search: `bundle=${key}` }}>
                   <Card
                     key={data.title}
