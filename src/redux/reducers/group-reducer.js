@@ -1,5 +1,6 @@
 import {
   FETCH_GROUP,
+  FETCH_SYSTEM_GROUP,
   FETCH_GROUPS,
   RESET_SELECTED_GROUP,
   FETCH_ROLES_FOR_GROUP,
@@ -24,6 +25,7 @@ const setLoadingState = (state) => ({ ...state, isLoading: true });
 const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
 const setRecordRolesLoadingState = (state) => ({ ...state, isRecordRolesLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
+const setSystemGroup = (state, { payload }) => ({ ...state, systemGroup: payload?.data?.filter(group => group?.platform_default)?.[0] });
 const setGroup = (state, { payload }) => ({
   ...state,
   isRecordLoading: false,
@@ -79,6 +81,8 @@ const setAddRolesForGroup = (state, { payload }) => ({
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
+  [`${FETCH_SYSTEM_GROUP}_PENDING`]: setLoadingState,
+  [`${FETCH_SYSTEM_GROUP}_FULFILLED`]: setSystemGroup,
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,

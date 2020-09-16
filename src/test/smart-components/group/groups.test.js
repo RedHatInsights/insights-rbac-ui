@@ -50,6 +50,7 @@ describe('<Groups />', () => {
 
   it('should render group list correctly', async () => {
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
@@ -67,6 +68,7 @@ describe('<Groups />', () => {
   it('should fetch groups on mount', () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mount(
       <Provider store={store}>
         <Router>
@@ -82,6 +84,7 @@ describe('<Groups />', () => {
   it('should fetch groups on next page click', async () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=10&name=&order_by=`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
@@ -114,6 +117,7 @@ describe('<Groups />', () => {
     const store = mockStore(initialState);
     const filterValue = 'filterValue';
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=${filterValue}`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
     let wrapper;
@@ -152,6 +156,7 @@ describe('<Groups />', () => {
   it('should fetch groups on sort click', async () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=&order_by=name`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
