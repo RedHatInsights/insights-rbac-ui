@@ -40,7 +40,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
           Close
         </Button>,
       ]}
-      variant="small"
+      variant="large"
       isOpen={isOpen}
       onClose={handleClose}
       title="Resource definitions"
