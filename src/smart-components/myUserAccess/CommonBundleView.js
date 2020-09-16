@@ -4,7 +4,7 @@ import OrgAdminContext from '../../utilities/org-admin-context';
 import MUAAccessTable from './MUAAccessTable';
 import MUARolesTable from './MUARolesTable';
 
-const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) => [
+export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) => [
   {
     key: 'application',
     value: application,
