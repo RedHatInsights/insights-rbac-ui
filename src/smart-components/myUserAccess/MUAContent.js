@@ -16,7 +16,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
       <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__cards">
-        <Stack hasGutter className="pf-u-pr-md pf-u-pl-md">
+        <Stack hasGutter className="pf-u-pr-lg pf-u-pl-lg">
           <StackItem className="ins-l-myUserAccess-section__cards--entitled">
             {/* No conditional here because you have to have a subscription to get to /settings */}
             <MUACard header={`Your organization's subscriptions`} entitlements={entitledBundles} />
