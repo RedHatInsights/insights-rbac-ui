@@ -44,7 +44,11 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
       isOpen={isOpen}
       onClose={handleClose}
       title="Resource definitions"
-      description={`View resource definitions for the ${permission} permission`}
+      description={
+        <p>
+          View resource definitions for the <strong>{permission}</strong> permission
+        </p>
+      }
     >
       <TableToolbarView
         columns={columns}

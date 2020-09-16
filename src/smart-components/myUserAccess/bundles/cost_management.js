@@ -41,7 +41,13 @@ const CostManagementBundle = ({ apps }) => {
   return isOrgAdmin ? (
     <MUARolesTable setFilters={handleSetFilters} filters={filters} apps={apps} showResourceDefinitions />
   ) : (
-    <MUAAccessTable setFilters={handleSetFilters} filters={filters} apps={apps} hasActiveFilters={name.length > 0 || application.length > 0} />
+    <MUAAccessTable
+      setFilters={handleSetFilters}
+      filters={filters}
+      apps={apps}
+      hasActiveFilters={name.length > 0 || application.length > 0}
+      showResourceDefinitions
+    />
   );
 };
 
