@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import React, { Fragment, useState } from 'react';
 import { useEffect } from 'react';
 import useBundleApps from '../../hooks/useBundleApps';
 import useSearchParams from '../../hooks/useSearchParams';
 
-const Placeholder = () => <div>Loading</div>;
+const Placeholder = () => Fragment;
 const MuaBundleRoute = () => {
   const { bundle } = useSearchParams('bundle');
   const apps = useBundleApps(bundle);
@@ -18,7 +18,7 @@ const MuaBundleRoute = () => {
   }, [bundle]);
 
   const CurrentBundle = bundleComponents[bundle] || Placeholder;
-  return <CurrentBundle apps={apps} />;
+  return <CurrentBundle key={bundle} apps={apps} />;
 };
 
 export default MuaBundleRoute;
