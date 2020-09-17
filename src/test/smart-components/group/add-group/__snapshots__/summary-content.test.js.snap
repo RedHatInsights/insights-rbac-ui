@@ -48,7 +48,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                         <h4
                           className="pf-c-title pf-m-xl"
                         >
-                           Review details 
+                          Review details
                         </h4>
                       </Title>
                     </div>

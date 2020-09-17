@@ -12,29 +12,26 @@ import { mock } from '../../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 
 describe('<User />', () => {
-
-  const middlewares = [ promiseMiddleware ];
+  const middlewares = [promiseMiddleware];
   let mockStore;
   let enhanceState;
   let initialState;
 
   beforeEach(() => {
     enhanceState = {
-      data: [
-        { username: 'epacific-insights', email: 'user@redhat.com', first_name: 'User', last_name: 'User', is_active: true }
-      ],
+      data: [{ username: 'epacific-insights', email: 'user@redhat.com', first_name: 'User', last_name: 'User', is_active: true }],
       meta: {
         count: 39,
         limit: 10,
-        offset: undefined
-      }
+        offset: undefined,
+      },
     };
     mockStore = configureStore(middlewares);
     initialState = {
       userReducer: { ...usersInitialState, users: enhanceState },
       roleReducer: {
-        ...rolesInitialState
-      }
+        ...rolesInitialState,
+      },
     };
   });
 
@@ -47,16 +44,15 @@ describe('<User />', () => {
     mock.onGet(`${RBAC_API_BASE}/roles/?limit=20&offset=0&add_fields=groups_in&username=epacific-insights`).reply(200, {});
     let wrapper;
     await act(async () => {
-      wrapper = mount(<Provider store={ mockStore(initialState) }>
-        <MemoryRouter initialEntries={ [
-          '/users/detail/epacific-insights'
-        ] }>
-          <Route path="/users/detail/:username" component={ user } />
-        </MemoryRouter>
-      </Provider>);
+      wrapper = mount(
+        <Provider store={mockStore(initialState)}>
+          <MemoryRouter initialEntries={['/users/detail/epacific-insights']}>
+            <Route path="/users/detail/:username" component={user} />
+          </MemoryRouter>
+        </Provider>
+      );
     });
     wrapper.update();
     expect(wrapper.find(user)).toHaveLength(1);
   });
-
- });
+});

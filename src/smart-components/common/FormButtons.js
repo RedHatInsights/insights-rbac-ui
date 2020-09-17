@@ -7,39 +7,41 @@ import FormSpy from '@data-driven-forms/react-form-renderer/dist/cjs/form-spy';
 import { ActionGroup } from '@patternfly/react-core';
 
 const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) => {
-    const { onCancel } = useFormApi();
-    const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || !submitSucceeded && pristine;
-    return (<ActionGroup className="pf-u-mt-0">
-        <Button
-            type="submit"
-            isDisabled={ noChanges }
-            variant="primary">Submit</Button>
-        <Button
-            variant="link"
-            onClick={ () => onCancel() }>
-            Cancel
-        </Button>
+  const { onCancel } = useFormApi();
+  const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || (!submitSucceeded && pristine);
+  return (
+    <ActionGroup className="pf-u-mt-0">
+      <Button type="submit" isDisabled={noChanges} variant="primary">
+        Submit
+      </Button>
+      <Button variant="link" onClick={() => onCancel()}>
+        Cancel
+      </Button>
     </ActionGroup>
-    );
+  );
 };
 
 FormButtons.propTypes = {
-    dirtyFieldsSinceLastSubmit: PropTypes.arrayOf(PropTypes.shape({
-        [PropTypes.string]: PropTypes.oneOfType([ PropTypes.string, PropTypes.number, PropTypes.bool ])
-    })),
-    submitSucceeded: PropTypes.bool,
-    pristine: PropTypes.bool,
-    onCancel: PropTypes.func
+  dirtyFieldsSinceLastSubmit: PropTypes.arrayOf(
+    PropTypes.shape({
+      [PropTypes.string]: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+    })
+  ),
+  submitSucceeded: PropTypes.bool,
+  pristine: PropTypes.bool,
+  onCancel: PropTypes.func,
 };
 
 const FormButtonWithSpies = (formProps) => (
-    <FormSpy subscription={ {
-        pristine: true,
-        submitSucceeded: true,
-        dirtyFieldsSinceLastSubmit: true
-    } }>
-        { (props) => <FormButtons { ...props } { ...formProps }/> }
-    </FormSpy>
+  <FormSpy
+    subscription={{
+      pristine: true,
+      submitSucceeded: true,
+      dirtyFieldsSinceLastSubmit: true,
+    }}
+  >
+    {(props) => <FormButtons {...props} {...formProps} />}
+  </FormSpy>
 );
 
 export default FormButtonWithSpies;

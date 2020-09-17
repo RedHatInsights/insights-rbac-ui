@@ -10,10 +10,20 @@ export function fetchRoles({ limit, offset, name, nameMatch, scope, orderBy, add
   return roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options);
 }
 
-export async function fetchRolesWithPolicies({ limit, offset, name, nameMatch, scope = 'account', orderBy, addFields = [ 'groups_in_count' ], username, options }) {
+export async function fetchRolesWithPolicies({
+  limit,
+  offset,
+  name,
+  nameMatch,
+  scope = 'account',
+  orderBy,
+  addFields = ['groups_in_count'],
+  username,
+  options,
+}) {
   return {
-    ...await roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options),
-    ...await insights.chrome.auth.getUser()
+    ...(await roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options)),
+    ...(await insights.chrome.auth.getUser()),
   };
 }
 

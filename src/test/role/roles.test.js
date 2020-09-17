@@ -14,41 +14,47 @@ import { RBAC_API_BASE } from '../../utilities/constants';
 import { getUserMock } from '../../../config/setupTests';
 
 describe('<Roles />', () => {
-  const middlewares = [ promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
-    initialState = { roleReducer: {
-      ...rolesInitialState,
-      roles: {
-        identity: {
-          user: {}
+    initialState = {
+      roleReducer: {
+        ...rolesInitialState,
+        roles: {
+          identity: {
+            user: {},
+          },
+          data: [
+            {
+              name: 'Test name',
+              uuid: 'test',
+              description: 'test',
+              system: 'test',
+              accessCount: 'test',
+              groups_in_count: 5,
+              modified: new Date(0),
+            },
+          ],
         },
-        data: [{
-          name: 'Test name',
-          uuid: 'test',
-          description: 'test',
-          system: 'test',
-          accessCount: 'test',
-          groups_in_count: 5,
-          modified: new Date(0)
-        }]
+        isLoading: false,
       },
-      isLoading: false
-    }};
+    };
     mock.onGet(`${RBAC_API_BASE}/roles/`).replyOnce(200);
   });
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/roles/?name=&scope=account&add_fields=groups_in_count`).reply(200, {});
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/roles' ] }>
-        <Route path="/roles" component={ Roles } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/roles']}>
+          <Route path="/roles" component={Roles} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
@@ -57,14 +63,16 @@ describe('<Roles />', () => {
       ...initialState,
       roleReducer: {
         ...initialState.roleReducer,
-        isLoading: true
-      }
+        isLoading: true,
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/roles' ] }>
-        <Route path="/roles" component={ Roles } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/roles']}>
+          <Route path="/roles" component={Roles} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('ListLoader'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
@@ -76,29 +84,31 @@ describe('<Roles />', () => {
         roles: {
           ...initialState.roleReducer.roles,
           identity: {
-            user: { is_org_admin: true }
-          }
-        }
-      }
+            user: { is_org_admin: true },
+          },
+        },
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/roles' ] }>
-        <Route path="/roles" component={ Roles } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/roles']}>
+          <Route path="/roles" component={Roles} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
-  it('should fetch roles on sort click', async() => {
+  it('should fetch roles on sort click', async () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/roles/?name=&scope=account&add_fields=groups_in_count`).reply(200, {});
     mock.onGet(`/api/rbac/v1/roles/?limit=20&scope=account&order_by=name&add_fields=groups_in_count`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider store={ store }>
-          <MemoryRouter initialEntries={ [ '/roles' ] }>
-            <Route path="/roles" component={ Roles } />
+        <Provider store={store}>
+          <MemoryRouter initialEntries={['/roles']}>
+            <Route path="/roles" component={Roles} />
           </MemoryRouter>
         </Provider>
       );
@@ -109,9 +119,12 @@ describe('<Roles />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_ROLES_PENDING' },
-      { type: 'FETCH_ROLES_FULFILLED', payload: {
-        ...getUserMock
-      }}
+      {
+        type: 'FETCH_ROLES_FULFILLED',
+        payload: {
+          ...getUserMock,
+        },
+      },
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });

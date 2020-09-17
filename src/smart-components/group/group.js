@@ -17,22 +17,24 @@ import { routes } from '../../../package.json';
 import EditGroup from './edit-group-modal';
 
 const Group = ({
-  match: { params: { uuid }},
+  match: {
+    params: { uuid },
+  },
   group,
   fetchGroup,
-  isFetching
+  isFetching,
 }) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
-    { title: isFetching ? undefined : group.name, isActive: true }
+    { title: isFetching ? undefined : group.name, isActive: true },
   ];
 
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
-    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` }
+    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
   ];
-  const [ showEdit, setShowEdit ] = useState(false);
-  const [ showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo ] = useState(false);
+  const [showEdit, setShowEdit] = useState(false);
+  const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
   const fetchData = (apiProps) => {
     fetchGroup(apiProps);
@@ -43,93 +45,102 @@ const Group = ({
   }, []);
 
   const defaultGroupChangedIcon = (name) => (
-    <div
-      style={ { display: 'inline-flex' } }>
-      { name }
+    <div style={{ display: 'inline-flex' }}>
+      {name}
       <div className="pf-u-ml-sm">
         <Popover
           aria-label="default-group-icon"
-          bodyContent={ <div>Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
-                The group name has changed to <b>Custom default user access</b>.</div> }
+          bodyContent={
+            <div>
+              Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
+              group name has changed to <b>Custom default user access</b>.
+            </div>
+          }
         >
-          <InfoCircleIcon className="ins-c-rbac__default-group-info-icon"/>
+          <InfoCircleIcon className="ins-c-rbac__default-group-info-icon" />
         </Popover>
-
       </div>
     </div>
   );
 
   return (
     <Fragment>
-      <TopToolbar breadcrumbs={ breadcrumbsList() }>
+      <TopToolbar breadcrumbs={breadcrumbsList()}>
         <Split hasGutter>
           <SplitItem isFilled>
             <TopToolbarTitle
-              title={ !isFetching && group
-                ? <Fragment>{ group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name }</Fragment>
-                : undefined }
-              description={ !isFetching && group ? group.description : undefined } />
+              title={
+                !isFetching && group ? (
+                  <Fragment>{group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name}</Fragment>
+                ) : undefined
+              }
+              description={!isFetching && group ? group.description : undefined}
+            />
           </SplitItem>
           <SplitItem>
-            { group.platform_default
-              ? null
-              : <Button onClick={ () => setShowEdit(true) } variant='secondary'>Edit group</Button>
-            }
+            {group.platform_default ? null : (
+              <Button onClick={() => setShowEdit(true)} variant="secondary">
+                Edit group
+              </Button>
+            )}
           </SplitItem>
           <EditGroup
-            isOpen={ showEdit }
-            group={ group }
-            closeUrl={ `group/detail/${uuid}` }
-            onClose={ () => setShowEdit(false) }
-            postMethod={ () => {
+            isOpen={showEdit}
+            group={group}
+            closeUrl={`group/detail/${uuid}`}
+            onClose={() => setShowEdit(false)}
+            postMethod={() => {
               fetchData(uuid);
               setShowEdit(false);
-            } }
+            }}
           />
-
         </Split>
-        { showDefaultGroupChangedInfo
-          ? <Alert
+        {showDefaultGroupChangedInfo ? (
+          <Alert
             variant="info"
             isInline
             title="Default user access group has changed"
-            action={ <AlertActionCloseButton onClose={ () => setShowDefaultGroupChangedInfo(false) } /> }
+            action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
             className="pf-u-mb-lg pf-u-mt-sm"
           >
-            Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles.
-                The group name has changed to <b>Custom default user access</b>.
+            Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
+            group name has changed to <b>Custom default user access</b>.
           </Alert>
-          : null
-        }
+        ) : null}
       </TopToolbar>
-      <AppTabs isHeader tabItems={ tabItems } />
+      <AppTabs isHeader tabItems={tabItems} />
       <Switch>
         <Route
-          path={ routes['group-detail-roles'] }
-          render={ props => <GroupRoles { ...props } onDefaultGroupChanged={ setShowDefaultGroupChangedInfo }/> } />
-        <Route path={ routes['group-detail-members'] } component={ GroupPrincipals } />
-        <Route render={ () => <Redirect to={ `/groups/detail/${uuid}/roles` } /> } />
+          path={routes['group-detail-roles']}
+          render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
+        />
+        <Route path={routes['group-detail-members']} component={GroupPrincipals} />
+        <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
       </Switch>
-      { !group && <ListLoader/> }
+      {!group && <ListLoader />}
     </Fragment>
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading }}) => ({
+const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading } }) => ({
   group: selectedGroup,
-  isFetching: isRecordLoading || isRecordRolesLoading
+  isFetching: isRecordLoading || isRecordRolesLoading,
 });
 
-const mapDispatchToProps = dispatch => bindActionCreators({
-  fetchGroup
-}, dispatch);
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      fetchGroup,
+    },
+    dispatch
+  );
 
 Group.propTypes = {
   location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired
+    pathname: PropTypes.string.isRequired,
   }),
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
   }),
   match: PropTypes.object,
   group: PropTypes.shape({
@@ -137,15 +148,14 @@ Group.propTypes = {
     name: PropTypes.string,
     description: PropTypes.string,
     platform_default: PropTypes.string,
-    system: PropTypes.string
+    system: PropTypes.string,
   }),
   isFetching: PropTypes.bool,
-  fetchGroup: PropTypes.func
+  fetchGroup: PropTypes.func,
 };
 
 Group.defaultProps = {
-  isFetching: false
+  isFetching: false,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(Group);
-

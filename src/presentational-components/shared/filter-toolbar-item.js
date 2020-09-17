@@ -6,14 +6,8 @@ import { ToolbarGroup, ToolbarItem, TextInput } from '@patternfly/react-core';
 const FilterToolbarItem = ({ isCompact, searchValue, onFilterChange, placeholder }) => (
   <ToolbarGroup>
     <ToolbarItem>
-      <div className={ `toolbar-filter-input-group${isCompact ? '-c' : ''}` }>
-        <TextInput
-          placeholder={ placeholder }
-          value={ searchValue }
-          type="text"
-          onChange={ onFilterChange }
-          aria-label={ placeholder }
-        />
+      <div className={`toolbar-filter-input-group${isCompact ? '-c' : ''}`}>
+        <TextInput placeholder={placeholder} value={searchValue} type="text" onChange={onFilterChange} aria-label={placeholder} />
         <SearchIcon />
       </div>
     </ToolbarItem>
@@ -24,12 +18,12 @@ FilterToolbarItem.propTypes = {
   onFilterChange: propTypes.func.isRequired,
   placeholder: propTypes.string,
   searchValue: propTypes.string,
-  isCompact: propTypes.bool
+  isCompact: propTypes.bool,
 };
 
 FilterToolbarItem.defaultProps = {
   searchValue: '',
-  isCompact: false
+  isCompact: false,
 };
 
 export default FilterToolbarItem;

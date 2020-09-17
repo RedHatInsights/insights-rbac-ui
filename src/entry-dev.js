@@ -7,8 +7,8 @@ import App from './App';
 import { getBaseName } from '@redhat-cloud-services/frontend-components-utilities/files/helpers';
 
 ReactDOM.render(
-  <Provider store={ store }>
-    <Router basename={ getBaseName(location.pathname) }>
+  <Provider store={store}>
+    <Router basename={getBaseName(location.pathname)}>
       <App />
     </Router>
   </Provider>,

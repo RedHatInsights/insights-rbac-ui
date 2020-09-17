@@ -14,27 +14,27 @@ const InsightsRoute = ({ rootClass, ...rest }) => {
   root.removeAttribute('class');
   root.classList.add(`page__${rootClass}`, 'pf-l-page__main', 'pf-c-page__main');
   root.setAttribute('role', 'main');
-  return (<Route { ...rest } />);
+  return <Route {...rest} />;
 };
 
 InsightsRoute.propTypes = {
-  rootClass: PropTypes.string
+  rootClass: PropTypes.string,
 };
 
 export const Routes = () => {
   return (
-    <Suspense fallback={ <AppPlaceholder /> }>
+    <Suspense fallback={<AppPlaceholder />}>
       <Switch>
-        <InsightsRoute path={ routes.groups } component={ Groups } rootClass="groups" />
-        <InsightsRoute path={ routes.roles } component={ Roles } rootClass="roles" />
-        <InsightsRoute path={ routes.users } component={ Users } rootClass="roles" />
-        <InsightsRoute path={ routes.myUserAccess } component={ MyUserAccess } rootClass="myUserAccess"/>
-        <Route render={ () => <Redirect to={ routes.myUserAccess } /> } />
+        <InsightsRoute path={routes.groups} component={Groups} rootClass="groups" />
+        <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
+        <InsightsRoute path={routes.users} component={Users} rootClass="roles" />
+        <InsightsRoute path={routes.myUserAccess} component={MyUserAccess} rootClass="myUserAccess" />
+        <Route render={() => <Redirect to={routes.myUserAccess} />} />
       </Switch>
     </Suspense>
   );
 };
 
 Routes.propTypes = {
-  childProps: PropTypes.object
+  childProps: PropTypes.object,
 };
