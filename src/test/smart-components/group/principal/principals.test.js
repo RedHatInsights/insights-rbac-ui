@@ -10,20 +10,27 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { RBAC_API_BASE } from '../../../../utilities/constants';
 
 describe('<GroupPrincipals />', () => {
-
-  const middlewares = [ promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
-    initialState = { groupReducer: { groups: {}, selectedGroup: { members: {
-      isLoading: false,
-      meta: { count: 2, offset: 0, limit: 10 },
-      data: [
-        { username: 'test', email: 'test', first_name: 'test', last_name: 'test', is_active: true },
-        { username: 'test2', email: 'test2', first_name: 'test2', last_name: 'test2', is_active: false }]
-    }}}};
+    initialState = {
+      groupReducer: {
+        groups: {},
+        selectedGroup: {
+          members: {
+            isLoading: false,
+            meta: { count: 2, offset: 0, limit: 10 },
+            data: [
+              { username: 'test', email: 'test', first_name: 'test', last_name: 'test', is_active: true },
+              { username: 'test2', email: 'test2', first_name: 'test2', last_name: 'test2', is_active: false },
+            ],
+          },
+        },
+      },
+    };
     mock.onGet(`${RBAC_API_BASE}/groups/test-group/principals/`).replyOnce(200);
   });
 
@@ -34,16 +41,18 @@ describe('<GroupPrincipals />', () => {
         ...initialState.groupReducer,
         selectedGroup: {
           members: {
-            isLoading: true
-          }
-        }
-      }
+            isLoading: true,
+          },
+        },
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members' ] }>
-        <Route path="/groups/detail/:uuid/members" component={ GroupPrincipals } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
+          <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('ListLoader'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
@@ -56,16 +65,18 @@ describe('<GroupPrincipals />', () => {
           members: {
             isLoading: false,
             data: [],
-            meta: {}
-          }
-        }
-      }
+            meta: {},
+          },
+        },
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members' ] }>
-        <Route path="/groups/detail/:uuid/members" component={ GroupPrincipals } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
+          <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('EmptyWithFilter'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
@@ -76,17 +87,19 @@ describe('<GroupPrincipals />', () => {
         groups: {
           entitlements: {
             user: {
-              is_org_admin: true
-            }
-          }
-        }
-      }
+              is_org_admin: true,
+            },
+          },
+        },
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members' ] }>
-        <Route path="/groups/detail/:uuid/members" component={ GroupPrincipals } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
+          <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
@@ -97,25 +110,29 @@ describe('<GroupPrincipals />', () => {
         selectedGroup: {
           ...initialState.groupReducer.selectedGroup,
           platform_default: true,
-          loaded: true
-        }
-      }
+          loaded: true,
+        },
+      },
     });
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members' ] }>
-        <Route path="/groups/detail/:uuid/members" component={ GroupPrincipals } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
+          <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('#tab-principals'))).toMatchSnapshot();
   });
 
   it('should render correctly with data', () => {
     const store = mockStore(initialState);
-    const wrapper = mount(<Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members' ] }>
-        <Route path="/groups/detail/:uuid/members" component={ GroupPrincipals } />
-      </MemoryRouter>
-    </Provider>);
+    const wrapper = mount(
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
+          <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+        </MemoryRouter>
+      </Provider>
+    );
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 });

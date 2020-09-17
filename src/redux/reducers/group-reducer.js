@@ -4,7 +4,7 @@ import {
   RESET_SELECTED_GROUP,
   FETCH_ROLES_FOR_GROUP,
   FETCH_ADD_ROLES_FOR_GROUP,
-  FETCH_MEMBERS_FOR_GROUP
+  FETCH_MEMBERS_FOR_GROUP,
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -13,16 +13,16 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 export const groupsInitialState = {
   groups: {
     data: [],
-    meta: defaultSettings
+    meta: defaultSettings,
   },
   selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, pagination: defaultSettings },
   isLoading: false,
-  isRecordLoading: false
+  isRecordLoading: false,
 };
 
-const setLoadingState = state => ({ ...state, isLoading: true });
-const setRecordLoadingState = state => ({ ...state, isRecordLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false }});
-const setRecordRolesLoadingState = state => ({ ...state, isRecordRolesLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false }});
+const setLoadingState = (state) => ({ ...state, isLoading: true });
+const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
+const setRecordRolesLoadingState = (state) => ({ ...state, isRecordRolesLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
 const setGroup = (state, { payload }) => ({
   ...state,
@@ -31,49 +31,49 @@ const setGroup = (state, { payload }) => ({
     ...state.groups,
     data: state.groups.data.map((group) => ({
       ...group,
-      ...payload.uuid === group.uuid && { ...payload, loaded: true }
-    }))
+      ...(payload.uuid === group.uuid && { ...payload, loaded: true }),
+    })),
   },
   selectedGroup: {
     ...state.selectedGroup,
     members: { ...state.selectedGroup.members, data: payload.principals },
-    ...omit(payload, [ 'principals', 'roles' ]),
+    ...omit(payload, ['principals', 'roles']),
     loaded: true,
-    pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 }
-  }
+    pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 },
+  },
 });
-const resetSelectedGroup = state => ({ ...state, selectedGroup: undefined });
+const resetSelectedGroup = (state) => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
   isRecordRolesLoading: false,
-  selectedGroup: { ...state.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true }
+  selectedGroup: { ...state.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true },
 });
 
 const setMembersForGroupLoading = (state = {}) => ({
   ...state,
   selectedGroup: {
-    ...state.selectedGroup || {},
-    members: { isLoading: true }
-  }
+    ...(state.selectedGroup || {}),
+    members: { isLoading: true },
+  },
 });
 const setMembersForGroup = (state, { payload }) => ({
   ...state,
   selectedGroup: {
-    ...state.selectedGroup || {},
+    ...(state.selectedGroup || {}),
     members: {
       isLoading: false,
-      ...payload
-    }
-  }
+      ...payload,
+    },
+  },
 });
 
-const setAddRolesLoading = state => ({
+const setAddRolesLoading = (state) => ({
   ...state,
-  selectedGroup: { ...state.selectedGroup, addRoles: { loaded: false }}
+  selectedGroup: { ...state.selectedGroup, addRoles: { loaded: false } },
 });
 const setAddRolesForGroup = (state, { payload }) => ({
   ...state,
-  selectedGroup: { ...state.selectedGroup, addRoles: { roles: payload.data, pagination: payload.meta, loaded: true }}
+  selectedGroup: { ...state.selectedGroup, addRoles: { roles: payload.data, pagination: payload.meta, loaded: true } },
 });
 
 export default {
@@ -87,5 +87,5 @@ export default {
   [`${FETCH_MEMBERS_FOR_GROUP}_FULFILLED`]: setMembersForGroup,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_FULFILLED`]: setAddRolesForGroup,
-  [RESET_SELECTED_GROUP]: resetSelectedGroup
+  [RESET_SELECTED_GROUP]: resetSelectedGroup,
 };
