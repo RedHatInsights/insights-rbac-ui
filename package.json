@@ -10,7 +10,7 @@
     "@data-driven-forms/react-form-renderer": "2.7.0",
     "@patternfly/react-core": "^4.40.4",
     "@patternfly/react-icons": "^4.7.2",
-    "@patternfly/react-table": "4.15.5",
+    "@patternfly/react-table": "4.16.7",
     "@patternfly/react-tokens": "^4.9.6",
     "@redhat-cloud-services/frontend-components": "2.4.4",
     "@redhat-cloud-services/frontend-components-notifications": "2.1.2",
