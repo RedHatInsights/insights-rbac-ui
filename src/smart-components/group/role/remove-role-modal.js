@@ -5,32 +5,33 @@ import DefaultGroupChange from './default-group-change-modal';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, isDefault, isChanged }) => {
-  const [ showConfirmModal, setShowConfirmModal ] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(true);
 
-  return (isDefault && !isChanged && showConfirmModal
-    ? <DefaultGroupChange
-      isOpen={ showConfirmModal && isOpen }
-      onClose={ () => {
+  return isDefault && !isChanged && showConfirmModal ? (
+    <DefaultGroupChange
+      isOpen={showConfirmModal && isOpen}
+      onClose={() => {
         onClose();
-      } }
-      onSubmit={ () => {
+      }}
+      onSubmit={() => {
         setShowConfirmModal(false);
-      } }
+      }}
     />
-    : <RemoveModal
-      text={ text }
-      title={ title }
-      isOpen={ isOpen }
-      confirmButtonLabel={ confirmButtonLabel }
-      onClose={ () => {
+  ) : (
+    <RemoveModal
+      text={text}
+      title={title}
+      isOpen={isOpen}
+      confirmButtonLabel={confirmButtonLabel}
+      onClose={() => {
         onClose();
         setShowConfirmModal(true);
-      } }
-      onSubmit={ () => {
+      }}
+      onSubmit={() => {
         onSubmit();
-
-      } }
-    />);
+      }}
+    />
+  );
 };
 
 RemoveRoles.propTypes = {
@@ -41,12 +42,12 @@ RemoveRoles.propTypes = {
   onClose: PropTypes.func,
   isOpen: PropTypes.bool,
   isDefault: PropTypes.bool,
-  isChanged: PropTypes.bool
+  isChanged: PropTypes.bool,
 };
 
 RemoveRoles.defaultProps = {
   isDefault: false,
-  isChanged: false
+  isChanged: false,
 };
 
 export default RemoveRoles;

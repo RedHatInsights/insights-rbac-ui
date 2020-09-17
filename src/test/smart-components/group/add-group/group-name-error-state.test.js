@@ -8,13 +8,12 @@ describe('<GroupNameErrorState />', () => {
 
   beforeEach(() => {
     initialProps = {
-      setHideFooter: () => undefined
+      setHideFooter: () => undefined,
     };
   });
 
   it('should render correctly', () => {
-    const wrapper = mount(<GroupNameErrorState { ...initialProps } />);
+    const wrapper = mount(<GroupNameErrorState {...initialProps} />);
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 });
-

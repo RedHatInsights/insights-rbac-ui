@@ -9,32 +9,45 @@ import { fetchGroup } from '../../redux/actions/group-actions';
 
 const Role = () => {
   const { uuid, groupUuid } = useParams();
-  const { role, group, isRecordLoading } = useSelector(state => ({
-    role: state.roleReducer.selectedRole,
-    isRecordLoading: state.roleReducer.isRecordLoading,
-    ...groupUuid && { group: state.groupReducer.selectedGroup }
-  }), shallowEqual);
+  const { role, group, isRecordLoading } = useSelector(
+    (state) => ({
+      role: state.roleReducer.selectedRole,
+      isRecordLoading: state.roleReducer.isRecordLoading,
+      ...(groupUuid && { group: state.groupReducer.selectedGroup }),
+    }),
+    shallowEqual
+  );
   const dispatch = useDispatch();
   useEffect(() => {
     dispatch(fetchRole(uuid));
     groupUuid && dispatch(fetchGroup(groupUuid));
-  }, [ uuid, groupUuid ]);
+  }, [uuid, groupUuid]);
 
-  return <Fragment>
-    <TopToolbar breadcrumbs={ [
-      ...[ groupUuid ? { title: 'Groups', to: '/groups' } : { title: 'Roles', to: '/roles' } ],
-      ...groupUuid ? [{
-        title: group && group.name,
-        to: `/groups/detail/${groupUuid}/roles`,
-        isLoading: group && group.loaded
-      }] : [],
-      { title: isRecordLoading ? undefined : role && (role.display_name || role.name), isActive: true }
-    ] }>
-      <TopToolbarTitle title={ !isRecordLoading && role ? role.display_name || role.name : undefined }
-        description={ !isRecordLoading && role ? role.description : undefined }/>
-    </TopToolbar>
-    { (isRecordLoading || !role) ? <ListLoader/> : <Permissions /> }
-  </Fragment>;
+  return (
+    <Fragment>
+      <TopToolbar
+        breadcrumbs={[
+          ...[groupUuid ? { title: 'Groups', to: '/groups' } : { title: 'Roles', to: '/roles' }],
+          ...(groupUuid
+            ? [
+                {
+                  title: group && group.name,
+                  to: `/groups/detail/${groupUuid}/roles`,
+                  isLoading: group && group.loaded,
+                },
+              ]
+            : []),
+          { title: isRecordLoading ? undefined : role && (role.display_name || role.name), isActive: true },
+        ]}
+      >
+        <TopToolbarTitle
+          title={!isRecordLoading && role ? role.display_name || role.name : undefined}
+          description={!isRecordLoading && role ? role.description : undefined}
+        />
+      </TopToolbar>
+      {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
+    </Fragment>
+  );
 };
 
 export default Role;

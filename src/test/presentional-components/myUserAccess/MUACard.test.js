@@ -6,19 +6,10 @@ import entitlementsMock from '../../../../config/setupTests';
 
 describe('<MUACard />', () => {
   it('should render correctly', () => {
-    expect(toJson(mount(
-        <MUACard
-            header='Test'
-            entitlements={ entitlementsMock }/>
-    ))).toMatchSnapshot();
+    expect(toJson(mount(<MUACard header="Test" entitlements={entitlementsMock} />))).toMatchSnapshot();
   });
 
   it('should render correctly disabled', () => {
-    expect(toJson(mount(
-        <MUACard
-            header='Test'
-            isDisabled
-            entitlements={ entitlementsMock }/>
-    ))).toMatchSnapshot();
+    expect(toJson(mount(<MUACard header="Test" isDisabled entitlements={entitlementsMock} />))).toMatchSnapshot();
   });
 });

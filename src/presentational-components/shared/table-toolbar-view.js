@@ -44,146 +44,144 @@ export const TableToolbarView = ({
   sortBy,
   isExpandable,
   onExpand,
-  hideFilterChips
+  hideFilterChips,
 }) => {
-  const [ opened, openRow ] = useState({});
-  const [ sortByState, setSortByState ] = useState({ index: undefined, direction: undefined });
+  const [opened, openRow] = useState({});
+  const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
   useEffect(() => {
     setSortByState({
       ...sortBy,
-      ...sortByState.index !== undefined && sortByState
+      ...(sortByState.index !== undefined && sortByState),
     });
-  }, [ sortBy ]);
+  }, [sortBy]);
 
   const rows = createRows(data, opened, checkedRows);
 
-  const onCollapse = (_event, _index, isOpen, { uuid }) => openRow((opened) => ({
-    ...opened,
-    [uuid]: isOpen
-  }));
+  const onCollapse = (_event, _index, isOpen, { uuid }) =>
+    openRow((opened) => ({
+      ...opened,
+      [uuid]: isOpen,
+    }));
 
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
-        title={ `No matching ${titlePlural} found` }
-        description={ [
-          `This filter criteria matches no ${titlePlural}.`,
-          `Try changing your filter settings.`
-        ] }
-        actions={ [
+        title={`No matching ${titlePlural} found`}
+        description={[`This filter criteria matches no ${titlePlural}.`, `Try changing your filter settings.`]}
+        actions={[
           <EmptyStatePrimary key="clear-filters">
             <Button
               variant="link"
-              onClick={ () => {
+              onClick={() => {
                 setFilterValue({
                   ...pagination,
                   offset: 0,
-                  name: ''
+                  name: '',
                 });
                 fetchData({
                   ...pagination,
                   offset: 0,
-                  name: ''
+                  name: '',
                 });
-              } }
+              }}
             >
               Clear all filters
             </Button>
-          </EmptyStatePrimary>
-        ] }
+          </EmptyStatePrimary>,
+        ]}
       />
     ),
     props: {
-      colSpan: columns.length + Boolean(onCollapse)
-    }
+      colSpan: columns.length + Boolean(onCollapse),
+    },
   });
 
   const renderTable = () => (
     <Fragment>
       <Toolbar
-        isSelectable={ isSelectable }
-        checkedRows={ checkedRows }
-        setCheckedItems={ setCheckedItems }
-        isLoading={ isLoading }
-        data={ data }
-        titleSingular={ titleSingular }
-        filterValue={ filterValue }
-        setFilterValue={ setFilterValue }
-        sortBy={ (
-            sortByState.index !== undefined && sortByState.index - isSelectable >= 0
-            && `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}`
-        ) || undefined }
-        pagination={ pagination }
-        fetchData={ fetchData }
-        toolbarButtons={ toolbarButtons }
-        filterPlaceholder={ filterPlaceholder }
-        filters={ filters }
-        isFilterable={ isFilterable }
-        onShowMore={ onShowMore }
-        showMoreTitle={ showMoreTitle }
-        onFilter={ onFilter }
-        onChange={ onChange }
-        value={ value }
-        hideFilterChips={ hideFilterChips }
-      />
-      { isLoading ? <ListLoader /> : <Table
-        canSelectAll={ false }
-        aria-label={ `${titlePlural} table` }
-        variant={ isCompact ? TableVariant.compact : null }
-        borders={ borders }
-        { ...isCollapsible && { onCollapse } }
-        { ...isSelectable && rows.length > 0 && {
-          onSelect: (_e, isSelected, _idx, { uuid, cells: [ name ] }) =>
-            setCheckedItems(selectedRows([{ uuid, name }], isSelected))
-        } }
-        { ...isExpandable && { onExpand } }
-        rows={ rows.length > 0 ? rows : [{ fullWidth: true, cells: [ renderEmpty() ]}] }
-        cells={ columns }
-        { ...rows.length > 0 && { actionResolver } }
-        areActionsDisabled={ areActionsDisabled }
-        rowWrapper={ rowWrapper }
-        sortBy={ sortByState }
-        onSort={ (e, index, direction) => {
-          setSortByState({ index, direction });
-          fetchData({
-            ...pagination,
-            offset: 0,
-            name: filterValue,
-            orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`
-          });
-        } }
-      >
-        <TableHeader />
-        <TableBody />
-      </Table> }
-      { !pagination.noBottom && <TableToolbar>
-        {
-          !isLoading &&
-          <Pagination
-            { ...paginationBuilder(pagination, fetchData, filterValue) }
-            variant="bottom"
-            dropDirection="up"
-          />
+        isSelectable={isSelectable}
+        checkedRows={checkedRows}
+        setCheckedItems={setCheckedItems}
+        isLoading={isLoading}
+        data={data}
+        titleSingular={titleSingular}
+        filterValue={filterValue}
+        setFilterValue={setFilterValue}
+        sortBy={
+          (sortByState.index !== undefined &&
+            sortByState.index - isSelectable >= 0 &&
+            `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}`) ||
+          undefined
         }
-      </TableToolbar> }
+        pagination={pagination}
+        fetchData={fetchData}
+        toolbarButtons={toolbarButtons}
+        filterPlaceholder={filterPlaceholder}
+        filters={filters}
+        isFilterable={isFilterable}
+        onShowMore={onShowMore}
+        showMoreTitle={showMoreTitle}
+        onFilter={onFilter}
+        onChange={onChange}
+        value={value}
+        hideFilterChips={hideFilterChips}
+      />
+      {isLoading ? (
+        <ListLoader />
+      ) : (
+        <Table
+          canSelectAll={false}
+          aria-label={`${titlePlural} table`}
+          variant={isCompact ? TableVariant.compact : null}
+          borders={borders}
+          {...(isCollapsible && { onCollapse })}
+          {...(isSelectable &&
+            rows.length > 0 && {
+              onSelect: (_e, isSelected, _idx, { uuid, cells: [name] }) => setCheckedItems(selectedRows([{ uuid, name }], isSelected)),
+            })}
+          {...(isExpandable && { onExpand })}
+          rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
+          cells={columns}
+          {...(rows.length > 0 && { actionResolver })}
+          areActionsDisabled={areActionsDisabled}
+          rowWrapper={rowWrapper}
+          sortBy={sortByState}
+          onSort={(e, index, direction) => {
+            setSortByState({ index, direction });
+            fetchData({
+              ...pagination,
+              offset: 0,
+              name: filterValue,
+              orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
+            });
+          }}
+        >
+          <TableHeader />
+          <TableBody />
+        </Table>
+      )}
+      {!pagination.noBottom && (
+        <TableToolbar>
+          {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
+        </TableToolbar>
+      )}
     </Fragment>
   );
 
   return (
     <Fragment>
-      { routes() }
-      { !isLoading && rows.length === 0 && (filterValue.length === 0 && filters.every(({ value }) => !value)) ?
+      {routes()}
+      {!isLoading && rows.length === 0 && filterValue.length === 0 && filters.every(({ value }) => !value) ? (
         <EmptyWithAction
-          title={ `Configure ${titlePlural}` }
-          icon={ PlusCircleIcon }
-          description={ [
-            `To configure user access to applications`,
-            `create at least one ${titleSingular}`
-          ] }
-          actions={ toolbarButtons()[0] }
-          { ...emptyProps }
-        /> :
-        renderTable() }
+          title={`Configure ${titlePlural}`}
+          icon={PlusCircleIcon}
+          description={[`To configure user access to applications`, `create at least one ${titleSingular}`]}
+          actions={toolbarButtons()[0]}
+          {...emptyProps}
+        />
+      ) : (
+        renderTable()
+      )}
     </Fragment>
   );
 };
@@ -200,11 +198,11 @@ TableToolbarView.propTypes = {
   actionResolver: propTypes.func,
   areActionsDisabled: propTypes.func,
   pagination: propTypes.shape({
-    noBottom: propTypes.bool
+    noBottom: propTypes.bool,
   }),
   isExpandable: propTypes.bool,
   onExpand: propTypes.func,
-  hideFilterChips: propTypes.bool
+  hideFilterChips: propTypes.bool,
 };
 
 TableToolbarView.defaultProps = {
@@ -212,5 +210,5 @@ TableToolbarView.defaultProps = {
   isCompact: false,
   borders: true,
   routes: () => null,
-  hideFilterChips: false
+  hideFilterChips: false,
 };

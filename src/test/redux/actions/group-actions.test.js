@@ -1,5 +1,5 @@
 import thunk from 'redux-thunk';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import { fetchGroups } from '../../../redux/actions/group-actions';
@@ -9,8 +9,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { getUserMock } from '../../../../config/setupTests';
 
 describe('group actions', () => {
-
-  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   let mockStore;
 
   beforeEach(() => {
@@ -19,32 +18,39 @@ describe('group actions', () => {
 
   it('should dispatch correct actions after fetching groups', () => {
     const store = mockStore({});
-    const expectedActions = [{
-      type: `${FETCH_GROUPS}_PENDING`
-    }, {
-      payload: {
-        data: [{
-          name: 'groupName',
-          uuid: '1234',
-          members: undefined
-        }],
-        ...getUserMock
+    const expectedActions = [
+      {
+        type: `${FETCH_GROUPS}_PENDING`,
       },
-      type: `${FETCH_GROUPS}_FULFILLED`
-    }];
+      {
+        payload: {
+          data: [
+            {
+              name: 'groupName',
+              uuid: '1234',
+              members: undefined,
+            },
+          ],
+          ...getUserMock,
+        },
+        type: `${FETCH_GROUPS}_FULFILLED`,
+      },
+    ];
 
     mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, {
-      data: [{
-        name: 'groupName',
-        uuid: '1234'
-      }]
+      data: [
+        {
+          name: 'groupName',
+          uuid: '1234',
+        },
+      ],
     });
 
     mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {
       data: {
         name: 'groupName',
-        uuid: '1234'
-      }
+        uuid: '1234',
+      },
     });
 
     return store.dispatch(fetchGroups()).then(() => {
@@ -52,4 +58,3 @@ describe('group actions', () => {
     });
   });
 });
-

@@ -7,48 +7,66 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
-import { sortable, nowrap } from '@patternfly/react-table';
+import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import classNames from 'classnames';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
-  { title: 'Org. Administrator', key: 'org-admin', transforms: [ nowrap ]},
-  { title: 'Username', key: 'username', transforms: [ sortable ]},
+  { title: 'Org. Administrator', key: 'org-admin' },
+  { title: 'Username', key: 'username', transforms: [sortable] },
   { title: 'Email' },
-  { title: 'First name', transforms: [ nowrap ]},
-  { title: 'Last name', transforms: [ nowrap ]},
-  { title: 'Status', transforms: [ nowrap ]}
+  { title: 'First name' },
+  { title: 'Last name' },
+  { title: 'Status', transforms: [cellWidth(10), () => ({ className: 'ins-m-width-5' })] },
 ];
 
 const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
-  return data ? data.reduce((acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => ([
-    ...acc, {
-      uuid: username,
-      cells: [
-        isOrgAdmin ? <Fragment><span><CheckIcon className="pf-u-mr-sm" />Yes</span></Fragment> : <Fragment><span><CloseIcon className="pf-u-mr-sm" />No</span></Fragment>,
-        { title: userLinks ? <Link to={ `/users/detail/${username}` }>{username}</Link> : username },
-       email,
-       firstName,
-       lastName, {
-        title: (
-          <Label isCompact color={ isActive && 'green' } className={ classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive }) }>
-            {isActive ? 'Active' : 'Inactive'}
-          </Label>
-        ),
-        props: {
-          'data-is-active': isActive
-        }
-       }],
-      selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === username))
-    }
-  ]), []) : [];
+  return data
+    ? data.reduce(
+        (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+          ...acc,
+          {
+            uuid: username,
+            cells: [
+              isOrgAdmin ? (
+                <Fragment>
+                  <CheckIcon className="pf-u-mr-sm" />
+                  Yes
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <CloseIcon className="pf-u-mr-sm" />
+                  No
+                </Fragment>
+              ),
+              { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
+              email,
+              firstName,
+              lastName,
+              {
+                title: (
+                  <Label isCompact color={isActive && 'green'} className={classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive })}>
+                    {isActive ? 'Active' : 'Inactive'}
+                  </Label>
+                ),
+                props: {
+                  'data-is-active': isActive,
+                },
+              },
+            ],
+            selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
+          },
+        ],
+        []
+      )
+    : [];
 };
 
 const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
-  const [ filterValue, setFilterValue ] = useState('');
-  const [ emailValue, setEmailValue ] = useState('');
+  const [filterValue, setFilterValue] = useState('');
+  const [emailValue, setEmailValue] = useState('');
 
   useEffect(() => {
     fetchUsers();
@@ -60,54 +78,56 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
     });
   };
 
-  return <TableToolbarView
-    columns={ columns }
-    isSelectable={ true }
-    isCompact={ true }
-    borders={ false }
-    createRows={ createRows(userLinks) }
-    data={ users }
-    filterValue={ filterValue }
-    fetchData={ (config) => {
-      fetchUsers(mappedProps(config));
-    } }
-    setFilterValue={ ({ username, email }) => {
-      typeof username !== 'undefined' && setFilterValue(username);
-      typeof email !== 'undefined' && setEmailValue(email);
-    } }
-    isLoading={ isLoading }
-    pagination={ pagination }
-    checkedRows={ selectedUsers }
-    setCheckedItems={ setCheckedItems }
-    sortBy={ {
-      index: 1,
-      direction: 'asc'
-    } }
-    rowWrapper={ UsersRow }
-    titlePlural="users"
-    titleSingular="user"
-    filters={ [
-      { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
-      { key: 'email', value: emailValue, placeholder: 'Filter by exact email' }
-    ] }
-    { ...props }
-  />;
+  return (
+    <TableToolbarView
+      columns={columns}
+      isSelectable={true}
+      isCompact={true}
+      borders={false}
+      createRows={createRows(userLinks)}
+      data={users}
+      filterValue={filterValue}
+      fetchData={(config) => {
+        fetchUsers(mappedProps(config));
+      }}
+      setFilterValue={({ username, email }) => {
+        typeof username !== 'undefined' && setFilterValue(username);
+        typeof email !== 'undefined' && setEmailValue(email);
+      }}
+      isLoading={isLoading}
+      pagination={pagination}
+      checkedRows={selectedUsers}
+      setCheckedItems={setCheckedItems}
+      sortBy={{
+        index: 1,
+        direction: 'asc',
+      }}
+      rowWrapper={UsersRow}
+      titlePlural="users"
+      titleSingular="user"
+      filters={[
+        { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
+        { key: 'email', value: emailValue, placeholder: 'Filter by exact email' },
+      ]}
+      {...props}
+    />
+  );
 };
 
-const mapStateToProps = ({ userReducer: { users, isUserDataLoading }}) => {
+const mapStateToProps = ({ userReducer: { users, isUserDataLoading } }) => {
   return {
-    users: users.data && users.data.map(data => ({ ...data, uuid: data.username })),
+    users: users.data && users.data.map((data) => ({ ...data, uuid: data.username })),
     pagination: users.meta,
-    isLoading: isUserDataLoading
+    isLoading: isUserDataLoading,
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     fetchUsers: (apiProps = defaultSettings) => {
       dispatch(fetchUsers(mappedProps(apiProps)));
     },
-    addNotification: (...props) => dispatch(addNotification(...props))
+    addNotification: (...props) => dispatch(addNotification(...props)),
   };
 };
 
@@ -118,14 +138,14 @@ const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
     ...propsFromDispatch,
     fetchUsers: (apiProps) => {
       return propsFromDispatch.fetchUsers(apiProps ? apiProps : defaultCompactSettings);
-    }
+    },
   };
 };
 
 UsersList.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
   }),
   users: PropTypes.array,
   isLoading: PropTypes.bool,
@@ -136,17 +156,17 @@ UsersList.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number,
-    count: PropTypes.number
+    count: PropTypes.number,
   }),
   userLinks: PropTypes.bool,
-  props: PropTypes.object
+  props: PropTypes.object,
 };
 
 UsersList.defaultProps = {
   users: [],
   selectedUsers: [],
   setSelectedUsers: () => undefined,
-  userLinks: false
+  userLinks: false,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);
