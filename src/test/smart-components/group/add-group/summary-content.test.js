@@ -14,18 +14,17 @@ describe('<SummaryContent />', () => {
           description: 'This is a test',
           policy: {
             name: 'TestPolicyName',
-            description: 'Test Policy Description'
-          }
+            description: 'Test Policy Description',
+          },
         },
         selectedUsers: [],
-        selectedRoles: []
-      }
+        selectedRoles: [],
+      },
     };
   });
 
   it('should render correctly', () => {
-    const wrapper = mount(<SummaryContent{ ...initialProps } />);
+    const wrapper = mount(<SummaryContent {...initialProps} />);
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 });
-

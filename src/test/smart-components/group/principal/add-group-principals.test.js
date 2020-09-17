@@ -2,7 +2,7 @@ import React from 'react';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { shallow, mount } from 'enzyme';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import { shallowToJson } from 'enzyme-to-json';
 
 import { MemoryRouter } from 'react-router-dom';
@@ -14,16 +14,20 @@ import AddGroupMembers from '../../../../smart-components/group/principal/add-gr
 describe('<AddGroupMembers />', () => {
   let initialState;
   let responseBody;
-  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   let mockStore;
 
   beforeEach(() => {
     initialState = {
       groupReducer: {
-        groups: { data: [{
-          uuid: '123',
-          name: 'SampleGroup'
-        }]}
+        groups: {
+          data: [
+            {
+              uuid: '123',
+              name: 'SampleGroup',
+            },
+          ],
+        },
       },
       userReducer: {
         selectedUser: {},
@@ -31,10 +35,10 @@ describe('<AddGroupMembers />', () => {
         users: {
           data: [],
           meta: {
-            count: 0
-          }
-        }
-      }
+            count: 0,
+          },
+        },
+      },
     };
     responseBody = {
       data: [
@@ -43,14 +47,14 @@ describe('<AddGroupMembers />', () => {
           email: 'testmail@redhat.com',
           first_name: 'test',
           last_name: 'test',
-          is_active: true
-        }
+          is_active: true,
+        },
       ],
       meta: {
         count: 1,
         limit: 10,
-        offset: undefined
-      }
+        offset: undefined,
+      },
     };
     mockStore = configureStore(middlewares);
   });
@@ -58,8 +62,8 @@ describe('<AddGroupMembers />', () => {
   it('should render correctly', () => {
     const store = mockStore(initialState);
     const wrapper = shallow(
-      <Provider store={ store }>
-        <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members/add_members' ] }>
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
           <AddGroupMembers></AddGroupMembers>
         </MemoryRouter>
       </Provider>
@@ -71,8 +75,8 @@ describe('<AddGroupMembers />', () => {
     const store = mockStore(initialState);
     apiClientMock.get(`${RBAC_API_BASE}/principals/?limit=10&sort_order=asc`, mockOnce({ body: responseBody }));
     const wrapper = mount(
-      <Provider store={ store }>
-        <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members/add_members' ] }>
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
           <AddGroupMembers></AddGroupMembers>
         </MemoryRouter>
       </Provider>
@@ -81,8 +85,8 @@ describe('<AddGroupMembers />', () => {
       expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
       expect.objectContaining({
         type: 'FETCH_USERS_FULFILLED',
-        payload: responseBody
-      })
+        payload: responseBody,
+      }),
     ];
     setImmediate(() => {
       expect(store.getActions()).toEqual(expectedPayload);
@@ -95,8 +99,8 @@ describe('<AddGroupMembers />', () => {
     const store = mockStore(initialState);
     apiClientMock.get(`${RBAC_API_BASE}/principals/?limit=10&sort_order=asc`, mockOnce({ body: responseBody }));
     const wrapper = mount(
-      <Provider store={ store }>
-        <MemoryRouter initialEntries={ [ '/groups/detail/test-group/members/add_members' ] }>
+      <Provider store={store}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
           <AddGroupMembers></AddGroupMembers>
         </MemoryRouter>
       </Provider>
@@ -106,8 +110,8 @@ describe('<AddGroupMembers />', () => {
       expect.objectContaining({ type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION' }),
       expect.objectContaining({
         type: 'FETCH_USERS_FULFILLED',
-        payload: responseBody
-      })
+        payload: responseBody,
+      }),
     ];
     wrapper.find('.pf-m-link').simulate('click');
     wrapper.update();

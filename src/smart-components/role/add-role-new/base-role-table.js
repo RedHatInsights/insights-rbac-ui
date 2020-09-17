@@ -7,70 +7,72 @@ import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 
-const columns = [ '', 'Name', 'Description' ];
-const selector = ({ roleReducer: { rolesForWizard, isLoading }}) => ({
-    roles: rolesForWizard.data,
-    pagination: rolesForWizard.meta,
-    isLoading
+const columns = ['', 'Name', 'Description'];
+const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
+  roles: rolesForWizard.data,
+  pagination: rolesForWizard.meta,
+  isLoading,
 });
 
 const BaseRoleTable = (props) => {
+  const dispatch = useDispatch();
+  const fetchData = (options) => dispatch(fetchRolesForWizard(options));
+  const [filterValue, setFilterValue] = useState('');
+  const { roles, pagination } = useSelector(selector, shallowEqual);
+  const { input } = useFieldApi(props);
+  const formOptions = useFormApi();
 
-    const dispatch = useDispatch();
-    const fetchData = (options) => dispatch(fetchRolesForWizard(options));
-    const [ filterValue, setFilterValue ] = useState('');
-    const { roles, pagination } = useSelector(selector, shallowEqual);
-    const { input } = useFieldApi(props);
-    const formOptions = useFormApi();
+  useEffect(() => {
+    fetchData({
+      limit: 50,
+      offset: 0,
+      itemCount: 0,
+    });
+  }, []);
 
-    useEffect(()=> {
-        fetchData({
-            limit: 50,
-            offset: 0,
-            itemCount: 0
-        });
-    }, []);
-
-    const createRows = (roles) => roles.map(
-        role => ({
-            cells: [
-                {
-                    title: <Radio
-                        id={ `${role.uuid}-radio` }
-                        name={ `${role.name}-radio` }
-                        aria-label={ `${role.name}-radio` }
-                        value={ role.uuid }
-                        isChecked={ input.value.uuid === role.uuid }
-                        onChange={ () => {
-                            formOptions.batch(() => {
-                                input.onChange(role);
-                                formOptions.change('role-copy-name', `Copy of ${role.display_name || role.name}`);
-                                formOptions.change('role-copy-description', role.description);
-                            });
-                        } }
-                    />
-                },
-                role.display_name || role.name,
-                role.description
-            ]
-        })
-    );
-    return <div>
-        <TableToolbarView
-                    columns={ columns }
-                    createRows={ createRows }
-                    data={ roles }
-                    fetchData={ (config) => fetchData(mappedProps(config)) }
-                    filterValue={ filterValue }
-                    setFilterValue={ ({ name }) => setFilterValue(name) }
-                    isLoading={ false }
-                    pagination={ pagination }
-                    titlePlural="roles"
-                    titleSingular="role"
-                    filterPlaceholder="role name"
-                    isCompact
-                />
-    </div>;
+  const createRows = (roles) =>
+    roles.map((role) => ({
+      cells: [
+        {
+          title: (
+            <Radio
+              id={`${role.uuid}-radio`}
+              name={`${role.name}-radio`}
+              aria-label={`${role.name}-radio`}
+              value={role.uuid}
+              isChecked={input.value.uuid === role.uuid}
+              onChange={() => {
+                formOptions.batch(() => {
+                  input.onChange(role);
+                  formOptions.change('role-copy-name', `Copy of ${role.display_name || role.name}`);
+                  formOptions.change('role-copy-description', role.description);
+                });
+              }}
+            />
+          ),
+        },
+        role.display_name || role.name,
+        role.description,
+      ],
+    }));
+  return (
+    <div>
+      <TableToolbarView
+        columns={columns}
+        createRows={createRows}
+        data={roles}
+        fetchData={(config) => fetchData(mappedProps(config))}
+        filterValue={filterValue}
+        setFilterValue={({ name }) => setFilterValue(name)}
+        isLoading={false}
+        pagination={pagination}
+        titlePlural="roles"
+        titleSingular="role"
+        filterPlaceholder="role name"
+        isCompact
+      />
+    </div>
+  );
 };
 
 export default BaseRoleTable;

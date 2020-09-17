@@ -11,9 +11,7 @@ exports[`<MUACard /> should render correctly 1`] = `
     <h3
       className="pf-c-title pf-m-xl"
     >
-       
       Test
-       
     </h3>
   </Title>
 </MUACard>
@@ -31,9 +29,7 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
     <h3
       className="pf-c-title pf-m-xl"
     >
-       
       Test
-       
     </h3>
   </Title>
 </MUACard>

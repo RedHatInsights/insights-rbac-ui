@@ -5,38 +5,38 @@ import { Chip, ChipGroup, Text, TextContent, Title } from '@patternfly/react-cor
 import './add-role-wizard.scss';
 
 const AddPermissionTemplate = ({ formFields }) => {
-    const [ selectedPermissions, setSelectedPermissions ] = useState([]);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
 
-    const addPermissions = formFields[0][0];
-    return <React.Fragment>
-        { selectedPermissions.length > 0
-        ? <div className='ins-c-rbac-seleted-chips'>
-        <ChipGroup categoryName='Selected permissions'>
-            { /* immutable reverse */}
-            {selectedPermissions.reduce((acc, i) => [ i, ...acc ], []).map(({ uuid }) => (
-                <Chip
-                    key={ uuid } color="blue" isTruncated onClick={ () => setSelectedPermissions(selectedPermissions.filter(p => p.uuid !== uuid)) }>
-                    {uuid}
+  const addPermissions = formFields[0][0];
+  return (
+    <React.Fragment>
+      {selectedPermissions.length > 0 ? (
+        <div className="ins-c-rbac-seleted-chips">
+          <ChipGroup categoryName="Selected permissions">
+            {/* immutable reverse */}
+            {selectedPermissions
+              .reduce((acc, i) => [i, ...acc], [])
+              .map(({ uuid }) => (
+                <Chip key={uuid} color="blue" isTruncated onClick={() => setSelectedPermissions(selectedPermissions.filter((p) => p.uuid !== uuid))}>
+                  {uuid}
                 </Chip>
-            ))}
-        </ChipGroup>
+              ))}
+          </ChipGroup>
         </div>
-        : null
-        }
-        <Title headingLevel="h1" size="xl" className='ins-c-rbac-add-permission-title'>
-            Add permissions
-        </Title>
-        <TextContent>
-            <Text>
-                Select permissions to add to your role
-            </Text>
-        </TextContent>
-        {[ [{ ...addPermissions, props: { ...addPermissions.props, selectedPermissions, setSelectedPermissions }}] ] }
-    </React.Fragment>;
+      ) : null}
+      <Title headingLevel="h1" size="xl" className="ins-c-rbac-add-permission-title">
+        Add permissions
+      </Title>
+      <TextContent>
+        <Text>Select permissions to add to your role</Text>
+      </TextContent>
+      {[[{ ...addPermissions, props: { ...addPermissions.props, selectedPermissions, setSelectedPermissions } }]]}
+    </React.Fragment>
+  );
 };
 
 AddPermissionTemplate.propTypes = {
-    formFields: PropTypes.array
+  formFields: PropTypes.array,
 };
 
 export default AddPermissionTemplate;
