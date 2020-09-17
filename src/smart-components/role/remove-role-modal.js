@@ -10,55 +10,51 @@ import { FormItemLoader } from '../../presentational-components/shared/loader-pl
 
 const RemoveRoleModal = ({
   history: { goBack, push },
-  match: { params: { id }},
+  match: {
+    params: { id },
+  },
   removeRole,
   role,
   isLoading,
   fetchRole,
-  postMethod
+  postMethod,
 }) => {
   useEffect(() => {
     fetchRole(id);
   }, []);
 
-  const onSubmit = () => removeRole(id)
-  .then(() => {
-    postMethod();
-    push('/roles');
-  });
+  const onSubmit = () =>
+    removeRole(id).then(() => {
+      postMethod();
+      push('/roles');
+    });
 
   const onCancel = () => goBack();
 
   return (
     <Modal
       isOpen
-      variant={ ModalVariant.small }
-      title = { '' }
-      onClose={ onCancel }
-      actions={ [
-        <Button key="cancel" variant="secondary" type="button" onClick={ onCancel }>
+      variant={ModalVariant.small}
+      title={''}
+      onClose={onCancel}
+      actions={[
+        <Button key="cancel" variant="secondary" type="button" onClick={onCancel}>
           Cancel
         </Button>,
-        <Button key="submit" isDisabled={ isLoading  }  variant="primary" type="button" onClick={ onSubmit }>
+        <Button key="submit" isDisabled={isLoading} variant="primary" type="button" onClick={onSubmit}>
           Confirm
-        </Button>
-      ] }
+        </Button>,
+      ]}
     >
       <Grid gutter="sm">
-        <GridItem span={ 5 }>
+        <GridItem span={5}>
           <TextContent>
-            <Text component={ TextVariants.h1 }>
-                Removing Role:
-            </Text>
+            <Text component={TextVariants.h1}>Removing Role:</Text>
           </TextContent>
         </GridItem>
-        <GridItem span={ 6 }>
-          <TextContent>
-            { !isLoading && <Text component={ TextVariants.h1 }>
-              { role.display_name || role.name }
-            </Text> }
-          </TextContent>
-          { isLoading && <FormItemLoader/> }
+        <GridItem span={6}>
+          <TextContent>{!isLoading && <Text component={TextVariants.h1}>{role.display_name || role.name}</Text>}</TextContent>
+          {isLoading && <FormItemLoader />}
         </GridItem>
       </Grid>
     </Modal>
@@ -67,7 +63,7 @@ const RemoveRoleModal = ({
 
 RemoveRoleModal.defaultProps = {
   role: {},
-  isLoading: true
+  isLoading: true,
 };
 
 RemoveRoleModal.propTypes = {
@@ -76,28 +72,32 @@ RemoveRoleModal.propTypes = {
   isLoading: PropTypes.bool,
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
   }).isRequired,
   match: PropTypes.shape({
     params: PropTypes.shape({
-      id: PropTypes.string
-    }).isRequired
+      id: PropTypes.string,
+    }).isRequired,
   }).isRequired,
   postMethod: PropTypes.func,
   removeRole: PropTypes.func.isRequired,
-  role: PropTypes.object
+  role: PropTypes.object,
 };
 
-const mapStateToProps = ({ roleReducer: { roles, selectedRole, isRecordLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, selectedRole, isRecordLoading } }) => ({
   role: selectedRole,
   isLoading: isRecordLoading,
-  pagination: roles.meta
+  pagination: roles.meta,
 });
 
-const mapDispatchToProps = (dispatch) => bindActionCreators({
-  addNotification,
-  fetchRole,
-  removeRole
-}, dispatch);
+const mapDispatchToProps = (dispatch) =>
+  bindActionCreators(
+    {
+      addNotification,
+      fetchRole,
+      removeRole,
+    },
+    dispatch
+  );
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveRoleModal));

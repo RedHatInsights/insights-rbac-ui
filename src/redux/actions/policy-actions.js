@@ -3,12 +3,12 @@ import * as PolicyHelper from '../../helpers/policy/policy-helper';
 
 export const fetchGroupPolicies = (options = {}) => ({
   type: ActionTypes.FETCH_GROUP_POLICIES,
-  payload: PolicyHelper.fetchGroupPolicies(options)
+  payload: PolicyHelper.fetchGroupPolicies(options),
 });
 
-export const fetchPolicy = apiProps => ({
+export const fetchPolicy = (apiProps) => ({
   type: ActionTypes.FETCH_POLICY,
-  payload: PolicyHelper.fetchPolicy(apiProps)
+  payload: PolicyHelper.fetchPolicy(apiProps),
 });
 
 export const createPolicy = (policyData) => ({
@@ -21,17 +21,17 @@ export const createPolicy = (policyData) => ({
         title: 'Success adding policy',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The policy was added successfully.'
+        description: 'The policy was added successfully.',
       },
       rejected: {
         variant: 'danger',
         title: 'Failed adding policy',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The policy was not added successfully.'
-      }
-    }
-  }
+        description: 'The policy was not added successfully.',
+      },
+    },
+  },
 });
 
 export const removePolicy = (policy) => ({
@@ -44,10 +44,10 @@ export const removePolicy = (policy) => ({
         title: 'Success removing policy',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The policy was removed successfully.'
-      }
-    }
-  }
+        description: 'The policy was removed successfully.',
+      },
+    },
+  },
 });
 
 export const updatePolicy = (uuid, policyData) => ({
@@ -60,15 +60,15 @@ export const updatePolicy = (uuid, policyData) => ({
         title: 'Success updating policy',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The policy was updated successfully.'
+        description: 'The policy was updated successfully.',
       },
       rejected: {
         variant: 'danger',
         title: 'Failed updating policy',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The policy was not updated successfully.'
-      }
-    }
-  }
+        description: 'The policy was not updated successfully.',
+      },
+    },
+  },
 });

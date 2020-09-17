@@ -5,19 +5,18 @@ import { Label, Tooltip, TooltipPosition } from '@patternfly/react-core';
 
 const StatusLabel = ({ isOrgAdmin }) => (
   <React.Fragment>
-    { isOrgAdmin ?
-      <Tooltip
-        position={ TooltipPosition.right }
-        content={ <span> You can manage other users&apos; permissions with &apos;User access&apos; </span> }>
-        <Label color='purple'> Org. Administrator </Label>
+    {isOrgAdmin ? (
+      <Tooltip position={TooltipPosition.right} content={<span> You can manage other users&apos; permissions with &apos;User access&apos; </span>}>
+        <Label color="purple"> Org. Administrator </Label>
       </Tooltip>
-      : <Label color='purple'> User </Label>
-    }
+    ) : (
+      <Label color="purple"> User </Label>
+    )}
   </React.Fragment>
 );
 
 StatusLabel.propTypes = {
-  isOrgAdmin: PropTypes.bool
+  isOrgAdmin: PropTypes.bool,
 };
 
 export default StatusLabel;

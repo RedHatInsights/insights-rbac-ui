@@ -8,15 +8,15 @@ import ReactFormRender from '@data-driven-forms/react-form-renderer/dist/cjs/for
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 
 const FormRenderer = (props) => (
-    <ReactFormRender
-      componentMapper={ {
-        [componentTypes.TEXT_FIELD]: TextField,
-        [componentTypes.TEXTAREA]: Textarea,
-        [componentTypes.SELECT]: Pf4SelectWrapper
-      } }
-      FormTemplate={ (props) => <FormTemplate { ...props } FormButtons={ FormButtons } /> }
-      { ...props }
-    />
+  <ReactFormRender
+    componentMapper={{
+      [componentTypes.TEXT_FIELD]: TextField,
+      [componentTypes.TEXTAREA]: Textarea,
+      [componentTypes.SELECT]: Pf4SelectWrapper,
+    }}
+    FormTemplate={(props) => <FormTemplate {...props} FormButtons={FormButtons} />}
+    {...props}
+  />
 );
 
 export default FormRenderer;

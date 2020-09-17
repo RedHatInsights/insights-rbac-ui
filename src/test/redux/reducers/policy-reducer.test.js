@@ -1,9 +1,7 @@
 import policyReducer from '../../../redux/reducers/policy-reducer';
 import { callReducer } from '../redux-helpers';
 
-import {
-  FETCH_GROUP_POLICIES
-} from '../../../redux/action-types';
+import { FETCH_GROUP_POLICIES } from '../../../redux/action-types';
 
 describe('Policy reducer', () => {
   let initialState;
@@ -23,5 +21,4 @@ describe('Policy reducer', () => {
     const expectedState = { isLoading: false, policies: payload };
     expect(reducer(initialState, { type: `${FETCH_GROUP_POLICIES}_FULFILLED`, payload })).toEqual(expectedState);
   });
-
 });

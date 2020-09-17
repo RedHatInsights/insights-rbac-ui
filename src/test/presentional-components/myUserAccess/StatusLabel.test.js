@@ -5,14 +5,10 @@ import StatusLabel from '../../../presentational-components/myUserAccess/StatusL
 
 describe('<StatusLabel />', () => {
   it('should render correctly', () => {
-    expect(toJson(mount(
-        <StatusLabel/>
-    ))).toMatchSnapshot();
+    expect(toJson(mount(<StatusLabel />))).toMatchSnapshot();
   });
 
   it('should render correctly as admin', () => {
-    expect(toJson(mount(
-        <StatusLabel isOrgAdmin/>
-    ))).toMatchSnapshot();
+    expect(toJson(mount(<StatusLabel isOrgAdmin />))).toMatchSnapshot();
   });
 });

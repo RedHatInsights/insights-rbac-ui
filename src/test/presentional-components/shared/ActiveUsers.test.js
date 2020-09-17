@@ -9,10 +9,10 @@ describe('<ActiveUsers />', () => {
   });
 
   it('should render correctly with description', () => {
-    expect(toJson(shallow(<ActiveUsers description="some description"/>))).toMatchSnapshot();
+    expect(toJson(shallow(<ActiveUsers description="some description" />))).toMatchSnapshot();
   });
 
   it('should render correctly with link title', () => {
-    expect(toJson(shallow(<ActiveUsers linkTitle="some title"/>))).toMatchSnapshot();
+    expect(toJson(shallow(<ActiveUsers linkTitle="some title" />))).toMatchSnapshot();
   });
 });

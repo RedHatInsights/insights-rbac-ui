@@ -1,9 +1,7 @@
 import roleReducer from '../../../redux/reducers/role-reducer';
 import { callReducer } from '../redux-helpers';
 
-import {
-  FETCH_ROLES
-} from '../../../redux/action-types';
+import { FETCH_ROLES } from '../../../redux/action-types';
 
 describe('Role reducer', () => {
   let initialState;
@@ -23,5 +21,4 @@ describe('Role reducer', () => {
     const expectedState = { isLoading: false, roles: payload };
     expect(reducer(initialState, { type: `${FETCH_ROLES}_FULFILLED`, payload })).toEqual(expectedState);
   });
-
 });
