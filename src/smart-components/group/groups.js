@@ -30,16 +30,19 @@ const Groups = () => {
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
 
   const dispatch = useDispatch();
-  const { groups, pagination, userIdentity, isLoading } = useSelector(({ groupReducer: { groups, isLoading, systemGroup }}) => ({
-    groups: [
-      ...(systemGroup?.name?.toLowerCase()?.includes(filterValue) ? [ systemGroup ] : []),
-      ...groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []
-    ],
-    pagination: groups.meta,
-    userIdentity: groups.identity,
-    isLoading,
-    systemGroup
-  }), shallowEqual);
+  const { groups, pagination, userIdentity, isLoading } = useSelector(
+    ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
+      groups: [
+        ...(systemGroup?.name?.toLowerCase()?.includes(filterValue) ? [systemGroup] : []),
+        ...(groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []),
+      ],
+      pagination: groups.meta,
+      userIdentity: groups.identity,
+      isLoading,
+      systemGroup,
+    }),
+    shallowEqual
+  );
 
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });

@@ -41,7 +41,7 @@ describe('<Groups />', () => {
       },
     };
     mockStore = configureStore(middlewares);
-    initialState = { groupReducer: { ...groupsInitialState, groups: enhanceState, systemGroup: enhanceState.data[0] }};
+    initialState = { groupReducer: { ...groupsInitialState, groups: enhanceState, systemGroup: enhanceState.data[0] } };
   });
 
   afterEach(() => {
@@ -77,10 +77,7 @@ describe('<Groups />', () => {
         ,
       </Provider>
     );
-    const expectedPayload = [
-      { type: 'FETCH_GROUPS_PENDING' },
-      { type: 'FETCH_SYSTEM_GROUP_PENDING' }
-    ];
+    const expectedPayload = [{ type: 'FETCH_GROUPS_PENDING' }, { type: 'FETCH_SYSTEM_GROUP_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
   });
 

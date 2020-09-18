@@ -25,7 +25,7 @@ const setLoadingState = (state) => ({ ...state, isLoading: true });
 const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
 const setRecordRolesLoadingState = (state) => ({ ...state, isRecordRolesLoading: true, selectedGroup: { ...state.selectedGroup, loaded: false } });
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
-const setSystemGroup = (state, { payload }) => ({ ...state, systemGroup: payload?.data?.filter(group => group?.platform_default)?.[0] });
+const setSystemGroup = (state, { payload }) => ({ ...state, systemGroup: payload?.data?.filter((group) => group?.platform_default)?.[0] });
 const setGroup = (state, { payload }) => ({
   ...state,
   isRecordLoading: false,

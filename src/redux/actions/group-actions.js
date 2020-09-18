@@ -11,11 +11,11 @@ export const fetchSystemGroup = (filterValue) => ({
   payload: GroupHelper.fetchGroups({
     limit: 1,
     name: filterValue || 'default',
-    nameMatch: 'partial'
-  })
+    nameMatch: 'partial',
+  }),
 });
 
-export const fetchGroup = apiProps => ({
+export const fetchGroup = (apiProps) => ({
   type: ActionTypes.FETCH_GROUP,
   payload: GroupHelper.fetchGroup(apiProps),
 });
