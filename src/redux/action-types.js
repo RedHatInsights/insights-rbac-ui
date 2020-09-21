@@ -1,4 +1,5 @@
 export const FETCH_GROUP = 'FETCH_GROUP';
+export const FETCH_SYSTEM_GROUP = 'FETCH_SYSTEM_GROUP';
 export const FETCH_GROUPS = 'FETCH_GROUPS';
 
 export const ADD_GROUP = 'ADD_GROUP';

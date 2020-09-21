@@ -6,6 +6,15 @@ export const fetchGroups = (options = {}) => ({
   payload: GroupHelper.fetchGroups(options),
 });
 
+export const fetchSystemGroup = (filterValue) => ({
+  type: ActionTypes.FETCH_SYSTEM_GROUP,
+  payload: GroupHelper.fetchGroups({
+    limit: 1,
+    name: filterValue || 'default',
+    nameMatch: 'partial',
+  }),
+});
+
 export const fetchGroup = (apiProps) => ({
   type: ActionTypes.FETCH_GROUP,
   payload: GroupHelper.fetchGroup(apiProps),
