@@ -8,7 +8,7 @@ import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
-import { fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section } from '@redhat-cloud-services/frontend-components';
@@ -31,11 +31,15 @@ const Groups = () => {
 
   const dispatch = useDispatch();
   const { groups, pagination, userIdentity, isLoading } = useSelector(
-    ({ groupReducer: { groups, isLoading } }) => ({
-      groups: groups.data,
+    ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
+      groups: [
+        ...(systemGroup?.name?.toLowerCase()?.includes(filterValue) ? [systemGroup] : []),
+        ...(groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []),
+      ],
       pagination: groups.meta,
       userIdentity: groups.identity,
       isLoading,
+      systemGroup,
     }),
     shallowEqual
   );
@@ -43,6 +47,7 @@ const Groups = () => {
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
     dispatch(fetchGroups({ ...pagination, name: filterValue }));
+    dispatch(fetchSystemGroup(filterValue));
   }, []);
 
   const history = useHistory();
