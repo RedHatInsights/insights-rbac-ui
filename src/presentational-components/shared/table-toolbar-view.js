@@ -173,45 +173,6 @@ export const TableToolbarView = ({
           {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
         </TableToolbar>
       )}
-      {isLoading ? (
-        <ListLoader />
-      ) : (
-        <Table
-          canSelectAll={false}
-          aria-label={`${titlePlural} table`}
-          variant={isCompact ? TableVariant.compact : null}
-          borders={borders}
-          {...(isCollapsible && { onCollapse })}
-          {...(isSelectable &&
-            rows.length > 0 && {
-              onSelect: (_e, isSelected, _idx, { uuid, cells: [name] }) => setCheckedItems(selectedRows([{ uuid, name }], isSelected)),
-            })}
-          {...(isExpandable && { onExpand })}
-          rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
-          cells={columns}
-          {...(rows.length > 0 && { actionResolver })}
-          areActionsDisabled={areActionsDisabled}
-          rowWrapper={rowWrapper}
-          sortBy={sortByState}
-          onSort={(e, index, direction) => {
-            setSortByState({ index, direction });
-            fetchData({
-              ...pagination,
-              offset: 0,
-              name: filterValue,
-              orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
-            });
-          }}
-        >
-          <TableHeader />
-          <TableBody />
-        </Table>
-      )}
-      {!pagination.noBottom && (
-        <TableToolbar>
-          {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
-        </TableToolbar>
-      )}
     </Fragment>
   );
 
