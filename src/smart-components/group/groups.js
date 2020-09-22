@@ -33,7 +33,7 @@ const Groups = () => {
   const { groups, pagination, userIdentity, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
       groups: [
-        ...(systemGroup?.name?.toLowerCase()?.includes(filterValue) ? [systemGroup] : []),
+        ...(systemGroup?.name?.match(new RegExp(filterValue, 'i')) ? [systemGroup] : []),
         ...(groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []),
       ],
       pagination: groups.meta,
