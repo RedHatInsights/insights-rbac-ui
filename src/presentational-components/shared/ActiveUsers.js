@@ -24,7 +24,7 @@ ActiveUser.propTypes = {
 
 ActiveUser.defaultProps = {
   description: '',
-  linkTitle: 'user management list.',
+  linkTitle: ' user management list.',
 };
 
 export default ActiveUser;
