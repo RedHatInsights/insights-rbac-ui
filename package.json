@@ -143,6 +143,7 @@
     "edit-role": "/roles/edit/:id",
     "role-detail": "/roles/detail/:uuid",
     "role-detail-remove": "/roles/detail/:id/remove",
+    "role-detail-edit": "/roles/detail/:id/edit",
     "users": "/users",
     "user-detail": "/users/detail/:username",
     "my-user-access": "/my-user-access"

@@ -14,6 +14,7 @@ import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/
 
 import './role.scss';
 import RemoveRoleModal from './remove-role-modal';
+import EditRoleModal from './edit-role-modal';
 
 const Role = () => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -27,14 +28,19 @@ const Role = () => {
     shallowEqual
   );
   const dispatch = useDispatch();
-  useEffect(() => {
+  const fetchData = () => {
     dispatch(fetchRole(uuid));
     groupUuid && dispatch(fetchGroup(groupUuid));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [uuid, groupUuid]);
 
   const title = !isRecordLoading && role ? role.display_name || role.name : undefined;
   const description = !isRecordLoading && role ? role.description : undefined;
   const dropdownItems = [
+    <DropdownItem component={<Link to={routes['role-detail-edit'].replace(':id', uuid)}>Edit</Link>} key="edit-role" />,
     <DropdownItem
       component={<Link to={routes['role-detail-remove'].replace(':id', uuid)}>Delete</Link>}
       className="ins-c-role__action"
@@ -83,6 +89,11 @@ const Role = () => {
       {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
       <Route path={routes['role-detail-remove']}>
         {!isRecordLoading && <RemoveRoleModal cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-remove']} />}
+      </Route>
+      <Route path={routes['role-detail-edit']}>
+        {!isRecordLoading && (
+          <EditRoleModal afterSubmit={fetchData} cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-edit']} />
+        )}
       </Route>
     </Fragment>
   );
