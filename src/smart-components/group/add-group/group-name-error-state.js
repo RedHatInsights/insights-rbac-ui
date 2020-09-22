@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
-
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import global_palette_red_100 from '@patternfly/react-tokens/dist/js/global_palette_red_100';
 
