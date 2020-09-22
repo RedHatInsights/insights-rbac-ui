@@ -35,7 +35,7 @@ const Roles = () => {
   const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, pagination, userIdentity, userEntitlements } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
@@ -51,19 +51,13 @@ const Roles = () => {
     <Fragment>
       <Route exact path={paths['add-role']} component={AddRoleWizard} />
       <Route exact path={paths['remove-role']}>
-        <RemoveRole
-          postMethod={() => {
-            fetchData();
-            setFilterValue('');
-          }}
-        />
+        {!isLoading && <RemoveRole routeMatch={paths['remove-role']} cancelRoute={paths.roles} />}
       </Route>
     </Fragment>
   );
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
-    return system || !userAllowed
+    return system
       ? []
       : [
           {
@@ -119,7 +113,9 @@ const Roles = () => {
 
   return (
     <Switch>
-      <Route path={paths['role-detail']} render={(props) => <Role {...props} />} />
+      <Route path={paths['role-detail']}>
+        <Role />
+      </Route>
       <Route path={paths.roles} render={() => renderRolesList()} />
     </Switch>
   );
