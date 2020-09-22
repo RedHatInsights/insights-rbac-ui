@@ -39,4 +39,7 @@ export async function removeRole(roleId) {
   return await roleApi.deleteRole(roleId);
 }
 
-export const updateRole = (roleId, data) => roleApi.getRoleAccess(roleId).then(({ data: access }) => roleApi.updateRole(roleId, { ...data, access }));
+export const updateRole = async (roleId, data) => {
+  const { data: access } = await roleApi.getRoleAccess(roleId);
+  return roleApi.updateRole(roleId, { ...data, access });
+};
