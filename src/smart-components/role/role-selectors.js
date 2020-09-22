@@ -1,6 +1,6 @@
 export const roleSelector = (state, roleId) => {
   const {
-    roleReducer: { roles, selectedRole },
+    roleReducer: { roles = { data: [] }, selectedRole },
   } = state;
   if (selectedRole?.uuid === roleId) {
     return selectedRole;

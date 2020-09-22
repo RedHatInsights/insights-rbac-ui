@@ -68,7 +68,7 @@ const Role = () => {
           <LevelItem>
             <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
           </LevelItem>
-          {!isRecordLoading && !role.system && (
+          {!isRecordLoading && role && !role.system && (
             <LevelItem>
               <Dropdown
                 toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="role-actions-dropdown" />}
