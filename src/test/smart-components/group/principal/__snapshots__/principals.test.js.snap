@@ -17,7 +17,6 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
         "title": "Status",
         "transforms": Array [
           [Function],
-          [Function],
         ],
       },
       Object {
@@ -213,7 +212,6 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       Object {
         "title": "Status",
         "transforms": Array [
-          [Function],
           [Function],
         ],
       },

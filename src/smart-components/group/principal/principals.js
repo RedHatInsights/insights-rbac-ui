@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { cellWidth } from '@patternfly/react-table';
+import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useParams } from 'react-router-dom';
@@ -15,7 +15,7 @@ import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { routes as paths } from '../../../../package.json';
 
 const columns = [
-  { title: 'Status', transforms: [cellWidth(10), () => ({ className: 'ins-m-width-5' })] },
+  { title: 'Status', transforms: [nowrap] },
   { title: 'Username' },
   { title: 'Email' },
   { title: 'Last name' },
