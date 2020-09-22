@@ -59,7 +59,7 @@ const Groups = () => {
               setFilterValue('');
             } } />
       </Route>
-      <Route exact path={ paths["group-edit"].path }>
+      <Route exact path={ paths['group-edit'].path }>
         <EditGroup
           postMethod={ config =>
             {

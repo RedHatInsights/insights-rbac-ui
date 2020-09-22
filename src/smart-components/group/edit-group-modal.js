@@ -82,7 +82,7 @@ const EditGroupModal = ({
       </div>
     );
   };
-  
+
   return (
     <Modal
       size={ ModalVariant.large }
