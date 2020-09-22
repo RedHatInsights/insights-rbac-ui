@@ -45,6 +45,8 @@ export const TableToolbarView = ({
   isExpandable,
   onExpand,
   hideFilterChips,
+  noData,
+  noDataDescription,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -67,28 +69,34 @@ export const TableToolbarView = ({
     title: (
       <EmptyWithAction
         title={`No matching ${titlePlural} found`}
-        description={[`This filter criteria matches no ${titlePlural}.`, `Try changing your filter settings.`]}
-        actions={[
-          <EmptyStatePrimary key="clear-filters">
-            <Button
-              variant="link"
-              onClick={() => {
-                setFilterValue({
-                  ...pagination,
-                  offset: 0,
-                  name: '',
-                });
-                fetchData({
-                  ...pagination,
-                  offset: 0,
-                  name: '',
-                });
-              }}
-            >
-              Clear all filters
-            </Button>
-          </EmptyStatePrimary>,
-        ]}
+        description={
+          noData && noDataDescription ? noDataDescription : [`This filter criteria matches no ${titlePlural}.`, `Try changing your filter settings.`]
+        }
+        actions={
+          noData && noDataDescription
+            ? undefined
+            : [
+                <EmptyStatePrimary key="clear-filters">
+                  <Button
+                    variant="link"
+                    onClick={() => {
+                      setFilterValue({
+                        ...pagination,
+                        offset: 0,
+                        name: '',
+                      });
+                      fetchData({
+                        ...pagination,
+                        offset: 0,
+                        name: '',
+                      });
+                    }}
+                  >
+                    Clear all filters
+                  </Button>
+                </EmptyStatePrimary>,
+              ]
+        }
       />
     ),
     props: {
@@ -102,7 +110,7 @@ export const TableToolbarView = ({
         isSelectable={isSelectable}
         checkedRows={checkedRows}
         setCheckedItems={setCheckedItems}
-        isLoading={isLoading}
+        isLoading={isLoading || noData}
         data={data}
         titleSingular={titleSingular}
         filterValue={filterValue}
@@ -203,6 +211,7 @@ TableToolbarView.propTypes = {
   isExpandable: propTypes.bool,
   onExpand: propTypes.func,
   hideFilterChips: propTypes.bool,
+  noDataDescription: propTypes.arrayOf(propTypes.node),
 };
 
 TableToolbarView.defaultProps = {

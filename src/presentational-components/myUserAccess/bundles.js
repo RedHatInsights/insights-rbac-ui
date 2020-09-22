@@ -11,6 +11,7 @@ export const bundleData = [
       policies: '/policies',
       compliance: '/compliance',
     },
+    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance'],
   },
   {
     entitlement: 'openshift',
@@ -27,6 +28,7 @@ export const bundleData = [
       'automation hub': '/automation-hub',
       'automation services catalog': '/catalog',
     },
+    appsIds: ['catalog', 'approval', 'automation-analytics', 'automation-hub'],
   },
   {
     entitlement: 'cost_management',
@@ -34,6 +36,7 @@ export const bundleData = [
     apps: {
       'cost management': '/',
     },
+    appsIds: ['cost-management'],
   },
   {
     entitlement: 'migrations',
@@ -41,6 +44,7 @@ export const bundleData = [
     apps: {
       'migration analytics': '/migration-analytics',
     },
+    appsIds: ['migration-analytics'],
   },
   {
     entitlement: 'subscriptions',
@@ -49,5 +53,6 @@ export const bundleData = [
       'Red Hat Enterprise Linux': '/rhel-sw',
       'Red Hat OpenShift': '/openshift-sw',
     },
+    appsIds: ['subscriptions'],
   },
 ];
