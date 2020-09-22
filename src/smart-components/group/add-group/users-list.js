@@ -10,7 +10,6 @@ import { Label } from '@patternfly/react-core';
 import { sortable, cellWidth } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
-import classNames from 'classnames';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -46,11 +45,7 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
               firstName,
               lastName,
               {
-                title: (
-                  <Label isCompact color={isActive && 'green'} className={classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive })}>
-                    {isActive ? 'Active' : 'Inactive'}
-                  </Label>
-                ),
+                title: <Label color={isActive && 'green'}>{isActive ? 'Active' : 'Inactive'}</Label>,
                 props: {
                   'data-is-active': isActive,
                 },
