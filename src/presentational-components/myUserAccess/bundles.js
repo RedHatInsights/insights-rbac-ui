@@ -9,15 +9,16 @@ export const bundleData = [
       drift: '/drift',
       vulnerability: '/vulnerability',
       policies: '/policies',
-      compliance: '/compliance'
-    }
+      compliance: '/compliance',
+    },
+    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance'],
   },
   {
     entitlement: 'openshift',
     title: 'Red Hat Openshift Cluster Manager',
     apps: {
-      'cluster manager': '/'
-    }
+      'cluster manager': '/',
+    },
   },
   {
     entitlement: 'ansible',
@@ -25,29 +26,33 @@ export const bundleData = [
     apps: {
       'automation analytics': '/automation-analytics',
       'automation hub': '/automation-hub',
-      'automation services catalog': '/catalog'
-    }
+      'automation services catalog': '/catalog',
+    },
+    appsIds: ['catalog', 'approval', 'automation-analytics', 'automation-hub'],
   },
   {
     entitlement: 'cost_management',
     title: 'Cost Management',
     apps: {
-      'cost management': '/'
-    }
+      'cost management': '/',
+    },
+    appsIds: ['cost-management'],
   },
   {
     entitlement: 'migrations',
     title: 'Migration Services',
     apps: {
-        'migration analytics': '/migration-analytics'
-    }
+      'migration analytics': '/migration-analytics',
+    },
+    appsIds: ['migration-analytics'],
   },
   {
     entitlement: 'subscriptions',
     title: 'Subscription Watch',
     apps: {
       'Red Hat Enterprise Linux': '/rhel-sw',
-      'Red Hat OpenShift': '/openshift-sw'
-    }
-  }
+      'Red Hat OpenShift': '/openshift-sw',
+    },
+    appsIds: ['subscriptions'],
+  },
 ];

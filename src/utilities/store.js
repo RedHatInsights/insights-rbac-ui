@@ -1,4 +1,3 @@
-
 import promiseMiddleware from 'redux-promise-middleware';
 import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/files/ReducerRegistry';
 import { notifications, notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
@@ -12,10 +11,15 @@ import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 
-const registry = new ReducerRegistry({}, [ thunk, promiseMiddleware, notificationsMiddleware({
-  errorTitleKey: [ 'message' ],
-  errorDescriptionKey: [ 'errors', 'stack' ]
-}), reduxLogger ]);
+const registry = new ReducerRegistry({}, [
+  thunk,
+  promiseMiddleware,
+  notificationsMiddleware({
+    errorTitleKey: ['message'],
+    errorDescriptionKey: ['errors', 'stack'],
+  }),
+  reduxLogger,
+]);
 
 registry.register({
   userReducer: applyReducerHash(userReducer, usersInitialState),
@@ -24,7 +28,7 @@ registry.register({
   roleReducer: applyReducerHash(roleReducer, rolesInitialState),
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
-  notifications
+  notifications,
 });
 
 export default registry.getStore();

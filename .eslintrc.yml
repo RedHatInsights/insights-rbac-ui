@@ -6,10 +6,14 @@ env:
 settings:
   react:
     version: '16.0'
+plugins:
+  - 'prettier'
 extends:
   - 'eslint:recommended'
   - 'prettier'
+  - 'plugin:prettier/recommended'
   - 'plugin:react/recommended'
+  - 'prettier/react'
 parserOptions:
   ecmaVersion: 7
   sourceType: module
@@ -28,11 +32,6 @@ globals:
   React: true
 rules:
   no-console: 1
-  array-bracket-spacing:
-    - error
-    - always
-    - objectsInArrays: false
-  comma-dangle: 2
   comma-spacing:
     - 2
     - after: true
@@ -46,14 +45,6 @@ rules:
   func-names:
     - error
     - never
-  react/jsx-curly-spacing:
-    - error
-    - always
-    - allowMultiline: false
-    - spacing:
-      - objectLiterals:
-        - never
-    - children: true
   key-spacing: 2
   keyword-spacing: 2
   linebreak-style:
@@ -79,11 +70,6 @@ rules:
   no-var: 2
   no-with: 2
   object-shorthand: 2
-  object-curly-spacing:
-    - error
-    - always
-    - objectsInObjects: false
-      arraysInObjects: false
   one-var:
     - error
     - never

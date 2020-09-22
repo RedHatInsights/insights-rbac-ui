@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { MemoryRouter as Router } from 'react-router-dom';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -14,9 +14,8 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { getUserMock } from '../../../../config/setupTests';
 
 describe('<Groups />', () => {
-
   let enhanceState;
-  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
 
@@ -32,31 +31,32 @@ describe('<Groups />', () => {
           roleCount: 6,
           created: '2019-12-03T18:56:01.184350Z',
           modified: '2020-02-06T08:50:12.064832Z',
-          system: false
-        }
+          system: false,
+        },
       ],
       meta: {
         count: 153,
         limit: 10,
-        offset: 0
-      }
+        offset: 0,
+      },
     };
     mockStore = configureStore(middlewares);
-    initialState = { groupReducer: { ...groupsInitialState, groups: enhanceState }};
+    initialState = { groupReducer: { ...groupsInitialState, groups: enhanceState, systemGroup: enhanceState.data[0] } };
   });
 
   afterEach(() => {
     mock.reset();
   });
 
-  it('should render group list correctly', async() => {
+  it('should render group list correctly', async () => {
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
       wrapper = mount(
-        <Provider store={ store }>
-          <Router initialEntries={ [ '/groups' ] }>
+        <Provider store={store}>
+          <Router initialEntries={['/groups']}>
             <Groups />
           </Router>
         </Provider>
@@ -68,28 +68,29 @@ describe('<Groups />', () => {
   it('should fetch groups on mount', () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mount(
-      <Provider store={ store }>
+      <Provider store={store}>
         <Router>
           <Groups />
-        </Router>,
+        </Router>
+        ,
       </Provider>
     );
-    const expectedPayload = [
-      { type: 'FETCH_GROUPS_PENDING' }
-    ];
+    const expectedPayload = [{ type: 'FETCH_GROUPS_PENDING' }, { type: 'FETCH_SYSTEM_GROUP_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
   });
 
-  it('should fetch groups on next page click', async() => {
+  it('should fetch groups on next page click', async () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=10&name=&order_by=`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider store={ store }>
-          <Router initialEntries={ [ '/groups' ] }>
+        <Provider store={store}>
+          <Router initialEntries={['/groups']}>
             <Groups />
           </Router>
         </Provider>
@@ -101,25 +102,29 @@ describe('<Groups />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_GROUPS_PENDING' },
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {
-        ...getUserMock
-      }}
+      {
+        type: 'FETCH_GROUPS_FULFILLED',
+        payload: {
+          ...getUserMock,
+        },
+      },
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });
 
-  it('should fetch groups on filter and cancel filter', async() => {
+  it('should fetch groups on filter and cancel filter', async () => {
     jest.useFakeTimers();
     const store = mockStore(initialState);
     const filterValue = 'filterValue';
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=${filterValue}`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider store={ store }>
-          <Router initialEntries={ [ '/groups' ] }>
+        <Provider store={store}>
+          <Router initialEntries={['/groups']}>
             <Groups />
           </Router>
         </Provider>
@@ -127,11 +132,9 @@ describe('<Groups />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper.find('input#filter-by-string').simulate('change', { target: { value: filterValue }});
+      wrapper.find('input#filter-by-string').simulate('change', { target: { value: filterValue } });
     });
-    const expectedFilterPayload = [
-      { type: 'FETCH_GROUPS_PENDING' }
-    ];
+    const expectedFilterPayload = [{ type: 'FETCH_GROUPS_PENDING' }];
     jest.runAllTimers();
     expect(store.getActions()).toEqual(expectedFilterPayload);
     store.clearActions();
@@ -140,22 +143,26 @@ describe('<Groups />', () => {
       wrapper.find('#ins-primary-data-toolbar .ins-c-chip-filters').simulate('click');
     });
     const expectedCancelPayload = [
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {
-        ...getUserMock
-      }}
+      {
+        type: 'FETCH_GROUPS_FULFILLED',
+        payload: {
+          ...getUserMock,
+        },
+      },
     ];
     expect(store.getActions()).toEqual(expectedCancelPayload);
   });
 
-  it('should fetch groups on sort click', async() => {
+  it('should fetch groups on sort click', async () => {
     const store = mockStore(initialState);
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=`).replyOnce(200, {});
+    mock.onGet(`/api/rbac/v1/groups/?limit=1&name=default&name_match=partial`).replyOnce(200, {});
     mock.onGet(`/api/rbac/v1/groups/?limit=10&offset=0&name=&order_by=name`).replyOnce(200, {});
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider store={ store }>
-          <Router initialEntries={ [ '/groups' ] }>
+        <Provider store={store}>
+          <Router initialEntries={['/groups']}>
             <Groups />
           </Router>
         </Provider>
@@ -167,9 +174,12 @@ describe('<Groups />', () => {
     });
     const expectedPayloadAfter = [
       { type: 'FETCH_GROUPS_PENDING' },
-      { type: 'FETCH_GROUPS_FULFILLED', payload: {
-          ...getUserMock
-      }}
+      {
+        type: 'FETCH_GROUPS_FULFILLED',
+        payload: {
+          ...getUserMock,
+        },
+      },
     ];
     expect(store.getActions()).toEqual(expectedPayloadAfter);
   });

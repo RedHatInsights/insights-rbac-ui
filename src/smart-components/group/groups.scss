@@ -1,3 +1,16 @@
 .pf-c-table tbody tr.ins-c-rbac__group-default {
   .pf-c-table__check:first-of-type input { display: none; }
 }
+
+.pf-c-question-circle-icon {
+  color: var(--pf-global--palette--black-600);
+  margin-left: var(--pf-global--spacer--sm);
+  cursor: pointer;
+  &.icon-active {
+    color: var(--pf-global--palette--blue-400)
+  }
+}
+
+.pf-c-popover {
+  min-width: 350px;
+}

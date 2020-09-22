@@ -1,9 +1,7 @@
 import groupReducer from '../../../redux/reducers/group-reducer';
 import { callReducer } from '../redux-helpers';
 
-import {
-  FETCH_GROUPS
-} from '../../../redux/action-types';
+import { FETCH_GROUPS } from '../../../redux/action-types';
 
 describe('Group reducer', () => {
   let initialState;
@@ -23,5 +21,4 @@ describe('Group reducer', () => {
     const expectedState = { isLoading: false, groups: payload };
     expect(reducer(initialState, { type: `${FETCH_GROUPS}_FULFILLED`, payload })).toEqual(expectedState);
   });
-
 });
