@@ -1,6 +1,5 @@
 import React from 'react';
 import { Label } from '@patternfly/react-core';
-import classNames from 'classnames';
 
 export const createRows = (data, _opened, checkedRows = []) => {
   return data.reduce(
@@ -11,11 +10,7 @@ export const createRows = (data, _opened, checkedRows = []) => {
         username,
         cells: [
           {
-            title: (
-              <Label isCompact color={isActive && 'green'} className={classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive })}>
-                {isActive ? 'Active' : 'Inactive'}
-              </Label>
-            ),
+            title: <Label color={isActive && 'green'}>{isActive ? 'Active' : 'Inactive'}</Label>,
             props: {
               data: { isActive },
             },
