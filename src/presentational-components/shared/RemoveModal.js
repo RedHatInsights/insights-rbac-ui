@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-
 import { Button, Checkbox, Modal, ModalVariant, Split, SplitItem, Stack, TextContent } from '@patternfly/react-core';
+import './RemoveModal.scss';
 
 const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, withCheckbox }) => {
   const [checked, setChecked] = useState(false);
