@@ -9,17 +9,7 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';
-
-const roleNameSelector = (state, roleId) => {
-  const {
-    roleReducer: { roles, selectedRole },
-  } = state;
-  if (selectedRole?.uuid === roleId) {
-    return selectedRole.name;
-  }
-
-  return roles.data.find(({ uuid }) => uuid === roleId)?.name;
-};
+import { roleNameSelector } from './role-selectors';
 
 const RemoveRoleModal = ({ routeMatch, cancelRoute }) => {
   const isMounted = useIsMounted();
@@ -43,10 +33,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute }) => {
         .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
   }, []);
 
-  const onSubmit = (roleId) =>
-    removeRole(roleId).then(() => {
-      push('/roles');
-    });
+  const onSubmit = () => removeRole(id).then(() => push('/roles'));
 
   const onCancel = () => replace(cancelRoute);
   if (!internalRoleName) {

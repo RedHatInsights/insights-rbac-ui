@@ -13,6 +13,7 @@ import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
+import EditRole from './edit-role-modal';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -53,6 +54,9 @@ const Roles = () => {
       <Route exact path={paths['remove-role']}>
         {!isLoading && <RemoveRole routeMatch={paths['remove-role']} cancelRoute={paths.roles} />}
       </Route>
+      <Route exact path={paths['edit-role']}>
+        {!isLoading && <EditRole afterSubmit={() => fetchData(pagination)} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />}
+      </Route>
     </Fragment>
   );
 
@@ -60,6 +64,10 @@ const Roles = () => {
     return system
       ? []
       : [
+          {
+            title: 'Edit',
+            onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
+          },
           {
             title: 'Delete',
             onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
