@@ -11,7 +11,7 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
       rel="noopener noreferrer"
       target="_blank"
     >
-      user management list.
+       user management list.
     </Text>
   </Text>
 </TextContent>
@@ -29,7 +29,7 @@ exports[`<ActiveUsers /> should render correctly with description 1`] = `
       rel="noopener noreferrer"
       target="_blank"
     >
-      user management list.
+       user management list.
     </Text>
   </Text>
 </TextContent>
