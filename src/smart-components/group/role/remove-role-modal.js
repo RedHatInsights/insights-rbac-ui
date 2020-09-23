@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-
 import DefaultGroupChange from './default-group-change-modal';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 

@@ -6,12 +6,11 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { Button, Tooltip } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { defaultCompactSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
-import { defaultSettings } from '../../../helpers/shared/pagination';
 import RemoveRole from './remove-role-modal';
 import { routes as paths } from '../../../../package.json';
 import './group-roles.scss';
