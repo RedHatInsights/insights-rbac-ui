@@ -38,3 +38,8 @@ export async function fetchRoleForPrincipal(uuid) {
 export async function removeRole(roleId) {
   return await roleApi.deleteRole(roleId);
 }
+
+export const updateRole = async (roleId, data) => {
+  const { data: access } = await roleApi.getRoleAccess(roleId);
+  return roleApi.updateRole(roleId, { ...data, access });
+};
