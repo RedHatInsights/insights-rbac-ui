@@ -13,6 +13,7 @@ import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
+import EditRole from './edit-role-modal';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -35,7 +36,7 @@ const Roles = () => {
   const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, pagination, userIdentity, userEntitlements } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
@@ -51,21 +52,22 @@ const Roles = () => {
     <Fragment>
       <Route exact path={paths['add-role']} component={AddRoleWizard} />
       <Route exact path={paths['remove-role']}>
-        <RemoveRole
-          postMethod={() => {
-            fetchData();
-            setFilterValue('');
-          }}
-        />
+        {!isLoading && <RemoveRole routeMatch={paths['remove-role']} cancelRoute={paths.roles} />}
+      </Route>
+      <Route exact path={paths['edit-role']}>
+        {!isLoading && <EditRole afterSubmit={() => fetchData(pagination)} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />}
       </Route>
     </Fragment>
   );
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
-    return system || !userAllowed
+    return system
       ? []
       : [
+          {
+            title: 'Edit',
+            onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
+          },
           {
             title: 'Delete',
             onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
@@ -119,7 +121,9 @@ const Roles = () => {
 
   return (
     <Switch>
-      <Route path={paths['role-detail']} render={(props) => <Role {...props} />} />
+      <Route path={paths['role-detail']}>
+        <Role />
+      </Route>
       <Route path={paths.roles} render={() => renderRolesList()} />
     </Switch>
   );

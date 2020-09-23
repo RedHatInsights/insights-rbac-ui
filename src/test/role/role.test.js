@@ -78,7 +78,9 @@ describe('role', () => {
       const store = mockStore({
         roleReducer: {},
         groupReducer: {
-          selectedGroup: {},
+          selectedGroup: {
+            system: false,
+          },
         },
       });
       mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, {
