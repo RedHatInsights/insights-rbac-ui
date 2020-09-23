@@ -2,8 +2,8 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Form, FormGroup, Stack, StackItem, TextContent, Title } from '@patternfly/react-core';
 import { CompactUsersList } from './users-list';
-import '../../../App.scss';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
+import '../../../App.scss';
 
 const SetUsers = ({ selectedUsers, setSelectedUsers, title, description }) => {
   return (

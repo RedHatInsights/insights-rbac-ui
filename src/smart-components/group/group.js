@@ -11,10 +11,9 @@ import { fetchGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Alert, AlertActionCloseButton, Button, Popover, Split, SplitItem } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
-import './group.scss';
 import { routes } from '../../../package.json';
-
 import EditGroup from './edit-group-modal';
+import './group.scss';
 
 const Group = ({
   match: {

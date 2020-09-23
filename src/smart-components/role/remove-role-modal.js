@@ -3,9 +3,8 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { Modal, Button, Text, TextContent, TextVariants, Split, SplitItem, Checkbox } from '@patternfly/react-core';
+import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/cjs/actions';
-
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';

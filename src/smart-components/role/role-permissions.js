@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './role-permissions-table-helpers';
