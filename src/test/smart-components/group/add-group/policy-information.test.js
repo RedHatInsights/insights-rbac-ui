@@ -13,16 +13,16 @@ describe('<PolicyInformation />', () => {
       formData: {
         policy: {
           name: 'Test policy name',
-          description: 'Test policy description'
-        }
+          description: 'Test policy description',
+        },
       },
       onHandleChange: jest.fn(),
-      setIsPolicyInfoValid: jest.fn()
+      setIsPolicyInfoValid: jest.fn(),
     };
   });
 
   it('should render correctly', () => {
-    const wrapper = mount(<PolicyInformation { ...initialProps } />);
+    const wrapper = mount(<PolicyInformation {...initialProps} />);
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 });

@@ -28,7 +28,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
             <h4
               className="pf-c-title pf-m-xl"
             >
-               Name and description 
+              Name and description
             </h4>
           </Title>
         </div>
@@ -93,6 +93,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                         id="group-name"
                         innerRef={null}
                         isDisabled={false}
+                        isLeftTruncated={false}
                         isReadOnly={false}
                         isRequired={true}
                         name="group-name"
@@ -108,7 +109,9 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                           disabled={false}
                           id="group-name"
                           name="group-name"
+                          onBlur={[Function]}
                           onChange={[Function]}
+                          onFocus={[Function]}
                           readOnly={false}
                           required={true}
                           type="text"

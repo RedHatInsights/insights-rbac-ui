@@ -5,14 +5,13 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
   <Text
     className="pf-u-mt-0"
   >
-     
     <Text
       component="a"
       href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
       rel="noopener noreferrer"
       target="_blank"
     >
-      user management list.
+       user management list.
     </Text>
   </Text>
 </TextContent>
@@ -24,14 +23,13 @@ exports[`<ActiveUsers /> should render correctly with description 1`] = `
     className="pf-u-mt-0"
   >
     some description
-     
     <Text
       component="a"
       href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
       rel="noopener noreferrer"
       target="_blank"
     >
-      user management list.
+       user management list.
     </Text>
   </Text>
 </TextContent>
@@ -42,7 +40,6 @@ exports[`<ActiveUsers /> should render correctly with link title 1`] = `
   <Text
     className="pf-u-mt-0"
   >
-     
     <Text
       component="a"
       href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"

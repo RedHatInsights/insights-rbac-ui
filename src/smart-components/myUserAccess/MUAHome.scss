@@ -15,18 +15,16 @@
         display: grid;
         grid-template-columns: 1fr 2fr;
         column-gap: 24px;
-        padding: 0 24px;
         background: white;
         .ins-l-myUserAccess-section .pf-c-title { margin-top: 15px; }
         .ins-l-myUserAccess-section:first-of-type {
             border-right: 1px solid var(--pf-global--BorderColor--100);
-            padding-right: 24px;
         }
     }
 
     .ins-l-myUserAccess-section {
-        height: 80vh;
-        overflow: scroll;
+        height: calc(100vh - 111px - 76px);
+        overflow-x: auto;
         .pf-c-title { margin-bottom: var(--pf-global--spacer--md); }
     }
 }

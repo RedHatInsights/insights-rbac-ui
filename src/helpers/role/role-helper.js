@@ -6,14 +6,24 @@ export async function createRole(data) {
   return await roleApi.createRoles(data);
 }
 
-export function fetchRoles({ limit, offset, name, nameMatch, scope, orderBy, addFields, username, options }) {
-  return roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options);
+export function fetchRoles({ limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, options }) {
+  return roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, options);
 }
 
-export async function fetchRolesWithPolicies({ limit, offset, name, nameMatch, scope = 'account', orderBy, addFields = [ 'groups_in_count' ], username, options }) {
+export async function fetchRolesWithPolicies({
+  limit,
+  offset,
+  name,
+  nameMatch,
+  scope = 'account',
+  orderBy,
+  addFields = ['groups_in_count'],
+  username,
+  options,
+}) {
   return {
-    ...await roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options),
-    ...await insights.chrome.auth.getUser()
+    ...(await roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, options)),
+    ...(await insights.chrome.auth.getUser()),
   };
 }
 
