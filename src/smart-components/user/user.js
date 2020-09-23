@@ -10,7 +10,6 @@ import { Section, DateFormat, Skeleton } from '@redhat-cloud-services/frontend-c
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import classNames from 'classnames';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import './user.scss';
 
@@ -147,13 +146,7 @@ const User = ({
             title={username}
             renderTitleTag={() =>
               user && !isLoading ? (
-                <Label
-                  color={user?.is_active && 'green'}
-                  isCompact
-                  className={classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !user?.is_active })}
-                >
-                  {user?.is_active ? 'Active' : 'Inactive'}
-                </Label>
+                <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
               ) : (
                 <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton>
               )
