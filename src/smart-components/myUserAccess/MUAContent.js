@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import { Stack, StackItem, Title } from '@patternfly/react-core';
+import { Grid, GridItem, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import MUACard from '../../presentational-components/myUserAccess/MUACard';
 
@@ -15,25 +15,27 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
 
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
-      <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__cards">
-        <Stack hasGutter className="pf-u-pr-lg pf-u-pl-lg">
-          <StackItem className="ins-l-myUserAccess-section__cards--entitled">
-            {/* No conditional here because you have to have a subscription to get to /settings */}
-            <MUACard header={`Your organization's subscriptions`} entitlements={entitledBundles} />
-          </StackItem>
-          {unEntitledBundles.length > 0 && (
-            <StackItem className="ins-l-myUserAccess-section__cards--unentitled">
-              <MUACard header="Not subscribed" entitlements={unEntitledBundles} isDisabled />
+      <Grid>
+        <GridItem className="pf-m-3-col-on-md ins-l-myUserAccess-section__cards">
+          <Stack>
+            <StackItem className="ins-l-myUserAccess-section__cards--entitled">
+              {/* No conditional here because you have to have a subscription to get to /settings */}
+              <MUACard header={`Your organization's subscriptions`} entitlements={entitledBundles} />
             </StackItem>
-          )}
-        </Stack>
-      </section>
-      <section className="ins-l-myUserAccess-section ins-l-myUserAccess-section__table">
-        <Title headingLevel="h3" size="xl">
-          Your {isOrgAdmin ? 'roles' : 'permissions'}
-        </Title>
-        <MuaBundleRoute />
-      </section>
+            {unEntitledBundles.length > 0 && (
+              <StackItem className="ins-l-myUserAccess-section__cards--unentitled">
+                <MUACard header="Not subscribed" entitlements={unEntitledBundles} isDisabled />
+              </StackItem>
+            )}
+          </Stack>
+        </GridItem>
+        <GridItem className="pf-m-9-col-on-md ins-l-myUserAccess-section__table">
+          <Title headingLevel="h3" size="xl">
+            Your {isOrgAdmin ? 'roles' : 'permissions'}
+          </Title>
+          <MuaBundleRoute />
+        </GridItem>
+      </Grid>
     </OrgAdminContext.Provider>
   );
 };
