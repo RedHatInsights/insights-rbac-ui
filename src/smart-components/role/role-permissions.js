@@ -95,7 +95,7 @@ const Permissions = () => {
       // eslint-disable-next-line react/jsx-key
       <Fragment />,
       {
-        label: 'Delete',
+        label: 'Remove',
         props: {
           isDisabled: !selectedPermissions.length > 0,
         },
