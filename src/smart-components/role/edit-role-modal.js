@@ -66,7 +66,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
   const onCancel = () => replace(cancelRoute);
   const handleSubmit = (data) =>
-    dispatch(updateRole(id, data)).then(() => {
+    dispatch(updateRole(id, { ...data, display_name: data.name })).then(() => {
       afterSubmit();
       push(cancelRoute);
     });
