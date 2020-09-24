@@ -4,7 +4,7 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
 import { routes } from '../../../package.json';
-import { fetchRole } from '../../redux/actions/role-actions';
+import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
@@ -86,7 +86,13 @@ const Role = () => {
       </TopToolbar>
       {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
       <Route path={routes['role-detail-remove']}>
-        {!isRecordLoading && <RemoveRoleModal cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-remove']} />}
+        {!isRecordLoading && (
+          <RemoveRoleModal
+            afterSubmit={() => dispatch(fetchRolesWithPolicies())}
+            cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
+            routeMatch={routes['role-detail-remove']}
+          />
+        )}
       </Route>
       <Route path={routes['role-detail-edit']}>
         {!isRecordLoading && (

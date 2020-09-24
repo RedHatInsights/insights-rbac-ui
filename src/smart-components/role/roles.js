@@ -52,10 +52,18 @@ const Roles = () => {
     <Fragment>
       <Route exact path={paths['add-role']} component={AddRoleWizard} />
       <Route exact path={paths['remove-role']}>
-        {!isLoading && <RemoveRole routeMatch={paths['remove-role']} cancelRoute={paths.roles} />}
+        {!isLoading && (
+          <RemoveRole
+            routeMatch={paths['remove-role']}
+            cancelRoute={paths.roles}
+            afterSubmit={() => fetchData({ ...pagination, name: filterValue })}
+          />
+        )}
       </Route>
       <Route exact path={paths['edit-role']}>
-        {!isLoading && <EditRole afterSubmit={() => fetchData(pagination)} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />}
+        {!isLoading && (
+          <EditRole afterSubmit={() => fetchData({ ...pagination, name: filterValue })} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />
+        )}
       </Route>
     </Fragment>
   );
