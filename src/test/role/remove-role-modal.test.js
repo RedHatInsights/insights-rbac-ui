@@ -17,6 +17,7 @@ describe('<RemoveRoleModal />', () => {
   const initialProps = {
     routeMatch: '/role/:id',
     cancelRoute: '/cancel',
+    afterSubmit: jest.fn(),
   };
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   const mockStore = configureStore(middlewares);
@@ -46,7 +47,7 @@ describe('<RemoveRoleModal />', () => {
         },
       },
     });
-    removeRoleSpy.mockImplementationOnce(() => Promise.resolve({ type: 'REMOVE_ROLE', payload: Promise.resolve() }));
+    removeRoleSpy.mockImplementationOnce(() => ({ type: 'REMOVE_ROLE', payload: Promise.resolve() }));
 
     const wrapper = mount(
       <ComponentWrapper store={store}>

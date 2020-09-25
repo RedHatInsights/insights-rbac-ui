@@ -91,7 +91,7 @@ describe('<EditRoleModal />', () => {
     });
 
     expect(updateRoleSpy).toHaveBeenCalledTimes(1);
-    expect(updateRoleSpy).toHaveBeenCalledWith(ROLE_ID, { description: 'foo', name: 'role-name', uuid: 'foo' });
+    expect(updateRoleSpy).toHaveBeenCalledWith(ROLE_ID, { description: 'foo', name: 'role-name', display_name: 'role-name', uuid: 'foo' });
     expect(fetchRoleSpy).not.toHaveBeenCalled();
     expect(afterSubmit).toHaveBeenCalledWith();
   });

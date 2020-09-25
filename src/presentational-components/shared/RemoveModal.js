@@ -49,7 +49,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
 };
 
 RemoveModal.propTypes = {
-  text: PropTypes.string,
+  text: PropTypes.any,
   title: PropTypes.string,
   confirmButtonLabel: PropTypes.string,
   onSubmit: PropTypes.func,
