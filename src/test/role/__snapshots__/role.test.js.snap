@@ -14,11 +14,12 @@ Array [
             ],
             "transforms": Array [
               [Function],
+              [Function],
             ],
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -27,11 +28,54 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-0",
+          "props": Object {
+            "data-key": 0,
+            "data-label": "",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -46,7 +90,7 @@ Array [
           },
           "property": "application",
           "props": Object {
-            "data-key": 0,
+            "data-key": 1,
             "data-label": "Application",
           },
         },
@@ -61,7 +105,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -70,11 +114,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -89,7 +133,7 @@ Array [
           },
           "property": "resource-type",
           "props": Object {
-            "data-key": 1,
+            "data-key": 2,
             "data-label": "Resource type",
           },
         },
@@ -104,7 +148,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -113,11 +157,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -132,7 +176,7 @@ Array [
           },
           "property": "operation",
           "props": Object {
-            "data-key": 2,
+            "data-key": 3,
             "data-label": "Operation",
           },
         },
@@ -147,7 +191,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -156,11 +200,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -176,13 +220,58 @@ Array [
           },
           "property": "last-commit",
           "props": Object {
-            "data-key": 3,
+            "data-key": 4,
             "data-label": "Last commit",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-5",
+          "props": Object {
+            "data-key": 5,
+            "data-label": "",
           },
         },
       ]
     }
-    data-ouia-component-id={219}
+    data-ouia-component-id={417}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -202,7 +291,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={219}
+    data-ouia-component-id={417}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
@@ -227,11 +316,12 @@ Array [
             ],
             "transforms": Array [
               [Function],
+              [Function],
             ],
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -240,11 +330,54 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-0",
+          "props": Object {
+            "data-key": 0,
+            "data-label": "",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -259,7 +392,7 @@ Array [
           },
           "property": "application",
           "props": Object {
-            "data-key": 0,
+            "data-key": 1,
             "data-label": "Application",
           },
         },
@@ -274,7 +407,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -283,11 +416,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -302,7 +435,7 @@ Array [
           },
           "property": "resource-type",
           "props": Object {
-            "data-key": 1,
+            "data-key": 2,
             "data-label": "Resource type",
           },
         },
@@ -317,7 +450,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -326,11 +459,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -345,7 +478,7 @@ Array [
           },
           "property": "operation",
           "props": Object {
-            "data-key": 2,
+            "data-key": 3,
             "data-label": "Operation",
           },
         },
@@ -360,7 +493,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -369,11 +502,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -389,13 +522,58 @@ Array [
           },
           "property": "last-commit",
           "props": Object {
-            "data-key": 3,
+            "data-key": 4,
             "data-label": "Last commit",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-5",
+          "props": Object {
+            "data-key": 5,
+            "data-label": "",
           },
         },
       ]
     }
-    data-ouia-component-id={26}
+    data-ouia-component-id={110}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -415,7 +593,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={26}
+    data-ouia-component-id={110}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
@@ -440,11 +618,12 @@ Array [
             ],
             "transforms": Array [
               [Function],
+              [Function],
             ],
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -453,11 +632,54 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-0",
+          "props": Object {
+            "data-key": 0,
+            "data-label": "",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -472,7 +694,7 @@ Array [
           },
           "property": "application",
           "props": Object {
-            "data-key": 0,
+            "data-key": 1,
             "data-label": "Application",
           },
         },
@@ -487,7 +709,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -496,11 +718,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -515,7 +737,7 @@ Array [
           },
           "property": "resource-type",
           "props": Object {
-            "data-key": 1,
+            "data-key": 2,
             "data-label": "Resource type",
           },
         },
@@ -530,7 +752,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -539,11 +761,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -558,7 +780,7 @@ Array [
           },
           "property": "operation",
           "props": Object {
-            "data-key": 2,
+            "data-key": 3,
             "data-label": "Operation",
           },
         },
@@ -573,7 +795,7 @@ Array [
           },
           "data": undefined,
           "extraParams": Object {
-            "actionResolver": undefined,
+            "actionResolver": [Function],
             "actions": undefined,
             "allRowsSelected": false,
             "areActionsDisabled": undefined,
@@ -582,11 +804,11 @@ Array [
             "dropdownDirection": "down",
             "dropdownPosition": "right",
             "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 0,
+            "firstUserColumnIndex": 1,
             "onCollapse": undefined,
             "onExpand": undefined,
             "onRowEdit": undefined,
-            "onSelect": undefined,
+            "onSelect": [Function],
             "onSort": [Function],
             "rowLabeledBy": "simple-node",
             "sortBy": Object {},
@@ -602,13 +824,58 @@ Array [
           },
           "property": "last-commit",
           "props": Object {
-            "data-key": 3,
+            "data-key": 4,
             "data-label": "Last commit",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
+            "label": "",
+            "transforms": Array [
+              [Function],
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "column-5",
+          "props": Object {
+            "data-key": 5,
+            "data-label": "",
           },
         },
       ]
     }
-    data-ouia-component-id={131}
+    data-ouia-component-id={277}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -628,7 +895,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={131}
+    data-ouia-component-id={277}
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
@@ -649,7 +916,7 @@ exports[`role should render top toolbar 1`] = `
       },
       Object {
         "isActive": true,
-        "title": "Some name",
+        "title": "name",
       },
     ]
   }
