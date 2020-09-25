@@ -3,15 +3,14 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { Modal, Button, Text, TextContent, TextVariants, Split, SplitItem, Checkbox } from '@patternfly/react-core';
+import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/cjs/actions';
-
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';
 import { roleNameSelector } from './role-selectors';
 
-const RemoveRoleModal = ({ routeMatch, cancelRoute }) => {
+const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   const isMounted = useIsMounted();
   const {
     params: { id },
@@ -33,7 +32,11 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute }) => {
         .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
   }, []);
 
-  const onSubmit = () => removeRole(id).then(() => push('/roles'));
+  const onSubmit = () =>
+    dispatch(removeRole(id)).then(() => {
+      push('/roles');
+      return afterSubmit();
+    });
 
   const onCancel = () => replace(cancelRoute);
   if (!internalRoleName) {
@@ -86,6 +89,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute }) => {
 RemoveRoleModal.propTypes = {
   routeMatch: PropTypes.string.isRequired,
   cancelRoute: PropTypes.string.isRequired,
+  afterSubmit: PropTypes.func.isRequired,
 };
 
 export default RemoveRoleModal;

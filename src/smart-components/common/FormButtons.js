@@ -1,10 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@patternfly/react-core';
+import { ActionGroup, Button } from '@patternfly/react-core';
 import { isEmpty } from 'lodash';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import FormSpy from '@data-driven-forms/react-form-renderer/dist/cjs/form-spy';
-import { ActionGroup } from '@patternfly/react-core';
 
 const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) => {
   const { onCancel } = useFormApi();
