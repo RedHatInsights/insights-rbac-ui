@@ -42,3 +42,15 @@
         }
     }
 }
+
+.ins-c-rbac-permissions-table {
+    .ins-c-primary-toolbar {
+        .pf-c-toolbar__content {
+            .pf-c-toolbar__content-section {
+                .pf-m-filter-group {
+                    max-width: 35em;
+                }
+            }
+        }
+    }
+}

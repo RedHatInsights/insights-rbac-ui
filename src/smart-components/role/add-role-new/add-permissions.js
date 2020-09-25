@@ -150,7 +150,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
-    <div>
+    <div className="ins-c-rbac-permissions-table">
       <TableToolbarView
         columns={columns}
         isSelectable={true}
