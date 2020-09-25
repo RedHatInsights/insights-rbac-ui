@@ -70,7 +70,7 @@ const Groups = () => {
           }}
         />
       </Route>
-      <Route exact path={ paths['group-edit'].path }>
+      <Route exact path={paths['group-edit'].path}>
         <EditGroup
           postMethod={(config) => {
             dispatch(fetchGroups(config));
