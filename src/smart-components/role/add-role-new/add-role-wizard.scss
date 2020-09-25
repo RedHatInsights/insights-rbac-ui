@@ -34,10 +34,11 @@
                             font-size: var(--pf-global--FontSize--sm);
                         }
                     }
+                     .pf-c-chip::before {
+                         border-style: none;
+                     }
                 }
             }
         }
     }
 }
-
-
