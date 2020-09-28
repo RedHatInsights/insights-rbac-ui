@@ -24,11 +24,11 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
           entitlements?.map(([key]) => {
             const data = bundleData.find(({ entitlement }) => entitlement === key);
             return data ? (
-              <StackItem key={key} className='ins-c-mua-cardWrapper'>
-                <NavLink className={classNames(
-                  "ins-c-mua-bundles__cardlink",
-                  { 'ins-c-mua-bundles__cardlink--disabled': isDisabled } )}
-                  to={{ pathname: routes['my-user-access'], search: `bundle=${key}` }}>
+              <StackItem key={key} className="ins-c-mua-cardWrapper">
+                <NavLink
+                  className={classNames('ins-c-mua-bundles__cardlink', { 'ins-c-mua-bundles__cardlink--disabled': isDisabled })}
+                  to={{ pathname: routes['my-user-access'], search: `bundle=${key}` }}
+                >
                   <Card
                     key={data.title}
                     isFlat={isDisabled || key !== bundleParam}
