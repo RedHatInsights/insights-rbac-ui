@@ -21,6 +21,7 @@ class App extends Component {
   componentDidMount() {
     const { history } = this.props;
     insights.chrome.init();
+    !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
     insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
     insights.chrome.identifyApp(insights.chrome.getApp());
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
