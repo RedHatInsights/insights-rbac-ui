@@ -1,0 +1,39 @@
+.ins-c-mua-bundles__card {
+    &--header { font-weight: 300; }
+    &--body { color: var(--pf-global--Color--200); }
+    &--applist {
+        display: flex;
+        flex-direction: column;
+        color: var(--pf-global--Color--400);
+        span {
+            text-transform: capitalize;
+            width: max-content;
+            & + span { margin-top: var(--pf-global--spacer--sm); }
+        }
+    }
+    &--insights {
+        .ins-c-mua-bundles__card--applist {
+            display: grid;
+            grid-template-columns: auto auto;
+            gap: var(--pf-global--spacer--sm);
+            span { margin-top: 0; }
+        }
+    }
+
+    &--disabled {
+        background: var(--pf-global--disabled-color--300);
+    }
+
+    & + .ins-c-mua-bundles__card { margin-top: var(--pf-global--spacer--md); }
+
+}
+
+.ins-c-mua-bundles__cardlink {
+    color: inherit;
+    &:hover {
+        text-decoration: none;
+    }
+    &--disabled {
+        pointer-events: none;
+    }
+}
