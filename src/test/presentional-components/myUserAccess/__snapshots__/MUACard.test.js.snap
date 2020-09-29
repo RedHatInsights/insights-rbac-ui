@@ -39,10 +39,11 @@ exports[`<MUACard /> should render correctly 1`] = `
       className="pf-l-stack pf-m-gutter"
     >
       <StackItem
+        className="ins-c-mua-cardWrapper"
         key="entitled"
       >
         <div
-          className="pf-l-stack__item"
+          className="pf-l-stack__item ins-c-mua-cardWrapper"
         >
           <NavLink
             className="ins-c-mua-bundles__cardlink"
@@ -144,10 +145,11 @@ exports[`<MUACard /> should render correctly 1`] = `
         </div>
       </StackItem>
       <StackItem
+        className="ins-c-mua-cardWrapper"
         key="not-entitled"
       >
         <div
-          className="pf-l-stack__item"
+          className="pf-l-stack__item ins-c-mua-cardWrapper"
         >
           <NavLink
             className="ins-c-mua-bundles__cardlink"
@@ -293,13 +295,14 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
       className="pf-l-stack pf-m-gutter"
     >
       <StackItem
+        className="ins-c-mua-cardWrapper"
         key="entitled"
       >
         <div
-          className="pf-l-stack__item"
+          className="pf-l-stack__item ins-c-mua-cardWrapper"
         >
           <NavLink
-            className="ins-c-mua-bundles__cardlink"
+            className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
             to={
               Object {
                 "pathname": "/my-user-access",
@@ -309,7 +312,7 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
           >
             <Link
               aria-current={null}
-              className="ins-c-mua-bundles__cardlink"
+              className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
               to={
                 Object {
                   "pathname": "/my-user-access",
@@ -319,13 +322,13 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
             >
               <LinkAnchor
                 aria-current={null}
-                className="ins-c-mua-bundles__cardlink"
+                className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
                 href="/my-user-access?bundle=entitled"
                 navigate={[Function]}
               >
                 <a
                   aria-current={null}
-                  className="ins-c-mua-bundles__cardlink"
+                  className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
                   href="/my-user-access?bundle=entitled"
                   onClick={[Function]}
                 >
@@ -397,13 +400,14 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
         </div>
       </StackItem>
       <StackItem
+        className="ins-c-mua-cardWrapper"
         key="not-entitled"
       >
         <div
-          className="pf-l-stack__item"
+          className="pf-l-stack__item ins-c-mua-cardWrapper"
         >
           <NavLink
-            className="ins-c-mua-bundles__cardlink"
+            className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
             to={
               Object {
                 "pathname": "/my-user-access",
@@ -413,7 +417,7 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
           >
             <Link
               aria-current={null}
-              className="ins-c-mua-bundles__cardlink"
+              className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
               to={
                 Object {
                   "pathname": "/my-user-access",
@@ -423,13 +427,13 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
             >
               <LinkAnchor
                 aria-current={null}
-                className="ins-c-mua-bundles__cardlink"
+                className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
                 href="/my-user-access?bundle=not-entitled"
                 navigate={[Function]}
               >
                 <a
                   aria-current={null}
-                  className="ins-c-mua-bundles__cardlink"
+                  className="ins-c-mua-bundles__cardlink ins-c-mua-bundles__cardlink--disabled"
                   href="/my-user-access?bundle=not-entitled"
                   onClick={[Function]}
                 >
