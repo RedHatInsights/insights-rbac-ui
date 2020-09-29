@@ -48,10 +48,9 @@ exports[`<GroupNameErrorState /> should render correctly 1`] = `
         </EmptyStateIcon>
         <Title
           headingLevel="h4"
-          size="lg"
         >
           <h4
-            className="pf-c-title pf-m-lg"
+            className="pf-c-title pf-m-md"
           >
             Group name already taken
           </h4>
