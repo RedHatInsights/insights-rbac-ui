@@ -22,7 +22,7 @@
     height: calc(100vh - 111px - 70px);
     padding: 0 var(--pf-global--spacer--lg);
     overflow-x: auto;
-    .pf-c-title {padding: var(--pf-global--spacer--lg) 0;}
+    h3 {padding: var(--pf-global--spacer--lg) 0;}
   }
   .ins-l-myUserAccess-section__cards {border-right: 1px solid var(--pf-global--BorderColor--100);}
 
@@ -62,12 +62,6 @@
         > td::before {display: none;}
       }
       > .pf-c-title {display: none;}
-      .pf-c-empty-state__content {
-        .pf-c-title {font-size: var(--pf-c-title--m-2xl--FontSize);}
-        .pf-c-empty-state__icon {
-          font-size: var(--pf-c-empty-state--m-xl__icon--FontSize);
-        }
-      }
     }
   }   
 }
