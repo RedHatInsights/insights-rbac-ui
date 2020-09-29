@@ -12,12 +12,20 @@
   }
 }
 
+.pf-c-toolbar .pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
+  display: none;
+}
+
 @media only screen and (max-width: 768px) {
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
-}
-
-.pf-c-toolbar .pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
-  display: none;
+  .pf-c-empty-state__content {
+    h4.pf-c-title {
+      font-size: var(--pf-c-title--m-2xl--FontSize);
+    }
+    .pf-c-empty-state__icon {
+      font-size: var(--pf-c-empty-state--m-xl__icon--FontSize);
+    }
+  }
 }
