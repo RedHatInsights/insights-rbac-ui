@@ -7,7 +7,6 @@
         color: var(--pf-global--Color--400);
         span {
             text-transform: capitalize;
-            width: max-content;
             & + span { margin-top: var(--pf-global--spacer--sm); }
         }
     }
