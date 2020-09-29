@@ -1,19 +1,15 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import thunk from 'redux-thunk';
 import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import promiseMiddleware from 'redux-promise-middleware';
 import { mock } from '../../__mocks__/apiMock';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
 import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
 import { RBAC_API_BASE } from '../../../utilities/constants';
 import DefaultGroupChange from '../../../smart-components/group/role/default-group-change-modal';
 
 describe('<AddGroupRoles />', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   const addRolesToGroup = jest.fn();
   const addNotification = jest.fn();
   const onDefaultGroupChanged = jest.fn();
@@ -43,7 +39,7 @@ describe('<AddGroupRoles />', () => {
       selectedRoles: [{ uuid: 'dd1408bd-662a-49b7-b483-e3871bb6030b' }],
       addRolesToGroup,
     };
-    mockStore = configureStore(middlewares);
+    mockStore = configureStore();
   });
 
   afterEach(() => {
