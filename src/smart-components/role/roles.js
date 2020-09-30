@@ -42,7 +42,7 @@ const Roles = () => {
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions('cost-management').then((allPermissions) => {
+    window.insights.chrome.getUserPermissions('cost-management', true).then((allPermissions) => {
       const permissionList = allPermissions.map((permissions) => permissions.permission);
       setIsCostAdmin(permissionList.includes('cost-management:*:*'));
     });
