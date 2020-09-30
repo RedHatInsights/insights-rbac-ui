@@ -1,9 +1,10 @@
 /* eslint-disable no-unused-vars */
-import React, { useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
 import flatMap from 'lodash/flatMap';
 import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -77,10 +78,6 @@ export const resolveSplats = (selectedPermissions, permissions) => {
     : selectedPermissions;
 };
 
-let debounbcedGetApplicationOptions;
-let debounbcedGetResourceOptions;
-let debounbcedGetOperationOptions;
-
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
@@ -107,18 +104,22 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
     }));
 
-  useEffect(() => {
-    const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
-    if (roleType === 'copy' && baseRoleUuid) {
-      dispatch(fetchRole(baseRoleUuid));
-    }
-
-    debounbcedGetApplicationOptions = debounce(
+  const debounbcedGetApplicationOptions = useCallback(
+    debouncePromise(
       ({ applications, resources, operations }) =>
-        fetchOptions({ field: 'application', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
+        fetchOptions({
+          field: 'application',
+          limit: 50,
+          application: applications.join(),
+          resourceType: resources.join(),
+          verb: operations.join(),
+        }),
       3000
-    );
-    debounbcedGetResourceOptions = debounce(
+    ),
+    []
+  );
+  const debounbcedGetResourceOptions = useCallback(
+    debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
           field: 'resource_type',
@@ -128,12 +129,23 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           verb: operations.join(),
         }),
       3000
-    );
-    debounbcedGetOperationOptions = debounce(
+    ),
+    []
+  );
+  const debounbcedGetOperationOptions = useCallback(
+    debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
       3000
-    );
+    ),
+    []
+  );
+
+  useEffect(() => {
+    const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
+    if (roleType === 'copy' && baseRoleUuid) {
+      dispatch(fetchRole(baseRoleUuid));
+    }
 
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
