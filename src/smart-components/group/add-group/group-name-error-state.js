@@ -15,9 +15,7 @@ const GroupNameErrorState = ({ setHideFooter }) => {
   return (
     <EmptyState variant={EmptyStateVariant.small}>
       <EmptyStateIcon color={global_palette_red_100.value} icon={ExclamationCircleIcon} />
-      <Title headingLevel="h4" size="lg">
-        Group name already taken
-      </Title>
+      <Title headingLevel="h4">Group name already taken</Title>
       <EmptyStateBody>Please return to Step 1: Group information and choose a&nbsp;unique name for your group.</EmptyStateBody>
       <Button variant="primary" onClick={() => document.getElementsByClassName('pf-c-wizard__nav-link')[0].click()}>
         Return to Step 1

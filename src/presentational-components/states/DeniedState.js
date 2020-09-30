@@ -16,9 +16,7 @@ const DeniedState = () => {
       <Main>
         <EmptyState variant={EmptyStateVariant.full} className="ins-c-rbac-denied-state">
           <EmptyStateIcon icon={LockIcon} />
-          <Title headingLevel="h5" size="lg">
-            You do not have permissions to view or manage User access
-          </Title>
+          <Title headingLevel="h4">You do not have permissions to view or manage User access</Title>
           <EmptyStateBody>Contact your organization administrator(s) for more information.</EmptyStateBody>
           {document.referrer ? (
             <Button variant="primary" onClick={() => history.back()}>
