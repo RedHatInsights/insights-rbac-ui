@@ -7,6 +7,7 @@ import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patte
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
+import './remove-group-modal.scss';
 
 const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUuid, isModalOpen, postMethod, closeUrl }) => {
   useEffect(() => {
