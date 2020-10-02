@@ -40,7 +40,7 @@ describe('<User />', () => {
   });
 
   it('should render user', async () => {
-    mock.onGet(`${RBAC_API_BASE}/principals/?limit=0&offset=0&usernames=epacific-insights&sort_order=asc`).reply(200, {});
+    mock.onGet(`${RBAC_API_BASE}/principals/?limit=0&offset=0&usernames=epacific-insights&sort_order=asc&status=all`).reply(200, {});
     mock.onGet(`${RBAC_API_BASE}/roles/?limit=20&offset=0&add_fields=groups_in&username=epacific-insights`).reply(200, {});
     let wrapper;
     await act(async () => {

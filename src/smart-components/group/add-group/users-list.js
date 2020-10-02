@@ -115,8 +115,8 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
           label: 'Status',
           type: 'checkbox',
           items: [
-            { label: 'Active', value: 'active' },
-            { label: 'Inactive', value: 'inactive' },
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' },
           ],
         },
       ]}
