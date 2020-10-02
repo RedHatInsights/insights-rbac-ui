@@ -11,11 +11,15 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
+import * as UserHelper from '../../../helpers/user/user-helper';
+
 describe('<Users />', () => {
   let enhanceState;
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
+
+  const fetchUsersSpy = jest.spyOn(UserHelper, 'fetchUsers');
 
   beforeEach(() => {
     enhanceState = {
@@ -35,10 +39,11 @@ describe('<Users />', () => {
 
   afterEach(() => {
     mock.reset();
+    fetchUsersSpy.mockReset();
   });
 
   it('should render user list correctly', async () => {
-    mock.onGet(`/api/rbac/v1/principals/?limit=20&sort_order=asc`).replyOnce(200, {});
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
@@ -51,11 +56,15 @@ describe('<Users />', () => {
       );
     });
     expect(wrapper.find(TableToolbarView)).toHaveLength(1);
+    expect(fetchUsersSpy).toHaveBeenCalledWith({
+      limit: 20,
+      status: ['active'],
+    });
   });
 
   it('should fetch users on mount', () => {
     const store = mockStore(initialState);
-    mock.onGet(`/api/rbac/v1/principals/?limit=20&sort_order=asc`).replyOnce(200, {});
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     mount(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
@@ -66,12 +75,16 @@ describe('<Users />', () => {
     );
     const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
+    expect(fetchUsersSpy).toHaveBeenCalledWith({
+      limit: 20,
+      status: ['active'],
+    });
   });
 
   it('should fetch users on sort click', async () => {
     const store = mockStore(initialState);
-    mock.onGet('/api/rbac/v1/principals/?limit=20&sort_order=asc').replyOnce(200, {});
-    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=desc').replyOnce(200, {});
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -88,12 +101,21 @@ describe('<Users />', () => {
     });
     const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' }), expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })];
     expect(store.getActions()).toEqual(expectedPayload);
+    expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
+    expect(fetchUsersSpy).toHaveBeenLastCalledWith({
+      count: 39,
+      limit: 10,
+      name: [],
+      orderBy: '-username',
+      status: ['active'],
+    });
   });
 
   it('should fetch users on filter', async () => {
+    jest.useFakeTimers();
     const store = mockStore(initialState);
-    mock.onGet('/api/rbac/v1/principals/?limit=20&sort_order=asc').replyOnce(200, {});
-    mock.onGet('/api/rbac/v1/principals/?limit=10&sort_order=desc').replyOnce(200, {});
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
+    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     const wrapper = mount(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
@@ -106,7 +128,24 @@ describe('<Users />', () => {
     await act(async () => {
       target.simulate('change');
     });
-    const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' }), expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })];
+    await act(async () => {
+      jest.runAllTimers();
+    });
+    wrapper.update();
+    const expectedPayload = [
+      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
+      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
+    ];
     expect(store.getActions()).toEqual(expectedPayload);
+    expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
+    expect(fetchUsersSpy).toHaveBeenLastCalledWith({
+      count: 39,
+      limit: 10,
+      orderBy: 'username',
+      status: ['active'],
+      username: 'something',
+    });
   });
 });

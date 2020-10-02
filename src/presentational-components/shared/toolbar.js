@@ -171,6 +171,7 @@ export const activeFiltersConfigBuilder = (
       ? filters
           .map(
             ({ key: type, value: options }) =>
+              options &&
               options.length !== 0 && {
                 category: firstUpperCase(type),
                 type,
