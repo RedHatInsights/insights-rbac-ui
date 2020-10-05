@@ -2,7 +2,7 @@
 
 const SECTION = 'settings';
 const APP_ID = 'rbac';
-const APP_ID2 = 'my-user-access'
+const APP_ID2 = 'my-user-access';
 const routes = {};
 
 routes[`/beta/${SECTION}/${APP_ID}`] = { host: 'http://localhost:8002' };

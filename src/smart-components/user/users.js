@@ -45,7 +45,7 @@ const Users = () => {
   return (
     <Switch>
       <Route exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
-      <Route path={ paths.users } render={ () => renderUsers() } />
+      <Route path={ [ paths.users, paths.rbac ] } render={ () => renderUsers() } />
     </Switch>
 
   );
