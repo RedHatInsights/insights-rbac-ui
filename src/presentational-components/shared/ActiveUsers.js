@@ -1,6 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 const ActiveUser = ({ description, linkTitle }) => (
   <TextContent>
     <Text className="pf-u-mt-0" component={TextVariants.h7}>
@@ -12,6 +13,8 @@ const ActiveUser = ({ description, linkTitle }) => (
         rel="noopener noreferrer"
       >
         {linkTitle}
+        &nbsp;
+        <ExternalLinkAltIcon />
       </Text>
     </Text>
   </TextContent>
