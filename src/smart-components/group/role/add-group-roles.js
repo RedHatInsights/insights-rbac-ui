@@ -57,10 +57,17 @@ const AddGroupRoles = ({
         setShowConfirmModal(true);
       }}
       actions={[
-        <Button aria-label="Save" variant="primary" key="confirm" isDisabled={selectedRoles.length === 0} onClick={onSubmit}>
+        <Button
+          aria-label="Save"
+          ouiaId="primary-save-button"
+          variant="primary"
+          key="confirm"
+          isDisabled={selectedRoles.length === 0}
+          onClick={onSubmit}
+        >
           Add to group
         </Button>,
-        <Button aria-label="Cancel" variant="link" key="cancel" onClick={onCancel}>
+        <Button aria-label="Cancel" ouiaId="secondary-cancel-button" variant="link" key="cancel" onClick={onCancel}>
           Cancel
         </Button>,
       ]}
