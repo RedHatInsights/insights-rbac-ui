@@ -19,6 +19,7 @@ import './group-roles.scss';
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
 
 const createRows = (groupUuid, data, expanded, checkedRows = []) => {
+  console.log('Looking for the path: ', data);
   return data
     ? data.reduce(
         (acc, { uuid, name, description, modified }) => [

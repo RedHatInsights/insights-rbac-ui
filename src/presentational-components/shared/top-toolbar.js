@@ -7,16 +7,20 @@ import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-com
 
 import './top-toolbar.scss';
 
-export const TopToolbar = ({ children, breadcrumbs }) => (
-  <Fragment>
-    {breadcrumbs && (
-      <section className="pf-c-page__main-breadcrumb">
-        <RbacBreadcrumbs {...breadcrumbs} />
-      </section>
-    )}
-    <PageHeader className="ins-rbac-page-header">{children}</PageHeader>
-  </Fragment>
-);
+export const TopToolbar = ({ children, breadcrumbs }) => {
+  console.log('Verifying TopToolbar in top-toolbar ', breadcrumbs);
+
+  return (
+    <Fragment>
+      {breadcrumbs && (
+        <section className="pf-c-page__main-breadcrumb">
+          <RbacBreadcrumbs {...breadcrumbs} />
+        </section>
+      )}
+      <PageHeader className="ins-rbac-page-header">{children}</PageHeader>
+    </Fragment>
+  );
+};
 
 TopToolbar.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
@@ -28,22 +32,26 @@ TopToolbar.defaultProps = {
   paddingBottom: false,
 };
 
-export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
-  <Fragment>
-    <Flex>
-      <FlexItem className="pf-u-mb-sm" spaceItems={{ modifier: 'spaceItemsSm' }}>
-        <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
-      </FlexItem>
-      <FlexItem alignSelf={{ modifier: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
-    </Flex>
-    {description && (
-      <TextContent className="ins-rbac-page-header__description">
-        <Text component={TextVariants.p}>{description}</Text>
-      </TextContent>
-    )}
-    {children}
-  </Fragment>
-);
+export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => {
+  console.log('Testing out my stuff in top-toolbar: ');
+
+  return (
+    <Fragment>
+      <Flex>
+        <FlexItem className="pf-u-mb-sm" spaceItems={{ modifier: 'spaceItemsSm' }}>
+          <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
+        </FlexItem>
+        <FlexItem alignSelf={{ modifier: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
+      </Flex>
+      {description && (
+        <TextContent className="ins-rbac-page-header__description">
+          <Text component={TextVariants.p}>{description}</Text>
+        </TextContent>
+      )}
+      {children}
+    </Fragment>
+  );
+};
 
 TopToolbarTitle.propTypes = {
   title: PropTypes.string,

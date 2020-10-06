@@ -105,7 +105,7 @@ export const TableToolbarView = ({
   });
 
   const renderTable = () => (
-    <Fragment>
+  <Fragment>
       <Toolbar
         isSelectable={isSelectable}
         checkedRows={checkedRows}
@@ -134,6 +134,7 @@ export const TableToolbarView = ({
         value={value}
         hideFilterChips={hideFilterChips}
       />
+      {console.log('This is my btns: ', toolbarButtons)}
       {isLoading ? (
         <ListLoader />
       ) : (
@@ -176,6 +177,8 @@ export const TableToolbarView = ({
     </Fragment>
   );
 
+  console.log('This is the table-toolbar-view actionResolver: ', actionResolver);
+  console.log('Estamos corriendo aqui: ', data);
   return (
     <Fragment>
       {routes()}

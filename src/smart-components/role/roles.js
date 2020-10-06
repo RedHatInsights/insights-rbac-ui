@@ -34,7 +34,7 @@ const Roles = () => {
   const [filterValue, setFilterValue] = useState('');
   const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
-  const { push } = useHistory();
+  const { push, location } = useHistory();
   const { roles, isLoading, pagination, userIdentity, userEntitlements } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
@@ -75,11 +75,20 @@ const Roles = () => {
 
   const toolbarButtons = () => [
     <Fragment key="add-role">
+      {console.log('This is history in roles: ', location)}
+      {console.log('Thios is our paths in roles: ', paths)}
       {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
         <Link to={paths['add-role']}>
           <Button variant="primary" aria-label="Create role">
             Create role
           </Button>
+        </Link>
+      ) : (
+        <Fragment />
+      )}
+      {userEntitlements && location.pathname === paths['roles-add-permission'] ? (
+        <Link path={paths['role-add-permission']} key="role-add-permission">
+          <Button variant="primary">Add Permission</Button>
         </Link>
       ) : (
         <Fragment />
@@ -116,6 +125,8 @@ const Roles = () => {
       </StackItem>
     </Stack>
   );
+
+  console.log('This is a test of data in Roles: ', paths);
 
   return (
     <Switch>

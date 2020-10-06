@@ -1,4 +1,5 @@
 import React, { useEffect, Fragment } from 'react';
+// import { useHistory } from 'react-router-dom';
 import { useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { fetchRole } from '../../redux/actions/role-actions';
@@ -22,6 +23,9 @@ const Role = () => {
     dispatch(fetchRole(uuid));
     groupUuid && dispatch(fetchGroup(groupUuid));
   }, [uuid, groupUuid]);
+
+  console.log('Trying to see our data in role: ', role);
+  console.log('Tying to see our group data in role: ', group);
 
   return (
     <Fragment>

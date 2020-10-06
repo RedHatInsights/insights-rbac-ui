@@ -43,6 +43,9 @@ const Permissions = () => {
           .map((acc) => ({ ...acc, modified: role.modified }))
       : [];
 
+  console.log('Testing out data in role-permission: ', role);
+  console.log('Our filter is: ', filter);
+
   return (
     <section className="pf-c-page__main-section ins-c-role__permissions">
       <TextContent>

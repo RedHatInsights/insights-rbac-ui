@@ -141,6 +141,7 @@
     "add-role": "/roles/add-role",
     "remove-role": "/roles/remove/:id",
     "role-detail": "/roles/detail/:uuid",
+    "role-add-permission": "/roles/detail/:uuid/add-permission",
     "users": "/users",
     "user-detail": "/users/detail/:username",
     "my-user-access": "/my-user-access"

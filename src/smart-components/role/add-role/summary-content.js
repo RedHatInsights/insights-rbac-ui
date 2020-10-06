@@ -16,7 +16,6 @@ import ResourceDefinitionsTable from './resource-definitions-table';
 
 const SummaryContent = (formData) => {
   const { application = '', description = '', name = '', permission = '', resourceType = '' } = formData;
-
   return (
     <Stack hasGutter>
       <StackItem>
