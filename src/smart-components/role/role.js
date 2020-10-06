@@ -69,6 +69,7 @@ const Role = () => {
           {!isRecordLoading && role && !role.system && (
             <LevelItem>
               <Dropdown
+                ouiaId="role-title-actions-dropdown"
                 toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="role-actions-dropdown" />}
                 isOpen={isDropdownOpen}
                 isPlain

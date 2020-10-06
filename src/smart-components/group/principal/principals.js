@@ -168,6 +168,7 @@ const GroupPrincipals = () => {
             filterPlaceholder="username"
             titlePlural="members"
             titleSingular="member"
+            ouiaId="members-table"
             pagination={pagination}
             filterValue={filterValue}
             fetchData={({ limit, offset, name }) => fetchData(name, { limit, offset })}
