@@ -56,6 +56,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         filterValue={filterValue}
         setFilterValue={(config) => handleFilterValue(config, true)}
         pagination={pagination}
+        ouiaId="resource-definition-table"
         noData={resourceDefinitions.length === 0}
         createRows={(data) => data.map((value) => ({ cells: [value] }))}
         titlePlural="Resource definitions"

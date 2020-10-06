@@ -24,10 +24,16 @@ const CustomButtons = ({ saveLabel, cancelLabel }) => {
       {({ pristine, invalid, validating, submitting }) => (
         <div className="pf-c-form">
           <ActionGroup className="pf-u-mt-0">
-            <Button variant="primary" form={MODAL_FORM_IDENTIFIER} type="submit" isDisabled={pristine || validating || submitting || invalid}>
+            <Button
+              ouiaId="primary-save-button"
+              variant="primary"
+              form={MODAL_FORM_IDENTIFIER}
+              type="submit"
+              isDisabled={pristine || validating || submitting || invalid}
+            >
               {saveLabel}
             </Button>
-            <Button variant="link" onClick={onCancel} id="cancel-modal">
+            <Button ouiaId="secondary-cancel-button" variant="link" onClick={onCancel} id="cancel-modal">
               {cancelLabel}
             </Button>
           </ActionGroup>

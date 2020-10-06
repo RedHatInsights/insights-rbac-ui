@@ -117,7 +117,7 @@ const Groups = () => {
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
           <Link to={paths['add-group']} key="add-group" className="pf-m-visible-on-md">
-            <Button variant="primary" aria-label="Create group">
+            <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               Create group
             </Button>
           </Link>,
@@ -171,6 +171,7 @@ const Groups = () => {
             actionResolver={actionResolver}
             titlePlural="groups"
             titleSingular="group"
+            ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
             fetchData={(config) => dispatch(fetchGroups(config))}
