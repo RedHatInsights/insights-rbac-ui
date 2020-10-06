@@ -58,7 +58,7 @@ describe('<Users />', () => {
     expect(wrapper.find(TableToolbarView)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['active'],
+      status: ['Active'],
     });
   });
 
@@ -77,7 +77,7 @@ describe('<Users />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['active'],
+      status: ['Active'],
     });
   });
 
@@ -107,7 +107,7 @@ describe('<Users />', () => {
       limit: 10,
       name: [],
       orderBy: '-username',
-      status: ['active'],
+      status: ['Active'],
     });
   });
 
@@ -144,7 +144,7 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      status: ['active'],
+      status: ['Active'],
       username: 'something',
     });
   });
