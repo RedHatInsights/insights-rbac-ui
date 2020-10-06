@@ -1,7 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, TextContent } from '@patternfly/react-core';
-
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {

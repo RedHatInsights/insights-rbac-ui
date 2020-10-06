@@ -9,13 +9,26 @@ import Role from '../../smart-components/role/role';
 import { mock } from '../__mocks__/apiMock';
 import { RBAC_API_BASE } from '../../utilities/constants';
 import toJson from 'enzyme-to-json';
+import { FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
   let mockStore;
+  let initialState;
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
+    initialState = {
+      roleReducer: {
+        isRecordLoading: false,
+        selectedRole: {
+          uuid: '1234',
+          display_name: 'name',
+          description: 'description',
+          access: [{ permission: 'some1:*:read' }, { permission: 'some2:*:write' }, { permission: 'some3:*:execute' }],
+        },
+      },
+    };
   });
 
   describe('role only', () => {
@@ -52,16 +65,7 @@ describe('role', () => {
       let wrapper;
       await act(async () => {
         wrapper = mount(
-          <Provider
-            store={mockStore({
-              roleReducer: {
-                isRecordLoading: false,
-                selectedRole: {
-                  display_name: 'Some name',
-                },
-              },
-            })}
-          >
+          <Provider store={mockStore(initialState)}>
             <MemoryRouter initialEntries={['/roles/detail/1234']}>
               <Route path="/roles/detail/:uuid" component={Role} />
             </MemoryRouter>
@@ -78,7 +82,9 @@ describe('role', () => {
       const store = mockStore({
         roleReducer: {},
         groupReducer: {
-          selectedGroup: {},
+          selectedGroup: {
+            system: false,
+          },
         },
       });
       mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, {
@@ -121,12 +127,7 @@ describe('role', () => {
         wrapper = mount(
           <Provider
             store={mockStore({
-              roleReducer: {
-                isRecordLoading: false,
-                selectedRole: {
-                  display_name: 'Some name',
-                },
-              },
+              ...initialState,
               groupReducer: {
                 selectedGroup: {
                   loaded: true,
@@ -173,17 +174,7 @@ describe('role', () => {
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider
-          store={mockStore({
-            roleReducer: {
-              isRecordLoading: false,
-              selectedRole: {
-                display_name: 'Some name',
-                access: [{ permission: 'some:permission' }, { permission: 'some:*:bla' }],
-              },
-            },
-          })}
-        >
+        <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
             <Route path="/roles/detail/:uuid" component={Role} />
           </MemoryRouter>
@@ -200,18 +191,7 @@ describe('role', () => {
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <Provider
-          store={mockStore({
-            roleReducer: {
-              isRecordLoading: false,
-              selectedRole: {
-                display_name: 'Some name',
-                description: 'Some cool description',
-                access: [{ permission: 'some:permission' }, { permission: 'some:*:bla' }],
-              },
-            },
-          })}
-        >
+        <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
             <Route path="/roles/detail/:uuid" component={Role} />
           </MemoryRouter>
@@ -229,11 +209,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider
           store={mockStore({
+            ...initialState,
             roleReducer: {
-              isRecordLoading: false,
               selectedRole: {
-                display_name: 'Some name',
-                description: 'Some cool description',
                 access: [...new Array(28)].map(() => ({ permission: 'some:permission' })),
               },
             },
@@ -263,6 +241,7 @@ describe('role', () => {
             roleReducer: {
               isRecordLoading: false,
               selectedRole: {
+                uuid: '1234',
                 display_name: 'Some name',
                 description: 'Some cool description',
                 access: [...[...new Array(18)].map(() => ({ permission: 'some:permission:read' })), { permission: 'another:thing:*' }],
@@ -285,5 +264,74 @@ describe('role', () => {
     wrapper.update();
     expect(wrapper.find('.pf-c-table tbody tr').length).toBe(1);
     expect(toJson(wrapper.find('.pf-c-table'), { mode: 'shallow' })).toMatchSnapshot();
+  });
+
+  it('should open and cancel remove modal', async () => {
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={mockStore(initialState)}>
+          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+            <Route path="/roles/detail/:uuid" component={Role} />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
+    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(1);
+    wrapper.find('button.pf-m-link').simulate('click');
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+  });
+
+  it('should open and close remove modal', async () => {
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/access/`).replyOnce(200, { data: [] });
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+    mock.onPut(`${RBAC_API_BASE}/roles/1234/`).replyOnce(200, {});
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={mockStore(initialState)}>
+          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+            <Route path="/roles/detail/:uuid" component={Role} />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
+    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(1);
+    wrapper.find('button.pf-m-danger').simulate('click');
+    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+  });
+
+  it('should chould check permission and remove it', async () => {
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/access/`).replyOnce(200, { data: [] });
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+    mock.onPut(`${RBAC_API_BASE}/roles/1234/`).replyOnce(200, {});
+    let wrapper;
+    let store = mockStore(initialState);
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+            <Route path="/roles/detail/:uuid" component={Role} />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    wrapper.find('input[type="checkbox"]').at(0).simulate('click');
+    wrapper.find('button[aria-label="Actions"]').at(3).simulate('click');
+    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+    wrapper.find('button.pf-m-danger').simulate('click');
+    const expectedPayload = [
+      { type: `${FETCH_ROLE}_PENDING` },
+      expect.objectContaining({ type: `${FETCH_ROLE}_FULFILLED` }),
+      { type: `${UPDATE_ROLE}_PENDING` },
+    ];
+    expect(store.getActions()).toEqual(expectedPayload);
   });
 });

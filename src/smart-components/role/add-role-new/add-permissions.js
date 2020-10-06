@@ -1,20 +1,32 @@
-import React, { useState, useEffect } from 'react';
+/* eslint-disable no-unused-vars */
+import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
 import flatMap from 'lodash/flatMap';
-
+import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { listPermissions } from '../../../redux/actions/permission-action';
+import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
 import { fetchRole } from '../../../redux/actions/role-actions';
 
 const columns = ['Application', 'Resource type', 'Operation'];
-const selector = ({ permissionReducer: { permission, isLoading }, roleReducer: { isRecordLoading, selectedRole } }) => ({
+const selector = ({
+  permissionReducer: {
+    permission,
+    isLoading,
+    options: { application, operation, resource, isLoadingApplication, isLoadingOperation, isLoadingResource },
+  },
+  roleReducer: { isRecordLoading, selectedRole },
+}) => ({
   access: permission.data,
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
   baseRole: selectedRole,
+  applicationOptions: application.data,
+  resourceOptions: resource.data,
+  operationOptions: operation.data,
 });
 const types = ['application', 'resource', 'operation'];
 export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: [] }) => {
@@ -69,7 +81,8 @@ export const resolveSplats = (selectedPermissions, permissions) => {
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
-  const { access, isLoading, pagination, baseRole } = useSelector(selector, shallowEqual);
+  const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  const { access, isLoading, pagination, baseRole, applicationOptions, resourceOptions, operationOptions } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   // TODO: use reducer when cleaning this code
@@ -80,6 +93,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
   const maxFilterItems = 10;
+  const [applications, setApplications] = useState([]);
+  const [resources, setResources] = useState([]);
+  const [operations, setOperations] = useState([]);
 
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
@@ -88,6 +104,43 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
     }));
 
+  const debounbcedGetApplicationOptions = useCallback(
+    debouncePromise(
+      ({ applications, resources, operations }) =>
+        fetchOptions({
+          field: 'application',
+          limit: 50,
+          application: applications.join(),
+          resourceType: resources.join(),
+          verb: operations.join(),
+        }),
+      3000
+    ),
+    []
+  );
+  const debounbcedGetResourceOptions = useCallback(
+    debouncePromise(
+      ({ applications, resources, operations }) =>
+        fetchOptions({
+          field: 'resource_type',
+          limit: 50,
+          application: applications.join(),
+          resourceType: resources.join(),
+          verb: operations.join(),
+        }),
+      3000
+    ),
+    []
+  );
+  const debounbcedGetOperationOptions = useCallback(
+    debouncePromise(
+      ({ applications, resources, operations }) =>
+        fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
+      3000
+    ),
+    []
+  );
+
   useEffect(() => {
     const baseRoleUuid = formOptions.getState().values['copy-base-role']?.uuid;
     if (roleType === 'copy' && baseRoleUuid) {
@@ -95,7 +148,22 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }
 
     fetchData(pagination);
+    fetchOptions({ field: 'application', limit: 50 });
+    fetchOptions({ field: 'resource_type', limit: 50 });
+    fetchOptions({ field: 'verb', limit: 50 });
   }, []);
+
+  useEffect(() => {
+    setApplications(applicationOptions);
+  }, [applicationOptions]);
+
+  useEffect(() => {
+    setResources(resourceOptions);
+  }, [resourceOptions]);
+
+  useEffect(() => {
+    setOperations(operationOptions);
+  }, [operationOptions]);
 
   useEffect(() => {
     setPermissions(accessWrapper(access, filters));
@@ -104,6 +172,21 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   useEffect(() => {
     setPermissions(accessWrapper(access, filters));
   }, [filters]);
+
+  useEffect(() => {
+    debounbcedGetResourceOptions(filters);
+    debounbcedGetOperationOptions(filters);
+  }, [filters.applications]);
+
+  useEffect(() => {
+    debounbcedGetApplicationOptions(filters);
+    debounbcedGetOperationOptions(filters);
+  }, [filters.resources]);
+
+  useEffect(() => {
+    debounbcedGetApplicationOptions(filters);
+    debounbcedGetResourceOptions(filters);
+  }, [filters.operations]);
 
   useEffect(() => {
     input.onChange(selectedPermissions);
@@ -150,7 +233,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
-    <div>
+    <div className="ins-c-rbac-permissions-table">
       <TableToolbarView
         columns={columns}
         isSelectable={true}

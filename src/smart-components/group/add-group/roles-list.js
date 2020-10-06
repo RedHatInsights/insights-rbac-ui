@@ -2,11 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { defaultCompactSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { defaultSettings } from '../../../helpers/shared/pagination';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }];

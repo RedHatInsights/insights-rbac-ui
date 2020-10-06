@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
-import { Text, TextContent, Spinner } from '@patternfly/react-core';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
+import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 
 import './MUAHome.scss';
@@ -17,22 +17,29 @@ const MyUserAccess = () => {
     <React.Fragment>
       {Object.prototype.hasOwnProperty.call(user, 'entitlements') && Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') ? (
         <React.Fragment>
-          <PageHeader>
-            <TextContent>
-              <PageHeaderTitle
-                title={
-                  <React.Fragment>
-                    <span> My User Access </span>
-                    <StatusLabel isOrgAdmin={user.isOrgAdmin} />
-                  </React.Fragment>
-                }
-              />
-              <Text component="p" className="ins-p-myUserAccess--subtitle">
-                <span>Understand your Red Hat access by exploring your organization&apos;s entitlements and your individual user roles.</span>
-              </Text>
-            </TextContent>
-          </PageHeader>
-          <section className="ins-l-myUserAccess-split">
+          <PageHeaderTitle
+            className="ins-p-myUserAccess--title sticky"
+            title={
+              <React.Fragment>
+                <span> My User Access </span>
+                <StatusLabel isOrgAdmin={user.isOrgAdmin} />
+              </React.Fragment>
+            }
+          />
+          <Text component="p" className="ins-p-myUserAccess--subtitle">
+            Select from your organization&apos;s subscriptions below to discover your individual application-specific roles and permissions.
+          </Text>
+          <div className="ins-p-myUserAccess--dropdown sticky">
+            <div className="pf-c-dropdown pf-m-expanded">
+              <button className="pf-c-dropdown__toggle" type="button">
+                <span className="pf-c-dropdown__toggle-text">Choose a subscription...</span>
+                <span className="pf-c-dropdown__toggle-icon">
+                  <i className="fas fa-caret-down"></i>
+                </span>
+              </button>
+            </div>
+          </div>
+          <section>
             <MUAContent entitlements={user.entitlements} isOrgAdmin={user.isOrgAdmin} />
           </section>
         </React.Fragment>

@@ -3,15 +3,13 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
-import './App.scss';
 import { Main } from '@redhat-cloud-services/frontend-components';
 import { NotificationsPortal } from '@redhat-cloud-services/frontend-components-notifications/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
-
 import '@redhat-cloud-services/frontend-components-notifications/index.css';
-import './App.scss';
 import DeniedState from './presentational-components/states/DeniedState';
+import './App.scss';
 
 class App extends Component {
   state = {
@@ -23,6 +21,7 @@ class App extends Component {
   componentDidMount() {
     const { history } = this.props;
     insights.chrome.init();
+    !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
     insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
     insights.chrome.identifyApp(insights.chrome.getApp());
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {

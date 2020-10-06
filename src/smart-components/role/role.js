@@ -1,14 +1,22 @@
-import React, { useEffect, Fragment } from 'react';
-// import { useHistory } from 'react-router-dom';
-import { useParams } from 'react-router-dom';
+
+import React, { Fragment, useEffect, useState } from 'react';
+import { Link, Route, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { fetchRole } from '../../redux/actions/role-actions';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
+import { routes } from '../../../package.json';
+import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
+import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
 import { fetchGroup } from '../../redux/actions/group-actions';
+import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
+import RemoveRoleModal from './remove-role-modal';
+import EditRoleModal from './edit-role-modal';
+import './role.scss';
 
 const Role = () => {
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { uuid, groupUuid } = useParams();
   const { role, group, isRecordLoading } = useSelector(
     (state) => ({
@@ -19,13 +27,27 @@ const Role = () => {
     shallowEqual
   );
   const dispatch = useDispatch();
-  useEffect(() => {
+  const fetchData = () => {
     dispatch(fetchRole(uuid));
     groupUuid && dispatch(fetchGroup(groupUuid));
+  };
+
+  useEffect(() => {
+    fetchData();
   }, [uuid, groupUuid]);
 
   console.log('Trying to see our data in role: ', role);
   console.log('Tying to see our group data in role: ', group);
+  const title = !isRecordLoading && role ? role.display_name || role.name : undefined;
+  const description = !isRecordLoading && role ? role.description : undefined;
+  const dropdownItems = [
+    <DropdownItem component={<Link to={routes['role-detail-edit'].replace(':id', uuid)}>Edit</Link>} key="edit-role" />,
+    <DropdownItem
+      component={<Link to={routes['role-detail-remove'].replace(':id', uuid)}>Delete</Link>}
+      className="ins-c-role__action"
+      key="delete-role"
+    />,
+  ];
 
   return (
     <Fragment>
@@ -44,12 +66,43 @@ const Role = () => {
           { title: isRecordLoading ? undefined : role && (role.display_name || role.name), isActive: true },
         ]}
       >
-        <TopToolbarTitle
-          title={!isRecordLoading && role ? role.display_name || role.name : undefined}
-          description={!isRecordLoading && role ? role.description : undefined}
-        />
+        <Level>
+          <LevelItem>
+            <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
+          </LevelItem>
+          {!isRecordLoading && role && !role.system && (
+            <LevelItem>
+              <Dropdown
+                toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="role-actions-dropdown" />}
+                isOpen={isDropdownOpen}
+                isPlain
+                position="right"
+                dropdownItems={dropdownItems}
+              />
+            </LevelItem>
+          )}
+        </Level>
+        {description && (
+          <TextContent className="ins-rbac-page-header__description">
+            <Text component="p">{description}</Text>
+          </TextContent>
+        )}
       </TopToolbar>
       {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
+      <Route path={routes['role-detail-remove']}>
+        {!isRecordLoading && (
+          <RemoveRoleModal
+            afterSubmit={() => dispatch(fetchRolesWithPolicies())}
+            cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
+            routeMatch={routes['role-detail-remove']}
+          />
+        )}
+      </Route>
+      <Route path={routes['role-detail-edit']}>
+        {!isRecordLoading && (
+          <EditRoleModal afterSubmit={fetchData} cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-edit']} />
+        )}
+      </Route>
     </Fragment>
   );
 };

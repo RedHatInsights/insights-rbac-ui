@@ -10,7 +10,6 @@ import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
-import classNames from 'classnames';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -50,11 +49,7 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
               firstName,
               lastName,
               {
-                title: (
-                  <Label isCompact color={isActive && 'green'} className={classNames('ins-c-rbac__user-label', { 'ins-m-inactive': !isActive })}>
-                    {isActive ? 'Active' : 'Inactive'}
-                  </Label>
-                ),
+                title: <Label color={isActive && 'green'}>{isActive ? 'Active' : 'Inactive'}</Label>,
                 props: {
                   'data-is-active': isActive,
                 },
@@ -71,9 +66,10 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
 const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
   const [filterValue, setFilterValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
+  const [statusValue, setStatusValue] = useState(['Active']);
 
   useEffect(() => {
-    fetchUsers();
+    fetchUsers(mappedProps({ ...defaultSettings, status: ['Active'] }));
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -90,13 +86,14 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       borders={false}
       createRows={createRows(userLinks)}
       data={users}
-      filterValue={filterValue}
       fetchData={(config) => {
-        fetchUsers(mappedProps(config));
+        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
+        fetchUsers(mappedProps({ ...config, status }));
       }}
-      setFilterValue={({ username, email }) => {
+      setFilterValue={({ username, email, status }) => {
         typeof username !== 'undefined' && setFilterValue(username);
         typeof email !== 'undefined' && setEmailValue(email);
+        typeof statusValue !== undefined && setStatusValue(status);
       }}
       isLoading={isLoading}
       pagination={pagination}
@@ -112,6 +109,16 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       filters={[
         { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
         { key: 'email', value: emailValue, placeholder: 'Filter by exact email' },
+        {
+          key: 'status',
+          value: statusValue,
+          label: 'Status',
+          type: 'checkbox',
+          items: [
+            { label: 'Active', value: 'Active' },
+            { label: 'Inactive', value: 'Inactive' },
+          ],
+        },
       ]}
       {...props}
     />
