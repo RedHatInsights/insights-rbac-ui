@@ -102,7 +102,7 @@ describe('<AddGroupMembers />', () => {
     expect(wrapper.find(AddGroupMembers)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['active'],
+      status: ['Active'],
     });
   });
 
@@ -133,7 +133,7 @@ describe('<AddGroupMembers />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['active'],
+      status: ['Active'],
     });
   });
 });
