@@ -66,10 +66,10 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
 const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
   const [filterValue, setFilterValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
-  const [statusValue, setStatusValue] = useState(['active']);
+  const [statusValue, setStatusValue] = useState(['Active']);
 
   useEffect(() => {
-    fetchUsers(mappedProps({ ...defaultSettings, status: ['active'] }));
+    fetchUsers(mappedProps({ ...defaultSettings, status: ['Active'] }));
   }, []);
 
   const setCheckedItems = (newSelection) => {
