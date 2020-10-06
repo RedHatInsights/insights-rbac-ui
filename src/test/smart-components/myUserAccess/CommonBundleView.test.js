@@ -81,6 +81,7 @@ describe('<CommonBundleView />', () => {
     const expectedFilters = [
       { items: [], key: 'application', placeholder: 'Filter by application', type: 'checkbox', value: ['foo'] },
       { key: 'name', type: 'text', value: 'foo' },
+      { key: 'permission', value: '', placeholder: 'Filter by permission', type: 'text' },
     ];
     const wrapper = mount(
       <ComponentWrapper store={store} isOrgAdmin>
@@ -114,6 +115,12 @@ describe('<CommonBundleView />', () => {
         key: 'name',
         type: 'text',
         value: name,
+      },
+      {
+        key: 'permission',
+        value: '',
+        placeholder: 'Filter by permission',
+        type: 'text',
       },
     ];
     const result = createFilter({ isOrgAdmin: true, apps: [] });
