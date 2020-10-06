@@ -37,9 +37,6 @@ const Roles = () => {
   const dispatch = useDispatch();
   const { push, location } = useHistory();
   const { roles, isLoading, pagination, userIdentity, userEntitlements } = useSelector(selector, shallowEqual);
-  const { push } = useHistory();
-  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
-
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
@@ -85,6 +82,8 @@ const Roles = () => {
           },
         ];
   };
+
+  console.log('This is user identity in roles: ', userIdentity);
 
   const toolbarButtons = () => [
     <Fragment key="add-role">

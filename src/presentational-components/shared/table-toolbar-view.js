@@ -105,7 +105,7 @@ export const TableToolbarView = ({
   });
 
   const renderTable = () => (
-  <Fragment>
+    <>
       <Toolbar
         isSelectable={isSelectable}
         checkedRows={checkedRows}
@@ -174,7 +174,7 @@ export const TableToolbarView = ({
           {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
         </TableToolbar>
       )}
-    </Fragment>
+    </>
   );
 
   console.log('This is the table-toolbar-view actionResolver: ', actionResolver);
