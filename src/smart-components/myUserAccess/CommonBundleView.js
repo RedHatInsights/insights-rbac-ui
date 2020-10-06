@@ -4,7 +4,7 @@ import OrgAdminContext from '../../utilities/org-admin-context';
 import MUAAccessTable from './MUAAccessTable';
 import MUARolesTable from './MUARolesTable';
 
-export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) => [
+export const createFilter = ({ apps, isOrgAdmin, name = '', application = [], permission = '' }) => [
   {
     key: 'application',
     value: application,
@@ -19,6 +19,12 @@ export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) 
           type: 'text',
           value: name,
         },
+        {
+          key: 'permission',
+          value: permission,
+          placeholder: 'Filter by permission',
+          type: 'text',
+        },
       ]
     : []),
 ];
@@ -26,10 +32,15 @@ export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) 
 const CommonBundleView = ({ apps }) => {
   const isOrgAdmin = useContext(OrgAdminContext);
   const [name, setName] = useState('');
+  const [permission, setPermission] = useState('');
   const [application, setApplication] = useState([]);
-  const handleSetFilters = ({ name, application }) => {
+  const handleSetFilters = ({ name, application, permission }) => {
     if (typeof name === 'string') {
       setName(name);
+    }
+
+    if (typeof permission === 'string') {
+      setPermission(permission);
     }
 
     if (application) {
@@ -37,7 +48,7 @@ const CommonBundleView = ({ apps }) => {
     }
   };
 
-  const filters = createFilter({ apps, isOrgAdmin, name, application });
+  const filters = createFilter({ apps, isOrgAdmin, name, application, permission });
   return isOrgAdmin ? (
     <MUARolesTable setFilters={handleSetFilters} filters={filters} apps={apps} />
   ) : (
