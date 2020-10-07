@@ -15,27 +15,29 @@ export const createRows = (data, opened, selectedRows = []) => {
         isPlatformDefault,
         cells: [
           <Fragment key={uuid}>
-            <Link key={`${uuid}-link`} to={`/groups/detail/${uuid}`}>
-              {name}
-            </Link>
-            {isPlatformDefault && (
-              <span key={`${uuid}-popover`} id="default-group-popover">
-                <Popover
-                  zIndex="110"
-                  position="right"
-                  isVisible={isPopoverVisible}
-                  shouldClose={() => setPopoverVisible(false)}
-                  hideOnOutsideClick={true}
-                  bodyContent="This group contains the roles that all users in your organization inherit by default."
-                  appendTo={document.getElementById('default-group-popover')}
-                >
-                  <OutlinedQuestionCircleIcon
-                    onClick={() => setPopoverVisible(!isPopoverVisible)}
-                    className={classNames('pf-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
-                  />
-                </Popover>
-              </span>
-            )}
+            <div className="pf-m-inline-flex">
+              <Link key={`${uuid}-link`} to={`/groups/detail/${uuid}`}>
+                {name}
+              </Link>
+              {isPlatformDefault && (
+                <span key={`${uuid}-popover`} id="default-group-popover">
+                  <Popover
+                    zIndex="110"
+                    position="right"
+                    isVisible={isPopoverVisible}
+                    shouldClose={() => setPopoverVisible(false)}
+                    hideOnOutsideClick={true}
+                    bodyContent="This group contains the roles that all users in your organization inherit by default."
+                    appendTo={document.getElementById('default-group-popover')}
+                  >
+                    <OutlinedQuestionCircleIcon
+                      onClick={() => setPopoverVisible(!isPopoverVisible)}
+                      className={classNames('pf-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
+                    />
+                  </Popover>
+                </span>
+              )}
+            </div>
           </Fragment>,
           roleCount,
           principalCount,
