@@ -39,6 +39,10 @@ const ReviewStep = () => {
     cells: permission.uuid.split(':'),
   }));
 
+  const resourceDefinitionsRows = (resourceDefinitions || []).map(({ permission, resources }) => ({
+    cells: [permission, resources.join(', ')],
+  }));
+
   return (
     <React.Fragment>
       <Stack hasGutter>
@@ -78,7 +82,7 @@ const ReviewStep = () => {
                   Resource definitions
                 </Text>
               </GridItem>
-              <GridItem span={10}>{stickyTable(['Permission', 'Resource definitions'], resourceDefinitions)}</GridItem>
+              <GridItem span={10}>{stickyTable(['Permission', 'Resource definitions'], resourceDefinitionsRows)}</GridItem>
             </Grid>
           )}
         </StackItem>
