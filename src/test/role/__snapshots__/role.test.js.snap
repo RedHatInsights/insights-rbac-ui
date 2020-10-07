@@ -271,7 +271,7 @@ Array [
         },
       ]
     }
-    data-ouia-component-id={417}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -291,7 +291,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={417}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
@@ -573,7 +573,7 @@ Array [
         },
       ]
     }
-    data-ouia-component-id={110}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -593,7 +593,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={110}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
@@ -875,7 +875,7 @@ Array [
         },
       ]
     }
-    data-ouia-component-id={277}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     renderers={
@@ -895,7 +895,7 @@ Array [
   <table
     aria-label="permissions table"
     className="pf-c-table pf-m-grid-md"
-    data-ouia-component-id={277}
+    data-ouia-component-id="role-permissions-table"
     data-ouia-component-type="PF4/Table"
     data-ouia-safe={true}
     role="grid"
