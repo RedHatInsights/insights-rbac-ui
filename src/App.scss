@@ -28,6 +28,13 @@
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
+
+  .ins-c-conditional-filter {
+    .pf-l-split__item.pf-m-fill {
+      flex-grow: .9;
+    }
+  }
+
   .pf-c-empty-state__content {
     h4.pf-c-title {
       font-size: var(--pf-c-title--m-2xl--FontSize);
