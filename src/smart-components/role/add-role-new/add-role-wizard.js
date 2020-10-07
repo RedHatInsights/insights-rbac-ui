@@ -11,6 +11,7 @@ import { WarningModal } from '../../../smart-components/common/warningModal';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
+import CostResources from './cost-resources';
 import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
@@ -21,6 +22,7 @@ const Description = ({ Content, ...rest }) => <Content {...rest} />;
 export const mapperExtension = {
   'base-role-table': BaseRoleTable,
   'add-permissions-table': AddPermissionsTable,
+  'cost-resources': CostResources,
   review: ReviewStep,
   description: Description,
 };
