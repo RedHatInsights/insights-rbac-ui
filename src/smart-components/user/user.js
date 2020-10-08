@@ -74,6 +74,7 @@ const User = ({
                   props: { colSpan: 4, className: 'pf-m-no-padding' },
                   title: (
                     <Table
+                      ouiaId="groups-in-role-nested-table"
                       aria-label="Simple Table"
                       variant={TableVariant.compact}
                       cells={['Name', 'Description']}
@@ -97,6 +98,7 @@ const User = ({
                     rolesWithAccess && rolesWithAccess[uuid] ? (
                       <Table
                         aria-label="Simple Table"
+                        ouiaId="permissions-in-role-nested-table"
                         variant={TableVariant.compact}
                         cells={['Application', 'Resource type', 'Operation']}
                         rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
@@ -165,6 +167,7 @@ const User = ({
             createRows={createRows}
             data={roles.data}
             filterValue={filter}
+            ouiaId="user-details-table"
             fetchData={({ limit, offset, name }) => {
               debouncedFetch(limit, offset, name, ['groups_in'], username);
             }}

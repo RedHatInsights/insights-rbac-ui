@@ -54,6 +54,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
         setFilterValue={setFilters}
         isLoading={isLoading}
         pagination={permissions?.meta}
+        ouiaId="permissions-table"
         titlePlural="permissions"
         titleSingular="permission"
         noData={!isLoading && !hasActiveFilters && filteredRows.length === 0}

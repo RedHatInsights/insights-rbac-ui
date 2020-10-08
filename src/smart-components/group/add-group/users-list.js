@@ -86,6 +86,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       borders={false}
       createRows={createRows(userLinks)}
       data={users}
+      ouiaId="users-table"
       fetchData={(config) => {
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
         fetchUsers(mappedProps({ ...config, status }));
