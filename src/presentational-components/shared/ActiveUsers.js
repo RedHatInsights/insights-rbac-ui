@@ -13,9 +13,9 @@ const ActiveUser = ({ description, linkTitle }) => (
         rel="noopener noreferrer"
       >
         {linkTitle}
-        &nbsp;
         <ExternalLinkAltIcon />
       </Text>
+      .
     </Text>
   </TextContent>
 );
@@ -27,7 +27,7 @@ ActiveUser.propTypes = {
 
 ActiveUser.defaultProps = {
   description: '',
-  linkTitle: ' user management list.',
+  linkTitle: ' user management list ',
 };
 
 export default ActiveUser;

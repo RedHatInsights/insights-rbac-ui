@@ -11,14 +11,14 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
       rel="noopener noreferrer"
       target="_blank"
     >
-       user management list.
-       
+       user management list 
       <ExternalLinkAltIcon
         color="currentColor"
         noVerticalAlign={false}
         size="sm"
       />
     </Text>
+    .
   </Text>
 </TextContent>
 `;
@@ -35,14 +35,14 @@ exports[`<ActiveUsers /> should render correctly with description 1`] = `
       rel="noopener noreferrer"
       target="_blank"
     >
-       user management list.
-       
+       user management list 
       <ExternalLinkAltIcon
         color="currentColor"
         noVerticalAlign={false}
         size="sm"
       />
     </Text>
+    .
   </Text>
 </TextContent>
 `;
@@ -59,13 +59,13 @@ exports[`<ActiveUsers /> should render correctly with link title 1`] = `
       target="_blank"
     >
       some title
-       
       <ExternalLinkAltIcon
         color="currentColor"
         noVerticalAlign={false}
         size="sm"
       />
     </Text>
+    .
   </Text>
 </TextContent>
 `;
