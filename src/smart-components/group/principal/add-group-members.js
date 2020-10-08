@@ -55,10 +55,10 @@ const AddGroupMembers = ({
       isOpen
       isFooterLeftAligned
       actions={[
-        <Button key="confirm" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
+        <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
           Add to group
         </Button>,
-        <Button id="add-groups-cancel" key="cancel" variant="link" onClick={onCancel}>
+        <Button id="add-groups-cancel" ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onCancel}>
           Cancel
         </Button>,
       ]}

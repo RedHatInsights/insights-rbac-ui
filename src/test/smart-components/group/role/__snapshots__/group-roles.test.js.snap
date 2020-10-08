@@ -62,6 +62,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   isFilterable={false}
   isLoading={true}
   isSelectable={true}
+  ouiaId="roles-table"
   pagination={
     Object {
       "count": 1,
@@ -1936,6 +1937,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   isFilterable={false}
   isLoading={true}
   isSelectable={false}
+  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,

@@ -64,6 +64,7 @@ exports[`<Roles /> should render correctly 1`] = `
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,
@@ -150,6 +151,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,

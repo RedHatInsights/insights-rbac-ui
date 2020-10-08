@@ -10,10 +10,10 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
   const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || (!submitSucceeded && pristine);
   return (
     <ActionGroup className="pf-u-mt-0">
-      <Button type="submit" isDisabled={noChanges} variant="primary">
+      <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
         Submit
       </Button>
-      <Button variant="link" onClick={() => onCancel()}>
+      <Button ouiaId="secondary-cancel-button" variant="link" onClick={() => onCancel()}>
         Cancel
       </Button>
     </ActionGroup>

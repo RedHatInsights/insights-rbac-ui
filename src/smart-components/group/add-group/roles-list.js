@@ -51,6 +51,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
       fetchData={(config) => fetchRoles(mappedProps(config))}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
+      ouiaId="roles-table"
       pagination={pagination}
       checkedRows={selectedRoles}
       setCheckedItems={setCheckedItems}
