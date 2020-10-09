@@ -13,6 +13,14 @@
 }
 
 @media only screen and (max-width: 768px) {
+  // fix for mobile layout: https://github.com/patternfly/patternfly-react/issues/4922
+  .pf-c-table__expandable-row.pf-m-expanded {
+    max-height: none !important;
+    overflow-y: visible;
+    tr:first-of-type {padding-top: 0 !important;}
+    > td::before {display: none;}
+  }
+
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
