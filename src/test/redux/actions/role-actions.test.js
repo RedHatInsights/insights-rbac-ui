@@ -1,7 +1,6 @@
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import { RBAC_API_BASE } from '../../../utilities/constants';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import { FETCH_ROLES } from '../../../redux/action-types';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';

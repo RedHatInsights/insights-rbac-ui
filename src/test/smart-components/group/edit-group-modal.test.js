@@ -9,12 +9,10 @@ import { Button } from '@patternfly/react-core';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import { RBAC_API_BASE } from '../../../utilities/constants';
 import EditGroupModal from '../../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 import * as GroupActions from '../../../redux/actions/group-actions';
-import { FETCH_GROUP, FETCH_GROUPS } from '../../../redux/action-types';
+import { FETCH_GROUP } from '../../../redux/action-types';
 
 describe('<EditGroupModal />', () => {
   let initialProps;
