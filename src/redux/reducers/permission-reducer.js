@@ -13,7 +13,7 @@ export const permissionInitialState = {
   },
   permission: {
     data: [],
-    meta: { ...defaultSettings, limit: 100 },
+    meta: defaultSettings,
   },
 };
 
