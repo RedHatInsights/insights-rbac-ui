@@ -1,28 +1,31 @@
 /* eslint-disable no-unused-vars */
 import React, { useState, useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Select, SelectOption, SelectVariant, TextContent, Grid, GridItem, Text, TextVariants, FormGroup } from '@patternfly/react-core';
+import {
+  Select,
+  SelectOption,
+  SelectVariant,
+  TextContent,
+  Grid,
+  GridItem,
+  Text,
+  TextVariants,
+  FormGroup,
+  AccordionContent,
+} from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
 
-const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
-  roles: rolesForWizard.data,
-  pagination: rolesForWizard.meta,
+const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
+  resourceTypes: resourceTypes.data,
+  resources,
   isLoading,
+  isLoadingResources: loadingResources > 0,
 });
-const options = [
-  { value: 'Alabama', disabled: false },
-  { value: 'Florida', disabled: false },
-  { value: 'New Jersey', disabled: false },
-  { value: 'New Mexico', disabled: false, description: 'This is a description' },
-  { value: 'New York', disabled: false },
-  { value: 'North Carolina', disabled: false },
-];
 
 const reducer = (state, action) => {
-  console.log('REDUCER', state, action);
   const prevState = state[action.key];
-  console.log(prevState);
   switch (action.type) {
     case 'toggle':
       return {
@@ -58,6 +61,14 @@ const reducer = (state, action) => {
           selected: [],
         },
       };
+    case 'setOptions':
+      return {
+        ...state,
+        [action.key]: {
+          ...prevState,
+          options: action.options,
+        },
+      };
     default:
       return state;
   }
@@ -65,6 +76,9 @@ const reducer = (state, action) => {
 
 const CostResources = (props) => {
   const dispatch = useDispatch();
+  const fetchData = (apiProps) => dispatch(getResourceDefinitions(apiProps));
+  const fetchResource = (apiProps) => dispatch(getResource(apiProps));
+  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const { 'add-permissions-table': permissions } = formOptions.getState().values;
@@ -75,13 +89,38 @@ const CostResources = (props) => {
         ...acc,
         [permission.uuid]: {
           selected: [],
-          options,
+          options: [],
           isOpen: false,
         },
       }),
       {}
     )
   );
+  const onToggle = (key, isOpen) => dispatchLocaly({ type: 'toggle', key, isOpen });
+  const clearSelection = (key) => dispatchLocaly({ type: 'clear', key });
+  const onSelect = (event, selection, selectAll, key) =>
+    selectAll ? dispatchLocaly({ type: 'selectAll', selection, key }) : dispatchLocaly({ type: 'select', selection, key });
+
+  const permissionToResource = (permission) => resourceTypes.find((r) => r.value === permission.split(':')[1])?.path.split('/')[5];
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    if (!isLoading) {
+      const resourcePaths = [
+        ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')[1])?.path)),
+      ].filter((path) => path); // remove undefined
+      resourcePaths.map((path) => fetchResource(path));
+    }
+  }, [resourceTypes]);
+
+  useEffect(() => {
+    if (!isLoadingResources) {
+      permissions.map((p) => dispatchLocaly({ type: 'setOptions', key: p.uuid, options: resources[permissionToResource(p.uuid)] || [] }));
+    }
+  }, [isLoadingResources]);
 
   useEffect(() => {
     const resourceDefinitions = Object.entries(state).map(([permission, resources]) => ({ permission, resources: resources.selected }));
@@ -89,52 +128,40 @@ const CostResources = (props) => {
     formOptions.change('resource-definitions', resourceDefinitions);
   }, [state]);
 
-  const onToggle = (key, isOpen) => dispatchLocaly({ type: 'toggle', key, isOpen });
-  const clearSelection = (key) => dispatchLocaly({ type: 'clear', key });
-  const onSelect = (event, selection, selectAll, key) =>
-    selectAll ? dispatchLocaly({ type: 'selectAll', selection, key }) : dispatchLocaly({ type: 'select', selection, key });
-
   // eslint-disable-next-line react/prop-types
-  const makeRow = ({ uuid: permission }) => (
-    <React.Fragment>
-      <GridItem span={3}>
-        <FormGroup label={permission} isRequired></FormGroup>
-      </GridItem>
-      <GridItem span={9}>
-        <Select
-          className="ins-c-rbac-cost-resource-select"
-          variant={SelectVariant.checkbox}
-          typeAheadAriaLabel="Select a state"
-          onToggle={(isOpen) => onToggle(permission, isOpen)}
-          onSelect={(event, selection, isPlaceholder) => {
-            onSelect(event, selection, selection === 'Select All (6)', permission);
-          }}
-          onClear={() => clearSelection(permission)}
-          selections={state[permission].selected}
-          isOpen={state[permission].isOpen}
-          onFilter={() => null}
-          aria-labelledby={permission}
-          placeholderText="Select resources"
-          hasInlineFilter
-        >
-          {[
-            <SelectOption key={0} value={`Select All (${options.length})`} isPlaceholder={true} />,
-            ...options.map((option, index) => (
-              <SelectOption
-                isDisabled={option.disabled}
-                key={index + 1}
-                value={option.value}
-                {...(option.description && { description: option.description })}
-                isPlaceholder={option.isPlaceholder}
-              />
-            )),
-          ]}
-        </Select>
-      </GridItem>
-    </React.Fragment>
-  );
-
-  useEffect(() => {}, []);
+  const makeRow = ({ uuid: permission }) => {
+    const options = resources[permissionToResource(permission)] || [];
+    return (
+      <React.Fragment>
+        <GridItem span={3}>
+          <FormGroup label={permission} isRequired></FormGroup>
+        </GridItem>
+        <GridItem span={9}>
+          <Select
+            className="ins-c-rbac-cost-resource-select"
+            variant={SelectVariant.checkbox}
+            typeAheadAriaLabel="Select a state"
+            onToggle={(isOpen) => onToggle(permission, isOpen)}
+            onSelect={(event, selection, isPlaceholder) => {
+              onSelect(event, selection, selection === `Select All (${options.length})`, permission);
+            }}
+            onClear={() => clearSelection(permission)}
+            selections={state[permission].selected}
+            isOpen={state[permission].isOpen}
+            onFilter={() => null}
+            aria-labelledby={permission}
+            placeholderText="Select resources"
+            hasInlineFilter
+          >
+            {[
+              <SelectOption key={0} value={`Select All (${options.length})`} />,
+              ...options.map((option, index) => <SelectOption key={index + 1} value={option.value} />),
+            ]}
+          </Select>
+        </GridItem>
+      </React.Fragment>
+    );
+  };
 
   return (
     <Grid hasGutter>
