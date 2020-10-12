@@ -3,16 +3,18 @@ import { Provider } from 'react-redux';
 import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import toJson from 'enzyme-to-json';
-import { mock } from '../../../__mocks__/apiMock';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupPrincipals from '../../../../smart-components/group/principal/principals';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
-import { RBAC_API_BASE } from '../../../../utilities/constants';
+import * as GroupActions from '../../../../redux/actions/group-actions';
+import { FETCH_MEMBERS_FOR_GROUP } from '../../../../redux/action-types';
 
 describe('<GroupPrincipals />', () => {
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
+
+  const fetchMembersForGroupSpy = jest.spyOn(GroupActions, 'fetchMembersForGroup');
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
@@ -31,10 +33,14 @@ describe('<GroupPrincipals />', () => {
         },
       },
     };
-    mock.onGet(`${RBAC_API_BASE}/groups/test-group/principals/`).replyOnce(200);
+  });
+
+  afterEach(() => {
+    fetchMembersForGroupSpy.mockReset();
   });
 
   it('should render correctly loader', () => {
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
       groupReducer: {
@@ -57,6 +63,7 @@ describe('<GroupPrincipals />', () => {
   });
 
   it('should render correctly with empty members', () => {
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
       groupReducer: {
@@ -81,6 +88,7 @@ describe('<GroupPrincipals />', () => {
   });
 
   it('should render correctly with org admin rights', () => {
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       groupReducer: {
         ...initialState.groupReducer,
@@ -104,6 +112,7 @@ describe('<GroupPrincipals />', () => {
   });
 
   it('should render correctly with default group', () => {
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       groupReducer: {
         ...initialState.groupReducer,
@@ -125,6 +134,7 @@ describe('<GroupPrincipals />', () => {
   });
 
   it('should render correctly with data', () => {
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     const wrapper = mount(
       <Provider store={store}>
