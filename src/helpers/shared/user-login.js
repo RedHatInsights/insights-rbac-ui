@@ -5,7 +5,6 @@ import { BaseAPI } from '@redhat-cloud-services/rbac-client/dist/base';
 
 import { RBAC_API_BASE, COST_API_BASE } from '../../utilities/constants';
 
-console.log('BASE API', BaseAPI);
 const principalApi = new PrincipalApi(undefined, RBAC_API_BASE, axiosInstance);
 const groupApi = new GroupApi(undefined, RBAC_API_BASE, axiosInstance);
 const roleApi = new RoleApi(undefined, RBAC_API_BASE, axiosInstance);
@@ -13,8 +12,6 @@ const policyApi = new PolicyApi(undefined, RBAC_API_BASE, axiosInstance);
 const accessApi = new AccessApi(undefined, RBAC_API_BASE, axiosInstance);
 const permissionApi = new PermissionApi(undefined, RBAC_API_BASE, axiosInstance);
 const costApi = new BaseAPI(undefined, COST_API_BASE, axiosInstance);
-console.log('COST API', costApi);
-console.log('ROLE API', roleApi);
 
 export function getPrincipalApi() {
   return principalApi;
