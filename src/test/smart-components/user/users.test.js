@@ -6,7 +6,6 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../smart-components/user/users';
-import { mock } from '../../__mocks__/apiMock';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -38,7 +37,6 @@ describe('<Users />', () => {
   });
 
   afterEach(() => {
-    mock.reset();
     fetchUsersSpy.mockReset();
   });
 
