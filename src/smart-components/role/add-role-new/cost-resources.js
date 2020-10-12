@@ -1,18 +1,6 @@
-/* eslint-disable no-unused-vars */
-import React, { useState, useEffect, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import {
-  Select,
-  SelectOption,
-  SelectVariant,
-  TextContent,
-  Grid,
-  GridItem,
-  Text,
-  TextVariants,
-  FormGroup,
-  AccordionContent,
-} from '@patternfly/react-core';
+import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
@@ -142,7 +130,7 @@ const CostResources = (props) => {
             variant={SelectVariant.checkbox}
             typeAheadAriaLabel="Select a state"
             onToggle={(isOpen) => onToggle(permission, isOpen)}
-            onSelect={(event, selection, isPlaceholder) => {
+            onSelect={(event, selection) => {
               onSelect(event, selection, selection === `Select All (${options.length})`, permission);
             }}
             onClear={() => clearSelection(permission)}
