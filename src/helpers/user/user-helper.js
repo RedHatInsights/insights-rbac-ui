@@ -6,10 +6,17 @@ const principalStatusApiMap = {
   Active: 'enabled',
   Inactive: 'disabled',
 };
-export function fetchUsers({ limit, offset, username, orderBy, email, status = [] }) {
+
+const orgAdminMap = {
+  Yes: 'true',
+  No: 'false',
+};
+
+export function fetchUsers({ limit, offset, username, orderBy, email, status = [], orgAdmin = [] }) {
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
-  return principalApi.listPrincipals(limit, offset, username, sortOrder, email, mappedStatus).then(({ data, meta }) => {
+  const adminOnly = orgAdmin.length === 2 ? undefined : orgAdminMap[orgAdmin[0]];
+  return principalApi.listPrincipals(limit, offset, username, sortOrder, email, mappedStatus, adminOnly).then(({ data, meta }) => {
     return {
       data,
       meta: {

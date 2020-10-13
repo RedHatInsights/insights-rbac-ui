@@ -67,6 +67,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
   const [filterValue, setFilterValue] = useState('');
   const [emailValue, setEmailValue] = useState('');
   const [statusValue, setStatusValue] = useState(['Active']);
+  const [isOrgAdmin, setIsOrgAdmin] = useState();
 
   useEffect(() => {
     fetchUsers(mappedProps({ ...defaultSettings, status: ['Active'] }));
@@ -91,10 +92,11 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
         fetchUsers(mappedProps({ ...config, status }));
       }}
-      setFilterValue={({ username, email, status }) => {
+      setFilterValue={({ username, email, status, orgAdmin }) => {
         typeof username !== 'undefined' && setFilterValue(username);
         typeof email !== 'undefined' && setEmailValue(email);
         typeof statusValue !== undefined && setStatusValue(status);
+        typeof orgAdmin !== 'undefined' && setIsOrgAdmin(orgAdmin);
       }}
       isLoading={isLoading}
       pagination={pagination}
@@ -110,6 +112,17 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       filters={[
         { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
         { key: 'email', value: emailValue, placeholder: 'Filter by exact email' },
+        {
+          key: 'orgAdmin',
+          value: isOrgAdmin,
+          label: 'Org. administrator',
+          placeholder: 'Filter by org. administrator',
+          type: 'checkbox',
+          items: [
+            { label: 'Yes', value: 'Yes' },
+            { label: 'No', value: 'No' },
+          ],
+        },
         {
           key: 'status',
           value: statusValue,
