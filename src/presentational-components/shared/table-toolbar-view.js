@@ -199,6 +199,10 @@ export const TableToolbarView = ({
 
 TableToolbarView.propTypes = {
   ...Toolbar.propTypes,
+  sortBy: propTypes.shape({
+    directions: propTypes.string,
+    index: propTypes.number,
+  }),
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,

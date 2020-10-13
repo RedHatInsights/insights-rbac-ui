@@ -31,14 +31,14 @@ TopToolbar.defaultProps = {
 export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
   <Fragment>
     <Flex>
-      <FlexItem className="pf-u-mb-sm" spaceItems={{ modifier: 'spaceItemsSm' }}>
+      <FlexItem className="pf-u-mb-sm">
         <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
       </FlexItem>
       <FlexItem alignSelf={{ modifier: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
     </Flex>
     {description && (
       <TextContent className="ins-rbac-page-header__description">
-        <Text component={TextVariants.p}>{description}</Text>
+        {typeof description === 'string' ? <Text component={TextVariants.p}>{description}</Text> : description}
       </TextContent>
     )}
     {children}
@@ -46,8 +46,8 @@ export const TopToolbarTitle = ({ title, renderTitleTag, description, children }
 );
 
 TopToolbarTitle.propTypes = {
-  title: PropTypes.string,
+  title: PropTypes.node,
   renderTitleTag: PropTypes.func,
-  description: PropTypes.string,
+  description: PropTypes.node,
   children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
 };
