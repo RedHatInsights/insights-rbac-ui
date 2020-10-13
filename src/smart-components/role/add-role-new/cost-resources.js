@@ -121,10 +121,10 @@ const CostResources = (props) => {
     const options = resources[permissionToResource(permission)] || [];
     return (
       <React.Fragment>
-        <GridItem span={3}>
+        <GridItem md={4} sm={12}>
           <FormGroup label={permission} isRequired></FormGroup>
         </GridItem>
-        <GridItem span={9}>
+        <GridItem md={8} sm={12}>
           <Select
             className="ins-c-rbac-cost-resource-select"
             variant={SelectVariant.checkbox}
@@ -153,12 +153,12 @@ const CostResources = (props) => {
 
   return (
     <Grid hasGutter>
-      <GridItem span={3}>
+      <GridItem span={4}>
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Cost management permissions
         </Text>
       </GridItem>
-      <GridItem span={9}>
+      <GridItem span={8}>
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Resource definitions
         </Text>
