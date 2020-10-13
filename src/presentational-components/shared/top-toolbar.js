@@ -38,7 +38,7 @@ export const TopToolbarTitle = ({ title, renderTitleTag, description, children }
     </Flex>
     {description && (
       <TextContent className="ins-rbac-page-header__description">
-        <Text component={TextVariants.p}>{description}</Text>
+        {typeof description === 'string' ? <Text component={TextVariants.p}>{description}</Text> : description}
       </TextContent>
     )}
     {children}
