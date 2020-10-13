@@ -91,7 +91,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
   };
 
   return (
-    <Modal size={ModalVariant.large} width={'50%'} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
+    <Modal variant={ModalVariant.medium} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
       {selectedGroup ? (
         <FormRenderer
           schema={schema}

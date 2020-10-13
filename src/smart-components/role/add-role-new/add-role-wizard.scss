@@ -117,3 +117,15 @@
     }
 }
 
+.ins-c-rbac-cost-resource-select {
+    .pf-c-select__menu {
+        .pf-c-select__menu-item:nth-child(3) {
+            .pf-c-check__input {
+                display: none;
+            }
+            .pf-c-check__label {
+                color: var(--pf-global--link--Color);
+            }
+        }
+    }
+}

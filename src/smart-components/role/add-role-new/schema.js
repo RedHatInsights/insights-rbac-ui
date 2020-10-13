@@ -136,11 +136,33 @@ export default (container) => ({
           name: 'add-permissions',
           title: 'Add permissions',
           StepTemplate: AddPermissionTemplate,
-          nextStep: 'review',
+          nextStep: ({ values }) =>
+            values &&
+            values['add-permissions-table'] &&
+            values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
+              ? 'cost-resources-definition'
+              : 'review',
           fields: [
             {
               component: 'add-permissions-table',
               name: 'add-permissions-table',
+            },
+          ],
+        },
+        {
+          name: 'cost-resources-definition',
+          title: 'Define Cost Management resources',
+          nextStep: 'review',
+          fields: [
+            {
+              component: 'cost-resources',
+              name: 'cost-resources',
+              // eslint-disable-next-line quotes
+              description: "Specify where you'd like to apply each cost permission selected int the previous step, suig the dropdown below.",
+              validate: [
+                (value = []) =>
+                  value.every((p) => p.resources.length > 0) ? undefined : 'You need to assign at least one resource to each permission.',
+              ],
             },
           ],
         },

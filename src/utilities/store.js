@@ -10,6 +10,7 @@ import policyReducer, { policiesInitialState } from '../redux/reducers/policy-re
 import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
+import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
 
 const registry = new ReducerRegistry({}, [
   thunk,
@@ -28,6 +29,7 @@ registry.register({
   roleReducer: applyReducerHash(roleReducer, rolesInitialState),
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
+  costReducer: applyReducerHash(costReducer, costInitialState),
   notifications,
 });
 
