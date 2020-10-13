@@ -11,7 +11,7 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
   return (
     <ActionGroup className="pf-u-mt-0">
       <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
-        Submit
+        Save
       </Button>
       <Button ouiaId="secondary-cancel-button" variant="link" onClick={() => onCancel()}>
         Cancel
