@@ -92,7 +92,7 @@ export const filterConfigBuilder = (
             placeholder: placeholder ? placeholder : `Filter by ${key}`,
             value,
             selected,
-            isFilterable,
+            ...(type !== 'text' ? { isFilterable, onShowMore, showMoreTitle, onFilter } : {}),
             groups,
             items,
             onChange: (_e, filterBy) => {
@@ -121,9 +121,6 @@ export const filterConfigBuilder = (
               );
             },
             isDisabled: isLoading,
-            onShowMore,
-            showMoreTitle,
-            onFilter,
           },
         }))
       : [

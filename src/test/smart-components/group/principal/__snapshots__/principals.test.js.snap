@@ -106,7 +106,7 @@ Array [
       <Card>
         <article
           className="pf-c-card"
-          data-ouia-component-id={24}
+          data-ouia-component-id={20}
           data-ouia-component-type="PF4/Card"
           data-ouia-safe={true}
         >
@@ -151,7 +151,7 @@ Array [
     <Card>
       <article
         className="pf-c-card"
-        data-ouia-component-id={24}
+        data-ouia-component-id={20}
         data-ouia-component-type="PF4/Card"
         data-ouia-safe={true}
       >

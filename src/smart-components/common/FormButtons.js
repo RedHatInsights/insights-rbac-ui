@@ -21,11 +21,9 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
 };
 
 FormButtons.propTypes = {
-  dirtyFieldsSinceLastSubmit: PropTypes.arrayOf(
-    PropTypes.shape({
-      [PropTypes.string]: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
-    })
-  ),
+  dirtyFieldsSinceLastSubmit: PropTypes.shape({
+    [PropTypes.string]: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  }),
   submitSucceeded: PropTypes.bool,
   pristine: PropTypes.bool,
   onCancel: PropTypes.func,
