@@ -42,8 +42,8 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   return (
     <TableToolbarView
       columns={columns}
-      isSelectable={true}
-      isCompact={true}
+      isSelectable
+      isCompact
       borders={false}
       createRows={createRows}
       data={roles}

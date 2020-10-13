@@ -50,7 +50,7 @@ const AddGroupRoles = ({
   ) : (
     <Modal
       title="Add roles to group"
-      width={'70%'}
+      width="70%"
       isOpen
       onClose={() => {
         onCancel();
@@ -71,7 +71,6 @@ const AddGroupRoles = ({
           Cancel
         </Button>,
       ]}
-      isFooterLeftAligned
     >
       <Stack hasGutter>
         {title && (

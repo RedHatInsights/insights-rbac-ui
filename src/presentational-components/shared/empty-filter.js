@@ -22,7 +22,7 @@ EmptyWithFilter.propTypes = {
   icon: PropTypes.func,
   title: PropTypes.node,
   description: PropTypes.node,
-  actions: PropTypes.arrayOf(PropTypes.node),
+  actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
   className: PropTypes.string,
 };
 
