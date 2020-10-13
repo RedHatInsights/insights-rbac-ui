@@ -34,8 +34,8 @@ const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
 };
 
 RemoveRoles.propTypes = {
-  text: PropTypes.string,
-  title: PropTypes.string,
+  text: PropTypes.node,
+  title: PropTypes.node,
   confirmButtonLabel: PropTypes.string,
   onSubmit: PropTypes.func,
   onClose: PropTypes.func,

@@ -51,7 +51,8 @@ export const ToolbarTitlePlaceholder = (props) => {
   );
 };
 
-export const BreadcrumbPlaceholder = (props) => {
+// eslint-disable-next-line no-unused-vars
+export const BreadcrumbPlaceholder = ({ showDivider, ...props }) => {
   return (
     <div style={{ width: '200px', height: '18px' }}>
       <ContentLoader height={18} width={200} speed={2} {...props}>
@@ -59,6 +60,10 @@ export const BreadcrumbPlaceholder = (props) => {
       </ContentLoader>
     </div>
   );
+};
+
+BreadcrumbPlaceholder.propTypes = {
+  showDivider: PropTypes.any,
 };
 
 export const FormItemLoader = () => (

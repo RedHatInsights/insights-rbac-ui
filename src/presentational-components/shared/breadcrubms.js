@@ -7,7 +7,7 @@ import { BreadcrumbPlaceholder } from './loader-placeholders';
 const RbacBreadcrumbs = (breadcrumbs) => {
   return breadcrumbs ? (
     <Breadcrumb>
-      {Object.values(breadcrumbs).map((item) =>
+      {Object.values(breadcrumbs).map((item, index) =>
         item.title ? (
           <BreadcrumbItem key={item.title} isActive={item.isActive}>
             {(item.to && (
@@ -18,7 +18,7 @@ const RbacBreadcrumbs = (breadcrumbs) => {
               item.title}
           </BreadcrumbItem>
         ) : (
-          <BreadcrumbPlaceholder />
+          <BreadcrumbPlaceholder key={index} />
         )
       )}
     </Breadcrumb>

@@ -51,9 +51,8 @@ const AddGroupMembers = ({
   return (
     <Modal
       title="Add members"
-      width={'75%'}
+      width="75%"
       isOpen
-      isFooterLeftAligned
       actions={[
         <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
           Add to group

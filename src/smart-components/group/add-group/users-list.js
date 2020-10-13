@@ -81,7 +81,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
   return (
     <TableToolbarView
       columns={columns}
-      isSelectable={true}
+      isSelectable
       isCompact={true}
       borders={false}
       createRows={createRows(userLinks)}
