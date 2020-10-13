@@ -198,11 +198,10 @@ export const activeFiltersConfigBuilder = (
         return value.filter((value) => value !== deleted.chips[0]?.name);
       }
 
-      return '';
+      return Array.isArray(value) ? [] : '';
     };
 
     const filtersValue = filters.reduce((acc, { key, value, type }) => ({ ...acc, [key]: setKeyValue(value, type, key) }), {});
-
     setFilterValue({
       ...pagination,
       offset: 0,
