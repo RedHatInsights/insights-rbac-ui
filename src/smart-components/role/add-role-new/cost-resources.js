@@ -89,7 +89,7 @@ const CostResources = (props) => {
   const onSelect = (event, selection, selectAll, key) =>
     selectAll ? dispatchLocaly({ type: 'selectAll', selection, key }) : dispatchLocaly({ type: 'select', selection, key });
 
-  const permissionToResource = (permission) => resourceTypes.find((r) => r.value === permission.split(':')[1])?.path.split('/')[5];
+  const permissionToResource = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path.split('/')?.[5];
 
   useEffect(() => {
     fetchData();
@@ -98,7 +98,7 @@ const CostResources = (props) => {
   useEffect(() => {
     if (!isLoading) {
       const resourcePaths = [
-        ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')[1])?.path)),
+        ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path)),
       ].filter((path) => path); // remove undefined
       resourcePaths.map((path) => fetchResource(path));
     }
