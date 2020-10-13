@@ -26,7 +26,6 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
           Cancel
         </Button>,
       ]}
-      isFooterLeftAligned
     >
       <Split hasGutter>
         <SplitItem isFilled>

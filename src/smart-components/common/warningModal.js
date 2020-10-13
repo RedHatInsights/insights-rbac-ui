@@ -24,7 +24,6 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel }) =
         Stay
       </Button>,
     ]}
-    isFooterLeftAligned
   >
     <span> All inputs will be discarded.</span>
   </Modal>
