@@ -20,7 +20,12 @@ const selector = ({
   },
   roleReducer: { isRecordLoading, selectedRole },
 }) => ({
-  access: permission.data,
+  permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
+    application,
+    resource,
+    operation: verb,
+    uuid: permission,
+  })),
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
   baseRole: selectedRole,
@@ -28,37 +33,6 @@ const selector = ({
   resourceOptions: resource.data,
   operationOptions: operation.data,
 });
-const types = ['application', 'resource', 'operation'];
-export const accessWrapper = (rawData, filters = { applications: [], resources: [], operations: [] }) => {
-  const uniqData = [...new Set(rawData.map(({ permission }) => permission))];
-  const data = uniqData.map((permission) => ({
-    ...permission.split(':').reduce((acc, val, i) => ({ ...acc, [types[i]]: val }), {}),
-    uuid: permission,
-  }));
-
-  const filterApplication = (item) => filters.applications.length === 0 || filters.applications.includes(item.application);
-  const filterResource = (item) => filters.resources.length === 0 || filters.resources.includes(item.resource);
-  const filterOperation = (item) => filters.operations.length === 0 || filters.operations.includes(item.operation);
-  const filterSplats = ({ application, resource, operation }) => [application, resource, operation].every((permission) => permission !== '*');
-
-  const filteredData = data.filter(
-    (permission) => filterApplication(permission) && filterResource(permission) && filterOperation(permission) && filterSplats(permission)
-  );
-
-  return {
-    data: data.filter((permission) => filterSplats(permission)),
-    filteredData,
-    applications: [
-      ...new Set(data.filter((permission) => filterResource(permission) && filterOperation(permission)).map(({ application }) => application)),
-    ],
-    resources: [
-      ...new Set(data.filter((permission) => filterApplication(permission) && filterOperation(permission)).map(({ resource }) => resource)),
-    ],
-    operations: [
-      ...new Set(data.filter((permission) => filterApplication(permission) && filterResource(permission)).map(({ operation }) => operation)),
-    ],
-  };
-};
 
 export const resolveSplats = (selectedPermissions, permissions) => {
   return permissions.length > 0
@@ -82,20 +56,16 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
-  const { access, isLoading, pagination, baseRole, applicationOptions, resourceOptions, operationOptions } = useSelector(selector, shallowEqual);
+  const { permissions, isLoading, pagination, baseRole, applicationOptions, resourceOptions, operationOptions } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   // TODO: use reducer when cleaning this code
-  const [permissions, setPermissions] = useState({ data: [], filteredData: [], applications: [], resources: [], operations: [] });
   const [filters, setFilters] = useState({ applications: [], resources: [], operations: [] });
   const roleType = formOptions.getState().values['role-type']; // create/copy
   const [isToggled, setIsToggled] = useState(false);
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
   const maxFilterItems = 10;
-  const [applications, setApplications] = useState([]);
-  const [resources, setResources] = useState([]);
-  const [operations, setOperations] = useState([]);
 
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
@@ -154,26 +124,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, []);
 
   useEffect(() => {
-    setApplications(applicationOptions);
-  }, [applicationOptions]);
-
-  useEffect(() => {
-    setResources(resourceOptions);
-  }, [resourceOptions]);
-
-  useEffect(() => {
-    setOperations(operationOptions);
-  }, [operationOptions]);
-
-  useEffect(() => {
-    setPermissions(accessWrapper(access, filters));
-  }, [access]);
-
-  useEffect(() => {
-    setPermissions(accessWrapper(access, filters));
-  }, [filters]);
-
-  useEffect(() => {
     debounbcedGetResourceOptions(filters);
     debounbcedGetOperationOptions(filters);
   }, [filters.applications]);
@@ -197,13 +147,13 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       setSelectedPermissions(() =>
         resolveSplats(
           (baseRole?.access || []).map((permission) => ({ uuid: permission.permission })),
-          permissions.data
+          permissions
         )
       );
     } else {
-      setSelectedPermissions(() => resolveSplats(selectedPermissions, permissions.data));
+      setSelectedPermissions(() => resolveSplats(selectedPermissions, permissions));
     }
-  }, [permissions.data, baseRole]);
+  }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
     setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
@@ -221,9 +171,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     );
 
   const preparedFilterItems = {
-    applications: [...permissions.applications].filter((item) => item.includes(filterBy)).map((app) => ({ label: app, value: app })),
-    resources: [...permissions.resources].filter((item) => item.includes(filterBy)).map((res) => ({ label: res, value: res })),
-    operations: [...permissions.operations].filter((item) => item.includes(filterBy)).map((op) => ({ label: op, value: op })),
+    applications: [...applicationOptions].filter((item) => item.includes(filterBy)).map((app) => ({ label: app, value: app })),
+    resources: [...resourceOptions].filter((item) => item.includes(filterBy)).map((res) => ({ label: res, value: res })),
+    operations: [...operationOptions].filter((item) => item.includes(filterBy)).map((op) => ({ label: op, value: op })),
   };
 
   const emptyItem = {
@@ -232,6 +182,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   };
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
+  console.log('RENDER', permissions);
   return (
     <div className="ins-c-rbac-permissions-table">
       <TableToolbarView
@@ -240,9 +191,17 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         isCompact={true}
         borders={false}
         createRows={createRows}
-        data={permissions.filteredData}
+        data={permissions}
         filterValue={''}
-        fetchData={({ limit, offset }) => fetchData({ limit, offset })}
+        fetchData={({ limit, offset, applications, resources, operations }) => {
+          fetchData({
+            limit,
+            offset,
+            application: (applications || filters.applications).join(),
+            resourceType: (resources || filters.resources).join(),
+            verb: (operations || filters.operations).join(),
+          });
+        }}
         setFilterValue={({ applications, resources, operations }) => {
           setFilters({
             ...filters,
@@ -252,7 +211,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           });
         }}
         isLoading={isLoading}
-        pagination={{ ...pagination, count: permissions.filteredData.length }}
+        pagination={{ ...pagination, count: pagination.count }}
         checkedRows={selectedPermissions}
         setCheckedItems={setCheckedItems}
         titlePlural="permissions"
