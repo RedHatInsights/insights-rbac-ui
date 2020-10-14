@@ -20,11 +20,11 @@ const selector = ({
   },
   roleReducer: { isRecordLoading, selectedRole },
 }) => ({
-  permissions: permission.data.map((p) => ({
-    application: p.application,
-    resource: p.resource_type,
-    operation: p.verb,
-    uuid: p.permission,
+  permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
+    application,
+    resource,
+    operation: verb,
+    uuid: permission,
   })),
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
