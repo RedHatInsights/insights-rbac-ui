@@ -16,7 +16,7 @@
 <url> <loc>https://cloud.redhat.com/roles/remove/:id</loc> </url>
 <url> <loc>https://cloud.redhat.com/roles/edit/:id</loc> </url>
 <url> <loc>https://cloud.redhat.com/roles/detail/:uuid</loc> </url>
-<url> <loc>https://cloud.redhat.com/roles/detail/:uuid/add-permission</loc> </url>
+<url> <loc>https://cloud.redhat.com/roles/detail/:uuid/role-add-permission</loc> </url>
 <url> <loc>https://cloud.redhat.com/roles/detail/:id/remove</loc> </url>
 <url> <loc>https://cloud.redhat.com/roles/detail/:id/edit</loc> </url>
 <url> <loc>https://cloud.redhat.com/users</loc> </url>
