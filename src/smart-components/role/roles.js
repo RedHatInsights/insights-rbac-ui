@@ -98,12 +98,12 @@ const Roles = () => {
       ) : (
         <Fragment />
       )}
-      {userEntitlements && location.pathname === paths['roles-add-permission'] ? (
+      {location.pathname === paths['role-details'] ? (
         <Link path={paths['role-add-permission']} key="role-add-permission">
           <Button variant="primary">Add Permission</Button>
         </Link>
       ) : (
-        <Fragment />
+        console.log('TESTING MY BUTTON')
       )}
     </Fragment>,
   ];

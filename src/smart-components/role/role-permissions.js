@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Fragment } from 'react';
+import React, { useEffect, useState } from 'react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -8,6 +8,10 @@ import './role-permissions.scss';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import RemovePermissionsModal from './remove-permissions-modal';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
+import { Link, Route, useHistory } from 'react-router-dom';
+import { Button } from '@patternfly/react-core';
+import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
+import { routes as paths } from '../../../package.json';
 
 const columns = [{ title: 'Application' }, { title: 'Resource type' }, { title: 'Operation' }, { title: 'Last commit', transforms: [cellWidth(15)] }];
 
@@ -41,7 +45,7 @@ const Permissions = () => {
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
-
+  const history = useHistory();
   const dispatch = useDispatch();
 
   const setCheckedItems = (newSelection) => {
@@ -68,7 +72,9 @@ const Permissions = () => {
       : [];
 
   console.log('Testing out data in role-permission: ', role);
+  console.log('Testing out role.system in role-permissions: ', role.system);
   console.log('Our filter is: ', filter);
+  console.log('Testing out history in role-permission: ', history);
 
   const removePermissions = (permissions) => {
     const permissionsToRemove = permissions.reduce((acc, curr) => [...acc, curr.uuid], []);
@@ -96,7 +102,21 @@ const Permissions = () => {
   const toolbarButtons = () => [
     ...[
       // eslint-disable-next-line react/jsx-key
-      <Fragment />,
+      <Link to={`/roles/detail/${role.uuid}/add-role-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+        <Button variant="primary" aria-label="Add Permission">
+          Add Permission
+        </Button>
+      </Link>,
+      {
+        label: 'Add Permission',
+        props: {
+          className: 'pf-m-hidden-on-md',
+        },
+        onClick: () => {
+          history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+          console.log('CLICKEANDO EN LINK-- adding permissions now!');
+        },
+      },
       {
         label: 'Remove',
         props: {
@@ -119,6 +139,14 @@ const Permissions = () => {
       },
     ],
   ];
+
+  const routes = () => (
+    <>
+      <Route exact path={paths['role-add-permission']}>
+        <AddRolePermissionWizard isOpen={true} />
+      </Route>
+    </>
+  );
 
   return (
     <section className="pf-c-page__main-section ins-c-role__permissions">
@@ -165,7 +193,7 @@ const Permissions = () => {
             filter: name,
           })
         }
-        toolbarButtons={role.system ? undefined : toolbarButtons}
+        toolbarButtons={toolbarButtons}
         isLoading={isRecordLoading}
         pagination={{
           ...pagination,
@@ -173,6 +201,7 @@ const Permissions = () => {
         }}
         titlePlural="permissions"
         titleSingular="permission"
+        routes={routes}
       />
     </section>
   );
