@@ -14,6 +14,7 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
+import './roles.scss';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -83,19 +84,31 @@ const Roles = () => {
         ];
   };
 
-  const toolbarButtons = () => [
-    <Fragment key="add-role">
-      {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
-        <Link to={paths['add-role']}>
-          <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-            Create role
-          </Button>
-        </Link>
-      ) : (
-        <Fragment />
-      )}
-    </Fragment>,
-  ];
+  const toolbarButtons = () =>
+    [
+      <Fragment key="add-role">
+        {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
+          <Link to={paths['add-role']}>
+            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+              Create role
+            </Button>
+          </Link>
+        ) : (
+          <Fragment />
+        )}
+      </Fragment>,
+      userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin
+        ? {
+            label: 'Create role',
+            props: {
+              className: 'pf-m-hidden-on-md',
+            },
+            onClick: () => {
+              push(paths['add-role']);
+            },
+          }
+        : undefined,
+    ].filter((x) => x);
 
   const renderRolesList = () => (
     <Stack>
