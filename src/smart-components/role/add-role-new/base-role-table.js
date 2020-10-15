@@ -39,6 +39,7 @@ const BaseRoleTable = (props) => {
               id={`${role.uuid}-radio`}
               name={`${role.name}-radio`}
               aria-label={`${role.name}-radio`}
+              ouiaId={`${role.name}-radio`}
               value={role.uuid}
               isChecked={input.value.uuid === role.uuid}
               onChange={() => {
@@ -69,6 +70,7 @@ const BaseRoleTable = (props) => {
         titlePlural="roles"
         titleSingular="role"
         filterPlaceholder="role name"
+        ouiaId="roles-table"
         isCompact
       />
     </div>

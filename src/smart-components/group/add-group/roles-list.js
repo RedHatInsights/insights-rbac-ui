@@ -42,8 +42,8 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   return (
     <TableToolbarView
       columns={columns}
-      isSelectable={true}
-      isCompact={true}
+      isSelectable
+      isCompact
       borders={false}
       createRows={createRows}
       data={roles}
@@ -51,6 +51,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
       fetchData={(config) => fetchRoles(mappedProps(config))}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
+      ouiaId="roles-table"
       pagination={pagination}
       checkedRows={selectedRoles}
       setCheckedItems={setCheckedItems}

@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<AddGroupWizard /> should not show a warning modal on Cancel when clean 1`] = `
+exports[`<AddGroupWizard /> should show a warning modal on Cancel 1`] = `
 <ContextProvider
   value={
     Object {

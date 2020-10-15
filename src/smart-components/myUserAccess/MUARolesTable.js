@@ -60,6 +60,7 @@ const MUARolesTable = ({
               props: { colSpan: 4, className: 'pf-m-no-padding' },
               title: rolesWithAccess?.[uuid] ? (
                 <Table
+                  ouiaId="permissions-in-role-nested-table"
                   aria-label="Simple Table"
                   borders={false}
                   variant={TableVariant.compact}
@@ -101,9 +102,9 @@ const MUARolesTable = ({
   };
 
   let debouncedFetch = useCallback(
-    debounce((limit, offset, name, application, addFields) => {
+    debounce((limit, offset, name, application, permission) => {
       const applicationParam = application?.length > 0 ? application : apps;
-      return fetchRoles({ limit, offset, name, application: applicationParam.join(','), addFields });
+      return fetchRoles({ limit, offset, name, application: applicationParam.join(','), permission });
     }, 800),
     []
   );
@@ -129,9 +130,10 @@ const MUARolesTable = ({
         isExpandable={true}
         onExpand={onExpand}
         createRows={createRows}
+        ouiaId="roles-table"
         data={roles.data}
-        fetchData={({ limit, offset, name, application }) => {
-          debouncedFetch(limit, offset, name, application);
+        fetchData={({ limit, offset, name, application, permission }) => {
+          debouncedFetch(limit, offset, name, application, permission);
         }}
         setFilterValue={setFilters}
         isLoading={isLoading}

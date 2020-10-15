@@ -6,15 +6,34 @@ import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
-import { mock } from '../__mocks__/apiMock';
-import { RBAC_API_BASE } from '../../utilities/constants';
 import toJson from 'enzyme-to-json';
-import { FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+import { FETCH_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+
+import * as RoleActions from '../../redux/actions/role-actions';
+import * as GroupActions from '../../redux/actions/group-actions';
+import * as UserLogin from '../../helpers/shared/user-login';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
   let mockStore;
   let initialState;
+
+  const roleApi = UserLogin.getRoleApi();
+
+  const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
+  const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
+  const getRoleAccessSpy = jest.spyOn(roleApi, 'getRoleAccess');
+  const updateRoleSpy = jest.spyOn(roleApi, 'updateRole');
+  const removeRolePermissionsSpy = jest.spyOn(RoleActions, 'removeRolePermissions');
+
+  removeRolePermissionsSpy.mockImplementation(() => ({ type: UPDATE_ROLE, payload: Promise.resolve({}) }));
+
+  afterEach(() => {
+    fetchRoleSpy.mockReset();
+    fetchGroupSpy.mockReset();
+    getRoleAccessSpy.mockReset();
+    updateRoleSpy.mockReset();
+  });
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
@@ -36,9 +55,8 @@ describe('role', () => {
       const store = mockStore({
         roleReducer: {},
       });
-      mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {
-        data: 'something',
-      });
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+
       let wrapper;
       await act(async () => {
         wrapper = mount(
@@ -61,7 +79,7 @@ describe('role', () => {
     });
 
     it('should render correctly with router and redux store', async () => {
-      mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
       let wrapper;
       await act(async () => {
         wrapper = mount(
@@ -87,12 +105,8 @@ describe('role', () => {
           },
         },
       });
-      mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, {
-        data: 'something',
-      });
-      mock.onGet(`${RBAC_API_BASE}/roles/456/`).reply(200, {
-        data: 'something',
-      });
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+      fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       let wrapper;
       await act(async () => {
         wrapper = mount(
@@ -120,8 +134,8 @@ describe('role', () => {
     });
 
     it('should render correctly with router and redux store', async () => {
-      mock.onGet(`${RBAC_API_BASE}/groups/123/`).reply(200, {});
-      mock.onGet(`${RBAC_API_BASE}/roles/456/`).reply(200, {});
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
+      fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
       let wrapper;
       await act(async () => {
         wrapper = mount(
@@ -148,7 +162,7 @@ describe('role', () => {
   });
 
   it('should render correctly with loading', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -170,7 +184,8 @@ describe('role', () => {
   });
 
   it('should render permissions table', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -187,7 +202,7 @@ describe('role', () => {
   });
 
   it('should render top toolbar', async () => {
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -203,7 +218,8 @@ describe('role', () => {
   });
 
   it('should render second page of table', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -232,7 +248,8 @@ describe('role', () => {
   });
 
   it('should render filtered data', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -267,7 +284,7 @@ describe('role', () => {
   });
 
   it('should open and cancel remove modal', async () => {
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -287,9 +304,12 @@ describe('role', () => {
   });
 
   it('should open and close remove modal', async () => {
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/access/`).replyOnce(200, { data: [] });
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
-    mock.onPut(`${RBAC_API_BASE}/roles/1234/`).replyOnce(200, {});
+    getRoleAccessSpy.mockResolvedValueOnce({ data: [] });
+    updateRoleSpy.mockResolvedValueOnce({ payload: {} });
+    /**Two fetch role API calls */
+    fetchRoleSpy
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -309,9 +329,12 @@ describe('role', () => {
   });
 
   it('should chould check permission and remove it', async () => {
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/access/`).replyOnce(200, { data: [] });
-    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {});
-    mock.onPut(`${RBAC_API_BASE}/roles/1234/`).replyOnce(200, {});
+    getRoleAccessSpy.mockResolvedValueOnce({ payload: { data: [] } });
+    updateRoleSpy.mockResolvedValueOnce({ payload: {} });
+    /**Two fetch role API calls */
+    fetchRoleSpy
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     let store = mockStore(initialState);
     await act(async () => {
@@ -323,14 +346,23 @@ describe('role', () => {
         </Provider>
       );
     });
+    await act(async () => {
+      wrapper.update();
+    });
+
     wrapper.find('input[type="checkbox"]').at(0).simulate('click');
     wrapper.find('button[aria-label="Actions"]').at(3).simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
-    wrapper.find('button.pf-m-danger').simulate('click');
+    await act(async () => {
+      wrapper.find('button.pf-m-danger').simulate('click');
+    });
     const expectedPayload = [
       { type: `${FETCH_ROLE}_PENDING` },
       expect.objectContaining({ type: `${FETCH_ROLE}_FULFILLED` }),
       { type: `${UPDATE_ROLE}_PENDING` },
+      { payload: {}, type: `${UPDATE_ROLE}_FULFILLED` },
+      { type: `${FETCH_ROLE}_PENDING` },
+      { payload: {}, type: `${FETCH_ROLE}_FULFILLED` },
     ];
     expect(store.getActions()).toEqual(expectedPayload);
   });

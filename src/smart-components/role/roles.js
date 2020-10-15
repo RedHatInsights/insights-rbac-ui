@@ -91,7 +91,7 @@ const Roles = () => {
       {console.log('Thios is our paths in roles: ', paths)}
       {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
         <Link to={paths['add-role']}>
-          <Button variant="primary" aria-label="Create role">
+          <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
             Create role
           </Button>
         </Link>
@@ -128,6 +128,7 @@ const Roles = () => {
             isLoading={isLoading}
             pagination={pagination}
             routes={routes}
+            ouiaId="roles-table"
             titlePlural="roles"
             titleSingular="role"
             toolbarButtons={toolbarButtons}

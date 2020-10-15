@@ -78,7 +78,7 @@ const Group = ({
           </SplitItem>
           <SplitItem>
             {group.platform_default ? null : (
-              <Button onClick={() => setShowEdit(true)} variant="secondary">
+              <Button ouiaId="edit-group-button" onClick={() => setShowEdit(true)} variant="secondary">
                 Edit group
               </Button>
             )}
@@ -146,8 +146,8 @@ Group.propTypes = {
     uuid: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
-    platform_default: PropTypes.string,
-    system: PropTypes.string,
+    platform_default: PropTypes.bool,
+    system: PropTypes.bool,
   }),
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func,

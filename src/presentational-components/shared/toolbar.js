@@ -92,7 +92,7 @@ export const filterConfigBuilder = (
             placeholder: placeholder ? placeholder : `Filter by ${key}`,
             value,
             selected,
-            isFilterable,
+            ...(type !== 'text' ? { isFilterable, onShowMore, showMoreTitle, onFilter } : {}),
             groups,
             items,
             onChange: (_e, filterBy) => {
@@ -121,9 +121,6 @@ export const filterConfigBuilder = (
               );
             },
             isDisabled: isLoading,
-            onShowMore,
-            showMoreTitle,
-            onFilter,
           },
         }))
       : [
@@ -198,11 +195,10 @@ export const activeFiltersConfigBuilder = (
         return value.filter((value) => value !== deleted.chips[0]?.name);
       }
 
-      return '';
+      return Array.isArray(value) ? [] : '';
     };
 
     const filtersValue = filters.reduce((acc, { key, value, type }) => ({ ...acc, [key]: setKeyValue(value, type, key) }), {});
-
     setFilterValue({
       ...pagination,
       offset: 0,

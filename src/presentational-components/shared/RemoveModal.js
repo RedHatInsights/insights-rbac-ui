@@ -19,14 +19,13 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       variant={ModalVariant.small}
       onClose={onClose}
       actions={[
-        <Button key="confirm" isDisabled={withCheckbox && !checked} variant="danger" onClick={onSubmit}>
+        <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={withCheckbox && !checked} variant="danger" onClick={onSubmit}>
           {confirmButtonLabel}
         </Button>,
-        <Button key="cancel" variant="link" onClick={onClose}>
+        <Button key="cancel" ouiaId="secondary-cancel-button" variant="link" onClick={onClose}>
           Cancel
         </Button>,
       ]}
-      isFooterLeftAligned
     >
       <Split hasGutter>
         <SplitItem isFilled>

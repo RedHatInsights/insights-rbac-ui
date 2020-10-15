@@ -8,14 +8,18 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { rolesInitialState } from '../../../redux/reducers/role-reducer';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import user from '../../../smart-components/user/user';
-import { mock } from '../../__mocks__/apiMock';
-import { RBAC_API_BASE } from '../../../utilities/constants';
+import { FETCH_USERS } from '../../../redux/action-types';
+import * as UserActions from '../../../redux/actions/user-actions';
+import * as RoleActions from '../../../redux/actions/role-actions';
 
 describe('<User />', () => {
   const middlewares = [promiseMiddleware];
   let mockStore;
   let enhanceState;
   let initialState;
+
+  const fetchUsersSpy = jest.spyOn(UserActions, 'fetchUsers');
+  const fetchRolesSpy = jest.spyOn(RoleActions, 'fetchRoles');
 
   beforeEach(() => {
     enhanceState = {
@@ -36,12 +40,13 @@ describe('<User />', () => {
   });
 
   afterEach(() => {
-    mock.reset();
+    fetchUsersSpy.mockReset();
+    fetchRolesSpy.mockReset();
   });
 
   it('should render user', async () => {
-    mock.onGet(`${RBAC_API_BASE}/principals/?limit=0&offset=0&usernames=epacific-insights&sort_order=asc&status=all`).reply(200, {});
-    mock.onGet(`${RBAC_API_BASE}/roles/?limit=20&offset=0&add_fields=groups_in&username=epacific-insights`).reply(200, {});
+    fetchUsersSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
+    fetchRolesSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(

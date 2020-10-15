@@ -243,6 +243,7 @@ const GroupRoles = ({
           toolbarButtons={toolbarButtons}
           actionResolver={actionResolver}
           routes={routes}
+          ouiaId="roles-table"
           emptyProps={{ title: 'There are no roles in this group', description: ['Add a role to configure user access.', ''] }}
           filters={[
             { key: 'name', value: filterValue },

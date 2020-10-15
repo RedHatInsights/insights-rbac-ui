@@ -13,9 +13,24 @@
 }
 
 @media only screen and (max-width: 768px) {
+  // fix for mobile layout: https://github.com/patternfly/patternfly-react/issues/4922
+  .pf-c-table__expandable-row.pf-m-expanded {
+    max-height: none !important;
+    overflow-y: visible;
+    tr:first-of-type {padding-top: 0 !important;}
+    > td::before {display: none;}
+  }
+
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
+
+  .ins-c-conditional-filter {
+    .pf-l-split__item.pf-m-fill {
+      flex-grow: .8;
+    }
+  }
+
   .pf-c-empty-state__content {
     h4.pf-c-title {
       font-size: var(--pf-c-title--m-2xl--FontSize);

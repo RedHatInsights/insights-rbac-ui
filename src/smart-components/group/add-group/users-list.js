@@ -31,17 +31,13 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
             cells: [
               isOrgAdmin ? (
                 <Fragment>
-                  <span>
-                    <CheckIcon className="pf-u-mr-sm" />
-                    Yes
-                  </span>
+                  <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                  <span key="yes">Yes</span>
                 </Fragment>
               ) : (
                 <Fragment>
-                  <span>
-                    <CloseIcon className="pf-u-mr-sm" />
-                    No
-                  </span>
+                  <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+                  <span key="no">No</span>
                 </Fragment>
               ),
               { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
@@ -49,7 +45,11 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
               firstName,
               lastName,
               {
-                title: <Label color={isActive && 'green'}>{isActive ? 'Active' : 'Inactive'}</Label>,
+                title: (
+                  <Label key="status" color={isActive && 'green'}>
+                    {isActive ? 'Active' : 'Inactive'}
+                  </Label>
+                ),
                 props: {
                   'data-is-active': isActive,
                 },
@@ -81,11 +81,12 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
   return (
     <TableToolbarView
       columns={columns}
-      isSelectable={true}
+      isSelectable
       isCompact={true}
       borders={false}
       createRows={createRows(userLinks)}
       data={users}
+      ouiaId="users-table"
       fetchData={(config) => {
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
         fetchUsers(mappedProps({ ...config, status }));

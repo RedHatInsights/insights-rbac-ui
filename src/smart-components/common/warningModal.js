@@ -17,14 +17,13 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel }) =
     isOpen={isOpen}
     onClose={onModalCancel}
     actions={[
-      <Button key="confirm" variant="primary" onClick={onConfirmCancel}>
+      <Button ouiaId="primary-exit-button" key="confirm" variant="primary" onClick={onConfirmCancel}>
         Exit
       </Button>,
-      <Button key="cancel" variant="link" onClick={onModalCancel}>
+      <Button ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onModalCancel}>
         Stay
       </Button>,
     ]}
-    isFooterLeftAligned
   >
     <span> All inputs will be discarded.</span>
   </Modal>

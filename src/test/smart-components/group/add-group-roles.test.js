@@ -4,10 +4,11 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
-import { mock } from '../../__mocks__/apiMock';
 import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
-import { RBAC_API_BASE } from '../../../utilities/constants';
 import DefaultGroupChange from '../../../smart-components/group/role/default-group-change-modal';
+
+import * as GroupActions from '../../../redux/actions/group-actions';
+import { FETCH_GROUPS } from '../../../redux/action-types';
 
 describe('<AddGroupRoles />', () => {
   const addRolesToGroup = jest.fn();
@@ -17,6 +18,7 @@ describe('<AddGroupRoles />', () => {
   let initialState;
   let initialProps;
 
+  const fetchAddRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchAddRolesForGroup');
   beforeEach(() => {
     initialState = {
       groupReducer: {
@@ -43,11 +45,11 @@ describe('<AddGroupRoles />', () => {
   });
 
   afterEach(() => {
-    mock.reset();
+    fetchAddRolesForGroupSpy.mockReset();
   });
 
   it('should render AddGroupRoles modal', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/roles/?exclude=true`).reply(200, {});
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let initialProps = { selectedRoles: [] };
@@ -61,10 +63,11 @@ describe('<AddGroupRoles />', () => {
       );
     });
     expect(wrapper.find(AddGroupRoles)).toHaveLength(1);
+    expect(fetchAddRolesForGroupSpy).toHaveBeenCalledTimes(1);
   });
 
   it('should cancel adding roles', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/roles/?exclude=true`).reply(200, {});
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let initialProps = {
@@ -86,7 +89,7 @@ describe('<AddGroupRoles />', () => {
   });
 
   it('should close AddGroupRoles modal', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/roles/?exclude=true`).reply(200, {});
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let initialProps = {
@@ -108,7 +111,7 @@ describe('<AddGroupRoles />', () => {
   });
 
   it('should submit AddGroupRoles modal', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/roles/?exclude=true`).reply(200, {});
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
@@ -126,7 +129,7 @@ describe('<AddGroupRoles />', () => {
   });
 
   it('should submit AddGroupRoles modal with a default group', async () => {
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/roles/?exclude=true`).reply(200, {});
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let enhancedProps = {

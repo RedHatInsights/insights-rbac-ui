@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Button, Modal, StackItem, Stack } from '@patternfly/react-core';
+import { Button, Modal, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import { CompactUsersList } from '../add-group/users-list';
@@ -51,14 +51,13 @@ const AddGroupMembers = ({
   return (
     <Modal
       title="Add members"
-      width={'75%'}
+      width="75%"
       isOpen
-      isFooterLeftAligned
       actions={[
-        <Button key="confirm" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
+        <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
           Add to group
         </Button>,
-        <Button id="add-groups-cancel" key="cancel" variant="link" onClick={onCancel}>
+        <Button id="add-groups-cancel" ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onCancel}>
           Cancel
         </Button>,
       ]}
@@ -66,7 +65,9 @@ const AddGroupMembers = ({
     >
       <Stack hasGutter>
         <StackItem>
-          <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your" />
+          <TextContent>
+            <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your" />
+          </TextContent>
         </StackItem>
         <StackItem>
           <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />

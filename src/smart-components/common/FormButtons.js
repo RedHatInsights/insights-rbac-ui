@@ -10,10 +10,10 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
   const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || (!submitSucceeded && pristine);
   return (
     <ActionGroup className="pf-u-mt-0">
-      <Button type="submit" isDisabled={noChanges} variant="primary">
-        Submit
+      <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
+        Save
       </Button>
-      <Button variant="link" onClick={() => onCancel()}>
+      <Button ouiaId="secondary-cancel-button" variant="link" onClick={() => onCancel()}>
         Cancel
       </Button>
     </ActionGroup>
@@ -21,11 +21,9 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
 };
 
 FormButtons.propTypes = {
-  dirtyFieldsSinceLastSubmit: PropTypes.arrayOf(
-    PropTypes.shape({
-      [PropTypes.string]: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
-    })
-  ),
+  dirtyFieldsSinceLastSubmit: PropTypes.shape({
+    [PropTypes.string]: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.bool]),
+  }),
   submitSucceeded: PropTypes.bool,
   pristine: PropTypes.bool,
   onCancel: PropTypes.func,

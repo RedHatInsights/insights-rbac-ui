@@ -48,6 +48,7 @@ export const TableToolbarView = ({
   hideFilterChips,
   noData,
   noDataDescription,
+  ouiaId,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -80,6 +81,7 @@ export const TableToolbarView = ({
                 <EmptyStatePrimary key="clear-filters">
                   <Button
                     variant="link"
+                    ouiaId="clear-filters-button"
                     onClick={() => {
                       setFilterValue({
                         ...pagination,
@@ -156,6 +158,7 @@ export const TableToolbarView = ({
           areActionsDisabled={areActionsDisabled}
           rowWrapper={rowWrapper}
           sortBy={sortByState}
+          ouiaId={ouiaId}
           onSort={(e, index, direction) => {
             setSortByState({ index, direction });
             fetchData({
@@ -200,6 +203,10 @@ export const TableToolbarView = ({
 
 TableToolbarView.propTypes = {
   ...Toolbar.propTypes,
+  sortBy: propTypes.shape({
+    directions: propTypes.string,
+    index: propTypes.number,
+  }),
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,

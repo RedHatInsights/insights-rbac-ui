@@ -123,7 +123,7 @@ const Permissions = () => {
           isDisabled: !selectedPermissions.length > 0,
         },
         onClick: () => {
-          const multiplePermissionsSelected = selectedPermissions.lenght > 1;
+          const multiplePermissionsSelected = selectedPermissions.length > 1;
           setConfirmDelete(() => () => removePermissions([...selectedPermissions]));
           setDeleteInfo({
             title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
@@ -173,6 +173,7 @@ const Permissions = () => {
         actionResolver={role.system ? undefined : actionResolver}
         data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
         filterValue={filter}
+        ouiaId="role-permissions-table"
         fetchData={({ limit, offset, name }) =>
           setConfig({
             ...config,

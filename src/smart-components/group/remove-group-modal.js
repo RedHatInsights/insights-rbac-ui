@@ -50,7 +50,6 @@ const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUu
           Cancel
         </Button>,
       ]}
-      isFooterLeftAligned
     >
       <TextContent>
         {multipleGroups ? (

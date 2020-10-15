@@ -55,12 +55,6 @@
     .ins-l-myUserAccess-section__table {
       height: auto;
       margin: var(--pf-global--spacer--md);
-      padding: 0;
-      .pf-c-table__expandable-row {
-        max-height: none;
-        overflow-y: visible;
-        > td::before {display: none;}
-      }
       > .pf-c-title {display: none;}
     }
   }   

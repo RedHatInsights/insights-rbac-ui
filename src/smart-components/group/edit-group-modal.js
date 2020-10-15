@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/cjs/validator-types';
 import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import { Modal, ModalVariant } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -76,22 +76,8 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
     ],
   };
 
-  // eslint-disable-next-line react/prop-types
-  const formButtons = ({ pristine, valid }) => {
-    return (
-      <div>
-        <Button type="submit" isDisabled={pristine || !valid} variant="primary">
-          Submit
-        </Button>
-        <Button variant="link" onClick={onCancel}>
-          Cancel
-        </Button>
-      </div>
-    );
-  };
-
   return (
-    <Modal size={ModalVariant.large} width={'50%'} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
+    <Modal variant={ModalVariant.medium} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
       {selectedGroup ? (
         <FormRenderer
           schema={schema}
@@ -100,7 +86,6 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
           onSubmit={onSubmit}
           formContainer="modal"
           initialValues={{ ...selectedGroup }}
-          renderFormButtons={formButtons}
         />
       ) : (
         <Skeleton />
