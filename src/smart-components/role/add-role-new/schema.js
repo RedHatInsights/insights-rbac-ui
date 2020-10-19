@@ -25,19 +25,9 @@ export default (container) => ({
           },
           fields: [
             {
-              component: 'radio',
+              component: 'type-selector',
               name: 'role-type',
               isRequired: true,
-              options: [
-                {
-                  label: 'Create a role from scratch',
-                  value: 'create',
-                },
-                {
-                  label: 'Copy an existing role',
-                  value: 'copy',
-                },
-              ],
               validate: [
                 {
                   type: 'required',
