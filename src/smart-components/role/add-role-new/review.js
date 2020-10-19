@@ -45,44 +45,48 @@ const ReviewStep = () => {
 
   return (
     <React.Fragment>
-      <Stack hasGutter>
+      <Stack>
         <StackItem className="ins-c-rbac__summary">
           <Grid>
-            <GridItem span={2}>
+            <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
                 Name
               </Text>
             </GridItem>
-            <GridItem span={10}>
+            <GridItem sm={12} md={10}>
               <Text component={TextVariants.p}>{name || copyName}</Text>
             </GridItem>
           </Grid>
           <Grid>
-            <GridItem span={2}>
+            <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
                 Description
               </Text>
             </GridItem>
-            <GridItem span={10}>
+            <GridItem sm={12} md={10}>
               <Text component={TextVariants.p}>{description || copyDescription}</Text>
             </GridItem>
           </Grid>
           <Grid>
-            <GridItem span={2}>
+            <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
                 Permissions
               </Text>
             </GridItem>
-            <GridItem span={10}>{stickyTable(columns, rows)}</GridItem>
+            <GridItem sm={12} md={10}>
+              {stickyTable(columns, rows)}
+            </GridItem>
           </Grid>
           {resourceDefinitions && (
             <Grid>
-              <GridItem span={2}>
+              <GridItem sm={12} md={2}>
                 <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
                   Resource definitions
                 </Text>
               </GridItem>
-              <GridItem span={10}>{stickyTable(['Permission', 'Resource definitions'], resourceDefinitionsRows)}</GridItem>
+              <GridItem sm={12} md={10}>
+                {stickyTable(['Permission', 'Resource definitions'], resourceDefinitionsRows)}
+              </GridItem>
             </Grid>
           )}
         </StackItem>
