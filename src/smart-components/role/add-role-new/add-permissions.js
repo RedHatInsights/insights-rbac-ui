@@ -143,7 +143,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, [selectedPermissions]);
 
   useEffect(() => {
-    if (baseRole && roleType === 'copy') {
+    if (baseRole && roleType === 'copy' && selectedPermissions.length === 0) {
       setSelectedPermissions(() =>
         resolveSplats(
           (baseRole?.access || []).map((permission) => ({ uuid: permission.permission })),
@@ -182,7 +182,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   };
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
-  console.log('RENDER', permissions);
   return (
     <div className="ins-c-rbac-permissions-table">
       <TableToolbarView

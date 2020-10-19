@@ -47,6 +47,7 @@ const BaseRoleTable = (props) => {
                   input.onChange(role);
                   formOptions.change('role-copy-name', `Copy of ${role.display_name || role.name}`);
                   formOptions.change('role-copy-description', role.description);
+                  formOptions.change('add-permissions-table', []);
                 });
               }}
             />
