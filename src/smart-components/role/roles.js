@@ -28,25 +28,19 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   pagination: roles.meta,
   userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
   isLoading,
 });
 
 const Roles = () => {
   const [filterValue, setFilterValue] = useState('');
-  const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, pagination, userIdentity } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions('cost-management', true).then((allPermissions) => {
-      const permissionList = allPermissions.map((permissions) => permissions.permission);
-      setIsCostAdmin(permissionList.includes('cost-management:*:*'));
-    });
   }, []);
 
   const routes = () => (
@@ -87,7 +81,7 @@ const Roles = () => {
   const toolbarButtons = () =>
     [
       <Fragment key="add-role">
-        {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
+        {userIdentity?.user?.is_org_admin ? (
           <Link to={paths['add-role']}>
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
               Create role
@@ -97,7 +91,7 @@ const Roles = () => {
           <Fragment />
         )}
       </Fragment>,
-      userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin
+      userIdentity?.user?.is_org_admin
         ? {
             label: 'Create role',
             props: {
