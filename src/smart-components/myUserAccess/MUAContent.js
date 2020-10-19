@@ -16,7 +16,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
       <Grid>
-        <GridItem className="pf-m-3-col-on-md ins-l-myUserAccess-section__cards">
+        <GridItem className="pf-m-3-col-on-md ins-l-myUserAccess-section__cards ins-m-hide-on-sm">
           <Stack>
             <StackItem className="ins-l-myUserAccess-section__cards--entitled">
               {/* No conditional here because you have to have a subscription to get to /settings */}
