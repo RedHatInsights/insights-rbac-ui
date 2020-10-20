@@ -14,6 +14,7 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
+import './roles.scss';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -27,25 +28,19 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   pagination: roles.meta,
   userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
   isLoading,
 });
 
 const Roles = () => {
   const [filterValue, setFilterValue] = useState('');
-  const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, pagination, userIdentity } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions('cost-management', true).then((allPermissions) => {
-      const permissionList = allPermissions.map((permissions) => permissions.permission);
-      setIsCostAdmin(permissionList.includes('cost-management:*:*'));
-    });
   }, []);
 
   const routes = () => (
@@ -83,19 +78,31 @@ const Roles = () => {
         ];
   };
 
-  const toolbarButtons = () => [
-    <Fragment key="add-role">
-      {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
-        <Link to={paths['add-role']}>
-          <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-            Create role
-          </Button>
-        </Link>
-      ) : (
-        <Fragment />
-      )}
-    </Fragment>,
-  ];
+  const toolbarButtons = () =>
+    [
+      <Fragment key="add-role">
+        {userIdentity?.user?.is_org_admin ? (
+          <Link to={paths['add-role']}>
+            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+              Create role
+            </Button>
+          </Link>
+        ) : (
+          <Fragment />
+        )}
+      </Fragment>,
+      userIdentity?.user?.is_org_admin
+        ? {
+            label: 'Create role',
+            props: {
+              className: 'pf-m-hidden-on-md',
+            },
+            onClick: () => {
+              push(paths['add-role']);
+            },
+          }
+        : undefined,
+    ].filter((x) => x);
 
   const renderRolesList = () => (
     <Stack>

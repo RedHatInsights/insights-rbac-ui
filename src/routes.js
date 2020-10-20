@@ -25,11 +25,10 @@ export const Routes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
-        <InsightsRoute exact={true} path={routes.rbac} component={Users} rootClass="users" />
         <InsightsRoute path={routes.groups} component={Groups} rootClass="groups" />
         <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
-        <InsightsRoute path={routes.myUserAccess} component={MyUserAccess} rootClass="myUserAccess" />
+        <InsightsRoute path={[routes.myUserAccess, routes.rbac]} component={MyUserAccess} rootClass="myUserAccess" />
         <Route render={() => <Redirect to={routes.myUserAccess} />} />
       </Switch>
     </Suspense>
