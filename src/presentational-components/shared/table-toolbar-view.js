@@ -181,6 +181,7 @@ export const TableToolbarView = ({
     </>
   );
 
+  console.log('Trying out my routes in table-toolbar-view: ', routes);
   console.log('This is the table-toolbar-view actionResolver: ', actionResolver);
   console.log('Estamos corriendo aqui: ', data);
   return (

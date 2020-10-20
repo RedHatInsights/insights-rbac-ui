@@ -1,9 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Wizard } from '@patternfly/react-core';
-// import { WarningModal } from  '../../common/warningModal';
+import { WarningModal } from '../../common/warningModal';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import '../../common/hideWizard.scss';
 // import SummaryContent from '../../group/add-group/summary-content';
-// import { usePermissions } from '@redhat-cloud-services/frontend-components-utilities/files/RBACHook';
+import { usePermissions } from '@redhat-cloud-services/frontend-components-utilities/files/RBACHook';
 import AddRolePermissionView from './add-role-permission-view';
 import PropTypes from 'prop-types';
 // import '../../common/hideWizard.scss';
@@ -25,16 +26,36 @@ const AddRolePermissionWizard = ({ isOpen }) => {
   ];
 
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
+  const [availPermissions, setAvailPermissions] = useState([]);
+  // const [permissionData, setPermissionData] = useState({});
+  // const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const history = useHistory();
+
+  useEffect(() => {
+    const data = usePermissions();
+    console.log('This is the data in my wizard:', data);
+  });
 
   const onModalClose = () => {
     setIsModalOpen(!isModalOpen);
     history.goBack();
   };
 
+  const onCancel = () => {
+    addNotification({
+      variant: 'warning',
+      title: 'Adding Permission to Role',
+      dismissDelay: 8000,
+      dismissable: false,
+      description: 'Adding permission was canceled.',
+    });
+    history.push('/roles');
+  };
+
   return (
     <>
-      <Wizard title="Add Permission" description="Adding permissions to roles" steps={steps} isOpen={isModalOpen} onClose={onModalClose} />
+      <Wizard title="Add Permission" description="Adding permissions to roles" steps={steps} isOpen={true} onClose={onModalClose} />
+      <WarningModal type="group" isOpen={isModalOpen} onModalCancel={() => setIsModalOpen(false)} onConfirmCancel={onCancel} />
     </>
   );
 };
