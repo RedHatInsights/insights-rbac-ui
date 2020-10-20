@@ -96,6 +96,7 @@ const CostResources = (props) => {
       resources.map((resource) => permissions.includes(permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }))
     );
     fetchData();
+    formOptions.change('has-cost-resources', true);
   }, []);
 
   useEffect(() => {
