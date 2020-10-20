@@ -153,12 +153,12 @@ const CostResources = (props) => {
 
   return (
     <Grid hasGutter>
-      <GridItem span={4}>
+      <GridItem md={4} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Cost management permissions
         </Text>
       </GridItem>
-      <GridItem span={8}>
+      <GridItem md={8} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Resource definitions
         </Text>
