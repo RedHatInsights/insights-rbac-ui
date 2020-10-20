@@ -2,7 +2,7 @@
 import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Link, Route, useParams } from 'react-router-dom';
+import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup } from '../../../redux/actions/group-actions';
@@ -99,14 +99,25 @@ const GroupPrincipals = () => {
     </Fragment>
   );
 
+  const history = useHistory();
+
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group">
+          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="pf-m-visible-on-md">
             <Button variant="primary" aria-label="Add member">
               Add member
             </Button>
           </Link>,
+          {
+            label: 'Add member',
+            props: {
+              className: 'pf-m-hidden-on-md',
+            },
+            onClick: () => {
+              history.push(`/groups/detail/${uuid}/members/add_members`);
+            },
+          },
           {
             label: 'Remove',
             props: {
