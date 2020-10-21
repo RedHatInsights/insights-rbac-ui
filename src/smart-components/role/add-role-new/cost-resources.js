@@ -92,7 +92,11 @@ const CostResources = (props) => {
   const permissionToResource = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path.split('/')?.[5];
 
   useEffect(() => {
+    (formOptions.getState().values['resource-definitions'] || []).map(({ permission, resources }) =>
+      resources.map((resource) => permissions.includes(permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }))
+    );
     fetchData();
+    formOptions.change('has-cost-resources', true);
   }, []);
 
   useEffect(() => {

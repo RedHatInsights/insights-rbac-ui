@@ -33,6 +33,7 @@ const ReviewStep = () => {
     'role-copy-description': copyDescription,
     'add-permissions-table': permissions,
     'resource-definitions': resourceDefinitions,
+    'has-cost-resources': hasCostResources,
   } = formOptions.getState().values;
   const columns = ['Application', 'Resource type', 'Operation'];
   const rows = permissions.map((permission) => ({
@@ -77,7 +78,7 @@ const ReviewStep = () => {
               {stickyTable(columns, rows)}
             </GridItem>
           </Grid>
-          {resourceDefinitions && (
+          {hasCostResources && (
             <Grid>
               <GridItem sm={12} md={2}>
                 <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
