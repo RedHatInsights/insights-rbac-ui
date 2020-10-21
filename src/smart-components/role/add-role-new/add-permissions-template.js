@@ -8,7 +8,6 @@ import './add-role-wizard.scss';
 const AddPermissionTemplate = ({ formFields }) => {
   const formOptions = useFormApi();
   const [selectedPermissions, setSelectedPermissions] = useState(formOptions.getState().values['add-permissions-table'] || []);
-  console.log('SELECTED:', selectedPermissions);
 
   const addPermissions = formFields[0][0];
   return (
