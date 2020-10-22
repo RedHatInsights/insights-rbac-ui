@@ -69,7 +69,7 @@ const CostResources = (props) => {
   const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-  const { 'add-permissions-table': permissions } = formOptions.getState().values;
+  const permissions = formOptions.getState().values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('cost-management'));
   const [state, dispatchLocaly] = useReducer(
     reducer,
     permissions.reduce(
@@ -92,7 +92,11 @@ const CostResources = (props) => {
   const permissionToResource = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1])?.path.split('/')?.[5];
 
   useEffect(() => {
+    (formOptions.getState().values['resource-definitions'] || []).map(({ permission, resources }) =>
+      resources.map((resource) => permissions.includes(permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }))
+    );
     fetchData();
+    formOptions.change('has-cost-resources', true);
   }, []);
 
   useEffect(() => {
@@ -153,12 +157,12 @@ const CostResources = (props) => {
 
   return (
     <Grid hasGutter>
-      <GridItem span={4}>
+      <GridItem md={4} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Cost management permissions
         </Text>
       </GridItem>
-      <GridItem span={8}>
+      <GridItem md={8} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Resource definitions
         </Text>

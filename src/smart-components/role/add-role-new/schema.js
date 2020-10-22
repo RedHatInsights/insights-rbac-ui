@@ -25,19 +25,9 @@ export default (container) => ({
           },
           fields: [
             {
-              component: 'radio',
+              component: 'type-selector',
               name: 'role-type',
               isRequired: true,
-              options: [
-                {
-                  label: 'Create a role from scratch',
-                  value: 'create',
-                },
-                {
-                  label: 'Copy an existing role',
-                  value: 'copy',
-                },
-              ],
               validate: [
                 {
                   type: 'required',
@@ -155,10 +145,14 @@ export default (container) => ({
           nextStep: 'review',
           fields: [
             {
+              component: 'plain-text',
+              name: 'text-description',
+              // eslint-disable-next-line quotes
+              label: "Specify where you'd like to apply each cost permission selected in the previous step, using the dropdown below.",
+            },
+            {
               component: 'cost-resources',
               name: 'cost-resources',
-              // eslint-disable-next-line quotes
-              description: "Specify where you'd like to apply each cost permission selected int the previous step, suig the dropdown below.",
               validate: [
                 (value = []) =>
                   value.every((p) => p.resources.length > 0) ? undefined : 'You need to assign at least one resource to each permission.',

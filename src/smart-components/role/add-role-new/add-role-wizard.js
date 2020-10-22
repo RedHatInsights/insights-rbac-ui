@@ -12,6 +12,7 @@ import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
 import CostResources from './cost-resources';
+import TypeSelector from './type-selector';
 import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
@@ -25,6 +26,7 @@ export const mapperExtension = {
   'cost-resources': CostResources,
   review: ReviewStep,
   description: Description,
+  'type-selector': TypeSelector,
 };
 
 const AddRoleWizard = ({ history: { push } }) => {
