@@ -10,8 +10,9 @@ export const bundleData = [
       vulnerability: '/vulnerability',
       policies: '/policies',
       compliance: '/compliance',
+      inventory: '/inventory',
     },
-    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance'],
+    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance', 'inventory'],
   },
   {
     entitlement: 'openshift',
