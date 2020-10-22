@@ -22,25 +22,23 @@ export const fetchGroup = (apiProps) => ({
 
 export const addGroup = (groupData) => ({
   type: ActionTypes.ADD_GROUP,
-  payload: GroupHelper.addGroup(groupData),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding group',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The group was added successfully.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed adding group',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The group was not added successfuly.',
-      },
-    },
-  },
+  payload: GroupHelper.addGroup(groupData).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'name') {
+      return {
+        error: true,
+      };
+    }
+
+    /**
+     * Convert any other API error response to not crash notifications.
+     * It has different format than other API requests.
+     */
+    throw {
+      message: error.detail,
+      description: error.source,
+    };
+  }),
 });
 
 export const updateGroup = (groupData) => ({
