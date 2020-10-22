@@ -3,7 +3,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import { Button, Modal, StackItem, Stack, TextContent } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import { CompactUsersList } from '../add-group/users-list';
@@ -20,7 +20,6 @@ const AddGroupMembers = ({
   fetchMembersForGroup,
 }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
-
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
@@ -51,7 +50,7 @@ const AddGroupMembers = ({
   return (
     <Modal
       title="Add members"
-      width="75%"
+      variant={ModalVariant.medium}
       isOpen
       actions={[
         <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
