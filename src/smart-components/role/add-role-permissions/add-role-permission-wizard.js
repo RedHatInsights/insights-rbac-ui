@@ -10,7 +10,7 @@ import PropTypes from 'prop-types';
 // import '../../common/hideWizard.scss';
 import { useHistory } from 'react-router-dom';
 
-const AddRolePermissionWizard = ({ isOpen }) => {
+const AddRolePermissionWizard = () => {
   const steps = [
     {
       id: 1,
@@ -27,7 +27,7 @@ const AddRolePermissionWizard = ({ isOpen }) => {
 
   const { data } = usePermissions('catalog', ['catalog: *']);
 
-  const [isModalOpen, setIsModalOpen] = useState(isOpen);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   // const [availPermissions, setAvailPermissions] = useState([]);
   // const [permissionData, setPermissionData] = useState({});
   // const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
