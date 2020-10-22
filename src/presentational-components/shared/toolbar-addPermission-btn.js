@@ -7,7 +7,7 @@ const toolbarAddPermissionBtn = () => {
 
     return (
         <Fragment key='add-permission'>
-            {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
+            {userEntitlements && userEntitlements.cost_management ? (
                 <Link path={paths['role-add-permission']} key='role-add-permission'>
                     <Button variant='primary'>Add Permission</Button>
                 </Link>
