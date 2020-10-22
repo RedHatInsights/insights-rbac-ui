@@ -83,7 +83,7 @@ const AddGroupWizard = ({ addNotification, addGroup, postMethod, closeUrl }) => 
       description: 'Adding group was canceled by the user.',
     });
     history.push('/groups');
-  };
+  };P
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
 

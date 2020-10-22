@@ -12,6 +12,7 @@ import { fetchGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
+import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import './role.scss';
 
 const Role = () => {
@@ -35,8 +36,8 @@ const Role = () => {
     fetchData();
   }, [uuid, groupUuid]);
 
-  console.log('Trying to see our data in role: ', role);
-  console.log('Tying to see our group data in role: ', group);
+  // console.log('Trying to see our data in role: ', role);
+  // console.log('Tying to see our group data in role: ', group);
   const title = !isRecordLoading && role ? role.display_name || role.name : undefined;
   const description = !isRecordLoading && role ? role.description : undefined;
   const dropdownItems = [
@@ -103,6 +104,7 @@ const Role = () => {
           <EditRoleModal afterSubmit={fetchData} cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-edit']} />
         )}
       </Route>
+      <Route exact path={routes['role-add-permission']} component={AddRolePermissionWizard} />
     </Fragment>
   );
 };

@@ -36,7 +36,7 @@ const Roles = () => {
   const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
   const { push, location } = useHistory();
-  const { roles, isLoading, pagination, userIdentity, userEntitlements } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
@@ -50,7 +50,7 @@ const Roles = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={paths['add-role']} component={AddRoleWizard} />
+      <Route exact path={paths['role-add-permission']} component={AddRoleWizard} />
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
@@ -82,8 +82,6 @@ const Roles = () => {
           },
         ];
   };
-
-  console.log('This is user identity in roles: ', userIdentity);
 
   const toolbarButtons = () => [
     <Fragment key="add-role">

@@ -25,16 +25,17 @@ const AddRolePermissionWizard = ({ isOpen }) => {
     },
   ];
 
+  const { data } = usePermissions('catalog', ['catalog: *']);
+
   const [isModalOpen, setIsModalOpen] = useState(isOpen);
-  const [availPermissions, setAvailPermissions] = useState([]);
+  // const [availPermissions, setAvailPermissions] = useState([]);
   // const [permissionData, setPermissionData] = useState({});
   // const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const history = useHistory();
 
   useEffect(() => {
-    const data = usePermissions();
-    console.log('This is the data in my wizard:', data);
-  });
+    console.log('!@#$!@#$!@#$!@#$!$ DATA IN EK WIZARD BRO:');
+  }, []);
 
   const onModalClose = () => {
     setIsModalOpen(!isModalOpen);
@@ -55,6 +56,7 @@ const AddRolePermissionWizard = ({ isOpen }) => {
   return (
     <>
       <Wizard title="Add Permission" description="Adding permissions to roles" steps={steps} isOpen={true} onClose={onModalClose} />
+      {console.log('DATA IN WIZARD:', data)}
       <WarningModal type="group" isOpen={isModalOpen} onModalCancel={() => setIsModalOpen(false)} onConfirmCancel={onCancel} />
     </>
   );

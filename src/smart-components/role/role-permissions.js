@@ -71,10 +71,11 @@ const Permissions = () => {
           .map((acc) => ({ uuid: acc.permission, ...acc, modified: role.modified }))
       : [];
 
-  console.log('Testing out data in role-permission: ', role);
-  console.log('Testing out role.system in role-permissions: ', role.system);
-  console.log('Our filter is: ', filter);
-  console.log('Testing out history in role-permission: ', history);
+  // console.log('Testing out data in role-permission: ', role);
+  // console.log('Testing out role.system in role-permissions: ', role.system);
+  // console.log('Our filter is: ', filter);
+  // console.log('Testing out history in role-permission: ', history);
+  // console.log('Testing out our data in role-permissions: ', data);
 
   const removePermissions = (permissions) => {
     const permissionsToRemove = permissions.reduce((acc, curr) => [...acc, curr.uuid], []);
@@ -102,7 +103,7 @@ const Permissions = () => {
   const toolbarButtons = () => [
     ...[
       // eslint-disable-next-line react/jsx-key
-      <Link to={`/roles/detail/${role.uuid}/add-role-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+      <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
         <Button variant="primary" aria-label="Add Permission">
           Add Permission
         </Button>
