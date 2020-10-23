@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link, Route } from 'react-router-dom';
+import { Link, Route, useHistory } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Button, Tooltip } from '@patternfly/react-core';
 import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
@@ -148,6 +148,8 @@ const GroupRoles = ({
     </Fragment>
   );
 
+  const history = useHistory();
+
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
@@ -155,7 +157,6 @@ const GroupRoles = ({
             className={`pf-m-visible-on-md ins-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
-            onClick={(e) => disableAddRoles && e.preventDefault()}
           >
             {addRoleButton(disableAddRoles)}
           </Link>,
@@ -166,7 +167,7 @@ const GroupRoles = ({
               className: 'pf-m-hidden-on-md',
             },
             onClick: () => {
-              (e) => disableAddRoles && e.preventDefault();
+              history.push(`/groups/detail/${uuid}/roles/add_roles`);
             },
           },
           {
