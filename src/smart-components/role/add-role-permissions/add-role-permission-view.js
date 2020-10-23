@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -29,12 +29,16 @@ const selector = ({
 const AddRolePermissionView = ({ ...props }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
+  const [selectedPermissions, setSelectedPermissions] = useState([]);
+  // const [formData, setValues] = useState([]);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  
   const createRows = (permissions) =>
-    permissions.map(({ application, resource, operation }) => ({
+    permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
+      selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
     }));
 
   useEffect(() => {
@@ -43,6 +47,10 @@ const AddRolePermissionView = ({ ...props }) => {
     fetchOptions({ field: 'resource_type', limit: 50 });
     fetchOptions({ field: 'verb', limit: 50 });
   }, []);
+
+  const setCheckedItems = (newSelection) => {
+    setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
+  };
 
   return (
     <div className="ins-c-rbac-permissions-table">
@@ -65,6 +73,8 @@ const AddRolePermissionView = ({ ...props }) => {
         pagination={{ ...pagination, count: pagination.count }}
         titlePlural="permissions"
         titleSingular="permission"
+        setCheckedItems={setCheckedItems}
+        isSelectable
         {...props}
       />
     </div>
