@@ -61,16 +61,19 @@ const AddGroupWizard = ({ addNotification, addGroup, postMethod, closeUrl }) => 
       user_list: selectedUsers ? selectedUsers.map((user) => ({ username: user.label })) : undefined,
       roles_list: selectedRoles ? selectedRoles.map((role) => role.uuid) : undefined,
     };
-    try {
-      await addGroup(user_data);
+    const response = await addGroup(user_data);
+    if (response?.value?.error === true) {
+      setIsGroupInfoValid(false);
+    } else {
       postMethod();
+      addNotification({
+        variant: 'success',
+        title: 'Success adding group',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The group was added successfully.',
+      });
       history.push(closeUrl);
-    } catch (e) {
-      if (e.errors.find((item) => item.source === 'name' && item.status === 400)) {
-        setIsGroupInfoValid(false);
-      } else {
-        throw e;
-      }
     }
   };
 
