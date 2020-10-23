@@ -144,7 +144,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, [selectedPermissions]);
 
   useEffect(() => {
-    if (baseRole && roleType === 'copy' && selectedPermissions.length === 0) {
+    if (
+      baseRole &&
+      roleType === 'copy' &&
+      selectedPermissions.length === 0 &&
+      formOptions.getState().values['copy-base-role']?.uuid === baseRole?.uuid
+    ) {
       setSelectedPermissions(() =>
         resolveSplats(
           (baseRole?.access || []).map((permission) => ({ uuid: permission.permission })),
