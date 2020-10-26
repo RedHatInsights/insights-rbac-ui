@@ -57,7 +57,7 @@ const AddRoleWizard = ({ history: { push } }) => {
     push('/roles');
   };
 
-  const onSubmit = async (formData) => {
+  const onSubmit = (formData) => {
     const {
       'role-name': name,
       'role-description': description,
