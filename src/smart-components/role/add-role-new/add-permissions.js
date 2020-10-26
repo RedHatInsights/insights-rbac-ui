@@ -29,9 +29,9 @@ const selector = ({
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
   baseRole: selectedRole,
-  applicationOptions: application.data,
-  resourceOptions: resource.data,
-  operationOptions: operation.data,
+  applicationOptions: application.data.filter((app) => app !== '*'),
+  resourceOptions: resource.data.filter((app) => app !== '*'),
+  operationOptions: operation.data.filter((app) => app !== '*'),
 });
 
 export const resolveSplats = (selectedPermissions, permissions) => {
