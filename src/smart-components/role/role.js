@@ -33,6 +33,8 @@ const Role = () => {
 
   useEffect(() => {
     fetchData();
+    insights.chrome.appObjectId(uuid);
+    return () => insights.chrome.appObjectId(undefined);
   }, [uuid, groupUuid]);
 
   const title = !isRecordLoading && role ? role.display_name || role.name : undefined;

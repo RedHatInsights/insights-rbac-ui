@@ -40,5 +40,6 @@ global.insights = {
     getUserPermissions: () => Promise.resolve([]),
     isBeta: () => true,
     appAction: () => {},
+    appObjectId: () => {},
   },
 };
