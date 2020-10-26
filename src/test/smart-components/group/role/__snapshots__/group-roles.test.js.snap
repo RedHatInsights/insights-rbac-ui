@@ -57,6 +57,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     ]
   }
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
   isFilterable={false}
@@ -1906,6 +1907,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     ]
   }
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
   isFilterable={false}
