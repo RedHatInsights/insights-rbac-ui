@@ -104,6 +104,15 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
 
   const onCancel = () => replace(cancelRoute);
 
+  const handleCancel = (data) => {
+    if (data['dual-list-select'] === definedResources) {
+      onCancel();
+    } else {
+      setChangedResources(data['dual-list-select']);
+      setCancelWarningVisible(true);
+    }
+  };
+
   const handleSubmit = (data, options) => {
     setChangedResources(data['dual-list-select']);
     const newAccess = {
@@ -153,21 +162,14 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
           componentMapper={componentMapper}
           initialValues={{ 'dual-list-select': changedResources || definedResources || [] }}
           onSubmit={(props) => handleSubmit(props, options)}
-          onCancel={(data) => {
-            if (data['dual-list-select'] === definedResources) {
-              onCancel();
-            } else {
-              setChangedResources(data['dual-list-select']);
-              setCancelWarningVisible(true);
-            }
-          }}
+          onCancel={(data) => handleCancel(data)}
           validatorMapper={validatorMapper}
           FormTemplate={(props) => (
             <ResourceDefinitionsFormTemplate
               saveLabel="Submit"
               {...props}
               ModalProps={{
-                onClose: onCancel,
+                onClose: handleCancel,
                 isOpen: !cancelWarningVisible,
                 variant: 'large',
                 title: 'Edit resource definitions',
