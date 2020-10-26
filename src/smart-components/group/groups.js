@@ -16,6 +16,7 @@ import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
 import { routes as paths } from '../../../package.json';
 import './groups.scss';
+import PageActionRoute from '../common/page-action-route';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [sortable] },
@@ -187,9 +188,9 @@ const Groups = () => {
   );
   return (
     <Switch>
-      <Route path={paths['group-detail-role-detail']} render={(props) => <Role {...props} />} />
-      <Route path={paths['group-detail']} render={(props) => <Group {...props} />} />
-      <Route path={paths.groups} render={() => renderGroupsList()} />
+      <PageActionRoute pageAction="role-detail" path={paths['group-detail-role-detail']} render={(props) => <Role {...props} />} />
+      <PageActionRoute pageAction="group-detail" path={paths['group-detail']} render={(props) => <Group {...props} />} />
+      <PageActionRoute pageAction="group-list" path={paths.groups} render={() => renderGroupsList()} />
     </Switch>
   );
 };
