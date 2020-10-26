@@ -6,7 +6,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/dist/cjs/form-r
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/cjs/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
 import schemaBuilder from './schema';
-import { createRole, fetchRoles } from '../../../redux/actions/role-actions';
+import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../../smart-components/common/warningModal';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
@@ -86,9 +86,10 @@ const AddRoleWizard = ({ history: { push } }) => {
           : [],
       })),
     };
-    const role = await dispatch(createRole(roleData));
-    fetchRoles().then(push('/roles'));
-    return role;
+    dispatch(createRole(roleData)).then(() => {
+      dispatch(fetchRolesWithPolicies());
+      push('/roles');
+    });
   };
 
   return (
