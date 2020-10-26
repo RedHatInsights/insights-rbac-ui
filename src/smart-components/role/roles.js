@@ -15,6 +15,7 @@ import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
 import './roles.scss';
+import PageActionRoute from '../common/page-action-route';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -137,10 +138,10 @@ const Roles = () => {
 
   return (
     <Switch>
-      <Route path={paths['role-detail']}>
+      <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
         <Role />
-      </Route>
-      <Route path={paths.roles} render={() => renderRolesList()} />
+      </PageActionRoute>
+      <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
     </Switch>
   );
 };
