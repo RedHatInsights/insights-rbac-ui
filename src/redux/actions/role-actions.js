@@ -70,9 +70,9 @@ export const fetchRolesForWizard = (options = {}) => ({
   payload: RoleHelper.fetchRoles(options),
 });
 
-export const updateRole = (roleId, data) => ({
+export const updateRole = (roleId, data, useCustomAccess) => ({
   type: ActionTypes.UPDATE_ROLE,
-  payload: RoleHelper.updateRole(roleId, data),
+  payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
 });
 
 export const removeRolePermissions = (role, permissionsToRemove) => ({
