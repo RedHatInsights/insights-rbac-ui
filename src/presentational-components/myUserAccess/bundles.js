@@ -11,7 +11,7 @@ export const bundleData = [
       policies: '/policies',
       compliance: '/compliance',
     },
-    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance'],
+    appsIds: ['dashboard', 'patch', 'advisor', 'drift', 'vulnerability', 'policies', 'compliance', 'inventory'],
   },
   {
     entitlement: 'openshift',
