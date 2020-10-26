@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { Link } from 'react-router-dom';
 
-export const createRows = (data, opened, selectedRows = []) =>
-  data.reduce((acc, { permission, modified }) => {
+export const createRows = (showResDefinitions, uuid) => (data, opened, selectedRows = []) =>
+  data.reduce((acc, { resourceDefinitions, permission, modified }) => {
     const [appName, type, operation] = permission.split(':');
     return [
       ...acc,
@@ -13,6 +14,17 @@ export const createRows = (data, opened, selectedRows = []) =>
           appName,
           type,
           operation,
+          ...(showResDefinitions
+            ? [
+                permission.includes('cost-management') && resourceDefinitions.length > 0 ? ( // change to > when final!
+                  <Fragment key="resource-definitions">
+                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>{resourceDefinitions.length}</Link>
+                  </Fragment>
+                ) : (
+                  <span className="ins-c-text__disabled">N/A</span>
+                ),
+              ]
+            : []),
           <Fragment key={`${appName}-modified`}>
             <DateFormat date={modified} type="relative" />
           </Fragment>,
