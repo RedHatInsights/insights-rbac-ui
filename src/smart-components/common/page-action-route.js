@@ -5,6 +5,7 @@ import { Route } from 'react-router-dom';
 const PageActionRoute = ({ pageAction, ...props }) => {
   useEffect(() => {
     insights.chrome.appAction(pageAction);
+    return () => insights.chrome.appAction(undefined);
   }, [pageAction]);
   return <Route {...props} />;
 };
