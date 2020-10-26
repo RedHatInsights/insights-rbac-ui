@@ -41,6 +41,8 @@ const Group = ({
 
   useEffect(() => {
     fetchData(uuid);
+    insights.chrome.appObjectId(uuid);
+    return () => insights.chrome.appObjectId(undefined);
   }, []);
 
   const defaultGroupChangedIcon = (name) => (
