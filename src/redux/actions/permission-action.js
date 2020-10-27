@@ -16,3 +16,25 @@ export const listPermissionOptions = ({ field, limit, offset, application, resou
   type: fieldToAction[field],
   payload: PermissionsHelper.listPermissionOptions(field, limit, offset, application, resourceType, verb, options),
 });
+
+export const expandSplats = ({
+  limit = 1000,
+  offset = 0,
+  orderBy,
+  application,
+  resourceType,
+  verb,
+  permission,
+  exclude_globals = true,
+  options,
+}) => ({
+  type: ActionTypes.EXPAND_SPLATS,
+  payload: PermissionsHelper.listPermissions(limit, offset, orderBy, application, resourceType, verb, permission, exclude_globals, options),
+});
+
+export const resetExpandSplats = () => ({
+  type: ActionTypes.RESET_EXPAND_SPLATS,
+  payload: {
+    data: [],
+  },
+});

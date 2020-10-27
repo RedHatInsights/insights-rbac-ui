@@ -1,4 +1,11 @@
-import { LIST_PERMISSIONS, LIST_APPLICATION_OPTIONS, LIST_RESOURCE_OPTIONS, LIST_OPERATION_OPTIONS } from '../action-types';
+import {
+  LIST_PERMISSIONS,
+  LIST_APPLICATION_OPTIONS,
+  LIST_RESOURCE_OPTIONS,
+  LIST_OPERATION_OPTIONS,
+  EXPAND_SPLATS,
+  RESET_EXPAND_SPLATS,
+} from '../action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 export const permissionInitialState = {
@@ -12,6 +19,10 @@ export const permissionInitialState = {
     operation: { data: [] },
   },
   permission: {
+    data: [],
+    meta: defaultSettings,
+  },
+  expandSplats: {
     data: [],
     meta: defaultSettings,
   },
@@ -31,6 +42,10 @@ const setApplicationOptions = (state, { payload }) => ({
 const setResourceOptions = (state, { payload }) => ({ ...state, options: { ...state.options, resource: payload, isLoadingResource: false } });
 const setOperationOptions = (state, { payload }) => ({ ...state, options: { ...state.options, operation: payload, isLoadingOperation: false } });
 
+const setLoadingExpandSplats = (state) => ({ ...state, isLoadingExpandSplats: true });
+const setExpandSplats = (state, { payload }) => ({ ...state, expandSplats: payload, isLoadingExpandSplats: false });
+const resetExpandSplats = () => permissionInitialState;
+
 export default {
   [`${LIST_PERMISSIONS}_PENDING`]: setLoadingState,
   [`${LIST_PERMISSIONS}_FULFILLED`]: setPermissions,
@@ -40,4 +55,7 @@ export default {
   [`${LIST_RESOURCE_OPTIONS}_FULFILLED`]: setResourceOptions,
   [`${LIST_OPERATION_OPTIONS}_PENDING`]: setLoadingOperationState,
   [`${LIST_OPERATION_OPTIONS}_FULFILLED`]: setOperationOptions,
+  [`${EXPAND_SPLATS}_PENDING`]: setLoadingExpandSplats,
+  [`${EXPAND_SPLATS}_FULFILLED`]: setExpandSplats,
+  [`${RESET_EXPAND_SPLATS}`]: resetExpandSplats,
 };
