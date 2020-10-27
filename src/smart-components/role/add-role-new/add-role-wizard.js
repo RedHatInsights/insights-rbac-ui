@@ -68,8 +68,8 @@ const AddRoleWizard = ({ history: { push } }) => {
       'role-type': type,
     } = formData;
     const roleData = {
-      applications: [formData.application],
-      description: (type === 'create' ? description : copyDescription) || '',
+      applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
+      description: (type === 'create' ? description : copyDescription) || null,
       name: type === 'create' ? name : copyName,
       access: permissions.map(({ uuid: permission }) => ({
         permission,
