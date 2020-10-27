@@ -216,6 +216,59 @@ Array [
           },
           "header": Object {
             "formatters": Array [],
+            "info": Object {
+              "ariaLabel": "Resource definitions only apply to Cost Management permissions",
+              "popover": "Resource definitions only apply to Cost Management permissions",
+              "popoverProps": Object {
+                "maxWidth": "19rem",
+                "minWidth": "19rem",
+              },
+            },
+            "label": "Resource definitions",
+            "transforms": Array [
+              [Function],
+              [Function],
+              [Function],
+            ],
+          },
+          "property": "resource-definitions",
+          "props": Object {
+            "data-key": 4,
+            "data-label": "Resource definitions",
+          },
+        },
+        Object {
+          "cell": Object {
+            "formatters": Array [
+              [Function],
+            ],
+            "transforms": Array [
+              [Function],
+            ],
+          },
+          "data": undefined,
+          "extraParams": Object {
+            "actionResolver": [Function],
+            "actions": undefined,
+            "allRowsSelected": false,
+            "areActionsDisabled": undefined,
+            "canSelectAll": false,
+            "contentId": "expanded-content",
+            "dropdownDirection": "down",
+            "dropdownPosition": "right",
+            "expandId": "expandable-toggle",
+            "firstUserColumnIndex": 1,
+            "onCollapse": undefined,
+            "onExpand": undefined,
+            "onRowEdit": undefined,
+            "onSelect": [Function],
+            "onSort": [Function],
+            "rowLabeledBy": "simple-node",
+            "selectVariant": "checkbox",
+            "sortBy": Object {},
+          },
+          "header": Object {
+            "formatters": Array [],
             "label": "Last commit",
             "transforms": Array [
               [Function],
@@ -225,7 +278,7 @@ Array [
           },
           "property": "last-commit",
           "props": Object {
-            "data-key": 4,
+            "data-key": 5,
             "data-label": "Last commit",
           },
         },
@@ -269,9 +322,9 @@ Array [
               [Function],
             ],
           },
-          "property": "column-5",
+          "property": "column-6",
           "props": Object {
-            "data-key": 5,
+            "data-key": 6,
             "data-label": "",
           },
         },
@@ -524,59 +577,6 @@ Array [
           },
           "header": Object {
             "formatters": Array [],
-            "info": Object {
-              "ariaLabel": "Resource definitions only apply to Cost Management permissions",
-              "popover": "Resource definitions only apply to Cost Management permissions",
-              "popoverProps": Object {
-                "maxWidth": "19rem",
-                "minWidth": "19rem",
-              },
-            },
-            "label": "Resource definitions",
-            "transforms": Array [
-              [Function],
-              [Function],
-              [Function],
-            ],
-          },
-          "property": "resource-definitions",
-          "props": Object {
-            "data-key": 4,
-            "data-label": "Resource definitions",
-          },
-        },
-        Object {
-          "cell": Object {
-            "formatters": Array [
-              [Function],
-            ],
-            "transforms": Array [
-              [Function],
-            ],
-          },
-          "data": undefined,
-          "extraParams": Object {
-            "actionResolver": [Function],
-            "actions": undefined,
-            "allRowsSelected": false,
-            "areActionsDisabled": undefined,
-            "canSelectAll": false,
-            "contentId": "expanded-content",
-            "dropdownDirection": "down",
-            "dropdownPosition": "right",
-            "expandId": "expandable-toggle",
-            "firstUserColumnIndex": 1,
-            "onCollapse": undefined,
-            "onExpand": undefined,
-            "onRowEdit": undefined,
-            "onSelect": [Function],
-            "onSort": [Function],
-            "rowLabeledBy": "simple-node",
-            "selectVariant": "checkbox",
-            "sortBy": Object {},
-          },
-          "header": Object {
-            "formatters": Array [],
             "label": "Last commit",
             "transforms": Array [
               [Function],
@@ -586,7 +586,7 @@ Array [
           },
           "property": "last-commit",
           "props": Object {
-            "data-key": 5,
+            "data-key": 4,
             "data-label": "Last commit",
           },
         },
@@ -630,9 +630,9 @@ Array [
               [Function],
             ],
           },
-          "property": "column-6",
+          "property": "column-5",
           "props": Object {
-            "data-key": 6,
+            "data-key": 5,
             "data-label": "",
           },
         },
