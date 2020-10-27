@@ -34,14 +34,12 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
   // const [checkedPermissions, setCheckedPermissions] = useState([]);
 
-  const createRows = (permissions, checkedRows = []) => {
-    console.log('268, testing checked rows: ', checkedRows);
+  const createRows = (permissions, expanded, selectedPermissions = []) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
-      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
+      selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
     }));
-  };
 
   useEffect(() => {
     fetchData(pagination);
@@ -59,6 +57,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
 
   useEffect(() => {
     console.log('273, testing out what we have in ');
+    console.log('274, testing out ');
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -90,7 +89,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
         titlePlural="permissions"
         titleSingular="permission"
         setCheckedItems={setCheckedItems}
-        checkedRows={selectedPermissions || []}
+        checkedRows={selectedPermissions}
         isSelectable
       />
     </div>

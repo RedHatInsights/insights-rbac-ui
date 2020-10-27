@@ -60,6 +60,9 @@ export const TableToolbarView = ({
   }, [sortBy]);
 
   const rows = createRows(data, opened, checkedRows);
+  console.log('280, testing createRows in ttv: ', data);
+  console.log('281, opened: ', opened);
+  console.log('282, cr: ', checkedRows);
 
   const onCollapse = (_event, _index, isOpen, { uuid }) =>
     openRow((opened) => ({
@@ -185,6 +188,8 @@ export const TableToolbarView = ({
   console.log('Trying out my routes in table-toolbar-view: ', routes);
   console.log('This is the table-toolbar-view actionResolver: ', actionResolver);
   console.log('Estamos corriendo aqui: ', data);
+  console.log('290, testing rows in ttv: ', rows);
+
   return (
     <Fragment>
       {routes()}
@@ -212,6 +217,7 @@ TableToolbarView.propTypes = {
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
+  checkedRows: propTypes.array,
   createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
@@ -233,4 +239,5 @@ TableToolbarView.defaultProps = {
   borders: true,
   routes: () => null,
   hideFilterChips: false,
+  checkedRows: [],
 };
