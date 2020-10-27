@@ -45,8 +45,8 @@ describe('Mua table helpers', () => {
       expect(rows).toEqual(expectedResult);
       const child = rows[0].cells[3];
       const component = mount(<Fragment>{child}</Fragment>);
-      expect(component.find(Button)).toHaveLength(1);
-      component.find(Button).prop('onClick')();
+      expect(component.find('a')).toHaveLength(1);
+      component.find('a').prop('onClick')();
       expect(clickSpy).toHaveBeenCalledWith(0);
     });
   });

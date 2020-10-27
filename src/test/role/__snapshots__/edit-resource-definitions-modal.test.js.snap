@@ -237,7 +237,7 @@ Array [
                                         class="pf-c-toolbar__content-section"
                                       >
                                         <div
-                                          class="pf-c-toolbar__item ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
+                                          class="pf-c-toolbar__item"
                                         >
                                           <div
                                             class="pf-c-input-group"
@@ -357,13 +357,13 @@ Array [
                               class="pf-l-grid__item pf-m-2-col-on-md"
                             >
                               <div
-                                class="pf-l-bullseye ddorg__pf4-component-mapper__dual-list-select-buttons"
+                                class="pf-l-bullseye"
                               >
                                 <div
-                                  class="pf-l-flex pf-m-column-on-md pf-m-row-on-sm"
+                                  class="pf-l-grid"
                                 >
                                   <div
-                                    class=""
+                                    class="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                   >
                                     <button
                                       aria-disabled="false"
@@ -391,7 +391,7 @@ Array [
                                     </button>
                                   </div>
                                   <div
-                                    class=""
+                                    class="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                   >
                                     <button
                                       aria-disabled="false"
@@ -419,7 +419,7 @@ Array [
                                     </button>
                                   </div>
                                   <div
-                                    class=""
+                                    class="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                   >
                                     <button
                                       aria-disabled="false"
@@ -447,7 +447,7 @@ Array [
                                     </button>
                                   </div>
                                   <div
-                                    class=""
+                                    class="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                   >
                                     <button
                                       aria-disabled="false"
@@ -511,7 +511,7 @@ Array [
                                         class="pf-c-toolbar__content-section"
                                       >
                                         <div
-                                          class="pf-c-toolbar__item ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
+                                          class="pf-c-toolbar__item"
                                         >
                                           <div
                                             class="pf-c-input-group"
@@ -899,7 +899,6 @@ Array [
                             ButtonGroup={[Function]}
                             Description={[Function]}
                             FormWrapper={[Function]}
-                            Header={Symbol(react.fragment)}
                             Title={[Function]}
                             disableSubmit={Array []}
                             formFields={
@@ -1026,40 +1025,7 @@ Array [
                                       ]
                                     }
                                   >
-                                    <FormConditionWrapper
-                                      field={
-                                        Object {
-                                          "component": "dual-list-select",
-                                          "filterOptionsTitle": "Filter by resource...",
-                                          "filterValueTitle": "Filter by resource...",
-                                          "leftTitle": "Resources available for the permission",
-                                          "name": "dual-list-select",
-                                          "options": Array [
-                                            Object {
-                                              "label": "111111",
-                                              "path": "aws-accounts",
-                                              "value": "111111",
-                                            },
-                                            Object {
-                                              "label": "111112",
-                                              "path": "aws-accounts",
-                                              "value": "111112",
-                                            },
-                                            Object {
-                                              "label": "111113",
-                                              "path": "aws-accounts",
-                                              "value": "111113",
-                                            },
-                                          ],
-                                          "rightTitle": "Resources defined for the permission",
-                                          "validate": Array [
-                                            Object {
-                                              "type": "validate-resources",
-                                            },
-                                          ],
-                                        }
-                                      }
-                                    >
+                                    <FormConditionWrapper>
                                       <FormFieldHideWrapper
                                         hideField={false}
                                       >
@@ -1419,11 +1385,9 @@ Array [
                                                                                     <div
                                                                                       className="pf-c-toolbar__content-section"
                                                                                     >
-                                                                                      <ToolbarItem
-                                                                                        className="ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
-                                                                                      >
+                                                                                      <ToolbarItem>
                                                                                         <div
-                                                                                          className="pf-c-toolbar__item ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
+                                                                                          className="pf-c-toolbar__item"
                                                                                         >
                                                                                           <InputGroup>
                                                                                             <div
@@ -1721,26 +1685,20 @@ Array [
                                                                 <div
                                                                   className="pf-l-grid__item pf-m-2-col-on-md"
                                                                 >
-                                                                  <Bullseye
-                                                                    className="ddorg__pf4-component-mapper__dual-list-select-buttons"
-                                                                  >
+                                                                  <Bullseye>
                                                                     <div
-                                                                      className="pf-l-bullseye ddorg__pf4-component-mapper__dual-list-select-buttons"
+                                                                      className="pf-l-bullseye"
                                                                     >
-                                                                      <Flex
-                                                                        direction={
-                                                                          Object {
-                                                                            "md": "column",
-                                                                            "sm": "row",
-                                                                          }
-                                                                        }
-                                                                      >
+                                                                      <Grid>
                                                                         <div
-                                                                          className="pf-l-flex pf-m-column-on-md pf-m-row-on-sm"
+                                                                          className="pf-l-grid"
                                                                         >
-                                                                          <FlexItem>
+                                                                          <GridItem
+                                                                            md={12}
+                                                                            sm={3}
+                                                                          >
                                                                             <div
-                                                                              className=""
+                                                                              className="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                                                             >
                                                                               <Button
                                                                                 disabled={false}
@@ -1788,10 +1746,13 @@ Array [
                                                                                 </button>
                                                                               </Button>
                                                                             </div>
-                                                                          </FlexItem>
-                                                                          <FlexItem>
+                                                                          </GridItem>
+                                                                          <GridItem
+                                                                            md={12}
+                                                                            sm={3}
+                                                                          >
                                                                             <div
-                                                                              className=""
+                                                                              className="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                                                             >
                                                                               <Button
                                                                                 disabled={false}
@@ -1839,10 +1800,13 @@ Array [
                                                                                 </button>
                                                                               </Button>
                                                                             </div>
-                                                                          </FlexItem>
-                                                                          <FlexItem>
+                                                                          </GridItem>
+                                                                          <GridItem
+                                                                            md={12}
+                                                                            sm={3}
+                                                                          >
                                                                             <div
-                                                                              className=""
+                                                                              className="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                                                             >
                                                                               <Button
                                                                                 disabled={true}
@@ -1890,10 +1854,13 @@ Array [
                                                                                 </button>
                                                                               </Button>
                                                                             </div>
-                                                                          </FlexItem>
-                                                                          <FlexItem>
+                                                                          </GridItem>
+                                                                          <GridItem
+                                                                            md={12}
+                                                                            sm={3}
+                                                                          >
                                                                             <div
-                                                                              className=""
+                                                                              className="pf-l-grid__item pf-m-3-col-on-sm pf-m-12-col-on-md"
                                                                             >
                                                                               <Button
                                                                                 disabled={true}
@@ -1941,9 +1908,9 @@ Array [
                                                                                 </button>
                                                                               </Button>
                                                                             </div>
-                                                                          </FlexItem>
+                                                                          </GridItem>
                                                                         </div>
-                                                                      </Flex>
+                                                                      </Grid>
                                                                     </div>
                                                                   </Bullseye>
                                                                 </div>
@@ -2015,11 +1982,9 @@ Array [
                                                                                     <div
                                                                                       className="pf-c-toolbar__content-section"
                                                                                     >
-                                                                                      <ToolbarItem
-                                                                                        className="ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
-                                                                                      >
+                                                                                      <ToolbarItem>
                                                                                         <div
-                                                                                          className="pf-c-toolbar__item ddorg__pf4-component-mapper__dual-list-select-toolbar__item-grow"
+                                                                                          className="pf-c-toolbar__item"
                                                                                         >
                                                                                           <InputGroup>
                                                                                             <div
