@@ -35,7 +35,7 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
   },
 });
 
-export const bulkSelectBuilder = (isLoading, checkedRows = {}, setCheckedItems = () => undefined, data = []) => ({
+export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = []) => ({
   count: checkedRows.length,
   items: [
     {

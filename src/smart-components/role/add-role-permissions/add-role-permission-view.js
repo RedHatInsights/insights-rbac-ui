@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -26,14 +27,12 @@ const selector = ({
   operationOptions: operation.data,
 });
 
-const AddRolePermissionView = ({ ...props }) => {
+const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, formData, role, ...props }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
-  const [selectedPermissions, setSelectedPermissions] = useState([]);
-  // const [formData, setValues] = useState([]);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
-  
+
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
@@ -48,8 +47,17 @@ const AddRolePermissionView = ({ ...props }) => {
     fetchOptions({ field: 'verb', limit: 50 });
   }, []);
 
+  useEffect(() => {
+    console.log('269 ---- Probando lo que tengo como role en add-role-wizard: ', role);
+    console.log('270, lo que tengo aqui no sirve: ', setSelectedPermissions );
+    console.log(selectedPermissions);
+  }, []);
+
   const setCheckedItems = (newSelection) => {
-    setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
+    console.log('Trying to see whats in my selected items in add-role-permission-view: ', newSelection);
+    setSelectedPermissions((selectedPermissions) => {
+      return newSelection(selectedPermissions).map(({ uuid }) => ({ uuid }));
+    });
   };
 
   return (
@@ -74,11 +82,18 @@ const AddRolePermissionView = ({ ...props }) => {
         titlePlural="permissions"
         titleSingular="permission"
         setCheckedItems={setCheckedItems}
+        checkedRows={selectedPermissions || []}
         isSelectable
         {...props}
       />
     </div>
   );
+};
+
+AddRolePermissionView.propTypes = {
+  selectedPermissions: PropTypes.array,
+  setSelectedPermissions: PropTypes.func,
+  role: PropTypes.object,
 };
 
 export default AddRolePermissionView;

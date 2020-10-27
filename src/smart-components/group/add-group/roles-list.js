@@ -34,6 +34,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
   }, []);
 
   const setCheckedItems = (newSelection) => {
+    console.log('looking at new selections in roles-list: ', newSelection);
     setSelectedRoles((roles) => {
       return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
     });

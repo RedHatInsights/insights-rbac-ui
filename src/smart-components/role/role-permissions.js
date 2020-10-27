@@ -144,7 +144,12 @@ const Permissions = () => {
   const routes = () => (
     <>
       <Route exact path={paths['role-add-permission']}>
-        <AddRolePermissionWizard isOpen={true} />
+        <AddRolePermissionWizard
+          isOpen={true}
+          role={role}
+          selectedPermissions={selectedPermissions}
+          setSelectedPermissions={setSelectedPermissions}
+        />
       </Route>
     </>
   );
