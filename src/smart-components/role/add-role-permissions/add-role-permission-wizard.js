@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Wizard } from '@patternfly/react-core';
 import AddRolePermissionView from './add-role-permission-view';
+import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
 import { WarningModal } from '../../common/warningModal';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
+// import { updateRole } from '../../../helpers/role/role-helper';
 // import { updateRole } from '../../../redux/actions/role-actions';
 // import RolePermissionSummaryContent from './add-role-permission-summary-content';
 
@@ -27,7 +29,7 @@ const AddRolePermissionWizard = ({ role }) => {
     {
       id: 2,
       name: 'Review Details',
-      component: <h3>Traimelo completo bb</h3>,
+      component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
       nextButtonText: 'Confirm',
     },
   ];
@@ -42,11 +44,17 @@ const AddRolePermissionWizard = ({ role }) => {
     history.goBack();
   };
 
-  // const onSubmit = () => {
-  //   const roleData ={
-  //     ...formData,
+  // const onSubmit = async () => {
+  //   console.log('ALOHA=> Trying to submit in add role permission wiz: ');
+  //   console.log('ALOHA=> role: ', role);
+  //   console.log('ALOHA=> selectedPermissions: ', selectedPermissions);
+
+  //   try {
+  //     await updateRole()
+  //   } catch (e) {
+  //     console.log('Error trying to update role with added permissions: ', e);
   //   }
-  // }
+  // };
 
   return (
     <>

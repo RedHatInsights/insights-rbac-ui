@@ -27,18 +27,21 @@ const selector = ({
   operationOptions: operation.data,
 });
 
-const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, role, ...props }) => {
+const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, role }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  // const [checkedPermissions, setCheckedPermissions] = useState([]);
 
-  const createRows = (permissions) =>
+  const createRows = (permissions, checkedRows = []) => {
+    console.log('268, testing checked rows: ', checkedRows);
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
-      selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
+      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
     }));
+  };
 
   useEffect(() => {
     fetchData(pagination);
@@ -50,13 +53,18 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
   useEffect(() => {
     console.log('269 ---- Probando lo que tengo como role en add-role-wizard: ', role);
     console.log('270, lo que tengo aqui no sirve: ', setSelectedPermissions);
-    console.log(selectedPermissions);
+    console.log('271, pagination ins add-role-permission: ', pagination);
+    console.log('272, my permissions: ', selectedPermissions);
+  }, []);
+
+  useEffect(() => {
+    console.log('273, testing out what we have in ');
   }, []);
 
   const setCheckedItems = (newSelection) => {
     console.log('Trying to see whats in my selected items in add-role-permission-view: ', newSelection);
-    setSelectedPermissions((selectedPermissions) => {
-      return newSelection(selectedPermissions).map(({ uuid }) => ({ uuid }));
+    setSelectedPermissions((permissions) => {
+      return newSelection(permissions).map(({ uuid }) => ({ uuid }));
     });
   };
 
@@ -84,15 +92,19 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
         setCheckedItems={setCheckedItems}
         checkedRows={selectedPermissions || []}
         isSelectable
-        {...props}
       />
     </div>
   );
 };
 
+AddRolePermissionView.defaultProps = {
+  selectedPermissions: [],
+  role: {},
+};
+
 AddRolePermissionView.propTypes = {
-  selectedPermissions: PropTypes.array,
-  setSelectedPermissions: PropTypes.func,
+  selectedPermissions: PropTypes.array.isRequired,
+  setSelectedPermissions: PropTypes.func.isRequired,
   role: PropTypes.object,
 };
 

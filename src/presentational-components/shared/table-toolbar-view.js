@@ -109,6 +109,7 @@ export const TableToolbarView = ({
 
   const renderTable = () => (
     <>
+      {console.log('$$$ TESTING DATA IN TOOLBARVIEW: ', data)}
       <Toolbar
         isSelectable={isSelectable}
         checkedRows={checkedRows}
