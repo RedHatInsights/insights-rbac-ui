@@ -10,7 +10,7 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth } from '@patternfly/react-table';
-import ResourceDefinitionsButton from '../../presentational-components/myUserAccess/ResourceDefinitionsButton';
+import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
 const columns = [
   'Roles',
@@ -71,7 +71,7 @@ const MUARolesTable = ({
                       ...(showResourceDefinitions
                         ? [
                             <Fragment key="rd">
-                              <ResourceDefinitionsButton
+                              <ResourceDefinitionsLink
                                 onClick={() =>
                                   setRdConfig({
                                     rdOpen: true,
