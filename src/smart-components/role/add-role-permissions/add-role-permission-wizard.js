@@ -10,11 +10,7 @@ import PropTypes from 'prop-types';
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const [formData, setFormData] = useState({});
-
-  const handleChange = (data) => {
-    setFormData({ ...formData, ...data });
-  };
+  // const [formData, setFormData] = useState({});
 
   useEffect(() => {
     console.log('+++____ Trying to figure out where my error is: ', selectedPermissions);
@@ -26,7 +22,7 @@ const AddRolePermissionWizard = ({ role }) => {
     {
       id: 1,
       name: 'Add Permissions',
-      component: new AddRolePermissionView({ selectedPermissions, setSelectedPermissions, formData, role }),
+      component: new AddRolePermissionView({ selectedPermissions, setSelectedPermissions, role }),
     },
     {
       id: 2,

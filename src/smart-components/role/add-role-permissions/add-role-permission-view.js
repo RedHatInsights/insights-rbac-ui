@@ -27,7 +27,7 @@ const selector = ({
   operationOptions: operation.data,
 });
 
-const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, formData, role, ...props }) => {
+const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, role, ...props }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
@@ -49,7 +49,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, fo
 
   useEffect(() => {
     console.log('269 ---- Probando lo que tengo como role en add-role-wizard: ', role);
-    console.log('270, lo que tengo aqui no sirve: ', setSelectedPermissions );
+    console.log('270, lo que tengo aqui no sirve: ', setSelectedPermissions);
     console.log(selectedPermissions);
   }, []);
 
