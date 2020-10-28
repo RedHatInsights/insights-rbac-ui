@@ -9,7 +9,7 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, cus
     title={
       <span className="ins-c-wizard__cancel-warning-header">
         <ExclamationTriangleIcon size="md" className="ins-c-wizard__cancel-warning-header--icon" />
-        {customTitle ? customTitle : `Exit ${type} creation?`}
+        {customTitle || `Exit ${type} creation?`}
       </span>
     }
     variant={ModalVariant.small}
@@ -25,14 +25,14 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, cus
       </Button>,
     ]}
   >
-    <span>{customDescription ? customDescription : 'All inputs will be discarded.'} </span>
+    <span>{customDescription || 'All inputs will be discarded.'} </span>
   </Modal>
 );
 
 WarningModal.propTypes = {
   type: PropTypes.string,
-  customTitle: PropTypes.string,
-  customDescription: PropTypes.string,
+  customTitle: PropTypes.node,
+  customDescription: PropTypes.node,
   isOpen: PropTypes.bool,
   onModalCancel: PropTypes.func,
   onConfirmCancel: PropTypes.func,

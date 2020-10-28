@@ -16,7 +16,7 @@ export const createRows = (showResDefinitions, uuid) => (data, opened, selectedR
           operation,
           ...(showResDefinitions
             ? [
-                permission.includes('cost-management') && resourceDefinitions.length > 0 ? ( // change to > when final!
+                permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
                   <Fragment key="resource-definitions">
                     <Link to={`/roles/detail/${uuid}/permission/${permission}`}>{resourceDefinitions.length}</Link>
                   </Fragment>

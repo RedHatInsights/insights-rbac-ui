@@ -14,12 +14,12 @@
 .ins-m-resource-definitions {
   .pf-c-modal-box__body {
     text-align: center;
-    padding-top: 5rem;
+    padding-top: var(--pf-global--spacer--4xl);
     padding-bottom: 7rem;
   }
 
   .pf-c-modal__alert {
-    margin-bottom: 0.5rem;
+    margin-bottom: var(--pf-global--spacer--sm);
   }
   
 }
