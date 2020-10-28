@@ -112,7 +112,7 @@ Array [
     footer={
       <CustomButtons
         cancelLabel="Cancel"
-        saveLabel="Submit"
+        saveLabel="Save"
       />
     }
     hasNoBodyWrapper={false}
@@ -493,7 +493,7 @@ Array [
                                       class=""
                                       data-pf-content="true"
                                     >
-                                      Resources added to the permission
+                                      Resources defined for the permission
                                     </h6>
                                   </div>
                                 </div>
@@ -646,7 +646,7 @@ Array [
                             form="modal-form"
                             type="submit"
                           >
-                            Submit
+                            Save
                           </button>
                           <button
                             aria-disabled="false"
@@ -682,7 +682,7 @@ Array [
         footer={
           <CustomButtons
             cancelLabel="Cancel"
-            saveLabel="Submit"
+            saveLabel="Save"
           />
         }
         hasNoBodyWrapper={false}
@@ -845,7 +845,7 @@ Array [
                                     },
                                   ]
                                 }
-                                rightTitle="Resources added to the permission"
+                                rightTitle="Resources defined for the permission"
                                 validate={
                                   Array [
                                     Object {
@@ -882,7 +882,7 @@ Array [
                                       "value": "111113",
                                     },
                                   ],
-                                  "rightTitle": "Resources added to the permission",
+                                  "rightTitle": "Resources defined for the permission",
                                   "validate": Array [
                                     Object {
                                       "type": "validate-resources",
@@ -928,7 +928,7 @@ Array [
                                       },
                                     ]
                                   }
-                                  rightTitle="Resources added to the permission"
+                                  rightTitle="Resources defined for the permission"
                                   validate={
                                     Array [
                                       Object {
@@ -965,7 +965,7 @@ Array [
                                         "value": "111113",
                                       },
                                     ],
-                                    "rightTitle": "Resources added to the permission",
+                                    "rightTitle": "Resources defined for the permission",
                                     "validate": Array [
                                       Object {
                                         "type": "validate-resources",
@@ -1016,7 +1016,7 @@ Array [
                                         },
                                       ]
                                     }
-                                    rightTitle="Resources added to the permission"
+                                    rightTitle="Resources defined for the permission"
                                     validate={
                                       Array [
                                         Object {
@@ -1054,7 +1054,7 @@ Array [
                                               },
                                             ]
                                           }
-                                          rightTitle="Resources added to the permission"
+                                          rightTitle="Resources defined for the permission"
                                           validate={
                                             Array [
                                               Object {
@@ -1089,7 +1089,7 @@ Array [
                                                 },
                                               ]
                                             }
-                                            rightTitle="Resources added to the permission"
+                                            rightTitle="Resources defined for the permission"
                                             validate={
                                               Array [
                                                 Object {
@@ -1235,7 +1235,7 @@ Array [
                                                   },
                                                 ]
                                               }
-                                              rightTitle="Resources added to the permission"
+                                              rightTitle="Resources defined for the permission"
                                               rightValues={Array []}
                                               sortOptions={[Function]}
                                               sortValues={[Function]}
@@ -1942,7 +1942,7 @@ Array [
                                                                                   className=""
                                                                                   data-pf-content={true}
                                                                                 >
-                                                                                  Resources added to the permission
+                                                                                  Resources defined for the permission
                                                                                 </h6>
                                                                               </Text>
                                                                             </div>
@@ -2266,7 +2266,7 @@ Array [
                       >
                         <CustomButtons
                           cancelLabel="Cancel"
-                          saveLabel="Submit"
+                          saveLabel="Save"
                         >
                           <FormSpy>
                             <div
@@ -2303,7 +2303,7 @@ Array [
                                           tabIndex={null}
                                           type="submit"
                                         >
-                                          Submit
+                                          Save
                                         </button>
                                       </Button>
                                       <Button
