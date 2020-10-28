@@ -23,8 +23,6 @@ const ResourceDefinitions = () => {
 
   const { pagination, filter } = config;
 
-  const columns = [{ title: 'Title' }];
-
   const dispatch = useDispatch();
 
   const { roleId, permissionId } = useParams();
@@ -107,7 +105,7 @@ const ResourceDefinitions = () => {
           <Text component={TextVariants.h1}>Defined resources</Text>
         </TextContent>
         <TableToolbarView
-          columns={columns}
+          columns={[{}]}
           createRows={createRows}
           data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
           filterValue={filter}

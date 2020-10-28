@@ -22,14 +22,12 @@ import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actio
 
 const maxFilterItems = 10;
 
-const resourceDefinitionsTitle = 'Resource definitions';
-
 const columns = [
   { title: 'Application' },
   { title: 'Resource type' },
   { title: 'Operation' },
   {
-    title: resourceDefinitionsTitle,
+    title: 'Resource definitions',
     header: {
       info: {
         popover: 'Resource definitions only apply to Cost Management permissions',
@@ -211,7 +209,7 @@ const Permissions = () => {
         <Text component={TextVariants.h1}>Permissions</Text>
       </TextContent>
       <TableToolbarView
-        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== resourceDefinitionsTitle)}
+        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
         actionResolver={role.system ? undefined : actionResolver}
         data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}

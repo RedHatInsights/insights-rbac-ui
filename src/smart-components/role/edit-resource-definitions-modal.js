@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 import FormRenderer from '../common/form-renderer';
@@ -13,21 +13,37 @@ import { Spinner, Modal } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import './role-permissions.scss';
 
-const createOptions = (resources) => {
-  let options = [];
-  for (const [key, value] of Object.entries(resources)) {
-    options = [
-      ...options,
+const createOptions = (resources) =>
+  Object.entries(resources).reduce(
+    (acc, [key, value]) => [
+      ...acc,
       ...value.map((r) => ({
         value: r.value,
         path: key,
         label: r.value,
       })),
-    ];
-  }
+    ],
+    []
+  );
 
-  return options;
+const initialState = {
+  changedResources: undefined,
+  cancelWarningVisible: false,
+  resourcesPath: undefined,
+  loadingStateVisible: true,
 };
+
+function reducer(state, action) {
+  switch (action.type) {
+    case 'update':
+      return {
+        ...state,
+        ...action.payload,
+      };
+    default:
+      throw new Error();
+  }
+}
 
 const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) => ({
   fields: [
@@ -35,7 +51,7 @@ const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) 
       component: componentTypes.DUAL_LIST_SELECT,
       name: 'dual-list-select',
       leftTitle: 'Resources available for the permission',
-      rightTitle: 'Resources added to the permission',
+      rightTitle: 'Resources defined for the permission',
       filterOptionsTitle: 'Filter by resource...',
       filterValueTitle: 'Filter by resource...',
       options: [...(resourcesPath && resources ? options : [])],
@@ -44,9 +60,9 @@ const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) 
   ],
 });
 
-const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }, resourcesPath) => ({
+const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
   resourceTypes: resourceTypes.data,
-  resources: resources[resourcesPath] ? { resourcesPath: resources[resourcesPath] } : resources,
+  resources,
   isLoading,
   isLoadingResources: loadingResources > 0,
 });
@@ -65,10 +81,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const dispatch = useDispatch();
   const fetchResourceDefinitions = () => dispatch(getResourceDefinitions());
 
-  const [resourcesPath, setResourcesPath] = useState(undefined);
-  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const [loadingStateVisible, setLoadingStateVisible] = useState(true);
-  const [changedResources, setChangedResources] = useState();
+  const [state, dispatchLocally] = useReducer(reducer, initialState);
 
   const { definedResources, role } = useSelector(
     (state) => ({
@@ -76,14 +89,14 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       definedResources: state.roleReducer.selectedRole?.access
         ? state.roleReducer.selectedRole.access
             .find((a) => a.permission === permissionId)
-            .resourceDefinitions.reduce((acc, curr) => [...acc, curr.attributeFilter.value], []) // tady to jsem přehodil komentář, nefunguje!
+            .resourceDefinitions.reduce((acc, curr) => [...acc, curr.attributeFilter.value], [])
         : [],
       isRecordLoading: state.roleReducer.isRecordLoading,
     }),
     shallowEqual
   );
 
-  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector((props) => selector(props, resourcesPath), shallowEqual);
+  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector((props) => selector(props), shallowEqual);
 
   useEffect(() => {
     fetchResourceDefinitions();
@@ -93,10 +106,10 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     if (!isLoading) {
       let path = resourceTypes.find((r) => r.value === permissionId.split(':')?.[1])?.path;
       if (path) {
-        setResourcesPath(path.split('/')[5]);
+        dispatchLocally({ type: 'update', payload: { resourcesPath: path.split('/')[5] } });
         dispatch(getResource(path));
       } else if (permissionId.split(':')?.[1] === '*') {
-        setResourcesPath('*');
+        dispatchLocally({ type: 'update', payload: { resourcesPath: '*' } });
         resourceTypes.map((r) => dispatch(getResource(r.path)));
       }
     }
@@ -108,13 +121,18 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     if (data['dual-list-select'] === definedResources) {
       onCancel();
     } else {
-      setChangedResources(data['dual-list-select']);
-      setCancelWarningVisible(true);
+      dispatchLocally({
+        type: 'update',
+        payload: {
+          changedResources: data['dual-list-select'],
+          cancelWarningVisible: true,
+        },
+      });
     }
   };
 
   const handleSubmit = (data, options) => {
-    setChangedResources(data['dual-list-select']);
+    dispatchLocally({ type: 'update', payload: { changedResources: data['dual-list-select'] } });
     const newAccess = {
       permission: permissionId,
       resourceDefinitions: data['dual-list-select'].map((value) => ({
@@ -140,17 +158,17 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       <WarningModal
         customTitle="Exit edit resource definitions?"
         customDescription="All changes will be lost."
-        isOpen={cancelWarningVisible}
-        onModalCancel={() => setCancelWarningVisible(false)}
+        isOpen={state.cancelWarningVisible}
+        onModalCancel={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
         onConfirmCancel={onCancel}
       ></WarningModal>
-      {(isLoading || isLoadingResources) && loadingStateVisible ? (
+      {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
         <Modal
           className="ins-m-resource-definitions"
           isOpen={true}
           title="Edit resource definitions"
           onClose={() => {
-            setLoadingStateVisible(false);
+            dispatchLocally({ type: 'update', payload: { loadingStateVisible: false } });
             onCancel();
           }}
         >
@@ -158,19 +176,18 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
         </Modal>
       ) : (
         <FormRenderer
-          schema={createEditResourceDefinitionsSchema(resources, resourcesPath, options)}
+          schema={createEditResourceDefinitionsSchema(resources, state.resourcesPath, options)}
           componentMapper={componentMapper}
-          initialValues={{ 'dual-list-select': changedResources || definedResources || [] }}
+          initialValues={{ 'dual-list-select': state.changedResources || definedResources || [] }}
           onSubmit={(props) => handleSubmit(props, options)}
           onCancel={(data) => handleCancel(data)}
           validatorMapper={validatorMapper}
           FormTemplate={(props) => (
             <ResourceDefinitionsFormTemplate
-              saveLabel="Submit"
               {...props}
               ModalProps={{
                 onClose: handleCancel,
-                isOpen: !cancelWarningVisible,
+                isOpen: !state.cancelWarningVisible,
                 variant: 'large',
                 title: 'Edit resource definitions',
                 description: 'Give or remove permissions to specific resources using the arrows below.',
