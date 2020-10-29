@@ -2,10 +2,12 @@
 
 .ins-c-rbac__summary {
   .pf-l-grid {
-    .pf-l-grid__item {
-      margin-bottom: var(--pf-global--gutter--md);
-    }
+    margin-bottom: var(--pf-global--gutter--md);
   }
+}
+
+.ins-c-rbac__bold-text {
+    font-weight: var(--pf-global--FontWeight--bold);
 }
 
 .pf-c-toolbar .pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
@@ -13,6 +15,8 @@
 }
 
 @media only screen and (max-width: 768px) {
+  .ins-m-hide-on-sm {display: none;}
+
   // fix for mobile layout: https://github.com/patternfly/patternfly-react/issues/4922
   .pf-c-table__expandable-row.pf-m-expanded {
     max-height: none !important;

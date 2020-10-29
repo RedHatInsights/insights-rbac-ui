@@ -46,6 +46,8 @@ const User = ({
 }) => {
   useEffect(() => {
     fetchUsers({ ...defaultSettings, limit: 0, username });
+    insights.chrome.appObjectId(username);
+    return () => insights.chrome.appObjectId(undefined);
   }, []);
 
   const [filter, setFilter] = useState('');

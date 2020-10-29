@@ -34,6 +34,8 @@ const Role = () => {
 
   useEffect(() => {
     fetchData();
+    insights.chrome.appObjectId(uuid);
+    return () => insights.chrome.appObjectId(undefined);
   }, [uuid, groupUuid]);
 
   // console.log('Trying to see our data in role: ', role);

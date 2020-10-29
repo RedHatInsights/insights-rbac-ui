@@ -14,6 +14,9 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
+import './roles.scss';
+import PageActionRoute from '../common/page-action-route';
+import ResourceDefinitions from './role-resource-definitions';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
@@ -27,25 +30,19 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   pagination: roles.meta,
   userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
   isLoading,
 });
 
 const Roles = () => {
   const [filterValue, setFilterValue] = useState('');
-  const [isCostAdmin, setIsCostAdmin] = useState(false);
   const dispatch = useDispatch();
-  const { push, location } = useHistory();
-  const { roles, isLoading, pagination, userEntitlements } = useSelector(selector, shallowEqual);
+  const { push } = useHistory();
+  const { roles, isLoading, pagination, userIdentity } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
 
   useEffect(() => {
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions('cost-management', true).then((allPermissions) => {
-      const permissionList = allPermissions.map((permissions) => permissions.permission);
-      setIsCostAdmin(permissionList.includes('cost-management:*:*'));
-    });
   }, []);
 
   const routes = () => (
@@ -83,28 +80,31 @@ const Roles = () => {
         ];
   };
 
-  const toolbarButtons = () => [
-    <Fragment key="add-role">
-      {console.log('This is history in roles: ', location)}
-      {console.log('Thios is our paths in roles: ', paths)}
-      {userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ? (
-        <Link to={paths['add-role']}>
-          <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-            Create role
-          </Button>
-        </Link>
-      ) : (
-        <Fragment />
-      )}
-      {location.pathname === paths['role-details'] ? (
-        <Link path={paths['role-add-permission']} key="role-add-permission">
-          <Button variant="primary">Add Permission</Button>
-        </Link>
-      ) : (
-        console.log('TESTING MY BUTTON')
-      )}
-    </Fragment>,
-  ];
+  const toolbarButtons = () =>
+    [
+      <Fragment key="add-role">
+        {userIdentity?.user?.is_org_admin ? (
+          <Link to={paths['add-role']}>
+            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+              Create role
+            </Button>
+          </Link>
+        ) : (
+          <Fragment />
+        )}
+      </Fragment>,
+      userIdentity?.user?.is_org_admin
+        ? {
+            label: 'Create role',
+            props: {
+              className: 'pf-m-hidden-on-md',
+            },
+            onClick: () => {
+              push(paths['add-role']);
+            },
+          }
+        : undefined,
+    ].filter((x) => x);
 
   const renderRolesList = () => (
     <Stack>
@@ -141,10 +141,13 @@ const Roles = () => {
 
   return (
     <Switch>
-      <Route path={paths['role-detail']}>
+      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission']}>
+        <ResourceDefinitions />
+      </PageActionRoute>
+      <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
         <Role />
-      </Route>
-      <Route path={paths.roles} render={() => renderRolesList()} />
+      </PageActionRoute>
+      <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
     </Switch>
   );
 };

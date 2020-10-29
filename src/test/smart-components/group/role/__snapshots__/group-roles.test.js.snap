@@ -57,6 +57,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     ]
   }
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
   isFilterable={false}
@@ -135,7 +136,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
           "actions": Array [
             <Link
               className="pf-m-visible-on-md ins-c-button__add-rolefalse"
-              onClick={[Function]}
               to="/groups/detail/123/roles/add_roles"
             >
               <Button
@@ -1082,7 +1082,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                     Array [
                       <Link
                         className="pf-m-visible-on-md ins-c-button__add-rolefalse"
-                        onClick={[Function]}
                         to="/groups/detail/123/roles/add_roles"
                       >
                         <Button
@@ -1125,14 +1124,12 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                       <Link
                         className="pf-m-visible-on-md ins-c-button__add-rolefalse"
                         key="add-to-group"
-                        onClick={[Function]}
                         to="/groups/detail/123/roles/add_roles"
                       >
                         <LinkAnchor
                           className="pf-m-visible-on-md ins-c-button__add-rolefalse"
                           href="/groups/detail/123/roles/add_roles"
                           navigate={[Function]}
-                          onClick={[Function]}
                         >
                           <a
                             className="pf-m-visible-on-md ins-c-button__add-rolefalse"
@@ -1179,7 +1176,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                             >
                               <Link
                                 className="pf-m-visible-on-md ins-c-button__add-rolefalse"
-                                onClick={[Function]}
                                 to="/groups/detail/123/roles/add_roles"
                               >
                                 <Button
@@ -1232,7 +1228,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Link
                                   className="pf-m-visible-on-md ins-c-button__add-rolefalse"
-                                  onClick={[Function]}
                                   to="/groups/detail/123/roles/add_roles"
                                 >
                                   <Button
@@ -1912,6 +1907,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     ]
   }
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
   isFilterable={false}

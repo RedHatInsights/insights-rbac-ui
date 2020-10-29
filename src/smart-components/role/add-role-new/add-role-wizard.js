@@ -6,12 +6,13 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/dist/cjs/form-r
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/cjs/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
 import schemaBuilder from './schema';
-
+import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../../smart-components/common/warningModal';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
 import CostResources from './cost-resources';
+import TypeSelector from './type-selector';
 import './add-role-wizard.scss';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
@@ -25,6 +26,7 @@ export const mapperExtension = {
   'cost-resources': CostResources,
   review: ReviewStep,
   description: Description,
+  'type-selector': TypeSelector,
 };
 
 const AddRoleWizard = ({ history: { push } }) => {
@@ -55,6 +57,41 @@ const AddRoleWizard = ({ history: { push } }) => {
     push('/roles');
   };
 
+  const onSubmit = (formData) => {
+    const {
+      'role-name': name,
+      'role-description': description,
+      'role-copy-name': copyName,
+      'role-copy-description': copyDescription,
+      'add-permissions-table': permissions,
+      'cost-resources': resourceDefinitions,
+      'role-type': type,
+    } = formData;
+    const roleData = {
+      applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
+      description: (type === 'create' ? description : copyDescription) || null,
+      name: type === 'create' ? name : copyName,
+      access: permissions.map(({ uuid: permission }) => ({
+        permission,
+        resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
+          ? [
+              {
+                attributeFilter: {
+                  key: `cost-management.${permission.split(':')[1]}`,
+                  operation: 'in',
+                  value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+                },
+              },
+            ]
+          : [],
+      })),
+    };
+    dispatch(createRole(roleData)).then(() => {
+      dispatch(fetchRolesWithPolicies());
+      push('/roles');
+    });
+  };
+
   return (
     <React.Fragment>
       <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
@@ -64,7 +101,7 @@ const AddRoleWizard = ({ history: { push } }) => {
         subscription={{ values: true }}
         FormTemplate={FormTemplate}
         componentMapper={{ ...componentMapper, ...mapperExtension }}
-        onSubmit={console.log}
+        onSubmit={onSubmit}
         onCancel={(values) => {
           console.log(values);
           const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);

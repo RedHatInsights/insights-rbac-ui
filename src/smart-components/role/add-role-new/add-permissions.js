@@ -8,7 +8,7 @@ import debouncePromise from '@redhat-cloud-services/frontend-components-utilitie
 import flatMap from 'lodash/flatMap';
 import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
+import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { fetchRole } from '../../../redux/actions/role-actions';
 
 const columns = ['Application', 'Resource type', 'Operation'];
@@ -17,6 +17,8 @@ const selector = ({
     permission,
     isLoading,
     options: { application, operation, resource, isLoadingApplication, isLoadingOperation, isLoadingResource },
+    expandSplats,
+    isLoadingExpandSplats,
   },
   roleReducer: { isRecordLoading, selectedRole },
 }) => ({
@@ -29,9 +31,11 @@ const selector = ({
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
   baseRole: selectedRole,
-  applicationOptions: application.data,
-  resourceOptions: resource.data,
-  operationOptions: operation.data,
+  applicationOptions: application.data.filter((app) => app !== '*'),
+  resourceOptions: resource.data.filter((app) => app !== '*'),
+  operationOptions: operation.data.filter((app) => app !== '*'),
+  expandedPermissions: expandSplats.data.map(({ permission }) => permission),
+  isLoadingExpandSplats,
 });
 
 export const resolveSplats = (selectedPermissions, permissions) => {
@@ -56,7 +60,17 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
-  const { permissions, isLoading, pagination, baseRole, applicationOptions, resourceOptions, operationOptions } = useSelector(selector, shallowEqual);
+  const {
+    permissions,
+    isLoading,
+    pagination,
+    baseRole,
+    applicationOptions,
+    resourceOptions,
+    operationOptions,
+    expandedPermissions,
+    isLoadingExpandSplats,
+  } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   // TODO: use reducer when cleaning this code
@@ -117,10 +131,13 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(fetchRole(baseRoleUuid));
     }
 
+    formOptions.change('has-cost-resources', false);
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
     fetchOptions({ field: 'resource_type', limit: 50 });
     fetchOptions({ field: 'verb', limit: 50 });
+
+    return () => dispatch(resetExpandSplats());
   }, []);
 
   useEffect(() => {
@@ -143,16 +160,33 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, [selectedPermissions]);
 
   useEffect(() => {
-    if (baseRole && roleType === 'copy') {
-      setSelectedPermissions(() =>
-        resolveSplats(
-          (baseRole?.access || []).map((permission) => ({ uuid: permission.permission })),
-          permissions
-        )
-      );
-    } else {
-      setSelectedPermissions(() => resolveSplats(selectedPermissions, permissions));
+    if (
+      !baseRole ||
+      roleType !== 'copy' ||
+      selectedPermissions.length > 0 ||
+      formOptions.getState().values['copy-base-role']?.uuid !== baseRole?.uuid ||
+      isLoadingExpandSplats ||
+      isLoading
+    ) {
+      return;
     }
+
+    const basePermissions = baseRole?.access || [];
+
+    if (expandedPermissions.length === 0) {
+      const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
+      dispatch(expandSplats({ application: applications.join() }));
+    }
+
+    const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
+    setSelectedPermissions(() =>
+      expandedPermissions.length > 0
+        ? expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission }))
+        : resolveSplats(
+            basePermissions.map(({ permission }) => ({ uuid: permission })),
+            permissions
+          )
+    );
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
@@ -182,7 +216,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   };
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
-  console.log('RENDER', permissions);
   return (
     <div className="ins-c-rbac-permissions-table">
       <TableToolbarView
@@ -210,7 +243,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             ...(operations ? { operations } : filters.operations),
           });
         }}
-        isLoading={isLoading}
+        isLoading={isLoading || isLoadingExpandSplats}
         pagination={{ ...pagination, count: pagination.count }}
         checkedRows={selectedPermissions}
         setCheckedItems={setCheckedItems}

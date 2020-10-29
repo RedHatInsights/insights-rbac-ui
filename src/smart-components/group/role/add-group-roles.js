@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, Modal, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
 import '../../../App.scss';
@@ -50,7 +50,7 @@ const AddGroupRoles = ({
   ) : (
     <Modal
       title="Add roles to group"
-      width="70%"
+      variant={ModalVariant.medium}
       isOpen
       onClose={() => {
         onCancel();

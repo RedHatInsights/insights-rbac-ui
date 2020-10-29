@@ -44,7 +44,20 @@ describe('role', () => {
           uuid: '1234',
           display_name: 'name',
           description: 'description',
-          access: [{ permission: 'some1:*:read' }, { permission: 'some2:*:write' }, { permission: 'some3:*:execute' }],
+          access: [
+            {
+              resourceDefinitions: [
+                {
+                  attributeFilter: {
+                    key: 'test.test.test',
+                    value: 'test',
+                    operation: 'equal',
+                  },
+                },
+              ],
+              permission: 'cost-management:*:read',
+            },
+          ],
         },
       },
     };
@@ -247,42 +260,6 @@ describe('role', () => {
     expect(toJson(wrapper.find('.pf-c-table'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
-  it('should render filtered data', async () => {
-    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
-    await act(async () => {
-      wrapper = mount(
-        <Provider
-          store={mockStore({
-            roleReducer: {
-              isRecordLoading: false,
-              selectedRole: {
-                uuid: '1234',
-                display_name: 'Some name',
-                description: 'Some cool description',
-                access: [...[...new Array(18)].map(() => ({ permission: 'some:permission:read' })), { permission: 'another:thing:*' }],
-              },
-            },
-          })}
-        >
-          <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
-          </MemoryRouter>
-        </Provider>
-      );
-    });
-    wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(19);
-    wrapper
-      .find('.ins-c-primary-toolbar__filter input')
-      .first()
-      .simulate('change', { target: { value: 'thing' } });
-    wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(1);
-    expect(toJson(wrapper.find('.pf-c-table'), { mode: 'shallow' })).toMatchSnapshot();
-  });
-
   it('should open and cancel remove modal', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
@@ -351,7 +328,7 @@ describe('role', () => {
     });
 
     wrapper.find('input[type="checkbox"]').at(0).simulate('click');
-    wrapper.find('button[aria-label="Actions"]').at(3).simulate('click');
+    wrapper.find('button[aria-label="Actions"]').at(2).simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');

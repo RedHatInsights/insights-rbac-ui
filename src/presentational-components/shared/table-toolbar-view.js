@@ -45,6 +45,7 @@ export const TableToolbarView = ({
   isExpandable,
   onExpand,
   hideFilterChips,
+  hideHeader,
   noData,
   noDataDescription,
   ouiaId,
@@ -171,7 +172,7 @@ export const TableToolbarView = ({
             });
           }}
         >
-          <TableHeader />
+          {!hideHeader && <TableHeader />}
           <TableBody />
         </Table>
       )}
@@ -223,6 +224,7 @@ TableToolbarView.propTypes = {
   isExpandable: propTypes.bool,
   onExpand: propTypes.func,
   hideFilterChips: propTypes.bool,
+  hideHeader: propTypes.bool,
   noDataDescription: propTypes.arrayOf(propTypes.node),
 };
 
@@ -233,4 +235,5 @@ TableToolbarView.defaultProps = {
   routes: () => null,
   hideFilterChips: false,
   checkedRows: [],
+  hideHeader: false,
 };
