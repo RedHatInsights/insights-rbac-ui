@@ -54,14 +54,14 @@ const AddRolePermissionWizard = ({ role }) => {
 
     const roleData = {
       ...role,
-      access: [role.access, ...cleanPermissions],
+      access: [...role.access, ...cleanPermissions],
       accessCount: role.accessCount + selectedPermissions.length,
     };
 
     try {
       console.log('Trying to get my currentRoleID: ', currentRoleID);
       console.log('Trying to get my currentRole: ', currentRole);
-      console.log('Trying to get my role: ', role);
+      console.log('Trying to get my roleData: ', roleData);
       const response = await updateRole(currentRoleID, roleData);
       console.log('Try the response: ', response);
       history.goBack();
