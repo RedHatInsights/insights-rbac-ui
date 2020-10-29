@@ -44,7 +44,20 @@ describe('role', () => {
           uuid: '1234',
           display_name: 'name',
           description: 'description',
-          access: [{ permission: 'some1:*:read' }, { permission: 'some2:*:write' }, { permission: 'some3:*:execute' }],
+          access: [
+            {
+              resourceDefinitions: [
+                {
+                  attributeFilter: {
+                    key: 'test.test.test',
+                    value: 'test',
+                    operation: 'equal',
+                  },
+                },
+              ],
+              permission: 'cost-management:*:read',
+            },
+          ],
         },
       },
     };
@@ -315,7 +328,7 @@ describe('role', () => {
     });
 
     wrapper.find('input[type="checkbox"]').at(0).simulate('click');
-    wrapper.find('button[aria-label="Actions"]').at(3).simulate('click');
+    wrapper.find('button[aria-label="Actions"]').at(2).simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');

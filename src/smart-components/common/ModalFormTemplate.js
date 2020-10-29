@@ -53,8 +53,9 @@ CustomButtons.defaultProps = {
   cancelLabel: 'Cancel',
 };
 
-const ModalFormTemplate = ({ ModalProps, saveLabel, cancelLabel, ...props }) => (
+const ModalFormTemplate = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => (
   <Modal {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+    {alert?.()}
     <FormTemplate {...props} showFormControls={false} FormWrapper={CustomFormWrapper} />
   </Modal>
 );

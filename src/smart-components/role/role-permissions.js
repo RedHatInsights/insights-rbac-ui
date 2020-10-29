@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useReducer } from 'react';
+import React, { useEffect, Fragment, useReducer, useState } from 'react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -22,7 +22,26 @@ import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actio
 
 const maxFilterItems = 10;
 
-const columns = [{ title: 'Application' }, { title: 'Resource type' }, { title: 'Operation' }, { title: 'Last commit', transforms: [cellWidth(15)] }];
+const columns = [
+  { title: 'Application' },
+  { title: 'Resource type' },
+  { title: 'Operation' },
+  {
+    title: 'Resource definitions',
+    header: {
+      info: {
+        popover: 'Resource definitions only apply to Cost Management permissions',
+        ariaLabel: 'Resource definitions only apply to Cost Management permissions',
+        popoverProps: {
+          maxWidth: '19rem',
+          minWidth: '19rem',
+        },
+      },
+    },
+    transforms: [cellWidth(20)],
+  },
+  { title: 'Last commit', transforms: [cellWidth(15)] },
+];
 
 const removeModalText = (permissions, role, plural) =>
   plural ? (
@@ -43,10 +62,13 @@ const Permissions = () => {
     }),
     shallowEqual
   );
+
   const [
     { pagination, selectedPermissions, showRemoveModal, confirmDelete, deleteInfo, filters, isToggled, resources, operations },
     internalDispatch,
   ] = useReducer(rolePermissionsReducer, rolePermissionsReducerInitialState);
+
+  const [showResourceDefinitions, setShowResourceDefinitions] = useState(true);
 
   const dispatch = useDispatch();
 
@@ -70,6 +92,8 @@ const Permissions = () => {
       ).reduce((acc, [key, value]) => ({ ...acc, [key]: value.map((item) => ({ label: item, value: item })) }), {});
       internalDispatch({ type: INITIALIZE_ROLE, resources, operations, count: role.access ? role.access.length : 0 });
     }
+
+    setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management')));
   }, [role]);
 
   const filteredRows =
@@ -185,8 +209,8 @@ const Permissions = () => {
         <Text component={TextVariants.h1}>Permissions</Text>
       </TextContent>
       <TableToolbarView
-        columns={columns}
-        createRows={createRows}
+        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
+        createRows={createRows(showResourceDefinitions, role?.uuid)}
         actionResolver={role.system ? undefined : actionResolver}
         data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
         filterValue=""
