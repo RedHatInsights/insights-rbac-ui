@@ -32,6 +32,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  console.log('500, trying to see my permissions-> ', permissions);
 
   const createRows = (permissions, expanded, checkedRows = []) =>
     permissions.map(({ application, resource, operation, uuid }) => ({

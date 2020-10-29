@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -186,14 +186,11 @@ const Permissions = () => {
   const routes = () => (
     <>
       <Route exact path={paths['role-add-permission']}>
-        <AddRolePermissionWizard
-          isOpen={true}
-          role={role}
-        />
+        <AddRolePermissionWizard isOpen={true} role={role} />
       </Route>
     </>
   );
-  
+
   const calculateSelected = (filter) =>
     filter.reduce(
       (acc, curr) => ({
@@ -248,7 +245,7 @@ const Permissions = () => {
         fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}
         isSelectable={!role.system}
         setCheckedItems={setCheckedItems}
-        checkedRows={selectedRolePermissions}
+        checkedRows={selectedPermissions}
         onShowMore={
           filterItemOverflow
             ? () => {

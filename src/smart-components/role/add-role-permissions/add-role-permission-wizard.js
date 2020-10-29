@@ -18,8 +18,6 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   useEffect(() => {
-    console.log('ME CAMBIO EL SELECTED:', selectedPermissions);
-    console.log('300: Trying to see the role: ', role);
     setCurrentRoleID(role.uuid);
   }, [selectedPermissions]);
 
@@ -46,12 +44,17 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   const onSubmit = async () => {
-    const newPermissions = { ...role.access, ...selectedPermissions };
+    const cleanPermissions = selectedPermissions.map((permission) => {
+      // don't have info on how we populate resourceDefinitions
+      return { resourceDefinitions: [], permission: permission.uuid };
+    });
+
     const roleData = {
       ...role,
-      access: newPermissions,
+      access: [...role.access, ...cleanPermissions],
+      accessCount: (role.accessCount + selectedPermissions.length),
     };
-    console.log('301 Trying to see the data: ', roleData);
+    
     try {
       await updateRole(currentRoleID, roleData);
       history.goBack();
