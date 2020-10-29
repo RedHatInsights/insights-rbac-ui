@@ -106,7 +106,6 @@ const Role = () => {
           <EditRoleModal afterSubmit={fetchData} cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-edit']} />
         )}
       </Route>
-      <Route exact path={routes['role-add-permission']} component={AddRolePermissionWizard} />
     </Fragment>
   );
 };

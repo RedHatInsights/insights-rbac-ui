@@ -1,15 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Wizard } from '@patternfly/react-core';
 import AddRolePermissionView from './add-role-permission-view';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
+import PropTypes from 'prop-types';
 import { WarningModal } from '../../common/warningModal';
 import { useHistory } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import { Wizard } from '@patternfly/react-core';
 import { updateRole } from '../../../helpers/role/role-helper';
 
 const AddRolePermissionWizard = ({ role }) => {
+  console.log('Testing out my role as soon as the Wizard loads: ', role);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [currentRole, setCurrentRole] = useState({});
   const [currentRoleID, setCurrentRoleID] = useState('');
   const history = useHistory();
 
@@ -18,6 +20,7 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   useEffect(() => {
+    setCurrentRole(role);
     setCurrentRoleID(role.uuid);
   }, [selectedPermissions]);
 
@@ -51,15 +54,21 @@ const AddRolePermissionWizard = ({ role }) => {
 
     const roleData = {
       ...role,
-      access: [...role.access, ...cleanPermissions],
+      access: [role.access, ...cleanPermissions],
       accessCount: role.accessCount + selectedPermissions.length,
     };
 
     try {
-      await updateRole(currentRoleID, roleData);
+      console.log('Trying to get my currentRoleID: ', currentRoleID);
+      console.log('Trying to get my currentRole: ', currentRole);
+      console.log('Trying to get my role: ', role);
+      const response = await updateRole(currentRoleID, roleData);
+      console.log('Try the response: ', response);
       history.goBack();
     } catch (e) {
       console.log('Error trying to update role with added permissions: ', e);
+      console.log('We have to make sure we understand what role is: ', role);
+      history.goBack();
     }
   };
 

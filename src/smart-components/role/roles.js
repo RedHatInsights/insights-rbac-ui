@@ -137,8 +137,6 @@ const Roles = () => {
     </Stack>
   );
 
-  console.log('This is a test of data in Roles: ', paths);
-
   return (
     <Switch>
       <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission']}>
