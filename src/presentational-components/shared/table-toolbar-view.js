@@ -8,7 +8,6 @@ import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-filter';
-// import {}
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
@@ -60,9 +59,9 @@ export const TableToolbarView = ({
   }, [sortBy]);
 
   const rows = createRows(data, opened, checkedRows);
-  console.log('280, testing createRows in ttv: ', data);
-  console.log('281, opened: ', opened);
-  console.log('282, cr: ', checkedRows);
+  // console.log('280, testing createRows in ttv: ', data);
+  // console.log('281, opened: ', opened);
+  // console.log('282, cr: ', checkedRows);
 
   const onCollapse = (_event, _index, isOpen, { uuid }) =>
     openRow((opened) => ({
@@ -112,7 +111,6 @@ export const TableToolbarView = ({
 
   const renderTable = () => (
     <>
-      {console.log('$$$ TESTING DATA IN TOOLBARVIEW: ', data)}
       <Toolbar
         isSelectable={isSelectable}
         checkedRows={checkedRows}
@@ -184,11 +182,6 @@ export const TableToolbarView = ({
       )}
     </>
   );
-
-  console.log('Trying out my routes in table-toolbar-view: ', routes);
-  console.log('This is the table-toolbar-view actionResolver: ', actionResolver);
-  console.log('Estamos corriendo aqui: ', data);
-  console.log('290, testing rows in ttv: ', rows);
 
   return (
     <Fragment>

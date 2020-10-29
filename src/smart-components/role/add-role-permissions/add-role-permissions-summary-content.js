@@ -1,15 +1,9 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 
 const AddRolePermissionSummaryContent = ({ selectedPermissions, role }) => {
-  useEffect(() => {
-    console.log('Testing out my sel: ', selectedPermissions);
-    console.log('Testing out my role: ', role);
-  }, []);
-
-  const { display_name: name, description, access: permissions } = role;
-  console.log(permissions);
+  const { display_name: name, description } = role;
 
   return (
     <>
@@ -41,18 +35,16 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions, role }) => {
             </GridItem>
             <GridItem span={3}>
               <Text className="pf-c-title" component={TextVariants.h6}>
-                Role Permissions:
+                Adding Permissions:
               </Text>
             </GridItem>
-            {/* <GridItem span={9}>
+            <GridItem span={9}>
               <Text component={TextVariants.p}>
-                {permissions.map((permission, index) => (
-                  <Text className="pf-u-mb-0" key={index}>
-                    {permission}
-                  </Text>
+                {selectedPermissions.map((permission, index) => (
+                  <Text key={index}> {permission.uuid} </Text>
                 ))}
               </Text>
-            </GridItem> */}
+            </GridItem>
           </Grid>
         </StackItem>
       </Stack>

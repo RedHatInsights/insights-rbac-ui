@@ -27,18 +27,17 @@ const selector = ({
   operationOptions: operation.data,
 });
 
-const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, role }) => {
+const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions }) => {
   const dispatch = useDispatch();
   const { permissions, isLoading, pagination } = useSelector(selector, shallowEqual);
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
-  // const [checkedPermissions, setCheckedPermissions] = useState([]);
 
-  const createRows = (permissions, expanded, selectedPermissions = []) =>
+  const createRows = (permissions, expanded, checkedRows = []) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
-      selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
+      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
     }));
 
   useEffect(() => {
@@ -48,21 +47,8 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedPermissions, ro
     fetchOptions({ field: 'verb', limit: 50 });
   }, []);
 
-  useEffect(() => {
-    console.log('269 ---- Probando lo que tengo como role en add-role-wizard: ', role);
-    console.log('270, lo que tengo aqui no sirve: ', setSelectedPermissions);
-    console.log('271, pagination ins add-role-permission: ', pagination);
-    console.log('272, my permissions: ', selectedPermissions);
-  }, []);
-
-  useEffect(() => {
-    console.log('273, testing out what we have in ');
-    console.log('274, testing out ');
-  }, []);
-
   const setCheckedItems = (newSelection) => {
-    console.log('Trying to see whats in my selected items in add-role-permission-view: ', newSelection);
-    setSelectedPermissions((permissions) => {
+    setSelectedRolePermissions((permissions) => {
       return newSelection(permissions).map(({ uuid }) => ({ uuid }));
     });
   };
@@ -103,7 +89,7 @@ AddRolePermissionView.defaultProps = {
 
 AddRolePermissionView.propTypes = {
   selectedPermissions: PropTypes.array.isRequired,
-  setSelectedPermissions: PropTypes.func.isRequired,
+  setSelectedRolePermissions: PropTypes.func.isRequired,
   role: PropTypes.object,
 };
 

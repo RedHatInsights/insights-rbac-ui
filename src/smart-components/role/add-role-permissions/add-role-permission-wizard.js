@@ -5,26 +5,28 @@ import AddRolePermissionSummaryContent from './add-role-permissions-summary-cont
 import { WarningModal } from '../../common/warningModal';
 import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
-// import { updateRole } from '../../../helpers/role/role-helper';
-// import { updateRole } from '../../../redux/actions/role-actions';
-// import RolePermissionSummaryContent from './add-role-permission-summary-content';
+import { updateRole } from '../../../helpers/role/role-helper';
 
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  // const [formData, setFormData] = useState({});
+  const [currentRoleID, setCurrentRoleID] = useState('');
+
+  const setSelectedRolePermissions = (selected) => {
+    setSelectedPermissions(selected);
+  };
 
   useEffect(() => {
-    console.log('+++____ Trying to figure out where my error is: ', selectedPermissions);
-    console.log('====== trying to figure out my set: ', setSelectedPermissions);
-    console.log('269 ---- Probando lo que tengo como role en add-role-wizard: ', role);
-  }, []);
+    console.log('ME CAMBIO EL SELECTED:', selectedPermissions);
+    console.log('300: Trying to see the role: ', role);
+    setCurrentRoleID(role.uuid);
+  }, [selectedPermissions]);
 
   const steps = [
     {
       id: 1,
       name: 'Add Permissions',
-      component: new AddRolePermissionView({ selectedPermissions, setSelectedPermissions, role }),
+      component: new AddRolePermissionView({ selectedPermissions, setSelectedRolePermissions, role }),
     },
     {
       id: 2,
@@ -44,17 +46,19 @@ const AddRolePermissionWizard = ({ role }) => {
     history.goBack();
   };
 
-  // const onSubmit = async () => {
-  //   console.log('ALOHA=> Trying to submit in add role permission wiz: ');
-  //   console.log('ALOHA=> role: ', role);
-  //   console.log('ALOHA=> selectedPermissions: ', selectedPermissions);
-
-  //   try {
-  //     await updateRole()
-  //   } catch (e) {
-  //     console.log('Error trying to update role with added permissions: ', e);
-  //   }
-  // };
+  const onSubmit = async () => {
+    const newPermissions = { ...role.access, ...selectedPermissions };
+    const roleData = {
+      ...role,
+      access: newPermissions,
+    };
+    console.log('301 Trying to see the data: ', roleData);
+    try {
+      await updateRole(currentRoleID, roleData);
+    } catch (e) {
+      console.log('Error trying to update role with added permissions: ', e);
+    }
+  };
 
   return (
     <>
@@ -64,6 +68,7 @@ const AddRolePermissionWizard = ({ role }) => {
         isOpen={cancelWarningVisible}
         onModalCancel={() => setCancelWarningVisible(false)}
         onConfirmCancel={handleConfirmCancel}
+        onSave={onSubmit}
       />
     </>
   );
