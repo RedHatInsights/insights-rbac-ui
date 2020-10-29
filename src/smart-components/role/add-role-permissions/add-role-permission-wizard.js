@@ -11,6 +11,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
+  const history = useHistory();
 
   const setSelectedRolePermissions = (selected) => {
     setSelectedPermissions(selected);
@@ -36,8 +37,6 @@ const AddRolePermissionWizard = ({ role }) => {
     },
   ];
 
-  const history = useHistory();
-
   const handleWizardCancel = () => {
     setCancelWarningVisible(true);
   };
@@ -55,6 +54,7 @@ const AddRolePermissionWizard = ({ role }) => {
     console.log('301 Trying to see the data: ', roleData);
     try {
       await updateRole(currentRoleID, roleData);
+      history.goBack();
     } catch (e) {
       console.log('Error trying to update role with added permissions: ', e);
     }
@@ -62,13 +62,19 @@ const AddRolePermissionWizard = ({ role }) => {
 
   return (
     <>
-      <Wizard title="Add Permission" description="Adding permissions to roles" steps={steps} isOpen={true} onClose={handleWizardCancel} />
+      <Wizard
+        title="Add Permission"
+        description="Adding permissions to roles"
+        steps={steps}
+        isOpen={true}
+        onClose={handleWizardCancel}
+        onSave={onSubmit}
+      />
       <WarningModal
         type="Permission"
         isOpen={cancelWarningVisible}
         onModalCancel={() => setCancelWarningVisible(false)}
         onConfirmCancel={handleConfirmCancel}
-        onSave={onSubmit}
       />
     </>
   );

@@ -71,12 +71,6 @@ const Permissions = () => {
           .map((acc) => ({ uuid: acc.permission, ...acc, modified: role.modified }))
       : [];
 
-  // console.log('Testing out data in role-permission: ', role);
-  // console.log('Testing out role.system in role-permissions: ', role.system);
-  // console.log('Our filter is: ', filter);
-  // console.log('Testing out history in role-permission: ', history);
-  // console.log('Testing out our data in role-permissions: ', data);
-
   const removePermissions = (permissions) => {
     const permissionsToRemove = permissions.reduce((acc, curr) => [...acc, curr.uuid], []);
     return dispatch(removeRolePermissions(role, permissionsToRemove)).then(() => {
