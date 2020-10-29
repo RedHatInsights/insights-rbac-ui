@@ -7,20 +7,16 @@ import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-com
 
 import './top-toolbar.scss';
 
-export const TopToolbar = ({ children, breadcrumbs }) => {
-  console.log('Verifying TopToolbar in top-toolbar ', breadcrumbs);
-
-  return (
-    <Fragment>
-      {breadcrumbs && (
-        <section className="pf-c-page__main-breadcrumb">
-          <RbacBreadcrumbs {...breadcrumbs} />
-        </section>
-      )}
-      <PageHeader className="ins-rbac-page-header">{children}</PageHeader>
-    </Fragment>
-  );
-};
+export const TopToolbar = ({ children, breadcrumbs }) => (
+  <Fragment>
+    {breadcrumbs && (
+      <section className="pf-c-page__main-breadcrumb">
+        <RbacBreadcrumbs {...breadcrumbs} />
+      </section>
+    )}
+    <PageHeader className="ins-rbac-page-header">{children}</PageHeader>
+  </Fragment>
+);
 
 TopToolbar.propTypes = {
   children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,

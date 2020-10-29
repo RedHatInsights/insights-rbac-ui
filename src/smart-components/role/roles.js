@@ -47,7 +47,7 @@ const Roles = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={paths['role-add-permission']} component={AddRoleWizard} />
+      <Route exact path={paths['add-role']} component={AddRoleWizard} />
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole

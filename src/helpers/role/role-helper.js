@@ -1,7 +1,6 @@
 import { getRoleApi } from '../shared/user-login';
 
 const roleApi = getRoleApi();
-console.log('These are the things that we have in role-helper.js', roleApi);
 
 export async function createRole(data) {
   return await roleApi.createRoles(data);

@@ -52,9 +52,9 @@ const AddRolePermissionWizard = ({ role }) => {
     const roleData = {
       ...role,
       access: [...role.access, ...cleanPermissions],
-      accessCount: (role.accessCount + selectedPermissions.length),
+      accessCount: role.accessCount + selectedPermissions.length,
     };
-    
+
     try {
       await updateRole(currentRoleID, roleData);
       history.goBack();

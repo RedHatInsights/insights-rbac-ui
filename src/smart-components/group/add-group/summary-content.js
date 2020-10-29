@@ -7,8 +7,6 @@ const SummaryContent = (formData) => {
   const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
   const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
 
-  console.log('######## selectedUsers in SummaryContent: ', selectedRoles);
-
   return (
     <Fragment>
       <Stack hasGutter>

@@ -60,9 +60,6 @@ export const TableToolbarView = ({
   }, [sortBy]);
 
   const rows = createRows(data, opened, checkedRows);
-  // console.log('280, testing createRows in ttv: ', data);
-  // console.log('281, opened: ', opened);
-  // console.log('282, cr: ', checkedRows);
 
   const onCollapse = (_event, _index, isOpen, { uuid }) =>
     openRow((opened) => ({
