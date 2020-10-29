@@ -60,9 +60,9 @@ const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) 
   ],
 });
 
-const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
+const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }, resourcesPath) => ({
   resourceTypes: resourceTypes.data,
-  resources,
+  resources: resources[resourcesPath] ? { resourcesPath: resources[resourcesPath] } : resources,
   isLoading,
   isLoadingResources: loadingResources > 0,
 });
@@ -96,7 +96,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     shallowEqual
   );
 
-  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector((props) => selector(props), shallowEqual);
+  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector((props) => selector(props, state.resourcesPath), shallowEqual);
 
   useEffect(() => {
     fetchResourceDefinitions();
