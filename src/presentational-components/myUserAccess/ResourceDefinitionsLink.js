@@ -1,9 +1,19 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
 
 const ResourceDefinitionsLink = ({ onClick, access }) => {
-  return access.resourceDefinitions.length === 0 ? <span>N/A</span> : <Link to={url}>{access.resourceDefinitions.length}</Link>;
+  return access.resourceDefinitions.length === 0 ? (
+    <span>N/A</span>
+  ) : (
+    <a
+      onClick={() => {
+        onClick();
+        return false;
+      }}
+    >
+      {access.resourceDefinitions.length}
+    </a>
+  );
 };
 
 ResourceDefinitionsLink.propTypes = {
