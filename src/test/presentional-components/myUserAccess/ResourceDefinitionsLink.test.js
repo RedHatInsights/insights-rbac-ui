@@ -1,7 +1,6 @@
 import React from 'react';
 import { mount } from 'enzyme';
 import ResourceDefinitionsLink from '../../../presentational-components/myUserAccess/ResourceDefinitionsLink';
-import { Button } from '@patternfly/react-core';
 
 describe('<ResourceDefinitionsLink />', () => {
   it('should render enabled and show RD length', () => {
