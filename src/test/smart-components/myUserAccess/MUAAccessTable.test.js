@@ -12,7 +12,7 @@ import * as AccessActions from '../../../redux/actions/access-actions';
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import { GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
 import { RowWrapper } from '@patternfly/react-table';
-import ResourceDefinitionsButton from '../../../presentational-components/myUserAccess/ResourceDefinitionsButton';
+import ResourceDefinitionsLink from '../../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 import ResourceDefinitionsModal from '../../../smart-components/myUserAccess/ResourceDefinitionsModal';
 import { Modal } from '@patternfly/react-core';
 
@@ -111,7 +111,7 @@ describe('<MUAAccessTable />', () => {
     expect(wrapper.find(RowWrapper).last().prop('row').cells).toEqual(['second', 'second', 'second', expect.any(Object)]);
 
     act(() => {
-      wrapper.find(ResourceDefinitionsButton).last().prop('onClick')();
+      wrapper.find(ResourceDefinitionsLink).last().prop('onClick')();
     });
     wrapper.update();
     expect(wrapper.find(ResourceDefinitionsModal).prop('isOpen')).toEqual(true);
