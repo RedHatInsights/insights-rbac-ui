@@ -1,7 +1,6 @@
 import React, { Fragment } from 'react';
 import { mount } from 'enzyme';
 import { createRows } from '../../../smart-components/myUserAccess/mua-table-helpers';
-import { Button } from '@patternfly/react-core';
 
 describe('Mua table helpers', () => {
   describe('createRows', () => {
@@ -37,16 +36,23 @@ describe('Mua table helpers', () => {
         {
           cells: ['foo', 'bar', 'baz', expect.any(Object)],
         },
-        {
-          cells: ['quazz', 'quxx', '*', expect.any(Object)],
-        },
       ];
-      const rows = createRows(data, true, clickSpy);
+      const rows = createRows(
+        [
+          {
+            permission: 'foo:bar:baz',
+            otherAttributes: true,
+            resourceDefinitions: [1],
+          },
+        ],
+        true,
+        clickSpy
+      );
       expect(rows).toEqual(expectedResult);
       const child = rows[0].cells[3];
       const component = mount(<Fragment>{child}</Fragment>);
-      expect(component.find(Button)).toHaveLength(1);
-      component.find(Button).prop('onClick')();
+      expect(component.find('a')).toHaveLength(1);
+      component.find('a').prop('onClick')();
       expect(clickSpy).toHaveBeenCalledWith(0);
     });
   });
