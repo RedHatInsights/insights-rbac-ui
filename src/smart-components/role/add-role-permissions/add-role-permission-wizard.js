@@ -10,18 +10,16 @@ import { updateRole } from '../../../helpers/role/role-helper';
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const [currentRole, setCurrentRole] = useState({});
   const [currentRoleID, setCurrentRoleID] = useState('');
   const history = useHistory();
+
+  useEffect(() => {
+    setCurrentRoleID(role.uuid);
+  }, [role]);
 
   const setSelectedRolePermissions = (selected) => {
     setSelectedPermissions(selected);
   };
-
-  useEffect(() => {
-    setCurrentRole(role);
-    setCurrentRoleID(role.uuid);
-  }, [selectedPermissions]);
 
   const steps = [
     {
