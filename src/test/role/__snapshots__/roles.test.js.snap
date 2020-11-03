@@ -7,7 +7,7 @@ exports[`<Roles /> should render correctly 1`] = `
   columns={
     Array [
       Object {
-        "key": "name",
+        "key": "display_name",
         "title": "Name",
         "transforms": Array [
           [Function],
@@ -95,7 +95,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   columns={
     Array [
       Object {
-        "key": "name",
+        "key": "display_name",
         "title": "Name",
         "transforms": Array [
           [Function],
