@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Radio } from '@patternfly/react-core';
+import { Radio, Alert } from '@patternfly/react-core';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
@@ -63,6 +63,14 @@ const BaseRoleTable = (props) => {
     }));
   return (
     <div>
+      <Alert
+        variant="info"
+        isInline
+        title={`Only granular permissions will be copied into a custom role \
+        (for example, approval:requests:read). Wildcard permissions will not \
+        be copied into a custom role (for example, approval:*:read).
+        `}
+      />
       <TableToolbarView
         columns={columns}
         createRows={createRows}
