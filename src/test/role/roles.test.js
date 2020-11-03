@@ -131,6 +131,6 @@ describe('<Roles />', () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenCalledTimes(2);
-    expect(fetchRolesWithPoliciesSpy).toHaveBeenLastCalledWith({ limit: 20, orderBy: 'name' });
+    expect(fetchRolesWithPoliciesSpy).toHaveBeenLastCalledWith({ limit: 20, orderBy: 'display_name' });
   });
 });
