@@ -8,7 +8,6 @@ import { Wizard } from '@patternfly/react-core';
 import { updateRole } from '../../../helpers/role/role-helper';
 
 const AddRolePermissionWizard = ({ role }) => {
-  console.log('Testing out my role as soon as the Wizard loads: ', role);
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRole, setCurrentRole] = useState({});

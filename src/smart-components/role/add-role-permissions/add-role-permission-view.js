@@ -90,7 +90,9 @@ AddRolePermissionView.defaultProps = {
 };
 
 AddRolePermissionView.propTypes = {
-  selectedPermissions: PropTypes.array.isRequired,
+  selectedPermissions: PropTypes.arrayOf({
+    uuid: PropTypes.string.isRequired,
+  }).isRequired,
   setSelectedRolePermissions: PropTypes.func.isRequired,
   role: PropTypes.object,
 };
