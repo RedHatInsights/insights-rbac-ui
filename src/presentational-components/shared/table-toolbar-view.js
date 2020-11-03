@@ -108,7 +108,7 @@ export const TableToolbarView = ({
   });
 
   const renderTable = () => (
-    <>
+    <Fragment>
       <Toolbar
         isSelectable={isSelectable}
         checkedRows={checkedRows}
@@ -137,7 +137,6 @@ export const TableToolbarView = ({
         value={value}
         hideFilterChips={hideFilterChips}
       />
-      {console.log('This is my btns: ', toolbarButtons)}
       {isLoading ? (
         <ListLoader />
       ) : (
@@ -178,7 +177,7 @@ export const TableToolbarView = ({
           {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
         </TableToolbar>
       )}
-    </>
+    </Fragment>
   );
 
   return (

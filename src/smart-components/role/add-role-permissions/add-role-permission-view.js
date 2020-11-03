@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useSelector, useDispatch, batch } from 'react-redux';
 import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
@@ -37,14 +37,16 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
-      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
+      selected: checkedRows?.some((row) => row.uuid === uuid),
     }));
 
   useEffect(() => {
-    fetchData(pagination);
-    fetchOptions({ field: 'application', limit: 50 });
-    fetchOptions({ field: 'resource_type', limit: 50 });
-    fetchOptions({ field: 'verb', limit: 50 });
+    batch(() => {
+      fetchData(pagination);
+      fetchOptions({ field: 'application', limit: 50 });
+      fetchOptions({ field: 'resource_type', limit: 50 });
+      fetchOptions({ field: 'verb', limit: 50 });
+    });
   }, []);
 
   const setCheckedItems = (newSelection) => {

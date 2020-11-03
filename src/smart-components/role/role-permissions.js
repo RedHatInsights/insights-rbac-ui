@@ -67,7 +67,6 @@ const Permissions = () => {
     shallowEqual
   );
 
-  const [currentRole, setCurrentRole] = useState({});
   const history = useHistory();
   const [
     { pagination, selectedPermissions, showRemoveModal, confirmDelete, deleteInfo, filters, isToggled, resources, operations },
@@ -100,12 +99,6 @@ const Permissions = () => {
     }
 
     setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management')));
-  }, [role]);
-
-  useEffect(() => {
-    console.log('taking this for our props: ', role);
-    setCurrentRole(role);
-    console.log('updatingl our role props: ', currentRole);
   }, [role]);
 
   const filteredRows =
@@ -191,11 +184,9 @@ const Permissions = () => {
   ];
 
   const routes = () => (
-    <>
-      <Route exact path={paths['role-add-permission']}>
-        <AddRolePermissionWizard isOpen={true} role={role} />
-      </Route>
-    </>
+    <Route exact path={paths['role-add-permission']}>
+      <AddRolePermissionWizard isOpen={true} role={role} />
+    </Route>
   );
 
   const calculateSelected = (filter) =>
