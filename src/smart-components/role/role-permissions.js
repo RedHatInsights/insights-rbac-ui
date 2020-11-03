@@ -155,7 +155,6 @@ const Permissions = () => {
         },
         onClick: () => {
           history.push(`/roles/detail/${role.uuid}/role-add-permission`);
-          console.log('CLICKEANDO EN LINK-- adding permissions now!');
         },
       },
       {

@@ -58,15 +58,9 @@ const AddRolePermissionWizard = ({ role }) => {
     };
 
     try {
-      console.log('Trying to get my currentRoleID: ', currentRoleID);
-      console.log('Trying to get my currentRole: ', currentRole);
-      console.log('Trying to get my roleData: ', roleData);
-      const response = await updateRole(currentRoleID, roleData);
-      console.log('Try the response: ', response);
+      await updateRole(currentRoleID, roleData);
       history.goBack();
     } catch (e) {
-      console.log('Error trying to update role with added permissions: ', e);
-      console.log('We have to make sure we understand what role is: ', role);
       history.goBack();
     }
   };
