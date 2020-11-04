@@ -332,22 +332,9 @@ Array [
                                     class="pf-c-form-control pf-u-pr-sm ddorg__pf4-component-mapper__dual-list-select"
                                   >
                                     <div
-                                      class="ddorg__pf4-component-mapper__dual-list-select-option "
-                                      value="111111"
+                                      class="ddorg__pf4-component-mapper__dual-list-select-option-text ddorg__pf4-component-mapper__dual-list-select-option-disabled"
                                     >
-                                      111111
-                                    </div>
-                                    <div
-                                      class="ddorg__pf4-component-mapper__dual-list-select-option "
-                                      value="111112"
-                                    >
-                                      111112
-                                    </div>
-                                    <div
-                                      class="ddorg__pf4-component-mapper__dual-list-select-option "
-                                      value="111113"
-                                    >
-                                      111113
+                                      No available options
                                     </div>
                                   </div>
                                 </div>
@@ -826,25 +813,7 @@ Array [
                                 filterValueTitle="Filter by resource..."
                                 leftTitle="Resources available for the permission"
                                 name="dual-list-select"
-                                options={
-                                  Array [
-                                    Object {
-                                      "label": "111111",
-                                      "path": "aws-accounts",
-                                      "value": "111111",
-                                    },
-                                    Object {
-                                      "label": "111112",
-                                      "path": "aws-accounts",
-                                      "value": "111112",
-                                    },
-                                    Object {
-                                      "label": "111113",
-                                      "path": "aws-accounts",
-                                      "value": "111113",
-                                    },
-                                  ]
-                                }
+                                options={Array []}
                                 rightTitle="Resources defined for the permission"
                                 validate={
                                   Array [
@@ -865,23 +834,7 @@ Array [
                                   "filterValueTitle": "Filter by resource...",
                                   "leftTitle": "Resources available for the permission",
                                   "name": "dual-list-select",
-                                  "options": Array [
-                                    Object {
-                                      "label": "111111",
-                                      "path": "aws-accounts",
-                                      "value": "111111",
-                                    },
-                                    Object {
-                                      "label": "111112",
-                                      "path": "aws-accounts",
-                                      "value": "111112",
-                                    },
-                                    Object {
-                                      "label": "111113",
-                                      "path": "aws-accounts",
-                                      "value": "111113",
-                                    },
-                                  ],
+                                  "options": Array [],
                                   "rightTitle": "Resources defined for the permission",
                                   "validate": Array [
                                     Object {
@@ -910,25 +863,7 @@ Array [
                                   filterValueTitle="Filter by resource..."
                                   leftTitle="Resources available for the permission"
                                   name="dual-list-select"
-                                  options={
-                                    Array [
-                                      Object {
-                                        "label": "111111",
-                                        "path": "aws-accounts",
-                                        "value": "111111",
-                                      },
-                                      Object {
-                                        "label": "111112",
-                                        "path": "aws-accounts",
-                                        "value": "111112",
-                                      },
-                                      Object {
-                                        "label": "111113",
-                                        "path": "aws-accounts",
-                                        "value": "111113",
-                                      },
-                                    ]
-                                  }
+                                  options={Array []}
                                   rightTitle="Resources defined for the permission"
                                   validate={
                                     Array [
@@ -949,23 +884,7 @@ Array [
                                     "filterValueTitle": "Filter by resource...",
                                     "leftTitle": "Resources available for the permission",
                                     "name": "dual-list-select",
-                                    "options": Array [
-                                      Object {
-                                        "label": "111111",
-                                        "path": "aws-accounts",
-                                        "value": "111111",
-                                      },
-                                      Object {
-                                        "label": "111112",
-                                        "path": "aws-accounts",
-                                        "value": "111112",
-                                      },
-                                      Object {
-                                        "label": "111113",
-                                        "path": "aws-accounts",
-                                        "value": "111113",
-                                      },
-                                    ],
+                                    "options": Array [],
                                     "rightTitle": "Resources defined for the permission",
                                     "validate": Array [
                                       Object {
@@ -998,25 +917,7 @@ Array [
                                     key="dual-list-select"
                                     leftTitle="Resources available for the permission"
                                     name="dual-list-select"
-                                    options={
-                                      Array [
-                                        Object {
-                                          "label": "111111",
-                                          "path": "aws-accounts",
-                                          "value": "111111",
-                                        },
-                                        Object {
-                                          "label": "111112",
-                                          "path": "aws-accounts",
-                                          "value": "111112",
-                                        },
-                                        Object {
-                                          "label": "111113",
-                                          "path": "aws-accounts",
-                                          "value": "111113",
-                                        },
-                                      ]
-                                    }
+                                    options={Array []}
                                     rightTitle="Resources defined for the permission"
                                     validate={
                                       Array [
@@ -1034,23 +935,7 @@ Array [
                                           "filterValueTitle": "Filter by resource...",
                                           "leftTitle": "Resources available for the permission",
                                           "name": "dual-list-select",
-                                          "options": Array [
-                                            Object {
-                                              "label": "111111",
-                                              "path": "aws-accounts",
-                                              "value": "111111",
-                                            },
-                                            Object {
-                                              "label": "111112",
-                                              "path": "aws-accounts",
-                                              "value": "111112",
-                                            },
-                                            Object {
-                                              "label": "111113",
-                                              "path": "aws-accounts",
-                                              "value": "111113",
-                                            },
-                                          ],
+                                          "options": Array [],
                                           "rightTitle": "Resources defined for the permission",
                                           "validate": Array [
                                             Object {
@@ -1069,25 +954,7 @@ Array [
                                           filterValueTitle="Filter by resource..."
                                           leftTitle="Resources available for the permission"
                                           name="dual-list-select"
-                                          options={
-                                            Array [
-                                              Object {
-                                                "label": "111111",
-                                                "path": "aws-accounts",
-                                                "value": "111111",
-                                              },
-                                              Object {
-                                                "label": "111112",
-                                                "path": "aws-accounts",
-                                                "value": "111112",
-                                              },
-                                              Object {
-                                                "label": "111113",
-                                                "path": "aws-accounts",
-                                                "value": "111113",
-                                              },
-                                            ]
-                                          }
+                                          options={Array []}
                                           rightTitle="Resources defined for the permission"
                                           validate={
                                             Array [
@@ -1104,25 +971,7 @@ Array [
                                             filterValueTitle="Filter by resource..."
                                             leftTitle="Resources available for the permission"
                                             name="dual-list-select"
-                                            options={
-                                              Array [
-                                                Object {
-                                                  "label": "111111",
-                                                  "path": "aws-accounts",
-                                                  "value": "111111",
-                                                },
-                                                Object {
-                                                  "label": "111112",
-                                                  "path": "aws-accounts",
-                                                  "value": "111112",
-                                                },
-                                                Object {
-                                                  "label": "111113",
-                                                  "path": "aws-accounts",
-                                                  "value": "111113",
-                                                },
-                                              ]
-                                            }
+                                            options={Array []}
                                             rightTitle="Resources defined for the permission"
                                             validate={
                                               Array [
@@ -1180,25 +1029,7 @@ Array [
                                                 }
                                               }
                                               leftTitle="Resources available for the permission"
-                                              leftValues={
-                                                Array [
-                                                  Object {
-                                                    "label": "111111",
-                                                    "path": "aws-accounts",
-                                                    "value": "111111",
-                                                  },
-                                                  Object {
-                                                    "label": "111112",
-                                                    "path": "aws-accounts",
-                                                    "value": "111112",
-                                                  },
-                                                  Object {
-                                                    "label": "111113",
-                                                    "path": "aws-accounts",
-                                                    "value": "111113",
-                                                  },
-                                                ]
-                                              }
+                                              leftValues={Array []}
                                               meta={
                                                 Object {
                                                   "active": false,
@@ -1250,25 +1081,7 @@ Array [
                                               moveRightTitle="Move selected to right"
                                               noOptionsTitle="No available options"
                                               noValueTitle="No selected"
-                                              options={
-                                                Array [
-                                                  Object {
-                                                    "label": "111111",
-                                                    "path": "aws-accounts",
-                                                    "value": "111111",
-                                                  },
-                                                  Object {
-                                                    "label": "111112",
-                                                    "path": "aws-accounts",
-                                                    "value": "111112",
-                                                  },
-                                                  Object {
-                                                    "label": "111113",
-                                                    "path": "aws-accounts",
-                                                    "value": "111113",
-                                                  },
-                                                ]
-                                              }
+                                              options={Array []}
                                               rightTitle="Resources defined for the permission"
                                               rightValues={Array []}
                                               sortOptions={[Function]}
@@ -1660,52 +1473,15 @@ Array [
                                                                             noOptionsTitle="No available options"
                                                                             optionClick={[Function]}
                                                                             selectedValues={Array []}
-                                                                            value={
-                                                                              Array [
-                                                                                Object {
-                                                                                  "label": "111111",
-                                                                                  "path": "aws-accounts",
-                                                                                  "value": "111111",
-                                                                                },
-                                                                                Object {
-                                                                                  "label": "111112",
-                                                                                  "path": "aws-accounts",
-                                                                                  "value": "111112",
-                                                                                },
-                                                                                Object {
-                                                                                  "label": "111113",
-                                                                                  "path": "aws-accounts",
-                                                                                  "value": "111113",
-                                                                                },
-                                                                              ]
-                                                                            }
+                                                                            value={Array []}
                                                                           >
                                                                             <div
                                                                               className="pf-c-form-control pf-u-pr-sm ddorg__pf4-component-mapper__dual-list-select"
                                                                             >
                                                                               <div
-                                                                                className="ddorg__pf4-component-mapper__dual-list-select-option "
-                                                                                key="111111"
-                                                                                onClick={[Function]}
-                                                                                value="111111"
+                                                                                className="ddorg__pf4-component-mapper__dual-list-select-option-text ddorg__pf4-component-mapper__dual-list-select-option-disabled"
                                                                               >
-                                                                                111111
-                                                                              </div>
-                                                                              <div
-                                                                                className="ddorg__pf4-component-mapper__dual-list-select-option "
-                                                                                key="111112"
-                                                                                onClick={[Function]}
-                                                                                value="111112"
-                                                                              >
-                                                                                111112
-                                                                              </div>
-                                                                              <div
-                                                                                className="ddorg__pf4-component-mapper__dual-list-select-option "
-                                                                                key="111113"
-                                                                                onClick={[Function]}
-                                                                                value="111113"
-                                                                              >
-                                                                                111113
+                                                                                No available options
                                                                               </div>
                                                                             </div>
                                                                           </List>
@@ -1743,7 +1519,7 @@ Array [
                                                                               className=""
                                                                             >
                                                                               <Button
-                                                                                disabled={false}
+                                                                                disabled={true}
                                                                                 onClick={[Function]}
                                                                                 title="Move selected to right"
                                                                                 variant="plain"
@@ -1794,7 +1570,7 @@ Array [
                                                                               className=""
                                                                             >
                                                                               <Button
-                                                                                disabled={false}
+                                                                                disabled={true}
                                                                                 onClick={[Function]}
                                                                                 title="Move all to right"
                                                                                 variant="plain"
