@@ -38,24 +38,6 @@ const selector = ({
   isLoadingExpandSplats,
 });
 
-export const resolveSplats = (selectedPermissions, permissions) => {
-  return permissions.length > 0
-    ? flatMap(selectedPermissions, ({ uuid: permission }) => {
-        if (permission.includes('*')) {
-          const [application, resource, operation] = permission.split(':');
-          return permissions
-            .filter(
-              (p) =>
-                p.application === application && (resource === '*' || resource === p.resource) && (operation === '*' || operation === p.operation)
-            )
-            .map(({ application, resource, operation }) => ({ uuid: `${application}:${resource}:${operation}` }));
-        }
-
-        return { uuid: permission };
-      })
-    : selectedPermissions;
-};
-
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
@@ -163,6 +145,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     if (
       !baseRole ||
       roleType !== 'copy' ||
+      formOptions.getState().values['base-permissions-loaded'] ||
       selectedPermissions.length > 0 ||
       formOptions.getState().values['copy-base-role']?.uuid !== baseRole?.uuid ||
       isLoadingExpandSplats ||
@@ -172,21 +155,14 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }
 
     const basePermissions = baseRole?.access || [];
-
     if (expandedPermissions.length === 0) {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
       dispatch(expandSplats({ application: applications.join() }));
+    } else {
+      const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
+      setSelectedPermissions(() => expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission })));
+      formOptions.change('base-permissions-loaded', true);
     }
-
-    const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
-    setSelectedPermissions(() =>
-      expandedPermissions.length > 0
-        ? expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission }))
-        : resolveSplats(
-            basePermissions.map(({ permission }) => ({ uuid: permission })),
-            permissions
-          )
-    );
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
