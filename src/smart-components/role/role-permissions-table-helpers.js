@@ -18,7 +18,15 @@ export const createRows = (showResDefinitions, uuid) => (data, opened, selectedR
             ? [
                 permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
                   <Fragment key="resource-definitions">
-                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>{resourceDefinitions.length}</Link>
+                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
+                      {resourceDefinitions.reduce((acc, curr) => {
+                        if (curr.attributeFilter?.value) {
+                          return acc + (Array.isArray(curr.attributeFilter.value) ? curr.attributeFilter.value.length : 1);
+                        } else {
+                          return acc;
+                        }
+                      }, 0)}
+                    </Link>
                   </Fragment>
                 ) : (
                   <span className="ins-c-text__disabled">N/A</span>
