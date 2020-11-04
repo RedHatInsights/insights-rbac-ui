@@ -52,6 +52,7 @@ const BaseRoleTable = (props) => {
               }}
             />
           ),
+          props: { className: 'pf-c-table__check' },
         },
         role.display_name || role.name,
         role.description,
@@ -73,6 +74,7 @@ const BaseRoleTable = (props) => {
         filterPlaceholder="role name"
         ouiaId="roles-table"
         isCompact
+        tableClassNames="ins-c-roles__table ins-m-withRadio"
       />
     </div>
   );
