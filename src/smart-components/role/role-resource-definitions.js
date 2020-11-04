@@ -58,8 +58,13 @@ const ResourceDefinitions = () => {
     });
   }, [role]);
 
-  const filteredRows = permission
-    ? (permission.resourceDefinitions || []).filter(({ attributeFilter }) => (filter ? attributeFilter.value.includes(filter) : true))
+  const filteredRows = permission.resourceDefinitions
+    ? permission.resourceDefinitions
+        .reduce(
+          (acc, curr) => [...acc, ...(Array.isArray(curr.attributeFilter?.value) ? curr.attributeFilter.value : [curr.attributeFilter.value])],
+          []
+        )
+        .filter((value) => (filter ? value.includes(filter) : true))
     : [];
 
   const routes = () => (
