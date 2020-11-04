@@ -1,4 +1,3 @@
-/* eslint-disable no-unused-vars */
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
@@ -6,7 +5,6 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-fie
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
 import flatMap from 'lodash/flatMap';
-import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { fetchRole } from '../../../redux/actions/role-actions';
@@ -16,7 +14,7 @@ const selector = ({
   permissionReducer: {
     permission,
     isLoading,
-    options: { application, operation, resource, isLoadingApplication, isLoadingOperation, isLoadingResource },
+    options: { application, operation, resource },
     expandSplats,
     isLoadingExpandSplats,
   },
@@ -169,17 +167,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
   };
 
-  const calculateSelected = (filter) =>
-    filter.reduce(
-      (acc, curr) => ({
-        0: {
-          ...acc?.['0'],
-          [curr]: true,
-        },
-      }),
-      { 0: {} }
-    );
-
   const preparedFilterItems = {
     applications: [...applicationOptions].filter((item) => item.includes(filterBy)).map((app) => ({ label: app, value: app })),
     resources: [...resourceOptions].filter((item) => item.includes(filterBy)).map((res) => ({ label: res, value: res })),
@@ -244,49 +231,31 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             key: 'applications',
             value: filters.applications,
             placeholder: 'Filter by application',
-            type: 'group',
-            selected: calculateSelected(filters.applications),
-            groups: [
-              {
-                type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.applications.length > 0
-                    ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.applications.length > 0
+                ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
           {
             key: 'resources',
             value: filters.resources,
             placeholder: 'Filter by resource type',
-            type: 'group',
-            selected: calculateSelected(filters.resources),
-            groups: [
-              {
-                type: preparedFilterItems.resources.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.resources.length > 0
-                    ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.resources.length > 0
+                ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
           {
             key: 'operations',
             value: filters.operations,
             placeholder: 'Filter by operation',
-            type: 'group',
-            selected: calculateSelected(filters.operations),
-            groups: [
-              {
-                type: preparedFilterItems.operations.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.operations.length > 0
-                    ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.operations.length > 0
+                ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
         ]}
         isFilterable={true}
