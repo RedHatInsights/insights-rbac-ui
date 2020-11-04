@@ -1,9 +1,9 @@
 export const createRows = (data) =>
   data.reduce(
-    (acc, { attributeFilter }) => [
+    (acc, value) => [
       ...acc,
       {
-        cells: [attributeFilter.value],
+        cells: [value],
       },
     ],
     []
