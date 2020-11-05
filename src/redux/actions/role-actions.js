@@ -6,13 +6,6 @@ export const createRole = (roleData) => ({
   payload: RoleHelper.createRole(roleData),
   meta: {
     notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding role',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The role was added successfully.',
-      },
       rejected: {
         variant: 'danger',
         title: 'Failed adding role',

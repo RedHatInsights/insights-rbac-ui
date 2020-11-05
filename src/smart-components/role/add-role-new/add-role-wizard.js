@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, createContext } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -14,6 +14,12 @@ import ReviewStep from './review';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
 import './add-role-wizard.scss';
+
+export const AddRoleWizardContext = createContext({
+  success: false,
+  submitting: false,
+  error: undefined,
+});
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -31,8 +37,12 @@ export const mapperExtension = {
 
 const AddRoleWizard = ({ history: { push } }) => {
   const dispatch = useDispatch();
+  const [wizardContextValue, setWizardContextValue] = useState({
+    success: false,
+    submitting: false,
+    error: undefined,
+  });
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  // const isMounted = useRef(false);
   const container = useRef(document.createElement('div'));
   const [schema, setSchema] = useState({});
 
@@ -41,21 +51,26 @@ const AddRoleWizard = ({ history: { push } }) => {
   }, []);
 
   useEffect(() => {
-    console.log('cancelWarningVisible CHANGED', cancelWarningVisible);
     container.current.hidden = cancelWarningVisible;
   }, [cancelWarningVisible]);
 
   const onCancel = () => {
-    dispatch(
-      addNotification({
-        variant: 'warning',
-        title: 'Creating role was canceled by the user',
-        dismissDelay: 8000,
-        dismissable: false,
-      })
-    );
+    if (!wizardContextValue.success) {
+      dispatch(
+        addNotification({
+          variant: 'warning',
+          title: 'Creating role was canceled by the user',
+          dismissDelay: 8000,
+          dismissable: false,
+        })
+      );
+    }
+
     push('/roles');
   };
+
+  const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
+  const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
 
   const onSubmit = (formData) => {
     const {
@@ -67,6 +82,7 @@ const AddRoleWizard = ({ history: { push } }) => {
       'cost-resources': resourceDefinitions,
       'role-type': type,
     } = formData;
+    setWizardContextValue((prev) => ({ ...prev, submitting: true }));
     const roleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || null,
@@ -86,14 +102,14 @@ const AddRoleWizard = ({ history: { push } }) => {
           : [],
       })),
     };
-    dispatch(createRole(roleData)).then(() => {
+    return dispatch(createRole(roleData)).then(() => {
+      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true }));
       dispatch(fetchRolesWithPolicies());
-      push('/roles');
     });
   };
 
   return (
-    <React.Fragment>
+    <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess }}>
       <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
       <FormRenderer
         schema={schema}
@@ -103,7 +119,6 @@ const AddRoleWizard = ({ history: { push } }) => {
         componentMapper={{ ...componentMapper, ...mapperExtension }}
         onSubmit={onSubmit}
         onCancel={(values) => {
-          console.log(values);
           const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
           if (showWarning) {
             setCancelWarningVisible(true);
@@ -112,7 +127,7 @@ const AddRoleWizard = ({ history: { push } }) => {
           }
         }}
       />
-    </React.Fragment>
+    </AddRoleWizardContext.Provider>
   );
 };
 
