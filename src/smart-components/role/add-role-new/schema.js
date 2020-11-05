@@ -1,4 +1,5 @@
 import AddPermissionTemplate from './add-permissions-template';
+import ReviewStepButtons from './review-step-buttons';
 import ReviewTemplate from './review-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 
@@ -163,6 +164,7 @@ export default (container) => ({
         {
           name: 'review',
           title: 'Review details',
+          buttons: ReviewStepButtons,
           StepTemplate: ReviewTemplate,
           fields: [
             {
