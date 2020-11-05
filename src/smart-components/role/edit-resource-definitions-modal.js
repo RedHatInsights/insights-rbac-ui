@@ -11,6 +11,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/co
 import { WarningModal } from '../common/warningModal';
 import { Spinner, Modal } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
+import flatten from 'lodash/flattenDeep';
 import './role-permissions.scss';
 
 const createOptions = (resources) =>
@@ -87,21 +88,11 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     (state) => ({
       role: state.roleReducer.selectedRole,
       definedResources: state.roleReducer.selectedRole?.access
-        ? state.roleReducer.selectedRole.access
-            .filter((a) => a.permission === permissionId)
-            .reduce(
-              (resources, access) => [
-                ...resources,
-                ...access.resourceDefinitions.reduce(
-                  (acc, curr) => [
-                    ...acc,
-                    ...(Array.isArray(curr.attributeFilter?.value) ? curr.attributeFilter.value : [curr.attributeFilter.value]),
-                  ],
-                  []
-                ),
-              ],
-              []
-            )
+        ? flatten(
+            state.roleReducer.selectedRole.access
+              .filter((a) => a.permission === permissionId)
+              .map((access) => access.resourceDefinitions.map((resource) => resource.attributeFilter.value))
+          )
         : [],
       isRecordLoading: state.roleReducer.isRecordLoading,
     }),
