@@ -229,8 +229,8 @@ describe('<MUARolesTable />', () => {
     });
     expect(fetchRolesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesSpy.mock.calls).toEqual([
-      [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal' }],
-      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: '', scope: 'principal' }],
+      [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal', orderBy: 'display_name' }],
+      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: '', scope: 'principal', orderBy: 'display_name' }],
     ]);
   });
 });
