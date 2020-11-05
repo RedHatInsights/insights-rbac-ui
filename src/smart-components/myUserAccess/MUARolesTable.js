@@ -104,7 +104,7 @@ const MUARolesTable = ({
   let debouncedFetch = useCallback(
     debounce((limit, offset, name, application, permission) => {
       const applicationParam = application?.length > 0 ? application : apps;
-      return fetchRoles({ limit, offset, name, application: applicationParam.join(','), permission });
+      return fetchRoles({ limit, offset, scope: 'principal', name, application: applicationParam.join(','), permission });
     }, 800),
     []
   );
