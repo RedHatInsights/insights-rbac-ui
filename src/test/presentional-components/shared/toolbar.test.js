@@ -22,7 +22,7 @@ const testPagination = {
 
 const testBulkSelect = {
   checked: false,
-  count: undefined,
+  count: 0,
   items: [{ title: 'Select none (0)' }, {}],
 };
 
