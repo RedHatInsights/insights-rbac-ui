@@ -1,5 +1,8 @@
+/* eslint-disable quotes */
+// eslint-disable-next-line quotes
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewStepButtons from './review-step-buttons';
+import React from 'react';
 import ReviewTemplate from './review-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 
@@ -148,8 +151,13 @@ export default (container) => ({
             {
               component: 'plain-text',
               name: 'text-description',
-              // eslint-disable-next-line quotes
-              label: "Specify where you'd like to apply each cost permission selected in the previous step, using the dropdown below.",
+              label: (
+                <p>
+                  Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below. Before Cost
+                  Management permissions can be defined for specific resources, at least one data source must be connected. Go{' '}
+                  <a href="https://cloud.redhat.com/settings/sources">here</a> to add a new Source for Cost Management.
+                </p>
+              ),
             },
             {
               component: 'cost-resources',
