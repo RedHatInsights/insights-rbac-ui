@@ -272,43 +272,25 @@ const Permissions = () => {
             key: 'applications',
             value: filters.applications,
             placeholder: 'Filter by application',
-            type: 'group',
-            selected: calculateSelected(filters.applications),
-            groups: [
-              {
-                type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  sanitizedRole.applications.length > 0
-                    ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              sanitizedRole.applications.length > 0
+                ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
+                : [emptyItem],
           },
           {
             key: 'resources',
             value: filters.resources,
             placeholder: 'Filter by resource type',
-            type: 'group',
-            selected: calculateSelected(filters.resources),
-            groups: [
-              {
-                type: resources.length > 0 ? 'checkbox' : 'plain',
-                items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
           },
           {
             key: 'operations',
             value: filters.operations,
             placeholder: 'Filter by operation',
             type: 'group',
-            selected: calculateSelected(filters.operations),
-            groups: [
-              {
-                type: operations.length > 0 ? 'checkbox' : 'plain',
-                items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-              },
-            ],
+            items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
           },
         ]}
       />

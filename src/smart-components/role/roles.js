@@ -19,7 +19,7 @@ import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 
 const columns = [
-  { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
+  { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },
   { title: 'Description' },
   { title: 'Permissions', transforms: [nowrap] },
   { title: 'Groups', transforms: [nowrap] },

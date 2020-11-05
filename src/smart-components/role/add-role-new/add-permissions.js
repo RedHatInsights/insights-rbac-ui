@@ -1,12 +1,9 @@
-/* eslint-disable no-unused-vars */
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-import flatMap from 'lodash/flatMap';
-import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { fetchRole } from '../../../redux/actions/role-actions';
@@ -16,7 +13,7 @@ const selector = ({
   permissionReducer: {
     permission,
     isLoading,
-    options: { application, operation, resource, isLoadingApplication, isLoadingOperation, isLoadingResource },
+    options: { application, operation, resource },
     expandSplats,
     isLoadingExpandSplats,
   },
@@ -37,24 +34,6 @@ const selector = ({
   expandedPermissions: expandSplats.data.map(({ permission }) => permission),
   isLoadingExpandSplats,
 });
-
-export const resolveSplats = (selectedPermissions, permissions) => {
-  return permissions.length > 0
-    ? flatMap(selectedPermissions, ({ uuid: permission }) => {
-        if (permission.includes('*')) {
-          const [application, resource, operation] = permission.split(':');
-          return permissions
-            .filter(
-              (p) =>
-                p.application === application && (resource === '*' || resource === p.resource) && (operation === '*' || operation === p.operation)
-            )
-            .map(({ application, resource, operation }) => ({ uuid: `${application}:${resource}:${operation}` }));
-        }
-
-        return { uuid: permission };
-      })
-    : selectedPermissions;
-};
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
@@ -163,6 +142,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     if (
       !baseRole ||
       roleType !== 'copy' ||
+      formOptions.getState().values['base-permissions-loaded'] ||
       selectedPermissions.length > 0 ||
       formOptions.getState().values['copy-base-role']?.uuid !== baseRole?.uuid ||
       isLoadingExpandSplats ||
@@ -172,37 +152,19 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }
 
     const basePermissions = baseRole?.access || [];
-
     if (expandedPermissions.length === 0) {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
       dispatch(expandSplats({ application: applications.join() }));
+    } else {
+      const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
+      setSelectedPermissions(() => expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission })));
+      formOptions.change('base-permissions-loaded', true);
     }
-
-    const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
-    setSelectedPermissions(() =>
-      expandedPermissions.length > 0
-        ? expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission }))
-        : resolveSplats(
-            basePermissions.map(({ permission }) => ({ uuid: permission })),
-            permissions
-          )
-    );
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
     setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
   };
-
-  const calculateSelected = (filter) =>
-    filter.reduce(
-      (acc, curr) => ({
-        0: {
-          ...acc?.['0'],
-          [curr]: true,
-        },
-      }),
-      { 0: {} }
-    );
 
   const preparedFilterItems = {
     applications: [...applicationOptions].filter((item) => item.includes(filterBy)).map((app) => ({ label: app, value: app })),
@@ -268,49 +230,31 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             key: 'applications',
             value: filters.applications,
             placeholder: 'Filter by application',
-            type: 'group',
-            selected: calculateSelected(filters.applications),
-            groups: [
-              {
-                type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.applications.length > 0
-                    ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.applications.length > 0
+                ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
           {
             key: 'resources',
             value: filters.resources,
             placeholder: 'Filter by resource type',
-            type: 'group',
-            selected: calculateSelected(filters.resources),
-            groups: [
-              {
-                type: preparedFilterItems.resources.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.resources.length > 0
-                    ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.resources.length > 0
+                ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
           {
             key: 'operations',
             value: filters.operations,
             placeholder: 'Filter by operation',
-            type: 'group',
-            selected: calculateSelected(filters.operations),
-            groups: [
-              {
-                type: preparedFilterItems.operations.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.operations.length > 0
-                    ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            type: 'checkbox',
+            items:
+              preparedFilterItems.operations.length > 0
+                ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
+                : [emptyItem],
           },
         ]}
         isFilterable={true}

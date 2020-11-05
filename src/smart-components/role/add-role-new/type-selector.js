@@ -11,6 +11,7 @@ const TypeSelector = (props) => {
     setChecked(val);
     input.onChange(val);
     formOptions.change('add-permissions-table', []);
+    formOptions.change('base-permissions-loaded', false);
   };
 
   return (
