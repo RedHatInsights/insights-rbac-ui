@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { DateFormat } from '@redhat-cloud-services/frontend-components';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Link } from 'react-router-dom';
+import flatten from 'lodash/flatten';
 
 export const createRows = (showResDefinitions, uuid) => (data, opened, selectedRows = []) =>
   data.reduce((acc, { resourceDefinitions, permission, modified }) => {
@@ -19,13 +20,7 @@ export const createRows = (showResDefinitions, uuid) => (data, opened, selectedR
                 permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
                   <Fragment key="resource-definitions">
                     <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
-                      {resourceDefinitions.reduce((acc, curr) => {
-                        if (curr.attributeFilter?.value) {
-                          return acc + (Array.isArray(curr.attributeFilter.value) ? curr.attributeFilter.value.length : 1);
-                        } else {
-                          return acc;
-                        }
-                      }, 0)}
+                      {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
                     </Link>
                   </Fragment>
                 ) : (
