@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
-
-const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }];
 
 const createRows = (data, expanded, checkedRows = []) => {
   return data
@@ -26,11 +25,15 @@ const createRows = (data, expanded, checkedRows = []) => {
     : [];
 };
 
-const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, setSelectedRoles }) => {
+const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, canSort, setSelectedRoles }) => {
   const [filterValue, setFilterValue] = useState('');
+  const { current: columns } = useRef([
+    { title: 'Name', key: 'display_name', ...(canSort ? { transforms: [sortable] } : { orderBy: 'name' }) },
+    { title: 'Description' },
+  ]);
 
   useEffect(() => {
-    fetchRoles({});
+    fetchRoles({ orderBy: 'display_name' });
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -92,11 +95,13 @@ RolesList.propTypes = {
     offset: PropTypes.number.isRequired,
     count: PropTypes.number,
   }),
+  canSort: PropTypes.bool,
 };
 
 RolesList.defaultProps = {
   roles: [],
   pagination: defaultCompactSettings,
+  canSort: true,
 };
 
 const mapStateToPropsGroup = ({ groupReducer: { selectedGroup } }) => {
@@ -124,6 +129,7 @@ const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
     ...ownProps,
     ...propsFromState,
     ...propsFromDispatch,
+    canSort: false,
     fetchRoles: (apiProps) => propsFromDispatch.fetchRoles(propsFromState.groupId, apiProps),
   };
 };
