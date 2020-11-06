@@ -11,6 +11,7 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
 import { routes as paths } from '../../../package.json';
 import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
+import flatten from 'lodash/flatten';
 import './role-permissions.scss';
 
 const ResourceDefinitions = () => {
@@ -58,8 +59,10 @@ const ResourceDefinitions = () => {
     });
   }, [role]);
 
-  const filteredRows = permission
-    ? (permission.resourceDefinitions || []).filter(({ attributeFilter }) => (filter ? attributeFilter.value.includes(filter) : true))
+  const filteredRows = permission.resourceDefinitions
+    ? flatten(permission.resourceDefinitions.map((definition) => definition.attributeFilter.value)).filter((value) =>
+        filter ? value.includes(filter) : true
+      )
     : [];
 
   const routes = () => (
