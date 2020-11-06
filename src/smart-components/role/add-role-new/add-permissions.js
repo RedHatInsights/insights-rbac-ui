@@ -166,6 +166,17 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
   };
 
+  const calculateSelected = (filter) =>
+    filter.reduce(
+      (acc, curr) => ({
+        0: {
+          ...acc?.['0'],
+          [curr]: true,
+        },
+      }),
+      { 0: {} }
+    );
+
   const preparedFilterItems = {
     applications: [...applicationOptions].filter((item) => item.includes(filterBy)).map((app) => ({ label: app, value: app })),
     resources: [...resourceOptions].filter((item) => item.includes(filterBy)).map((res) => ({ label: res, value: res })),
@@ -230,31 +241,49 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             key: 'applications',
             value: filters.applications,
             placeholder: 'Filter by application',
-            type: 'checkbox',
-            items:
-              preparedFilterItems.applications.length > 0
-                ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
-                : [emptyItem],
+            type: 'group',
+            selected: calculateSelected(filters.applications),
+            groups: [
+              {
+                type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
+                items:
+                  preparedFilterItems.applications.length > 0
+                    ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
+                    : [emptyItem],
+              },
+            ],
           },
           {
             key: 'resources',
             value: filters.resources,
             placeholder: 'Filter by resource type',
-            type: 'checkbox',
-            items:
-              preparedFilterItems.resources.length > 0
-                ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
-                : [emptyItem],
+            type: 'group',
+            selected: calculateSelected(filters.resources),
+            groups: [
+              {
+                type: preparedFilterItems.resources.length > 0 ? 'checkbox' : 'plain',
+                items:
+                  preparedFilterItems.resources.length > 0
+                    ? [...preparedFilterItems.resources].slice(0, isToggled ? undefined : maxFilterItems)
+                    : [emptyItem],
+              },
+            ],
           },
           {
             key: 'operations',
             value: filters.operations,
             placeholder: 'Filter by operation',
-            type: 'checkbox',
-            items:
-              preparedFilterItems.operations.length > 0
-                ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
-                : [emptyItem],
+            type: 'group',
+            selected: calculateSelected(filters.operations),
+            groups: [
+              {
+                type: preparedFilterItems.operations.length > 0 ? 'checkbox' : 'plain',
+                items:
+                  preparedFilterItems.operations.length > 0
+                    ? [...preparedFilterItems.operations].slice(0, isToggled ? undefined : maxFilterItems)
+                    : [emptyItem],
+              },
+            ],
           },
         ]}
         isFilterable={true}
