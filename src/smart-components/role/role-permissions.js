@@ -187,7 +187,7 @@ const Permissions = () => {
       <AddRolePermissionWizard isOpen={true} role={role} />
     </Route>
   );
-  
+
   const calculateSelected = (filter) =>
     filter.reduce(
       (acc, curr) => ({
