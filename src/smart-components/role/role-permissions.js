@@ -188,17 +188,6 @@ const Permissions = () => {
     </Route>
   );
 
-  // const calculateSelected = (filter) =>
-  //   filter.reduce(
-  //     (acc, curr) => ({
-  //       0: {
-  //         ...acc?.['0'],
-  //         [curr]: true,
-  //       },
-  //     }),
-  //     { 0: {} }
-  //   );
-
   const emptyItem = {
     label: <div> No results found</div>,
     isDisabled: true,
