@@ -6,8 +6,9 @@ import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import { sortable } from '@patternfly/react-table';
 
-const columns = ['', 'Name', 'Description'];
+const columns = ['', { title: 'Name', key: 'display_name', transforms: [sortable] }, 'Description'];
 const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
   roles: rolesForWizard.data,
   pagination: rolesForWizard.meta,
@@ -27,6 +28,7 @@ const BaseRoleTable = (props) => {
       limit: 50,
       offset: 0,
       itemCount: 0,
+      orderBy: 'display_name',
     });
   }, []);
 
