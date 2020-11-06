@@ -187,6 +187,17 @@ const Permissions = () => {
       <AddRolePermissionWizard isOpen={true} role={role} />
     </Route>
   );
+  
+  const calculateSelected = (filter) =>
+    filter.reduce(
+      (acc, curr) => ({
+        0: {
+          ...acc?.['0'],
+          [curr]: true,
+        },
+      }),
+      { 0: {} }
+    );
 
   const emptyItem = {
     label: <div> No results found</div>,
@@ -261,25 +272,43 @@ const Permissions = () => {
             key: 'applications',
             value: filters.applications,
             placeholder: 'Filter by application',
-            type: 'checkbox',
-            items:
-              sanitizedRole.applications.length > 0
-                ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
-                : [emptyItem],
+            type: 'group',
+            selected: calculateSelected(filters.applications),
+            groups: [
+              {
+                type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
+                items:
+                  sanitizedRole.applications.length > 0
+                    ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
+                    : [emptyItem],
+              },
+            ],
           },
           {
             key: 'resources',
             value: filters.resources,
             placeholder: 'Filter by resource type',
-            type: 'checkbox',
-            items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+            type: 'group',
+            selected: calculateSelected(filters.resources),
+            groups: [
+              {
+                type: resources.length > 0 ? 'checkbox' : 'plain',
+                items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+              },
+            ],
           },
           {
             key: 'operations',
             value: filters.operations,
             placeholder: 'Filter by operation',
             type: 'group',
-            items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+            selected: calculateSelected(filters.operations),
+            groups: [
+              {
+                type: operations.length > 0 ? 'checkbox' : 'plain',
+                items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+              },
+            ],
           },
         ]}
       />

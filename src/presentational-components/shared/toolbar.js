@@ -191,7 +191,7 @@ export const activeFiltersConfigBuilder = (
         return value;
       }
 
-      if (type === 'checkbox') {
+      if (type === 'checkbox' || type === 'group') {
         return value.filter((value) => value !== deleted.chips[0]?.name);
       }
 
