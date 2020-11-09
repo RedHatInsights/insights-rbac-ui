@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useReducer, useState } from 'react';
+import React, { useEffect, useReducer, useState } from 'react';
 import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -19,6 +19,10 @@ import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
 import RemovePermissionsModal from './remove-permissions-modal';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
+import { Link, Route, useHistory } from 'react-router-dom';
+import { Button } from '@patternfly/react-core';
+import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
+import { routes as paths } from '../../../package.json';
 
 const maxFilterItems = 10;
 
@@ -63,6 +67,7 @@ const Permissions = () => {
     shallowEqual
   );
 
+  const history = useHistory();
   const [
     { pagination, selectedPermissions, showRemoveModal, confirmDelete, deleteInfo, filters, isToggled, resources, operations },
     internalDispatch,
@@ -138,7 +143,20 @@ const Permissions = () => {
   const toolbarButtons = () => [
     ...[
       // eslint-disable-next-line react/jsx-key
-      <Fragment />,
+      <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+        <Button variant="primary" aria-label="Add Permission">
+          Add Permission
+        </Button>
+      </Link>,
+      {
+        label: 'Add Permission',
+        props: {
+          className: 'pf-m-hidden-on-md',
+        },
+        onClick: () => {
+          history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+        },
+      },
       {
         label: 'Remove',
         props: {
@@ -163,6 +181,12 @@ const Permissions = () => {
       },
     ],
   ];
+
+  const routes = () => (
+    <Route exact path={paths['role-add-permission']}>
+      <AddRolePermissionWizard isOpen={true} role={role} />
+    </Route>
+  );
 
   const calculateSelected = (filter) =>
     filter.reduce(
@@ -234,7 +258,7 @@ const Permissions = () => {
             ...(operations ? { operations } : filters.operations),
           });
         }}
-        toolbarButtons={role.system ? undefined : toolbarButtons}
+        toolbarButtons={toolbarButtons}
         isLoading={isRecordLoading}
         pagination={{
           ...pagination,
@@ -242,6 +266,7 @@ const Permissions = () => {
         }}
         titlePlural="permissions"
         titleSingular="permission"
+        routes={routes}
         filters={[
           {
             key: 'applications',
