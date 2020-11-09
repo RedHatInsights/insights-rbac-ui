@@ -45,12 +45,12 @@ const MUARolesTable = ({
 
   const createRows = (data) => {
     return data?.reduce(
-      (acc, { uuid, name, description, accessCount }, i) => [
+      (acc, { uuid, display_name, name, description, accessCount }, i) => [
         ...acc,
         {
           uuid,
           cells: [
-            { title: name, props: { component: 'th', isOpen: false } },
+            { title: display_name || name, props: { component: 'th', isOpen: false } },
             { title: description, props: { isOpen: false } },
             { title: accessCount, props: { isOpen: expanded[uuid] === 2 } },
           ],
