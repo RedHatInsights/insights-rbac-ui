@@ -138,6 +138,7 @@
     "remove-role": "/roles/remove/:id",
     "edit-role": "/roles/edit/:id",
     "role-detail": "/roles/detail/:uuid",
+    "role-add-permission": "/roles/detail/:uuid/role-add-permission",
     "role-detail-remove": "/roles/detail/:id/remove",
     "role-detail-edit": "/roles/detail/:id/edit",
     "role-detail-permission": "/roles/detail/:roleId/permission/:permissionId",

@@ -207,6 +207,7 @@ TableToolbarView.propTypes = {
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
+  checkedRows: propTypes.array,
   createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
@@ -229,5 +230,6 @@ TableToolbarView.defaultProps = {
   borders: true,
   routes: () => null,
   hideFilterChips: false,
+  checkedRows: [],
   hideHeader: false,
 };
