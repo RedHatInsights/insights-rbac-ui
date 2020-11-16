@@ -10,7 +10,7 @@ const AddPermissionTemplate = ({ formFields }) => {
   const [selectedPermissions, setSelectedPermissions] = useState(formOptions.getState().values['add-permissions-table'] || []);
 
   const unresolvedSplats =
-    formOptions.getState().values?.['copy-base-role']?.applications?.filter((app) => selectedPermissions?.find(({ uuid }) => uuid.includes(app))) ||
+    formOptions.getState().values?.['copy-base-role']?.applications?.filter((app) => !selectedPermissions?.find(({ uuid }) => uuid.includes(app))) ||
     [];
   const addPermissions = formFields[0][0];
   return (
