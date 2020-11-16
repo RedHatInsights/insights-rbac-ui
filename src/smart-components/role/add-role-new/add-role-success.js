@@ -10,7 +10,7 @@ const AddRoleSuccess = () => {
     <EmptyState variant={EmptyStateVariant.large}>
       <EmptyStateIcon color="green" icon={CheckCircleIcon} />
       <Title headingLevel="h4" size="lg">
-        You have succesfully created a new role
+        You have successfully created a new role
       </Title>
       <EmptyStateBody></EmptyStateBody>
       <Button component={(props) => <Link to="/roles" {...props} />} variant="primary">
