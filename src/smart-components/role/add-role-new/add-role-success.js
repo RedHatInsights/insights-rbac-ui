@@ -1,15 +1,11 @@
 import React, { useContext } from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, EmptyStateSecondaryActions } from '@patternfly/react-core';
-import WizardContext from '@data-driven-forms/react-form-renderer/dist/cjs/wizard-context';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { Link } from 'react-router-dom';
 import { AddRoleWizardContext } from './add-role-wizard';
 
 const AddRoleSuccess = () => {
-  const { jumpToStep } = useContext(WizardContext);
-  const { reset } = useFormApi();
-  const { setWizardSuccess } = useContext(AddRoleWizardContext);
+  const { setHideForm } = useContext(AddRoleWizardContext);
   return (
     <EmptyState variant={EmptyStateVariant.large}>
       <EmptyStateIcon color="green" icon={CheckCircleIcon} />
@@ -23,9 +19,7 @@ const AddRoleSuccess = () => {
       <EmptyStateSecondaryActions>
         <Button
           onClick={() => {
-            reset();
-            jumpToStep(0, true);
-            setWizardSuccess(false);
+            setHideForm(false);
           }}
           variant="link"
         >

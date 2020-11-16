@@ -4,12 +4,11 @@ import { Bullseye, Spinner, Text, TextContent, Title } from '@patternfly/react-c
 import { AddRoleWizardContext } from './add-role-wizard';
 import { asyncValidator } from './validators';
 import './review.scss';
-import AddRoleSuccess from './add-role-success';
 import AddRoleError from './add-role-error';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 
 const ReviewTemplate = ({ formFields }) => {
-  const { success, submitting, error, setWizardError } = useContext(AddRoleWizardContext);
+  const { submitting, error, setWizardError } = useContext(AddRoleWizardContext);
   const { getState } = useFormApi();
   useEffect(() => {
     setWizardError(undefined);
@@ -28,10 +27,6 @@ const ReviewTemplate = ({ formFields }) => {
 
   if (error === true) {
     return <AddRoleError />;
-  }
-
-  if (success && !submitting) {
-    return <AddRoleSuccess />;
   }
 
   return (
