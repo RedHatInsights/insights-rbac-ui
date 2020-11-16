@@ -5,9 +5,11 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import FormRenderer from '@data-driven-forms/react-form-renderer/dist/cjs/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/cjs/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
+import { Wizard } from '@patternfly/react-core';
 import schemaBuilder from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../../smart-components/common/warningModal';
+import AddRoleSuccess from './add-role-success';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
@@ -23,8 +25,10 @@ export const AddRoleWizardContext = createContext({
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
-// eslint-disable-next-line
 const Description = ({ Content, ...rest }) => <Content {...rest} />;
+Description.propTypes = {
+  Content: PropTypes.elementType.isRequired,
+};
 
 export const mapperExtension = {
   'base-role-table': BaseRoleTable,
@@ -41,6 +45,7 @@ const AddRoleWizard = ({ history: { push } }) => {
     success: false,
     submitting: false,
     error: undefined,
+    hideForm: false,
   });
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const container = useRef(document.createElement('div'));
@@ -71,6 +76,7 @@ const AddRoleWizard = ({ history: { push } }) => {
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
+  const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
   const onSubmit = (formData) => {
     const {
@@ -103,30 +109,45 @@ const AddRoleWizard = ({ history: { push } }) => {
       })),
     };
     return dispatch(createRole(roleData)).then(() => {
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true }));
+      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
       dispatch(fetchRolesWithPolicies());
     });
   };
 
   return (
-    <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess }}>
+    <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
-      <FormRenderer
-        schema={schema}
-        container={container}
-        subscription={{ values: true }}
-        FormTemplate={FormTemplate}
-        componentMapper={{ ...componentMapper, ...mapperExtension }}
-        onSubmit={onSubmit}
-        onCancel={(values) => {
-          const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
-          if (showWarning) {
-            setCancelWarningVisible(true);
-          } else {
-            onCancel();
-          }
-        }}
-      />
+      {wizardContextValue.hideForm ? (
+        <Wizard
+          title="Create role"
+          isOpen
+          onClose={() => push('/roles')}
+          steps={[
+            {
+              name: 'success',
+              component: <AddRoleSuccess />,
+              isFinishedStep: true,
+            },
+          ]}
+        />
+      ) : (
+        <FormRenderer
+          schema={schema}
+          container={container}
+          subscription={{ values: true }}
+          FormTemplate={FormTemplate}
+          componentMapper={{ ...componentMapper, ...mapperExtension }}
+          onSubmit={onSubmit}
+          onCancel={(values) => {
+            const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
+            if (showWarning) {
+              setCancelWarningVisible(true);
+            } else {
+              onCancel();
+            }
+          }}
+        />
+      )}
     </AddRoleWizardContext.Provider>
   );
 };
