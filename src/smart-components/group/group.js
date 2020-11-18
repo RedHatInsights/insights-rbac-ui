@@ -116,7 +116,7 @@ const Group = ({
           <SplitItem>
             {group.platform_default ? null : (
               <Dropdown
-                ouiaId="role-title-actions-dropdown"
+                ouiaId="group-title-actions-dropdown"
                 toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
                 isOpen={isDropdownOpen}
                 isPlain
