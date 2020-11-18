@@ -9,8 +9,8 @@ const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {
       text={
         <TextContent>
           <Text>
-            Once you edit the <b>Default user access</b> group, the system will no longer update it with new default access roles. The group name will
-            change to <b>Custom default user access</b>.
+            Once you edit the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name will
+            change to <b>Custom default access</b>.
           </Text>
         </TextContent>
       }

@@ -31,7 +31,7 @@ describe('<AddGroupRoles />', () => {
             },
           },
           uuid: '1234',
-          name: 'Custom default user access',
+          name: 'Custom default access',
           system: false,
           roles: [],
         },
