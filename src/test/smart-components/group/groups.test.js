@@ -26,7 +26,7 @@ describe('<Groups />', () => {
       data: [
         {
           uuid: '19eccddf-7e6a-41a2-b050-3e67f0af4ed1',
-          name: 'Custom default user access',
+          name: 'Custom default access',
           description: 'Default group that contains default permissions for new users.',
           principalCount: 0,
           platform_default: true,

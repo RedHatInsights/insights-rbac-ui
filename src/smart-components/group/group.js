@@ -58,8 +58,8 @@ const Group = ({
           aria-label="default-group-icon"
           bodyContent={
             <div>
-              Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
-              group name has changed to <b>Custom default user access</b>.
+              Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
+              name has changed to <b>Custom default access</b>.
             </div>
           }
         >
@@ -130,12 +130,12 @@ const Group = ({
           <Alert
             variant="info"
             isInline
-            title="Default user access group has changed"
+            title="Default access group has changed"
             action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
             className="pf-u-mb-lg pf-u-mt-sm"
           >
-            Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
-            group name has changed to <b>Custom default user access</b>.
+            Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
+            name has changed to <b>Custom default access</b>.
           </Alert>
         ) : null}
       </TopToolbar>
