@@ -1,18 +1,19 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Switch, Redirect } from 'react-router-dom';
-import { connect } from 'react-redux';
+import { Route, Redirect, Link, useLocation } from 'react-router-dom';
+import { connect, useDispatch } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
-import { fetchGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { Alert, AlertActionCloseButton, Button, Popover, Split, SplitItem } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
 import { routes } from '../../../package.json';
 import EditGroup from './edit-group-modal';
+import RemoveGroup from './remove-group-modal';
 import './group.scss';
 
 const Group = ({
@@ -32,12 +33,16 @@ const Group = ({
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
   ];
-  const [showEdit, setShowEdit] = useState(false);
+
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
   const fetchData = (apiProps) => {
     fetchGroup(apiProps);
   };
+
+  const dispatch = useDispatch();
+  const location = useLocation();
 
   useEffect(() => {
     fetchData(uuid);
@@ -53,8 +58,8 @@ const Group = ({
           aria-label="default-group-icon"
           bodyContent={
             <div>
-              Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
-              group name has changed to <b>Custom default user access</b>.
+              Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
+              name has changed to <b>Custom default access</b>.
             </div>
           }
         >
@@ -63,6 +68,36 @@ const Group = ({
       </div>
     </div>
   );
+
+  const dropdownItems = [
+    <DropdownItem
+      component={
+        <Link
+          to={(location.pathname.includes('members') ? routes['group-detail-members-edit'] : routes['group-detail-roles-edit']).replace(
+            ':uuid',
+            uuid
+          )}
+        >
+          Edit
+        </Link>
+      }
+      key="edit-group"
+    />,
+    <DropdownItem
+      component={
+        <Link
+          to={(location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
+            ':uuid',
+            uuid
+          )}
+        >
+          Delete
+        </Link>
+      }
+      className="ins-c-group__action"
+      key="delete-group"
+    />,
+  ];
 
   return (
     <Fragment>
@@ -80,44 +115,64 @@ const Group = ({
           </SplitItem>
           <SplitItem>
             {group.platform_default ? null : (
-              <Button ouiaId="edit-group-button" onClick={() => setShowEdit(true)} variant="secondary">
-                Edit group
-              </Button>
+              <Dropdown
+                ouiaId="group-title-actions-dropdown"
+                toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
+                isOpen={isDropdownOpen}
+                isPlain
+                position="right"
+                dropdownItems={dropdownItems}
+              />
             )}
           </SplitItem>
-          <EditGroup
-            isOpen={showEdit}
-            group={group}
-            closeUrl={`group/detail/${uuid}`}
-            onClose={() => setShowEdit(false)}
-            postMethod={() => {
-              fetchData(uuid);
-              setShowEdit(false);
-            }}
-          />
         </Split>
         {showDefaultGroupChangedInfo ? (
           <Alert
             variant="info"
             isInline
-            title="Default user access group has changed"
+            title="Default access group has changed"
             action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
             className="pf-u-mb-lg pf-u-mt-sm"
           >
-            Now that you have edited the <b>Default user access</b> group, the system will no longer update it with new default access roles. The
-            group name has changed to <b>Custom default user access</b>.
+            Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
+            name has changed to <b>Custom default access</b>.
           </Alert>
         ) : null}
       </TopToolbar>
       <AppTabs isHeader tabItems={tabItems} />
-      <Switch>
-        <Route
-          path={routes['group-detail-roles']}
-          render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
-        />
-        <Route path={routes['group-detail-members']} component={GroupPrincipals} />
-        <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
-      </Switch>
+      <Route
+        path={[routes['group-detail-roles-remove'], routes['group-detail-members-remove']]}
+        render={(props) => (
+          <RemoveGroup
+            {...props}
+            postMethod={() => {
+              dispatch(fetchGroups());
+            }}
+            isModalOpen
+            groupsUuid={[group]}
+          />
+        )}
+      />
+      <Route
+        path={[routes['group-detail-roles-edit'], routes['group-detail-members-edit']]}
+        render={(props) => (
+          <EditGroup
+            {...props}
+            isOpen
+            group={group}
+            closeUrl={`group/detail/${uuid}`}
+            postMethod={() => {
+              fetchData(uuid);
+            }}
+          />
+        )}
+      />
+      <Route
+        path={routes['group-detail-roles']}
+        render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
+      />
+      <Route path={routes['group-detail-members']} component={GroupPrincipals} />
+      <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
       {!group && <ListLoader />}
     </Fragment>
   );
