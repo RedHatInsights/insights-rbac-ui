@@ -128,6 +128,10 @@
       "description": "Edit single group"
     },
     "group-detail": "/groups/detail/:uuid",
+    "group-detail-members-edit": "/groups/detail/:uuid/members/edit",
+    "group-detail-roles-edit": "/groups/detail/:uuid/roles/edit",
+    "group-detail-members-remove": "/groups/detail/:uuid/members/remove",
+    "group-detail-roles-remove": "/groups/detail/:uuid/roles/remove",
     "group-detail-roles": "/groups/detail/:uuid/roles",
     "group-add-roles": "/groups/detail/:uuid/roles/add_roles",
     "group-detail-members": "/groups/detail/:uuid/members",
