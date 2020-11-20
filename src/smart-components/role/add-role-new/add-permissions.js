@@ -4,8 +4,11 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+import { Tooltip } from '@patternfly/react-core';
+import { RowWrapper } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
+import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
 
 const columns = ['Application', 'Resource type', 'Operation'];
@@ -18,6 +21,7 @@ const selector = ({
     isLoadingExpandSplats,
   },
   roleReducer: { isRecordLoading, selectedRole },
+  costReducer: { resourceTypes },
 }) => ({
   permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
     application,
@@ -33,6 +37,7 @@ const selector = ({
   operationOptions: operation.data.filter((app) => app !== '*'),
   expandedPermissions: expandSplats.data.map(({ permission }) => permission),
   isLoadingExpandSplats,
+  resourceTypes: resourceTypes.data,
 });
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
@@ -49,6 +54,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     operationOptions,
     expandedPermissions,
     isLoadingExpandSplats,
+    resourceTypes,
   } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
@@ -60,11 +66,19 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const [value, setValue] = useState();
   const maxFilterItems = 10;
 
+  const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
-      cells: [application, resource, operation],
+      cells: [
+        {
+          title: application,
+        },
+        resource,
+        operation,
+      ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
+      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
     }));
 
   const debounbcedGetApplicationOptions = useCallback(
@@ -110,6 +124,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(fetchRole(baseRoleUuid));
     }
 
+    dispatch(getResourceDefinitions());
     formOptions.change('has-cost-resources', false);
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
@@ -293,6 +308,23 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           },
         ]}
         isFilterable={true}
+        rowWrapper={({ row, ...props }) =>
+          row.disableSelection ? (
+            <Tooltip
+              content={
+                <div>
+                  To add this permission to your role and define specific resources for it, at least one data source must be connected. Go{' '}
+                  <a href="https://cloud.redhat.com/settings/sources">here</a> to add a new Source for Cost Management.
+                </div>
+              }
+              exitDelay={2000}
+            >
+              <RowWrapper className="ins-c-rbac-disabled-row" row={row} {...props} />
+            </Tooltip>
+          ) : (
+            <RowWrapper row={row} {...props} />
+          )
+        }
         {...props}
       />
     </div>
