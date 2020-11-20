@@ -4,12 +4,11 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-import { Tooltip } from '@patternfly/react-core';
-import { RowWrapper } from '@patternfly/react-table';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
+import { DisabledRowWrapper } from './DisabledRowWrapper';
 
 const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
@@ -308,23 +307,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           },
         ]}
         isFilterable={true}
-        rowWrapper={({ row, ...props }) =>
-          row.disableSelection ? (
-            <Tooltip
-              content={
-                <div>
-                  To add this permission to your role and define specific resources for it, at least one data source must be connected. Go{' '}
-                  <a href="https://cloud.redhat.com/settings/sources">here</a> to add a new Source for Cost Management.
-                </div>
-              }
-              exitDelay={2000}
-            >
-              <RowWrapper className="ins-c-rbac-disabled-row" row={row} {...props} />
-            </Tooltip>
-          ) : (
-            <RowWrapper row={row} {...props} />
-          )
-        }
+        rowWrapper={DisabledRowWrapper}
         {...props}
       />
     </div>
