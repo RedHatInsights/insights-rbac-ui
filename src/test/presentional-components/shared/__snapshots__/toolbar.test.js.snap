@@ -86,7 +86,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": false,
+      "checked": null,
       "count": 1,
       "items": Array [
         Object {
@@ -205,7 +205,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": false,
+      "checked": null,
       "count": 1,
       "items": Array [
         Object {
