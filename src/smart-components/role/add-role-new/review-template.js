@@ -5,7 +5,7 @@ import { AddRoleWizardContext } from './add-role-wizard';
 import { asyncValidator } from './validators';
 import './review.scss';
 import AddRoleError from './add-role-error';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
 const ReviewTemplate = ({ formFields }) => {
   const { submitting, error, setWizardError } = useContext(AddRoleWizardContext);

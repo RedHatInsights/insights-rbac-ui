@@ -3,7 +3,7 @@ import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import { AddRoleWizardContext } from './add-role-wizard';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
 const selectNext = (nextStep, getState) =>
   ({
