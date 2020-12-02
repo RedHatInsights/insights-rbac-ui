@@ -12,7 +12,8 @@ export const DisabledRowWrapper = ({ row, ...props }) =>
           <a href="./settings/sources">Configure sources for Cost Management</a>
         </div>
       }
-      exitDelay={2000}
+      exitDelay={1500}
+      entryDelay={1500}
     >
       <RowWrapper className="ins-c-rbac-disabled-row" row={row} {...props} />
     </Tooltip>
