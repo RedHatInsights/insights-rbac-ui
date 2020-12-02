@@ -171,7 +171,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(expandSplats({ application: applications.join() }));
     } else {
       const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
-      setSelectedPermissions(() => expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission })));
+      setSelectedPermissions(() =>
+        expandedPermissions
+          .filter((p) => p.split(':')[0] !== 'cost-management' || (getResourceType(p) || { count: 0 }).count !== 0) // filter disabled rows
+          .filter((p) => patterns.some((f) => p.match(f))) // filter permissions with unresolved splats
+          .map((permission) => ({ uuid: permission }))
+      );
       formOptions.change('base-permissions-loaded', true);
     }
   }, [permissions, baseRole]);
