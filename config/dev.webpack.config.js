@@ -6,9 +6,8 @@ const { config: webpackConfig, plugins } = config({
   rootFolder: resolve(__dirname, '../'),
   debug: true,
 });
-const federationPlugin = require('./federation-plugin');
 
-plugins.push(federationPlugin);
+plugins.push(require('./federation-plugin'));
 
 module.exports = (env) => {
   env && env.analyze === 'true' && plugins.push(new BundleAnalyzerPlugin());
