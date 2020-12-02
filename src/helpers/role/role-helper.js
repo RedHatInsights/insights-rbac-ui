@@ -6,17 +6,34 @@ export async function createRole(data) {
   return await roleApi.createRoles(data);
 }
 
-export function fetchRoles({ limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, permission, options }) {
+export function fetchRoles({
+  limit,
+  offset,
+  name,
+  nameMatch,
+  scope,
+  orderBy = 'display_name',
+  addFields,
+  username,
+  application,
+  permission,
+  options,
+}) {
   return roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, permission, options);
 }
 
+/**
+ * TO DO: filter by display_name when possible
+ * Roles endpoint currently does not allow filtering by display_name
+ * see: https://github.com/RedHatInsights/insights-rbac/blob/master/docs/source/specs/openapi.json#L1111
+ */
 export async function fetchRolesWithPolicies({
   limit,
   offset,
   name,
   nameMatch,
   scope = 'account',
-  orderBy,
+  orderBy = 'display_name',
   addFields = ['groups_in_count'],
   username,
   options,

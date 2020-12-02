@@ -77,6 +77,12 @@ exports[`<Roles /> should render correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  sortBy={
+    Object {
+      "direction": "asc",
+      "index": 0,
+    }
+  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -166,6 +172,12 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  sortBy={
+    Object {
+      "direction": "asc",
+      "index": 0,
+    }
+  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
