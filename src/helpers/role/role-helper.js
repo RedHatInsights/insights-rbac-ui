@@ -19,14 +19,9 @@ export function fetchRoles({
   permission,
   options,
 }) {
-  return roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, permission, options);
+  return roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options);
 }
 
-/**
- * TO DO: filter by display_name when possible
- * Roles endpoint currently does not allow filtering by display_name
- * see: https://github.com/RedHatInsights/insights-rbac/blob/master/docs/source/specs/openapi.json#L1111
- */
 export async function fetchRolesWithPolicies({
   limit,
   offset,
@@ -41,7 +36,7 @@ export async function fetchRolesWithPolicies({
   application,
 }) {
   return {
-    ...(await roleApi.listRoles(limit, offset, name, nameMatch, scope, orderBy, addFields, username, application, permission, options)),
+    ...(await roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options)),
     ...(await insights.chrome.auth.getUser()),
   };
 }
