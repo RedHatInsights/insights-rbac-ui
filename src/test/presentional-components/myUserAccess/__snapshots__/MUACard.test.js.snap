@@ -85,10 +85,9 @@ exports[`<MUACard /> should render correctly 1`] = `
                   >
                     <article
                       className="pf-c-card pf-m-selectable pf-m-flat ins-c-mua-bundles__card ins-c-mua-bundles__card--entitled"
-                      data-ouia-component-id="OUIA-Generated-Card-1"
+                      data-ouia-component-id={0}
                       data-ouia-component-type="PF4/Card"
                       data-ouia-safe={true}
-                      id=""
                       tabIndex="0"
                     >
                       <CardTitle
@@ -192,10 +191,9 @@ exports[`<MUACard /> should render correctly 1`] = `
                   >
                     <article
                       className="pf-c-card pf-m-selectable pf-m-flat ins-c-mua-bundles__card ins-c-mua-bundles__card--not-entitled"
-                      data-ouia-component-id="OUIA-Generated-Card-2"
+                      data-ouia-component-id={1}
                       data-ouia-component-type="PF4/Card"
                       data-ouia-safe={true}
-                      id=""
                       tabIndex="0"
                     >
                       <CardTitle
@@ -343,10 +341,9 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
                   >
                     <article
                       className="pf-c-card pf-m-flat ins-c-mua-bundles__card ins-c-mua-bundles__card--entitled ins-c-mua-bundles__card--disabled"
-                      data-ouia-component-id="OUIA-Generated-Card-3"
+                      data-ouia-component-id={2}
                       data-ouia-component-type="PF4/Card"
                       data-ouia-safe={true}
-                      id=""
                     >
                       <CardTitle
                         className="ins-c-mua-bundles__card--header"
@@ -449,10 +446,9 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
                   >
                     <article
                       className="pf-c-card pf-m-flat ins-c-mua-bundles__card ins-c-mua-bundles__card--not-entitled ins-c-mua-bundles__card--disabled"
-                      data-ouia-component-id="OUIA-Generated-Card-4"
+                      data-ouia-component-id={3}
                       data-ouia-component-type="PF4/Card"
                       data-ouia-safe={true}
-                      id=""
                     >
                       <CardTitle
                         className="ins-c-mua-bundles__card--header"

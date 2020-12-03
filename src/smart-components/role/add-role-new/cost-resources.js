@@ -1,8 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup } from '@patternfly/react-core';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
 
 const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({

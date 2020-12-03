@@ -6,10 +6,6 @@
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/removegroups</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/edit/:id</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid</loc> </url>
-<url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/members/edit</loc> </url>
-<url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/roles/edit</loc> </url>
-<url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/members/remove</loc> </url>
-<url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/roles/remove</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/roles</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/roles/add_roles</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/groups/detail/:uuid/members</loc> </url>

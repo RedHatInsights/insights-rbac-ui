@@ -77,7 +77,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                   <div
                     className="pf-c-form__group-control"
                   >
-                    <TextInput
+                    <ForwardRef
                       aria-describedby="group-name"
                       id="group-name"
                       isRequired={true}
@@ -117,7 +117,7 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                           type="text"
                         />
                       </TextInputBase>
-                    </TextInput>
+                    </ForwardRef>
                   </div>
                 </div>
               </FormGroup>
@@ -147,34 +147,26 @@ exports[`<GroupInformation /> should render correctly 1`] = `
                     className="pf-c-form__group-control"
                   >
                     <TextArea
+                      aria-label={null}
+                      className=""
                       id="group-description"
+                      isRequired={false}
                       name="group-description"
                       onChange={[Function]}
+                      resizeOrientation="both"
                       type="text"
+                      validated="default"
                     >
-                      <TextArea
+                      <textarea
+                        aria-invalid={false}
                         aria-label={null}
-                        className=""
+                        className="pf-c-form-control"
                         id="group-description"
-                        innerRef={null}
-                        isRequired={false}
                         name="group-description"
                         onChange={[Function]}
-                        resizeOrientation="both"
+                        required={false}
                         type="text"
-                        validated="default"
-                      >
-                        <textarea
-                          aria-invalid={false}
-                          aria-label={null}
-                          className="pf-c-form-control"
-                          id="group-description"
-                          name="group-description"
-                          onChange={[Function]}
-                          required={false}
-                          type="text"
-                        />
-                      </TextArea>
+                      />
                     </TextArea>
                   </div>
                 </div>

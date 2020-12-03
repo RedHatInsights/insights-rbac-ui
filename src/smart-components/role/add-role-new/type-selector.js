@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Radio } from '@patternfly/react-core';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 
 const TypeSelector = (props) => {
   const { input } = useFieldApi(props);

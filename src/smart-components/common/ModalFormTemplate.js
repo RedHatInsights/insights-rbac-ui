@@ -1,9 +1,9 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 
-import FormSpy from '@data-driven-forms/react-form-renderer/dist/esm/form-spy';
-import FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/esm/form-template';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import FormSpy from '@data-driven-forms/react-form-renderer/dist/cjs/form-spy';
+import FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/cjs/form-template';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
 
 import { Modal } from '@patternfly/react-core/dist/js/components/Modal';
 import { ActionGroup } from '@patternfly/react-core/dist/js/components/Form/ActionGroup';
