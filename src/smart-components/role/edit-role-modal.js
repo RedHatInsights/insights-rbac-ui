@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';

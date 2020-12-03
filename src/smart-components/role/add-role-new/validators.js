@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import { fetchRoles } from '../../../helpers/role/role-helper';
 import asyncDebounce from '../../../utilities/async-debounce';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
 export const asyncValidator = async (roleName) => {
   if (!roleName) {

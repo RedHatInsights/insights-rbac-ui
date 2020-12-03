@@ -1,13 +1,13 @@
 import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 import FormRenderer from '../common/form-renderer';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
 import { routes as paths } from '../../../package.json';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
 import { WarningModal } from '../common/warningModal';
 import { Spinner, Modal } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
