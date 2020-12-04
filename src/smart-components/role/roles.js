@@ -117,6 +117,7 @@ const Roles = () => {
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
             actionResolver={actionResolver}
+            sortBy={{ index: 0, direction: 'asc' }}
             columns={columns}
             createRows={createRows}
             data={roles}
