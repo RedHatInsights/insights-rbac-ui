@@ -4,7 +4,9 @@ import OrgAdminContext from '../../utilities/org-admin-context';
 import MUAAccessTable from './MUAAccessTable';
 import MUARolesTable from './MUARolesTable';
 
-export const createFilter = ({ apps, isOrgAdmin, name = '', application = [], permission = '' }) => [
+// TODO: Add permissions back when we support partial matching
+
+export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] /* permission = '' */ }) => [
   {
     key: 'application',
     value: application,
@@ -15,16 +17,16 @@ export const createFilter = ({ apps, isOrgAdmin, name = '', application = [], pe
   ...(isOrgAdmin
     ? [
         {
-          key: 'name',
+          key: 'Role name',
           type: 'text',
           value: name,
         },
-        {
-          key: 'permission',
-          value: permission,
-          placeholder: 'Filter by permission',
-          type: 'text',
-        },
+        // {
+        //   key: 'permission',
+        //   value: permission,
+        //   placeholder: 'Filter by permission',
+        //   type: 'text',
+        // },
       ]
     : []),
 ];
