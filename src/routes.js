@@ -30,7 +30,7 @@ export const Routes = () => {
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
         <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
         <Route>
-          <Redirect to={window.insights.chrome.isBeta() ? routes['my-user-access'] : routes.groups} />
+          <Redirect to={window.insights.chrome.isBeta() ? routes['my-user-access'] : routes.users} />
         </Route>
       </Switch>
     </Suspense>
