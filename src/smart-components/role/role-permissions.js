@@ -141,7 +141,7 @@ const Permissions = () => {
   ];
 
   const toolbarButtons = () => [
-    window.insights.chrome.isBeta()
+    ...(window.insights.chrome.isBeta() && !role.system
       ? [
           // eslint-disable-next-line react/jsx-key
           <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
@@ -149,17 +149,17 @@ const Permissions = () => {
               Add Permission
             </Button>
           </Link>,
+          {
+            label: 'Add Permission',
+            props: {
+              className: 'pf-m-hidden-on-md',
+            },
+            onClick: () => {
+              history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+            },
+          },
         ]
-      : [],
-    {
-      label: 'Add Permission',
-      props: {
-        className: 'pf-m-hidden-on-md',
-      },
-      onClick: () => {
-        history.push(`/roles/detail/${role.uuid}/role-add-permission`);
-      },
-    },
+      : []),
     {
       label: 'Remove',
       props: {
