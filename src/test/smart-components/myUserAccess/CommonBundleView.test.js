@@ -14,6 +14,8 @@ import * as RoleActions from '../../../redux/actions/role-actions';
 import * as AccessActions from '../../../redux/actions/access-actions';
 import { FETCH_ROLES, GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
 
+// TODO: Add permissions back when we support partial matching
+
 const ComponentWrapper = ({ store, isOrgAdmin, children }) => (
   <MemoryRouter>
     <Provider store={store}>
@@ -80,8 +82,8 @@ describe('<CommonBundleView />', () => {
     const initialFilters = createFilter({ name: '', isOrgAdmin: true, apps: [] });
     const expectedFilters = [
       { items: [], key: 'application', placeholder: 'Filter by application', type: 'checkbox', value: ['foo'] },
-      { key: 'name', type: 'text', value: 'foo' },
-      { key: 'permission', value: '', placeholder: 'Filter by permission', type: 'text' },
+      { key: 'name', type: 'text', value: 'foo', label: 'Role name', placeholder: 'Filter by role name' },
+      // { key: 'permission', value: '', placeholder: 'Filter by permission', type: 'text' },
     ];
     const wrapper = mount(
       <ComponentWrapper store={store} isOrgAdmin>
@@ -115,13 +117,15 @@ describe('<CommonBundleView />', () => {
         key: 'name',
         type: 'text',
         value: name,
+        label: 'Role name',
+        placeholder: 'Filter by role name'
       },
-      {
-        key: 'permission',
-        value: '',
-        placeholder: 'Filter by permission',
-        type: 'text',
-      },
+      // {
+      //   key: 'permission',
+      //   value: '',
+      //   placeholder: 'Filter by permission',
+      //   type: 'text',
+      // },
     ];
     const result = createFilter({ isOrgAdmin: true, apps: [] });
     expect(result).toEqual(expectedStructure);

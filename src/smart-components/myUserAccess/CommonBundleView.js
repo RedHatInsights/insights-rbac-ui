@@ -17,9 +17,11 @@ export const createFilter = ({ apps, isOrgAdmin, name = '', application = [] /* 
   ...(isOrgAdmin
     ? [
         {
-          key: 'Role name',
+          key: 'name',
           type: 'text',
           value: name,
+          label: 'Role name',
+          placeholder: 'Filter by role name',
         },
         // {
         //   key: 'permission',
