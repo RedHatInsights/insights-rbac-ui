@@ -118,7 +118,7 @@ describe('<CommonBundleView />', () => {
         type: 'text',
         value: name,
         label: 'Role name',
-        placeholder: 'Filter by role name'
+        placeholder: 'Filter by role name',
       },
       // {
       //   key: 'permission',
