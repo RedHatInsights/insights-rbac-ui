@@ -13,7 +13,6 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
-import './roles.scss';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { Suspense } from 'react';
