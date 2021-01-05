@@ -1,4 +1,5 @@
 import React, { Fragment, useEffect, useState } from 'react';
+import PropTypes from 'prop-types';
 import { Link, Route, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
@@ -14,7 +15,7 @@ import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import './role.scss';
 
-const Role = () => {
+const Role = (onDelete) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { uuid, groupUuid } = useParams();
   const { role, group, isRecordLoading } = useSelector(
@@ -42,7 +43,7 @@ const Role = () => {
   const dropdownItems = [
     <DropdownItem component={<Link to={routes['role-detail-edit'].replace(':id', uuid)}>Edit</Link>} key="edit-role" />,
     <DropdownItem
-      component={<Link to={routes['role-detail-remove'].replace(':id', uuid)}>Delete</Link>}
+      component={<Link to={() => onDelete() && routes['role-detail-remove'].replace(':id', uuid)}>Delete</Link>}
       className="ins-c-role__action"
       key="delete-role"
     />,
@@ -105,6 +106,10 @@ const Role = () => {
       </Route>
     </Fragment>
   );
+};
+
+Role.propTypes = {
+  onDelete: PropTypes.string,
 };
 
 export default Role;
