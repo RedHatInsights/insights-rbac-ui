@@ -23,6 +23,7 @@ const Group = ({
   group,
   fetchGroup,
   isFetching,
+  onDelete,
 }) => {
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
@@ -86,10 +87,13 @@ const Group = ({
     <DropdownItem
       component={
         <Link
-          to={(location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
-            ':uuid',
-            uuid
-          )}
+          to={() => {
+            onDelete();
+            return (location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
+              ':uuid',
+              uuid
+            );
+          }}
         >
           Delete
         </Link>
@@ -208,6 +212,7 @@ Group.propTypes = {
   }),
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func,
+  onDelete: PropTypes.func,
 };
 
 Group.defaultProps = {
