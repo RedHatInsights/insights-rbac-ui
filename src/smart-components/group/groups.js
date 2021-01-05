@@ -189,7 +189,11 @@ const Groups = () => {
   return (
     <Switch>
       <PageActionRoute pageAction="role-detail" path={paths['group-detail-role-detail']} render={(props) => <Role {...props} />} />
-      <PageActionRoute pageAction="group-detail" path={paths['group-detail']} render={(props) => <Group {...props} />} />
+      <PageActionRoute
+        pageAction="group-detail"
+        path={paths['group-detail']}
+        render={(props) => <Group {...props} onDelete={() => setFilterValue('')} />}
+      />
       <PageActionRoute pageAction="group-list" path={paths.groups} render={() => renderGroupsList()} />
     </Switch>
   );
