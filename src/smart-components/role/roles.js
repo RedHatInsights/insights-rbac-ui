@@ -13,7 +13,6 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
-import './roles.scss';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { Suspense } from 'react';
@@ -84,23 +83,9 @@ const Roles = () => {
 
   const toolbarButtons = () =>
     [
-      <Fragment key="add-role">
-        {insights.chrome.isBeta() && userIdentity?.user?.is_org_admin ? (
-          <Link to={paths['add-role']}>
-            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
-              Create role
-            </Button>
-          </Link>
-        ) : (
-          <Fragment />
-        )}
-      </Fragment>,
       insights.chrome.isBeta() && userIdentity?.user?.is_org_admin
         ? {
             label: 'Create role',
-            props: {
-              className: 'pf-m-hidden-on-md',
-            },
             onClick: () => {
               push(paths['add-role']);
             },
@@ -118,6 +103,15 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
+            dedicatedAction={
+              insights.chrome.isBeta() && userIdentity?.user?.is_org_admin ? (
+                <Link to={paths['add-role']}>
+                  <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+                    Create role
+                  </Button>
+                </Link>
+              ) : undefined
+            }
             actionResolver={actionResolver}
             sortBy={{ index: 0, direction: 'asc' }}
             columns={columns}

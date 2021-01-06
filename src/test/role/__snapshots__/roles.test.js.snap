@@ -149,6 +149,20 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       },
     ]
   }
+  dedicatedAction={
+    <Link
+      to="/roles/add-role"
+    >
+      <Button
+        aria-label="Create role"
+        className="pf-m-visible-on-md"
+        ouiaId="create-role-button"
+        variant="primary"
+      >
+        Create role
+      </Button>
+    </Link>
+  }
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
