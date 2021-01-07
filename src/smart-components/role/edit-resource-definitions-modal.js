@@ -1,16 +1,17 @@
 import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 import FormRenderer from '../common/form-renderer';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
 import { routes as paths } from '../../../package.json';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/cjs/component-mapper';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
 import { WarningModal } from '../common/warningModal';
 import { Spinner, Modal } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
+import flatten from 'lodash/flattenDeep';
 import './role-permissions.scss';
 
 const createOptions = (resources) =>
@@ -87,9 +88,11 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     (state) => ({
       role: state.roleReducer.selectedRole,
       definedResources: state.roleReducer.selectedRole?.access
-        ? state.roleReducer.selectedRole.access
-            .find((a) => a.permission === permissionId)
-            .resourceDefinitions.reduce((acc, curr) => [...acc, curr.attributeFilter.value], [])
+        ? flatten(
+            state.roleReducer.selectedRole.access
+              .filter((a) => a.permission === permissionId)
+              .map((access) => access.resourceDefinitions.map((resource) => resource.attributeFilter.value))
+          )
         : [],
       isRecordLoading: state.roleReducer.isRecordLoading,
     }),
@@ -108,9 +111,6 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       if (path) {
         dispatchLocally({ type: 'update', payload: { resourcesPath: path.split('/')[5] } });
         dispatch(getResource(path));
-      } else if (permissionId.split(':')?.[1] === '*') {
-        dispatchLocally({ type: 'update', payload: { resourcesPath: '*' } });
-        resourceTypes.map((r) => dispatch(getResource(r.path)));
       }
     }
   }, [resourceTypes]);
@@ -131,19 +131,21 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     }
   };
 
-  const handleSubmit = (data, options) => {
+  const handleSubmit = (data) => {
     dispatchLocally({ type: 'update', payload: { changedResources: data['dual-list-select'] } });
     const newAccess = {
       permission: permissionId,
-      resourceDefinitions: data['dual-list-select'].map((value) => ({
-        attributeFilter: {
-          key: `cost-management.${options.find((option) => option.value === value).path}`,
-          operation: 'equal',
-          value,
+      resourceDefinitions: [
+        {
+          attributeFilter: {
+            key: `cost-management.${permissionId.split(':')?.[1]}`,
+            operation: data['dual-list-select'].length === 1 ? 'equal' : 'in',
+            value: data['dual-list-select'].length === 1 ? data['dual-list-select'][0] : data['dual-list-select'],
+          },
         },
-      })),
+      ],
     };
-    dispatch(updateRole(roleId, { ...role, access: role.access.map((item) => (item.permission === permissionId ? newAccess : item)) }), true).then(
+    dispatch(updateRole(roleId, { ...role, access: [...role.access.filter((item) => item.permission !== permissionId), newAccess] }), true).then(
       () => {
         dispatch(fetchRole(roleId));
         push(cancelRoute);
@@ -179,7 +181,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
           schema={createEditResourceDefinitionsSchema(resources, state.resourcesPath, options)}
           componentMapper={componentMapper}
           initialValues={{ 'dual-list-select': state.changedResources || definedResources || [] }}
-          onSubmit={(props) => handleSubmit(props, options)}
+          onSubmit={handleSubmit}
           onCancel={(data) => handleCancel(data)}
           validatorMapper={validatorMapper}
           FormTemplate={(props) => (

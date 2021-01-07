@@ -86,7 +86,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": false,
+      "checked": null,
       "count": 1,
       "items": Array [
         Object {
@@ -205,7 +205,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": false,
+      "checked": null,
       "count": 1,
       "items": Array [
         Object {
@@ -390,7 +390,7 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   bulkSelect={
     Object {
       "checked": false,
-      "count": undefined,
+      "count": 0,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -464,7 +464,7 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
   bulkSelect={
     Object {
       "checked": false,
-      "count": undefined,
+      "count": 0,
       "items": Array [
         Object {
           "onClick": [Function],

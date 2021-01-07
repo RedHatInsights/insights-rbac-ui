@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import ResourceDefinitionsButton from '../../presentational-components/myUserAccess/ResourceDefinitionsButton';
+import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
 export const createRows = (data, showResourceDefinitions, onRdClick) =>
   data.reduce((acc, { permission, ...access }, index) => {
@@ -14,7 +14,7 @@ export const createRows = (data, showResourceDefinitions, onRdClick) =>
           ...(showResourceDefinitions
             ? [
                 <Fragment key="rd">
-                  <ResourceDefinitionsButton onClick={() => onRdClick(index)} access={access} />
+                  <ResourceDefinitionsLink onClick={() => onRdClick(index)} access={access} />
                 </Fragment>,
               ]
             : []),

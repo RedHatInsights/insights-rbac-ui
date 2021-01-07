@@ -28,8 +28,10 @@ export const Routes = () => {
         <InsightsRoute path={routes.groups} component={Groups} rootClass="groups" />
         <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
-        <InsightsRoute path={[routes.myUserAccess, routes.rbac]} component={MyUserAccess} rootClass="myUserAccess" />
-        <Route render={() => <Redirect to={routes.myUserAccess} />} />
+        <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
+        <Route>
+          <Redirect to={window.insights.chrome.isBeta() ? routes['my-user-access'] : routes.users} />
+        </Route>
       </Switch>
     </Suspense>
   );

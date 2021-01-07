@@ -1,8 +1,8 @@
 import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup } from '@patternfly/react-core';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
 
 const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
@@ -55,6 +55,15 @@ const reducer = (state, action) => {
         [action.key]: {
           ...prevState,
           options: action.options,
+          filteredOptions: action.options,
+        },
+      };
+    case 'setFilter':
+      return {
+        ...state,
+        [action.key]: {
+          ...prevState,
+          filteredOptions: prevState.options.filter(({ value }) => value.includes(action.filtervalue)),
         },
       };
     default:
@@ -78,6 +87,7 @@ const CostResources = (props) => {
         [permission.uuid]: {
           selected: [],
           options: [],
+          filteredOptions: [],
           isOpen: false,
         },
       }),
@@ -122,7 +132,7 @@ const CostResources = (props) => {
 
   // eslint-disable-next-line react/prop-types
   const makeRow = ({ uuid: permission }) => {
-    const options = resources[permissionToResource(permission)] || [];
+    const options = state[permission].filteredOptions;
     return (
       <React.Fragment>
         <GridItem md={4} sm={12}>
@@ -133,14 +143,17 @@ const CostResources = (props) => {
             className="ins-c-rbac-cost-resource-select"
             variant={SelectVariant.checkbox}
             typeAheadAriaLabel="Select a state"
-            onToggle={(isOpen) => onToggle(permission, isOpen)}
+            onToggle={(isOpen) => {
+              dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: '' });
+              onToggle(permission, isOpen);
+            }}
             onSelect={(event, selection) => {
               onSelect(event, selection, selection === `Select All (${options.length})`, permission);
             }}
             onClear={() => clearSelection(permission)}
             selections={state[permission].selected}
             isOpen={state[permission].isOpen}
-            onFilter={() => null}
+            onFilter={(e) => dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: e.target.value })}
             aria-labelledby={permission}
             placeholderText="Select resources"
             hasInlineFilter

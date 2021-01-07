@@ -9,11 +9,15 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
-import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth } from '@patternfly/react-table';
-import ResourceDefinitionsButton from '../../presentational-components/myUserAccess/ResourceDefinitionsButton';
+import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
+import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
 const columns = [
-  'Roles',
+  {
+    title: 'Roles',
+    key: 'display_name',
+    transforms: [sortable],
+  },
   'Description',
   {
     title: 'Permissions',
@@ -36,17 +40,17 @@ const MUARolesTable = ({
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
 
   useEffect(() => {
-    fetchRoles({ limit: 20, offset: 0, scope: 'principal', application: apps.join(',') });
+    fetchRoles({ limit: 20, offset: 0, orderBy: 'display_name', scope: 'principal', application: apps.join(',') });
   }, []);
 
   const createRows = (data) => {
     return data?.reduce(
-      (acc, { uuid, name, description, accessCount }, i) => [
+      (acc, { uuid, display_name, name, description, accessCount }, i) => [
         ...acc,
         {
           uuid,
           cells: [
-            { title: name, props: { component: 'th', isOpen: false } },
+            { title: display_name || name, props: { component: 'th', isOpen: false } },
             { title: description, props: { isOpen: false } },
             { title: accessCount, props: { isOpen: expanded[uuid] === 2 } },
           ],
@@ -71,7 +75,7 @@ const MUARolesTable = ({
                       ...(showResourceDefinitions
                         ? [
                             <Fragment key="rd">
-                              <ResourceDefinitionsButton
+                              <ResourceDefinitionsLink
                                 onClick={() =>
                                   setRdConfig({
                                     rdOpen: true,
@@ -102,9 +106,9 @@ const MUARolesTable = ({
   };
 
   let debouncedFetch = useCallback(
-    debounce((limit, offset, name, application, permission) => {
+    debounce((limit, offset, name, application, permission, orderBy) => {
       const applicationParam = application?.length > 0 ? application : apps;
-      return fetchRoles({ limit, offset, name, application: applicationParam.join(','), permission });
+      return fetchRoles({ limit, offset, scope: 'principal', orderBy, name, application: applicationParam.join(','), permission });
     }, 800),
     []
   );
@@ -132,9 +136,10 @@ const MUARolesTable = ({
         createRows={createRows}
         ouiaId="roles-table"
         data={roles.data}
-        fetchData={({ limit, offset, name, application, permission }) => {
-          debouncedFetch(limit, offset, name, application, permission);
+        fetchData={({ limit, offset, name, application, permission, orderBy = 'display_name' }) => {
+          debouncedFetch(limit, offset, name, application, permission, orderBy);
         }}
+        sortBy={{ index: 0, direction: 'asc' }}
         setFilterValue={setFilters}
         isLoading={isLoading}
         pagination={roles.meta}

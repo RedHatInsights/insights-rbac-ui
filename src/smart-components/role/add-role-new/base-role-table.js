@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Radio } from '@patternfly/react-core';
+import { Radio, Alert } from '@patternfly/react-core';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import { sortable } from '@patternfly/react-table';
 
-const columns = ['', 'Name', 'Description'];
+const columns = ['', { title: 'Name', key: 'display_name', transforms: [sortable] }, 'Description'];
 const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
   roles: rolesForWizard.data,
   pagination: rolesForWizard.meta,
@@ -27,6 +28,7 @@ const BaseRoleTable = (props) => {
       limit: 50,
       offset: 0,
       itemCount: 0,
+      orderBy: 'display_name',
     });
   }, []);
 
@@ -48,10 +50,12 @@ const BaseRoleTable = (props) => {
                   formOptions.change('role-copy-name', `Copy of ${role.display_name || role.name}`);
                   formOptions.change('role-copy-description', role.description);
                   formOptions.change('add-permissions-table', []);
+                  formOptions.change('base-permissions-loaded', false);
                 });
               }}
             />
           ),
+          props: { className: 'pf-c-table__check' },
         },
         role.display_name || role.name,
         role.description,
@@ -59,6 +63,14 @@ const BaseRoleTable = (props) => {
     }));
   return (
     <div>
+      <Alert
+        variant="info"
+        isInline
+        title={`Only granular permissions will be copied into a custom role \
+        (for example, approval:requests:read). Wildcard permissions will not \
+        be copied into a custom role (for example, approval:*:read).
+        `}
+      />
       <TableToolbarView
         columns={columns}
         createRows={createRows}

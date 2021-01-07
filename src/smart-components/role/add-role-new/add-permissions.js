@@ -1,26 +1,26 @@
-/* eslint-disable no-unused-vars */
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
-import flatMap from 'lodash/flatMap';
-import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
+import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
+import { DisabledRowWrapper } from './DisabledRowWrapper';
 
 const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
   permissionReducer: {
     permission,
     isLoading,
-    options: { application, operation, resource, isLoadingApplication, isLoadingOperation, isLoadingResource },
+    options: { application, operation, resource },
     expandSplats,
     isLoadingExpandSplats,
   },
   roleReducer: { isRecordLoading, selectedRole },
+  costReducer: { resourceTypes },
 }) => ({
   permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
     application,
@@ -36,25 +36,8 @@ const selector = ({
   operationOptions: operation.data.filter((app) => app !== '*'),
   expandedPermissions: expandSplats.data.map(({ permission }) => permission),
   isLoadingExpandSplats,
+  resourceTypes: resourceTypes.data,
 });
-
-export const resolveSplats = (selectedPermissions, permissions) => {
-  return permissions.length > 0
-    ? flatMap(selectedPermissions, ({ uuid: permission }) => {
-        if (permission.includes('*')) {
-          const [application, resource, operation] = permission.split(':');
-          return permissions
-            .filter(
-              (p) =>
-                p.application === application && (resource === '*' || resource === p.resource) && (operation === '*' || operation === p.operation)
-            )
-            .map(({ application, resource, operation }) => ({ uuid: `${application}:${resource}:${operation}` }));
-        }
-
-        return { uuid: permission };
-      })
-    : selectedPermissions;
-};
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
@@ -70,6 +53,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     operationOptions,
     expandedPermissions,
     isLoadingExpandSplats,
+    resourceTypes,
   } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
@@ -81,11 +65,19 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const [value, setValue] = useState();
   const maxFilterItems = 10;
 
+  const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid }) => ({
       uuid: `${application}:${resource}:${operation}`,
-      cells: [application, resource, operation],
+      cells: [
+        {
+          title: application,
+        },
+        resource,
+        operation,
+      ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
+      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
     }));
 
   const debounbcedGetApplicationOptions = useCallback(
@@ -131,6 +123,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(fetchRole(baseRoleUuid));
     }
 
+    dispatch(getResourceDefinitions());
     formOptions.change('has-cost-resources', false);
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
@@ -163,6 +156,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     if (
       !baseRole ||
       roleType !== 'copy' ||
+      formOptions.getState().values['base-permissions-loaded'] ||
       selectedPermissions.length > 0 ||
       formOptions.getState().values['copy-base-role']?.uuid !== baseRole?.uuid ||
       isLoadingExpandSplats ||
@@ -172,21 +166,19 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }
 
     const basePermissions = baseRole?.access || [];
-
-    if (expandedPermissions.length === 0) {
+    if (expandedPermissions.length === 0 && typeof isLoadingExpandSplats === 'undefined') {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
       dispatch(expandSplats({ application: applications.join() }));
+    } else {
+      const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
+      setSelectedPermissions(() =>
+        expandedPermissions
+          .filter((p) => p.split(':')[0] !== 'cost-management' || (getResourceType(p) || { count: 0 }).count !== 0) // filter disabled rows
+          .filter((p) => patterns.some((f) => p.match(f))) // filter permissions with unresolved splats
+          .map((permission) => ({ uuid: permission }))
+      );
+      formOptions.change('base-permissions-loaded', true);
     }
-
-    const patterns = basePermissions.map(({ permission }) => permission.replace('*', '.*'));
-    setSelectedPermissions(() =>
-      expandedPermissions.length > 0
-        ? expandedPermissions.filter((p) => patterns.some((f) => p.match(f))).map((permission) => ({ uuid: permission }))
-        : resolveSplats(
-            basePermissions.map(({ permission }) => ({ uuid: permission })),
-            permissions
-          )
-    );
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
@@ -226,6 +218,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         createRows={createRows}
         data={permissions}
         filterValue={''}
+        noData={permissions?.length === 0}
+        noDataDescription={[
+          'Adjust your filters and try again. Note: Applications that only have wildcard \
+          permissions (for example, patch:*:*) aren’t included in this table and can’t be \
+          added to your custom role.',
+        ]}
         fetchData={({ limit, offset, applications, resources, operations }) => {
           fetchData({
             limit,
@@ -314,6 +312,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           },
         ]}
         isFilterable={true}
+        rowWrapper={DisabledRowWrapper}
         {...props}
       />
     </div>

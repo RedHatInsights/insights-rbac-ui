@@ -1,4 +1,6 @@
 import AddPermissionTemplate from './add-permissions-template';
+import ReviewStepButtons from './review-step-buttons';
+import React from 'react';
 import ReviewTemplate from './review-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 
@@ -147,8 +149,7 @@ export default (container) => ({
             {
               component: 'plain-text',
               name: 'text-description',
-              // eslint-disable-next-line quotes
-              label: "Specify where you'd like to apply each cost permission selected in the previous step, using the dropdown below.",
+              label: <p>Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.</p>,
             },
             {
               component: 'cost-resources',
@@ -163,6 +164,7 @@ export default (container) => ({
         {
           name: 'review',
           title: 'Review details',
+          buttons: ReviewStepButtons,
           StepTemplate: ReviewTemplate,
           fields: [
             {

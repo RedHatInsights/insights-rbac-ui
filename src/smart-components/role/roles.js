@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, lazy } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -8,18 +8,19 @@ import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import AddRoleWizard from './add-role-new/add-role-wizard';
 import RemoveRole from './remove-role-modal';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
-import './roles.scss';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
+import { Suspense } from 'react';
+
+const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
 const columns = [
-  { title: 'Name', key: 'name', transforms: [cellWidth(20), sortable] },
+  { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },
   { title: 'Description' },
   { title: 'Permissions', transforms: [nowrap] },
   { title: 'Groups', transforms: [nowrap] },
@@ -46,8 +47,8 @@ const Roles = () => {
   }, []);
 
   const routes = () => (
-    <Fragment>
-      <Route exact path={paths['add-role']} component={AddRoleWizard} />
+    <Suspense fallback={<Fragment />}>
+      {insights.chrome.isBeta() && <Route exact path={paths['add-role']} component={AddRoleWizard} />}
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
@@ -62,7 +63,7 @@ const Roles = () => {
           <EditRole afterSubmit={() => fetchData({ ...pagination, name: filterValue })} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />
         )}
       </Route>
-    </Fragment>
+    </Suspense>
   );
 
   const actionResolver = ({ system }) => {
@@ -82,23 +83,9 @@ const Roles = () => {
 
   const toolbarButtons = () =>
     [
-      <Fragment key="add-role">
-        {userIdentity?.user?.is_org_admin ? (
-          <Link to={paths['add-role']}>
-            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
-              Create role
-            </Button>
-          </Link>
-        ) : (
-          <Fragment />
-        )}
-      </Fragment>,
-      userIdentity?.user?.is_org_admin
+      insights.chrome.isBeta() && userIdentity?.user?.is_org_admin
         ? {
             label: 'Create role',
-            props: {
-              className: 'pf-m-hidden-on-md',
-            },
             onClick: () => {
               push(paths['add-role']);
             },
@@ -116,7 +103,17 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
+            dedicatedAction={
+              insights.chrome.isBeta() && userIdentity?.user?.is_org_admin ? (
+                <Link to={paths['add-role']}>
+                  <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+                    Create role
+                  </Button>
+                </Link>
+              ) : undefined
+            }
             actionResolver={actionResolver}
+            sortBy={{ index: 0, direction: 'asc' }}
             columns={columns}
             createRows={createRows}
             data={roles}

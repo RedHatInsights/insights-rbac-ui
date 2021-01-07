@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -8,6 +8,7 @@ import useIsMounted from '../../hooks/useIsMounted';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { roleSelector } from './role-selectors';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 import { updateRole } from '../../redux/actions/role-actions';
@@ -64,7 +65,19 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   const role = useSelector((state) => roleSelector(state, id));
   const [initialValues, setInitialValues] = useState(role);
 
-  const onCancel = () => replace(cancelRoute);
+  const onCancel = () => {
+    dispatch(
+      addNotification({
+        variant: 'warning',
+        dismissDelay: 8000,
+        dismissable: false,
+        title: 'Editing role',
+        description: 'Edit role was canceled by the user.',
+      })
+    );
+    replace(cancelRoute);
+  };
+
   const handleSubmit = (data) =>
     dispatch(updateRole(id, { ...data, display_name: data.name })).then(() => {
       afterSubmit();

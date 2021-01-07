@@ -1,5 +1,5 @@
 import React from 'react';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/cjs/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
 import './review.scss';
 
@@ -34,6 +34,7 @@ const ReviewStep = () => {
     'add-permissions-table': permissions,
     'resource-definitions': resourceDefinitions,
     'has-cost-resources': hasCostResources,
+    'role-type': type,
   } = formOptions.getState().values;
   const columns = ['Application', 'Resource type', 'Operation'];
   const rows = permissions.map((permission) => ({
@@ -55,7 +56,7 @@ const ReviewStep = () => {
               </Text>
             </GridItem>
             <GridItem sm={12} md={10}>
-              <Text component={TextVariants.p}>{name || copyName}</Text>
+              <Text component={TextVariants.p}>{type === 'create' ? name : copyName}</Text>
             </GridItem>
           </Grid>
           <Grid>
@@ -65,7 +66,7 @@ const ReviewStep = () => {
               </Text>
             </GridItem>
             <GridItem sm={12} md={10}>
-              <Text component={TextVariants.p}>{description || copyDescription}</Text>
+              <Text component={TextVariants.p}>{type === 'create' ? description : copyDescription}</Text>
             </GridItem>
           </Grid>
           <Grid>

@@ -6,13 +6,6 @@ export const createRole = (roleData) => ({
   payload: RoleHelper.createRole(roleData),
   meta: {
     notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding role',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The role was added successfully.',
-      },
       rejected: {
         variant: 'danger',
         title: 'Failed adding role',
@@ -51,6 +44,13 @@ export const removeRole = (role) => ({
         dismissable: false,
         description: 'The role was removed successfully.',
       },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed removing role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was not removed successfuly.',
+      },
     },
   },
 });
@@ -73,6 +73,24 @@ export const fetchRolesForWizard = (options = {}) => ({
 export const updateRole = (roleId, data, useCustomAccess) => ({
   type: ActionTypes.UPDATE_ROLE,
   payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success updating role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was updated successfully.',
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed updating role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was not updated successfuly.',
+      },
+    },
+  },
 });
 
 export const removeRolePermissions = (role, permissionsToRemove) => ({

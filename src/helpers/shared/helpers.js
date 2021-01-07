@@ -23,10 +23,7 @@ export const mappedProps = (apiProps) =>
 export const debouncedFetch = debouncePromise((callback) => callback());
 
 export const calculateChecked = (rows = [], selected) => {
-  return (
-    (rows.length !== 0 && rows.every(({ uuid }) => selected.find((row) => row.uuid === uuid))) ||
-    (rows.length !== 0 && rows.some(({ uuid }) => selected.find((row) => row.uuid === uuid)) ? null : false)
-  );
+  return (rows.length !== 0 && rows.every(({ uuid }) => selected.find((row) => row.uuid === uuid))) || (selected.length > 0 ? null : false);
 };
 
 export const selectedRows = (newSelection, isSelected) => (selected) => {

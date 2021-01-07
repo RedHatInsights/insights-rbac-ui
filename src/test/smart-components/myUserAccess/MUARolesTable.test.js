@@ -12,7 +12,7 @@ import { createFilter } from '../../../smart-components/myUserAccess/CommonBundl
 import * as RoleActions from '../../../redux/actions/role-actions';
 import { FETCH_ROLES, FETCH_ROLE_FOR_PRINCIPAL } from '../../../redux/action-types';
 import { RowWrapper } from '@patternfly/react-table';
-import ResourceDefinitionsButton from '../../../presentational-components/myUserAccess/ResourceDefinitionsButton';
+import ResourceDefinitionsLink from '../../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 import { Modal } from '@patternfly/react-core';
 
 /**
@@ -180,10 +180,10 @@ describe('<MUARolesTable />', () => {
       wrapper.find(RowWrapper).at(2).find('button.pf-c-table__button').prop('onClick')();
     });
     wrapper.update();
-    expect(wrapper.find(ResourceDefinitionsButton)).toHaveLength(1);
+    expect(wrapper.find(ResourceDefinitionsLink)).toHaveLength(1);
     expect(wrapper.find(Modal)).toHaveLength(0);
     await act(async () => {
-      wrapper.find(ResourceDefinitionsButton).prop('onClick')();
+      wrapper.find(ResourceDefinitionsLink).prop('onClick')();
     });
     /**
      * We nned this double update to trigger the react lazy/Suspense interaction
@@ -229,8 +229,8 @@ describe('<MUARolesTable />', () => {
     });
     expect(fetchRolesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesSpy.mock.calls).toEqual([
-      [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal' }],
-      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: '' }],
+      [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal', orderBy: 'display_name' }],
+      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: undefined, scope: 'principal', orderBy: 'display_name' }],
     ]);
   });
 });

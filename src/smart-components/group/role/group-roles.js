@@ -20,14 +20,14 @@ const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, {
 const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   return data
     ? data.reduce(
-        (acc, { uuid, name, description, modified }) => [
+        (acc, { uuid, display_name, name, description, modified }) => [
           ...acc,
           {
             uuid,
-            title: name,
+            title: display_name || name,
             cells: [
               <Fragment key={`${uuid}-name`}>
-                <Link to={`/groups/detail/${groupUuid}/roles/detail/${uuid}`}>{name}</Link>
+                <Link to={`/groups/detail/${groupUuid}/roles/detail/${uuid}`}>{display_name || name}</Link>
               </Fragment>,
               description,
               <Fragment key={`${uuid}-modified`}>
