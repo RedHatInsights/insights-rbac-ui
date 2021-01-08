@@ -166,7 +166,7 @@ const Permissions = () => {
               const multiplePermissionsSelected = selectedPermissions.length > 1;
               internalDispatch({
                 type: INITIATE_REMOVE_PERMISSION,
-                confirmDelete: () => () => removePermissions([...selectedPermissions]),
+                confirmDelete: () => removePermissions([...selectedPermissions]),
                 deleteInfo: {
                   title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
                   text: removeModalText(
