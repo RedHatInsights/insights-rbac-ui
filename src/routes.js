@@ -30,7 +30,7 @@ export const Routes = () => {
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
         <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
         <Route>
-          <Redirect to={routes['my-user-access']}/>
+          <Redirect to={routes['my-user-access']} />
         </Route>
       </Switch>
     </Suspense>
