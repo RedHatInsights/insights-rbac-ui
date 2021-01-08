@@ -140,7 +140,7 @@ const Roles = () => {
         <ResourceDefinitions />
       </PageActionRoute>
       <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
-        <Role />
+        <Role onDelete={() => setFilterValue('')} />
       </PageActionRoute>
       <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
     </Switch>
