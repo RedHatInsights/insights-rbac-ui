@@ -87,13 +87,13 @@ const Group = ({
     <DropdownItem
       component={
         <Link
-          to={() => {
-            onDelete();
-            return (location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
+          onClick={onDelete}
+          to={() =>
+            (location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
               ':uuid',
               uuid
-            );
-          }}
+            )
+          }
         >
           Delete
         </Link>

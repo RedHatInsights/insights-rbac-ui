@@ -44,12 +44,7 @@ const Role = ({ onDelete }) => {
     <DropdownItem component={<Link to={routes['role-detail-edit'].replace(':id', uuid)}>Edit</Link>} key="edit-role" />,
     <DropdownItem
       component={
-        <Link
-          to={() => {
-            onDelete();
-            return routes['role-detail-remove'].replace(':id', uuid);
-          }}
-        >
+        <Link onClick={onDelete} to={routes['role-detail-remove'].replace(':id', uuid)}>
           Delete
         </Link>
       }
