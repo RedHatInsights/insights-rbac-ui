@@ -3,25 +3,26 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
+import './App.scss';
 import { Main } from '@redhat-cloud-services/frontend-components';
 import { NotificationsPortal } from '@redhat-cloud-services/frontend-components-notifications/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
+
 import '@redhat-cloud-services/frontend-components-notifications/index.css';
-import DeniedState from './presentational-components/states/DeniedState';
 import './App.scss';
+import DeniedState from './presentational-components/states/DeniedState';
 
 class App extends Component {
   state = {
     chromeNavAvailable: true,
     userReady: false,
-    isAdmin: undefined,
-  };
+    isAdmin: undefined
+  }
 
-  componentDidMount() {
+  componentDidMount () {
     const { history } = this.props;
     insights.chrome.init();
-    !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
     insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
     insights.chrome.identifyApp('rbac');
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
@@ -35,22 +36,22 @@ class App extends Component {
     this.unregister && this.unregister();
   }
 
-  render() {
+  render () {
     const { userReady, isAdmin } = this.state;
 
     if (!userReady) {
       return <AppPlaceholder />;
     }
 
-    if (!isAdmin && insights.chrome.getApp() === 'rbac') {
-      return <DeniedState />;
+    if (!isAdmin) {
+      return <DeniedState/>;
     }
 
     return (
       <IntlProvider locale="en">
         <React.Fragment>
           <NotificationsPortal />
-          <Main style={{ marginLeft: 0, padding: 0 }}>
+          <Main style={ { marginLeft: 0, padding: 0 } }>
             <Routes />
           </Main>
         </React.Fragment>
@@ -60,7 +61,7 @@ class App extends Component {
 }
 
 App.propTypes = {
-  history: PropTypes.object,
+  history: PropTypes.object
 };
 
 export default withRouter(connect()(App));

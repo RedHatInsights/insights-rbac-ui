@@ -7,8 +7,6 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import UsersList from '../group/add-group/users-list';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
-import { routes as paths } from '../../../package.json';
-import PageActionRoute from '../common/page-action-route';
 
 const Users = () => {
   const description = (
@@ -45,8 +43,8 @@ const Users = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
-      <PageActionRoute pageAction="users-list" path={ [ paths.users, paths.rbac] } render={ () => renderUsers() } />
+      <Route exact path={ '/users/detail/:username' } render={ props => <User {...props}/> } />
+      <Route path={ '/users' } render={ () => renderUsers() } />
     </Switch>
 
   );

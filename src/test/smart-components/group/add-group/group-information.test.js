@@ -10,15 +10,15 @@ describe('<GroupInformation />', () => {
     initialProps = {
       formValue: {
         name: 'Foo',
-        description: 'This is a test',
+        description: 'This is a test'
       },
       onHandleChange: jest.fn(),
-      setIsGroupInfoValid: jest.fn(),
+      setIsGroupInfoValid: jest.fn()
     };
   });
 
   it('should render correctly', () => {
-    const wrapper = mount(<GroupInformation {...initialProps} />);
+    const wrapper = mount(<GroupInformation { ...initialProps } />);
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 });

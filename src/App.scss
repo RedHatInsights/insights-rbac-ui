@@ -1,42 +1,117 @@
 @import '~@redhat-cloud-services/frontend-components/index.css';
 
+.groups-table-detail {
+  &.heading {
+    margin: 0 !important
+  }
+  &.content {
+    margin-top: 0 !important
+  }
+}
+
+.data-table-pane {
+  padding-left:32px;
+  padding-right: 32px;
+  padding-top: 16px;
+}
+
+.table-fix {
+  .pf-c-table__toggle {
+    padding-top: 0;
+  }
+}
+
+.select-style {
+  padding-bottom: 200px;
+}
+
+.toolbar-filter-input-group {
+  position: relative;
+  width: 300px;
+  height: 36px;
+  input {
+    position: absolute;
+    width: 300px;
+    background: transparent;
+  }
+  svg {
+    vertical-align: -0.125em;
+    z-index: 1000;
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    fill: #72767B
+  }
+}
+
+.toolbar-filter-input-group-c{
+  position: relative;
+  width: 200px;
+  height: 24px;
+  input {
+    position: absolute;
+    width: 200px;
+    background: transparent;
+  }
+  svg {
+    vertical-align: -0.125em;
+    z-index: 1000;
+    position: absolute;
+    right: 8px;
+    top: 10px;
+    fill: #72767B
+  }
+}
+
+.disabled-color {
+  color: #d2d2d2;
+}
+
+.danger-color {
+  &:not(:disabled) {
+    color: var(--pf-global--danger-color--100) !important;
+  }
+}
+
+.ins-c-rbac__dialog--warning {
+  .ins-c-rbac__delete-icon {
+    color: var(--pf-global--warning-color--100);
+  }
+}
+
+.delete-group-warning-icon {
+  color: var(--pf-global--warning-color--100);
+}
+
+.pf-c-table {
+  thead tr th.ins-m-width-5 { width: 5%; }
+
+  tbody tr.ins-c-rbac__group-default {
+    .pf-c-table__check:first-of-type input { display: none; }
+  }
+}
+
 .ins-c-rbac__summary {
   .pf-l-grid {
-    margin-bottom: var(--pf-global--gutter--md);
+    .pf-l-grid__item {
+      margin-bottom: var(--pf-global--gutter--md);
+    }
   }
 }
 
-.ins-c-rbac__bold-text {
-    font-weight: var(--pf-global--FontWeight--bold);
+.ins-c-rbac__user-label {
+  margin-right: var(--pf-global--spacer--sm);
+
 }
+
+
 
 @media only screen and (max-width: 768px) {
-  .ins-m-hide-on-sm {display: none;}
-
-  // fix for mobile layout: https://github.com/patternfly/patternfly-react/issues/4922
-  .pf-c-table__expandable-row.pf-m-expanded {
-    max-height: none !important;
-    overflow-y: visible;
-    tr:first-of-type {padding-top: 0 !important;}
-    > td::before {display: none;}
-  }
-
   .ins-c-rbac__user-row .pf-c-label{
     width: max-content;
   }
+}
 
-  .ins-c-conditional-filter {
-    .pf-l-split__item.pf-m-fill {
-      flex-grow: .8;
-    }
-  }
-
-  .pf-c-empty-state__content {
-    h4.pf-c-title {
-      font-size: var(--pf-c-title--m-2xl--FontSize);
-    }
-    .pf-c-empty-state__icon {
-      font-size: var(--pf-c-empty-state--m-xl__icon--FontSize);
-    }
-  }
+.pf-c-toolbar .pf-c-dropdown__menu .ins-c-primary-toolbar__first-action {
+  display: none;
 }

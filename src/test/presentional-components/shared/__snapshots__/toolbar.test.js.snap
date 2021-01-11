@@ -40,8 +40,6 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -86,7 +84,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": null,
+      "checked": false,
       "count": 1,
       "items": Array [
         Object {
@@ -114,8 +112,6 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -188,8 +184,6 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   toggleIsExpanded={[Function]}
@@ -205,7 +199,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
   }
   bulkSelect={
     Object {
-      "checked": null,
+      "checked": false,
       "count": 1,
       "items": Array [
         Object {
@@ -233,8 +227,6 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   toggleIsExpanded={[Function]}
@@ -274,8 +266,6 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -329,22 +319,18 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
       "items": Array [
         Object {
           "filterValues": Object {
-            "groups": undefined,
             "id": "filter-by-name",
             "isDisabled": false,
             "items": undefined,
             "key": "filter-by-name",
             "onChange": [Function],
             "placeholder": "Filter by name",
-            "selected": undefined,
             "value": "",
           },
           "label": "Name",
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -390,7 +376,7 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   bulkSelect={
     Object {
       "checked": false,
-      "count": 0,
+      "count": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -417,8 +403,6 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -464,7 +448,7 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
   bulkSelect={
     Object {
       "checked": false,
-      "count": 0,
+      "count": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -491,8 +475,6 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   toggleIsExpanded={[Function]}
@@ -529,8 +511,6 @@ exports[`<Toolbar> should render buttons 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -589,8 +569,6 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -649,8 +627,6 @@ exports[`<Toolbar> should render pagination 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -720,8 +696,6 @@ exports[`<Toolbar> should render with filterValue 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -814,8 +788,6 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={
@@ -909,8 +881,6 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
           "type": "text",
         },
       ],
-      "onChange": undefined,
-      "value": undefined,
     }
   }
   pagination={

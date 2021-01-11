@@ -5,7 +5,9 @@ import React from 'react';
  */
 const NoMatch = () => (
   <div>
-    <h1>Page you are looking for does not exist.</h1>
+    <h1>
+      Page you are looking for does not exist.
+    </h1>
   </div>
 );
 

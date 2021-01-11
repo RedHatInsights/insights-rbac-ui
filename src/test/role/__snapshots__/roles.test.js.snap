@@ -4,11 +4,10 @@ exports[`<Roles /> should render correctly 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
   borders={true}
-  checkedRows={Array []}
   columns={
     Array [
       Object {
-        "key": "display_name",
+        "key": "name",
         "title": "Name",
         "transforms": Array [
           [Function],
@@ -60,13 +59,10 @@ exports[`<Roles /> should render correctly 1`] = `
   filterValue=""
   filters={Array []}
   hideFilterChips={false}
-  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
-  isFilterable={false}
   isLoading={false}
   isSelectable={false}
-  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,
@@ -77,12 +73,6 @@ exports[`<Roles /> should render correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  sortBy={
-    Object {
-      "direction": "asc",
-      "index": 0,
-    }
-  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -99,11 +89,10 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
   borders={true}
-  checkedRows={Array []}
   columns={
     Array [
       Object {
-        "key": "display_name",
+        "key": "name",
         "title": "Name",
         "transforms": Array [
           [Function],
@@ -149,33 +138,16 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       },
     ]
   }
-  dedicatedAction={
-    <Link
-      to="/roles/add-role"
-    >
-      <Button
-        aria-label="Create role"
-        className="pf-m-visible-on-md"
-        ouiaId="create-role-button"
-        variant="primary"
-      >
-        Create role
-      </Button>
-    </Link>
-  }
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
   filterValue=""
   filters={Array []}
   hideFilterChips={false}
-  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
-  isFilterable={false}
   isLoading={false}
   isSelectable={false}
-  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,
@@ -186,12 +158,6 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  sortBy={
-    Object {
-      "direction": "asc",
-      "index": 0,
-    }
-  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}

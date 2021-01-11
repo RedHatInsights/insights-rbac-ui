@@ -13,13 +13,13 @@ import AddGroupWizard from '../../../../smart-components/group/add-group/add-gro
 describe('<SetRoles />', () => {
   let initialProps;
   let initialState;
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
   const GroupWrapper = ({ store, children }) => (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={['/policies/', '/policy/add-role/']} initialIndex={1} keyLength={0}>
-        {children}
+    <Provider store={ store }>
+      <MemoryRouter initialEntries={ [ '/policies/', '/policy/add-role/' ] } initialIndex={ 1 } keyLength={ 0 }>
+        { children }
       </MemoryRouter>
     </Provider>
   );
@@ -30,27 +30,23 @@ describe('<SetRoles />', () => {
       setSelectedRoles: jest.fn(),
       roles: [],
       title: 'Test set roles',
-      description: 'Test for set roles page',
+      description: 'Test for set roles page'
     };
     initialState = {
       roleReducer: {
-        roles: [
-          {
-            uuid: '123',
-            value: 'foo',
-          },
-        ],
+        roles: [{
+          uuid: '123',
+          value: 'foo'
+        }]
       },
       groupReducer: {
         groups: {
-          data: [
-            {
-              uuid: '123',
-              name: 'SampleGroup',
-            },
-          ],
-        },
-      },
+          data: [{
+            uuid: '123',
+            name: 'SampleGroup'
+          }]
+        }
+      }
     };
     mockStore = configureStore(middlewares);
   });
@@ -59,8 +55,8 @@ describe('<SetRoles />', () => {
     Date.now = jest.fn(() => '123');
     const store = mockStore(initialState);
     const wrapper = mount(
-      <GroupWrapper store={store}>
-        <Route path="/groups/add-group/" render={() => <AddGroupWizard {...initialProps} />} />
+      <GroupWrapper store={ store }>
+        <Route path="/groups/add-group/" render={ () => <AddGroupWizard { ...initialProps } /> } />
       </GroupWrapper>
     );
     expect(toJson(wrapper)).toMatchSnapshot();

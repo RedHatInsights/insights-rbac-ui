@@ -6,15 +6,15 @@ export const usersInitialState = {
   selectedUser: {},
   isUserDataLoading: false,
   users: {
-    meta: defaultSettings,
-  },
+    meta: defaultSettings
+  }
 };
 
-const setLoadingState = (state) => ({ ...state, isUserDataLoading: true });
+const setLoadingState = state => ({ ...state, isUserDataLoading: true });
 
 const setUsers = (state, { payload }) => ({ ...state, users: payload, isUserDataLoading: false });
 
 export default {
   [`${FETCH_USERS}_PENDING`]: setLoadingState,
-  [`${FETCH_USERS}_FULFILLED`]: setUsers,
+  [`${FETCH_USERS}_FULFILLED`]: setUsers
 };

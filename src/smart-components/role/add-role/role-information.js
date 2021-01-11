@@ -1,6 +1,14 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Form, FormGroup, Stack, StackItem, TextInput, TextArea, Title } from '@patternfly/react-core';
+import {
+  Form,
+  FormGroup,
+  Stack,
+  StackItem,
+  TextInput,
+  TextArea,
+  Title
+} from '@patternfly/react-core';
 
 const RoleInformation = (formData, onHandleChange) => {
   const { description = '', name = '' } = formData;
@@ -8,21 +16,24 @@ const RoleInformation = (formData, onHandleChange) => {
   return (
     <Stack hasGutter>
       <StackItem>
-        <Title headingLevel="h4" size="xl">
-          Name and description
-        </Title>
+        <Title headingLevel="h4" size="xl">Name and description</Title>
       </StackItem>
       <StackItem>
         <Form>
-          <FormGroup label="Name" isRequired fieldId="name">
+          <FormGroup
+            label="Name"
+            isRequired
+            fieldId="name"
+          >
             <TextInput
               isRequired
               type="text"
               id="name"
               name="name"
               aria-describedby="name"
-              value={name}
-              onChange={(_, event) => onHandleChange({ name: event.currentTarget.value }, event.currentTarget.value.trim().length > 0)}
+              value={ name }
+              onChange={ (_, event) => onHandleChange({ name: event.currentTarget.value },
+                event.currentTarget.value.trim().length > 0) }
             />
           </FormGroup>
           <FormGroup label="Description" fieldId="description">
@@ -30,8 +41,8 @@ const RoleInformation = (formData, onHandleChange) => {
               type="text"
               id="description"
               name="description"
-              value={description}
-              onChange={(_, event) => onHandleChange({ description: event.currentTarget.value }, true)}
+              value={ description }
+              onChange={ (_, event) => onHandleChange({ description: event.currentTarget.value }, true) }
             />
           </FormGroup>
         </Form>
@@ -42,7 +53,7 @@ const RoleInformation = (formData, onHandleChange) => {
 
 RoleInformation.propTypes = {
   name: PropTypes.string,
-  description: PropTypes.string,
+  description: PropTypes.string
 };
 
 export default RoleInformation;

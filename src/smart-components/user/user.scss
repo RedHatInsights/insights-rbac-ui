@@ -1,10 +1,3 @@
 .ins-c-rbac__user-label-skeleton {
   width: 50px;
 }
-
-// fix for cropped placeholder: https://github.com/patternfly/patternfly/issues/3449
-@media only screen and (min-width: 769px) {
-  input#filter-by-username.ins-c-conditional-filter[type="text"] {
-    width: 230px;
-  }
-} 

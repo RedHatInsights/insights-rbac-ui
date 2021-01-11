@@ -1,4 +1,5 @@
-export const callReducer = (reducer) => (state, action) => {
+
+export const callReducer = reducer => (state, action) => {
   if (!reducer[action.type]) {
     return;
   }

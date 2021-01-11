@@ -1,30 +1,29 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { shallow, mount } from 'enzyme';
-import configureStore from 'redux-mock-store';
+import configureStore from 'redux-mock-store' ;
 import { shallowToJson } from 'enzyme-to-json';
 import { Button } from '@patternfly/react-core';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { RBAC_API_BASE } from '../../../utilities/constants';
 import EditGroupModal from '../../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import * as GroupActions from '../../../redux/actions/group-actions';
-import { FETCH_GROUP } from '../../../redux/action-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/dist/cjs/component-types';
 
 describe('<EditGroupModal />', () => {
   let initialProps;
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
   let initialState;
 
-  const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
-
-  const GroupWrapper = ({ store, children, initialEntries = [] }) => (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
+  const GroupWrapper = ({ store, children, initialEntries = []}) => (
+    <Provider store={ store }>
+      <MemoryRouter initialEntries={ initialEntries }>
+        { children }
+      </MemoryRouter>
     </Provider>
   );
 
@@ -33,8 +32,8 @@ describe('<EditGroupModal />', () => {
       closeUrl: '/groups',
       groupData: {
         name: 'Foo',
-        id: '1',
-      },
+        id: '1'
+      }
     };
     mockStore = configureStore(middlewares);
     initialState = {
@@ -43,40 +42,45 @@ describe('<EditGroupModal />', () => {
         isLoading: true,
         groupData: {
           name: 'Foo',
-          id: '1',
-        },
-      },
+          id: '1'
+        }
+      }
     };
-  });
-
-  afterEach(() => {
-    fetchGroupSpy.mockReset();
   });
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
     const wrapper = shallow(
-      <Provider store={store}>
-        <EditGroupModal {...initialProps} />
-      </Provider>
-    );
+      <Provider store={ store }>
+        <EditGroupModal { ...initialProps } />
+      </Provider>);
     expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
-  it('should redirect back to close URL', async () => {
+  it('should redirect back to close URL', (done) => {
     const store = mockStore(initialState);
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
-    await act(async () => {
-      wrapper = mount(
-        <GroupWrapper store={store} initialEntries={['/groups/edit/:id']}>
-          <Route to="/groups/edit/:id" render={(args) => <EditGroupModal {...initialProps} {...args} isOpen />} />
-        </GroupWrapper>
-      );
-    });
-    wrapper.update();
 
-    wrapper.find(Button).first().simulate('click');
-    expect(wrapper.find(MemoryRouter).instance().history.location.pathname).toEqual('/groups');
+    apiClientMock.get(`${RBAC_API_BASE}/groups/action-modal/1`, mockOnce(
+      { body: {
+        component: componentTypes.TEXTAREA_FIELD,
+        name: 'comments',
+        type: 'text',
+        isRequired: false,
+        label: 'Comment'
+      }
+      }));
+
+    const wrapper = mount(
+      <GroupWrapper store={ store } initialEntries={ [ '/groups/edit/:id' ] }>
+        <Route to="/groups/edit/:id" render={ args => <EditGroupModal { ...initialProps } { ...args } isOpen /> }  />
+      </GroupWrapper>
+    );
+
+    setImmediate(() => {
+      wrapper.find(Button).first().simulate('click');
+      expect(wrapper.find(MemoryRouter).instance().history.location.pathname).toEqual('/groups');
+      done();
+    });
   });
 });
+

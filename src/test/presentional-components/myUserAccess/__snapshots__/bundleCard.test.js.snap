@@ -1,0 +1,86 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<MUABundleCard /> should render correctly 1`] = `
+<MUABundleCard
+  appList={
+    Object {
+      "appName": "/",
+    }
+  }
+  body="body"
+  entitlement="entitlement"
+  title="title"
+  url="url"
+>
+  <Card
+    className="ins-c-mua-bundles__card ins-c-mua-bundles__card--entitlement"
+  >
+    <article
+      className="pf-c-card ins-c-mua-bundles__card ins-c-mua-bundles__card--entitlement"
+    >
+      <CardTitle>
+        <div
+          className="pf-c-card__title"
+        >
+           
+          title
+        </div>
+      </CardTitle>
+      <CardBody>
+        <div
+          className="pf-c-card__body"
+        >
+          <Stack
+            hasGutter={true}
+          >
+            <div
+              className="pf-l-stack pf-m-gutter"
+            >
+              <StackItem
+                className="ins-c-mua-bundles__card--body"
+              >
+                <div
+                  className="pf-l-stack__item ins-c-mua-bundles__card--body"
+                >
+                   
+                  body
+                   
+                </div>
+              </StackItem>
+              <StackItem
+                className="ins-c-mua-bundles__card--applist"
+              >
+                <div
+                  className="pf-l-stack__item ins-c-mua-bundles__card--applist"
+                >
+                  <Button
+                    component="a"
+                    href="/beta/url/"
+                    isInline={true}
+                    key="appName"
+                    variant="link"
+                  >
+                    <a
+                      aria-disabled={false}
+                      aria-label={null}
+                      className="pf-c-button pf-m-link pf-m-inline"
+                      data-ouia-component-id={0}
+                      data-ouia-component-type="PF4/Button"
+                      data-ouia-safe={true}
+                      disabled={null}
+                      href="/beta/url/"
+                      type={null}
+                    >
+                      appName
+                    </a>
+                  </Button>
+                </div>
+              </StackItem>
+            </div>
+          </Stack>
+        </div>
+      </CardBody>
+    </article>
+  </Card>
+</MUABundleCard>
+`;

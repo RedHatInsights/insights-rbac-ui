@@ -57,13 +57,10 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     ]
   }
   hideFilterChips={false}
-  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
-  isFilterable={false}
   isLoading={true}
   isSelectable={true}
-  ouiaId="roles-table"
   pagination={
     Object {
       "count": 1,
@@ -114,7 +111,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     }
     hideFilterChips={false}
     isCollapsible={false}
-    isFilterable={false}
     isLoading={true}
     isSelectable={true}
     pagination={
@@ -136,6 +132,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
           "actions": Array [
             <Link
               className="pf-m-visible-on-md ins-c-button__add-rolefalse"
+              onClick={[Function]}
               to="/groups/detail/123/roles/add_roles"
             >
               <Button
@@ -190,14 +187,12 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
           "items": Array [
             Object {
               "filterValues": Object {
-                "groups": undefined,
                 "id": "filter-by-name",
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
-                "selected": undefined,
                 "value": "",
               },
               "label": "Name",
@@ -205,22 +200,18 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
             },
             Object {
               "filterValues": Object {
-                "groups": undefined,
                 "id": "filter-by-description",
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
-                "selected": undefined,
                 "value": "",
               },
               "label": "Description",
               "type": "text",
             },
           ],
-          "onChange": undefined,
-          "value": undefined,
         }
       }
       toggleIsExpanded={[Function]}
@@ -245,16 +236,16 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                 className="pf-c-toolbar__content-section"
               >
                 <ForwardRef
-                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                   variant="filter-group"
                 >
                   <ToolbarGroupWithRef
-                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                     innerRef={null}
                     variant="filter-group"
                   >
                     <div
-                      className="pf-c-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                      className="pf-c-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                     >
                       <ToolbarItem>
                         <div
@@ -368,14 +359,14 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <div
                                   className="pf-c-dropdown ins-c-bulk-select"
-                                  data-ouia-component-id="OUIA-Generated-Dropdown-2"
+                                  data-ouia-component-id={6}
                                   data-ouia-component-type="PF4/Dropdown"
                                   data-ouia-safe={true}
                                 >
                                   <DropdownToggle
                                     aria-haspopup={true}
                                     getMenuRef={[Function]}
-                                    id="pf-dropdown-toggle-id-5"
+                                    id="pf-toggle-id-5"
                                     isDisabled={false}
                                     isOpen={false}
                                     isPlain={false}
@@ -386,7 +377,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       Object {
                                         "current": <div
                                           class="pf-c-dropdown ins-c-bulk-select"
-                                          data-ouia-component-id="OUIA-Generated-Dropdown-2"
+                                          data-ouia-component-id="6"
                                           data-ouia-component-type="PF4/Dropdown"
                                           data-ouia-safe="true"
                                         >
@@ -400,9 +391,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               <input
                                                 aria-invalid="false"
                                                 aria-label="Select all"
-                                                data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
-                                                data-ouia-component-type="PF4/DropdownToggleCheckbox"
-                                                data-ouia-safe="true"
                                                 id="toggle-checkbox"
                                                 type="checkbox"
                                               />
@@ -413,10 +401,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               aria-haspopup="true"
                                               aria-label="Select"
                                               class="pf-c-dropdown__toggle-button"
-                                              data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
-                                              data-ouia-component-type="PF4/DropdownToggle"
-                                              data-ouia-safe="true"
-                                              id="pf-dropdown-toggle-id-5"
+                                              id="pf-toggle-id-5"
                                               type="button"
                                             >
                                               <span
@@ -433,6 +418,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                 >
                                                   <path
                                                     d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                    transform=""
                                                   />
                                                 </svg>
                                               </span>
@@ -479,9 +465,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             aria-invalid={false}
                                             aria-label="Select all"
                                             checked={false}
-                                            data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
-                                            data-ouia-component-type="PF4/DropdownToggleCheckbox"
-                                            data-ouia-safe={true}
                                             disabled={false}
                                             id="toggle-checkbox"
                                             onChange={[Function]}
@@ -494,11 +477,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         aria-label="Select"
                                         bubbleEvent={false}
                                         className=""
-                                        data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
-                                        data-ouia-component-type="PF4/DropdownToggle"
-                                        data-ouia-safe={true}
                                         getMenuRef={[Function]}
-                                        id="pf-dropdown-toggle-id-5"
+                                        id="pf-toggle-id-5"
                                         isActive={false}
                                         isDisabled={false}
                                         isOpen={false}
@@ -511,7 +491,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           Object {
                                             "current": <div
                                               class="pf-c-dropdown ins-c-bulk-select"
-                                              data-ouia-component-id="OUIA-Generated-Dropdown-2"
+                                              data-ouia-component-id="6"
                                               data-ouia-component-type="PF4/Dropdown"
                                               data-ouia-safe="true"
                                             >
@@ -525,9 +505,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                   <input
                                                     aria-invalid="false"
                                                     aria-label="Select all"
-                                                    data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
-                                                    data-ouia-component-type="PF4/DropdownToggleCheckbox"
-                                                    data-ouia-safe="true"
                                                     id="toggle-checkbox"
                                                     type="checkbox"
                                                   />
@@ -538,10 +515,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                   aria-haspopup="true"
                                                   aria-label="Select"
                                                   class="pf-c-dropdown__toggle-button"
-                                                  data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
-                                                  data-ouia-component-type="PF4/DropdownToggle"
-                                                  data-ouia-safe="true"
-                                                  id="pf-dropdown-toggle-id-5"
+                                                  id="pf-toggle-id-5"
                                                   type="button"
                                                 >
                                                   <span
@@ -558,6 +532,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     >
                                                       <path
                                                         d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                        transform=""
                                                       />
                                                     </svg>
                                                   </span>
@@ -572,11 +547,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           aria-haspopup={true}
                                           aria-label="Select"
                                           className="pf-c-dropdown__toggle-button"
-                                          data-ouia-component-id="OUIA-Generated-DropdownToggle-2"
-                                          data-ouia-component-type="PF4/DropdownToggle"
-                                          data-ouia-safe={true}
                                           disabled={false}
-                                          id="pf-dropdown-toggle-id-5"
+                                          id="pf-toggle-id-5"
                                           onClick={[Function]}
                                           onKeyDown={[Function]}
                                           type="button"
@@ -605,6 +577,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               >
                                                 <path
                                                   d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                  transform=""
                                                 />
                                               </svg>
                                             </CaretDownIcon>
@@ -632,14 +605,12 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               Array [
                                 Object {
                                   "filterValues": Object {
-                                    "groups": undefined,
                                     "id": "filter-by-name",
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
-                                    "selected": undefined,
                                     "value": "",
                                   },
                                   "label": "Name",
@@ -647,14 +618,12 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 },
                                 Object {
                                   "filterValues": Object {
-                                    "groups": undefined,
                                     "id": "filter-by-description",
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",
-                                    "selected": undefined,
                                     "value": "",
                                   },
                                   "label": "Description",
@@ -764,7 +733,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       >
                                         <div
                                           className="pf-c-dropdown ins-c-conditional-filter__group"
-                                          data-ouia-component-id="OUIA-Generated-Dropdown-3"
+                                          data-ouia-component-id={7}
                                           data-ouia-component-type="PF4/Dropdown"
                                           data-ouia-safe={true}
                                         >
@@ -772,7 +741,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             aria-haspopup={true}
                                             className=""
                                             getMenuRef={[Function]}
-                                            id="pf-dropdown-toggle-id-6"
+                                            id="pf-toggle-id-6"
                                             isDisabled={false}
                                             isOpen={false}
                                             isPlain={false}
@@ -783,7 +752,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               Object {
                                                 "current": <div
                                                   class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                  data-ouia-component-id="OUIA-Generated-Dropdown-3"
+                                                  data-ouia-component-id="7"
                                                   data-ouia-component-type="PF4/Dropdown"
                                                   data-ouia-safe="true"
                                                 >
@@ -791,10 +760,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     aria-expanded="false"
                                                     aria-haspopup="true"
                                                     class="pf-c-dropdown__toggle"
-                                                    data-ouia-component-id="OUIA-Generated-DropdownToggle-3"
-                                                    data-ouia-component-type="PF4/DropdownToggle"
-                                                    data-ouia-safe="true"
-                                                    id="pf-dropdown-toggle-id-6"
+                                                    id="pf-toggle-id-6"
                                                     type="button"
                                                   >
                                                     <span
@@ -811,6 +777,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                       >
                                                         <path
                                                           d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                          transform=""
                                                         />
                                                       </svg>
                                                       <span
@@ -833,6 +800,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                       >
                                                         <path
                                                           d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                          transform=""
                                                         />
                                                       </svg>
                                                     </span>
@@ -845,11 +813,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               aria-haspopup={true}
                                               bubbleEvent={false}
                                               className=""
-                                              data-ouia-component-id="OUIA-Generated-DropdownToggle-3"
-                                              data-ouia-component-type="PF4/DropdownToggle"
-                                              data-ouia-safe={true}
                                               getMenuRef={[Function]}
-                                              id="pf-dropdown-toggle-id-6"
+                                              id="pf-toggle-id-6"
                                               isActive={false}
                                               isDisabled={false}
                                               isOpen={false}
@@ -862,7 +827,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                 Object {
                                                   "current": <div
                                                     class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                    data-ouia-component-id="OUIA-Generated-Dropdown-3"
+                                                    data-ouia-component-id="7"
                                                     data-ouia-component-type="PF4/Dropdown"
                                                     data-ouia-safe="true"
                                                   >
@@ -870,10 +835,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                       aria-expanded="false"
                                                       aria-haspopup="true"
                                                       class="pf-c-dropdown__toggle"
-                                                      data-ouia-component-id="OUIA-Generated-DropdownToggle-3"
-                                                      data-ouia-component-type="PF4/DropdownToggle"
-                                                      data-ouia-safe="true"
-                                                      id="pf-dropdown-toggle-id-6"
+                                                      id="pf-toggle-id-6"
                                                       type="button"
                                                     >
                                                       <span
@@ -890,6 +852,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                         >
                                                           <path
                                                             d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                            transform=""
                                                           />
                                                         </svg>
                                                         <span
@@ -912,6 +875,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                         >
                                                           <path
                                                             d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                            transform=""
                                                           />
                                                         </svg>
                                                       </span>
@@ -924,11 +888,8 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                 aria-expanded={false}
                                                 aria-haspopup={true}
                                                 className="pf-c-dropdown__toggle"
-                                                data-ouia-component-id="OUIA-Generated-DropdownToggle-3"
-                                                data-ouia-component-type="PF4/DropdownToggle"
-                                                data-ouia-safe={true}
                                                 disabled={false}
-                                                id="pf-dropdown-toggle-id-6"
+                                                id="pf-toggle-id-6"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 type="button"
@@ -957,6 +918,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     >
                                                       <path
                                                         d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                        transform=""
                                                       />
                                                     </svg>
                                                   </FilterIcon>
@@ -990,6 +952,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     >
                                                       <path
                                                         d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                        transform=""
                                                       />
                                                     </svg>
                                                   </CaretDownIcon>
@@ -1017,7 +980,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       placeholder="Filter by name"
                                       value=""
                                     >
-                                      <TextInput
+                                      <ForwardRef
                                         className="ins-c-conditional-filter "
                                         id="filter-by-name"
                                         isDisabled={true}
@@ -1033,7 +996,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
-                                          isLeftTruncated={false}
                                           isReadOnly={false}
                                           isRequired={false}
                                           onChange={[Function]}
@@ -1050,9 +1012,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             className="pf-c-form-control ins-c-conditional-filter "
                                             disabled={true}
                                             id="filter-by-name"
-                                            onBlur={[Function]}
                                             onChange={[Function]}
-                                            onFocus={[Function]}
                                             onKeyDown={[Function]}
                                             placeholder="Filter by name"
                                             readOnly={false}
@@ -1062,7 +1022,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             widget-type="InsightsInput"
                                           />
                                         </TextInputBase>
-                                      </TextInput>
+                                      </ForwardRef>
                                       <SearchIcon
                                         className="ins-c-search-icon"
                                         color="currentColor"
@@ -1086,6 +1046,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         >
                                           <path
                                             d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                            transform=""
                                           />
                                         </svg>
                                       </SearchIcon>
@@ -1105,6 +1066,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                     Array [
                       <Link
                         className="pf-m-visible-on-md ins-c-button__add-rolefalse"
+                        onClick={[Function]}
                         to="/groups/detail/123/roles/add_roles"
                       >
                         <Button
@@ -1147,12 +1109,14 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                       <Link
                         className="pf-m-visible-on-md ins-c-button__add-rolefalse"
                         key="add-to-group"
+                        onClick={[Function]}
                         to="/groups/detail/123/roles/add_roles"
                       >
                         <LinkAnchor
                           className="pf-m-visible-on-md ins-c-button__add-rolefalse"
                           href="/groups/detail/123/roles/add_roles"
                           navigate={[Function]}
+                          onClick={[Function]}
                         >
                           <a
                             className="pf-m-visible-on-md ins-c-button__add-rolefalse"
@@ -1168,11 +1132,10 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 aria-disabled={false}
                                 aria-label="Add role"
                                 className="pf-c-button pf-m-primary"
-                                data-ouia-component-id="OUIA-Generated-Button-primary-1"
+                                data-ouia-component-id={8}
                                 data-ouia-component-type="PF4/Button"
                                 data-ouia-safe={true}
                                 disabled={false}
-                                role={null}
                                 type="button"
                               >
                                 Add role
@@ -1200,6 +1163,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                             >
                               <Link
                                 className="pf-m-visible-on-md ins-c-button__add-rolefalse"
+                                onClick={[Function]}
                                 to="/groups/detail/123/roles/add_roles"
                               >
                                 <Button
@@ -1252,6 +1216,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Link
                                   className="pf-m-visible-on-md ins-c-button__add-rolefalse"
+                                  onClick={[Function]}
                                   to="/groups/detail/123/roles/add_roles"
                                 >
                                   <Button
@@ -1295,14 +1260,14 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                         >
                           <div
                             className="pf-c-dropdown"
-                            data-ouia-component-id="OUIA-Generated-Dropdown-4"
+                            data-ouia-component-id={9}
                             data-ouia-component-type="PF4/Dropdown"
                             data-ouia-safe={true}
                           >
                             <KebabToggle
                               aria-haspopup={true}
                               getMenuRef={[Function]}
-                              id="pf-dropdown-toggle-id-7"
+                              id="pf-toggle-id-7"
                               isOpen={false}
                               isPlain={true}
                               key=".0"
@@ -1312,7 +1277,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 Object {
                                   "current": <div
                                     class="pf-c-dropdown"
-                                    data-ouia-component-id="OUIA-Generated-Dropdown-4"
+                                    data-ouia-component-id="9"
                                     data-ouia-component-type="PF4/Dropdown"
                                     data-ouia-safe="true"
                                   >
@@ -1321,7 +1286,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       aria-haspopup="true"
                                       aria-label="Actions"
                                       class="pf-c-dropdown__toggle pf-m-plain"
-                                      id="pf-dropdown-toggle-id-7"
+                                      id="pf-toggle-id-7"
                                       type="button"
                                     >
                                       <svg
@@ -1335,6 +1300,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       >
                                         <path
                                           d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                          transform=""
                                         />
                                       </svg>
                                     </button>
@@ -1348,7 +1314,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 bubbleEvent={false}
                                 className=""
                                 getMenuRef={[Function]}
-                                id="pf-dropdown-toggle-id-7"
+                                id="pf-toggle-id-7"
                                 isActive={false}
                                 isDisabled={false}
                                 isOpen={false}
@@ -1361,7 +1327,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   Object {
                                     "current": <div
                                       class="pf-c-dropdown"
-                                      data-ouia-component-id="OUIA-Generated-Dropdown-4"
+                                      data-ouia-component-id="9"
                                       data-ouia-component-type="PF4/Dropdown"
                                       data-ouia-safe="true"
                                     >
@@ -1370,7 +1336,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         aria-haspopup="true"
                                         aria-label="Actions"
                                         class="pf-c-dropdown__toggle pf-m-plain"
-                                        id="pf-dropdown-toggle-id-7"
+                                        id="pf-toggle-id-7"
                                         type="button"
                                       >
                                         <svg
@@ -1384,6 +1350,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         >
                                           <path
                                             d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                            transform=""
                                           />
                                         </svg>
                                       </button>
@@ -1397,7 +1364,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                   aria-label="Actions"
                                   className="pf-c-dropdown__toggle pf-m-plain"
                                   disabled={false}
-                                  id="pf-dropdown-toggle-id-7"
+                                  id="pf-toggle-id-7"
                                   onClick={[Function]}
                                   onKeyDown={[Function]}
                                   type="button"
@@ -1423,6 +1390,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     >
                                       <path
                                         d="M96 184c39.8 0 72 32.2 72 72s-32.2 72-72 72-72-32.2-72-72 32.2-72 72-72zM24 80c0 39.8 32.2 72 72 72s72-32.2 72-72S135.8 8 96 8 24 40.2 24 80zm0 352c0 39.8 32.2 72 72 72s72-32.2 72-72-32.2-72-72-72-72 32.2-72 72z"
+                                        transform=""
                                       />
                                     </svg>
                                   </EllipsisVIcon>
@@ -1521,22 +1489,13 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   >
     <DataList
       aria-label="datalist-placeholder"
-      className=""
-      gridBreakpoint="md"
-      isCompact={false}
-      selectedDataListItemId=""
-      wrapModifier={null}
     >
       <ul
         aria-label="datalist-placeholder"
-        className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
+        className="pf-c-data-list"
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="0"
         >
           <li
@@ -1596,9 +1555,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="1"
         >
           <li
@@ -1658,9 +1614,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="2"
         >
           <li
@@ -1720,9 +1673,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="3"
         >
           <li
@@ -1782,9 +1732,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="4"
         >
           <li
@@ -1949,13 +1896,10 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     ]
   }
   hideFilterChips={false}
-  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
-  isFilterable={false}
   isLoading={true}
   isSelectable={false}
-  ouiaId="roles-table"
   pagination={
     Object {
       "itemCount": 0,
@@ -1994,7 +1938,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     hideFilterChips={false}
     isCollapsible={false}
-    isFilterable={false}
     isLoading={true}
     isSelectable={false}
     pagination={
@@ -2026,14 +1969,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
           "items": Array [
             Object {
               "filterValues": Object {
-                "groups": undefined,
                 "id": "filter-by-name",
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
                 "placeholder": "Filter by name",
-                "selected": undefined,
                 "value": "",
               },
               "label": "Name",
@@ -2041,22 +1982,18 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             },
             Object {
               "filterValues": Object {
-                "groups": undefined,
                 "id": "filter-by-description",
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
                 "placeholder": "Filter by description",
-                "selected": undefined,
                 "value": "",
               },
               "label": "Description",
               "type": "text",
             },
           ],
-          "onChange": undefined,
-          "value": undefined,
         }
       }
       toggleIsExpanded={[Function]}
@@ -2081,16 +2018,16 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                 className="pf-c-toolbar__content-section"
               >
                 <ForwardRef
-                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                  className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                   variant="filter-group"
                 >
                   <ToolbarGroupWithRef
-                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                    className="ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                     innerRef={null}
                     variant="filter-group"
                   >
                     <div
-                      className="pf-c-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-md pf-m-space-items-lg"
+                      className="pf-c-toolbar__group pf-m-filter-group ins-c-primary-toolbar__group-filter pf-m-spacer-lg pf-m-space-items-lg"
                     >
                       <ToolbarItem
                         className="ins-c-primary-toolbar__filter"
@@ -2105,14 +2042,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                               Array [
                                 Object {
                                   "filterValues": Object {
-                                    "groups": undefined,
                                     "id": "filter-by-name",
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
                                     "placeholder": "Filter by name",
-                                    "selected": undefined,
                                     "value": "",
                                   },
                                   "label": "Name",
@@ -2120,14 +2055,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                 },
                                 Object {
                                   "filterValues": Object {
-                                    "groups": undefined,
                                     "id": "filter-by-description",
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
                                     "placeholder": "Filter by description",
-                                    "selected": undefined,
                                     "value": "",
                                   },
                                   "label": "Description",
@@ -2237,7 +2170,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       >
                                         <div
                                           className="pf-c-dropdown ins-c-conditional-filter__group"
-                                          data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                          data-ouia-component-id={1}
                                           data-ouia-component-type="PF4/Dropdown"
                                           data-ouia-safe={true}
                                         >
@@ -2245,7 +2178,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             aria-haspopup={true}
                                             className=""
                                             getMenuRef={[Function]}
-                                            id="pf-dropdown-toggle-id-1"
+                                            id="pf-toggle-id-1"
                                             isDisabled={false}
                                             isOpen={false}
                                             isPlain={false}
@@ -2256,7 +2189,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               Object {
                                                 "current": <div
                                                   class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                  data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                  data-ouia-component-id="1"
                                                   data-ouia-component-type="PF4/Dropdown"
                                                   data-ouia-safe="true"
                                                 >
@@ -2264,10 +2197,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     aria-expanded="false"
                                                     aria-haspopup="true"
                                                     class="pf-c-dropdown__toggle"
-                                                    data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                    data-ouia-component-type="PF4/DropdownToggle"
-                                                    data-ouia-safe="true"
-                                                    id="pf-dropdown-toggle-id-1"
+                                                    id="pf-toggle-id-1"
                                                     type="button"
                                                   >
                                                     <span
@@ -2284,6 +2214,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                       >
                                                         <path
                                                           d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                          transform=""
                                                         />
                                                       </svg>
                                                       <span
@@ -2306,6 +2237,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                       >
                                                         <path
                                                           d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                          transform=""
                                                         />
                                                       </svg>
                                                     </span>
@@ -2318,11 +2250,8 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               aria-haspopup={true}
                                               bubbleEvent={false}
                                               className=""
-                                              data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                              data-ouia-component-type="PF4/DropdownToggle"
-                                              data-ouia-safe={true}
                                               getMenuRef={[Function]}
-                                              id="pf-dropdown-toggle-id-1"
+                                              id="pf-toggle-id-1"
                                               isActive={false}
                                               isDisabled={false}
                                               isOpen={false}
@@ -2335,7 +2264,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                 Object {
                                                   "current": <div
                                                     class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                    data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                    data-ouia-component-id="1"
                                                     data-ouia-component-type="PF4/Dropdown"
                                                     data-ouia-safe="true"
                                                   >
@@ -2343,10 +2272,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                       aria-expanded="false"
                                                       aria-haspopup="true"
                                                       class="pf-c-dropdown__toggle"
-                                                      data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                      data-ouia-component-type="PF4/DropdownToggle"
-                                                      data-ouia-safe="true"
-                                                      id="pf-dropdown-toggle-id-1"
+                                                      id="pf-toggle-id-1"
                                                       type="button"
                                                     >
                                                       <span
@@ -2363,6 +2289,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                         >
                                                           <path
                                                             d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                            transform=""
                                                           />
                                                         </svg>
                                                         <span
@@ -2385,6 +2312,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                         >
                                                           <path
                                                             d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                            transform=""
                                                           />
                                                         </svg>
                                                       </span>
@@ -2397,11 +2325,8 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                 aria-expanded={false}
                                                 aria-haspopup={true}
                                                 className="pf-c-dropdown__toggle"
-                                                data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                data-ouia-component-type="PF4/DropdownToggle"
-                                                data-ouia-safe={true}
                                                 disabled={false}
-                                                id="pf-dropdown-toggle-id-1"
+                                                id="pf-toggle-id-1"
                                                 onClick={[Function]}
                                                 onKeyDown={[Function]}
                                                 type="button"
@@ -2430,6 +2355,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     >
                                                       <path
                                                         d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                        transform=""
                                                       />
                                                     </svg>
                                                   </FilterIcon>
@@ -2463,6 +2389,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     >
                                                       <path
                                                         d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                        transform=""
                                                       />
                                                     </svg>
                                                   </CaretDownIcon>
@@ -2490,7 +2417,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       placeholder="Filter by name"
                                       value=""
                                     >
-                                      <TextInput
+                                      <ForwardRef
                                         className="ins-c-conditional-filter "
                                         id="filter-by-name"
                                         isDisabled={true}
@@ -2506,7 +2433,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
-                                          isLeftTruncated={false}
                                           isReadOnly={false}
                                           isRequired={false}
                                           onChange={[Function]}
@@ -2523,9 +2449,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             className="pf-c-form-control ins-c-conditional-filter "
                                             disabled={true}
                                             id="filter-by-name"
-                                            onBlur={[Function]}
                                             onChange={[Function]}
-                                            onFocus={[Function]}
                                             onKeyDown={[Function]}
                                             placeholder="Filter by name"
                                             readOnly={false}
@@ -2535,7 +2459,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             widget-type="InsightsInput"
                                           />
                                         </TextInputBase>
-                                      </TextInput>
+                                      </ForwardRef>
                                       <SearchIcon
                                         className="ins-c-search-icon"
                                         color="currentColor"
@@ -2559,6 +2483,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         >
                                           <path
                                             d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                            transform=""
                                           />
                                         </svg>
                                       </SearchIcon>
@@ -2659,22 +2584,13 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   >
     <DataList
       aria-label="datalist-placeholder"
-      className=""
-      gridBreakpoint="md"
-      isCompact={false}
-      selectedDataListItemId=""
-      wrapModifier={null}
     >
       <ul
         aria-label="datalist-placeholder"
-        className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
+        className="pf-c-data-list"
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="0"
         >
           <li
@@ -2734,9 +2650,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="1"
         >
           <li
@@ -2796,9 +2709,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="2"
         >
           <li
@@ -2858,9 +2768,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="3"
         >
           <li
@@ -2920,9 +2827,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
         </DataListItem>
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
-          className=""
-          id=""
-          isExpanded={false}
           key="4"
         >
           <li

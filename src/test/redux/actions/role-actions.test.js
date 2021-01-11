@@ -1,41 +1,54 @@
 import thunk from 'redux-thunk';
-import configureStore from 'redux-mock-store';
+import configureStore from 'redux-mock-store' ;
 import promiseMiddleware from 'redux-promise-middleware';
+import { mock } from '../../__mocks__/apiMock';
+import { RBAC_API_BASE } from '../../../utilities/constants';
 import { fetchRoles } from '../../../redux/actions/role-actions';
 import { FETCH_ROLES } from '../../../redux/action-types';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import * as RoleHelper from '../../../helpers/role/role-helper';
-
 describe('role actions', () => {
-  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+
+  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
   let mockStore;
 
-  const fetchRolesSpy = jest.spyOn(RoleHelper, 'fetchRoles');
   beforeEach(() => {
     mockStore = configureStore(middlewares);
   });
 
-  afterEach(() => {
-    fetchRolesSpy.mockReset();
-  });
-
-  it('should dispatch correct actions after fetching roles', async () => {
+  it('should dispatch correct actions after fetching roles', () => {
     const store = mockStore({});
-    fetchRolesSpy.mockResolvedValueOnce({
-      data: [{ name: 'roleName', uuid: '1234' }],
-    });
-    const expectedActions = [
-      {
-        type: `${FETCH_ROLES}_PENDING`,
+    const expectedActions = [{
+      type: `${FETCH_ROLES}_PENDING`
+    }, {
+      payload: {
+        data: [
+          {
+            name: 'roleName',
+            uuid: '1234'
+          }
+        ]
       },
-      {
-        payload: { data: [{ name: 'roleName', uuid: '1234' }] },
-        type: `${FETCH_ROLES}_FULFILLED`,
-      },
-    ];
+      type: `${FETCH_ROLES}_FULFILLED`
+    }];
 
-    await store.dispatch(fetchRoles());
-    expect(store.getActions()).toEqual(expectedActions);
+    mock.onGet(`${RBAC_API_BASE}/roles/`).reply(200, {
+      data: [{
+        name: 'roleName',
+        uuid: '1234'
+      }]
+    });
+
+    mock.onGet(`${RBAC_API_BASE}/roles/1234/`).reply(200, {
+      data: [{
+        name: 'roleName',
+        uuid: '1234'
+      }]
+    });
+
+    return store.dispatch(fetchRoles()).then(() => {
+      expect(store.getActions()).toEqual(expectedActions);
+    });
   });
 });
+

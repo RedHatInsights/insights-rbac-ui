@@ -5,28 +5,21 @@ import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
 import { BreadcrumbPlaceholder } from './loader-placeholders';
 
 const RbacBreadcrumbs = (breadcrumbs) => {
-  return breadcrumbs ? (
-    <Breadcrumb>
-      {Object.values(breadcrumbs).map((item, index) =>
-        item.title ? (
-          <BreadcrumbItem key={item.title} isActive={item.isActive}>
-            {(item.to && (
-              <NavLink exact to={item.to}>
-                {item.title}
-              </NavLink>
-            )) ||
-              item.title}
-          </BreadcrumbItem>
-        ) : (
-          <BreadcrumbPlaceholder key={index} />
-        )
-      )}
-    </Breadcrumb>
-  ) : null;
+  return (
+    breadcrumbs ? <Breadcrumb>
+      { Object.values(breadcrumbs).map(item => (
+        item.title
+          ? (<BreadcrumbItem key={ item.title } isActive={ item.isActive }>
+            { (item.to && <NavLink exact to={ item.to }>{ item.title }</NavLink>) || item.title }
+          </BreadcrumbItem>)
+          : <BreadcrumbPlaceholder />
+      )) }
+    </Breadcrumb> : null
+  );
 };
 
 RbacBreadcrumbs.propTypes = {
-  breadcrumbs: PropTypes.object,
+  breadcrumbs: PropTypes.object
 };
 
 export default RbacBreadcrumbs;

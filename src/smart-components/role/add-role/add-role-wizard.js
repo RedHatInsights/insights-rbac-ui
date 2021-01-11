@@ -13,14 +13,19 @@ import PermissionInformation from './permission-information';
 import { WarningModal } from '../../common/warningModal';
 import '../../common/hideWizard.scss';
 
-const AddRoleWizard = ({ addNotification, createRole, history: { push }, pagination }) => {
-  const [formData, setValues] = useState({});
-  const [isRoleFormValid, setIsRoleFormValid] = useState(false);
-  const [isPermissionFormValid, setIsPermissionFormValid] = useState(false);
-  const [stepIdReached, setStepIdReached] = useState(1);
+const AddRoleWizard = ({
+  addNotification,
+  createRole,
+  history: { push },
+  pagination
+}) => {
+  const [ formData, setValues ] = useState({});
+  const [ isRoleFormValid, setIsRoleFormValid ] = useState(false);
+  const [ isPermissionFormValid, setIsPermissionFormValid ] = useState(false);
+  const [ stepIdReached, setStepIdReached ] = useState(1);
 
   const handleChange = (data) => {
-    setValues({ ...formData, ...data });
+    setValues({ ...formData,  ...data });
   };
 
   const handleRoleChange = (data, isValid) => {
@@ -39,28 +44,28 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
       name: 'Name and Description',
       canJumpTo: stepIdReached >= 1,
       component: new RoleInformation(formData, handleRoleChange),
-      enableNext: isRoleFormValid,
+      enableNext: isRoleFormValid
     },
     {
       id: 2,
       name: 'Permission',
       canJumpTo: stepIdReached >= 2 && isRoleFormValid,
       component: new PermissionInformation(formData, handlePermissionChange),
-      enableNext: isPermissionFormValid,
+      enableNext: isPermissionFormValid
     },
     {
       id: 3,
       name: 'Resource definitions',
       canJumpTo: stepIdReached >= 3 && isRoleFormValid && isPermissionFormValid,
-      component: new ResourceDefinitions(formData, handleChange),
+      component: new ResourceDefinitions(formData, handleChange)
     },
     {
       id: 4,
       name: 'Review',
       canJumpTo: stepIdReached >= 4 && isRoleFormValid && isPermissionFormValid,
       component: new SummaryContent(formData),
-      nextButtonText: 'Confirm',
-    },
+      nextButtonText: 'Confirm'
+    }
   ];
 
   const onNext = ({ id }) => {
@@ -68,26 +73,24 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
     setStepIdReached(step);
   };
 
-  const onSubmit = async () => {
+  const onSubmit = async() => {
     const roleData = {
-      applications: [formData.application],
+      applications: [ formData.application ],
       description: formData.description,
       name: formData.name,
-      access: [
-        {
-          // Permission must be in the format "application:resource_type:operation"
-          permission: `${formData.application}:${formData.resourceType}:${formData.permission}`,
-          resourceDefinitions: formData.resourceDefinitions.map((definition) => {
-            return {
-              attributeFilter: {
-                key: definition.key,
-                operation: definition.operation,
-                value: definition.value,
-              },
-            };
-          }),
-        },
-      ],
+      access: [{
+        // Permission must be in the format "application:resource_type:operation"
+        permission: `${formData.application}:${formData.resourceType}:${formData.permission}`,
+        resourceDefinitions: formData.resourceDefinitions.map(definition => {
+          return {
+            attributeFilter: {
+              key: definition.key,
+              operation: definition.operation,
+              value: definition.value
+            }
+          };
+        })
+      }]
     };
     const role = await createRole(roleData);
     fetchRoles(pagination).then(push('/roles'));
@@ -99,27 +102,31 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
       variant: 'warning',
       title: 'Creating role was canceled by the user',
       dismissDelay: 8000,
-      dismissable: false,
+      dismissable: false
     });
     push('/roles');
   };
 
-  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [ cancelWarningVisible, setCancelWarningVisible ] = useState(false);
 
   return (
     <React.Fragment>
       <Wizard
-        className={cancelWarningVisible && 'ins-m-wizard__hidden'}
+        className={ cancelWarningVisible && 'ins-m-wizard__hidden' }
         title="Add role"
         isOpen
-        onClose={() => {
-          (!Object.values(formData).filter(Boolean).length > 0 && onCancel()) || setCancelWarningVisible(true);
-        }}
-        onNext={onNext}
-        onSave={onSubmit}
-        steps={steps}
+        onClose={ () => {
+          !Object.values(formData).filter(Boolean).length > 0 && onCancel() || setCancelWarningVisible(true);
+        } }
+        onNext={ onNext }
+        onSave={ onSubmit }
+        steps={ steps }
       />
-      <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
+      <WarningModal
+        type='role'
+        isOpen={ cancelWarningVisible }
+        onModalCancel={ () => setCancelWarningVisible(false) }
+        onConfirmCancel={ onCancel }/>
     </React.Fragment>
   );
 };
@@ -129,13 +136,13 @@ AddRoleWizard.defaultProps = {
   inputValue: '',
   selectedGroup: undefined,
   selectedUsers: [],
-  selectedRoles: [],
+  selectedRoles: []
 };
 
 AddRoleWizard.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
   }).isRequired,
   addNotification: PropTypes.func.isRequired,
   createRole: PropTypes.func.isRequired,
@@ -144,25 +151,21 @@ AddRoleWizard.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
-    count: PropTypes.number.isRequired,
-  }),
+    count: PropTypes.number.isRequired
+  })
 };
 
-const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading } }) => ({
+const mapStateToProps = ({ roleReducer: { roles, filterValue, isLoading }}) => ({
   roles: roles.data,
   pagination: roles.meta,
   isLoading,
-  searchFilter: filterValue,
+  searchFilter: filterValue
 });
 
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      addNotification,
-      createRole,
-      fetchRoles,
-    },
-    dispatch
-  );
+const mapDispatchToProps = (dispatch) => bindActionCreators({
+  addNotification,
+  createRole,
+  fetchRoles
+}, dispatch);
 
 export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddRoleWizard));

@@ -9,23 +9,21 @@ const AppTabs = ({ history: { push }, location: { pathname }, tabItems, isHeader
   const handleTabClick = (_event, tabIndex) => push(tabItems[tabIndex].name);
 
   return (
-    <Tabs className={isHeader ? `ins-rbac-page-header__tabs` : ''} activeKey={activeTab ? activeTab.eventKey : 0} onSelect={handleTabClick}>
-      {tabItems.map((item) => (
-        <Tab title={item.title} key={item.eventKey} eventKey={item.eventKey} name={item.name} />
-      ))}
+    <Tabs className={ isHeader ? `ins-rbac-page-header__tabs` : '' } activeKey={ activeTab ? activeTab.eventKey : 0 } onSelect={ handleTabClick }>
+      { tabItems.map((item) => <Tab title={ item.title } key={ item.eventKey } eventKey={ item.eventKey } name={ item.name }/>) }
     </Tabs>
   );
 };
 
 AppTabs.propTypes = {
   location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
+    pathname: PropTypes.string.isRequired
   }),
   history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
+    push: PropTypes.func.isRequired
   }),
   tabItems: PropTypes.array.isRequired,
-  isHeader: PropTypes.bool,
+  isHeader: PropTypes.bool
 };
 
 export default withRouter(AppTabs);

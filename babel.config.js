@@ -1,3 +1,4 @@
+
 require.extensions['.css'] = () => undefined;
 const path = require('path');
 const glob = require('glob');
@@ -11,77 +12,86 @@ const mapper = {
   ModalVariant: 'Modal',
   FlexModifiers: 'FlexUtils',
   WizardContextConsumer: 'WizardContext',
-  TooltipPosition: 'Tooltip',
-  SelectVariant: 'selectConstants',
+  TooltipPosition: 'Tooltip'
 };
 
 const FECMapper = {
-  SkeletonSize: 'Skeleton',
-  PageHeaderTitle: 'PageHeader',
+    SkeletonSize: 'Skeleton',
+    PageHeaderTitle: 'PageHeader'
 };
 
 module.exports = {
-  presets: ['@babel/env', '@babel/react'],
-  plugins: [
-    '@babel/plugin-transform-runtime',
-    '@babel/plugin-syntax-dynamic-import',
-    '@babel/plugin-proposal-object-rest-spread',
-    '@babel/plugin-proposal-class-properties',
-    'lodash',
-    [
-      'transform-imports',
-      {
-        '@patternfly/react-core': {
-          transform: (importName) => {
-            const files = glob.sync(
-              path.resolve(__dirname, `./node_modules/@patternfly/react-core/dist/esm/**/${mapper[importName] || importName}.js`)
-            );
-            if (files.length > 0) {
-              return files[0].replace(/.*(?=@patternfly)/, '');
-            } else {
-              throw `File with importName ${importName} does not exist`;
-            }
-          },
-          preventFullImport: false,
-          skipDefaultConversion: true,
-        },
-      },
-      'react-core',
+    presets: [
+        '@babel/env',
+        '@babel/react'
     ],
-    [
-      'transform-imports',
-      {
-        '@patternfly/react-icons': {
-          transform: (importName) =>
-            `@patternfly/react-icons/dist/esm/icons/${importName
-              .split(/(?=[A-Z])/)
-              .join('-')
-              .toLowerCase()}`,
-          preventFullImport: true,
-        },
-      },
-      'react-icons',
-    ],
-    [
-      'transform-imports',
-      {
-        '@redhat-cloud-services/frontend-components': {
-          transform: (importName) => `@redhat-cloud-services/frontend-components/components/esm/${FECMapper[importName] || importName}`,
-          preventFullImport: false,
-          skipDefaultConversion: true,
-        },
-      },
-      'frontend-components',
-    ],
-    [
-      'transform-imports',
-      {
-        '@redhat-cloud-services/frontend-components-notifications': {
-          transform: (importName) => `@redhat-cloud-services/frontend-components-notifications/esm/${importName}`,
-          preventFullImport: true,
-        },
-      },
-      'frontend-notifications',
-    ],
-  ],
+    plugins: [
+        '@babel/plugin-transform-runtime',
+        '@babel/plugin-syntax-dynamic-import',
+        '@babel/plugin-proposal-object-rest-spread',
+        '@babel/plugin-proposal-class-properties',
+        'lodash',
+        [
+            'transform-imports',
+            {
+              '@patternfly/react-core': {
+                transform: (importName) => {
+                  const files = glob.sync(
+                    path.resolve(
+                      __dirname,
+                      `./node_modules/@patternfly/react-core/dist/js/**/${mapper[
+                      importName
+                      ] || importName}.js`
+                    )
+                  );
+                  if (files.length > 0) {
+                    return files[0].replace(/.*(?=@patternfly)/, '');
+                  } else {
+                    throw `File with importName ${importName} does not exist`;
+                  }
+                },
+                preventFullImport: false,
+                skipDefaultConversion: true
+              }
+            },
+            'react-core'
+          ],
+          [
+            'transform-imports',
+            {
+              '@patternfly/react-icons': {
+                transform: (importName) =>
+                  `@patternfly/react-icons/dist/js/icons/${importName
+                  .split(/(?=[A-Z])/)
+                  .join('-')
+                  .toLowerCase()}`,
+                preventFullImport: true
+              }
+            },
+            'react-icons'
+          ],
+          [
+            'transform-imports',
+            {
+              '@redhat-cloud-services/frontend-components': {
+                transform: (importName) =>
+                  `@redhat-cloud-services/frontend-components/components/cjs/${FECMapper[importName] || importName}`,
+                preventFullImport: false,
+                skipDefaultConversion: true
+              }
+            },
+            'frontend-components'
+          ],
+          [
+            'transform-imports',
+            {
+              '@redhat-cloud-services/frontend-components-notifications': {
+                transform: (importName) =>
+                  `@redhat-cloud-services/frontend-components-notifications/cjs/${importName}`,
+                preventFullImport: true
+              }
+            },
+            'frontend-notifications'
+          ]
+    ]
 };

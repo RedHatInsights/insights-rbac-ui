@@ -1,25 +1,5 @@
 .ins-c-role__permissions {
   .pf-c-content {
-    padding-bottom: var(--pf-global--spacer--sm);
-    h1 {
-      font-weight: lighter;
-    }
+    padding-bottom: var(--pf-global--spacer--lg);
   }
-
-  .ins-c-text__disabled {
-    color: var(--pf-global--Color--200);
-  }
-}
-
-.ins-m-resource-definitions {
-  .pf-c-modal-box__body {
-    text-align: center;
-    padding-top: var(--pf-global--spacer--4xl);
-    padding-bottom: 7rem;
-  }
-
-  .pf-c-modal__alert {
-    margin-bottom: var(--pf-global--spacer--sm);
-  }
-  
 }
