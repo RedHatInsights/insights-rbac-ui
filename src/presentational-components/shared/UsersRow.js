@@ -5,12 +5,8 @@ import classNames from 'classnames';
 
 const UsersRow = ({ row, ...props }) => {
   const { status } = row;
-  const { 'data-is-active': isActive } = status?.props;
-  return <RowWrapper
-    className={ classNames('ins-c-rbac__user-row', { 'ins-m-inactive': !isActive }) }
-    row={ row }
-    { ...props }
-  />;
+  const isActive = status?.props?.['data-is-active'];
+  return <RowWrapper className={classNames('ins-c-rbac__user-row', { 'ins-m-inactive': !isActive })} row={row} {...props} />;
 };
 
 UsersRow.propTypes = {
@@ -18,11 +14,11 @@ UsersRow.propTypes = {
     status: PropTypes.shape({
       props: PropTypes.shape({
         data: PropTypes.shape({
-          isActive: PropTypes.bool
-        })
-      })
-    })
-  })
+          isActive: PropTypes.bool,
+        }),
+      }),
+    }),
+  }),
 };
 
 export default UsersRow;

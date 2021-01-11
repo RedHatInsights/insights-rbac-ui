@@ -1,34 +1,39 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
+import { sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { defaultCompactSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { defaultSettings } from '../../../helpers/shared/pagination';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 
-const columns = [
-  { title: 'Name', orderBy: 'name' },
-  { title: 'Description' }
-];
-
 const createRows = (data, expanded, checkedRows = []) => {
-  return data ? data.reduce((acc,  { uuid, name, description }) => ([
-    ...acc, {
-      uuid,
-      cells: [ name, description ],
-      selected: Boolean(checkedRows && checkedRows.find(row => row.uuid === uuid))
-    }
-  ]), []) : [];
+  return data
+    ? data.reduce(
+        (acc, { uuid, display_name, name, description }) => [
+          ...acc,
+          {
+            uuid,
+            cells: [display_name || name, description],
+            selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
+          },
+        ],
+        []
+      )
+    : [];
 };
 
-const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, setSelectedRoles }) => {
-  const [ filterValue, setFilterValue ] = useState('');
+const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, canSort, setSelectedRoles }) => {
+  const [filterValue, setFilterValue] = useState('');
+  const { current: columns } = useRef([
+    { title: 'Name', key: 'display_name', ...(canSort ? { transforms: [sortable] } : { orderBy: 'name' }) },
+    { title: 'Description' },
+  ]);
 
   useEffect(() => {
-    fetchRoles({});
+    fetchRoles({ orderBy: 'display_name' });
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -37,44 +42,47 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, se
     });
   };
 
-  return <TableToolbarView
-    columns={ columns }
-    isSelectable={ true }
-    isCompact={ true }
-    borders = { false }
-    createRows={ createRows }
-    data={ roles }
-    filterValue={ filterValue }
-    fetchData={ (config) => fetchRoles(mappedProps(config)) }
-    setFilterValue={ ({ name }) => setFilterValue(name) }
-    isLoading={ isLoading }
-    pagination={ pagination }
-    checkedRows={ selectedRoles }
-    setCheckedItems={ setCheckedItems }
-    titlePlural="roles"
-    titleSingular="role"
-  />;
+  return (
+    <TableToolbarView
+      columns={columns}
+      isSelectable
+      isCompact
+      borders={false}
+      createRows={createRows}
+      data={roles}
+      filterValue={filterValue}
+      fetchData={(config) => fetchRoles(mappedProps(config))}
+      setFilterValue={({ name }) => setFilterValue(name)}
+      isLoading={isLoading}
+      ouiaId="roles-table"
+      pagination={pagination}
+      checkedRows={selectedRoles}
+      setCheckedItems={setCheckedItems}
+      titlePlural="roles"
+      titleSingular="role"
+    />
+  );
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading }}) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   pagination: roles.meta,
-  isLoading
+  isLoading,
 });
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     fetchRoles: (apiProps) => {
       dispatch(fetchRolesWithPolicies(mappedProps(apiProps)));
     },
-    addNotification: (...props) => dispatch(addNotification(...props))
+    addNotification: (...props) => dispatch(addNotification(...props)),
   };
 };
 
 RolesList.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
+    push: PropTypes.func.isRequired,
   }),
   roles: PropTypes.array,
   isLoading: PropTypes.bool,
@@ -85,32 +93,34 @@ RolesList.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
     offset: PropTypes.number.isRequired,
-    count: PropTypes.number
-  })
+    count: PropTypes.number,
+  }),
+  canSort: PropTypes.bool,
 };
 
 RolesList.defaultProps = {
   roles: [],
-  pagination: defaultCompactSettings
+  pagination: defaultCompactSettings,
+  canSort: true,
 };
 
-const mapStateToPropsGroup = ({ groupReducer: { selectedGroup }}) => {
+const mapStateToPropsGroup = ({ groupReducer: { selectedGroup } }) => {
   const roles = selectedGroup.addRoles.roles;
 
   return {
     roles,
     pagination: selectedGroup.addRoles.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.addRoles.loaded,
-    groupId: selectedGroup.uuid
+    groupId: selectedGroup.uuid,
   };
 };
 
-const mapDispatchToPropsGroup = dispatch => {
+const mapDispatchToPropsGroup = (dispatch) => {
   return {
     fetchRoles: (groupId, apiProps) => {
       dispatch(fetchAddRolesForGroup(groupId, apiProps));
     },
-    addNotification: (...props) => dispatch(addNotification(...props))
+    addNotification: (...props) => dispatch(addNotification(...props)),
   };
 };
 
@@ -119,7 +129,8 @@ const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
     ...ownProps,
     ...propsFromState,
     ...propsFromDispatch,
-    fetchRoles: (apiProps) => propsFromDispatch.fetchRoles(propsFromState.groupId, apiProps)
+    canSort: false,
+    fetchRoles: (apiProps) => propsFromDispatch.fetchRoles(propsFromState.groupId, apiProps),
   };
 };
 

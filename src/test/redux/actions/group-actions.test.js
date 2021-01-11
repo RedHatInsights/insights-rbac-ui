@@ -1,55 +1,59 @@
 import thunk from 'redux-thunk';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import { RBAC_API_BASE } from '../../../utilities/constants';
-import { fetchGroups } from '../../../redux/actions/group-actions';
-import { FETCH_GROUPS } from '../../../redux/action-types';
-import { mock } from '../../__mocks__/apiMock';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import { getUserMock } from '../../../../config/setupTests';
+
+import { fetchGroup, fetchGroups, fetchSystemGroup } from '../../../redux/actions/group-actions';
+import { FETCH_GROUP, FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+
+import * as GroupHelper from '../../../helpers/group/group-helper';
+
+const createActionResult = (type, payload, meta) => [{ type: `${type}_PENDING` }, { type: `${type}_FULFILLED`, payload, meta }];
 
 describe('group actions', () => {
-
-  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   let mockStore;
+
+  const fetchGroupsSpy = jest.spyOn(GroupHelper, 'fetchGroups');
+  const fetchGroupSpy = jest.spyOn(GroupHelper, 'fetchGroup');
 
   beforeEach(() => {
     mockStore = configureStore(middlewares);
   });
 
-  it('should dispatch correct actions after fetching groups', () => {
+  afterEach(() => {
+    fetchGroupsSpy.mockReset();
+    fetchGroupSpy.mockReset();
+  });
+
+  it('should dispatch correct actions after fetching groups', async () => {
     const store = mockStore({});
-    const expectedActions = [{
-      type: `${FETCH_GROUPS}_PENDING`
-    }, {
-      payload: {
-        data: [{
-          name: 'groupName',
-          uuid: '1234',
-          members: undefined
-        }],
-        ...getUserMock
-      },
-      type: `${FETCH_GROUPS}_FULFILLED`
-    }];
-
-    mock.onGet(`${RBAC_API_BASE}/groups/`).reply(200, {
-      data: [{
-        name: 'groupName',
-        uuid: '1234'
-      }]
+    const expectedActions = createActionResult(FETCH_GROUPS, {
+      data: [{ name: 'groupName', uuid: '1234', members: undefined }],
     });
 
-    mock.onGet(`${RBAC_API_BASE}/groups/1234/`).reply(200, {
-      data: {
-        name: 'groupName',
-        uuid: '1234'
-      }
+    fetchGroupsSpy.mockResolvedValueOnce({ data: [{ name: 'groupName', uuid: '1234' }] });
+    await store.dispatch(fetchGroups());
+    expect(store.getActions()).toEqual(expectedActions);
+  });
+
+  it('should dispatch correct actions after fetching system group', async () => {
+    const store = mockStore({});
+    const expectedActions = createActionResult(FETCH_SYSTEM_GROUP, {
+      data: [{ name: 'system-group', uuid: 'system-group', members: undefined }],
     });
 
-    return store.dispatch(fetchGroups()).then(() => {
-      expect(store.getActions()).toEqual(expectedActions);
-    });
+    fetchGroupsSpy.mockResolvedValueOnce({ data: [{ name: 'system-group', uuid: 'system-group' }] });
+    await store.dispatch(fetchSystemGroup());
+    expect(store.getActions()).toEqual(expectedActions);
+  });
+
+  it('should dispatch correct actions after fetching group', async () => {
+    const store = mockStore({});
+    const expectedActions = createActionResult(FETCH_GROUP, { name: 'group', uuid: 'group' });
+
+    fetchGroupSpy.mockResolvedValueOnce({ name: 'group', uuid: 'group' });
+    await store.dispatch(fetchGroup());
+    expect(store.getActions()).toEqual(expectedActions);
   });
 });
-

@@ -1,105 +1,88 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
-import configureStore from 'redux-mock-store' ;
+import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
-import { mock } from '../__mocks__/apiMock';
-import { notificationsMiddleware, ADD_NOTIFICATION } from '@redhat-cloud-services/frontend-components-notifications/';
-import { RBAC_API_BASE } from '../../utilities/constants';
+import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
-import { rolesInitialState } from '../../redux/reducers/role-reducer';
-import { REMOVE_ROLE, FETCH_ROLE } from '../../redux/action-types';
+
+import * as RoleHelper from '../../helpers/role/role-helper';
+import * as RoleActions from '../../redux/actions/role-actions';
 
 describe('<RemoveRoleModal />', () => {
-  let initialProps;
-  const middlewares = [ thunk, promiseMiddleware, notificationsMiddleware() ];
-  let mockStore;
-  let initialState;
+  const ROLE_ID = 'foo';
+  const initialProps = {
+    routeMatch: '/role/:id',
+    cancelRoute: '/cancel',
+    afterSubmit: jest.fn(),
+  };
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const mockStore = configureStore(middlewares);
 
-  const RoleWrapper = ({ store, children }) => (
-    <Provider store={ store }>
-      <MemoryRouter initialEntries={ [ '/roles/', '/roles/123/', '/roles/' ] } initialIndex={ 1 }>
-        { children }
-      </MemoryRouter>
-    </Provider>
+  const fetchRoleSpy = jest.spyOn(RoleHelper, 'fetchRole');
+  const removeRoleSpy = jest.spyOn(RoleActions, 'removeRole');
+
+  afterEach(() => {
+    fetchRoleSpy.mockReset();
+    removeRoleSpy.mockReset();
+  });
+
+  const ComponentWrapper = ({ store, children }) => (
+    <MemoryRouter initialEntries={[`/role/${ROLE_ID}`]}>
+      <Route path="/role/:id">
+        <Provider store={store}>{children}</Provider>
+      </Route>
+    </MemoryRouter>
   );
 
-  beforeEach(() => {
-    initialProps = {
-      id: '123'
-    };
-    mockStore = configureStore(middlewares);
-    initialState = {
+  it('should mount and call remove role action witouth fethichg data from API', () => {
+    const store = mockStore({
       roleReducer: {
-        ...rolesInitialState,
-        isLoading: true,
-        role: {
-          name: 'Foo',
-          uuid: '1'
-        }
-      }
-    };
-  });
-
-  it('should call cancel action', () => {
-    const store = mockStore(initialState);
-    mock.onGet(`${RBAC_API_BASE}/roles/123/`).reply(200, { data: []});
+        selectedRole: {
+          uuid: ROLE_ID,
+          name: 'role-name',
+        },
+      },
+    });
+    removeRoleSpy.mockImplementationOnce(() => ({ type: 'REMOVE_ROLE', payload: Promise.resolve() }));
 
     const wrapper = mount(
-      <RoleWrapper store={ store }>
-        <Route path="/roles/:id/" render={ (args) => <RemoveRoleModal { ...args } { ...initialProps } /> } />
-      </RoleWrapper>
+      <ComponentWrapper store={store}>
+        <RemoveRoleModal {...initialProps} />
+      </ComponentWrapper>
     );
-    wrapper.find('button').first().simulate('click');
-    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/roles/');
+
+    wrapper.find('input#remove-role-checkbox').simulate('change');
+    wrapper.find('button#confirm-delete-portfolio').prop('onClick')();
+
+    expect(removeRoleSpy).toHaveBeenCalledTimes(1);
+    expect(removeRoleSpy).toHaveBeenCalledWith(ROLE_ID);
+    expect(fetchRoleSpy).not.toHaveBeenCalled();
   });
 
-  it('should call the remove action', (done) => {
-    const store = mockStore(initialState);
-    const postMethod = jest.fn();
+  it('should mount and fetch data from API when not avaiable in redux store', async () => {
+    expect.assertions(2);
+    const store = mockStore({
+      roleReducer: {
+        selectedRole: {
+          uuid: 'nonsense',
+        },
+      },
+    });
+    fetchRoleSpy.mockImplementation(() => Promise.resolve({ uuid: ROLE_ID, name: 'name' }));
 
-    mock.onGet(`${RBAC_API_BASE}/roles/123/`).reply(200, { data: []});
-
-    mock.onDelete(`${RBAC_API_BASE}/roles/123/`).reply(200);
-
-    mock.onGet(`${RBAC_API_BASE}/roles/`).reply(200, { data: []});
-
-    const wrapper = mount(
-      <RoleWrapper store={ store }>
-        <Route path="/roles/:id/" render={ (args) => <RemoveRoleModal { ...args } { ...initialProps } postMethod={ postMethod } /> } />
-      </RoleWrapper>
-    );
-
-    expect.extend({
-      toContainObj(received, argument) {
-        const result = this.equals(received,
-          expect.arrayContaining([
-            expect.objectContaining(argument)
-          ])
-        );
-        if (result) {
-          return { message: () => (`expected ${received} not to contain object ${argument}`), pass: true };
-        } else {
-          return { message: () => (`expected ${received} to contain object ${argument}`), pass: false };
-        }
-      }
+    await act(async () => {
+      mount(
+        <ComponentWrapper store={store}>
+          <RemoveRoleModal {...initialProps} />
+        </ComponentWrapper>
+      );
     });
 
-    wrapper.find('button').last().simulate('click');
-    setImmediate(() => {
-      const actions = store.getActions();
-      expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
-      expect(actions).toContainObj({ type: `${REMOVE_ROLE}_PENDING`,
-        meta: { notifications: { fulfilled: { description: 'The role was removed successfully.',
-          title: 'Success removing role', variant: 'success', dismissDelay: 8000, dismissable: false }}}});
-      expect(actions).toContainObj({ type: `${FETCH_ROLE}_PENDING` });
-      expect(actions).toContainObj({ type: ADD_NOTIFICATION,
-        payload: expect.objectContaining({ description: 'The role was removed successfully.' }) });
-      expect(postMethod).toHaveBeenCalledTimes(1);
-      done();
-    });
+    expect(fetchRoleSpy).toHaveBeenCalledTimes(1);
+    expect(fetchRoleSpy).toHaveBeenCalledWith(ROLE_ID);
   });
 });
-

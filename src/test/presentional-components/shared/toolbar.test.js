@@ -5,7 +5,7 @@ import Toolbar, {
   paginationBuilder,
   bulkSelectBuilder,
   filterConfigBuilder,
-  activeFiltersConfigBuilder
+  activeFiltersConfigBuilder,
 } from '../../../presentational-components/shared/toolbar';
 
 const testPagination = {
@@ -13,15 +13,17 @@ const testPagination = {
   page: 1,
   perPage: undefined,
   perPageOptions: [
-    { title: '5', value: 5 }, { title: '10', value: 10 }, { title: '20', value: 20 }, { title: '50', value: 50 }
-  ]};
+    { title: '5', value: 5 },
+    { title: '10', value: 10 },
+    { title: '20', value: 20 },
+    { title: '50', value: 50 },
+  ],
+};
 
 const testBulkSelect = {
   checked: false,
-  count: undefined,
-  items: [
-    { title: 'Select none (0)' }, {}
-  ]
+  count: 0,
+  items: [{ title: 'Select none (0)' }, {}],
 };
 
 const testFilter = {
@@ -32,16 +34,16 @@ const testFilter = {
         isDisabled: undefined,
         key: 'filter-by-string',
         placeholder: 'Filter by ',
-        value: ''
+        value: '',
       },
       label: '',
-      type: 'text'
-    }
-  ]
+      type: 'text',
+    },
+  ],
 };
 
 const testActiveFilter = {
-  filters: [{ name: '' }]
+  filters: [{ name: '' }],
 };
 
 describe('<Toolbar>', () => {
@@ -51,99 +53,100 @@ describe('<Toolbar>', () => {
   });
 
   describe('isSelectable', () => {
-    [ true, false ].map((isLoading) => {
+    [true, false].map((isLoading) => {
       it(`is loading - ${isLoading}`, () => {
-        const wrapper = shallow(<Toolbar isLoading={ isLoading } isSelectable/>);
+        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable />);
         expect(toJson(wrapper)).toMatchSnapshot();
       });
     });
   });
 
   describe('checkedRows', () => {
-    [ true, false ].map((isLoading) => {
+    [true, false].map((isLoading) => {
       it(`is loading - ${isLoading} NO DATA`, () => {
-        const wrapper = shallow(<Toolbar isLoading={ isLoading } isSelectable checkedRows={ [{ uuid: 'some' }] }/>);
+        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} />);
         expect(toJson(wrapper)).toMatchSnapshot();
       });
 
       it(`is loading - ${isLoading}`, () => {
-        const wrapper = shallow(<Toolbar
-          isLoading={ isLoading }
-          isSelectable
-          checkedRows={ [{ uuid: 'some' }] }
-          data={ [{ uuid: 'some' }] }
-        />);
+        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} data={[{ uuid: 'some' }]} />);
         expect(toJson(wrapper)).toMatchSnapshot();
       });
     });
   });
 
   it('should render with filterValue', () => {
-    const wrapper = shallow(<Toolbar filterValue='some' />);
+    const wrapper = shallow(<Toolbar filterValue="some" />);
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 
   it('should render buttons', () => {
-    const wrapper = shallow(<Toolbar toolbarButtons={ () => ([
-      <button key={ 1 }>Something</button>,
-      {
-        title: 'fff'
-      }
-    ]) } />);
+    const wrapper = shallow(
+      <Toolbar
+        toolbarButtons={() => [
+          <button key={1}>Something</button>,
+          {
+            title: 'fff',
+          },
+        ]}
+      />
+    );
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 
   it('should render pagination', () => {
-    const wrapper = shallow(<Toolbar pagination={ {
-      count: 10,
-      limit: 10,
-      offset: 0
-    } } />);
+    const wrapper = shallow(
+      <Toolbar
+        pagination={{
+          count: 10,
+          limit: 10,
+          offset: 0,
+        }}
+      />
+    );
     expect(toJson(wrapper)).toMatchSnapshot();
   });
 
-  [ true, false ].map(isLoading => {
+  [true, false].map((isLoading) => {
     it(`should render with full data is loading - ${isLoading}`, () => {
-      const wrapper = shallow(<Toolbar
-        isLoading={ false }
-        isSelectable
-        checkedRows={ [{ uuid: 'some' }] }
-        data={ [{ uuid: 'some' }] }
-        filterValue='some'
-        pagination={ {
-          count: 10,
-          limit: 10,
-          offset: 0
-        } }
-        toolbarButtons={ () => ([
-          <button key={ 1 }>Something</button>,
-          {
-            title: 'fff'
-          }
-        ]) }
-      />);
+      const wrapper = shallow(
+        <Toolbar
+          isLoading={false}
+          isSelectable
+          checkedRows={[{ uuid: 'some' }]}
+          data={[{ uuid: 'some' }]}
+          filterValue="some"
+          pagination={{
+            count: 10,
+            limit: 10,
+            offset: 0,
+          }}
+          toolbarButtons={() => [
+            <button key={1}>Something</button>,
+            {
+              title: 'fff',
+            },
+          ]}
+        />
+      );
       expect(toJson(wrapper)).toMatchSnapshot();
     });
   });
 
   describe('filters', () => {
     it('should render with placeholder', () => {
-      const wrapper = shallow(<Toolbar filterValue='some' filterPlaceholder='test' />);
+      const wrapper = shallow(<Toolbar filterValue="some" filterPlaceholder="test" />);
       expect(toJson(wrapper)).toMatchSnapshot();
     });
 
     it('should render with text filters', () => {
-      const wrapper = shallow(<Toolbar filterValue='some' filters={ [{ key: 'name', value: '' }] } />);
+      const wrapper = shallow(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} />);
       expect(toJson(wrapper)).toMatchSnapshot();
     });
 
     it('call filter update with correct value', () => {
       const setFilterValue = jest.fn();
-      const wrapper = mount(<Toolbar
-        filterValue='some'
-        filters={ [{ key: 'name', value: '' }] }
-        setFilterValue={ setFilterValue }
-      />);
+      const wrapper = mount(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} setFilterValue={setFilterValue} />);
       const target = wrapper.find('input#filter-by-name');
       target.getDOMNode().value = 'something';
       target.simulate('change');
@@ -181,4 +184,3 @@ describe('activeFiltersConfigBuilder', () => {
     expect(config).toMatchObject(testActiveFilter);
   });
 });
-

@@ -1,24 +1,15 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-
-import {
-  Button,
-  Card,
-  Modal,
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextVariants,
-  Title
-} from '@patternfly/react-core';
+import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 import { ExcludedRolesList } from '../add-group/roles-list';
-import '../../../App.scss';
 import DefaultGroupChange from './default-group-change-modal';
+import '../../../App.scss';
 
 const AddGroupRoles = ({
   history: { push },
-  match: { params: { uuid }},
+  match: {
+    params: { uuid },
+  },
   selectedRoles,
   setSelectedRoles,
   title,
@@ -29,9 +20,9 @@ const AddGroupRoles = ({
   isChanged,
   addNotification,
   onDefaultGroupChanged,
-  fetchRolesForGroup
+  fetchRolesForGroup,
 }) => {
-  const [ showConfirmModal, setShowConfirmModal ] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(true);
 
   const onCancel = () => {
     addNotification({
@@ -39,13 +30,13 @@ const AddGroupRoles = ({
       title: 'Adding roles to group',
       dismissDelay: 8000,
       dismissable: false,
-      description: 'Adding roles to group was canceled by the user.'
+      description: 'Adding roles to group was canceled by the user.',
     });
     push(closeUrl);
   };
 
   const onSubmit = () => {
-    const rolesList = selectedRoles.map(role => role.uuid);
+    const rolesList = selectedRoles.map((role) => role.uuid);
     addRolesToGroup(uuid, rolesList, fetchRolesForGroup);
     if (isDefault && !isChanged) {
       onDefaultGroupChanged(true);
@@ -54,52 +45,51 @@ const AddGroupRoles = ({
     return push(closeUrl);
   };
 
-  return (isDefault && !isChanged && showConfirmModal
-    ? <DefaultGroupChange
-      isOpen={ showConfirmModal }
-      onClose={ onCancel }
-      onSubmit={ () => setShowConfirmModal(false) }
-    />
-    : <Modal
+  return isDefault && !isChanged && showConfirmModal ? (
+    <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={() => setShowConfirmModal(false)} />
+  ) : (
+    <Modal
       title="Add roles to group"
-      width={ '70%' }
+      variant={ModalVariant.medium}
       isOpen
-      onClose={ () => {
+      onClose={() => {
         onCancel();
         setShowConfirmModal(true);
-      } }
-      actions={ [
+      }}
+      actions={[
         <Button
           aria-label="Save"
+          ouiaId="primary-save-button"
           variant="primary"
           key="confirm"
-          isDisabled={ selectedRoles.length === 0 }
-          onClick={ onSubmit }>
-            Add to group
+          isDisabled={selectedRoles.length === 0}
+          onClick={onSubmit}
+        >
+          Add to group
         </Button>,
-        <Button
-          aria-label='Cancel'
-          variant='link'
-          key="cancel"
-          onClick={ onCancel }>
+        <Button aria-label="Cancel" ouiaId="secondary-cancel-button" variant="link" key="cancel" onClick={onCancel}>
           Cancel
-        </Button>
-      ] }
-      isFooterLeftAligned>
+        </Button>,
+      ]}
+    >
       <Stack hasGutter>
-        { title && <StackItem>
-          <Title headingLevel="h4" size="xl">{ title }</Title>
-        </StackItem> }
+        {title && (
+          <StackItem>
+            <Title headingLevel="h4" size="xl">
+              {title}
+            </Title>
+          </StackItem>
+        )}
         <StackItem>
           <TextContent>
-            <Text component={ TextVariants.h6 }>
-                  This role list has been <b> filtered </b> to <b> only show roles </b> that are <b> not currently </b> in <b> { name }</b>.
+            <Text component={TextVariants.p}>
+              This role list has been filtered to only show roles that are not currently in <b> {name}</b>.
             </Text>
           </TextContent>
         </StackItem>
         <StackItem>
           <Card>
-            <ExcludedRolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
+            <ExcludedRolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} />
           </Card>
         </StackItem>
       </Stack>
@@ -110,10 +100,10 @@ const AddGroupRoles = ({
 AddGroupRoles.propTypes = {
   history: PropTypes.shape({
     push: PropTypes.any,
-    goBack: PropTypes.func.isRequired
+    goBack: PropTypes.func.isRequired,
   }).isRequired,
   match: PropTypes.shape({
-    params: PropTypes.object.isRequired
+    params: PropTypes.object.isRequired,
   }).isRequired,
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
@@ -125,8 +115,7 @@ AddGroupRoles.propTypes = {
   isChanged: PropTypes.bool,
   addNotification: PropTypes.func,
   onDefaultGroupChanged: PropTypes.func,
-  fetchRolesForGroup: PropTypes.func
+  fetchRolesForGroup: PropTypes.func,
 };
 
 export default AddGroupRoles;
-

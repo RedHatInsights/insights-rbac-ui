@@ -17,7 +17,6 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
         "title": "Status",
         "transforms": Array [
           [Function],
-          [Function],
         ],
       },
       Object {
@@ -70,10 +69,13 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   filterValue=""
   filters={Array []}
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="members-table"
   pagination={
     Object {
       "count": 2,
@@ -105,6 +107,10 @@ Array [
       <Card>
         <article
           className="pf-c-card"
+          data-ouia-component-id="OUIA-Generated-Card-1"
+          data-ouia-component-type="PF4/Card"
+          data-ouia-safe={true}
+          id=""
         >
           <CardBody>
             <div
@@ -147,6 +153,10 @@ Array [
     <Card>
       <article
         className="pf-c-card"
+        data-ouia-component-id="OUIA-Generated-Card-1"
+        data-ouia-component-type="PF4/Card"
+        data-ouia-safe={true}
+        id=""
       >
         <CardBody>
           <div
@@ -207,7 +217,6 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
         "title": "Status",
         "transforms": Array [
           [Function],
-          [Function],
         ],
       },
       Object {
@@ -260,10 +269,13 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   filterValue=""
   filters={Array []}
   hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="members-table"
   pagination={
     Object {
       "count": 2,

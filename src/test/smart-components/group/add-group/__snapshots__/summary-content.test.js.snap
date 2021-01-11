@@ -48,7 +48,7 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                         <h4
                           className="pf-c-title pf-m-xl"
                         >
-                           Confirm the details for this group, or click Back to revise 
+                          Review details
                         </h4>
                       </Title>
                     </div>
@@ -61,43 +61,40 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                 <div
                   className="pf-l-stack__item ins-c-rbac__summary"
                 >
-                  <Grid
-                    hasGutter={true}
-                  >
+                  <Grid>
                     <div
-                      className="pf-l-grid pf-m-gutter"
+                      className="pf-l-grid"
                     >
                       <GridItem
-                        span={2}
+                        md={3}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-2-col"
+                          className="pf-l-grid__item pf-m-3-col-on-md"
                         >
                           <Text
-                            className="data-table-detail heading content"
-                            component="h5"
+                            className="ins-c-rbac__bold-text"
+                            component="h4"
                           >
-                            <h5
-                              className="data-table-detail heading content"
+                            <h4
+                              className="ins-c-rbac__bold-text"
                               data-pf-content={true}
                             >
                               Group name
-                            </h5>
+                            </h4>
                           </Text>
                         </div>
                       </GridItem>
                       <GridItem
-                        span={10}
+                        md={9}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-10-col"
+                          className="pf-l-grid__item pf-m-9-col-on-md"
                         >
                           <Text
-                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -105,43 +102,40 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                       </GridItem>
                     </div>
                   </Grid>
-                  <Grid
-                    hasGutter={true}
-                  >
+                  <Grid>
                     <div
-                      className="pf-l-grid pf-m-gutter"
+                      className="pf-l-grid"
                     >
                       <GridItem
-                        span={2}
+                        md={3}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-2-col"
+                          className="pf-l-grid__item pf-m-3-col-on-md"
                         >
                           <Text
-                            className="data-table-detail heading content"
-                            component="h5"
+                            className="ins-c-rbac__bold-text"
+                            component="h4"
                           >
-                            <h5
-                              className="data-table-detail heading content"
+                            <h4
+                              className="ins-c-rbac__bold-text"
                               data-pf-content={true}
                             >
                               Group description
-                            </h5>
+                            </h4>
                           </Text>
                         </div>
                       </GridItem>
                       <GridItem
-                        span={10}
+                        md={9}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-10-col"
+                          className="pf-l-grid__item pf-m-9-col-on-md"
                         >
                           <Text
-                            className="data-table-detail content content"
                             component="p"
                           >
                             <p
-                              className="data-table-detail content content"
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -149,43 +143,40 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                       </GridItem>
                     </div>
                   </Grid>
-                  <Grid
-                    hasGutter={true}
-                  >
+                  <Grid>
                     <div
-                      className="pf-l-grid pf-m-gutter"
+                      className="pf-l-grid"
                     >
                       <GridItem
-                        span={2}
+                        md={3}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-2-col"
+                          className="pf-l-grid__item pf-m-3-col-on-md"
                         >
                           <Text
-                            className="data-table-detail heading content"
-                            component="h5"
+                            className="ins-c-rbac__bold-text"
+                            component="h4"
                           >
-                            <h5
-                              className="data-table-detail heading content"
+                            <h4
+                              className="ins-c-rbac__bold-text"
                               data-pf-content={true}
                             >
-                              Role(s)
-                            </h5>
+                              Roles
+                            </h4>
                           </Text>
                         </div>
                       </GridItem>
                       <GridItem
-                        span={10}
+                        md={9}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-10-col"
+                          className="pf-l-grid__item pf-m-9-col-on-md"
                         >
                           <Text
-                            className="groups-table-detail content"
-                            component="h5"
+                            component="p"
                           >
-                            <h5
-                              className="groups-table-detail content"
+                            <p
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>
@@ -193,43 +184,40 @@ exports[`<SummaryContent /> should render correctly 1`] = `
                       </GridItem>
                     </div>
                   </Grid>
-                  <Grid
-                    hasGutter={true}
-                  >
+                  <Grid>
                     <div
-                      className="pf-l-grid pf-m-gutter"
+                      className="pf-l-grid"
                     >
                       <GridItem
-                        span={2}
+                        md={3}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-2-col"
+                          className="pf-l-grid__item pf-m-3-col-on-md"
                         >
                           <Text
-                            className="data-table-detail heading content"
-                            component="h5"
+                            className="ins-c-rbac__bold-text"
+                            component="h4"
                           >
-                            <h5
-                              className="data-table-detail heading content"
+                            <h4
+                              className="ins-c-rbac__bold-text"
                               data-pf-content={true}
                             >
-                              Member(s)
-                            </h5>
+                              Members
+                            </h4>
                           </Text>
                         </div>
                       </GridItem>
                       <GridItem
-                        span={10}
+                        md={9}
                       >
                         <div
-                          className="pf-l-grid__item pf-m-10-col"
+                          className="pf-l-grid__item pf-m-9-col-on-md"
                         >
                           <Text
-                            className="groups-table-detail content"
-                            component="h5"
+                            component="p"
                           >
-                            <h5
-                              className="groups-table-detail content"
+                            <p
+                              className=""
                               data-pf-content={true}
                             />
                           </Text>

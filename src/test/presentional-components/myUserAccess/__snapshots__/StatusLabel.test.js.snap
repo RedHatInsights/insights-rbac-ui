@@ -1,0 +1,121 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`<StatusLabel /> should render correctly 1`] = `
+<StatusLabel>
+  <Label
+    color="purple"
+  >
+    <span
+      className="pf-c-label pf-m-purple"
+    >
+      <span
+        className="pf-c-label__content"
+      >
+         User 
+      </span>
+    </span>
+  </Label>
+</StatusLabel>
+`;
+
+exports[`<StatusLabel /> should render correctly as admin 1`] = `
+<StatusLabel
+  isOrgAdmin={true}
+>
+  <Tooltip
+    content={
+      <span>
+         You can manage other users' permissions with 'User access' 
+      </span>
+    }
+    position="right"
+  >
+    <Popper
+      appendTo={[Function]}
+      distance={15}
+      enableFlip={true}
+      flipBehavior={
+        Array [
+          "top",
+          "right",
+          "bottom",
+          "left",
+          "top",
+          "right",
+          "bottom",
+        ]
+      }
+      isVisible={false}
+      onBlur={[Function]}
+      onDocumentClick={false}
+      onDocumentKeyDown={[Function]}
+      onFocus={[Function]}
+      onMouseEnter={[Function]}
+      onMouseLeave={[Function]}
+      onTriggerEnter={[Function]}
+      placement="right"
+      popper={
+        <div
+          className="pf-c-tooltip"
+          id="pf-tooltip-1"
+          role="tooltip"
+          style={
+            Object {
+              "maxWidth": null,
+              "opacity": 0,
+              "transition": "opacity 300ms cubic-bezier(.54, 1.5, .38, 1.11)",
+            }
+          }
+        >
+          <TooltipArrow />
+          <TooltipContent
+            isLeftAligned={false}
+          >
+            <span>
+               You can manage other users' permissions with 'User access' 
+            </span>
+          </TooltipContent>
+        </div>
+      }
+      popperMatchesTriggerWidth={false}
+      positionModifiers={
+        Object {
+          "bottom": "pf-m-bottom",
+          "left": "pf-m-left",
+          "right": "pf-m-right",
+          "top": "pf-m-top",
+        }
+      }
+      trigger={
+        <Label
+          aria-describedby="pf-tooltip-1"
+          color="purple"
+        >
+           Org. Administrator 
+        </Label>
+      }
+      zIndex={9999}
+    >
+      <FindRefWrapper
+        onFoundRef={[Function]}
+      >
+        <Label
+          aria-describedby="pf-tooltip-1"
+          color="purple"
+        >
+          <span
+            aria-describedby="pf-tooltip-1"
+            className="pf-c-label pf-m-purple"
+          >
+            <span
+              className="pf-c-label__content"
+            >
+               Org. Administrator 
+            </span>
+          </span>
+        </Label>
+      </FindRefWrapper>
+    </Popper>
+  </Tooltip>
+</StatusLabel>
+`;

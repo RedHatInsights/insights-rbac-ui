@@ -1,56 +1,65 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<ActiveUsers /> should render correctly 1`] = `
-<TextContent>
+<Text
+  className="pf-u-mt-0"
+>
   <Text
-    className="pf-u-mt-0"
+    component="a"
+    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    rel="noopener noreferrer"
+    target="_blank"
   >
-     
-    <Text
-      component="a"
-      href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      user management list.
-    </Text>
+     user management list 
+    <ExternalLinkAltIcon
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
   </Text>
-</TextContent>
+  .
+</Text>
 `;
 
 exports[`<ActiveUsers /> should render correctly with description 1`] = `
-<TextContent>
+<Text
+  className="pf-u-mt-0"
+>
+  some description
   <Text
-    className="pf-u-mt-0"
+    component="a"
+    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    rel="noopener noreferrer"
+    target="_blank"
   >
-    some description
-     
-    <Text
-      component="a"
-      href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      user management list.
-    </Text>
+     user management list 
+    <ExternalLinkAltIcon
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
   </Text>
-</TextContent>
+  .
+</Text>
 `;
 
 exports[`<ActiveUsers /> should render correctly with link title 1`] = `
-<TextContent>
+<Text
+  className="pf-u-mt-0"
+>
   <Text
-    className="pf-u-mt-0"
+    component="a"
+    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    rel="noopener noreferrer"
+    target="_blank"
   >
-     
-    <Text
-      component="a"
-      href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-      rel="noopener noreferrer"
-      target="_blank"
-    >
-      some title
-    </Text>
+    some title
+    <ExternalLinkAltIcon
+      color="currentColor"
+      noVerticalAlign={false}
+      size="sm"
+    />
   </Text>
-</TextContent>
+  .
+</Text>
 `;

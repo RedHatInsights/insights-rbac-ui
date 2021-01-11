@@ -1,103 +1,95 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
-import { Modal, ModalVariant, Button, Grid, GridItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchRole, removeRole } from '../../redux/actions/role-actions';
-import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
+import { useDispatch, useSelector } from 'react-redux';
+import { useHistory, useRouteMatch } from 'react-router-dom';
+import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/cjs/actions';
+import { removeRole } from '../../redux/actions/role-actions';
+import { fetchRole } from '../../helpers/role/role-helper';
+import useIsMounted from '../../hooks/useIsMounted';
+import { roleNameSelector } from './role-selectors';
 
-const RemoveRoleModal = ({
-  history: { goBack, push },
-  match: { params: { id }},
-  removeRole,
-  role,
-  isLoading,
-  fetchRole,
-  postMethod
-}) => {
+const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
+  const isMounted = useIsMounted();
+  const {
+    params: { id },
+  } = useRouteMatch(routeMatch);
+  const roleName = useSelector((state) => roleNameSelector(state, id));
+  const [isDisabled, setIsDisabled] = useState(true);
+  const [internalRoleName, setInternalRoleName] = useState(roleName);
+  const dispatch = useDispatch();
+  const { push, replace } = useHistory();
+
   useEffect(() => {
-    fetchRole(id);
+    !internalRoleName &&
+      fetchRole(id)
+        .then((role) => {
+          if (isMounted.current) {
+            setInternalRoleName(role.name);
+          }
+        })
+        .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
   }, []);
 
-  const onSubmit = () => removeRole(id)
-  .then(() => {
-    postMethod();
-    push('/roles');
-  });
+  const onSubmit = () =>
+    dispatch(removeRole(id)).then(() => {
+      push('/roles');
+      return afterSubmit();
+    });
 
-  const onCancel = () => goBack();
+  const onCancel = () => replace(cancelRoute);
+  if (!internalRoleName) {
+    return null;
+  }
 
   return (
     <Modal
+      aria-label="remove-role"
+      header={
+        <TextContent>
+          <Split hasGutter>
+            <SplitItem>
+              <ExclamationTriangleIcon size="lg" style={{ fill: '#f0ab00' }} />
+            </SplitItem>
+            <SplitItem>
+              <Text component="h1">Delete role?</Text>
+            </SplitItem>
+          </Split>
+        </TextContent>
+      }
       isOpen
-      variant={ ModalVariant.small }
-      title = { '' }
-      onClose={ onCancel }
-      actions={ [
-        <Button key="cancel" variant="secondary" type="button" onClick={ onCancel }>
+      variant="small"
+      onClose={onCancel}
+      actions={[
+        <Button isDisabled={isDisabled} key="submit" variant="danger" type="button" id="confirm-delete-portfolio" onClick={onSubmit}>
+          Confirm
+        </Button>,
+        <Button key="cancel" variant="link" type="button" onClick={onCancel}>
           Cancel
         </Button>,
-        <Button key="submit" isDisabled={ isLoading  }  variant="primary" type="button" onClick={ onSubmit }>
-          Confirm
-        </Button>
-      ] }
+      ]}
     >
-      <Grid gutter="sm">
-        <GridItem span={ 5 }>
-          <TextContent>
-            <Text component={ TextVariants.h1 }>
-                Removing Role:
-            </Text>
-          </TextContent>
-        </GridItem>
-        <GridItem span={ 6 }>
-          <TextContent>
-            { !isLoading && <Text component={ TextVariants.h1 }>
-              { role.name }
-            </Text> }
-          </TextContent>
-          { isLoading && <FormItemLoader/> }
-        </GridItem>
-      </Grid>
+      <TextContent>
+        <Text component={TextVariants.p}>
+          The <strong>{internalRoleName}</strong> role will be removed from any group it’s in, and members in the groups will no longer be granted the
+          permissions in the role.
+        </Text>
+        <Checkbox
+          id="remove-role-checkbox"
+          label="I understand that this action cannot be undone."
+          isChecked={!isDisabled}
+          onChange={() => setIsDisabled((prev) => !prev)}
+        />
+      </TextContent>
     </Modal>
   );
 };
 
-RemoveRoleModal.defaultProps = {
-  role: {},
-  isLoading: true
-};
-
 RemoveRoleModal.propTypes = {
-  addNotification: PropTypes.func.isRequired,
-  fetchRole: PropTypes.func.isRequired,
-  isLoading: PropTypes.bool,
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired
-  }).isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.shape({
-      id: PropTypes.string
-    }).isRequired
-  }).isRequired,
-  postMethod: PropTypes.func,
-  removeRole: PropTypes.func.isRequired,
-  role: PropTypes.object
+  routeMatch: PropTypes.string.isRequired,
+  cancelRoute: PropTypes.string.isRequired,
+  afterSubmit: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ roleReducer: { roles, selectedRole, isRecordLoading }}) => ({
-  role: selectedRole,
-  isLoading: isRecordLoading,
-  pagination: roles.meta
-});
-
-const mapDispatchToProps = (dispatch) => bindActionCreators({
-  addNotification,
-  fetchRole,
-  removeRole
-}, dispatch);
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(RemoveRoleModal));
+export default RemoveRoleModal;
