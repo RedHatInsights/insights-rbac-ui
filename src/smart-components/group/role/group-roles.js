@@ -27,7 +27,7 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
             title: display_name || name,
             cells: [
               <Fragment key={`${uuid}-name`}>
-                <Link to={`/groups/detail/${groupUuid}/roles/detail/${uuid}`}>{name}</Link>
+                <Link to={`/groups/detail/${groupUuid}/roles/detail/${uuid}`}>{display_name || name}</Link>
               </Fragment>,
               description,
               <Fragment key={`${uuid}-modified`}>

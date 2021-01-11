@@ -83,8 +83,8 @@ export const filterConfigBuilder = (
   value,
   items: [
     ...(filters && filters.length > 0
-      ? filters.map(({ key, value, selected, placeholder, type = 'text', groups, items }) => ({
-          label: firstUpperCase(key),
+      ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items }) => ({
+          label: label || firstUpperCase(key),
           type,
           filterValues: {
             id: `filter-by-${key}`,

@@ -140,47 +140,47 @@ const Permissions = () => {
     },
   ];
 
-  const toolbarButtons = () => [
-    ...[
-      // eslint-disable-next-line react/jsx-key
-      <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
-        <Button variant="primary" aria-label="Add Permission">
-          Add Permission
-        </Button>
-      </Link>,
-      {
-        label: 'Add Permission',
-        props: {
-          className: 'pf-m-hidden-on-md',
-        },
-        onClick: () => {
-          history.push(`/roles/detail/${role.uuid}/role-add-permission`);
-        },
-      },
-      {
-        label: 'Remove',
-        props: {
-          isDisabled: !selectedPermissions.length > 0,
-        },
-        onClick: () => {
-          const multiplePermissionsSelected = selectedPermissions.length > 1;
-          internalDispatch({
-            type: INITIATE_REMOVE_PERMISSION,
-            confirmDelete: () => () => removePermissions([...selectedPermissions]),
-            deleteInfo: {
-              title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
-              text: removeModalText(
-                multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
-                role,
-                selectedPermissions.length > 1
-              ),
-              confirmButtonLabel: multiplePermissionsSelected ? 'Remove permissions' : 'Remove permission',
+  const toolbarButtons = () =>
+    window.insights.chrome.isBeta() && !role.system
+      ? [
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+            <Button variant="primary" aria-label="Add Permission">
+              Add Permission
+            </Button>
+          </Link>,
+          {
+            label: 'Add Permission',
+            props: {
+              className: 'pf-m-hidden-on-md',
             },
-          });
-        },
-      },
-    ],
-  ];
+            onClick: () => {
+              history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+            },
+          },
+          {
+            label: 'Remove',
+            props: {
+              isDisabled: !selectedPermissions.length > 0,
+            },
+            onClick: () => {
+              const multiplePermissionsSelected = selectedPermissions.length > 1;
+              internalDispatch({
+                type: INITIATE_REMOVE_PERMISSION,
+                confirmDelete: () => removePermissions([...selectedPermissions]),
+                deleteInfo: {
+                  title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
+                  text: removeModalText(
+                    multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
+                    role,
+                    selectedPermissions.length > 1
+                  ),
+                  confirmButtonLabel: multiplePermissionsSelected ? 'Remove permissions' : 'Remove permission',
+                },
+              });
+            },
+          },
+        ]
+      : [];
 
   const routes = () => (
     <Route exact path={paths['role-add-permission']}>
