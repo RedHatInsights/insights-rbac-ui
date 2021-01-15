@@ -1,6 +1,7 @@
 import promiseMiddleware from 'redux-promise-middleware';
 import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/files/ReducerRegistry';
-import { notifications, notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
+import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
 
 import reduxLogger from 'redux-logger';
 import thunk from 'redux-thunk';
@@ -30,7 +31,7 @@ registry.register({
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
   costReducer: applyReducerHash(costReducer, costInitialState),
-  notifications,
+  notifications: notificationsReducer,
 });
 
 export default registry.getStore();

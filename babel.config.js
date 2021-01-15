@@ -77,7 +77,7 @@ module.exports = {
       'transform-imports',
       {
         '@redhat-cloud-services/frontend-components-notifications': {
-          transform: (importName) => `@redhat-cloud-services/frontend-components-notifications/esm/${importName}`,
+          transform: (importName) => `@redhat-cloud-services/frontend-components-notifications/${importName}`,
           preventFullImport: true,
         },
       },
