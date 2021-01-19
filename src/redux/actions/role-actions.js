@@ -93,6 +93,29 @@ export const updateRole = (roleId, data, useCustomAccess) => ({
   },
 });
 
+export const patchRole = (roleId, data) => ({
+  type: ActionTypes.PATCH_ROLE,
+  payload: RoleHelper.patchRole(roleId, data),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success updating role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was updated successfully.',
+      },
+      rejected: {
+        variant: 'danger',
+        title: 'Failed updating role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was not updated successfuly.',
+      },
+    },
+  },
+});
+
 export const removeRolePermissions = (role, permissionsToRemove) => ({
   type: ActionTypes.UPDATE_ROLE,
   payload: RoleHelper.removeRolePermissions(role, permissionsToRemove),

@@ -63,3 +63,7 @@ export const removeRolePermissions = async (role, permissionsToRemove) => {
   const newRole = { ...role, access: access.filter((item) => !permissionsToRemove.includes(item.permission)) };
   return roleApi.updateRole(role.uuid, { ...newRole });
 };
+
+export const patchRole = async (roleId, data) => {
+  return roleApi.patchRole(roleId, data);
+};
