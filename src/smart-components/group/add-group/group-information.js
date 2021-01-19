@@ -18,7 +18,7 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid, isGrou
             fieldId="group-name"
             helperTextInvalid={
               formValue.name?.trim().length > 0 && !isValidating
-                ? formValue.name?.trim().length < 150
+                ? formValue.name?.length < 150
                   ? 'This group name already exists. Please input a unique group name.'
                   : 'Group name can have maximum of 150 characters'
                 : 'Required value'
@@ -39,7 +39,7 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid, isGrou
                 setIsValidating(true);
                 (async () => {
                   const isUnique = formValue.name !== undefined && (await debouncedAsyncValidator(value));
-                  setIsGroupInfoValid(value.trim().length > 0 && isUnique && value.trim().length < 150);
+                  setIsGroupInfoValid(value.trim().length > 0 && isUnique && value.length < 150);
                   setIsValidating(false);
                 })();
               }}
