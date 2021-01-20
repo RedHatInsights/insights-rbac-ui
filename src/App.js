@@ -50,7 +50,7 @@ class App extends Component {
         <React.Fragment>
           <NotificationPortal />
           <Main style={{ marginLeft: 0, padding: 0 }}>
-            <Routes />
+            <Routes isOrgAdmin={isAdmin} />
           </Main>
         </React.Fragment>
       </IntlProvider>
