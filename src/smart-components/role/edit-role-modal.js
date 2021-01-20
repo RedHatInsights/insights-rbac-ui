@@ -11,7 +11,7 @@ import { roleSelector } from './role-selectors';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
-import { updateRole } from '../../redux/actions/role-actions';
+import { patchRole } from '../../redux/actions/role-actions';
 
 const validationPromise = (name, idKey, id) =>
   fetchRoles({ name }).then(({ data }) => {
@@ -32,7 +32,10 @@ const createEditRoleSchema = (id) => ({
       component: componentTypes.TEXT_FIELD,
       label: 'Name',
       isRequired: true,
-      validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
+      validate: [
+        { type: 'validate-role-name', id, idKey: 'uuid', validationPromise },
+        { type: 'max-length', threshold: 150 },
+      ],
     },
     {
       name: 'description',
@@ -79,7 +82,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   };
 
   const handleSubmit = (data) =>
-    dispatch(updateRole(id, { ...data, display_name: data.name })).then(() => {
+    dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
       push(cancelRoute);
     });

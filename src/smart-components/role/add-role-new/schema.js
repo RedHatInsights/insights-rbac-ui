@@ -51,6 +51,10 @@ export default (container) => ({
                 {
                   type: 'required',
                 },
+                {
+                  type: 'max-length',
+                  threshold: 150,
+                },
               ],
             },
             {
@@ -113,6 +117,10 @@ export default (container) => ({
                 debouncedAsyncValidator,
                 {
                   type: 'required',
+                },
+                {
+                  type: 'max-length',
+                  threshold: 150,
                 },
               ],
             },
