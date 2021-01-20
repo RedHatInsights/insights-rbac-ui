@@ -104,14 +104,7 @@ export const patchRole = (roleId, data) => ({
         dismissDelay: 8000,
         dismissable: false,
         description: 'The role was updated successfully.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed updating role',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The role was not updated successfuly.',
-      },
+      }
     },
   },
 });
