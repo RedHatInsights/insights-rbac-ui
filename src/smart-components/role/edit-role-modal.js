@@ -32,7 +32,10 @@ const createEditRoleSchema = (id) => ({
       component: componentTypes.TEXT_FIELD,
       label: 'Name',
       isRequired: true,
-      validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
+      validate: [
+        { type: 'validate-role-name', id, idKey: 'uuid', validationPromise },
+        { type: 'max-length', threshold: 150 },
+      ],
     },
     {
       name: 'description',
