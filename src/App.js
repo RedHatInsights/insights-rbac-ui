@@ -4,10 +4,9 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
 import { Main } from '@redhat-cloud-services/frontend-components';
-import { NotificationsPortal } from '@redhat-cloud-services/frontend-components-notifications/';
+import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
-import '@redhat-cloud-services/frontend-components-notifications/index.css';
 import DeniedState from './presentational-components/states/DeniedState';
 import './App.scss';
 
@@ -49,7 +48,7 @@ class App extends Component {
     return (
       <IntlProvider locale="en">
         <React.Fragment>
-          <NotificationsPortal />
+          <NotificationPortal />
           <Main style={{ marginLeft: 0, padding: 0 }}>
             <Routes isOrgAdmin={isAdmin} />
           </Main>
