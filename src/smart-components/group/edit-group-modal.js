@@ -66,6 +66,10 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
           {
             type: validatorTypes.REQUIRED,
           },
+          {
+            type: validatorTypes.MAX_LENGTH,
+            threshold: 150,
+          },
         ],
       },
       {

@@ -39,7 +39,7 @@ describe('role selectors', () => {
     it('should pick role name from state', () => {
       const state = {
         roleReducer: {
-          selectedRole: { uuid: 'foo', name: 'role-name' },
+          selectedRole: { uuid: 'foo', name: 'wrong-attribute', display_name: 'role-name' },
         },
       };
 

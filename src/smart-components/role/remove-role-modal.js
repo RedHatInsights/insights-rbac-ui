@@ -26,7 +26,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
       fetchRole(id)
         .then((role) => {
           if (isMounted.current) {
-            setInternalRoleName(role.name);
+            setInternalRoleName(role.display_name);
           }
         })
         .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
