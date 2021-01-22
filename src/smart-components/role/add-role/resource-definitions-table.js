@@ -1,7 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Button } from '@patternfly/react-core';
-import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
+import { Fragment } from 'react';
+// import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
+
+const Table = Fragment;
+const TableBody = Fragment;
+const TableHeader = Fragment;
+const TableVariant = {};
 
 const ResourceDefinitionsTable = (formData, handleChange, editable = false) => {
   const { resourceDefinitions = [] } = formData;

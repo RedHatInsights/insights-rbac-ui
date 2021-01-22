@@ -1,18 +1,18 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, Route, useParams } from 'react-router-dom';
+import { Link, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { routes } from '../../../package.json';
-import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
+import { fetchRole } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
 import { fetchGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
-import RemoveRoleModal from './remove-role-modal';
-import EditRoleModal from './edit-role-modal';
+// import RemoveRoleModal from './remove-role-modal';
+// import EditRoleModal from './edit-role-modal';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
@@ -94,7 +94,7 @@ const Role = ({ onDelete }) => {
         )}
       </TopToolbar>
       {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
-      <Route path={routes['role-detail-remove']}>
+      {/*<Route path={routes['role-detail-remove']}>
         {!isRecordLoading && (
           <RemoveRoleModal
             afterSubmit={() => dispatch(fetchRolesWithPolicies())}
@@ -107,7 +107,7 @@ const Role = ({ onDelete }) => {
         {!isRecordLoading && (
           <EditRoleModal afterSubmit={fetchData} cancelRoute={routes['role-detail'].replace(':uuid', uuid)} routeMatch={routes['role-detail-edit']} />
         )}
-      </Route>
+      </Route> */}
     </Fragment>
   );
 };

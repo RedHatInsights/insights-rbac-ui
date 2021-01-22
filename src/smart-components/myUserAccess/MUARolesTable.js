@@ -9,8 +9,16 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
-import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
+// import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
 import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
+
+const cellWidth = () => undefined;
+const sortable = () => undefined;
+const compoundExpand = () => undefined;
+const Table = Fragment;
+const TableHeader = Fragment;
+const TableBody = Fragment;
+const TableVariant = {};
 
 const columns = [
   {

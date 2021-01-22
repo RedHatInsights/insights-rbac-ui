@@ -1,5 +1,5 @@
 /* eslint-disable camelcase */
-import { nowrap } from '@patternfly/react-table';
+// import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
@@ -12,6 +12,8 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { routes as paths } from '../../../../package.json';
+
+const nowrap = () => undefined;
 
 const columns = [
   { title: 'Status', transforms: [nowrap] },

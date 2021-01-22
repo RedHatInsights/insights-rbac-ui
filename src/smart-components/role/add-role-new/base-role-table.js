@@ -6,7 +6,9 @@ import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
-import { sortable } from '@patternfly/react-table';
+// import { sortable } from '@patternfly/react-table';
+
+const sortable = () => undefined;
 
 const columns = ['', { title: 'Name', key: 'display_name', transforms: [sortable] }, 'Description'];
 const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({

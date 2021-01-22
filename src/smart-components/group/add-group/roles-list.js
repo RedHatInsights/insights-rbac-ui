@@ -1,13 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { sortable } from '@patternfly/react-table';
+// import { sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
+
+const sortable = () => undefined;
 
 const createRows = (data, expanded, checkedRows = []) => {
   return data

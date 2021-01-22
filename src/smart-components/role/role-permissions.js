@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
+import { Button, TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+// import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
   createRows,
   INITIALIZE_ROLE,
@@ -15,14 +15,24 @@ import {
   SHOW_REMOVE_MODAL,
   SUBMIT_REMOVE_MODAL,
 } from './role-permissions-table-helpers';
-import { cellWidth } from '@patternfly/react-table';
+// import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
-import RemovePermissionsModal from './remove-permissions-modal';
+// import RemovePermissionsModal from './remove-permissions-modal';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
 import { Link, Route, useHistory } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
-import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
+// import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import { routes as paths } from '../../../package.json';
+import { Fragment } from 'react';
+import { componentMapper } from '@data-driven-forms/pf4-component-mapper';
+
+const AddRolePermissionWizard = Fragment;
+const RemovePermissionsModal = Fragment;
+const TableToolbarView = Fragment;
+/**
+ * Uncomment the function override and use PF import. The bundle will then contain whole PF react-core bundle
+ * import { cellWidth } from '@patternfly/react-table';
+ */
+const cellWidth = () => 0;
 
 const maxFilterItems = 10;
 
@@ -44,7 +54,7 @@ const columns = [
     },
     transforms: [cellWidth(20)],
   },
-  { title: 'Last commit', transforms: [cellWidth(15)] },
+  { title: 'Last commit', transforms: [cellWidth(15)], componentMapper },
 ];
 
 const removeModalText = (permissions, role, plural) =>
