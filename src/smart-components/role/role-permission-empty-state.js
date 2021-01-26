@@ -1,25 +1,18 @@
-/* eslint-disable */
 import React from 'react';
-import {
-  Title,
-  Button,
-  EmptyState,
-  EmptyStateIcon,
-  EmptyStateBody
-} from '@patternfly/react-core';
+import { Title, Button, EmptyState, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { Link, Route, useHistory } from 'react-router-dom';
+import { Link, Route } from 'react-router-dom';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import { routes as paths } from '../../../package.json';
+import PropTypes from 'prop-types';
 
-// Need to add push for the button action directly to the permission wizard. 
-const RolePermissionEmptyState = ({currentRoleID, role}) => {
+const RolePermissionEmptyState = ({ currentRoleID, role }) => {
   return (
     <EmptyState>
       <EmptyStateIcon icon={PlusCircleIcon} />
       <Title headingLevel="h3" sie="lg">
         There are no permissions in this role
-      </Title>      
+      </Title>
       <EmptyStateBody>
         To configure user access to applications, add
         <br />
@@ -30,9 +23,14 @@ const RolePermissionEmptyState = ({currentRoleID, role}) => {
       </Link>
       <Route exact path={paths['role-add-permission']}>
         <AddRolePermissionWizard isOpen={true} role={role} />
-      </Route>   
+      </Route>
     </EmptyState>
-  )
+  );
+};
+
+RolePermissionEmptyState.propTypes = {
+  currentRoleID: PropTypes.string,
+  role: PropTypes.object,
 };
 
 export default RolePermissionEmptyState;
