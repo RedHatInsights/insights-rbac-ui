@@ -41,8 +41,8 @@ const GroupInformation = (formValue, onHandleChange, setIsGroupInfoValid, isGrou
                   onHandleChange({ name: value });
                   setIsValidating(true);
                   (async () => {
-                    const isUnique = formValue.name !== undefined && (await debouncedAsyncValidator(value));
-                    const valid = value.trim().length > 0 && isUnique && value.length < 150;
+                    const isUnique = formValue.name !== undefined && value.length < 150 && (await debouncedAsyncValidator(value));
+                    const valid = value.trim().length > 0 && isUnique;
                     setNameValid(valid);
                     setIsGroupInfoValid(valid && descriptionValid);
                     setIsValidating(false);
