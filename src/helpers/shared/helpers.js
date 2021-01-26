@@ -1,4 +1,4 @@
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 
 export const scrollToTop = () =>
   document.getElementById('root').scrollTo({

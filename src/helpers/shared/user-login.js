@@ -1,5 +1,5 @@
 /* eslint-disable no-unused-vars */
-import axiosInstance from '@redhat-cloud-services/frontend-components-utilities/files/interceptors';
+import axiosInstance from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { GroupApi, PrincipalApi, RoleApi, PolicyApi, AccessApi, PermissionApi } from '@redhat-cloud-services/rbac-client';
 import { BaseAPI } from '@redhat-cloud-services/rbac-client/dist/base';
 
