@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import AddRolePermissionView from './add-role-permission-view';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
+import AddRolePermissionSuccess from './add-role-permission-success';
 import PropTypes from 'prop-types';
 import { WarningModal } from '../../common/warningModal';
 import { useHistory } from 'react-router-dom';
@@ -11,15 +12,16 @@ import { updateRole } from '../../../helpers/role/role-helper';
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const [originalArray, setOriginalArray] = useState([]);
-  const [isChanged, setIsChanged] = useState(false);
+  const [wizardSuccess, setWizardSuccess] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
   const ARRAY_MINIMUM = 0;
   const history = useHistory();
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
-  }, [role]);
+    console.log('THIS IS MY CURRENT ID: ', currentRoleID);
+    console.log('THIS IS MY CURRENT ROLE: ', role.uuid);
+  });
 
   const setSelectedRolePermissions = (selected) => {
     setSelectedPermissions(selected);
@@ -36,6 +38,11 @@ const AddRolePermissionWizard = ({ role }) => {
       name: 'Review details',
       component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
       nextButtonText: 'Save',
+    },
+    {
+      id: 3,
+      name: 'Success',
+      component: new AddRolePermissionSuccess({ currentRoleID }),
     },
   ];
 
@@ -60,6 +67,7 @@ const AddRolePermissionWizard = ({ role }) => {
     };
 
     try {
+      console.log('TESTING OUT MY ROLE BEFORE UPDATE: ', currentRoleID);
       await updateRole(currentRoleID, roleData);
       history.goBack();
     } catch (e) {
@@ -74,7 +82,7 @@ const AddRolePermissionWizard = ({ role }) => {
         description="Adding permissions to roles"
         steps={steps}
         isOpen={true}
-        onClose={() => selectedPermissions.length > 0 ? handleWizardCancel() : handleConfirmCancel()}
+        onClose={() => selectedPermissions.length > ARRAY_MINIMUM ? handleWizardCancel() : handleConfirmCancel()}
         onSave={onSubmit}
       />
       <WarningModal

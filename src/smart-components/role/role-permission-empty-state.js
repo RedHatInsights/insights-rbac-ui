@@ -8,9 +8,12 @@ import {
   EmptyStateBody
 } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
+import { Link, Route, useHistory } from 'react-router-dom';
+import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
+import { routes as paths } from '../../../package.json';
 
 // Need to add push for the button action directly to the permission wizard. 
-const RolePermissionEmptyState = () => {
+const RolePermissionEmptyState = ({currentRoleID, role}) => {
   return (
     <EmptyState>
       <EmptyStateIcon icon={PlusCircleIcon} />
@@ -22,7 +25,12 @@ const RolePermissionEmptyState = () => {
         <br />
         at leasst on epersmission to this role.
       </EmptyStateBody>
-      <Button variant="primary">Add permissions</Button>
+      <Link to={`/roles/detail/${currentRoleID}/role-add-permission`}>
+        <Button variant="primary">Add permissions</Button>
+      </Link>
+      <Route exact path={paths['role-add-permission']}>
+        <AddRolePermissionWizard isOpen={true} role={role} />
+      </Route>   
     </EmptyState>
   )
 };

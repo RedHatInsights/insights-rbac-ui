@@ -324,7 +324,7 @@ const Permissions = () => {
     );
   };
 
-  return role.accessCount > MIN_PERMISSIONS ? rolePermissionsView() : <RolePermissionEmptyState />;
+  return role.accessCount > MIN_PERMISSIONS ? rolePermissionsView() : <RolePermissionEmptyState currentRoleID={role.uuid} role={role} />;
 };
 
 export default Permissions;
