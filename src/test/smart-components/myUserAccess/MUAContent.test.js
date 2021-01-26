@@ -45,6 +45,6 @@ describe('<MUAContent />', () => {
       );
     });
 
-    expect(wrapper.find(Title).last().text()).toEqual('Red Hat Insights permissions');
+    expect(wrapper.find(Title).last().text()).toEqual('Your Insights permissions');
   });
 });

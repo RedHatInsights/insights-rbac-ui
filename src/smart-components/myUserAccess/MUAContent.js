@@ -34,7 +34,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
         </GridItem>
         <GridItem className="pf-m-9-col-on-md ins-l-myUserAccess-section__table">
           <Title headingLevel="h3" size="xl">
-            {`${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
+            {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
           </Title>
           <MuaBundleRoute />
         </GridItem>
