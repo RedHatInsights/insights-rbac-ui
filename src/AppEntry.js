@@ -7,7 +7,7 @@ import { getBaseName } from '@redhat-cloud-services/frontend-components-utilitie
 
 const InsightsRbac = () => (
   <Provider store={store}>
-    <Router basename={getBaseName(location.pathname)}>
+    <Router basename={getBaseName(location.pathname, 2).includes('rbac') ? getBaseName(location.pathname, 2) : getBaseName(location.pathname, 1)}>
       <App />
     </Router>
   </Provider>
