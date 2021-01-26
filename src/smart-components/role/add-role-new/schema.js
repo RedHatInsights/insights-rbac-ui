@@ -66,6 +66,12 @@ export default (container) => ({
                 when: 'role-type',
                 is: 'create',
               },
+              validate: [
+                {
+                  type: 'max-length',
+                  threshold: 150,
+                },
+              ],
             },
             {
               component: 'base-role-table',
@@ -129,6 +135,12 @@ export default (container) => ({
               name: 'role-copy-description',
               type: 'text',
               label: 'Role description',
+              validate: [
+                {
+                  type: 'max-length',
+                  threshold: 150,
+                },
+              ],
             },
           ],
         },

@@ -41,6 +41,12 @@ const createEditRoleSchema = (id) => ({
       name: 'description',
       component: componentTypes.TEXTAREA,
       label: 'Description',
+      validate: [
+        {
+          type: 'max-length',
+          threshold: 150,
+        },
+      ],
     },
   ],
 });
