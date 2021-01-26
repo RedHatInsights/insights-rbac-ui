@@ -1,7 +1,10 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Tooltip } from '@patternfly/react-core';
-import { RowWrapper } from '@patternfly/react-table';
+import { Fragment } from 'react';
+// import { RowWrapper } from '@patternfly/react-table';
+
+const RowWrapper = Fragment;
 
 export const DisabledRowWrapper = ({ row, ...props }) =>
   row.disableSelection ? (

@@ -1,7 +1,10 @@
 import React from 'react';
-import { RowWrapper } from '@patternfly/react-table';
+// import { RowWrapper } from '@patternfly/react-table';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
+import { Fragment } from 'react';
+
+const RowWrapper = Fragment;
 
 const UsersRow = ({ row, ...props }) => {
   const { status } = row;

@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect, lazy } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
-import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
+// import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -18,6 +18,10 @@ import ResourceDefinitions from './role-resource-definitions';
 import { Suspense } from 'react';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
+
+const cellWidth = () => undefined;
+const sortable = () => undefined;
+const nowrap = () => undefined;
 
 const columns = [
   { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },

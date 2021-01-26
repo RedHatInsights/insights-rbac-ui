@@ -1,14 +1,27 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import propTypes from 'prop-types';
-import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { TableToolbar } from '@redhat-cloud-services/frontend-components';
+// import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
+// import { TableToolbar } from '@redhat-cloud-services/frontend-components';
 import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
-import { ListLoader } from './loader-placeholders';
+// import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
-import { selectedRows } from '../../helpers/shared/helpers';
-import Toolbar, { paginationBuilder } from './toolbar';
-import EmptyWithAction from './empty-filter';
+// import { selectedRows } from '../../helpers/shared/helpers';
+import { /**Toolbar */ paginationBuilder } from './toolbar';
+// import EmptyWithAction from './empty-filter';
 import './table-toolbar-view.scss';
+
+const TableToolbar = Fragment;
+const ListLoader = Fragment;
+const selectedRows = () => [];
+const Toolbar = Fragment;
+const EmptyWithAction = Fragment;
+
+const { Table, TableHeader, TableBody, TableVariant } = {
+  Table: Fragment,
+  TableHeader: Fragment,
+  TableBody: Fragment,
+  TableVariant: {},
+};
 
 export const TableToolbarView = ({
   isCompact,

@@ -5,9 +5,9 @@ import { AppPlaceholder } from './presentational-components/shared/loader-placeh
 import { routes } from '../package.json';
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
-const Roles = lazy(() => import('./smart-components/role/roles'));
-const Users = lazy(() => import('./smart-components/user/users'));
-const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
+// const Roles = lazy(() => import('./smart-components/role/roles'));
+// const Users = lazy(() => import('./smart-components/user/users'));
+// const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
 
 const InsightsRoute = ({ rootClass, ...rest }) => {
   const root = document.getElementById('root');
@@ -26,9 +26,9 @@ export const Routes = ({ isOrgAdmin }) => {
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
         <InsightsRoute path={routes.groups} component={Groups} rootClass="groups" />
-        <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
+        {/* <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
-        <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
+        <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" /> */}
         <Route>
           <Redirect to={isOrgAdmin ? routes.users : routes['my-user-access']} />
         </Route>

@@ -7,10 +7,13 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchUsers } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
-import { sortable, nowrap } from '@patternfly/react-table';
+// import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+
+const sortable = () => undefined;
+const nowrap = () => undefined;
 
 const columns = [
   { title: 'Org. Administrator', key: 'org-admin', transforms: [nowrap] },
