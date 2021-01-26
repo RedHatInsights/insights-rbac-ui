@@ -23,7 +23,7 @@ const AddPermissionTemplate = ({ formFields }) => {
               .reduce((acc, i) => [i, ...acc], [])
               .map(({ uuid }) => (
                 <Chip key={uuid} color="blue" isTruncated onClick={() => setSelectedPermissions(selectedPermissions.filter((p) => p.uuid !== uuid))}>
-                {uuid}
+                  {uuid}
                 </Chip>
               ))}
           </ChipGroup>

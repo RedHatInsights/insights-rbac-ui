@@ -35,7 +35,7 @@ const AddRolePermissionWizard = ({ role }) => {
       id: 2,
       name: 'Review details',
       component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
-      nextButtonText: 'Confirm',
+      nextButtonText: 'Save',
     },
   ];
 

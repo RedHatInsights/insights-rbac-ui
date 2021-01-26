@@ -10,7 +10,7 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }
       <StackItem>
         <TextContent>
           <Title headingLevel="h4" size="xl">
-            Review Details
+            Review details
           </Title>
         </TextContent>
       </StackItem>
@@ -18,7 +18,7 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role Name:
+              Role name:
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -26,7 +26,7 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role Description:
+              Role description:
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -34,7 +34,7 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Adding Permissions:
+              Adding permissions:
             </Text>
           </GridItem>
           <GridItem span={9}>

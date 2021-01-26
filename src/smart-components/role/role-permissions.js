@@ -152,7 +152,7 @@ const Permissions = () => {
       ? [
           <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
             <Button variant="primary" aria-label="Add Permission">
-              Add Permission
+              Add permissions
             </Button>
           </Link>,
           {
