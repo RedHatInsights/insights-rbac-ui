@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect } from 'react';
 import AddRolePermissionView from './add-role-permission-view';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
@@ -10,7 +11,10 @@ import { updateRole } from '../../../helpers/role/role-helper';
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [originalArray, setOriginalArray] = useState([]);
+  const [isChanged, setIsChanged] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
+  const ARRAY_MINIMUM = 0;
   const history = useHistory();
 
   useEffect(() => {
@@ -24,12 +28,12 @@ const AddRolePermissionWizard = ({ role }) => {
   const steps = [
     {
       id: 1,
-      name: 'Add Permissions',
+      name: 'Add permissions',
       component: new AddRolePermissionView({ selectedPermissions, setSelectedRolePermissions, role }),
     },
     {
       id: 2,
-      name: 'Review Details',
+      name: 'Review details',
       component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
       nextButtonText: 'Confirm',
     },
@@ -66,11 +70,11 @@ const AddRolePermissionWizard = ({ role }) => {
   return (
     <>
       <Wizard
-        title="Add Permission"
+        title="Add permissions"
         description="Adding permissions to roles"
         steps={steps}
         isOpen={true}
-        onClose={handleWizardCancel}
+        onClose={() => selectedPermissions.length > 0 ? handleWizardCancel() : handleConfirmCancel()}
         onSave={onSubmit}
       />
       <WarningModal

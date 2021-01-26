@@ -1,8 +1,11 @@
+/*eslint-disable*/
 import React, { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch, batch } from 'react-redux';
 import { listPermissions, listPermissionOptions } from '../../../redux/actions/permission-action';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { ChipGroup, Chip, Badge, Text, TextContent } from '@patternfly/react-core';
+import './add-role-permissions-wizard.scss';
 
 const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
@@ -41,9 +44,10 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
     }));
 
   useEffect(() => {
+
     batch(() => {
       fetchData(pagination);
-      fetchOptions({ field: 'application', limit: 50 });
+      fetchOptions({ field: 'application', limit: 50 }); 
       fetchOptions({ field: 'resource_type', limit: 50 });
       fetchOptions({ field: 'verb', limit: 50 });
     });
@@ -55,8 +59,20 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
     });
   };
 
+  useEffect(() => {
+    console.log('This is my permissions/access:', selectedPermissions);
+  }, [selectedPermissions]);
+
   return (
     <div className="ins-c-rbac-permissions-table">
+      <div className="ins-c-rbac-seleted-chips">
+        <ChipGroup categoryName="Selected permissions: ">
+          {
+            selectedPermissions.map(({uuid}) => (
+            <Chip color="blue" key={uuid} onClick={() => setSelectedRolePermissions(selectedPermissions.filter((p) => p.uuid !== uuid))}>{uuid}</Chip>
+          ))}
+        </ChipGroup>
+      </div>
       <TableToolbarView
         columns={columns}
         isCompact={true}
