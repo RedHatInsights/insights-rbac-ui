@@ -30,9 +30,12 @@ const RemovePermissionsModal = Fragment;
 const TableToolbarView = Fragment;
 /**
  * Uncomment the function override and use PF import. The bundle will then contain whole PF react-core bundle
- * import { cellWidth } from '@patternfly/react-table';
+ *
  */
-const cellWidth = () => 0;
+//const cellWidth = () => 0;
+import { cellWidth } from '@patternfly/react-table/dist/esm/components/Table/utils/decorators/cellWidth';
+import { Table } from '@patternfly/react-table/dist/esm/components/Table/Table';
+console.log({ Table });
 
 const maxFilterItems = 10;
 
