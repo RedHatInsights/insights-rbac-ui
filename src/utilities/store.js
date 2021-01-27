@@ -1,7 +1,7 @@
 import promiseMiddleware from 'redux-promise-middleware';
-import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/files/ReducerRegistry';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
+import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
 
 import reduxLogger from 'redux-logger';
 import thunk from 'redux-thunk';
