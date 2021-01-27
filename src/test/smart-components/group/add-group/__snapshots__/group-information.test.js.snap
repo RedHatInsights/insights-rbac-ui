@@ -123,7 +123,9 @@ exports[`<GroupInformation /> should render correctly 1`] = `
               </FormGroup>
               <FormGroup
                 fieldId="group-description"
+                helperTextInvalid="Group description can have maximum of 150 characters"
                 label="Group description"
+                validated="success"
               >
                 <div
                   className="pf-c-form__group"
