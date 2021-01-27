@@ -21,7 +21,7 @@ InsightsRoute.propTypes = {
   rootClass: PropTypes.string,
 };
 
-export const Routes = ({ isOrgAdmin }) => {
+export const Routes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
@@ -30,7 +30,7 @@ export const Routes = ({ isOrgAdmin }) => {
         <InsightsRoute path={routes.users} component={Users} rootClass="users" />
         <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
         <Route>
-          <Redirect to={isOrgAdmin ? routes.users : routes['my-user-access']} />
+          <Redirect to={routes.users} />
         </Route>
       </Switch>
     </Suspense>
@@ -39,5 +39,4 @@ export const Routes = ({ isOrgAdmin }) => {
 
 Routes.propTypes = {
   childProps: PropTypes.object,
-  isOrgAdmin: PropTypes.bool,
 };
