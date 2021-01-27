@@ -19,12 +19,16 @@ const AddRolePermissionWizard = ({ role }) => {
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
-    console.log('THIS IS MY CURRENT ID: ', currentRoleID);
-    console.log('THIS IS MY CURRENT ROLE: ', role.uuid);
   });
 
   const setSelectedRolePermissions = (selected) => {
     setSelectedPermissions(selected);
+  };
+
+  const successNotificationStep = {
+      id: 3,
+      name: 'Success',
+      component: new AddRolePermissionSuccess({ currentRoleID }),
   };
 
   const steps = [
@@ -39,11 +43,7 @@ const AddRolePermissionWizard = ({ role }) => {
       component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
       nextButtonText: 'Save',
     },
-    {
-      id: 3,
-      name: 'Success',
-      component: new AddRolePermissionSuccess({ currentRoleID }),
-    },
+    ...(wizardSuccess ? [successNotificationStep] : []), 
   ];
 
   const handleWizardCancel = () => {
@@ -67,10 +67,10 @@ const AddRolePermissionWizard = ({ role }) => {
     };
 
     try {
-      console.log('TESTING OUT MY ROLE BEFORE UPDATE: ', currentRoleID);
       await updateRole(currentRoleID, roleData);
-      history.goBack();
+      setWizardSuccess(true); // overly simplistic approach for now
     } catch (e) {
+      console.log('Error in trying to save updated role permissions: ', e);
       history.goBack();
     }
   };
