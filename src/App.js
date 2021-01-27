@@ -4,7 +4,7 @@ import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
 import { Main } from '@redhat-cloud-services/frontend-components';
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal';
+import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
 import DeniedState from './presentational-components/states/DeniedState';
