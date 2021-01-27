@@ -70,7 +70,7 @@ const GroupRoles = ({
   userIdentity,
   name,
   isDefault,
-  isChanged,
+  // isChanged,
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
   disableAddRoles,
@@ -83,6 +83,7 @@ const GroupRoles = ({
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
+  const isChanged = false;
 
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);

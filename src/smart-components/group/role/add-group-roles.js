@@ -22,7 +22,7 @@ const AddGroupRoles = ({
   onDefaultGroupChanged,
   fetchRolesForGroup,
 }) => {
-  const [showConfirmModal, setShowConfirmModal] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const onCancel = () => {
     addNotification({
@@ -46,7 +46,7 @@ const AddGroupRoles = ({
   };
 
   return isDefault && !isChanged && showConfirmModal ? (
-    <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={() => setShowConfirmModal(false)} />
+    <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={onSubmit} />
   ) : (
     <Modal
       title="Add roles to group"
@@ -63,7 +63,10 @@ const AddGroupRoles = ({
           variant="primary"
           key="confirm"
           isDisabled={selectedRoles.length === 0}
-          onClick={onSubmit}
+          onClick={() => {
+            setShowConfirmModal(true);
+            (!isDefault || isChanged) && onSubmit();
+          }}
         >
           Add to group
         </Button>,
