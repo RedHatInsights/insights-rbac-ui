@@ -8,10 +8,13 @@ import MUACard from '../../presentational-components/myUserAccess/MUACard';
 import './MUAContent.scss';
 import MuaBundleRoute from './MUABundleRoute';
 import OrgAdminContext from '../../utilities/org-admin-context';
+import useSearchParams from '../../hooks/useSearchParams';
+import { bundleData } from '../../presentational-components/myUserAccess/bundles';
 
 const MUAContent = ({ entitlements, isOrgAdmin }) => {
   const entitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => is_entitled);
   const unEntitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => !is_entitled);
+  const { bundle } = useSearchParams('bundle');
 
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
@@ -31,7 +34,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
         </GridItem>
         <GridItem className="pf-m-9-col-on-md ins-l-myUserAccess-section__table">
           <Title headingLevel="h3" size="xl">
-            Your {isOrgAdmin ? 'roles' : 'permissions'}
+            {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
           </Title>
           <MuaBundleRoute />
         </GridItem>

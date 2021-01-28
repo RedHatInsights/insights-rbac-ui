@@ -45,6 +45,6 @@ describe('<MUAContent />', () => {
       );
     });
 
-    expect(wrapper.find(Title).last().text()).toEqual('Your permissions');
+    expect(wrapper.find(Title).last().text()).toEqual('Your Insights permissions');
   });
 });
