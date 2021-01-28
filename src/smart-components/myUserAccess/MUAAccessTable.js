@@ -58,7 +58,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
         titlePlural="permissions"
         titleSingular="permission"
         noData={!isLoading && !hasActiveFilters && filteredRows.length === 0}
-        noDataDescription={['You do not have individual permissions for Red Hat Insights.', 'Contact your Org. Administrator for more information.']}
+        noDataDescription={['You do not have individual permissions for Insights.', 'Contact your Org. Administrator for more information.']}
       />
       <Suspense fallback={<Fragment />}>
         {rdOpen && (
