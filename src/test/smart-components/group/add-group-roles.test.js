@@ -150,12 +150,13 @@ describe('<AddGroupRoles />', () => {
       );
     });
     wrapper.update();
+    expect(wrapper.find(AddGroupRoles)).toHaveLength(1);
+    wrapper.find('input#toggle-checkbox').simulate('change');
+    wrapper.find('button.pf-m-primary').simulate('click');
+    wrapper.update();
     expect(wrapper.find(DefaultGroupChange)).toHaveLength(1);
     wrapper.find('input#remove-modal-check').simulate('change');
     wrapper.find('button.pf-m-danger').simulate('click');
-    wrapper.update();
-    wrapper.find('button.pf-m-primary').simulate('click');
     expect(onDefaultGroupChanged).toHaveBeenCalled();
-    expect(wrapper.find(AddGroupRoles)).toHaveLength(1);
   });
 });
