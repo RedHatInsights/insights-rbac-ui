@@ -41,6 +41,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
       uuid: `${application}:${resource}:${operation}`,
       cells: [application, resource, operation],
       selected: checkedRows?.some((row) => row.uuid === uuid),
+      disableSelection: selectedPermissions === uuid ? true : false,
     }));
 
   useEffect(() => {
