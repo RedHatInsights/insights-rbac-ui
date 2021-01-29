@@ -1,7 +1,7 @@
 export const bundleData = [
   {
     entitlement: 'insights',
-    title: 'Red Hat Insights',
+    title: 'Insights',
     apps: {
       dashboard: '/dashboard',
       patch: '/patch',
@@ -15,14 +15,14 @@ export const bundleData = [
   },
   {
     entitlement: 'openshift',
-    title: 'Red Hat Openshift Cluster Manager',
+    title: 'Openshift Cluster Manager',
     apps: {
       'cluster manager': '/',
     },
   },
   {
     entitlement: 'ansible',
-    title: 'Red Hat Ansible Automation Platform',
+    title: 'Ansible Automation Platform',
     apps: {
       'automation analytics': '/automation-analytics',
       'automation hub': '/automation-hub',
