@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -42,7 +43,7 @@ const createEditRoleSchema = (id) => ({
       label: 'Description',
       validate: [
         {
-          type: 'max-length',
+          type: validatorTypes.MAX_LENGTH,
           threshold: 150,
         },
       ],
