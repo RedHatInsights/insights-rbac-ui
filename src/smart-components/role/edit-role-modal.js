@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -14,16 +15,18 @@ import asyncDebounce from '../../utilities/async-debounce';
 import { patchRole } from '../../redux/actions/role-actions';
 
 const validationPromise = (name, idKey, id) =>
-  fetchRoles({ name }).then(({ data }) => {
-    if (data.length === 0) {
-      return undefined;
-    }
+  name.length < 150
+    ? fetchRoles({ name }).then(({ data }) => {
+        if (data.length === 0) {
+          return undefined;
+        }
 
-    const taken = data.some((item) => item[idKey] !== id && item.name === name);
-    if (taken) {
-      throw 'Role with this name already exists.';
-    }
-  });
+        const taken = data.some((item) => item[idKey] !== id && item.display_name === name);
+        if (taken) {
+          throw 'Role with this name already exists.';
+        }
+      })
+    : Promise.reject('Can have maximum of 150 characters.');
 
 const createEditRoleSchema = (id) => ({
   fields: [
@@ -32,15 +35,18 @@ const createEditRoleSchema = (id) => ({
       component: componentTypes.TEXT_FIELD,
       label: 'Name',
       isRequired: true,
-      validate: [
-        { type: 'validate-role-name', id, idKey: 'uuid', validationPromise },
-        { type: 'max-length', threshold: 150 },
-      ],
+      validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
     },
     {
       name: 'description',
       component: componentTypes.TEXTAREA,
       label: 'Description',
+      validate: [
+        {
+          type: validatorTypes.MAX_LENGTH,
+          threshold: 150,
+        },
+      ],
     },
   ],
 });

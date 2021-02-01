@@ -1,6 +1,7 @@
+import React from 'react';
+import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewStepButtons from './review-step-buttons';
-import React from 'react';
 import ReviewTemplate from './review-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 
@@ -32,7 +33,7 @@ export default (container) => ({
               isRequired: true,
               validate: [
                 {
-                  type: 'required',
+                  type: validatorTypes.REQUIRED,
                 },
               ],
             },
@@ -49,10 +50,10 @@ export default (container) => ({
               validate: [
                 debouncedAsyncValidator,
                 {
-                  type: 'required',
+                  type: validatorTypes.REQUIRED,
                 },
                 {
-                  type: 'max-length',
+                  type: validatorTypes.MAX_LENGTH,
                   threshold: 150,
                 },
               ],
@@ -66,6 +67,12 @@ export default (container) => ({
                 when: 'role-type',
                 is: 'create',
               },
+              validate: [
+                {
+                  type: 'max-length',
+                  threshold: 150,
+                },
+              ],
             },
             {
               component: 'base-role-table',
@@ -78,7 +85,7 @@ export default (container) => ({
               },
               validate: [
                 {
-                  type: 'required',
+                  type: validatorTypes.REQUIRED,
                 },
               ],
             },
@@ -116,7 +123,7 @@ export default (container) => ({
               validate: [
                 debouncedAsyncValidator,
                 {
-                  type: 'required',
+                  type: validatorTypes.REQUIRED,
                 },
                 {
                   type: 'max-length',
@@ -129,6 +136,12 @@ export default (container) => ({
               name: 'role-copy-description',
               type: 'text',
               label: 'Role description',
+              validate: [
+                {
+                  type: 'max-length',
+                  threshold: 150,
+                },
+              ],
             },
           ],
         },
