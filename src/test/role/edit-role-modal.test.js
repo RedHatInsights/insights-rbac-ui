@@ -137,7 +137,7 @@ describe('<EditRoleModal />', () => {
     /**
      * Async name validation
      */
-    fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [{ name: 'new-name', uuid: 'bar' }] }));
+    fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [{ display_name: 'new-name', uuid: 'bar' }] }));
 
     let wrapper;
     await act(async () => {

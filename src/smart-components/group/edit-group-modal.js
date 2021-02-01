@@ -76,6 +76,12 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
         name: 'description',
         label: 'Description',
         component: componentTypes.TEXTAREA,
+        validate: [
+          {
+            type: validatorTypes.MAX_LENGTH,
+            threshold: 150,
+          },
+        ],
       },
     ],
   };
