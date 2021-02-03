@@ -28,4 +28,5 @@
 <url> <loc>https://cloud.redhat.com/undefined/undefined/users</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/users/detail/:username</loc> </url>
 <url> <loc>https://cloud.redhat.com/undefined/undefined/my-user-access</loc> </url>
+<url> <loc>https://cloud.redhat.com/undefined/undefined/access-request</loc> </url>
 </urlset>
