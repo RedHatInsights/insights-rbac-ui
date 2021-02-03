@@ -627,6 +627,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                         >
                           <ConditionalFilter
                             hideLabel={false}
+                            id="default-input"
                             isDisabled={false}
                             items={
                               Array [
@@ -1009,6 +1010,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     className="pf-l-split__item pf-m-fill"
                                   >
                                     <Text
+                                      aria-label="text input"
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
@@ -1018,7 +1020,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       value=""
                                     >
                                       <TextInput
+                                        aria-label="text input"
                                         className="ins-c-conditional-filter "
+                                        data-ouia-component-type="PF4/TextInput"
                                         id="filter-by-name"
                                         isDisabled={true}
                                         onChange={[Function]}
@@ -1028,8 +1032,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         widget-type="InsightsInput"
                                       >
                                         <TextInputBase
-                                          aria-label={null}
+                                          aria-label="text input"
                                           className="ins-c-conditional-filter "
+                                          data-ouia-component-type="PF4/TextInput"
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
@@ -1046,8 +1051,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         >
                                           <input
                                             aria-invalid={false}
-                                            aria-label={null}
+                                            aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-type="PF4/TextInput"
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
@@ -2100,6 +2106,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         >
                           <ConditionalFilter
                             hideLabel={false}
+                            id="default-input"
                             isDisabled={false}
                             items={
                               Array [
@@ -2482,6 +2489,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                     className="pf-l-split__item pf-m-fill"
                                   >
                                     <Text
+                                      aria-label="text input"
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
@@ -2491,7 +2499,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       value=""
                                     >
                                       <TextInput
+                                        aria-label="text input"
                                         className="ins-c-conditional-filter "
+                                        data-ouia-component-type="PF4/TextInput"
                                         id="filter-by-name"
                                         isDisabled={true}
                                         onChange={[Function]}
@@ -2501,8 +2511,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         widget-type="InsightsInput"
                                       >
                                         <TextInputBase
-                                          aria-label={null}
+                                          aria-label="text input"
                                           className="ins-c-conditional-filter "
+                                          data-ouia-component-type="PF4/TextInput"
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
@@ -2519,8 +2530,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         >
                                           <input
                                             aria-invalid={false}
-                                            aria-label={null}
+                                            aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-type="PF4/TextInput"
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
