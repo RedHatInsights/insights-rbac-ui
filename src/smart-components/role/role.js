@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Link, Route, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { routes } from '../../../package.json';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
