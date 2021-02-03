@@ -148,6 +148,7 @@
     "role-detail-permission-edit": "/roles/detail/:roleId/permission/:permissionId/edit",
     "users": "/users",
     "user-detail": "/users/detail/:username",
-    "my-user-access": "/my-user-access"
+    "my-user-access": "/my-user-access",
+    "access-request": "/access-request"
   }
 }
