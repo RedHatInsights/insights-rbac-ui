@@ -103,7 +103,6 @@ describe('<Users />', () => {
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
       count: 39,
       limit: 10,
-      name: [],
       orderBy: '-username',
       status: ['Active'],
     });
