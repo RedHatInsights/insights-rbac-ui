@@ -10,6 +10,8 @@ import { Modal, ModalVariant } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
+import { debouncedAsyncValidator } from './validators';
+
 const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, isOpen, group, onClose }) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
@@ -63,12 +65,9 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
         label: 'Name',
         component: componentTypes.TEXT_FIELD,
         validate: [
+          debouncedAsyncValidator,
           {
             type: validatorTypes.REQUIRED,
-          },
-          {
-            type: validatorTypes.MAX_LENGTH,
-            threshold: 150,
           },
         ],
       },
