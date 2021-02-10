@@ -27,13 +27,22 @@ export const mapperExtension = {
   'summary-content': SummaryContent,
 };
 
+export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (formData) => {
+  setGroupData(formData);
+  if (Object.keys(formData).length > 0) {
+    nonEmptyCallback(true);
+  } else {
+    emptyCallback();
+  }
+};
+
 const AddGroupWizard = ({ postMethod }) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [groupData, setGroupData] = useState({});
 
-  const onCancel = () => {
+  const redirectToGroups = () => {
     dispatch(
       addNotification({
         variant: 'warning',
@@ -70,7 +79,12 @@ const AddGroupWizard = ({ postMethod }) => {
   };
 
   return cancelWarningVisible ? (
-    <WarningModal type="group" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
+    <WarningModal
+      type="group"
+      isOpen={cancelWarningVisible}
+      onModalCancel={() => setCancelWarningVisible(false)}
+      onConfirmCancel={redirectToGroups}
+    />
   ) : (
     <FormRenderer
       schema={schema}
@@ -79,14 +93,7 @@ const AddGroupWizard = ({ postMethod }) => {
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       onSubmit={onSubmit}
       initialValues={groupData}
-      onCancel={(formData) => {
-        setGroupData(formData);
-        if (Object.keys(formData).length > 0) {
-          setCancelWarningVisible(true);
-        } else {
-          onCancel();
-        }
-      }}
+      onCancel={onCancel(redirectToGroups, setCancelWarningVisible, setGroupData)}
     />
   );
 };
