@@ -13,8 +13,12 @@ const SetUsers = (props) => {
   const formOptions = useFormApi();
 
   useEffect(() => {
+    setSelectedUsers(formOptions.getState().values['users-list'] || []);
+  }, []);
+
+  useEffect(() => {
     input.onChange(selectedUsers);
-    formOptions.change('selected-users', selectedUsers);
+    formOptions.change('users-list', selectedUsers);
   }, [selectedUsers]);
 
   return (

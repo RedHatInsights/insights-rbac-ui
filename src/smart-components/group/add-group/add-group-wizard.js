@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -6,6 +6,7 @@ import { useHistory } from 'react-router-dom';
 import FormRenderer from '@data-driven-forms/react-form-renderer/dist/esm/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/esm/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
+import { WarningModal } from '../../common/warningModal';
 import schema from './schema';
 import { addGroup } from '../../../redux/actions/group-actions';
 import SetRoles from './set-roles';
@@ -29,6 +30,8 @@ export const mapperExtension = {
 const AddGroupWizard = ({ postMethod }) => {
   const dispatch = useDispatch();
   const history = useHistory();
+  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [groupData, setGroupData] = useState({});
 
   const onCancel = () => {
     dispatch(
@@ -66,15 +69,23 @@ const AddGroupWizard = ({ postMethod }) => {
       });
   };
 
-  return (
+  return cancelWarningVisible ? (
+    <WarningModal type="group" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
+  ) : (
     <FormRenderer
       schema={schema}
       subscription={{ values: true }}
       FormTemplate={FormTemplate}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       onSubmit={onSubmit}
-      onCancel={() => {
-        onCancel();
+      initialValues={groupData}
+      onCancel={(formData) => {
+        setGroupData(formData);
+        if (Object.keys(formData).length > 0) {
+          setCancelWarningVisible(true);
+        } else {
+          onCancel();
+        }
       }}
     />
   );

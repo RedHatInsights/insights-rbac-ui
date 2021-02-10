@@ -8,8 +8,8 @@ const SummaryContent = () => {
   const {
     'group-name': name,
     'group-description': description,
-    'selected-users': selectedUsers,
-    'selected-roles': selectedRoles,
+    'users-list': selectedUsers,
+    'roles-list': selectedRoles,
   } = formOptions.getState().values;
 
   return (

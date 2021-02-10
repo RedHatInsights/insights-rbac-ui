@@ -12,8 +12,12 @@ const SetRoles = (props) => {
   const formOptions = useFormApi();
 
   useEffect(() => {
+    setSelectedRoles(formOptions.getState().values['roles-list'] || []);
+  }, []);
+
+  useEffect(() => {
     input.onChange(selectedRoles);
-    formOptions.change('selected-roles', selectedRoles);
+    formOptions.change('roles-list', selectedRoles);
   }, [selectedRoles]);
 
   return (
