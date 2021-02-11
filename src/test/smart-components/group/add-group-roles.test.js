@@ -151,7 +151,7 @@ describe('<AddGroupRoles />', () => {
     });
     wrapper.update();
     expect(wrapper.find(AddGroupRoles)).toHaveLength(1);
-    wrapper.find('input#toggle-checkbox').simulate('change');
+    wrapper.find('input#add-group-roles-toggle-checkbox').simulate('change');
     wrapper.find('button.pf-m-primary').simulate('click');
     wrapper.update();
     expect(wrapper.find(DefaultGroupChange)).toHaveLength(1);

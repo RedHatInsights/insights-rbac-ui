@@ -75,6 +75,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  tableId="group-roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -127,6 +128,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
+    tableId="group-roles"
     titleSingular="role"
     toolbarButtons={[Function]}
   >
@@ -175,6 +177,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         Object {
           "checked": false,
           "count": 0,
+          "id": "group-roles",
           "items": Array [
             Object {
               "onClick": [Function],
@@ -264,6 +267,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                             checked={false}
                             className=""
                             count={0}
+                            id="group-roles"
                             isDisabled={false}
                             items={
                               Array [
@@ -304,7 +308,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         <DropdownToggleCheckbox
                                           aria-label="Select all"
                                           className=""
-                                          id="toggle-checkbox"
+                                          id="group-roles-toggle-checkbox"
                                           isChecked={false}
                                           isDisabled={false}
                                           isValid={true}
@@ -352,7 +356,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           <DropdownToggleCheckbox
                                             aria-label="Select all"
                                             className=""
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             isChecked={false}
                                             isDisabled={false}
                                             isValid={true}
@@ -395,7 +399,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           >
                                             <label
                                               class="pf-c-dropdown__toggle-check"
-                                              for="toggle-checkbox"
+                                              for="group-roles-toggle-checkbox"
                                             >
                                               <input
                                                 aria-invalid="false"
@@ -403,7 +407,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                 data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
                                                 data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                                 data-ouia-safe="true"
-                                                id="toggle-checkbox"
+                                                id="group-roles-toggle-checkbox"
                                                 type="checkbox"
                                               />
                                               
@@ -447,7 +451,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           <DropdownToggleCheckbox
                                             aria-label="Select all"
                                             className=""
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             isChecked={false}
                                             isDisabled={false}
                                             isValid={true}
@@ -465,7 +469,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       <DropdownToggleCheckbox
                                         aria-label="Select all"
                                         className=""
-                                        id="toggle-checkbox"
+                                        id="group-roles-toggle-checkbox"
                                         isChecked={false}
                                         isDisabled={false}
                                         isValid={true}
@@ -473,7 +477,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       >
                                         <label
                                           className="pf-c-dropdown__toggle-check"
-                                          htmlFor="toggle-checkbox"
+                                          htmlFor="group-roles-toggle-checkbox"
                                         >
                                           <input
                                             aria-invalid={false}
@@ -483,7 +487,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                             data-ouia-safe={true}
                                             disabled={false}
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             onChange={[Function]}
                                             type="checkbox"
                                           />
@@ -520,7 +524,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               >
                                                 <label
                                                   class="pf-c-dropdown__toggle-check"
-                                                  for="toggle-checkbox"
+                                                  for="group-roles-toggle-checkbox"
                                                 >
                                                   <input
                                                     aria-invalid="false"
@@ -528,7 +532,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
                                                     data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                                     data-ouia-safe="true"
-                                                    id="toggle-checkbox"
+                                                    id="group-roles-toggle-checkbox"
                                                     type="checkbox"
                                                   />
                                                   
@@ -1972,6 +1976,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  tableId="group-roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -2012,6 +2017,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
+    tableId="group-roles"
     titleSingular="role"
     toolbarButtons={[Function]}
   >
