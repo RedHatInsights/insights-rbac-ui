@@ -121,7 +121,7 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
           ],
         },
       ]}
-      tableId="add-group-members"
+      tableId="users-list"
       {...props}
     />
   );

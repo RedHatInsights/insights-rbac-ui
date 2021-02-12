@@ -59,6 +59,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
         titleSingular="permission"
         noData={!isLoading && !hasActiveFilters && filteredRows.length === 0}
         noDataDescription={['You do not have individual permissions for Insights.', 'Contact your Org. Administrator for more information.']}
+        tableId="mua-access"
       />
       <Suspense fallback={<Fragment />}>
         {rdOpen && (

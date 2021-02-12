@@ -140,6 +140,7 @@ const ResourceDefinitions = () => {
           titlePlural="resources"
           titleSingular="resource"
           hideHeader
+          tableId="role-resource-definitions"
         />
       </section>
     </Fragment>

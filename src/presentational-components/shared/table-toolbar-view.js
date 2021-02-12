@@ -238,7 +238,7 @@ TableToolbarView.propTypes = {
   hideHeader: propTypes.bool,
   noDataDescription: propTypes.arrayOf(propTypes.node),
   filters: propTypes.array,
-  tableId: propTypes.string,
+  tableId: propTypes.string.isRequired,
 };
 
 TableToolbarView.defaultProps = {
