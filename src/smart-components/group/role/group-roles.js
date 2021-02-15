@@ -249,6 +249,7 @@ const GroupRoles = ({
             { key: 'name', value: filterValue },
             { key: 'description', value: descriptionValue },
           ]}
+          tableId="group-roles"
         />
       </Section>
     </React.Fragment>

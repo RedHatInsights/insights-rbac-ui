@@ -85,6 +85,7 @@ const BaseRoleTable = (props) => {
         filterPlaceholder="role name"
         ouiaId="roles-table"
         isCompact
+        tableId="base-role"
       />
     </div>
   );

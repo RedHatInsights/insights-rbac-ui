@@ -25,6 +25,7 @@ const AddGroupRoles = ({
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const onCancel = () => {
+    setSelectedRoles && setSelectedRoles([]);
     addNotification({
       variant: 'warning',
       title: 'Adding roles to group',

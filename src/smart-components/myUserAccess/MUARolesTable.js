@@ -146,6 +146,7 @@ const MUARolesTable = ({
         filterPlaceholder="role name"
         titlePlural="roles"
         titleSingular="role"
+        tableId="mua-roles"
       />
       <Suspense fallback={<Fragment />}>
         {rdOpen && (

@@ -60,6 +60,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       setCheckedItems={setCheckedItems}
       titlePlural="roles"
       titleSingular="role"
+      tableId="roles-list"
     />
   );
 };

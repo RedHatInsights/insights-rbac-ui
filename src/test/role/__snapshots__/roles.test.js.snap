@@ -83,6 +83,7 @@ exports[`<Roles /> should render correctly 1`] = `
       "index": 0,
     }
   }
+  tableId="roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -192,6 +193,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       "index": 0,
     }
   }
+  tableId="roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}

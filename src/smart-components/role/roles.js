@@ -128,6 +128,7 @@ const Roles = () => {
             titleSingular="role"
             toolbarButtons={toolbarButtons}
             filterPlaceholder="name"
+            tableId="roles"
           />
         </Section>
       </StackItem>

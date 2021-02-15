@@ -190,6 +190,7 @@ const GroupPrincipals = () => {
             setCheckedItems={setCheckedPrincipals}
             toolbarButtons={toolbarButtons}
             emptyProps={{ title: 'There are no members in this group', description: ['Add a user to configure user access.', ''] }}
+            tableId="group-members"
           />
         )}
       </Section>
