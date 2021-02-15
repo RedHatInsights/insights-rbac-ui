@@ -79,6 +79,7 @@ const AddRolePermissionView = ({ selectedPermissions, setSelectedRolePermissions
         setCheckedItems={setCheckedItems}
         checkedRows={selectedPermissions}
         isSelectable
+        tableId="add-role-permissions-view"
       />
     </div>
   );

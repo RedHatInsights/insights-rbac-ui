@@ -179,6 +179,7 @@ const User = ({
             filterPlaceholder="role name"
             titlePlural="roles"
             titleSingular="role"
+            tableId="user"
           />
         </Section>
       </StackItem>

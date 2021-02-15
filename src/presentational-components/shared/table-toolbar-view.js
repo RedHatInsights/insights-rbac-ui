@@ -49,6 +49,7 @@ export const TableToolbarView = ({
   noData,
   noDataDescription,
   ouiaId,
+  tableId,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -136,6 +137,7 @@ export const TableToolbarView = ({
         onChange={onChange}
         value={value}
         hideFilterChips={hideFilterChips}
+        tableId={tableId}
       />
       {isLoading ? (
         <ListLoader />
@@ -236,6 +238,7 @@ TableToolbarView.propTypes = {
   hideHeader: propTypes.bool,
   noDataDescription: propTypes.arrayOf(propTypes.node),
   filters: propTypes.array,
+  tableId: propTypes.string.isRequired,
 };
 
 TableToolbarView.defaultProps = {

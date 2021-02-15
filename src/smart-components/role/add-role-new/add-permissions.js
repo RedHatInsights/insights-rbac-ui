@@ -313,6 +313,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         ]}
         isFilterable={true}
         rowWrapper={DisabledRowWrapper}
+        tableId="add-role-permissions"
         {...props}
       />
     </div>

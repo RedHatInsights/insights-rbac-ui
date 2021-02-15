@@ -181,6 +181,7 @@ const Groups = () => {
             isLoading={isLoading}
             filterPlaceholder="name"
             rowWrapper={GroupRowWrapper}
+            tableId="groups"
           />
         </Section>
       </StackItem>

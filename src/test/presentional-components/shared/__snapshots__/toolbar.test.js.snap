@@ -11,6 +11,7 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
     Object {
       "checked": true,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -88,6 +89,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
     Object {
       "checked": null,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -162,6 +164,7 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
     Object {
       "checked": true,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -207,6 +210,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
     Object {
       "checked": null,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -391,6 +395,7 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
     Object {
       "checked": false,
       "count": 0,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -465,6 +470,7 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
     Object {
       "checked": false,
       "count": 0,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -785,6 +791,7 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
     Object {
       "checked": true,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
@@ -880,6 +887,7 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
     Object {
       "checked": true,
       "count": 1,
+      "id": undefined,
       "items": Array [
         Object {
           "onClick": [Function],
