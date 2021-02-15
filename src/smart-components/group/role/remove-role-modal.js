@@ -5,7 +5,6 @@ import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, isDefault, isChanged }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  console.log(isDefault, isChanged, showConfirmModal);
 
   return isDefault && !isChanged && showConfirmModal ? (
     <DefaultGroupChange
