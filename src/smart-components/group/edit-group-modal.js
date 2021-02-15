@@ -5,14 +5,14 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
-import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Modal, ModalVariant } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
+import ModalFormTemplate from '../common/ModalFormTemplate';
+
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { debouncedAsyncValidator } from './validators';
 
-const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, isOpen, group, onClose }) => {
+const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, group, onClose }) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
   const history = useHistory();
@@ -86,20 +86,17 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
   };
 
   return (
-    <Modal variant={ModalVariant.medium} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
-      {selectedGroup ? (
-        <FormRenderer
-          schema={schema}
-          schemaType="mozilla"
-          onCancel={onCancel}
-          onSubmit={onSubmit}
-          formContainer="modal"
-          initialValues={{ ...selectedGroup }}
-        />
-      ) : (
-        <Skeleton />
+    <FormRenderer
+      schema={schema}
+      schemaType="mozilla"
+      onCancel={onCancel}
+      onSubmit={onSubmit}
+      formContainer="modal"
+      initialValues={{ ...selectedGroup }}
+      FormTemplate={(props) => (
+        <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'small', title: 'Edit role information' }} />
       )}
-    </Modal>
+    />
   );
 };
 
