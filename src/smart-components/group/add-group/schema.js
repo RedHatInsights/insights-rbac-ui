@@ -1,6 +1,5 @@
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
-import { debouncedAsyncValidator } from '../validators';
 
 export default {
   fields: [
@@ -23,7 +22,7 @@ export default {
               label: 'Group name',
               isRequired: true,
               validate: [
-                debouncedAsyncValidator,
+                { type: 'validate-group-name' },
                 {
                   type: validatorTypes.REQUIRED,
                 },

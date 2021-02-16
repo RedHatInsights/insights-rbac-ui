@@ -15,7 +15,7 @@ const asyncValidator = async (groupName, idKey, id) => {
     return undefined;
   });
 
-  if (response?.data?.some((item) => item[idKey] !== id)) {
+  if (id ? response?.data?.some((item) => item[idKey] !== id) : response?.data?.length > 0) {
     throw 'Name has already been taken.';
   }
 

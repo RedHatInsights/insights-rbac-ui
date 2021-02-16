@@ -12,6 +12,7 @@ import { addGroup } from '../../../redux/actions/group-actions';
 import SetRoles from './set-roles';
 import SetUsers from './set-users';
 import SummaryContent from './summary-content';
+import { debouncedAsyncValidator } from '../validators';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -78,6 +79,10 @@ const AddGroupWizard = ({ postMethod }) => {
       });
   };
 
+  const validatorMapper = {
+    'validate-group-name': ({ idKey, id }) => (value) => debouncedAsyncValidator(value, idKey, id),
+  };
+
   return cancelWarningVisible ? (
     <WarningModal
       type="group"
@@ -90,6 +95,7 @@ const AddGroupWizard = ({ postMethod }) => {
       schema={schema}
       subscription={{ values: true }}
       FormTemplate={FormTemplate}
+      validatorMapper={validatorMapper}
       componentMapper={{ ...componentMapper, ...mapperExtension }}
       onSubmit={onSubmit}
       initialValues={groupData}
