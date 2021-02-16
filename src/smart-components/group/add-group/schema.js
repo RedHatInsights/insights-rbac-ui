@@ -6,11 +6,11 @@ export default {
   fields: [
     {
       component: 'wizard',
-      name: 'wizzard',
+      name: 'wizard',
       isDynamic: true,
       inModal: true,
       showTitles: true,
-      title: 'Create role',
+      title: 'Create group',
       fields: [
         {
           name: 'name-and-description',
@@ -20,8 +20,8 @@ export default {
             {
               component: componentTypes.TEXT_FIELD,
               name: 'group-name',
-              type: 'text',
               label: 'Group name',
+              isRequired: true,
               validate: [
                 debouncedAsyncValidator,
                 {
