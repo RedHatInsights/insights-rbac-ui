@@ -1,5 +1,4 @@
 import { Route, Switch, Redirect } from 'react-router-dom';
-import PropTypes from 'prop-types';
 import React, { lazy, Suspense } from 'react';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { routes } from '../package.json';
@@ -10,35 +9,19 @@ const Users = lazy(() => import('./smart-components/user/users'));
 const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
 const AccessRequest = lazy(() => import('./smart-components/accessRequest/accessRequest'));
 
-const InsightsRoute = ({ rootClass, ...rest }) => {
-  const root = document.getElementById('root');
-  root.removeAttribute('class');
-  root.classList.add(`page__${rootClass}`, 'pf-l-page__main', 'pf-c-page__main');
-  root.setAttribute('role', 'main');
-  return <Route {...rest} />;
-};
-
-InsightsRoute.propTypes = {
-  rootClass: PropTypes.string,
-};
-
 export const Routes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
-        <InsightsRoute path={routes.groups} component={Groups} rootClass="groups" />
-        <InsightsRoute path={routes.roles} component={Roles} rootClass="roles" />
-        <InsightsRoute path={routes.users} component={Users} rootClass="users" />
-        <InsightsRoute path={routes['my-user-access']} component={MyUserAccess} rootClass="myUserAccess" />
-        <InsightsRoute path={routes['access-request']} component={AccessRequest} rootClass="accessRequest" />
+        <Route path={routes.groups} component={Groups} />
+        <Route path={routes.roles} component={Roles} />
+        <Route path={routes.users} component={Users} />
+        <Route path={routes['my-user-access']} component={MyUserAccess} />
+        <Route path={routes['access-request']} component={AccessRequest} />
         <Route>
           <Redirect to={routes.users} />
         </Route>
       </Switch>
     </Suspense>
   );
-};
-
-Routes.propTypes = {
-  childProps: PropTypes.object,
 };
