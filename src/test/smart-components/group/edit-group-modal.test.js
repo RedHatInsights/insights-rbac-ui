@@ -5,7 +5,6 @@ import { Provider } from 'react-redux';
 import { shallow, mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import { shallowToJson } from 'enzyme-to-json';
-import { Button } from '@patternfly/react-core';
 import { MemoryRouter, Route } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -31,7 +30,7 @@ describe('<EditGroupModal />', () => {
   beforeEach(() => {
     initialProps = {
       closeUrl: '/groups',
-      groupData: {
+      group: {
         name: 'Foo',
         id: '1',
       },
@@ -70,13 +69,13 @@ describe('<EditGroupModal />', () => {
     await act(async () => {
       wrapper = mount(
         <GroupWrapper store={store} initialEntries={['/groups/edit/:id']}>
-          <Route to="/groups/edit/:id" render={(args) => <EditGroupModal {...initialProps} {...args} isOpen />} />
+          <Route to="/groups/edit/:id" render={(args) => <EditGroupModal {...initialProps} {...args} />} />
         </GroupWrapper>
       );
     });
     wrapper.update();
 
-    wrapper.find(Button).first().simulate('click');
+    wrapper.find('button').first().simulate('click');
     expect(wrapper.find(MemoryRouter).instance().history.location.pathname).toEqual('/groups');
   });
 });
