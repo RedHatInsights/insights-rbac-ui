@@ -1,7 +1,7 @@
 import { fetchGroups } from '../../helpers/group/group-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 
-export const asyncValidator = async (groupName) => {
+const asyncValidator = async (groupName, idKey, id) => {
   if (!groupName) {
     return undefined;
   }
@@ -15,11 +15,11 @@ export const asyncValidator = async (groupName) => {
     return undefined;
   });
 
-  if (response?.data?.length > 0) {
-    throw 'Name has already been taken';
+  if (id ? response?.data?.some((item) => item[idKey] !== id) : response?.data?.length > 0) {
+    throw 'Name has already been taken.';
   }
 
   return undefined;
 };
 
-export const debouncedAsyncValidator = asyncDebounce(asyncValidator);
+export const debouncedAsyncValidator = asyncDebounce((value, idKey, id) => asyncValidator(value, idKey, id));

@@ -1,16 +1,15 @@
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
-import { debouncedAsyncValidator } from '../validators';
 
 export default {
   fields: [
     {
       component: 'wizard',
-      name: 'wizzard',
+      name: 'wizard',
       isDynamic: true,
       inModal: true,
       showTitles: true,
-      title: 'Create role',
+      title: 'Create group',
       fields: [
         {
           name: 'name-and-description',
@@ -20,10 +19,10 @@ export default {
             {
               component: componentTypes.TEXT_FIELD,
               name: 'group-name',
-              type: 'text',
               label: 'Group name',
+              isRequired: true,
               validate: [
-                debouncedAsyncValidator,
+                { type: 'validate-group-name' },
                 {
                   type: validatorTypes.REQUIRED,
                 },

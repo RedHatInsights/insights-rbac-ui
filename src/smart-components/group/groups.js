@@ -77,7 +77,6 @@ const Groups = () => {
             dispatch(fetchGroups(config));
             setFilterValue('');
           }}
-          isOpen
         />
       </Route>
       <Route exact path={paths['remove-group']}>

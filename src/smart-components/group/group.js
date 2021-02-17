@@ -162,7 +162,6 @@ const Group = ({
         render={(props) => (
           <EditGroup
             {...props}
-            isOpen
             group={group}
             closeUrl={`group/detail/${uuid}`}
             postMethod={() => {

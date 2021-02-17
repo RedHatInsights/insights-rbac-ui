@@ -34,7 +34,7 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
 >
   <Connect(EditGroupModal)
     closeUrl="/groups"
-    groupData={
+    group={
       Object {
         "id": "1",
         "name": "Foo",
