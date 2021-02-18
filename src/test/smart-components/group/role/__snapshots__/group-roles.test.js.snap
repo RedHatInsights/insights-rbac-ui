@@ -1540,7 +1540,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
       <ul
         aria-label="datalist-placeholder"
         className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
@@ -2686,7 +2685,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       <ul
         aria-label="datalist-placeholder"
         className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
