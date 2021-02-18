@@ -65,6 +65,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, gr
         name: 'name',
         label: 'Name',
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
+        ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
           { type: 'validate-group-name', id: match ? match.params.id : group.id, idKey: 'uuid' },
           {

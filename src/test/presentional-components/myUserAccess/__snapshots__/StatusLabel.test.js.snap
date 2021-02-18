@@ -72,7 +72,6 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
       }
       trigger={
         <Label
-          aria-describedby="pf-tooltip-1"
           color="purple"
         >
            Org. Administrator 
@@ -84,11 +83,9 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
         onFoundRef={[Function]}
       >
         <Label
-          aria-describedby="pf-tooltip-1"
           color="purple"
         >
           <span
-            aria-describedby="pf-tooltip-1"
             className="pf-c-label pf-m-purple"
           >
             <span
