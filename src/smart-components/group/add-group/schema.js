@@ -13,16 +13,13 @@ export default {
       fields: [
         {
           name: 'name-and-description',
-          title: 'Name and Description',
           nextStep: 'add-roles',
+          title: 'Name and Description',
           fields: [
             {
-              component: componentTypes.TEXT_FIELD,
+              component: 'set-name',
               name: 'group-name',
-              label: 'Group name',
-              isRequired: true,
               validate: [
-                { type: 'validate-group-name' },
                 {
                   type: validatorTypes.REQUIRED,
                 },
@@ -31,8 +28,7 @@ export default {
             {
               component: componentTypes.TEXTAREA,
               name: 'group-description',
-              type: 'text',
-              label: 'Group description',
+              hideField: true,
               validate: [
                 {
                   type: validatorTypes.MAX_LENGTH,
