@@ -136,6 +136,9 @@ const AddRoleWizard = ({ history: { push } }) => {
           container={container}
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
+          initialValues={{
+            'role-type': 'create',
+          }}
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
           onCancel={(values) => {
