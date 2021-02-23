@@ -9,10 +9,11 @@ export default (container) => ({
   fields: [
     {
       component: 'wizard',
-      name: 'wizzard',
+      name: 'wizard',
       isDynamic: true,
       inModal: true,
       showTitles: true,
+      crossroads: ['role-type'],
       title: 'Create role',
       container,
       fields: [
