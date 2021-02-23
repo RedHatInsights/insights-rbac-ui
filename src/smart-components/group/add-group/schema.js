@@ -1,5 +1,9 @@
+import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import ReviewTemplate from './review-template';
+import ReviewStepButtons from '../../common/review-step-buttons';
+import { AddGroupWizardContext } from './add-group-wizard';
 
 export default {
   fields: [
@@ -63,6 +67,9 @@ export default {
         {
           name: 'review',
           title: 'Review details',
+          // eslint-disable-next-line react/display-name
+          buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
+          StepTemplate: ReviewTemplate,
           fields: [
             {
               component: 'summary-content',

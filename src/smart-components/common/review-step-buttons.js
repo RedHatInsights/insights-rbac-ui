@@ -2,7 +2,6 @@ import { Button } from '@patternfly/react-core';
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import { AddRoleWizardContext } from './add-role-wizard';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
 const selectNext = (nextStep, getState) =>
@@ -32,9 +31,9 @@ NextButton.propTypes = {
   getState: PropTypes.func.isRequired,
 };
 
-const ReviewStepButtons = ({ disableBack, handlePrev, nextStep, handleNext, buttonLabels: { cancel, submit, back, next } }) => {
+const ReviewStepButtons = ({ disableBack, handlePrev, nextStep, handleNext, buttonLabels: { cancel, submit, back, next }, context }) => {
   const formOptions = useFormApi();
-  const { success, error, submitting } = useContext(AddRoleWizardContext);
+  const { success, error, submitting } = useContext(context);
   if (success || typeof error === 'undefined' || error || submitting) {
     return null;
   }
@@ -70,6 +69,7 @@ ReviewStepButtons.propTypes = {
     back: PropTypes.node.isRequired,
     next: PropTypes.node.isRequired,
   }).isRequired,
+  context: PropTypes.object.isRequired,
 };
 
 export default ReviewStepButtons;

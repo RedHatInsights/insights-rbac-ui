@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, createContext } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -13,6 +13,12 @@ import SetName from './set-name';
 import SetRoles from './set-roles';
 import SetUsers from './set-users';
 import SummaryContent from './summary-content';
+
+export const AddGroupWizardContext = createContext({
+  success: false,
+  submitting: false,
+  error: undefined,
+});
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -43,6 +49,12 @@ const AddGroupWizard = ({ postMethod }) => {
   const history = useHistory();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [groupData, setGroupData] = useState({});
+  const [wizardContextValue, setWizardContextValue] = useState({
+    success: false,
+    submitting: false,
+    error: undefined,
+    hideForm: false,
+  });
 
   const redirectToGroups = () => {
     dispatch(
@@ -56,6 +68,10 @@ const AddGroupWizard = ({ postMethod }) => {
     );
     history.push('/groups');
   };
+
+  const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
+  const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
+  const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
   const onSubmit = (formData) => {
     const groupData = {
@@ -88,15 +104,17 @@ const AddGroupWizard = ({ postMethod }) => {
       onConfirmCancel={redirectToGroups}
     />
   ) : (
-    <FormRenderer
-      schema={schema}
-      subscription={{ values: true }}
-      FormTemplate={FormTemplate}
-      componentMapper={{ ...componentMapper, ...mapperExtension }}
-      onSubmit={onSubmit}
-      initialValues={groupData}
-      onCancel={onCancel(redirectToGroups, setCancelWarningVisible, setGroupData)}
-    />
+    <AddGroupWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
+      <FormRenderer
+        schema={schema}
+        subscription={{ values: true }}
+        FormTemplate={FormTemplate}
+        componentMapper={{ ...componentMapper, ...mapperExtension }}
+        onSubmit={onSubmit}
+        initialValues={groupData}
+        onCancel={onCancel(redirectToGroups, setCancelWarningVisible, setGroupData)}
+      />
+    </AddGroupWizardContext.Provider>
   );
 };
 

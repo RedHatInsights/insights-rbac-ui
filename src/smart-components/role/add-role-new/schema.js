@@ -1,9 +1,10 @@
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
-import ReviewStepButtons from './review-step-buttons';
 import ReviewTemplate from './review-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
+import ReviewStepButtons from '../../common/review-step-buttons';
+import { AddRoleWizardContext } from './add-role-wizard';
 
 export default (container) => ({
   fields: [
@@ -186,7 +187,8 @@ export default (container) => ({
         {
           name: 'review',
           title: 'Review details',
-          buttons: ReviewStepButtons,
+          // eslint-disable-next-line react/display-name
+          buttons: (props) => <ReviewStepButtons {...props} context={AddRoleWizardContext} />,
           StepTemplate: ReviewTemplate,
           fields: [
             {
