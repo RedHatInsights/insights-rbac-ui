@@ -207,6 +207,14 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     isDisabled: true,
   };
 
+  console.log({
+    type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
+    items:
+      preparedFilterItems.applications.length > 0
+        ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
+        : [emptyItem],
+  });
+
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
     <div className="ins-c-rbac-permissions-table">
@@ -268,15 +276,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
             placeholder: 'Filter by application',
             type: 'group',
             selected: calculateSelected(filters.applications),
-            groups: [
-              {
-                type: preparedFilterItems.applications.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  preparedFilterItems.applications.length > 0
-                    ? [...preparedFilterItems.applications].slice(0, isToggled ? undefined : maxFilterItems)
-                    : [emptyItem],
-              },
-            ],
+            groups: [],
           },
           {
             key: 'resources',
