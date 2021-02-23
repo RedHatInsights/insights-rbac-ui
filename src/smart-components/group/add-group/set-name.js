@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
@@ -8,6 +8,9 @@ import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea/Te
 import { FormGroup } from '@patternfly/react-core/dist/esm/components/Form/FormGroup';
 import { debouncedAsyncValidator } from '../validators';
 
+const groupNameValidated = (groupName, groupNameError) => (groupName === undefined || groupNameError ? 'error' : 'default');
+const groupDescriptionValidated = (groupDescription) => (groupDescription?.length > 150 ? 'error' : 'default');
+
 const SetName = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
@@ -15,9 +18,6 @@ const SetName = (props) => {
   const [groupName, setGroupName] = useState(name || '');
   const [groupNameError, setGroupNameError] = useState();
   const [groupDescription, setGroupDescription] = useState(description);
-
-  const groupNameValidated = () => (groupName === undefined || groupNameError ? 'error' : 'default');
-  const groupDescriptionValidated = () => (groupDescription && groupDescription.length > 150 ? 'error' : 'default');
 
   const processGroupName = (value) => {
     input.onChange(undefined);
@@ -33,42 +33,47 @@ const SetName = (props) => {
   };
 
   useEffect(() => {
-    groupName.length > 0 && processGroupName(groupName);
+    groupName?.length > 0 && processGroupName(groupName);
   }, []);
 
   return (
-    <Fragment>
-      <Stack hasGutter>
-        <StackItem className="ins-c-rbac__summary">
-          <FormGroup label="Group name" helperTextInvalid={groupName ? groupNameError : 'Required'} isRequired validated={groupNameValidated()}>
-            <TextInput
-              value={groupName}
-              type="text"
-              validated={groupNameValidated()}
-              onBlur={() => {
-                groupName === '' && setGroupName(undefined);
-              }}
-              onChange={(value) => processGroupName(value)}
-              aria-label="Group name"
-            />
-          </FormGroup>
-        </StackItem>
-        <StackItem>
-          <FormGroup label="Group description" helperTextInvalid="Can have maximum of 150 characters." validated={groupDescriptionValidated()}>
-            <TextArea
-              value={groupDescription}
-              validated={groupDescriptionValidated()}
-              onChange={(value) => {
-                setGroupDescription(value);
-                formOptions.change('group-description', value);
-              }}
-              aria-label="Group description"
-              resizeOrientation="vertical"
-            />
-          </FormGroup>
-        </StackItem>
-      </Stack>
-    </Fragment>
+    <Stack hasGutter>
+      <StackItem className="ins-c-rbac__summary">
+        <FormGroup
+          label="Group name"
+          helperTextInvalid={groupName ? groupNameError : 'Required'}
+          isRequired
+          validated={groupNameValidated(groupName, groupNameError)}
+        >
+          <TextInput
+            value={groupName}
+            type="text"
+            validated={groupNameValidated(groupName, groupNameError)}
+            onBlur={() => groupName === '' && setGroupName(undefined)}
+            onChange={(value) => processGroupName(value)}
+            aria-label="Group name"
+          />
+        </FormGroup>
+      </StackItem>
+      <StackItem>
+        <FormGroup
+          label="Group description"
+          helperTextInvalid="Can have maximum of 150 characters."
+          validated={groupDescriptionValidated(groupDescription)}
+        >
+          <TextArea
+            value={groupDescription}
+            validated={groupDescriptionValidated(groupDescription)}
+            onChange={(value) => {
+              setGroupDescription(value);
+              formOptions.change('group-description', value);
+            }}
+            aria-label="Group description"
+            resizeOrientation="vertical"
+          />
+        </FormGroup>
+      </StackItem>
+    </Stack>
   );
 };
 
