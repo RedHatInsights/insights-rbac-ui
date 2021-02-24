@@ -1,5 +1,9 @@
+import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import ReviewTemplate from './review-template';
+import ReviewStepButtons from '../../common/review-step-buttons';
+import { AddGroupWizardContext } from './add-group-wizard';
 
 export default {
   fields: [
@@ -13,16 +17,13 @@ export default {
       fields: [
         {
           name: 'name-and-description',
-          title: 'Name and Description',
           nextStep: 'add-roles',
+          title: 'Name and Description',
           fields: [
             {
-              component: componentTypes.TEXT_FIELD,
+              component: 'set-name',
               name: 'group-name',
-              label: 'Group name',
-              isRequired: true,
               validate: [
-                { type: 'validate-group-name' },
                 {
                   type: validatorTypes.REQUIRED,
                 },
@@ -31,8 +32,7 @@ export default {
             {
               component: componentTypes.TEXTAREA,
               name: 'group-description',
-              type: 'text',
-              label: 'Group description',
+              hideField: true,
               validate: [
                 {
                   type: validatorTypes.MAX_LENGTH,
@@ -67,6 +67,9 @@ export default {
         {
           name: 'review',
           title: 'Review details',
+          // eslint-disable-next-line react/display-name
+          buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
+          StepTemplate: ReviewTemplate,
           fields: [
             {
               component: 'summary-content',

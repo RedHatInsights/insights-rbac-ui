@@ -1,7 +1,7 @@
 import { fetchGroups } from '../../helpers/group/group-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 
-const asyncValidator = async (groupName, idKey, id) => {
+export const asyncValidator = async (groupName, idKey, id) => {
   if (!groupName) {
     return undefined;
   }

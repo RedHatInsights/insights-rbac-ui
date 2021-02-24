@@ -1,18 +1,17 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Bullseye, Spinner, Text, TextContent, Title } from '@patternfly/react-core';
-import { AddRoleWizardContext } from './add-role-wizard';
-import { asyncValidator } from './validators';
-import './review.scss';
+import { Bullseye, Spinner, Title } from '@patternfly/react-core';
+import { AddGroupWizardContext } from './add-group-wizard';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import { asyncValidator } from '../validators';
 import WizardError from '../../common/wizard-error';
 
 const ReviewTemplate = ({ formFields }) => {
-  const { submitting, error, setWizardError } = useContext(AddRoleWizardContext);
+  const { submitting, error, setWizardError } = useContext(AddGroupWizardContext);
   const { getState } = useFormApi();
   useEffect(() => {
     setWizardError(undefined);
-    asyncValidator(getState().values['role-name'])
+    asyncValidator(getState().values['group-name'])
       .then(() => setWizardError(false))
       .catch(() => setWizardError(true));
   }, []);
@@ -28,21 +27,18 @@ const ReviewTemplate = ({ formFields }) => {
   if (error === true) {
     return (
       <WizardError
-        context={AddRoleWizardContext}
-        title="Role name already taken"
-        text="Please return to Step 1: Create role and choose a unique role name for your custom role."
+        context={AddGroupWizardContext}
+        title="Group name already taken"
+        text="Please return to Step 1: Group information and choose a unique group name for your group."
       />
     );
   }
 
   return (
     <React.Fragment>
-      <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+      <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
         Review details
       </Title>
-      <TextContent className="ins-c-rbac__gutter-md">
-        <Text>Review and confirm the details for your role, or click Back to revise.</Text>
-      </TextContent>
       {[[{ ...formFields?.[0]?.[0] }]]}
     </React.Fragment>
   );
