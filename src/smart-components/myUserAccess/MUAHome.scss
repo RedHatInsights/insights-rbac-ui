@@ -1,20 +1,22 @@
-.ins-p-myUserAccess--title {
-  display: flex;      
-  align-items: center;
-  background-color: var(--pf-global--BackgroundColor--100);
-  padding: var(--pf-global--spacer--md);
-  .pf-c-label { margin-left: var(--pf-global--spacer--md); }
+.ins-p-myUserAccess {
+  &--title {
+    display: flex;      
+    align-items: center;
+    background-color: var(--pf-global--BackgroundColor--100);
+    padding: var(--pf-global--spacer--lg) 0 var(--pf-global--spacer--lg) var(--pf-global--spacer--lg);
+    .pf-c-label { margin-left: var(--pf-global--spacer--md); }
+  }
+  &--subtitle {
+    position: relative;
+    background-color: var(--pf-global--BackgroundColor--100);
+    box-shadow: var(--pf-global--BoxShadow--md-bottom);
+    padding: 0  var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+  }
+  &--dropdown {
+    display: none;
+  }
 }
-.ins-p-myUserAccess--subtitle {
-  position: relative;
-  background-color: var(--pf-global--BackgroundColor--100);
-  box-shadow: var(--pf-global--BoxShadow--md-bottom);
-  padding: 0 var(--pf-global--spacer--md);
-  padding-bottom: var(--pf-global--spacer--md);
-}
-.ins-p-myUserAccess--dropdown {
-  display: none;
-}
+
 .ins-l-myUserAccess-section__cards,
 .ins-l-myUserAccess-section__table {
   background-color: var(--pf-global--BackgroundColor--100);
@@ -34,23 +36,25 @@
     width: 100%;
     z-index: 200;
   }
-  .ins-p-myUserAccess--title {
-    padding: var(--pf-global--spacer--xl) var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
-    top: 0;
-  }
-  .ins-p-myUserAccess--subtitle {
-    box-shadow: none;
-    padding: 0 var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--lg);
-    background-color: var(--pf-global--BackgroundColor--100);
-  } 
-  .ins-p-myUserAccess--dropdown {
-    display: block;
-    padding: 0 var(--pf-global--spacer--lg);
-    top: 60px;
-  }
-  .ins-l-myUserAccess-section__table {
-    height: auto;
-    margin: var(--pf-global--spacer--md);
-    > .pf-c-title {display: none;}
+
+  .ins-p-myUserAccess {
+    &--title {
+      padding: var(--pf-global--spacer--xl) var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
+      top: 0;
+    }
+    &--subtitle {
+      box-shadow: none;
+      padding: 0 var(--pf-global--spacer--lg) var(--pf-global--spacer--lg) var(--pf-global--spacer--lg);
+    } 
+    &--dropdown {
+      display: block;
+      padding: 0 var(--pf-global--spacer--lg);
+      top: 60px;
+    }
+    &-section__table {
+      height: auto;
+      margin: var(--pf-global--spacer--md);
+      > .pf-c-title { display: none; }
+    }
   }
 }
