@@ -7,6 +7,7 @@ const { config: webpackConfig, plugins } = config({
   debug: true,
   https: false,
   sassPrefix: '.rbac, .my-user-access',
+  ...(process.env.BETA && { deployment: 'beta/apps' }),
 });
 
 plugins.push(
