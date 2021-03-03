@@ -16,6 +16,7 @@ const createFilter = ({ apps, isOrgAdmin, name = '', application = [] }) => [
     ? [
         {
           key: 'name',
+          label: 'Role name',
           type: 'text',
           value: name,
         },
