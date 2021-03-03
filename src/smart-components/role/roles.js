@@ -89,6 +89,9 @@ const Roles = () => {
             onClick: () => {
               push(paths['add-role']);
             },
+            props: {
+              ouiaId: 'create-role-button',
+            },
           }
         : undefined,
     ].filter((x) => x);
