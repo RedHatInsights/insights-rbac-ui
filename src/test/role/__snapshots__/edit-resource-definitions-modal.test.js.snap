@@ -25,7 +25,7 @@ Array [
     aria-describedby=""
     aria-label=""
     aria-labelledby=""
-    className="ins-c-wizard__cancel-warning"
+    className="rbac ins-c-wizard__cancel-warning"
     hasNoBodyWrapper={false}
     isOpen={false}
     onClose={[Function]}
@@ -78,7 +78,7 @@ Array [
         aria-label=""
         aria-labelledby=""
         boxId="pf-modal-part-0"
-        className="ins-c-wizard__cancel-warning"
+        className="rbac ins-c-wizard__cancel-warning"
         descriptorId="pf-modal-part-2"
         hasNoBodyWrapper={false}
         isOpen={false}
