@@ -14,7 +14,7 @@ const AddPermissionTemplate = ({ formFields }) => {
     [];
   const addPermissions = formFields[0][0];
   return (
-    <React.Fragment>
+    <div className="rbac">
       {selectedPermissions.length > 0 ? (
         <div className="ins-c-rbac-seleted-chips">
           <ChipGroup categoryName="Selected permissions">
@@ -59,7 +59,7 @@ const AddPermissionTemplate = ({ formFields }) => {
           },
         ],
       ]}
-    </React.Fragment>
+    </div>
   );
 };
 

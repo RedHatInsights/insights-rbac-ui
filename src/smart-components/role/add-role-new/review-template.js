@@ -36,7 +36,7 @@ const ReviewTemplate = ({ formFields }) => {
   }
 
   return (
-    <React.Fragment>
+    <div className="rbac">
       <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
         Review details
       </Title>
@@ -44,7 +44,7 @@ const ReviewTemplate = ({ formFields }) => {
         <Text>Review and confirm the details for your role, or click Back to revise.</Text>
       </TextContent>
       {[[{ ...formFields?.[0]?.[0] }]]}
-    </React.Fragment>
+    </div>
   );
 };
 

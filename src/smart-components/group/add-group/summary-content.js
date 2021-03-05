@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
@@ -13,7 +13,7 @@ const SummaryContent = () => {
   } = formOptions.getState().values;
 
   return (
-    <Fragment>
+    <div className="rbac">
       <Stack hasGutter>
         <StackItem>
           <Stack hasGutter>
@@ -74,7 +74,7 @@ const SummaryContent = () => {
           </Stack>
         </StackItem>
       </Stack>
-    </Fragment>
+    </div>
   );
 };
 
