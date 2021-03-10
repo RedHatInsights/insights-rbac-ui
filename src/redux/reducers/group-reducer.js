@@ -29,26 +29,30 @@ const setSystemGroup = (state, { payload }) => ({ ...state, systemGroup: payload
 const setGroup = (state, { payload }) => ({
   ...state,
   isRecordLoading: false,
-  groups: {
-    ...state.groups,
-    data: state.groups.data.map((group) => ({
-      ...group,
-      ...(payload.uuid === group.uuid && { ...payload, loaded: true }),
-    })),
-  },
-  selectedGroup: {
-    ...state.selectedGroup,
-    members: { ...state.selectedGroup.members, data: payload.principals },
-    ...omit(payload, ['principals', 'roles']),
-    loaded: true,
-    pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 },
-  },
+  ...(!payload.error
+    ? {
+        groups: {
+          ...state.groups,
+          data: state.groups.data.map((group) => ({
+            ...group,
+            ...(payload.uuid === group.uuid && { ...payload, loaded: true }),
+          })),
+        },
+        selectedGroup: {
+          ...state.selectedGroup,
+          members: { ...state.selectedGroup.members, data: payload.principals },
+          ...omit(payload, ['principals', 'roles']),
+          loaded: true,
+          pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 },
+        },
+      }
+    : {}),
 });
 const resetSelectedGroup = (state) => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
   isRecordRolesLoading: false,
-  selectedGroup: { ...state.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true },
+  selectedGroup: { ...state.selectedGroup, ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : {}), loaded: true },
 });
 
 const setMembersForGroupLoading = (state = {}) => ({
@@ -64,7 +68,7 @@ const setMembersForGroup = (state, { payload }) => ({
     ...(state.selectedGroup || {}),
     members: {
       isLoading: false,
-      ...payload,
+      ...(!payload.error ? payload : {}),
     },
   },
 });
@@ -75,7 +79,7 @@ const setAddRolesLoading = (state) => ({
 });
 const setAddRolesForGroup = (state, { payload }) => ({
   ...state,
-  selectedGroup: { ...state.selectedGroup, addRoles: { roles: payload.data, pagination: payload.meta, loaded: true } },
+  selectedGroup: { ...state.selectedGroup, ...(!payload.error ? { addRoles: { roles: payload.data, pagination: payload.meta } } : {}), loaded: true },
 });
 
 export default {

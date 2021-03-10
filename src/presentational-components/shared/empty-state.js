@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 
-const EmptyWithFilter = ({ title, icon, description, actions, ...props }) => (
+const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
   <EmptyState variant={EmptyStateVariant.full} {...props}>
     <EmptyStateIcon icon={icon || SearchIcon} />
     <Title headingLevel="h4">{title}</Title>
@@ -18,7 +18,7 @@ const EmptyWithFilter = ({ title, icon, description, actions, ...props }) => (
   </EmptyState>
 );
 
-EmptyWithFilter.propTypes = {
+EmptyWithAction.propTypes = {
   icon: PropTypes.func,
   title: PropTypes.node,
   description: PropTypes.node,
@@ -26,4 +26,4 @@ EmptyWithFilter.propTypes = {
   className: PropTypes.string,
 };
 
-export default EmptyWithFilter;
+export default EmptyWithAction;
