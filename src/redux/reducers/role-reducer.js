@@ -18,7 +18,7 @@ export const rolesInitialState = {
 
 const setLoadingState = (state) => ({ ...state, isLoading: true });
 const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true });
-const setRole = (state, { payload }) => ({ ...state, selectedRole: payload, isRecordLoading: false });
+const setRole = (state, { payload }) => ({ ...state, ...(!payload.error ? { selectedRole: payload } : {}), isRecordLoading: false });
 const setRoles = (state, { payload }) => ({ ...state, roles: payload, isLoading: false });
 const setRolesWithAccess = (state, { payload }) => ({
   ...state,

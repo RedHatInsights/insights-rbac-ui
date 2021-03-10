@@ -19,7 +19,14 @@ export const createRole = (roleData) => ({
 
 export const fetchRole = (apiProps) => ({
   type: ActionTypes.FETCH_ROLE,
-  payload: RoleHelper.fetchRole(apiProps),
+  payload: RoleHelper.fetchRole(apiProps).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'role uuid validation') {
+      return { error: true };
+    }
+
+    throw err;
+  }),
 });
 
 export const fetchRoles = (options = {}) => ({
