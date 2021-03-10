@@ -31,7 +31,14 @@ export const fetchRole = (apiProps) => ({
 
 export const fetchRoles = (options = {}) => ({
   type: ActionTypes.FETCH_ROLES,
-  payload: RoleHelper.fetchRoles(options),
+  payload: RoleHelper.fetchRoles(options).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'detail') {
+      return { error: true };
+    }
+
+    throw err;
+  }),
 });
 
 export const fetchRolesWithPolicies = (options = {}) => ({
