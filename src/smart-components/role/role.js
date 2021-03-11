@@ -40,7 +40,7 @@ const Role = ({ onDelete }) => {
 
   const groupExists = useSelector((state) => {
     const {
-      roleReducer: { error },
+      groupReducer: { error },
     } = state;
     return error !== BAD_UUID;
   });

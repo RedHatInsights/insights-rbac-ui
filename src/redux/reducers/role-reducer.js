@@ -16,14 +16,14 @@ export const rolesInitialState = {
   selectedRole: {},
 };
 
-const setLoadingState = (state) => ({ ...state, isLoading: true });
-const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true });
+const setLoadingState = (state) => ({ ...state, isLoading: true, error: undefined });
+const setRecordLoadingState = (state) => ({ ...state, isRecordLoading: true, error: undefined });
 const setRole = (state, { payload }) => ({
   ...state,
-  ...(!payload.error ? { selectedRole: payload, error: undefined } : payload),
+  ...(!payload.error ? { selectedRole: payload } : payload),
   isRecordLoading: false,
 });
-const setRoles = (state, { payload }) => ({ ...state, ...(!payload.error ? { roles: payload, error: undefined } : payload), isLoading: false });
+const setRoles = (state, { payload }) => ({ ...state, ...(!payload.error ? { roles: payload } : payload), isLoading: false });
 const setRolesWithAccess = (state, { payload }) => ({
   ...state,
   rolesWithAccess: { ...state.rolesWithAccess, [payload.uuid]: payload },
