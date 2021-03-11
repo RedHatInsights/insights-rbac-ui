@@ -67,7 +67,7 @@ const Role = ({ onDelete }) => {
     ...(groupExists
       ? [
           {
-            title: isRecordLoading ? undefined : roleExists ? role.display_name || role.name : 'Invalid role',
+            title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : 'Invalid role',
             isActive: true,
           },
         ]

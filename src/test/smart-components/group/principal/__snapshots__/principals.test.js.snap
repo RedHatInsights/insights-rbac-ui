@@ -195,7 +195,7 @@ Array [
 `;
 
 exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
-<EmptyWithFilter
+<EmptyWithAction
   description={
     Array [
       "Add a user to configure user access.",

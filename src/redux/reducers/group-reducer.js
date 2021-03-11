@@ -79,7 +79,10 @@ const setAddRolesLoading = (state) => ({
 });
 const setAddRolesForGroup = (state, { payload }) => ({
   ...state,
-  selectedGroup: { ...state.selectedGroup, ...(!payload.error ? { addRoles: { roles: payload.data, pagination: payload.meta } } : {}), loaded: true },
+  selectedGroup: {
+    ...state.selectedGroup,
+    addRoles: { ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.addRoles), loaded: true },
+  },
 });
 
 export default {

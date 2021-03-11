@@ -84,7 +84,7 @@ describe('<GroupPrincipals />', () => {
         </MemoryRouter>
       </Provider>
     );
-    expect(toJson(wrapper.find('EmptyWithFilter'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(toJson(wrapper.find('EmptyWithAction'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
   it('should render correctly with org admin rights', () => {
