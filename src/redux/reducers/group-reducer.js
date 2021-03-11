@@ -45,14 +45,19 @@ const setGroup = (state, { payload }) => ({
           loaded: true,
           pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 },
         },
+        error: undefined,
       }
-    : {}),
+    : payload),
 });
 const resetSelectedGroup = (state) => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
   isRecordRolesLoading: false,
-  selectedGroup: { ...state.selectedGroup, ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : {}), loaded: true },
+  selectedGroup: {
+    ...state.selectedGroup,
+    ...(!payload.error ? { roles: payload.data, pagination: payload.meta, error: undefined } : payload),
+    loaded: true,
+  },
 });
 
 const setMembersForGroupLoading = (state = {}) => ({
@@ -70,6 +75,7 @@ const setMembersForGroup = (state, { payload }) => ({
       isLoading: false,
       ...(!payload.error ? payload : {}),
     },
+    ...(payload.error ? payload : { error: undefined }),
   },
 });
 
@@ -83,6 +89,7 @@ const setAddRolesForGroup = (state, { payload }) => ({
     ...state.selectedGroup,
     addRoles: { ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.addRoles), loaded: true },
   },
+  ...(payload.error ? payload : { error: undefined }),
 });
 
 export default {

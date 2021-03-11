@@ -1,10 +1,11 @@
 import * as ActionTypes from '../action-types';
 import * as GroupHelper from '../../helpers/group/group-helper';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 
 const handleUuidError = (err) => {
   const error = err?.errors?.[0] || {};
   if (error.status === '400' && error.source === 'group uuid validation') {
-    return { error: true };
+    return { error: BAD_UUID };
   }
 
   throw err;

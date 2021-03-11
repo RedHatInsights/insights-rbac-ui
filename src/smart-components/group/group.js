@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
-import { connect, useDispatch } from 'react-redux';
+import { connect, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -16,6 +16,7 @@ import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 import './group.scss';
 
 const Group = ({
@@ -34,9 +35,15 @@ const Group = ({
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
-  const [groupExists, setGroupExists] = useState(true);
 
   const history = useHistory();
+
+  const groupExists = useSelector((state) => {
+    const {
+      groupReducer: { error },
+    } = state;
+    return error !== BAD_UUID;
+  });
 
   const breadcrumbsList = () => [
     { title: 'Groups', to: '/groups' },
@@ -44,9 +51,7 @@ const Group = ({
   ];
 
   const fetchData = (apiProps) => {
-    fetchGroup(apiProps).then(({ value }) => {
-      value?.error && setGroupExists(false);
-    });
+    fetchGroup(apiProps);
   };
 
   const dispatch = useDispatch();
