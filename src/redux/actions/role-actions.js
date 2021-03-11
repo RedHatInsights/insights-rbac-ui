@@ -1,5 +1,6 @@
 import * as ActionTypes from '../action-types';
 import * as RoleHelper from '../../helpers/role/role-helper';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 
 export const createRole = (roleData) => ({
   type: ActionTypes.ADD_ROLE,
@@ -34,7 +35,7 @@ export const fetchRoles = (options = {}) => ({
   payload: RoleHelper.fetchRoles(options).catch((err) => {
     const error = err?.errors?.[0] || {};
     if (error.status === '400' && error.source === 'detail') {
-      return { error: true };
+      return { error: BAD_UUID };
     }
 
     throw err;

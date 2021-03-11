@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import { Link, useHistory, withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
@@ -15,6 +15,7 @@ import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@pa
 import { Fragment } from 'react';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 import './user.scss';
 
 const columns = [
@@ -46,15 +47,21 @@ const User = ({
   rolesWithAccess,
   user,
 }) => {
+  const [filter, setFilter] = useState('');
+  const [expanded, setExpanded] = useState({});
+
+  const userExists = useSelector((state) => {
+    const {
+      roleReducer: { error },
+    } = state;
+    return error !== BAD_UUID;
+  });
+
   useEffect(() => {
     fetchUsers({ ...defaultSettings, limit: 0, username });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
-
-  const [filter, setFilter] = useState('');
-  const [expanded, setExpanded] = useState({});
-  const [userExists, setUserExists] = useState(true);
 
   const history = useHistory();
 
@@ -126,16 +133,8 @@ const User = ({
   };
 
   useEffect(() => {
-    fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(({ value }) => {
-      value?.error && setUserExists(false);
-    });
-    debouncedFetch = debounce(
-      (limit, offset, name, addFields, username) =>
-        fetchRoles({ limit, offset, name, addFields, username }).then(({ value }) => {
-          value?.error && setUserExists(false);
-        }),
-      500
-    );
+    fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username });
+    debouncedFetch = debounce((limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }), 500);
   }, []);
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
