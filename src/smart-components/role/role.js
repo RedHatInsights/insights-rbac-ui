@@ -2,7 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Split, SplitItem, Text, TextContent } from '@patternfly/react-core';
+import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { routes } from '../../../package.json';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
@@ -14,6 +14,7 @@ import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
@@ -138,28 +139,27 @@ const Role = ({ onDelete }) => {
           </Route>
         </Fragment>
       ) : (
-        <TopToolbar breadcrumbs={breadcrumbsList()}>
-          <Split hasGutter>
-            <SplitItem isFilled>
-              <EmptyWithAction
-                title={`${groupExists ? 'Role' : 'Group'} not found`}
-                description={[`${groupExists ? 'Role' : 'Group'} with ID ${groupExists ? uuid : groupUuid} does not exist.`]}
-                actions={[
-                  <Button
-                    key="back-button"
-                    className="pf-u-mt-xl"
-                    ouiaId="back-button"
-                    variant="primary"
-                    aria-label="Back to previous page"
-                    onClick={() => history.goBack()}
-                  >
-                    Back to previous page
-                  </Button>,
-                ]}
-              />
-            </SplitItem>
-          </Split>
-        </TopToolbar>
+        <Fragment>
+          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+            <RbacBreadcrumbs {...breadcrumbsList()} />
+          </section>
+          <EmptyWithAction
+            title={`${groupExists ? 'Role' : 'Group'} not found`}
+            description={[`${groupExists ? 'Role' : 'Group'} with ID ${groupExists ? uuid : groupUuid} does not exist.`]}
+            actions={[
+              <Button
+                key="back-button"
+                className="pf-u-mt-xl"
+                ouiaId="back-button"
+                variant="primary"
+                aria-label="Back to previous page"
+                onClick={() => history.goBack()}
+              >
+                Back to previous page
+              </Button>,
+            ]}
+          />
+        </Fragment>
       )}
     </Fragment>
   );

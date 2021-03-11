@@ -14,8 +14,9 @@ import { InfoCircleIcon } from '@patternfly/react-icons';
 import { routes } from '../../../package.json';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
-import './group.scss';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import './group.scss';
 
 const Group = ({
   match: {
@@ -187,28 +188,27 @@ const Group = ({
           {!group && <ListLoader />}
         </Fragment>
       ) : (
-        <TopToolbar breadcrumbs={breadcrumbsList()}>
-          <Split hasGutter>
-            <SplitItem isFilled>
-              <EmptyWithAction
-                title="Group not found"
-                description={[`Group with ID ${uuid} does not exist.`]}
-                actions={[
-                  <Button
-                    key="back-button"
-                    className="pf-u-mt-xl"
-                    ouiaId="back-button"
-                    variant="primary"
-                    aria-label="Back to previous page"
-                    onClick={() => history.goBack()}
-                  >
-                    Back to previous page
-                  </Button>,
-                ]}
-              />
-            </SplitItem>
-          </Split>
-        </TopToolbar>
+        <Fragment>
+          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+            <RbacBreadcrumbs {...breadcrumbsList()} />
+          </section>
+          <EmptyWithAction
+            title="Group not found"
+            description={[`Group with ID ${uuid} does not exist.`]}
+            actions={[
+              <Button
+                key="back-button"
+                className="pf-u-mt-xl"
+                ouiaId="back-button"
+                variant="primary"
+                aria-label="Back to previous page"
+                onClick={() => history.goBack()}
+              >
+                Back to previous page
+              </Button>,
+            ]}
+          />
+        </Fragment>
       )}
     </Fragment>
   );

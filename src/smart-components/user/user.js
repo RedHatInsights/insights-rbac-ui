@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { Link, useHistory, withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import { Button, Label, Split, SplitItem, Stack, StackItem } from '@patternfly/react-core';
+import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { Section, DateFormat, Skeleton } from '@redhat-cloud-services/frontend-components';
@@ -14,6 +14,7 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
 import { Fragment } from 'react';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
 import './user.scss';
 
 const columns = [
@@ -199,28 +200,27 @@ const User = ({
           </StackItem>
         </Stack>
       ) : (
-        <TopToolbar breadcrumbs={breadcrumbsList()}>
-          <Split hasGutter>
-            <SplitItem isFilled>
-              <EmptyWithAction
-                title="User not found"
-                description={[`User with username ${username} does not exist.`]}
-                actions={[
-                  <Button
-                    key="back-button"
-                    className="pf-u-mt-xl"
-                    ouiaId="back-button"
-                    variant="primary"
-                    aria-label="Back to previous page"
-                    onClick={() => history.goBack()}
-                  >
-                    Back to previous page
-                  </Button>,
-                ]}
-              />
-            </SplitItem>
-          </Split>
-        </TopToolbar>
+        <Fragment>
+          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+            <RbacBreadcrumbs {...breadcrumbsList()} />
+          </section>
+          <EmptyWithAction
+            title="User not found"
+            description={[`User with username ${username} does not exist.`]}
+            actions={[
+              <Button
+                key="back-button"
+                className="pf-u-mt-xl"
+                ouiaId="back-button"
+                variant="primary"
+                aria-label="Back to previous page"
+                onClick={() => history.goBack()}
+              >
+                Back to previous page
+              </Button>,
+            ]}
+          />
+        </Fragment>
       )}
     </Fragment>
   );
