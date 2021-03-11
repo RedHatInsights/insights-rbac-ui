@@ -45,6 +45,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
   return (
     <Modal
+      className="rbac"
       aria-label="remove-role"
       header={
         <TextContent>
