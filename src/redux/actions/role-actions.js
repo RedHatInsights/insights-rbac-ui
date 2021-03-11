@@ -23,7 +23,7 @@ export const fetchRole = (apiProps) => ({
   payload: RoleHelper.fetchRole(apiProps).catch((err) => {
     const error = err?.errors?.[0] || {};
     if (error.status === '400' && error.source === 'role uuid validation') {
-      return { error: true };
+      return { error: BAD_UUID };
     }
 
     throw err;

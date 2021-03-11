@@ -15,13 +15,12 @@ import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [groupExists, setGroupExists] = useState(true);
-  const [roleExists, setRoleExists] = useState(true);
   const { uuid, groupUuid } = useParams();
   const { role, group, isRecordLoading } = useSelector(
     (state) => ({
@@ -31,15 +30,25 @@ const Role = ({ onDelete }) => {
     }),
     shallowEqual
   );
+
+  const roleExists = useSelector((state) => {
+    const {
+      roleReducer: { error },
+    } = state;
+    return error !== BAD_UUID;
+  });
+
+  const groupExists = useSelector((state) => {
+    const {
+      roleReducer: { error },
+    } = state;
+    return error !== BAD_UUID;
+  });
+
   const dispatch = useDispatch();
   const fetchData = () => {
-    dispatch(fetchRole(uuid)).then(({ value }) => {
-      value?.error && setRoleExists(false);
-    });
-    groupUuid &&
-      dispatch(fetchGroup(groupUuid)).then(({ value }) => {
-        value?.error && setGroupExists(false);
-      });
+    dispatch(fetchRole(uuid));
+    groupUuid && dispatch(fetchGroup(groupUuid));
   };
 
   useEffect(() => {
