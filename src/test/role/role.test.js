@@ -12,6 +12,7 @@ import { FETCH_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
+import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
@@ -261,7 +262,9 @@ describe('role', () => {
   });
 
   it('should open and cancel remove modal', async () => {
-    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
+    fetchRoleSpy
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
+      .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -272,12 +275,12 @@ describe('role', () => {
         </Provider>
       );
     });
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    expect(wrapper.find(RemoveModal)).toHaveLength(0);
     wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(1);
+    expect(wrapper.find(RemoveModal)).toHaveLength(1);
     wrapper.find('button.pf-m-link').simulate('click');
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    expect(wrapper.find(RemoveModal)).toHaveLength(0);
   });
 
   it('should open and close remove modal', async () => {
@@ -297,12 +300,12 @@ describe('role', () => {
         </Provider>
       );
     });
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    expect(wrapper.find(RemoveModal)).toHaveLength(0);
     wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(1);
+    expect(wrapper.find(RemoveModal)).toHaveLength(1);
     wrapper.find('button.pf-m-danger').simulate('click');
-    expect(wrapper.find('RemovePermissionsModal')).toHaveLength(0);
+    expect(wrapper.find(RemoveModal)).toHaveLength(0);
   });
 
   it('should chould check permission and remove it', async () => {

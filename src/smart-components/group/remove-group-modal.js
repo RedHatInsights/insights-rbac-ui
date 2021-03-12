@@ -33,6 +33,7 @@ const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUu
 
   return (
     <Modal
+      className="rbac"
       isOpen={isModalOpen}
       variant={ModalVariant.small}
       title={
