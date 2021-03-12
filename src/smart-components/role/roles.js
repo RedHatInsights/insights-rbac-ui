@@ -82,19 +82,15 @@ const Roles = () => {
   };
 
   const toolbarButtons = () =>
-    [
-      insights.chrome.isBeta() && userIdentity?.user?.is_org_admin
-        ? {
-            label: 'Create role',
-            onClick: () => {
-              push(paths['add-role']);
-            },
-            props: {
-              ouiaId: 'create-role-button',
-            },
-          }
-        : undefined,
-    ].filter((x) => x);
+    insights.chrome.isBeta() && userIdentity?.user?.is_org_admin
+      ? [
+          <Link to={paths['add-role']} key="add-role" className="pf-m-visible-on-md">
+            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
+              Create role
+            </Button>
+          </Link>,
+        ]
+      : [];
 
   const renderRolesList = () => (
     <Stack>
