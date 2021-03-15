@@ -1,3 +1,5 @@
+export const BAD_UUID = 'bad uuid';
+
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 
 export const scrollToTop = () =>

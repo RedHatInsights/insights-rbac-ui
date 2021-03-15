@@ -39,6 +39,9 @@ describe('role', () => {
   beforeEach(() => {
     mockStore = configureStore(middlewares);
     initialState = {
+      groupReducer: {
+        error: undefined,
+      },
       roleReducer: {
         isRecordLoading: false,
         selectedRole: {
@@ -67,6 +70,7 @@ describe('role', () => {
   describe('role only', () => {
     it('should render correctly with router', async () => {
       const store = mockStore({
+        groupReducer: { error: undefined },
         roleReducer: {},
       });
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
@@ -182,6 +186,7 @@ describe('role', () => {
       wrapper = mount(
         <Provider
           store={mockStore({
+            groupReducer: { error: undefined },
             roleReducer: {
               isRecordLoading: true,
             },

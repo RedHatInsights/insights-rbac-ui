@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { Link, withRouter } from 'react-router-dom';
+import { connect, useSelector } from 'react-redux';
+import { Link, useHistory, withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import { Label, Stack, StackItem } from '@patternfly/react-core';
+import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { Section, DateFormat, Skeleton } from '@redhat-cloud-services/frontend-components';
@@ -11,9 +11,12 @@ import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import './user.scss';
-
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
+import { Fragment } from 'react';
+import EmptyWithAction from '../../presentational-components/shared/empty-state';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import { BAD_UUID } from '../../helpers/shared/helpers';
+import './user.scss';
 
 const columns = [
   'Roles',
@@ -44,14 +47,23 @@ const User = ({
   rolesWithAccess,
   user,
 }) => {
+  const [filter, setFilter] = useState('');
+  const [expanded, setExpanded] = useState({});
+
+  const userExists = useSelector((state) => {
+    const {
+      roleReducer: { error },
+    } = state;
+    return error !== BAD_UUID;
+  });
+
   useEffect(() => {
     fetchUsers({ ...defaultSettings, limit: 0, username });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
 
-  const [filter, setFilter] = useState('');
-  const [expanded, setExpanded] = useState({});
+  const history = useHistory();
 
   const createRows = (data) => {
     return data
@@ -139,51 +151,77 @@ const User = ({
 
   const breadcrumbsList = () => [
     { title: 'Users', to: '/users' },
-    { title: username, isActive: true },
+    { title: userExists ? username : 'Invalid user', isActive: true },
   ];
 
   return (
-    <Stack>
-      <StackItem>
-        <TopToolbar paddingBottm={false} breadcrumbs={breadcrumbsList()}>
-          <TopToolbarTitle
-            title={username}
-            renderTitleTag={() =>
-              user && !isLoading ? (
-                <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
-              ) : (
-                <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton>
-              )
-            }
-            description={`${username}'s roles, groups and permissions.`}
+    <Fragment>
+      {userExists ? (
+        <Stack>
+          <StackItem>
+            <TopToolbar paddingBottm={false} breadcrumbs={breadcrumbsList()}>
+              <TopToolbarTitle
+                title={username}
+                renderTitleTag={() =>
+                  user && !isLoading ? (
+                    <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
+                  ) : (
+                    <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton>
+                  )
+                }
+                description={`${username}'s roles, groups and permissions.`}
+              />
+            </TopToolbar>
+          </StackItem>
+          <StackItem>
+            <Section type="content" id={'user-detail'}>
+              <TableToolbarView
+                columns={columns}
+                isCompact={false}
+                isExpandable={true}
+                onExpand={onExpand}
+                createRows={createRows}
+                data={roles.data}
+                filterValue={filter}
+                ouiaId="user-details-table"
+                fetchData={({ limit, offset, name }) => {
+                  debouncedFetch(limit, offset, name, ['groups_in'], username);
+                }}
+                setFilterValue={({ name }) => setFilter(name)}
+                isLoading={isLoading}
+                pagination={roles.meta}
+                filterPlaceholder="role name"
+                titlePlural="roles"
+                titleSingular="role"
+                tableId="user"
+              />
+            </Section>
+          </StackItem>
+        </Stack>
+      ) : (
+        <Fragment>
+          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+            <RbacBreadcrumbs {...breadcrumbsList()} />
+          </section>
+          <EmptyWithAction
+            title="User not found"
+            description={[`User with username ${username} does not exist.`]}
+            actions={[
+              <Button
+                key="back-button"
+                className="pf-u-mt-xl"
+                ouiaId="back-button"
+                variant="primary"
+                aria-label="Back to previous page"
+                onClick={() => history.goBack()}
+              >
+                Back to previous page
+              </Button>,
+            ]}
           />
-        </TopToolbar>
-      </StackItem>
-      <StackItem>
-        <Section type="content" id={'user-detail'}>
-          <TableToolbarView
-            columns={columns}
-            isCompact={false}
-            isExpandable={true}
-            onExpand={onExpand}
-            createRows={createRows}
-            data={roles.data}
-            filterValue={filter}
-            ouiaId="user-details-table"
-            fetchData={({ limit, offset, name }) => {
-              debouncedFetch(limit, offset, name, ['groups_in'], username);
-            }}
-            setFilterValue={({ name }) => setFilter(name)}
-            isLoading={isLoading}
-            pagination={roles.meta}
-            filterPlaceholder="role name"
-            titlePlural="roles"
-            titleSingular="role"
-            tableId="user"
-          />
-        </Section>
-      </StackItem>
-    </Stack>
+        </Fragment>
+      )}
+    </Fragment>
   );
 };
 

@@ -7,7 +7,7 @@ import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
-import EmptyWithAction from './empty-filter';
+import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
