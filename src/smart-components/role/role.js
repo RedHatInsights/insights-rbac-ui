@@ -175,7 +175,7 @@ const Role = ({ onDelete }) => {
 };
 
 Role.propTypes = {
-  onDelete: PropTypes.string,
+  onDelete: PropTypes.func,
 };
 
 export default Role;
