@@ -50,6 +50,12 @@
       display: block;
       padding: 0 var(--pf-global--spacer--lg);
       top: 60px;
+      .pf-c-dropdown {
+        width: 100%;
+        button {
+          width: 100%;
+        }
+      }
     }
     &-section__table {
       height: auto;

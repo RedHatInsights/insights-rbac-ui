@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from 'react';
+import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
+
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
@@ -8,10 +10,13 @@ import MUAContent from './MUAContent';
 
 const MyUserAccess = () => {
   const [user, setUser] = useState({});
-
   useEffect(() => {
     insights.chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
   }, []);
+
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+
+  const dropdownItems = [<DropdownItem key="test">test</DropdownItem>];
 
   return (
     <React.Fragment>
@@ -30,14 +35,16 @@ const MyUserAccess = () => {
             Select from your organization&apos;s subscriptions below to discover your individual application-specific roles and permissions.
           </Text>
           <div className="ins-p-myUserAccess--dropdown sticky">
-            <div className="pf-c-dropdown pf-m-expanded">
-              <button className="pf-c-dropdown__toggle" type="button">
-                <span className="pf-c-dropdown__toggle-text">Choose a subscription...</span>
-                <span className="pf-c-dropdown__toggle-icon">
-                  <i className="fas fa-caret-down"></i>
-                </span>
-              </button>
-            </div>
+            <Dropdown
+              ouiaId="mua-bundle-dropdown"
+              toggle={
+                <DropdownToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="mua-bundle-dropdown">
+                  Choose a subscription...
+                </DropdownToggle>
+              }
+              dropdownItems={dropdownItems}
+              isOpen={isDropdownOpen}
+            />
           </div>
           <section>
             <MUAContent entitlements={user.entitlements} isOrgAdmin={user.isOrgAdmin} />
