@@ -142,6 +142,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
             >
               <Button
                 aria-label="Add role"
+                className="ins-m-hide-on-sm"
                 isAriaDisabled={false}
                 variant="primary"
               >
@@ -1119,6 +1120,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                       >
                         <Button
                           aria-label="Add role"
+                          className="ins-m-hide-on-sm"
                           isAriaDisabled={false}
                           variant="primary"
                         >
@@ -1171,13 +1173,14 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                           >
                             <Button
                               aria-label="Add role"
+                              className="ins-m-hide-on-sm"
                               isAriaDisabled={false}
                               variant="primary"
                             >
                               <button
                                 aria-disabled={false}
                                 aria-label="Add role"
-                                className="pf-c-button pf-m-primary"
+                                className="pf-c-button pf-m-primary ins-m-hide-on-sm"
                                 data-ouia-component-id="OUIA-Generated-Button-primary-1"
                                 data-ouia-component-type="PF4/Button"
                                 data-ouia-safe={true}
@@ -1214,6 +1217,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Button
                                   aria-label="Add role"
+                                  className="ins-m-hide-on-sm"
                                   isAriaDisabled={false}
                                   variant="primary"
                                 >
@@ -1266,6 +1270,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 >
                                   <Button
                                     aria-label="Add role"
+                                    className="ins-m-hide-on-sm"
                                     isAriaDisabled={false}
                                     variant="primary"
                                   >

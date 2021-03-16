@@ -143,7 +143,7 @@ const Permissions = () => {
   const toolbarButtons = () =>
     window.insights.chrome.isBeta() && !role.system
       ? [
-          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
               Add Permission
             </Button>
