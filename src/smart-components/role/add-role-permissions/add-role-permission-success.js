@@ -1,10 +1,13 @@
-/* eslint-disable */
-import React from 'react'
-import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, EmptyStateSecondaryActions } from '@patternfly/react-core';
+import React from 'react';
+import PropTypes from 'prop-types';
+import { Title, Button, EmptyState, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { Link } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { fetchRole } from '../../../redux/actions/role-actions.js';
 
-const AddRolePermissionSuccess = ({currentRoleID}) => {
+const AddRolePermissionSuccess = ({ currentRoleID }) => {
+  const dispatch = useDispatch();
   return (
     <>
       <EmptyState>
@@ -14,9 +17,7 @@ const AddRolePermissionSuccess = ({currentRoleID}) => {
         </Title>
         <EmptyStateBody></EmptyStateBody>
         <Link to={`/roles/detail/${currentRoleID}`}>
-          <Button >
-            Exit
-          </Button>
+          <Button onClick={() => dispatch(fetchRole(currentRoleID))}>Exit</Button>
         </Link>
       </EmptyState>
     </>
@@ -24,3 +25,7 @@ const AddRolePermissionSuccess = ({currentRoleID}) => {
 };
 
 export default AddRolePermissionSuccess;
+
+AddRolePermissionSuccess.propTypes = {
+  currentRoleID: PropTypes.string.isRequired,
+};
