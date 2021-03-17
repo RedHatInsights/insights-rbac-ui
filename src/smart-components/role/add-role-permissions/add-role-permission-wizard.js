@@ -1,5 +1,5 @@
-/* eslint-disable */
 import React, { useState, useEffect } from 'react';
+import { useDispatch } from 'react-redux';
 import AddRolePermissionView from './add-role-permission-view';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
 import AddRolePermissionSuccess from './add-role-permission-success';
@@ -7,7 +7,7 @@ import PropTypes from 'prop-types';
 import { WarningModal } from '../../common/warningModal';
 import { useHistory } from 'react-router-dom';
 import { Wizard } from '@patternfly/react-core';
-import { updateRole } from '../../../helpers/role/role-helper';
+import { updateRole } from '../../../redux/actions/role-actions.js';
 
 const AddRolePermissionWizard = ({ role }) => {
   const [selectedPermissions, setSelectedPermissions] = useState([]);
@@ -16,6 +16,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const [currentRoleID, setCurrentRoleID] = useState('');
   const ARRAY_MINIMUM = 0;
   const history = useHistory();
+  const dispatch = useDispatch();
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
@@ -23,12 +24,6 @@ const AddRolePermissionWizard = ({ role }) => {
 
   const setSelectedRolePermissions = (selected) => {
     setSelectedPermissions(selected);
-  };
-
-  const successNotificationStep = {
-      id: 3,
-      name: 'Success',
-      component: new AddRolePermissionSuccess({ currentRoleID }),
   };
 
   const steps = [
@@ -43,7 +38,6 @@ const AddRolePermissionWizard = ({ role }) => {
       component: new AddRolePermissionSummaryContent({ selectedPermissions, role }),
       nextButtonText: 'Save',
     },
-    ...(wizardSuccess ? [successNotificationStep] : []), 
   ];
 
   const handleWizardCancel = () => {
@@ -51,7 +45,7 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   const handleConfirmCancel = () => {
-    history.goBack();
+    history.push(`/roles/detail/${role.uuid}`);
   };
 
   const onSubmit = async () => {
@@ -66,24 +60,29 @@ const AddRolePermissionWizard = ({ role }) => {
       accessCount: role.accessCount + selectedPermissions.length,
     };
 
-    try {
-      await updateRole(currentRoleID, roleData);
-      setWizardSuccess(true); // overly simplistic approach for now
-    } catch (e) {
-      console.log('Error in trying to save updated role permissions: ', e);
-      setWizardSuccess(true); // Emulating success messagge 
-      // history.goBack();
-    }
+    dispatch(updateRole(currentRoleID, roleData)).then(() => setWizardSuccess(true));
   };
 
-  return (
+  return wizardSuccess ? (
+    <Wizard
+      title="Add permissions"
+      isOpen
+      steps={[
+        {
+          name: 'success',
+          component: new AddRolePermissionSuccess({ currentRoleID }),
+          isFinishedStep: true,
+        },
+      ]}
+    />
+  ) : (
     <>
       <Wizard
         title="Add permissions"
         description="Adding permissions to roles"
         steps={steps}
         isOpen={true}
-        onClose={() => selectedPermissions.length > ARRAY_MINIMUM ? handleWizardCancel() : handleConfirmCancel()}
+        onClose={() => (selectedPermissions.length > ARRAY_MINIMUM ? handleWizardCancel() : handleConfirmCancel())}
         onSave={onSubmit}
       />
       <WarningModal

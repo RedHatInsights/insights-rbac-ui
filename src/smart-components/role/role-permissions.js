@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
@@ -17,7 +16,6 @@ import {
 } from './role-permissions-table-helpers';
 import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
-import RolePermissionEmptyState from './role-permission-empty-state';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
@@ -26,7 +24,6 @@ import { routes as paths } from '../../../package.json';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 const maxFilterItems = 10;
-const MIN_PERMISSIONS = 0;
 
 const columns = [
   { title: 'Application' },
@@ -221,110 +218,107 @@ const Permissions = () => {
     (value) => value.length > maxFilterItems
   );
 
-  const rolePermissionsView = () => {
-    return (
-      <section className="pf-c-page__main-section ins-c-role__permissions">
-        {showRemoveModal && (
-          <RemoveModal
-            text={deleteInfo.text}
-            title={deleteInfo.title}
-            isOpen={showRemoveModal}
-            confirmButtonLabel={deleteInfo.confirmButtonLabel}
-            onClose={() => internalDispatch({ type: SHOW_REMOVE_MODAL, showRemoveModal: false })}
-            onSubmit={() => {
-              confirmDelete();
-              internalDispatch({ type: SUBMIT_REMOVE_MODAL });
-            }}
-          />
-        )}
-        <TextContent>
-          <Text component={TextVariants.h1}>Permissions</Text>
-        </TextContent>
-        <TableToolbarView
-          columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
-          createRows={createRows(showResourceDefinitions, role?.uuid)}
-          actionResolver={role.system ? undefined : actionResolver}
-          data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
-          filterValue=""
-          ouiaId="role-permissions-table"
-          fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}
-          isSelectable={!role.system}
-          setCheckedItems={setCheckedItems}
-          checkedRows={selectedPermissions}
-          onShowMore={
-            filterItemOverflow
-              ? () => {
-                  internalDispatch({ type: SET_TOGGLED });
-                }
-              : undefined
-          }
-          setFilterValue={({ applications, resources, operations }) => {
-            internalDispatch({
-              type: SET_FILTERS,
-              ...(applications ? { applications } : filters.applications),
-              ...(resources ? { resources } : filters.resources),
-              ...(operations ? { operations } : filters.operations),
-            });
+  return (
+    <section className="pf-c-page__main-section ins-c-role__permissions">
+      {showRemoveModal && (
+        <RemoveModal
+          text={deleteInfo.text}
+          title={deleteInfo.title}
+          isOpen={showRemoveModal}
+          confirmButtonLabel={deleteInfo.confirmButtonLabel}
+          onClose={() => internalDispatch({ type: SHOW_REMOVE_MODAL, showRemoveModal: false })}
+          onSubmit={() => {
+            confirmDelete();
+            internalDispatch({ type: SUBMIT_REMOVE_MODAL });
           }}
-          toolbarButtons={toolbarButtons}
-          isLoading={isRecordLoading}
-          pagination={{
-            ...pagination,
-            count: filteredRows.length,
-          }}
-          titlePlural="permissions"
-          titleSingular="permission"
-          routes={routes}
-          filters={[
-            {
-              key: 'applications',
-              value: filters.applications,
-              placeholder: 'Filter by application',
-              type: 'group',
-              selected: calculateSelected(filters.applications),
-              groups: [
-                {
-                  type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
-                  items:
-                    sanitizedRole.applications.length > 0
-                      ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
-                      : [emptyItem],
-                },
-              ],
-            },
-            {
-              key: 'resources',
-              value: filters.resources,
-              placeholder: 'Filter by resource type',
-              type: 'group',
-              selected: calculateSelected(filters.resources),
-              groups: [
-                {
-                  type: resources.length > 0 ? 'checkbox' : 'plain',
-                  items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-                },
-              ],
-            },
-            {
-              key: 'operations',
-              value: filters.operations,
-              placeholder: 'Filter by operation',
-              type: 'group',
-              selected: calculateSelected(filters.operations),
-              groups: [
-                {
-                  type: operations.length > 0 ? 'checkbox' : 'plain',
-                  items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-                },
-              ],
-            },
-          ]}
         />
-      </section>
-    );
-  };
-
-  return role.accessCount > MIN_PERMISSIONS ? rolePermissionsView() : <RolePermissionEmptyState currentRoleID={role.uuid} role={role} />;
+      )}
+      <TableToolbarView
+        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
+        createRows={createRows(showResourceDefinitions, role?.uuid)}
+        actionResolver={role.system ? undefined : actionResolver}
+        data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
+        filterValue=""
+        ouiaId="role-permissions-table"
+        fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}
+        isSelectable={!role.system}
+        setCheckedItems={setCheckedItems}
+        checkedRows={selectedPermissions}
+        onShowMore={
+          filterItemOverflow
+            ? () => {
+                internalDispatch({ type: SET_TOGGLED });
+              }
+            : undefined
+        }
+        setFilterValue={({ applications, resources, operations }) => {
+          internalDispatch({
+            type: SET_FILTERS,
+            ...(applications ? { applications } : filters.applications),
+            ...(resources ? { resources } : filters.resources),
+            ...(operations ? { operations } : filters.operations),
+          });
+        }}
+        toolbarButtons={toolbarButtons}
+        isLoading={isRecordLoading}
+        pagination={{
+          ...pagination,
+          count: filteredRows.length,
+        }}
+        titlePlural="permissions"
+        titleSingular="permission"
+        routes={routes}
+        emptyProps={{
+          title: 'There are no permissions in this role',
+          description: ['To configure user access to applications,', 'add at least on permission to this role.', ''],
+        }}
+        filters={[
+          {
+            key: 'applications',
+            value: filters.applications.length === 0 ? '' : filters.applications,
+            placeholder: 'Filter by application',
+            type: 'group',
+            selected: calculateSelected(filters.applications),
+            groups: [
+              {
+                type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
+                items:
+                  sanitizedRole.applications.length > 0
+                    ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
+                    : [emptyItem],
+              },
+            ],
+          },
+          {
+            key: 'resources',
+            value: filters.resources.length === 0 ? '' : filters.resources,
+            placeholder: 'Filter by resource type',
+            type: 'group',
+            selected: calculateSelected(filters.resources),
+            groups: [
+              {
+                type: resources.length > 0 ? 'checkbox' : 'plain',
+                items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+              },
+            ],
+          },
+          {
+            key: 'operations',
+            value: filters.operations.length === 0 ? '' : filters.operations,
+            placeholder: 'Filter by operation',
+            type: 'group',
+            selected: calculateSelected(filters.operations),
+            groups: [
+              {
+                type: operations.length > 0 ? 'checkbox' : 'plain',
+                items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+              },
+            ],
+          },
+        ]}
+      />
+    </section>
+  );
 };
 
 export default Permissions;
