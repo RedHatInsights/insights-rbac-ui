@@ -153,7 +153,7 @@ const CostResources = (props) => {
             onClear={() => clearSelection(permission)}
             selections={state[permission].selected}
             isOpen={state[permission].isOpen}
-            onFilter={(e) => dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: e.target.value })}
+            onFilter={(e) => e && dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: e.target.value })}
             aria-labelledby={permission}
             placeholderText="Select resources"
             hasInlineFilter
