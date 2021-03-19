@@ -17,12 +17,12 @@ import {
 } from './role-permissions-table-helpers';
 import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
-import RemovePermissionsModal from './remove-permissions-modal';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import { routes as paths } from '../../../package.json';
+import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 const maxFilterItems = 10;
 
@@ -143,7 +143,7 @@ const Permissions = () => {
   const toolbarButtons = () =>
     window.insights.chrome.isBeta() && !role.system
       ? [
-          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
               Add Permission
             </Button>
@@ -217,7 +217,7 @@ const Permissions = () => {
   return (
     <section className="pf-c-page__main-section ins-c-role__permissions">
       {showRemoveModal && (
-        <RemovePermissionsModal
+        <RemoveModal
           text={deleteInfo.text}
           title={deleteInfo.title}
           isOpen={showRemoveModal}

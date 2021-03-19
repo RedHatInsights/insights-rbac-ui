@@ -9,7 +9,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
 
   return (
     <Modal
-      className="ins-c-rbac__dialog--warning"
+      className="rbac"
       title={
         <div>
           <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> {title}

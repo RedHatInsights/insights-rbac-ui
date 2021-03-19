@@ -38,7 +38,7 @@ const MyUserAccess = () => {
             <Dropdown
               ouiaId="mua-bundle-dropdown"
               toggle={
-                <DropdownToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="mua-bundle-dropdown">
+                <DropdownToggle onToggle={() => setDropdownOpen()} id="mua-bundle-dropdown">
                   Choose a subscription...
                 </DropdownToggle>
               }

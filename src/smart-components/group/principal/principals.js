@@ -104,7 +104,7 @@ const GroupPrincipals = () => {
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="pf-m-visible-on-md">
+          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               Add member
             </Button>

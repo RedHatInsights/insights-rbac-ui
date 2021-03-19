@@ -1,5 +1,15 @@
 import * as ActionTypes from '../action-types';
 import * as GroupHelper from '../../helpers/group/group-helper';
+import { BAD_UUID } from '../../helpers/shared/helpers';
+
+const handleUuidError = (err) => {
+  const error = err?.errors?.[0] || {};
+  if (error.status === '400' && error.source === 'group uuid validation') {
+    return { error: BAD_UUID };
+  }
+
+  throw err;
+};
 
 export const fetchGroups = (options = {}) => ({
   type: ActionTypes.FETCH_GROUPS,
@@ -17,7 +27,7 @@ export const fetchSystemGroup = (filterValue) => ({
 
 export const fetchGroup = (apiProps) => ({
   type: ActionTypes.FETCH_GROUP,
-  payload: GroupHelper.fetchGroup(apiProps),
+  payload: GroupHelper.fetchGroup(apiProps).catch(handleUuidError),
 });
 
 export const addGroup = (groupData) => ({
@@ -138,17 +148,17 @@ export const removeMembersFromGroup = (groupId, members) => ({
 
 export const fetchRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ROLES_FOR_GROUP,
-  payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options),
+  payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
 });
 
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
-  payload: GroupHelper.fetchPrincipalsForGroup(groupId, usernames, options),
+  payload: GroupHelper.fetchPrincipalsForGroup(groupId, usernames, options).catch(handleUuidError),
 });
 
 export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ADD_ROLES_FOR_GROUP,
-  payload: GroupHelper.fetchRolesForGroup(groupId, true, pagination, options),
+  payload: GroupHelper.fetchRolesForGroup(groupId, true, pagination, options).catch(handleUuidError),
 });
 
 export const addRolesToGroup = (groupId, roles) => ({

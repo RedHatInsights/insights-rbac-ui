@@ -44,7 +44,7 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
 
 const addRoleButton = (isDisabled) => {
   const addRoleButtonContent = (
-    <Button variant="primary" aria-label="Add role" isAriaDisabled={isDisabled}>
+    <Button variant="primary" className="ins-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
       Add role
     </Button>
   );
