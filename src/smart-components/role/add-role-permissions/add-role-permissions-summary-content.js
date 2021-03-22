@@ -52,7 +52,7 @@ const AddRolePermissionSummaryContent = () => {
             </TextContent>
           </GridItem>
           {hasCostResources && (
-            <>
+            <React.Fragment>
               <GridItem span={3}>
                 <Text className="pf-c-title" component={TextVariants.h6}>
                   Resource definitions:
@@ -60,14 +60,10 @@ const AddRolePermissionSummaryContent = () => {
               </GridItem>
               <GridItem span={9}>
                 <TextContent component={TextVariants.p}>
-                  {resourceDefinitions
-                    .map((def) => def.resources)
-                    .map((resource, index) => (
-                      <Text key={index}> {resource} </Text>
-                    ))}
+                  {resourceDefinitions.map(({ resources }) => resources.map((resource, index) => <Text key={index}> {resource} </Text>))}
                 </TextContent>
               </GridItem>
-            </>
+            </React.Fragment>
           )}
         </Grid>
       </StackItem>
