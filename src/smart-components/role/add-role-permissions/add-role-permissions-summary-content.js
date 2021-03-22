@@ -1,15 +1,22 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
-const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }) => {
-  const { display_name: name, description } = role;
+const AddRolePermissionSummaryContent = () => {
+  const formOptions = useFormApi();
+  const {
+    'role-name': name,
+    'role-description': description,
+    'add-permissions-table': selectedPermissions,
+    'resource-definitions': resourceDefinitions,
+    'has-cost-resources': hasCostResources,
+  } = formOptions.getState().values;
 
   return (
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Title headingLevel="h4" size="xl">
+          <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
             Review details
           </Title>
         </TextContent>
@@ -38,21 +45,30 @@ const AddRolePermissionSummaryContent = ({ selectedPermissions = [], role = {} }
             </Text>
           </GridItem>
           <GridItem span={9}>
-            <Text component={TextVariants.p}>
+            <TextContent component={TextVariants.p}>
               {selectedPermissions.map((permission, index) => (
                 <Text key={index}> {permission.uuid} </Text>
               ))}
-            </Text>
+            </TextContent>
           </GridItem>
+          {hasCostResources && (
+            <React.Fragment>
+              <GridItem span={3}>
+                <Text className="pf-c-title" component={TextVariants.h6}>
+                  Resource definitions:
+                </Text>
+              </GridItem>
+              <GridItem span={9}>
+                <TextContent component={TextVariants.p}>
+                  {resourceDefinitions.map(({ resources }) => resources.map((resource, index) => <Text key={index}> {resource} </Text>))}
+                </TextContent>
+              </GridItem>
+            </React.Fragment>
+          )}
         </Grid>
       </StackItem>
     </Stack>
   );
-};
-
-AddRolePermissionSummaryContent.propTypes = {
-  role: PropTypes.shape,
-  selectedPermissions: PropTypes.array,
 };
 
 export default AddRolePermissionSummaryContent;
