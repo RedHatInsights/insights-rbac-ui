@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
@@ -101,6 +100,11 @@ const Permissions = () => {
     setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management')));
   }, [role]);
 
+  useEffect(() => {
+    console.log('Testing out what I have in Role: ', role);
+    console.log('This is me testing permissions directly: ', role.accessCount);
+  }, [role]);
+
   const filteredRows =
     role && role.access
       ? (role.access || [])
@@ -141,11 +145,11 @@ const Permissions = () => {
   ];
 
   const toolbarButtons = () =>
-    window.insights.chrome.isBeta() && !role.system
+    window.insights.chrome.isBeta()
       ? [
           <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
-              Add Permission
+              Add permissions
             </Button>
           </Link>,
           {
@@ -229,9 +233,6 @@ const Permissions = () => {
           }}
         />
       )}
-      <TextContent>
-        <Text component={TextVariants.h1}>Permissions</Text>
-      </TextContent>
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
@@ -267,10 +268,14 @@ const Permissions = () => {
         titlePlural="permissions"
         titleSingular="permission"
         routes={routes}
+        emptyProps={{
+          title: 'There are no permissions in this role',
+          description: ['To configure user access to applications,', 'add at least on permission to this role.', ''],
+        }}
         filters={[
           {
             key: 'applications',
-            value: filters.applications,
+            value: filters.applications.length === 0 ? '' : filters.applications,
             placeholder: 'Filter by application',
             type: 'group',
             selected: calculateSelected(filters.applications),
@@ -286,7 +291,7 @@ const Permissions = () => {
           },
           {
             key: 'resources',
-            value: filters.resources,
+            value: filters.resources.length === 0 ? '' : filters.resources,
             placeholder: 'Filter by resource type',
             type: 'group',
             selected: calculateSelected(filters.resources),
@@ -299,7 +304,7 @@ const Permissions = () => {
           },
           {
             key: 'operations',
-            value: filters.operations,
+            value: filters.operations.length === 0 ? '' : filters.operations,
             placeholder: 'Filter by operation',
             type: 'group',
             selected: calculateSelected(filters.operations),
@@ -311,7 +316,6 @@ const Permissions = () => {
             ],
           },
         ]}
-        tableId="role-permissions"
       />
     </section>
   );
