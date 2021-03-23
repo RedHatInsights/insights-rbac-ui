@@ -11,7 +11,7 @@ export const schemaBuilder = (container) => ({
       inModal: true,
       showTitles: true,
       crossroads: ['role-type'],
-      title: 'Create role',
+      title: 'Add permissions',
       container,
       fields: [
         {

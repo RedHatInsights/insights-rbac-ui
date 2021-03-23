@@ -97,7 +97,9 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   return (
-    <AddRolePermissionWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
+    <AddRolePermissionWizardContext.Provider
+      value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm, rolePermissions: role.access }}
+    >
       <WarningModal
         type="Permission"
         isOpen={cancelWarningVisible}
