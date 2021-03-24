@@ -100,11 +100,6 @@ const Permissions = () => {
     setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management')));
   }, [role]);
 
-  useEffect(() => {
-    console.log('Testing out what I have in Role: ', role);
-    console.log('This is me testing permissions directly: ', role.accessCount);
-  }, [role]);
-
   const filteredRows =
     role && role.access
       ? (role.access || [])
@@ -270,7 +265,7 @@ const Permissions = () => {
         routes={routes}
         emptyProps={{
           title: 'There are no permissions in this role',
-          description: ['To configure user access to applications,', 'add at least on permission to this role.', ''],
+          description: ['To configure user access to applications,', 'add at least one permission to this role.', ''],
         }}
         filters={[
           {
