@@ -25,7 +25,7 @@ const AddRolePermissionSummaryContent = () => {
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role name:
+              Role name
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -33,7 +33,7 @@ const AddRolePermissionSummaryContent = () => {
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role description:
+              Role description
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -41,7 +41,7 @@ const AddRolePermissionSummaryContent = () => {
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Adding permissions:
+              Added permissions
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -55,7 +55,7 @@ const AddRolePermissionSummaryContent = () => {
             <React.Fragment>
               <GridItem span={3}>
                 <Text className="pf-c-title" component={TextVariants.h6}>
-                  Resource definitions:
+                  Resource definitions
                 </Text>
               </GridItem>
               <GridItem span={9}>

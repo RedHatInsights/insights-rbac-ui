@@ -6,7 +6,9 @@ import { SearchIcon } from '@patternfly/react-icons';
 const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
   <EmptyState variant={EmptyStateVariant.full} {...props}>
     <EmptyStateIcon icon={icon || SearchIcon} />
-    <Title headingLevel="h4">{title}</Title>
+    <Title headingLevel="h4" size="lg">
+      {title}
+    </Title>
     <EmptyStateBody>
       {description.map((text, key) => (
         <React.Fragment key={key}>
