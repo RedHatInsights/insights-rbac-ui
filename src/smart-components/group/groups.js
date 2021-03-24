@@ -65,6 +65,7 @@ const Groups = () => {
     <Fragment>
       <Route exact path={paths['add-group']}>
         <AddGroupWizard
+          pagination={pagination}
           postMethod={(config) => {
             dispatch(fetchGroups(config));
             setFilterValue('');

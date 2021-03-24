@@ -15,6 +15,7 @@ import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
+import { useHistory } from 'react-router';
 import './add-role-wizard.scss';
 
 export const AddRoleWizardContext = createContext({
@@ -39,8 +40,9 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard = ({ history: { push } }) => {
+const AddRoleWizard = ({ pagination }) => {
   const dispatch = useDispatch();
+  const history = useHistory();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -71,7 +73,7 @@ const AddRoleWizard = ({ history: { push } }) => {
       );
     }
 
-    push('/roles');
+    history.push('/roles');
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -110,7 +112,7 @@ const AddRoleWizard = ({ history: { push } }) => {
     };
     return dispatch(createRole(roleData)).then(() => {
       setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-      dispatch(fetchRolesWithPolicies());
+      dispatch(fetchRolesWithPolicies({ limit: pagination.limit }));
     });
   };
 
@@ -121,7 +123,7 @@ const AddRoleWizard = ({ history: { push } }) => {
         <Wizard
           title="Create role"
           isOpen
-          onClose={() => push('/roles')}
+          onClose={() => history.push('/roles')}
           steps={[
             {
               name: 'success',
@@ -156,8 +158,8 @@ const AddRoleWizard = ({ history: { push } }) => {
 };
 
 AddRoleWizard.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
   }).isRequired,
 };
 
