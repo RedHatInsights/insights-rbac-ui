@@ -39,7 +39,7 @@ const selector = ({
   resourceTypes: resourceTypes.data,
 });
 
-const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isInExistingRole, ...props }) => {
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
@@ -77,7 +77,15 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
+      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || isInExistingRole(uuid),
+      disabledContent: isInExistingRole(uuid) ? (
+        <div>This permission is already added into this role.</div>
+      ) : (
+        <div>
+          To add this permission to your role and define specific resources for it, at least one data source must be connected.{' '}
+          <a href="./settings/sources">Configure sources for Cost Management</a>
+        </div>
+      ),
     }));
 
   const debounbcedGetApplicationOptions = useCallback(
@@ -323,6 +331,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 AddPermissionsTable.propTypes = {
   selectedPermissions: PropTypes.array,
   setSelectedPermissions: PropTypes.func,
+  isInExistingRole: PropTypes.func,
 };
 
 export default AddPermissionsTable;
