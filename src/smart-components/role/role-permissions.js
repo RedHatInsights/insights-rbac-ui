@@ -19,6 +19,7 @@ import './role-permissions.scss';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
+import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import { routes as paths } from '../../../package.json';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
@@ -31,17 +32,12 @@ const columns = [
   { title: 'Operation' },
   {
     title: 'Resource definitions',
-    header: {
-      info: {
+    transforms: [
+      info({
         popover: 'Resource definitions only apply to Cost Management permissions',
         ariaLabel: 'Resource definitions only apply to Cost Management permissions',
-        popoverProps: {
-          maxWidth: '19rem',
-          minWidth: '19rem',
-        },
-      },
-    },
-    transforms: [cellWidth(20)],
+      }),
+    ],
   },
   { title: 'Last commit', transforms: [cellWidth(15)] },
 ];
