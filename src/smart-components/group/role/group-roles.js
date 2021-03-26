@@ -58,7 +58,6 @@ const addRoleButton = (isDisabled) => {
 
 const GroupRoles = ({
   roles,
-  fetchRoles,
   removeRoles,
   addRoles,
   fetchRolesForGroup,
@@ -75,6 +74,7 @@ const GroupRoles = ({
   fetchAddRolesForGroup,
   disableAddRoles,
   addNotification,
+  reloadGroup,
 }) => {
   const [descriptionValue, setDescriptionValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
@@ -130,7 +130,7 @@ const GroupRoles = ({
         path={paths['group-add-roles']}
         render={(args) => (
           <AddGroupRoles
-            fetchData={fetchRoles}
+            fetchGroup={() => reloadGroup(uuid)}
             fetchRolesForGroup={() => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)}
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
@@ -286,7 +286,7 @@ const mapDispatchToProps = (dispatch) => {
     fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
     fetchAddRolesForGroup: (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {})),
     addNotification: (...props) => dispatch(addNotification(...props)),
-    fetchGroup: (apiProps) => dispatch(fetchGroup(apiProps)),
+    reloadGroup: (apiProps) => dispatch(fetchGroup(apiProps)),
   };
 };
 
@@ -323,6 +323,7 @@ GroupRoles.propTypes = {
   onDefaultGroupChanged: PropTypes.func,
   disableAddRoles: PropTypes.bool.isRequired,
   addNotification: PropTypes.func,
+  reloadGroup: PropTypes.func,
 };
 
 GroupRoles.defaultProps = {
