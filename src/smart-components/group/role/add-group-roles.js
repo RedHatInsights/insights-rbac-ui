@@ -21,6 +21,7 @@ const AddGroupRoles = ({
   addNotification,
   onDefaultGroupChanged,
   fetchRolesForGroup,
+  fetchGroup,
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -38,7 +39,10 @@ const AddGroupRoles = ({
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
-    addRolesToGroup(uuid, rolesList, fetchRolesForGroup);
+    addRolesToGroup(uuid, rolesList, () => {
+      fetchRolesForGroup();
+      fetchGroup();
+    });
     if (isDefault && !isChanged) {
       onDefaultGroupChanged(true);
     }
@@ -120,6 +124,7 @@ AddGroupRoles.propTypes = {
   addNotification: PropTypes.func,
   onDefaultGroupChanged: PropTypes.func,
   fetchRolesForGroup: PropTypes.func,
+  fetchGroup: PropTypes.func,
 };
 
 export default AddGroupRoles;
