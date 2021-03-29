@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -11,19 +12,21 @@ import { roleSelector } from './role-selectors';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
-import { updateRole } from '../../redux/actions/role-actions';
+import { patchRole } from '../../redux/actions/role-actions';
 
 const validationPromise = (name, idKey, id) =>
-  fetchRoles({ name }).then(({ data }) => {
-    if (data.length === 0) {
-      return undefined;
-    }
+  name.length < 150
+    ? fetchRoles({ name }).then(({ data }) => {
+        if (data.length === 0) {
+          return undefined;
+        }
 
-    const taken = data.some((item) => item[idKey] !== id && item.name === name);
-    if (taken) {
-      throw 'Role with this name already exists.';
-    }
-  });
+        const taken = data.some((item) => item[idKey] !== id && item.display_name === name);
+        if (taken) {
+          throw 'Role with this name already exists.';
+        }
+      })
+    : Promise.reject('Can have maximum of 150 characters.');
 
 const createEditRoleSchema = (id) => ({
   fields: [
@@ -38,6 +41,12 @@ const createEditRoleSchema = (id) => ({
       name: 'description',
       component: componentTypes.TEXTAREA,
       label: 'Description',
+      validate: [
+        {
+          type: validatorTypes.MAX_LENGTH,
+          threshold: 150,
+        },
+      ],
     },
   ],
 });
@@ -79,7 +88,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   };
 
   const handleSubmit = (data) =>
-    dispatch(updateRole(id, { ...data, display_name: data.name })).then(() => {
+    dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
       push(cancelRoute);
     });

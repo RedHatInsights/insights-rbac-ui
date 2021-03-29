@@ -1,5 +1,6 @@
 import * as ActionTypes from '../action-types';
 import * as RoleHelper from '../../helpers/role/role-helper';
+import { BAD_UUID } from '../../helpers/shared/helpers';
 
 export const createRole = (roleData) => ({
   type: ActionTypes.ADD_ROLE,
@@ -19,12 +20,26 @@ export const createRole = (roleData) => ({
 
 export const fetchRole = (apiProps) => ({
   type: ActionTypes.FETCH_ROLE,
-  payload: RoleHelper.fetchRole(apiProps),
+  payload: RoleHelper.fetchRole(apiProps).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'role uuid validation') {
+      return { error: BAD_UUID };
+    }
+
+    throw err;
+  }),
 });
 
 export const fetchRoles = (options = {}) => ({
   type: ActionTypes.FETCH_ROLES,
-  payload: RoleHelper.fetchRoles(options),
+  payload: RoleHelper.fetchRoles(options).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'detail') {
+      return { error: BAD_UUID };
+    }
+
+    throw err;
+  }),
 });
 
 export const fetchRolesWithPolicies = (options = {}) => ({
@@ -75,19 +90,28 @@ export const updateRole = (roleId, data, useCustomAccess) => ({
   payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
   meta: {
     notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success updating role',
-        dismissDelay: 8000,
-        dismissable: false,
-        description: 'The role was updated successfully.',
-      },
       rejected: {
         variant: 'danger',
         title: 'Failed updating role',
         dismissDelay: 8000,
         dismissable: false,
         description: 'The role was not updated successfuly.',
+      },
+    },
+  },
+});
+
+export const patchRole = (roleId, data) => ({
+  type: ActionTypes.PATCH_ROLE,
+  payload: RoleHelper.patchRole(roleId, data),
+  meta: {
+    notifications: {
+      fulfilled: {
+        variant: 'success',
+        title: 'Success updating role',
+        dismissDelay: 8000,
+        dismissable: false,
+        description: 'The role was updated successfully.',
       },
     },
   },

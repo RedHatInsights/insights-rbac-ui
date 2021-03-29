@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
@@ -39,7 +39,7 @@ const selector = ({
   resourceTypes: resourceTypes.data,
 });
 
-const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isInExistingRole, ...props }) => {
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
@@ -77,7 +77,15 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
+      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || isInExistingRole(uuid),
+      disabledContent: isInExistingRole(uuid) ? (
+        <div>This permission is already added into this role.</div>
+      ) : (
+        <div>
+          To add this permission to your role and define specific resources for it, at least one data source must be connected.{' '}
+          <a href="./settings/sources">Configure sources for Cost Management</a>
+        </div>
+      ),
     }));
 
   const debounbcedGetApplicationOptions = useCallback(
@@ -221,7 +229,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         noData={permissions?.length === 0}
         noDataDescription={[
           'Adjust your filters and try again. Note: Applications that only have wildcard \
-          permissions (for example, patch:*:*) aren’t included in this table and can’t be \
+          permissions (for example, compliance:*:*) aren’t included in this table and can’t be \
           added to your custom role.',
         ]}
         fetchData={({ limit, offset, applications, resources, operations }) => {
@@ -313,6 +321,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         ]}
         isFilterable={true}
         rowWrapper={DisabledRowWrapper}
+        tableId="add-role-permissions"
         {...props}
       />
     </div>
@@ -322,6 +331,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 AddPermissionsTable.propTypes = {
   selectedPermissions: PropTypes.array,
   setSelectedPermissions: PropTypes.func,
+  isInExistingRole: PropTypes.func,
 };
 
 export default AddPermissionsTable;

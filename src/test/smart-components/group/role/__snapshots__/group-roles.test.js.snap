@@ -75,6 +75,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  tableId="group-roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -127,6 +128,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
+    tableId="group-roles"
     titleSingular="role"
     toolbarButtons={[Function]}
   >
@@ -140,6 +142,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
             >
               <Button
                 aria-label="Add role"
+                className="ins-m-hide-on-sm"
                 isAriaDisabled={false}
                 variant="primary"
               >
@@ -175,6 +178,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
         Object {
           "checked": false,
           "count": 0,
+          "id": "group-roles",
           "items": Array [
             Object {
               "onClick": [Function],
@@ -264,6 +268,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                             checked={false}
                             className=""
                             count={0}
+                            id="group-roles"
                             isDisabled={false}
                             items={
                               Array [
@@ -304,7 +309,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         <DropdownToggleCheckbox
                                           aria-label="Select all"
                                           className=""
-                                          id="toggle-checkbox"
+                                          id="group-roles-toggle-checkbox"
                                           isChecked={false}
                                           isDisabled={false}
                                           isValid={true}
@@ -352,7 +357,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           <DropdownToggleCheckbox
                                             aria-label="Select all"
                                             className=""
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             isChecked={false}
                                             isDisabled={false}
                                             isValid={true}
@@ -395,7 +400,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           >
                                             <label
                                               class="pf-c-dropdown__toggle-check"
-                                              for="toggle-checkbox"
+                                              for="group-roles-toggle-checkbox"
                                             >
                                               <input
                                                 aria-invalid="false"
@@ -403,7 +408,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                 data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
                                                 data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                                 data-ouia-safe="true"
-                                                id="toggle-checkbox"
+                                                id="group-roles-toggle-checkbox"
                                                 type="checkbox"
                                               />
                                               
@@ -447,7 +452,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                           <DropdownToggleCheckbox
                                             aria-label="Select all"
                                             className=""
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             isChecked={false}
                                             isDisabled={false}
                                             isValid={true}
@@ -465,7 +470,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       <DropdownToggleCheckbox
                                         aria-label="Select all"
                                         className=""
-                                        id="toggle-checkbox"
+                                        id="group-roles-toggle-checkbox"
                                         isChecked={false}
                                         isDisabled={false}
                                         isValid={true}
@@ -473,7 +478,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       >
                                         <label
                                           className="pf-c-dropdown__toggle-check"
-                                          htmlFor="toggle-checkbox"
+                                          htmlFor="group-roles-toggle-checkbox"
                                         >
                                           <input
                                             aria-invalid={false}
@@ -483,7 +488,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                             data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                             data-ouia-safe={true}
                                             disabled={false}
-                                            id="toggle-checkbox"
+                                            id="group-roles-toggle-checkbox"
                                             onChange={[Function]}
                                             type="checkbox"
                                           />
@@ -520,7 +525,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                               >
                                                 <label
                                                   class="pf-c-dropdown__toggle-check"
-                                                  for="toggle-checkbox"
+                                                  for="group-roles-toggle-checkbox"
                                                 >
                                                   <input
                                                     aria-invalid="false"
@@ -528,7 +533,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                                     data-ouia-component-id="OUIA-Generated-DropdownToggleCheckbox-1"
                                                     data-ouia-component-type="PF4/DropdownToggleCheckbox"
                                                     data-ouia-safe="true"
-                                                    id="toggle-checkbox"
+                                                    id="group-roles-toggle-checkbox"
                                                     type="checkbox"
                                                   />
                                                   
@@ -627,6 +632,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                         >
                           <ConditionalFilter
                             hideLabel={false}
+                            id="default-input"
                             isDisabled={false}
                             items={
                               Array [
@@ -1009,6 +1015,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                     className="pf-l-split__item pf-m-fill"
                                   >
                                     <Text
+                                      aria-label="text input"
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
@@ -1018,7 +1025,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                       value=""
                                     >
                                       <TextInput
+                                        aria-label="text input"
                                         className="ins-c-conditional-filter "
+                                        data-ouia-component-type="PF4/TextInput"
                                         id="filter-by-name"
                                         isDisabled={true}
                                         onChange={[Function]}
@@ -1028,8 +1037,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         widget-type="InsightsInput"
                                       >
                                         <TextInputBase
-                                          aria-label={null}
+                                          aria-label="text input"
                                           className="ins-c-conditional-filter "
+                                          data-ouia-component-type="PF4/TextInput"
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
@@ -1046,8 +1056,9 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                         >
                                           <input
                                             aria-invalid={false}
-                                            aria-label={null}
+                                            aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-type="PF4/TextInput"
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
@@ -1109,6 +1120,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                       >
                         <Button
                           aria-label="Add role"
+                          className="ins-m-hide-on-sm"
                           isAriaDisabled={false}
                           variant="primary"
                         >
@@ -1161,13 +1173,14 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                           >
                             <Button
                               aria-label="Add role"
+                              className="ins-m-hide-on-sm"
                               isAriaDisabled={false}
                               variant="primary"
                             >
                               <button
                                 aria-disabled={false}
                                 aria-label="Add role"
-                                className="pf-c-button pf-m-primary"
+                                className="pf-c-button pf-m-primary ins-m-hide-on-sm"
                                 data-ouia-component-id="OUIA-Generated-Button-primary-1"
                                 data-ouia-component-type="PF4/Button"
                                 data-ouia-safe={true}
@@ -1204,6 +1217,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                               >
                                 <Button
                                   aria-label="Add role"
+                                  className="ins-m-hide-on-sm"
                                   isAriaDisabled={false}
                                   variant="primary"
                                 >
@@ -1256,6 +1270,7 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
                                 >
                                   <Button
                                     aria-label="Add role"
+                                    className="ins-m-hide-on-sm"
                                     isAriaDisabled={false}
                                     variant="primary"
                                   >
@@ -1530,7 +1545,6 @@ exports[`<GroupPrincipals /> should render correctly 1`] = `
       <ul
         aria-label="datalist-placeholder"
         className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"
@@ -1966,6 +1980,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   routes={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
+  tableId="group-roles"
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -2006,6 +2021,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
+    tableId="group-roles"
     titleSingular="role"
     toolbarButtons={[Function]}
   >
@@ -2100,6 +2116,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         >
                           <ConditionalFilter
                             hideLabel={false}
+                            id="default-input"
                             isDisabled={false}
                             items={
                               Array [
@@ -2482,6 +2499,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                     className="pf-l-split__item pf-m-fill"
                                   >
                                     <Text
+                                      aria-label="text input"
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
@@ -2491,7 +2509,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       value=""
                                     >
                                       <TextInput
+                                        aria-label="text input"
                                         className="ins-c-conditional-filter "
+                                        data-ouia-component-type="PF4/TextInput"
                                         id="filter-by-name"
                                         isDisabled={true}
                                         onChange={[Function]}
@@ -2501,8 +2521,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         widget-type="InsightsInput"
                                       >
                                         <TextInputBase
-                                          aria-label={null}
+                                          aria-label="text input"
                                           className="ins-c-conditional-filter "
+                                          data-ouia-component-type="PF4/TextInput"
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
@@ -2519,8 +2540,9 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         >
                                           <input
                                             aria-invalid={false}
-                                            aria-label={null}
+                                            aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-type="PF4/TextInput"
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
@@ -2668,7 +2690,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       <ul
         aria-label="datalist-placeholder"
         className="pf-c-data-list pf-m-grid-md"
-        style={Object {}}
       >
         <DataListItem
           aria-labelledby="datalist-item-placeholder"

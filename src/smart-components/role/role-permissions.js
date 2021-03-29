@@ -1,5 +1,4 @@
 import React, { useEffect, useReducer, useState } from 'react';
-import { TextContent, Text, TextVariants } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
@@ -17,12 +16,13 @@ import {
 } from './role-permissions-table-helpers';
 import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
-import RemovePermissionsModal from './remove-permissions-modal';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
+import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import { routes as paths } from '../../../package.json';
+import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 const maxFilterItems = 10;
 
@@ -32,17 +32,12 @@ const columns = [
   { title: 'Operation' },
   {
     title: 'Resource definitions',
-    header: {
-      info: {
+    transforms: [
+      info({
         popover: 'Resource definitions only apply to Cost Management permissions',
         ariaLabel: 'Resource definitions only apply to Cost Management permissions',
-        popoverProps: {
-          maxWidth: '19rem',
-          minWidth: '19rem',
-        },
-      },
-    },
-    transforms: [cellWidth(20)],
+      }),
+    ],
   },
   { title: 'Last commit', transforms: [cellWidth(15)] },
 ];
@@ -141,11 +136,11 @@ const Permissions = () => {
   ];
 
   const toolbarButtons = () =>
-    window.insights.chrome.isBeta() && !role.system
+    window.insights.chrome.isBeta()
       ? [
-          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="pf-m-visible-on-md">
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
-              Add Permission
+              Add permissions
             </Button>
           </Link>,
           {
@@ -217,7 +212,7 @@ const Permissions = () => {
   return (
     <section className="pf-c-page__main-section ins-c-role__permissions">
       {showRemoveModal && (
-        <RemovePermissionsModal
+        <RemoveModal
           text={deleteInfo.text}
           title={deleteInfo.title}
           isOpen={showRemoveModal}
@@ -229,9 +224,6 @@ const Permissions = () => {
           }}
         />
       )}
-      <TextContent>
-        <Text component={TextVariants.h1}>Permissions</Text>
-      </TextContent>
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
@@ -267,10 +259,14 @@ const Permissions = () => {
         titlePlural="permissions"
         titleSingular="permission"
         routes={routes}
+        emptyProps={{
+          title: 'There are no permissions in this role',
+          description: ['To configure user access to applications,', 'add at least one permission to this role.', ''],
+        }}
         filters={[
           {
             key: 'applications',
-            value: filters.applications,
+            value: filters.applications.length === 0 ? '' : filters.applications,
             placeholder: 'Filter by application',
             type: 'group',
             selected: calculateSelected(filters.applications),
@@ -286,7 +282,7 @@ const Permissions = () => {
           },
           {
             key: 'resources',
-            value: filters.resources,
+            value: filters.resources.length === 0 ? '' : filters.resources,
             placeholder: 'Filter by resource type',
             type: 'group',
             selected: calculateSelected(filters.resources),
@@ -299,7 +295,7 @@ const Permissions = () => {
           },
           {
             key: 'operations',
-            value: filters.operations,
+            value: filters.operations.length === 0 ? '' : filters.operations,
             placeholder: 'Filter by operation',
             type: 'group',
             selected: calculateSelected(filters.operations),

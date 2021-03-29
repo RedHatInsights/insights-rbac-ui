@@ -43,3 +43,5 @@ global.insights = {
     appObjectId: () => {},
   },
 };
+
+Element.prototype.scrollTo = () => {};

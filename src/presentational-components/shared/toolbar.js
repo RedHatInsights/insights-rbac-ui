@@ -35,7 +35,7 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
   },
 });
 
-export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = []) => ({
+export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = [], tableId) => ({
   count: checkedRows.length,
   items: [
     {
@@ -59,6 +59,7 @@ export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems =
   onSelect: (value) => {
     !isLoading && setCheckedItems(selectedRows(data, value));
   },
+  id: tableId,
 });
 
 export const filterConfigBuilder = (
@@ -238,10 +239,11 @@ const Toolbar = ({
   onChange,
   value,
   hideFilterChips,
+  tableId,
 }) => (
   <PrimaryToolbar
     {...(isSelectable && {
-      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data),
+      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId),
     })}
     filterConfig={filterConfigBuilder(
       isLoading,
@@ -308,6 +310,7 @@ Toolbar.propTypes = {
   fetchData: PropTypes.func,
   toolbarButtons: PropTypes.func,
   hideFilterChips: PropTypes.bool,
+  tableId: PropTypes.string,
 };
 
 Toolbar.defaultProps = {

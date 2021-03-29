@@ -77,7 +77,6 @@ const Groups = () => {
             dispatch(fetchGroups(config));
             setFilterValue('');
           }}
-          isOpen
         />
       </Route>
       <Route exact path={paths['remove-group']}>
@@ -117,7 +116,7 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
-          <Link to={paths['add-group']} key="add-group" className="pf-m-visible-on-md">
+          <Link to={paths['add-group']} key="add-group" className="ins-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               Create group
             </Button>
@@ -181,6 +180,7 @@ const Groups = () => {
             isLoading={isLoading}
             filterPlaceholder="name"
             rowWrapper={GroupRowWrapper}
+            tableId="groups"
           />
         </Section>
       </StackItem>

@@ -1,162 +1,125 @@
-import React, { useState } from 'react';
-import { useHistory } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import React, { useState, createContext } from 'react';
 import PropTypes from 'prop-types';
-import { Wizard } from '@patternfly/react-core';
+import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, fetchGroup } from '../../../redux/actions/group-actions';
-import { fetchRoles } from '../../../redux/actions/role-actions';
-import { fetchUsers } from '../../../redux/actions/user-actions';
-import SummaryContent from './summary-content';
-import GroupInformation from './group-information';
-import SetUsers from './set-users';
-import SetRoles from './set-roles';
+import { useHistory } from 'react-router-dom';
+import FormRenderer from '@data-driven-forms/react-form-renderer/dist/esm/form-renderer';
+import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/esm/form-template';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
 import { WarningModal } from '../../common/warningModal';
-import GroupNameErrorState from './group-name-error-state';
-import '../../common/hideWizard.scss';
+import schema from './schema';
+import { addGroup } from '../../../redux/actions/group-actions';
+import SetName from './set-name';
+import SetRoles from './set-roles';
+import SetUsers from './set-users';
+import SummaryContent from './summary-content';
 
-const AddGroupWizard = ({ addNotification, addGroup, postMethod, closeUrl }) => {
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const [selectedRoles, setSelectedRoles] = useState([]);
-  const [formData, setValues] = useState({});
-  const [isGroupInfoValid, setIsGroupInfoValid] = useState(false);
-  const [hideFooter, setHideFooter] = useState(false);
-  const [isValidating, setIsValidating] = useState(false);
+export const AddGroupWizardContext = createContext({
+  success: false,
+  submitting: false,
+  error: undefined,
+});
 
+const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
+
+const Description = ({ Content, ...rest }) => <Content {...rest} />;
+Description.propTypes = {
+  Content: PropTypes.elementType.isRequired,
+};
+
+export const mapperExtension = {
+  description: Description,
+  'set-name': SetName,
+  'set-roles': SetRoles,
+  'set-users': SetUsers,
+  'summary-content': SummaryContent,
+};
+
+export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (formData) => {
+  setGroupData(formData);
+  if (Object.keys(formData).length > 0) {
+    nonEmptyCallback(true);
+  } else {
+    emptyCallback();
+  }
+};
+
+const AddGroupWizard = ({ postMethod }) => {
+  const dispatch = useDispatch();
   const history = useHistory();
+  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const [groupData, setGroupData] = useState({});
+  const [wizardContextValue, setWizardContextValue] = useState({
+    success: false,
+    submitting: false,
+    error: undefined,
+    hideForm: false,
+  });
 
-  const handleChange = (data) => {
-    setValues({ ...formData, ...data });
-  };
-
-  const steps = [
-    {
-      name: 'Name and description',
-      component: new GroupInformation(formData, handleChange, setIsGroupInfoValid, isGroupInfoValid, isValidating, setIsValidating),
-      enableNext: isGroupInfoValid && !isValidating,
-    },
-    {
-      name: 'Add roles',
-      component: new SetRoles({ formData, selectedRoles, setSelectedRoles }),
-      canJumpTo: isGroupInfoValid && !isValidating,
-    },
-    { name: 'Add members', component: new SetUsers({ formData, selectedUsers, setSelectedUsers }), canJumpTo: isGroupInfoValid && !isValidating },
-    {
-      name: 'Review details',
-      component: isGroupInfoValid ? (
-        new SummaryContent({ values: formData, selectedUsers, selectedRoles, setHideFooter })
-      ) : (
-        <GroupNameErrorState setHideFooter={setHideFooter} />
-      ),
-      nextButtonText: 'Confirm',
-      enableNext: isGroupInfoValid && !isValidating,
-      canJumpTo: isGroupInfoValid && !isValidating,
-    },
-  ];
-
-  const onSubmit = async () => {
-    const user_data = {
-      ...formData,
-      user_list: selectedUsers ? selectedUsers.map((user) => ({ username: user.label })) : undefined,
-      roles_list: selectedRoles ? selectedRoles.map((role) => role.uuid) : undefined,
-    };
-    const response = await addGroup(user_data);
-    if (response?.value?.error === true) {
-      setIsGroupInfoValid(false);
-    } else {
-      postMethod();
+  const redirectToGroups = () => {
+    dispatch(
       addNotification({
-        variant: 'success',
-        title: 'Success adding group',
+        variant: 'warning',
+        title: 'Adding group',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The group was added successfully.',
-      });
-      history.push(closeUrl);
-    }
-  };
-
-  const onCancel = () => {
-    addNotification({
-      variant: 'warning',
-      title: 'Adding group',
-      dismissDelay: 8000,
-      dismissable: false,
-      description: 'Adding group was canceled by the user.',
-    });
+        description: 'Adding group was canceled by the user.',
+      })
+    );
     history.push('/groups');
   };
 
-  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
+  const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
+  const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
+  const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
-  return (
-    <React.Fragment>
-      <Wizard
-        className={cancelWarningVisible && 'ins-m-wizard__hidden'}
-        title="Create group"
-        description="To give users access permissions, create a group and add roles and members to it."
-        isOpen
-        onClose={() => {
-          if (Object.values(formData).filter(Boolean).length > 0 || selectedRoles.length > 0 || selectedUsers.length > 0) {
-            setCancelWarningVisible(true);
-          } else {
-            onCancel();
-          }
-        }}
-        onSave={onSubmit}
-        steps={steps}
-        footer={hideFooter ? <div /> : undefined}
+  const onSubmit = (formData) => {
+    const groupData = {
+      name: formData['group-name'],
+      description: formData['group-description'],
+      user_list: formData['users-list'].map((user) => ({ username: user.label })),
+      roles_list: formData['roles-list'].map((role) => role.uuid),
+    };
+    history.push('/groups');
+    dispatch(addGroup(groupData))
+      .then(() => postMethod())
+      .then(() => {
+        dispatch(
+          addNotification({
+            variant: 'success',
+            title: 'Success adding group',
+            dismissDelay: 8000,
+            dismissable: false,
+            description: 'The group was added successfully.',
+          })
+        );
+      });
+  };
+
+  return cancelWarningVisible ? (
+    <WarningModal
+      type="group"
+      isOpen={cancelWarningVisible}
+      onModalCancel={() => setCancelWarningVisible(false)}
+      onConfirmCancel={redirectToGroups}
+    />
+  ) : (
+    <AddGroupWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
+      <FormRenderer
+        schema={schema}
+        subscription={{ values: true }}
+        FormTemplate={FormTemplate}
+        componentMapper={{ ...componentMapper, ...mapperExtension }}
+        onSubmit={onSubmit}
+        initialValues={groupData}
+        onCancel={onCancel(redirectToGroups, setCancelWarningVisible, setGroupData)}
       />
-      <WarningModal type="group" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
-    </React.Fragment>
+    </AddGroupWizardContext.Provider>
   );
-};
-
-AddGroupWizard.defaultProps = {
-  users: [],
-  inputValue: '',
-  selectedUsers: [],
-  selectedRoles: [],
-  closeUrl: '/groups',
-  postMethod: () => undefined,
 };
 
 AddGroupWizard.propTypes = {
-  addGroup: PropTypes.func.isRequired,
-  addNotification: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
-  inputValue: PropTypes.string,
-  selectedUsers: PropTypes.array,
-  match: PropTypes.object,
   postMethod: PropTypes.func,
-  closeUrl: PropTypes.string,
 };
 
-const mapStateToProps = ({
-  roleReducer: {
-    roles: { meta },
-    filterValue,
-    isLoading,
-  },
-}) => {
-  return {
-    pagination: meta,
-    isLoading,
-    searchFilter: filterValue,
-  };
-};
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      addNotification,
-      addGroup,
-      fetchGroup,
-      fetchRoles,
-      fetchUsers,
-    },
-    dispatch
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(AddGroupWizard);
+export default AddGroupWizard;

@@ -1,6 +1,6 @@
 import * as GroupsHelper from '../../../helpers/group/group-helper';
 
-import axiosInstance from '@redhat-cloud-services/frontend-components-utilities/files/interceptors';
+import axiosInstance from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { getUserMock } from '../../../../config/setupTests';
 import * as UserLogin from '../../../helpers/shared/user-login';
 
@@ -10,7 +10,7 @@ import * as UserLogin from '../../../helpers/shared/user-login';
  * I will migrate this one to the jest mock style just for reference. Martin.
  */
 
-jest.mock('@redhat-cloud-services/frontend-components-utilities/files/interceptors', () => ({
+jest.mock('@redhat-cloud-services/frontend-components-utilities/interceptors', () => ({
   __esModule: true, // mark it as es module
   default: { get: jest.fn(), request: jest.fn(), post: jest.fn() },
 }));

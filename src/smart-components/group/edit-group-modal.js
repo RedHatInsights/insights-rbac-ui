@@ -5,12 +5,15 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
-import { Skeleton } from '@redhat-cloud-services/frontend-components';
-import { Modal, ModalVariant } from '@patternfly/react-core';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
+import ModalFormTemplate from '../common/ModalFormTemplate';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
-const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, isOpen, group, onClose }) => {
+import { Skeleton } from '@patternfly/react-core';
+import { debouncedAsyncValidator } from './validators';
+
+const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, group, onClose }) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
   const history = useHistory();
@@ -61,8 +64,10 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
       {
         name: 'name',
         label: 'Name',
-        component: componentTypes.TEXT_FIELD,
+        component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
+        ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
+          { type: 'validate-group-name', id: match ? match.params.id : group.id, idKey: 'uuid' },
           {
             type: validatorTypes.REQUIRED,
           },
@@ -71,26 +76,36 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, is
       {
         name: 'description',
         label: 'Description',
-        component: componentTypes.TEXTAREA,
+        component: selectedGroup ? componentTypes.TEXTAREA : 'skeleton',
+        validate: [
+          {
+            type: validatorTypes.MAX_LENGTH,
+            threshold: 150,
+          },
+        ],
       },
     ],
   };
 
+  const validatorMapper = {
+    'validate-group-name': ({ idKey, id }) => (value) => debouncedAsyncValidator(value, idKey, id),
+  };
+
   return (
-    <Modal variant={ModalVariant.medium} title="Edit group's information" isOpen={isOpen} onClose={onCancel}>
-      {selectedGroup ? (
-        <FormRenderer
-          schema={schema}
-          schemaType="mozilla"
-          onCancel={onCancel}
-          onSubmit={onSubmit}
-          formContainer="modal"
-          initialValues={{ ...selectedGroup }}
-        />
-      ) : (
-        <Skeleton />
+    <FormRenderer
+      schema={schema}
+      componentMapper={{
+        ...componentMapper,
+        skeleton: Skeleton,
+      }}
+      onCancel={onCancel}
+      onSubmit={onSubmit}
+      validatorMapper={validatorMapper}
+      initialValues={{ ...selectedGroup }}
+      FormTemplate={(props) => (
+        <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: `Edit group's information` }} />
       )}
-    </Modal>
+    />
   );
 };
 
@@ -107,7 +122,6 @@ EditGroupModal.propTypes = {
   updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   closeUrl: PropTypes.string,
-  isOpen: PropTypes.bool,
   group: PropTypes.object,
   onClose: PropTypes.func,
 };

@@ -1,24 +1,22 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
+import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
 
-const SummaryContent = (formData) => {
-  const { name, description } = formData.values ? formData.values : { name: '', description: '' };
-  const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
-  const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
+const SummaryContent = () => {
+  const formOptions = useFormApi();
+  const {
+    'group-name': name,
+    'group-description': description,
+    'users-list': selectedUsers,
+    'roles-list': selectedRoles,
+  } = formOptions.getState().values;
 
   return (
-    <Fragment>
+    <div className="rbac">
       <Stack hasGutter>
         <StackItem>
           <Stack hasGutter>
-            <StackItem>
-              <TextContent>
-                <Title headingLevel="h4" size="xl">
-                  Review details
-                </Title>
-              </TextContent>
-            </StackItem>
             <StackItem className="ins-c-rbac__summary">
               <Grid>
                 <GridItem md={3}>
@@ -76,7 +74,7 @@ const SummaryContent = (formData) => {
           </Stack>
         </StackItem>
       </Stack>
-    </Fragment>
+    </div>
   );
 };
 

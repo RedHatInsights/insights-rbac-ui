@@ -25,11 +25,11 @@ describe('<EditRoleModal />', () => {
 
   const fetchRoleSpy = jest.spyOn(RoleHelper, 'fetchRole');
   const fetchRolesSpy = jest.spyOn(RoleHelper, 'fetchRoles');
-  const updateRoleSpy = jest.spyOn(RoleActions, 'updateRole');
+  const patchRoleSpy = jest.spyOn(RoleActions, 'patchRole');
 
   afterEach(() => {
     fetchRoleSpy.mockReset();
-    updateRoleSpy.mockReset();
+    patchRoleSpy.mockReset();
     fetchRolesSpy.mockReset();
   });
 
@@ -41,7 +41,7 @@ describe('<EditRoleModal />', () => {
     </MemoryRouter>
   );
 
-  it('should mount and call update role action witouth fethichg data from API', async () => {
+  it('should mount and call update role action without fethichg data from API', async () => {
     expect.assertions(4);
     jest.useFakeTimers();
     const afterSubmit = jest.fn();
@@ -50,11 +50,12 @@ describe('<EditRoleModal />', () => {
         selectedRole: {
           uuid: ROLE_ID,
           name: 'role-name',
+          display_name: 'role-name',
           description: 'bar',
         },
       },
     });
-    updateRoleSpy.mockImplementationOnce(() => ({ type: 'UPDATE_ROLE', payload: Promise.resolve() }));
+    patchRoleSpy.mockImplementationOnce(() => ({ type: 'PATCH_ROLE', payload: Promise.resolve() }));
     /**
      * Async name validation
      */
@@ -90,8 +91,8 @@ describe('<EditRoleModal />', () => {
       wrapper.find('form').simulate('submit');
     });
 
-    expect(updateRoleSpy).toHaveBeenCalledTimes(1);
-    expect(updateRoleSpy).toHaveBeenCalledWith(ROLE_ID, { description: 'foo', name: 'role-name', display_name: 'role-name', uuid: 'foo' });
+    expect(patchRoleSpy).toHaveBeenCalledTimes(1);
+    expect(patchRoleSpy).toHaveBeenCalledWith(ROLE_ID, { description: 'foo', name: 'role-name', display_name: 'role-name' });
     expect(fetchRoleSpy).not.toHaveBeenCalled();
     expect(afterSubmit).toHaveBeenCalledWith();
   });
@@ -132,11 +133,11 @@ describe('<EditRoleModal />', () => {
         },
       },
     });
-    updateRoleSpy.mockImplementationOnce(() => ({ type: 'UPDATE_ROLE', payload: Promise.resolve() }));
+    patchRoleSpy.mockImplementationOnce(() => ({ type: 'PATCH_ROLE', payload: Promise.resolve() }));
     /**
      * Async name validation
      */
-    fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [{ name: 'new-name', uuid: 'bar' }] }));
+    fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [{ display_name: 'new-name', uuid: 'bar' }] }));
 
     let wrapper;
     await act(async () => {

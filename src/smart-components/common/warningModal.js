@@ -13,7 +13,7 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, cus
       </span>
     }
     variant={ModalVariant.small}
-    className="ins-c-wizard__cancel-warning"
+    className="rbac ins-c-wizard__cancel-warning"
     isOpen={isOpen}
     onClose={onModalCancel}
     actions={[

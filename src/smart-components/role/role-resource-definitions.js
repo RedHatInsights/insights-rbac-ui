@@ -5,7 +5,7 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import { createRows } from './role-resource-definitions-table-helpers';
 import { useParams, Link, Route } from 'react-router-dom';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/components/PageHeader';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
@@ -140,6 +140,7 @@ const ResourceDefinitions = () => {
           titlePlural="resources"
           titleSingular="resource"
           hideHeader
+          tableId="role-resource-definitions"
         />
       </section>
     </Fragment>

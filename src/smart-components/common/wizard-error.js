@@ -2,18 +2,18 @@ import React, { useContext } from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import WizardContext from '@data-driven-forms/react-form-renderer/dist/esm/wizard-context';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
-import { AddRoleWizardContext } from './add-role-wizard';
+import PropTypes from 'prop-types';
 
-const AddRoleError = () => {
+const WizardError = ({ context, title, text }) => {
   const { jumpToStep } = useContext(WizardContext);
-  const { setWizardError } = useContext(AddRoleWizardContext);
+  const { setWizardError } = useContext(context);
   return (
     <EmptyState variant={EmptyStateVariant.large}>
       <EmptyStateIcon color="red" icon={ExclamationCircleIcon} />
       <Title headingLevel="h4" size="lg">
-        Role name already taken
+        {title}
       </Title>
-      <EmptyStateBody>Please return to Step 1: Create role and choose a unique role name for your custom role.</EmptyStateBody>
+      <EmptyStateBody>{text}</EmptyStateBody>
       <Button
         onClick={() => {
           setWizardError(undefined);
@@ -27,4 +27,10 @@ const AddRoleError = () => {
   );
 };
 
-export default AddRoleError;
+WizardError.propTypes = {
+  context: PropTypes.object.isRequired,
+  title: PropTypes.string.isRequired,
+  text: PropTypes.string.isRequired,
+};
+
+export default WizardError;

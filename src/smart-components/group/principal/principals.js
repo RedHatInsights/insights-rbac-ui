@@ -104,7 +104,7 @@ const GroupPrincipals = () => {
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="pf-m-visible-on-md">
+          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="ins-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               Add member
             </Button>
@@ -190,6 +190,7 @@ const GroupPrincipals = () => {
             setCheckedItems={setCheckedPrincipals}
             toolbarButtons={toolbarButtons}
             emptyProps={{ title: 'There are no members in this group', description: ['Add a user to configure user access.', ''] }}
+            tableId="group-members"
           />
         )}
       </Section>

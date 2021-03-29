@@ -9,4 +9,4 @@ export const roleSelector = (state, roleId) => {
   return roles.data.find(({ uuid }) => uuid === roleId);
 };
 
-export const roleNameSelector = (state, roleId) => roleSelector(state, roleId)?.name;
+export const roleNameSelector = (state, roleId) => roleSelector(state, roleId)?.display_name;

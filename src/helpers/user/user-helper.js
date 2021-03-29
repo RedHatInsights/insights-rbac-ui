@@ -9,7 +9,7 @@ const principalStatusApiMap = {
 export function fetchUsers({ limit, offset, username, orderBy, email, status = [] }) {
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
-  return principalApi.listPrincipals(limit, offset, username, sortOrder, email, mappedStatus).then(({ data, meta }) => {
+  return principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus).then(({ data, meta }) => {
     return {
       data,
       meta: {

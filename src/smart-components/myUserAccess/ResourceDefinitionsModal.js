@@ -63,6 +63,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         titleSingular="Resource definition"
         noDataDescription={[`There are no resource definitions for ${permission} permission`]}
         fetchData={handleFilterValue}
+        tableId="resource-definitions-modal"
       />
     </Modal>
   );

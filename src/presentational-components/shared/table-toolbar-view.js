@@ -7,7 +7,7 @@ import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
-import EmptyWithAction from './empty-filter';
+import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
@@ -49,6 +49,7 @@ export const TableToolbarView = ({
   noData,
   noDataDescription,
   ouiaId,
+  tableId,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -136,6 +137,7 @@ export const TableToolbarView = ({
         onChange={onChange}
         value={value}
         hideFilterChips={hideFilterChips}
+        tableId={tableId}
       />
       {isLoading ? (
         <ListLoader />
@@ -160,12 +162,25 @@ export const TableToolbarView = ({
           ouiaId={ouiaId}
           onSort={(e, index, direction) => {
             setSortByState({ index, direction });
-            fetchData({
-              ...pagination,
-              offset: 0,
-              name: filterValue,
-              orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
-            });
+            filters && filters.length > 0
+              ? fetchData({
+                  ...pagination,
+                  offset: 0,
+                  ...filters.reduce(
+                    (acc, curr) => ({
+                      ...acc,
+                      [curr.key]: curr.value,
+                    }),
+                    {}
+                  ),
+                  orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
+                })
+              : fetchData({
+                  ...pagination,
+                  offset: 0,
+                  name: filterValue,
+                  orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
+                });
           }}
         >
           {!hideHeader && <TableHeader />}
@@ -222,6 +237,8 @@ TableToolbarView.propTypes = {
   hideFilterChips: propTypes.bool,
   hideHeader: propTypes.bool,
   noDataDescription: propTypes.arrayOf(propTypes.node),
+  filters: propTypes.array,
+  tableId: propTypes.string.isRequired,
 };
 
 TableToolbarView.defaultProps = {

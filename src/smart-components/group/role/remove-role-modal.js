@@ -4,16 +4,17 @@ import DefaultGroupChange from './default-group-change-modal';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 
 const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, isDefault, isChanged }) => {
-  const [showConfirmModal, setShowConfirmModal] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   return isDefault && !isChanged && showConfirmModal ? (
     <DefaultGroupChange
       isOpen={showConfirmModal && isOpen}
       onClose={() => {
         onClose();
+        setShowConfirmModal(false);
       }}
       onSubmit={() => {
-        setShowConfirmModal(false);
+        onSubmit();
       }}
     />
   ) : (
@@ -24,10 +25,10 @@ const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       confirmButtonLabel={confirmButtonLabel}
       onClose={() => {
         onClose();
-        setShowConfirmModal(true);
       }}
       onSubmit={() => {
-        onSubmit();
+        setShowConfirmModal(true);
+        (!isDefault || isChanged) && onSubmit();
       }}
     />
   );

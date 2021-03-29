@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/cjs/actions';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';
@@ -26,7 +26,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
       fetchRole(id)
         .then((role) => {
           if (isMounted.current) {
-            setInternalRoleName(role.name);
+            setInternalRoleName(role.display_name);
           }
         })
         .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
@@ -45,6 +45,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
   return (
     <Modal
+      className="rbac"
       aria-label="remove-role"
       header={
         <TextContent>

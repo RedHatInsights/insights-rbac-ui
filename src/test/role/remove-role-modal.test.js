@@ -43,7 +43,7 @@ describe('<RemoveRoleModal />', () => {
       roleReducer: {
         selectedRole: {
           uuid: ROLE_ID,
-          name: 'role-name',
+          display_name: 'role-name',
         },
       },
     });
