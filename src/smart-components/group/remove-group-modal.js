@@ -9,7 +9,7 @@ import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUuid, isModalOpen, postMethod, closeUrl }) => {
+const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUuid, isModalOpen, postMethod, pagination, closeUrl }) => {
   useEffect(() => {
     if (groupsUuid.length === 1) {
       fetchGroup(groupsUuid[0].uuid);
@@ -25,7 +25,7 @@ const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUu
   const onSubmit = () => {
     const uuids = groupsUuid.map((group) => group.uuid);
     removeGroups(uuids)
-      .then(() => postMethod(uuids))
+      .then(() => postMethod(uuids, { limit: pagination.limit }))
       .then(history.push(closeUrl));
   };
 
@@ -89,6 +89,9 @@ RemoveGroupModal.propTypes = {
   removeGroups: PropTypes.func.isRequired,
   fetchGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
+  }).isRequired,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
   groupsUuid: PropTypes.array,

@@ -74,6 +74,7 @@ const Groups = () => {
       </Route>
       <Route exact path={paths['group-edit'].path}>
         <EditGroup
+          pagination={pagination}
           postMethod={(config) => {
             dispatch(fetchGroups(config));
             setFilterValue('');
@@ -82,8 +83,9 @@ const Groups = () => {
       </Route>
       <Route exact path={paths['remove-group']}>
         <RemoveGroup
-          postMethod={(ids) => {
-            dispatch(fetchGroups());
+          pagination={pagination}
+          postMethod={(ids, config) => {
+            dispatch(fetchGroups(config));
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
             setFilterValue('');
           }}
