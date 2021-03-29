@@ -27,7 +27,7 @@ describe('<RemoveGroupModal />', () => {
       <MemoryRouter initialEntries={['/groups/', '/groups/removegroups']} initialIndex={2}>
         <Route
           path="/groups/removegroups"
-          render={(args) => <RemoveGroupModal {...args} {...initialProps} isModalOpen groupsUuid={[{ uuid: '123' }]} />}
+          render={(args) => <RemoveGroupModal {...args} {...initialProps} isModalOpen groupsUuid={[{ uuid: '123' }]} pagination={{ limit: 0 }} />}
         />
       </MemoryRouter>
     </Provider>
