@@ -15,7 +15,7 @@ import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
-import { useHistory } from 'react-router';
+import { useHistory } from 'react-router-dom';
 import './add-role-wizard.scss';
 
 export const AddRoleWizardContext = createContext({
