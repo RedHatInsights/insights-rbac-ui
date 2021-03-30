@@ -13,7 +13,7 @@ import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
 
-const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, group, onClose }) => {
+const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, closeUrl, group, onClose }) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
   const history = useHistory();
@@ -42,7 +42,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, closeUrl, gr
     const user_data = { ...data };
     postMethod
       ? updateGroup(user_data)
-          .then(() => postMethod())
+          .then(() => postMethod({ limit: pagination.limit }))
           .then(history.push(closeUrl))
       : updateGroup(user_data).then(() => history.push(closeUrl));
   };
@@ -121,6 +121,9 @@ EditGroupModal.propTypes = {
   inputValue: PropTypes.string,
   updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
+  }).isRequired,
   closeUrl: PropTypes.string,
   group: PropTypes.object,
   onClose: PropTypes.func,

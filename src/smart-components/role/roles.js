@@ -48,7 +48,11 @@ const Roles = () => {
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
-      {insights.chrome.isBeta() && <Route exact path={paths['add-role']} component={AddRoleWizard} />}
+      {insights.chrome.isBeta() && (
+        <Route exact path={paths['add-role']}>
+          <AddRoleWizard pagination={pagination} />
+        </Route>
+      )}
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
