@@ -44,7 +44,7 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod }) => {
+const AddGroupWizard = ({ postMethod, pagination }) => {
   const dispatch = useDispatch();
   const history = useHistory();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
@@ -82,7 +82,7 @@ const AddGroupWizard = ({ postMethod }) => {
     };
     history.push('/groups');
     dispatch(addGroup(groupData))
-      .then(() => postMethod())
+      .then(() => postMethod({ limit: pagination.limit }))
       .then(() => {
         dispatch(
           addNotification({
@@ -120,6 +120,9 @@ const AddGroupWizard = ({ postMethod }) => {
 
 AddGroupWizard.propTypes = {
   postMethod: PropTypes.func,
+  pagination: PropTypes.shape({
+    limit: PropTypes.number.isRequired,
+  }).isRequired,
 };
 
 export default AddGroupWizard;
