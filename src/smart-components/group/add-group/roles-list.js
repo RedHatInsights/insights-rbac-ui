@@ -51,6 +51,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       createRows={createRows}
       data={roles}
       filterValue={filterValue}
+      filterPlaceholder="role name"
       fetchData={(config) => fetchRoles(mappedProps(config))}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
