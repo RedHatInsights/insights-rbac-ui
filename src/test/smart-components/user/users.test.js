@@ -31,6 +31,7 @@ describe('<Users />', () => {
         limit: 10,
         offset: undefined,
       },
+      filters: {},
     };
     mockStore = configureStore(middlewares);
     initialState = { userReducer: { ...usersInitialState, users: enhanceState } };
@@ -55,8 +56,13 @@ describe('<Users />', () => {
     });
     expect(wrapper.find(TableToolbarView)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 20,
-      status: ['Active'],
+      limit: 10,
+      filters: {
+        status: ['Active'],
+        email: undefined,
+        username: undefined,
+      },
+      inModal: false,
     });
   });
 
@@ -74,8 +80,13 @@ describe('<Users />', () => {
     const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 20,
-      status: ['Active'],
+      limit: 10,
+      filters: {
+        status: ['Active'],
+        email: undefined,
+        username: undefined,
+      },
+      inModal: false,
     });
   });
 
@@ -104,7 +115,12 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: '-username',
-      status: ['Active'],
+      filters: {
+        status: ['Active'],
+        email: undefined,
+        username: undefined,
+      },
+      inModal: false,
     });
   });
 
@@ -131,6 +147,7 @@ describe('<Users />', () => {
     wrapper.update();
     const expectedPayload = [
       expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+      expect.objectContaining({ type: 'UPDATE_USERS_FILTERS' }),
       expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
       expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
       expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
@@ -141,8 +158,8 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      status: ['Active'],
-      username: 'something',
+      filters: { status: ['Active'], username: 'something', email: undefined },
+      inModal: false,
     });
   });
 });
