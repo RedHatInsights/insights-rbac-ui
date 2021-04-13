@@ -11,6 +11,7 @@ import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 import * as UserHelper from '../../../helpers/user/user-helper';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<Users />', () => {
   let enhanceState;
@@ -32,6 +33,7 @@ describe('<Users />', () => {
         offset: undefined,
       },
       filters: {},
+      pagination: defaultSettings,
     };
     mockStore = configureStore(middlewares);
     initialState = { userReducer: { ...usersInitialState, users: enhanceState } };
@@ -56,7 +58,7 @@ describe('<Users />', () => {
     });
     expect(wrapper.find(TableToolbarView)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 10,
+      limit: 20,
       filters: {
         status: ['Active'],
         email: undefined,
@@ -80,7 +82,7 @@ describe('<Users />', () => {
     const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
-      limit: 10,
+      limit: 20,
       filters: {
         status: ['Active'],
         email: undefined,

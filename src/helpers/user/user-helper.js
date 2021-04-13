@@ -18,7 +18,16 @@ export function fetchUsers({ limit, offset, orderBy, filters = {}, inModal }) {
         offset,
         limit,
       },
-      ...(inModal ? {} : { filters }),
+      ...(inModal
+        ? {}
+        : {
+            filters,
+            pagination: {
+              ...meta,
+              offset,
+              limit,
+            },
+          }),
     };
   });
 }

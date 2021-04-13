@@ -65,9 +65,9 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
 };
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
-  const defaultPagination = useSelector(({ userReducer }) => ({
-    limit: userReducer.users.meta.limit || defaultSettings.limit,
-    offset: userReducer.users.meta.offset || defaultSettings.offset,
+  const defaultPagination = useSelector(({ userReducer: { users } }) => ({
+    limit: inModal ? users.meta.limit : users.pagination.limit || defaultSettings.limit,
+    offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
   }));
 
   const stateFilters = useSelector(({ userReducer }) => userReducer.users.filters);

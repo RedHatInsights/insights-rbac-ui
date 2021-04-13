@@ -8,6 +8,7 @@ export const usersInitialState = {
   users: {
     meta: defaultSettings,
     filters: {},
+    pagination: defaultSettings,
   },
 };
 
