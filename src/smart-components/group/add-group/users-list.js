@@ -1,15 +1,16 @@
 import React, { useState, useEffect, Fragment } from 'react';
-import { connect } from 'react-redux';
+import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { fetchUsers } from '../../../redux/actions/user-actions';
+import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings, defaultSettings, getPaginationFromUrl, setPaginationToUrl } from '../../../helpers/shared/pagination';
+import { getFiltersFromUrl, setFiltersToUrl } from '../../../helpers/shared/filters';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -63,19 +64,40 @@ const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
     : [];
 };
 
-const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, props }) => {
-  const [filterValue, setFilterValue] = useState('');
-  const [emailValue, setEmailValue] = useState('');
-  const [statusValue, setStatusValue] = useState(['Active']);
+const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+  const defaultPagination = useSelector(({ userReducer }) => ({
+    limit: userReducer.users.meta.limit || defaultSettings.limit,
+    offset: userReducer.users.meta.offset || defaultSettings.offset,
+  }));
+
+  const stateFilters = useSelector(({ userReducer }) => userReducer.users.filters);
+
+  const [filters, setFilters] = useState({
+    username: (!inModal && stateFilters.username) || '',
+    email: (!inModal && stateFilters.email) || '',
+    status: !inModal && status ? status : ['Active'],
+  });
 
   useEffect(() => {
-    fetchUsers(mappedProps({ ...defaultSettings, status: ['Active'] }));
+    inModal || setFilters(stateFilters);
+  }, [stateFilters]);
+
+  useEffect(() => {
+    const pagination = inModal ? defaultSettings : getPaginationFromUrl(defaultPagination, true);
+    const fetchFilters = inModal ? { status: filters.status } : getFiltersFromUrl(['username', 'email', 'status'], filters);
+    setFilters(fetchFilters);
+    fetchUsers({ ...mappedProps({ ...pagination, filters: fetchFilters }), inModal });
   }, []);
 
   const setCheckedItems = (newSelection) => {
     setSelectedUsers((users) => {
       return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
     });
+  };
+
+  const updateFilters = (payload) => {
+    inModal || updateUsersFilters(payload);
+    setFilters(payload);
   };
 
   return (
@@ -88,13 +110,16 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       data={users}
       ouiaId="users-table"
       fetchData={(config) => {
-        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : statusValue;
-        fetchUsers(mappedProps({ ...config, status }));
+        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
+        const { username, email, count, limit, offset, orderBy } = config;
+        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
+        inModal || setPaginationToUrl(config.limit, config.offset);
+        inModal || setFiltersToUrl({ username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {
-        typeof username !== 'undefined' && setFilterValue(username);
-        typeof email !== 'undefined' && setEmailValue(email);
-        typeof statusValue !== undefined && setStatusValue(status);
+        typeof username !== 'undefined' && updateFilters({ ...filters, username });
+        typeof email !== 'undefined' && updateFilters({ ...filters, email });
+        typeof status === 'undefined' || status === filters.status || updateFilters({ ...filters, status });
       }}
       isLoading={isLoading}
       pagination={pagination}
@@ -108,11 +133,11 @@ const UsersList = ({ users, fetchUsers, isLoading, pagination, selectedUsers, se
       titlePlural="users"
       titleSingular="user"
       filters={[
-        { key: 'username', value: filterValue, placeholder: 'Filter by exact username' },
-        { key: 'email', value: emailValue, placeholder: 'Filter by exact email' },
+        { key: 'username', value: filters.username, placeholder: 'Filter by exact username' },
+        { key: 'email', value: filters.email, placeholder: 'Filter by exact email' },
         {
           key: 'status',
-          value: statusValue,
+          value: filters.status,
           label: 'Status',
           type: 'checkbox',
           items: [
@@ -138,7 +163,10 @@ const mapStateToProps = ({ userReducer: { users, isUserDataLoading } }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     fetchUsers: (apiProps = defaultSettings) => {
-      dispatch(fetchUsers(mappedProps(apiProps)));
+      dispatch(fetchUsers(apiProps));
+    },
+    updateUsersFilters: (filters) => {
+      dispatch(updateUsersFilters(filters));
     },
     addNotification: (...props) => dispatch(addNotification(...props)),
   };
@@ -164,6 +192,7 @@ UsersList.propTypes = {
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
   fetchUsers: PropTypes.func.isRequired,
+  updateUsersFilters: PropTypes.func.isRequired,
   setSelectedUsers: PropTypes.func.isRequired,
   selectedUsers: PropTypes.array,
   pagination: PropTypes.shape({
@@ -173,6 +202,7 @@ UsersList.propTypes = {
   }),
   userLinks: PropTypes.bool,
   props: PropTypes.object,
+  inModal: PropTypes.bool,
 };
 
 UsersList.defaultProps = {
@@ -180,6 +210,7 @@ UsersList.defaultProps = {
   selectedUsers: [],
   setSelectedUsers: () => undefined,
   userLinks: false,
+  inModal: false,
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(UsersList);

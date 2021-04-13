@@ -6,7 +6,8 @@ const principalStatusApiMap = {
   Active: 'enabled',
   Inactive: 'disabled',
 };
-export function fetchUsers({ limit, offset, username, orderBy, email, status = [] }) {
+export function fetchUsers({ limit, offset, orderBy, filters = {}, inModal }) {
+  const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
   return principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus).then(({ data, meta }) => {
@@ -17,6 +18,7 @@ export function fetchUsers({ limit, offset, username, orderBy, email, status = [
         offset,
         limit,
       },
+      ...(inModal ? {} : { filters }),
     };
   });
 }
