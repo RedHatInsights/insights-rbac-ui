@@ -1,1 +1,1 @@
-export { default } from './insights';
+export { default } from './rhel';

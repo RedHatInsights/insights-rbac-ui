@@ -5,7 +5,7 @@ import { MemoryRouter } from 'react-router-dom';
 import { Title } from '@patternfly/react-core';
 
 import MUAContent from '../../../smart-components/myUserAccess/MUAContent';
-jest.mock('../../../smart-components/myUserAccess/bundles/insights');
+jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
 
 const ComponentWrapper = ({ initialEntries, children }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
 
@@ -24,7 +24,7 @@ describe('<MUAContent />', () => {
 
     await act(async () => {
       wrapper = mount(
-        <ComponentWrapper initialEntries={['/foo?bundle=insights']}>
+        <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MUAContent entitlements={entitlements} isOrgAdmin />
         </ComponentWrapper>
       );
@@ -39,12 +39,12 @@ describe('<MUAContent />', () => {
 
     await act(async () => {
       wrapper = mount(
-        <ComponentWrapper initialEntries={['/foo?bundle=insights']}>
+        <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MUAContent entitlements={entitlements} isOrgAdmin={false} />
         </ComponentWrapper>
       );
     });
 
-    expect(wrapper.find(Title).last().text()).toEqual('Your Insights permissions');
+    expect(wrapper.find(Title).last().text()).toEqual('Your Red Hat Enterprise Linux permissions');
   });
 });
