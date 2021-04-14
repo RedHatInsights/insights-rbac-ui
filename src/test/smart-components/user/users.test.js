@@ -119,8 +119,8 @@ describe('<Users />', () => {
       orderBy: '-username',
       filters: {
         status: ['Active'],
-        email: undefined,
-        username: undefined,
+        email: '',
+        username: '',
       },
       inModal: false,
     });
@@ -160,7 +160,7 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      filters: { status: ['Active'], username: 'something', email: undefined },
+      filters: { status: ['Active'], username: 'something', email: '' },
       inModal: false,
     });
   });
