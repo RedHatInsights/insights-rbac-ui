@@ -7,7 +7,7 @@ const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
-const AccessRequest = lazy(() => import('./smart-components/accessRequest/accessRequest'));
+const AccessRequests = lazy(() => import('./smart-components/accessRequests/accessRequests'));
 
 export const Routes = () => {
   return (
@@ -17,7 +17,7 @@ export const Routes = () => {
         <Route path={routes.roles} component={Roles} />
         <Route path={routes.users} component={Users} />
         <Route path={routes['my-user-access']} component={MyUserAccess} />
-        <Route path={routes['access-request']} component={AccessRequest} />
+        <Route path={routes['access-requests']} component={AccessRequests} />
         <Route>
           <Redirect to={routes.users} />
         </Route>
