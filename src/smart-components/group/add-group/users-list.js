@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useEffect, Fragment } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
@@ -9,8 +9,8 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import { defaultCompactSettings, defaultSettings, getPaginationFromUrl, setPaginationToUrl } from '../../../helpers/shared/pagination';
-import { getFiltersFromUrl, setFiltersToUrl } from '../../../helpers/shared/filters';
+import { defaultCompactSettings, defaultSettings, syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../../helpers/shared/filters';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -72,23 +72,16 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const history = useHistory();
 
-  const stateFilters = useSelector(({ userReducer }) => userReducer.users.filters);
-
-  const [filters, setFilters] = useState({
-    username: (!inModal && stateFilters.username) || '',
-    email: (!inModal && stateFilters.email) || '',
-    status: !inModal && status ? status : ['Active'],
-  });
+  let filters = useSelector(({ userReducer: { users: { filters } } }) => ({
+    username: (!inModal && filters?.username) || '',
+    email: (!inModal && filters?.email) || '',
+    status: (!inModal && filters?.status) || ['Active'],
+  }));
 
   useEffect(() => {
-    inModal || setFilters(stateFilters);
-  }, [stateFilters]);
-
-  useEffect(() => {
-    const pagination = inModal ? defaultSettings : getPaginationFromUrl(history, defaultPagination, true);
-    const fetchFilters = inModal ? { status: filters.status } : getFiltersFromUrl(history, ['username', 'email', 'status'], filters);
-    setFilters(fetchFilters);
-    fetchUsers({ ...mappedProps({ ...pagination, filters: fetchFilters }), inModal });
+    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination, true);
+    filters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    fetchUsers({ ...mappedProps({ ...pagination, filters }), inModal });
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -99,7 +92,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const updateFilters = (payload) => {
     inModal || updateUsersFilters(payload);
-    setFilters(payload);
+    filters = payload;
   };
 
   return (
@@ -115,8 +108,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
         fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
-        inModal || setPaginationToUrl(history, config.limit, config.offset);
-        inModal || setFiltersToUrl(history, { username, email, status });
+        inModal || applyPaginationToUrl(history, config.limit, config.offset);
+        inModal || applyFiltersToUrl(history, { username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {
         typeof username !== 'undefined' && updateFilters({ ...filters, username });

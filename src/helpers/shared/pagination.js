@@ -14,7 +14,7 @@ export const getCurrentPage = (limit = 1, offset = 0) => Math.floor(offset / lim
 
 export const getNewPage = (page = 1, offset) => (page - 1) * offset;
 
-export const getPaginationFromUrl = (history, defaultPagination, initialLoad) => {
+export const syncDefaultPaginationWithUrl = (history, defaultPagination, initialLoad) => {
   const searchParams = new URLSearchParams(history.location.search);
 
   isNaN(parseInt(searchParams.get('per_page'))) && searchParams.set('per_page', defaultPagination.limit);
@@ -22,13 +22,20 @@ export const getPaginationFromUrl = (history, defaultPagination, initialLoad) =>
   isNaN(parseInt(searchParams.get('page'))) && searchParams.set('page', initialLoad ? 1 : defaultPagination.offset / limit + 1);
   const offset = (parseInt(searchParams.get('page')) - 1) * limit;
 
-  history.replace(`${history.location.pathname}?${searchParams.toString()}`, {});
+  history.replace({
+    pathname: history.location.pathname,
+    search: searchParams.toString(),
+  });
   return { limit, offset };
 };
 
-export const setPaginationToUrl = (history, limit, offset = 0) => {
+export const applyPaginationToUrl = (history, limit, offset = 0) => {
   const searchParams = new URLSearchParams(history.location.search);
   searchParams.set('per_page', limit);
   searchParams.set('page', offset / limit + 1);
-  history.replace(`${history.location.pathname}?${searchParams.toString()}`, {});
+
+  history.replace({
+    pathname: history.location.pathname,
+    search: searchParams.toString(),
+  });
 };

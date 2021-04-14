@@ -1,4 +1,4 @@
-export const getFiltersFromUrl = (history, keys, defaultValues = {}) => {
+export const syncDefaultFiltersWithUrl = (history, keys, defaults = {}) => {
   const searchParams = new URLSearchParams(history.location.search);
 
   let filters = keys.reduce((acc, key) => {
@@ -9,8 +9,8 @@ export const getFiltersFromUrl = (history, keys, defaultValues = {}) => {
     };
   }, {});
 
-  Object.keys(defaultValues).forEach((key) => {
-    const value = defaultValues[key];
+  Object.keys(defaults).forEach((key) => {
+    const value = defaults[key];
     filters = {
       ...filters,
       [key]: Array.isArray(filters[key])
@@ -25,11 +25,14 @@ export const getFiltersFromUrl = (history, keys, defaultValues = {}) => {
     }
   });
 
-  history.replace(`${history.location.pathname}?${searchParams.toString()}`, {});
+  history.replace({
+    pathname: history.location.pathname,
+    search: searchParams.toString(),
+  });
   return filters;
 };
 
-export const setFiltersToUrl = (history, newValues) => {
+export const applyFiltersToUrl = (history, newValues) => {
   const searchParams = new URLSearchParams(history.location.search);
   Object.keys(newValues).forEach((key) => searchParams.delete(key));
 
@@ -43,5 +46,8 @@ export const setFiltersToUrl = (history, newValues) => {
     }
   });
 
-  history.replace(`${history.location.pathname}?${searchParams.toString()}`, {});
+  history.replace({
+    pathname: history.location.pathname,
+    search: searchParams.toString(),
+  });
 };
