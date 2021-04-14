@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link } from 'react-router-dom';
+import { Link, useHistory } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
@@ -70,6 +70,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
   }));
 
+  const history = useHistory();
+
   const stateFilters = useSelector(({ userReducer }) => userReducer.users.filters);
 
   const [filters, setFilters] = useState({
@@ -83,8 +85,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   }, [stateFilters]);
 
   useEffect(() => {
-    const pagination = inModal ? defaultSettings : getPaginationFromUrl(defaultPagination, true);
-    const fetchFilters = inModal ? { status: filters.status } : getFiltersFromUrl(['username', 'email', 'status'], filters);
+    const pagination = inModal ? defaultSettings : getPaginationFromUrl(history, defaultPagination, true);
+    const fetchFilters = inModal ? { status: filters.status } : getFiltersFromUrl(history, ['username', 'email', 'status'], filters);
     setFilters(fetchFilters);
     fetchUsers({ ...mappedProps({ ...pagination, filters: fetchFilters }), inModal });
   }, []);
@@ -113,8 +115,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
         fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
-        inModal || setPaginationToUrl(config.limit, config.offset);
-        inModal || setFiltersToUrl({ username, email, status });
+        inModal || setPaginationToUrl(history, config.limit, config.offset);
+        inModal || setFiltersToUrl(history, { username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {
         typeof username !== 'undefined' && updateFilters({ ...filters, username });
