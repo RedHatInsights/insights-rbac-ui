@@ -11,6 +11,7 @@ import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 import * as UserHelper from '../../../helpers/user/user-helper';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<Users />', () => {
   let enhanceState;
@@ -31,6 +32,8 @@ describe('<Users />', () => {
         limit: 10,
         offset: undefined,
       },
+      filters: {},
+      pagination: defaultSettings,
     };
     mockStore = configureStore(middlewares);
     initialState = { userReducer: { ...usersInitialState, users: enhanceState } };
@@ -56,7 +59,12 @@ describe('<Users />', () => {
     expect(wrapper.find(TableToolbarView)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['Active'],
+      filters: {
+        status: ['Active'],
+        email: undefined,
+        username: undefined,
+      },
+      inModal: false,
     });
   });
 
@@ -75,7 +83,12 @@ describe('<Users />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      status: ['Active'],
+      filters: {
+        status: ['Active'],
+        email: undefined,
+        username: undefined,
+      },
+      inModal: false,
     });
   });
 
@@ -104,7 +117,12 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: '-username',
-      status: ['Active'],
+      filters: {
+        status: ['Active'],
+        email: '',
+        username: '',
+      },
+      inModal: false,
     });
   });
 
@@ -131,6 +149,7 @@ describe('<Users />', () => {
     wrapper.update();
     const expectedPayload = [
       expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
+      expect.objectContaining({ type: 'UPDATE_USERS_FILTERS' }),
       expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
       expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
       expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
@@ -141,8 +160,8 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      status: ['Active'],
-      username: 'something',
+      filters: { status: ['Active'], username: 'something', email: '' },
+      inModal: false,
     });
   });
 });

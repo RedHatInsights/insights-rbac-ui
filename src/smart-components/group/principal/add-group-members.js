@@ -69,7 +69,7 @@ const AddGroupMembers = ({
           </TextContent>
         </StackItem>
         <StackItem>
-          <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+          <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
         </StackItem>
       </Stack>
     </Modal>
