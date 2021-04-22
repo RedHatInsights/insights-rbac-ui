@@ -22,8 +22,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
         <GridItem className="pf-m-3-col-on-md ins-l-myUserAccess-section__cards ins-m-hide-on-sm">
           <Stack>
             <StackItem className="ins-l-myUserAccess-section__cards--entitled">
-              {/* No conditional here because you have to have a subscription to get to /settings */}
-              <MUACard header={`Your organization's subscriptions`} entitlements={entitledBundles} />
+              <MUACard entitlements={entitledBundles} />
             </StackItem>
             {unEntitledBundles.length > 0 && (
               <StackItem className="ins-l-myUserAccess-section__cards--unentitled">
@@ -33,9 +32,11 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
           </Stack>
         </GridItem>
         <GridItem className="pf-m-9-col-on-md ins-l-myUserAccess-section__table">
-          <Title headingLevel="h3" size="xl">
-            {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
-          </Title>
+          {bundle !== 'application_services' && (
+            <Title headingLevel="h3" size="xl">
+              {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
+            </Title>
+          )}
           <MuaBundleRoute />
         </GridItem>
       </Grid>

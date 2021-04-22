@@ -33,6 +33,7 @@ exports[`<MUACard /> should render correctly 1`] = `
     </h3>
   </Title>
   <Stack
+    className=""
     hasGutter={true}
   >
     <div
@@ -291,6 +292,7 @@ exports[`<MUACard /> should render correctly disabled 1`] = `
     </h3>
   </Title>
   <Stack
+    className=""
     hasGutter={true}
   >
     <div

@@ -13,6 +13,10 @@ const MyUserAccess = () => {
   useEffect(() => {
     insights.chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
   }, []);
+  const enhancedEntitlements = {
+    ...user.entitlements,
+    ...(window.insights.chrome.isProd ? {} : { application_services: { is_entitled: true, is_trial: false } }),
+  };
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
 
@@ -32,7 +36,7 @@ const MyUserAccess = () => {
             }
           />
           <Text component="p" className="ins-p-myUserAccess--subtitle">
-            Select from your organization&apos;s subscriptions below to discover your individual application-specific roles and permissions.
+            Select applications to view your personal permissions.
           </Text>
           <div className="ins-p-myUserAccess--dropdown sticky">
             <Dropdown
@@ -47,7 +51,7 @@ const MyUserAccess = () => {
             />
           </div>
           <section>
-            <MUAContent entitlements={user.entitlements} isOrgAdmin={user.isOrgAdmin} />
+            <MUAContent entitlements={enhancedEntitlements} isOrgAdmin={user.isOrgAdmin} />
           </section>
         </React.Fragment>
       ) : (
