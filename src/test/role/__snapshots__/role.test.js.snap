@@ -34,7 +34,7 @@ exports[`role should render top toolbar 1`] = `
     Array [
       Object {
         "title": "Roles",
-        "to": "/roles",
+        "to": "/roles?page=1&per_page=20",
       },
       Object {
         "isActive": true,
