@@ -15,7 +15,7 @@ const MyUserAccess = () => {
   }, []);
   const enhancedEntitlements = {
     ...user.entitlements,
-    ...(window.insights.chrome.isProd ? {} : { application_services: { is_entitled: true, is_trial: false } }),
+    application_services: { is_entitled: true, is_trial: false },
   };
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
