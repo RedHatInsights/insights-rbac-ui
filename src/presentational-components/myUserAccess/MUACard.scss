@@ -7,10 +7,11 @@
         color: var(--pf-global--Color--400);
         span {
             text-transform: capitalize;
-            & + span { margin-top: var(--pf-global--spacer--sm); }
+            font-size: var(--pf-global--FontSize--sm);
+            margin-top: var(--pf-global--spacer--sm);
         }
     }
-    &--insights {
+    &--rhel {
         .ins-c-mua-bundles__card--applist {
             display: grid;
             grid-template-columns: auto auto;

@@ -20,7 +20,7 @@
 .ins-l-myUserAccess-section__cards,
 .ins-l-myUserAccess-section__table {
   background-color: var(--pf-global--BackgroundColor--100);
-  height: calc(100vh - 111px - 70px);
+  height: calc(100vh - 111px - 84px);
   padding: 0 var(--pf-global--spacer--lg);
   overflow-x: auto;
   h3 {padding: var(--pf-global--spacer--lg) 0;}
@@ -50,6 +50,12 @@
       display: block;
       padding: 0 var(--pf-global--spacer--lg);
       top: 60px;
+      .pf-c-dropdown {
+        width: 100%;
+        button {
+          width: 100%;
+        }
+      }
     }
     &-section__table {
       height: auto;

@@ -48,7 +48,9 @@ const Roles = () => {
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
-      {insights.chrome.isBeta() && <Route exact path={paths['add-role']} component={AddRoleWizard} />}
+      <Route exact path={paths['add-role']}>
+        <AddRoleWizard pagination={pagination} />
+      </Route>
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
@@ -82,7 +84,7 @@ const Roles = () => {
   };
 
   const toolbarButtons = () =>
-    insights.chrome.isBeta() && userIdentity?.user?.is_org_admin
+    userIdentity?.user?.is_org_admin
       ? [
           <Link to={paths['add-role']} key="add-role" className="pf-m-visible-on-md">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
@@ -103,7 +105,7 @@ const Roles = () => {
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
             dedicatedAction={
-              insights.chrome.isBeta() && userIdentity?.user?.is_org_admin ? (
+              userIdentity?.user?.is_org_admin ? (
                 <Link to={paths['add-role']}>
                   <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
                     Create role

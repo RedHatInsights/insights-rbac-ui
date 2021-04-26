@@ -7,12 +7,11 @@ const useBundleApps = (bundle) => {
     location: { pathname },
   } = useHistory();
   if (typeof bundle !== 'string' || bundle.length === 0) {
-    push({ to: pathname, search: `bundle=${bundleData[0].entitlement}` });
+    push({ to: pathname, search: 'bundle=rhel' });
     return [];
   }
 
-  const apps = bundleData.find(({ entitlement }) => entitlement === bundle)?.appsIds || [];
-  return apps.sort((a, b) => a.localeCompare(b, 'en-US'));
+  return bundleData.find(({ entitlement }) => entitlement === bundle)?.appsIds || [];
 };
 
 export default useBundleApps;

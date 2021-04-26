@@ -58,7 +58,7 @@ const User = ({
   });
 
   useEffect(() => {
-    fetchUsers({ ...defaultSettings, limit: 0, username });
+    fetchUsers({ ...defaultSettings, limit: 0, filters: { username } });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);

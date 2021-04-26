@@ -2,10 +2,10 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import CommonBundleView from '../CommonBundleView';
 
-const InsightsBundle = ({ apps }) => <CommonBundleView apps={apps} />;
+const RhelBundle = ({ apps }) => <CommonBundleView apps={apps} />;
 
-InsightsBundle.propTypes = {
+RhelBundle.propTypes = {
   apps: PropTypes.arrayOf(PropTypes.string).isRequired,
 };
 
-export default InsightsBundle;
+export default RhelBundle;
