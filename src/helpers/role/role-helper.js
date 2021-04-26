@@ -25,7 +25,7 @@ export function fetchRoles({
 export async function fetchRolesWithPolicies({
   limit,
   offset,
-  name,
+  filters = {},
   nameMatch,
   scope = 'account',
   orderBy = 'display_name',
@@ -34,9 +34,27 @@ export async function fetchRolesWithPolicies({
   options,
   permission,
   application,
+  inModal = true,
 }) {
   return {
-    ...(await roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options)),
+    ...(await roleApi
+      .listRoles(limit, offset, undefined, filters.name, nameMatch, scope, orderBy, addFields, username, application, permission, options)
+      .then(({ data, meta }) => {
+        return {
+          data,
+          meta,
+          ...(inModal
+            ? {}
+            : {
+                filters,
+                pagination: {
+                  ...meta,
+                  offset,
+                  limit,
+                },
+              }),
+        };
+      })),
     ...(await insights.chrome.auth.getUser()),
   };
 }
