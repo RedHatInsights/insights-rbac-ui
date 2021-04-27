@@ -63,7 +63,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
     container.current.hidden = cancelWarningVisible;
   }, [cancelWarningVisible]);
 
-  const onClose = () => history.push(`${paths.roles}${createQueryParams({ page: 1, per_page: pagination.limit, ...filters })}`);
+  const onClose = () => history.push(`${paths.roles}${createQueryParams({ page: 1, per_page: pagination.limit })}`);
 
   const onCancel = () => {
     if (!wizardContextValue.success) {
@@ -77,7 +77,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
       );
     }
 
-    onClose();
+    history.push(`${paths.roles}${createQueryParams({ page: 1, per_page: pagination.limit, ...filters })}`);
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -116,7 +116,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
     };
     return dispatch(createRole(roleData)).then(() => {
       setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-      dispatch(fetchRolesWithPolicies({ limit: pagination.limit, filters, inModal: false }));
+      dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
     });
   };
 
