@@ -14,7 +14,6 @@ const ApplicationServices = () => (
       <List className="ins-l-myUserAccess-bundle-emptyState-list">
         <ListItem>All users in the organization may view everything.</ListItem>
         <ListItem>Only Org. Administrators and cluster owners can perform actions on clusters.</ListItem>
-        <ListItem>Only Org. Administrators and cluster owners can perform actions on clusters.</ListItem>
       </List>
     </EmptyStateBody>
   </EmptyState>
