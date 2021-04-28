@@ -15,7 +15,7 @@ import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
-import { BAD_UUID, createQueryParams } from '../../helpers/shared/helpers';
+import { BAD_UUID, createQueryParams, getBackRoute } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import './role.scss';
 
@@ -144,14 +144,10 @@ const Role = ({ onDelete }) => {
             {!isRecordLoading && (
               <RemoveRoleModal
                 afterSubmit={() => {
-                  dispatch(fetchRolesWithPolicies({ ...pagination, filters, inModal: false }));
+                  dispatch(fetchRolesWithPolicies({ ...pagination, offset: 0, filters, inModal: false }));
                 }}
                 cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
-                submitRoute={`${routes.roles}${createQueryParams({
-                  page: 1,
-                  per_page: pagination.limit,
-                  ...filters,
-                })}`}
+                submitRoute={getBackRoute(routes.roles, { ...pagination, offset: 0 }, filters)}
                 routeMatch={routes['role-detail-remove']}
               />
             )}
