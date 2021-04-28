@@ -42,6 +42,7 @@ describe('<Roles />', () => {
           ],
           filters: {},
           pagination: defaultSettings,
+          meta: defaultSettings,
         },
         isLoading: false,
       },

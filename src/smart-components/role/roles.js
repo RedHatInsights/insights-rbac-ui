@@ -4,7 +4,7 @@ import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
-import { createQueryParams, mappedProps } from '../../helpers/shared/helpers';
+import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -15,7 +15,7 @@ import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
-import { syncDefaultPaginationWithUrl, applyPaginationToUrl, defaultSettings } from '../../helpers/shared/pagination';
+import { syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../helpers/shared/pagination';
 import { Suspense } from 'react';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../helpers/shared/filters';
 
@@ -70,11 +70,8 @@ const Roles = () => {
           <RemoveRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
             routeMatch={paths['remove-role']}
-            cancelRoute={`${paths.roles}${createQueryParams({
-              page: 1,
-              per_page: pagination?.limit || defaultSettings.limit,
-              ...filters,
-            })}`}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
@@ -83,11 +80,8 @@ const Roles = () => {
           <EditRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
             routeMatch={paths['edit-role']}
-            cancelRoute={`${paths.roles}${createQueryParams({
-              page: 1,
-              per_page: pagination?.limit || defaultSettings.limit,
-              ...filters,
-            })}`}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>

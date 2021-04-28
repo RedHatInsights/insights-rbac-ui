@@ -44,7 +44,7 @@ export const mapperExtension = {
 
 const AddRoleWizard = ({ pagination, filters }) => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const { push } = useHistory();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -63,7 +63,11 @@ const AddRoleWizard = ({ pagination, filters }) => {
     container.current.hidden = cancelWarningVisible;
   }, [cancelWarningVisible]);
 
-  const onClose = () => history.push(`${paths.roles}${createQueryParams({ page: 1, per_page: pagination.limit })}`);
+  const onClose = () =>
+    push({
+      pathname: paths.roles,
+      search: createQueryParams({ page: 1, per_page: pagination.limit }),
+    });
 
   const onCancel = () => {
     if (!wizardContextValue.success) {
@@ -77,7 +81,10 @@ const AddRoleWizard = ({ pagination, filters }) => {
       );
     }
 
-    history.push(`${paths.roles}${createQueryParams({ page: 1, per_page: pagination.limit, ...filters })}`);
+    push({
+      pathname: paths.roles,
+      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+    });
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));

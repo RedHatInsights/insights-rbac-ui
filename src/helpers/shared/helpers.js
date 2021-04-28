@@ -1,6 +1,7 @@
 export const BAD_UUID = 'bad uuid';
 
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
+import { calculatePage } from './pagination';
 
 export const scrollToTop = () =>
   document.getElementById('root').scrollTo({
@@ -50,3 +51,12 @@ export const createQueryParams = (params) => {
   });
   return `?${searchParams.toString()}`;
 };
+
+export const getBackRoute = (pathname, pagination, filters) => ({
+  pathname,
+  search: createQueryParams({
+    page: calculatePage(pagination.limit, pagination.offset),
+    per_page: pagination.limit,
+    ...filters,
+  }),
+});

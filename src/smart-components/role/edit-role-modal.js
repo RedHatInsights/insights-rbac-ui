@@ -59,7 +59,7 @@ const uniqueNameValidator = asyncDebounce((value, idKey, id, validationPromise) 
   return validationPromise(value, idKey, id);
 });
 
-const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
+const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const isMounted = useIsMounted();
   const {
     params: { id },
@@ -90,7 +90,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   const handleSubmit = (data) =>
     dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
-      push(cancelRoute);
+      push(submitRoute);
     });
 
   useEffect(() => {
@@ -122,6 +122,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 EditRoleModal.propTypes = {
   routeMatch: PropTypes.string.isRequired,
   cancelRoute: PropTypes.string.isRequired,
+  submitRoute: PropTypes.string,
   afterSubmit: PropTypes.func.isRequired,
 };
 
