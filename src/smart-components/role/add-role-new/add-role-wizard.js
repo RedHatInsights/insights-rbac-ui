@@ -16,6 +16,8 @@ import ReviewStep from './review';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
+import { createQueryParams } from '../../../helpers/shared/helpers';
+import { routes as paths } from '../../../../package.json';
 import './add-role-wizard.scss';
 
 export const AddRoleWizardContext = createContext({
@@ -40,9 +42,9 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard = ({ pagination }) => {
+const AddRoleWizard = ({ pagination, filters }) => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const { push } = useHistory();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -61,6 +63,12 @@ const AddRoleWizard = ({ pagination }) => {
     container.current.hidden = cancelWarningVisible;
   }, [cancelWarningVisible]);
 
+  const onClose = () =>
+    push({
+      pathname: paths.roles,
+      search: createQueryParams({ page: 1, per_page: pagination.limit }),
+    });
+
   const onCancel = () => {
     if (!wizardContextValue.success) {
       dispatch(
@@ -73,7 +81,10 @@ const AddRoleWizard = ({ pagination }) => {
       );
     }
 
-    history.push('/roles');
+    push({
+      pathname: paths.roles,
+      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+    });
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -112,7 +123,7 @@ const AddRoleWizard = ({ pagination }) => {
     };
     return dispatch(createRole(roleData)).then(() => {
       setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-      dispatch(fetchRolesWithPolicies({ limit: pagination.limit }));
+      dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
     });
   };
 
@@ -123,11 +134,11 @@ const AddRoleWizard = ({ pagination }) => {
         <Wizard
           title="Create role"
           isOpen
-          onClose={() => history.push('/roles')}
+          onClose={onClose}
           steps={[
             {
               name: 'success',
-              component: <AddRoleSuccess />,
+              component: <AddRoleSuccess onClose={onClose} />,
               isFinishedStep: true,
             },
           ]}
@@ -160,6 +171,9 @@ const AddRoleWizard = ({ pagination }) => {
 AddRoleWizard.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
+  }).isRequired,
+  filters: PropTypes.shape({
+    name: PropTypes.string,
   }).isRequired,
 };
 

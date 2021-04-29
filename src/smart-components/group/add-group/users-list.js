@@ -79,7 +79,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   }));
 
   useEffect(() => {
-    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination, true);
+    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
     filters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
     fetchUsers({ ...mappedProps({ ...pagination, filters }), inModal });
   }, []);

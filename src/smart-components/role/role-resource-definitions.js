@@ -11,6 +11,7 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
 import { routes as paths } from '../../../package.json';
 import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
+import { getBackRoute } from '../../helpers/shared/helpers';
 import flatten from 'lodash/flatten';
 import './role-permissions.scss';
 
@@ -28,7 +29,7 @@ const ResourceDefinitions = () => {
 
   const { roleId, permissionId } = useParams();
 
-  const { role, permission, isRecordLoading } = useSelector(
+  const { role, permission, isRecordLoading, rolesPagination, rolesFilters } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
       permission: state.roleReducer.selectedRole.access
@@ -37,6 +38,8 @@ const ResourceDefinitions = () => {
           }
         : {},
       isRecordLoading: state.roleReducer.isRecordLoading,
+      rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
+      rolesFilters: state.roleReducer?.roles?.filters || {},
     }),
     shallowEqual
   );
@@ -92,7 +95,7 @@ const ResourceDefinitions = () => {
     <Fragment>
       <TopToolbar
         breadcrumbs={[
-          { title: 'Roles', to: '/roles' },
+          { title: 'Roles', to: getBackRoute(routes.roles, rolesPagination, rolesFilters) },
           { title: isRecordLoading ? undefined : role && (role.display_name || role.name), to: `/roles/detail/${roleId}` },
           { title: permissionId, isActive: true },
         ]}
