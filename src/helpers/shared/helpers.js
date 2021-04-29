@@ -49,7 +49,7 @@ export const createQueryParams = (params) => {
       value && searchParams.set(key, value);
     }
   });
-  return `?${searchParams.toString()}`;
+  return searchParams.toString();
 };
 
 export const getBackRoute = (pathname, pagination, filters) => ({
