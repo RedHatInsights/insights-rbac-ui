@@ -26,7 +26,7 @@ export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaul
     pathname: history.location.pathname,
     search: searchParams.toString(),
   });
-  return { limit, offset };
+  return { ...defaultPagination, limit, offset };
 };
 
 export const applyPaginationToUrl = (history, limit, offset = 0) => {

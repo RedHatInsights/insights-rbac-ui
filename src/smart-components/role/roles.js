@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect, lazy } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -16,7 +16,6 @@ import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../helpers/shared/pagination';
-import { Suspense } from 'react';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../helpers/shared/filters';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
@@ -31,8 +30,8 @@ const columns = [
 
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
-  meta: roles.meta,
   filters: roles.filters,
+  meta: roles.pagination,
   userIdentity: roles.identity,
   isLoading,
 });
@@ -44,12 +43,11 @@ const Roles = () => {
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   const history = useHistory();
 
-  let pagination = roles.pagination || meta;
-
+  const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.name || '');
 
   useEffect(() => {
-    pagination = syncDefaultPaginationWithUrl(history, pagination);
+    setPagination(syncDefaultPaginationWithUrl(history, pagination));
     const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
@@ -58,7 +56,8 @@ const Roles = () => {
 
   useEffect(() => {
     setFilterValue(filters.name);
-  }, [filters, pagination]);
+    setPagination(meta);
+  }, [filters, meta]);
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>

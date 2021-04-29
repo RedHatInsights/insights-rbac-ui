@@ -140,8 +140,7 @@ describe('<Roles />', () => {
         name: undefined,
       },
       inModal: false,
-      limit: 20,
-      offset: 0,
+      ...defaultSettings,
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(2, {
       limit: 20,
