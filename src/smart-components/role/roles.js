@@ -47,11 +47,12 @@ const Roles = () => {
   const [filterValue, setFilterValue] = useState(filters.name || '');
 
   useEffect(() => {
-    setPagination(syncDefaultPaginationWithUrl(history, pagination));
+    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    setPagination(syncedPagination);
     const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    fetchData({ ...pagination, filters: { name } });
+    fetchData({ ...syncedPagination, filters: { name } });
   }, []);
 
   useEffect(() => {
