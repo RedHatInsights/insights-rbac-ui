@@ -13,6 +13,8 @@ import SetName from './set-name';
 import SetRoles from './set-roles';
 import SetUsers from './set-users';
 import SummaryContent from './summary-content';
+import { createQueryParams } from '../../../helpers/shared/helpers';
+import { routes as paths } from '../../../../package.json';
 
 export const AddGroupWizardContext = createContext({
   success: false,
@@ -44,9 +46,9 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod, pagination }) => {
+const AddGroupWizard = ({ postMethod, pagination, filters }) => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const { push } = useHistory();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -66,7 +68,10 @@ const AddGroupWizard = ({ postMethod, pagination }) => {
         description: 'Adding group was canceled by the user.',
       })
     );
-    history.push('/groups');
+    push({
+      pathname: paths.groups,
+      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+    });
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -80,9 +85,12 @@ const AddGroupWizard = ({ postMethod, pagination }) => {
       user_list: formData['users-list'].map((user) => ({ username: user.label })),
       roles_list: formData['roles-list'].map((role) => role.uuid),
     };
-    history.push('/groups');
+    push({
+      pathname: paths.groups,
+      search: createQueryParams({ page: 1, per_page: pagination.limit }),
+    });
     dispatch(addGroup(groupData))
-      .then(() => postMethod({ limit: pagination.limit }))
+      .then(() => postMethod({ limit: pagination.limit, offset: 0, filters: {} }))
       .then(() => {
         dispatch(
           addNotification({
@@ -122,6 +130,9 @@ AddGroupWizard.propTypes = {
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
+  }).isRequired,
+  filters: PropTypes.shape({
+    name: PropTypes.string,
   }).isRequired,
 };
 
