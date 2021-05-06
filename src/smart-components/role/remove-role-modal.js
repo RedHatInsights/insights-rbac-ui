@@ -89,8 +89,22 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
 
 RemoveRoleModal.propTypes = {
   routeMatch: PropTypes.string.isRequired,
-  cancelRoute: PropTypes.string.isRequired,
-  submitRoute: PropTypes.string,
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]).isRequired,
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
   afterSubmit: PropTypes.func.isRequired,
 };
 

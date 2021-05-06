@@ -23,13 +23,15 @@ const Role = ({ onDelete }) => {
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { uuid, groupUuid } = useParams();
-  const { role, group, isRecordLoading, rolesPagination, rolesFilters } = useSelector(
+  const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
       isRecordLoading: state.roleReducer.isRecordLoading,
       ...(groupUuid && { group: state.groupReducer.selectedGroup }),
       rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
       rolesFilters: state.roleReducer?.roles?.filters || {},
+      groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
+      groupsFilters: state.groupReducer?.groups?.filters || {},
     }),
     shallowEqual
   );
@@ -62,7 +64,10 @@ const Role = ({ onDelete }) => {
 
   const breadcrumbsList = () => [
     groupUuid
-      ? { title: 'Groups', to: '/groups' }
+      ? {
+          title: 'Groups',
+          to: getBackRoute(routes.groups, groupsPagination, groupsFilters),
+        }
       : {
           title: 'Roles',
           to: getBackRoute(routes.roles, rolesPagination, rolesFilters),

@@ -12,6 +12,7 @@ import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<Groups />', () => {
   let enhanceState;
@@ -41,6 +42,8 @@ describe('<Groups />', () => {
         limit: 10,
         offset: 0,
       },
+      filters: {},
+      pagination: { ...defaultSettings, count: 0 },
     };
     mockStore = configureStore(middlewares);
     initialState = { groupReducer: { ...groupsInitialState, groups: enhanceState, systemGroup: enhanceState.data[0] } };
@@ -111,7 +114,14 @@ describe('<Groups />', () => {
     await act(async () => {
       wrapper.find('.pf-c-pagination__nav .pf-c-button').at(1).simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 153, limit: 10, name: '', offset: 10, orderBy: '' });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
+      ...defaultSettings,
+      count: 0,
+      filters: {
+        name: undefined,
+      },
+      inModal: false,
+    });
   });
 
   it('should fetch groups on filter and cancel filter', async () => {
@@ -142,11 +152,18 @@ describe('<Groups />', () => {
     expect(store.getActions()).toEqual(expectedFilterPayload);
     store.clearActions();
     wrapper.update();
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 153, limit: 10, name: 'filterValue', offset: 0, orderBy: undefined });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
+      count: 0,
+      limit: 20,
+      filters: { name: filterValue },
+      offset: 0,
+      inModal: false,
+      orderBy: undefined,
+    });
     await act(async () => {
       wrapper.find('#ins-primary-data-toolbar .pf-c-button.pf-m-link').simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 153, limit: 10, name: '', offset: 0, orderBy: undefined });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 0, limit: 20, filters: { name: '' }, offset: 0, inModal: false, orderBy: undefined });
     expect(fetchGroupsSpy).toHaveBeenCalledTimes(3);
   });
 
@@ -170,6 +187,6 @@ describe('<Groups />', () => {
     await act(async () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 153, limit: 10, name: '', offset: 0, orderBy: 'name' });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 0, limit: 20, offset: 0, inModal: false, filters: { name: [] }, orderBy: 'name' });
   });
 });

@@ -12,11 +12,22 @@ import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
+import { routes } from '../../../package.json';
 
-const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, closeUrl, group, onClose }) => {
+const EditGroupModal = ({
+  addNotification,
+  updateGroup,
+  postMethod,
+  pagination,
+  filters,
+  cancelRoute,
+  submitRoute = cancelRoute,
+  group,
+  onClose,
+}) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const history = useHistory();
+  const { push } = useHistory();
   const match = useRouteMatch('/groups/edit/:id');
 
   const setGroupData = (groupData) => {
@@ -42,9 +53,9 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
     const user_data = { ...data };
     postMethod
       ? updateGroup(user_data)
-          .then(() => postMethod({ limit: pagination.limit }))
-          .then(history.push(closeUrl))
-      : updateGroup(user_data).then(() => history.push(closeUrl));
+          .then(() => postMethod({ limit: pagination?.limit, filters }))
+          .then(push(submitRoute))
+      : updateGroup(user_data).then(() => push(submitRoute));
   };
 
   const onCancel = () => {
@@ -56,7 +67,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
       description: selectedGroup ? 'Edit group was canceled by the user.' : 'Adding group was canceled by the user.',
     });
     onClose();
-    history.push(closeUrl);
+    push(cancelRoute);
   };
 
   const schema = {
@@ -110,7 +121,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
 };
 
 EditGroupModal.defaultProps = {
-  closeUrl: '/groups',
+  cancelRoute: routes.groups,
   onClose: () => null,
   onSubmit: () => null,
 };
@@ -124,7 +135,25 @@ EditGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  closeUrl: PropTypes.string,
+  filters: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
   group: PropTypes.object,
   onClose: PropTypes.func,
 };
