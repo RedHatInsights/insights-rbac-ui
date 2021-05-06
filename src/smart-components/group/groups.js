@@ -60,7 +60,7 @@ const Groups = () => {
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ ...syncedPagination, filters: { name } });
-    dispatch(fetchSystemGroup(filterValue));
+    dispatch(fetchSystemGroup(name));
   }, []);
 
   const setCheckedItems = (newSelection) => {
