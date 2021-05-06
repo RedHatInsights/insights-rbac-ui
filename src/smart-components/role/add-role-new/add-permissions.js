@@ -190,7 +190,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
-    setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
+    setSelectedPermissions(
+      newSelection(selectedPermissions)
+        .map(({ uuid }) => ({ uuid }))
+        .filter(({ uuid }) => getResourceType(uuid)?.count > 0)
+    );
   };
 
   const calculateSelected = (filter) =>
