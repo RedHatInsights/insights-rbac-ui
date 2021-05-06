@@ -12,6 +12,7 @@ import EditGroupModal from '../../../smart-components/group/edit-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUP } from '../../../redux/action-types';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<EditGroupModal />', () => {
   let initialProps;
@@ -29,11 +30,13 @@ describe('<EditGroupModal />', () => {
 
   beforeEach(() => {
     initialProps = {
-      closeUrl: '/groups',
+      cancelRoute: '/groups',
       group: {
         name: 'Foo',
         id: '1',
       },
+      pagination: defaultSettings,
+      filters: {},
     };
     mockStore = configureStore(middlewares);
     initialState = {

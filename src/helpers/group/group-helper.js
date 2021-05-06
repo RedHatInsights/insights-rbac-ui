@@ -28,7 +28,7 @@ export async function fetchGroups({
       : {
           filters,
           pagination: {
-            ...groups.meta,
+            ...groups?.meta,
             offset,
             limit,
           },
