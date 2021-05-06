@@ -9,6 +9,7 @@ import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import AddGroupWizard, { onCancel } from '../../../../smart-components/group/add-group/add-group-wizard';
+import { defaultSettings } from '../../../../helpers/shared/pagination';
 
 describe('<AddGroupWizard />', () => {
   let initialProps;
@@ -27,6 +28,8 @@ describe('<AddGroupWizard />', () => {
   beforeEach(() => {
     initialProps = {
       uuid: '123',
+      pagination: defaultSettings,
+      filters: {},
     };
 
     initialState = {

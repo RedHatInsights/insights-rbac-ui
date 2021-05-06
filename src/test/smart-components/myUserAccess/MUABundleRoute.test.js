@@ -4,7 +4,7 @@ import { mount } from 'enzyme';
 import { MemoryRouter } from 'react-router-dom';
 import MuaBundleRoute from '../../../smart-components/myUserAccess/MUABundleRoute';
 
-jest.mock('../../../smart-components/myUserAccess/bundles/insights');
+jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
 
 const ComponentWrapper = ({ children, initialEntries }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
 describe('<MUABundleRoute />', () => {
@@ -21,18 +21,18 @@ describe('<MUABundleRoute />', () => {
     expect(wrapper.find('Placeholder')).toHaveLength(1);
   });
 
-  it('should render insights bundle mock', async () => {
+  it('should render rhel bundle mock', async () => {
     let wrapper;
 
     await act(async () => {
       wrapper = mount(
-        <ComponentWrapper initialEntries={['/foo?bundle=insights']}>
+        <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MuaBundleRoute />
         </ComponentWrapper>
       );
     });
     wrapper.update();
 
-    expect(wrapper.find('div#insights-mock')).toHaveLength(1);
+    expect(wrapper.find('div#rhel-mock')).toHaveLength(1);
   });
 });

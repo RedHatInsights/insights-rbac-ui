@@ -12,6 +12,7 @@ import { rolesInitialState } from '../../redux/reducers/role-reducer';
 
 import * as RoleActions from '../../redux/actions/role-actions';
 import { FETCH_ROLES } from '../../redux/action-types';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 describe('<Roles />', () => {
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
@@ -39,6 +40,9 @@ describe('<Roles />', () => {
               modified: new Date(0),
             },
           ],
+          filters: {},
+          pagination: defaultSettings,
+          meta: defaultSettings,
         },
         isLoading: false,
       },
@@ -131,7 +135,20 @@ describe('<Roles />', () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenCalledTimes(2);
-    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(1, { name: '' });
-    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(2, { limit: 20, orderBy: '-display_name' });
+    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(1, {
+      filters: {
+        name: undefined,
+      },
+      inModal: false,
+      ...defaultSettings,
+    });
+    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(2, {
+      limit: 20,
+      orderBy: '-display_name',
+      filters: {
+        name: [],
+      },
+      inModal: false,
+    });
   });
 });

@@ -16,14 +16,22 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
   const { bundle: bundleParam } = useSearchParams('bundle');
   return (
     <React.Fragment>
-      <Title headingLevel="h3" size="xl">
-        {header}
-      </Title>
-      <Stack hasGutter>
+      {header && (
+        <Title headingLevel="h3" size="xl">
+          {header}
+        </Title>
+      )}
+      <Stack
+        className={classNames({
+          'pf-u-mt-lg': !header,
+        })}
+        hasGutter
+      >
         {entitlements &&
-          entitlements?.map(([key]) => {
-            const data = bundleData.find(({ entitlement }) => entitlement === key);
-            return data ? (
+          bundleData?.map((data) => {
+            const isEntitled = entitlements.find(([key]) => data.entitlement === key);
+            const key = data.entitlement;
+            return isEntitled ? (
               <StackItem key={key} className="ins-c-mua-cardWrapper">
                 <NavLink
                   className={classNames('ins-c-mua-bundles__cardlink', { 'ins-c-mua-bundles__cardlink--disabled': isDisabled })}

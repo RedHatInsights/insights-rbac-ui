@@ -7,6 +7,7 @@ export const UPDATE_GROUP = 'UPDATE_GROUP';
 export const REMOVE_GROUPS = 'REMOVE_GROUPS';
 
 export const FETCH_USERS = 'FETCH_USERS';
+export const UPDATE_USERS_FILTERS = 'UPDATE_USERS_FILTERS';
 
 export const ADD_ROLE = 'ADD_ROLE';
 export const FETCH_ROLE = 'FETCH_ROLE';

@@ -15,18 +15,23 @@ import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
-import { BAD_UUID } from '../../helpers/shared/helpers';
+import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import { defaultSettings } from '../../helpers/shared/pagination';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { uuid, groupUuid } = useParams();
-  const { role, group, isRecordLoading } = useSelector(
+  const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
       isRecordLoading: state.roleReducer.isRecordLoading,
       ...(groupUuid && { group: state.groupReducer.selectedGroup }),
+      rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
+      rolesFilters: state.roleReducer?.roles?.filters || {},
+      groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
+      groupsFilters: state.groupReducer?.groups?.filters || {},
     }),
     shallowEqual
   );
@@ -58,7 +63,15 @@ const Role = ({ onDelete }) => {
   }, [uuid, groupUuid]);
 
   const breadcrumbsList = () => [
-    groupUuid ? { title: 'Groups', to: '/groups' } : { title: 'Roles', to: '/roles' },
+    groupUuid
+      ? {
+          title: 'Groups',
+          to: getBackRoute(routes.groups, groupsPagination, groupsFilters),
+        }
+      : {
+          title: 'Roles',
+          to: getBackRoute(routes.roles, rolesPagination, rolesFilters),
+        },
 
     ...(groupUuid && groupExists
       ? group
@@ -131,8 +144,11 @@ const Role = ({ onDelete }) => {
           <Route path={routes['role-detail-remove']}>
             {!isRecordLoading && (
               <RemoveRoleModal
-                afterSubmit={() => dispatch(fetchRolesWithPolicies())}
+                afterSubmit={() => {
+                  dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, inModal: false }));
+                }}
                 cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
+                submitRoute={getBackRoute(routes.roles, { ...rolesPagination, offset: 0 }, rolesFilters)}
                 routeMatch={routes['role-detail-remove']}
               />
             )}
