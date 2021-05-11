@@ -9,6 +9,7 @@ import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
 import { DisabledRowWrapper } from './DisabledRowWrapper';
+import { isEqual } from 'lodash';
 
 const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
@@ -190,11 +191,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
-    setSelectedPermissions(
-      newSelection(selectedPermissions)
-        .map(({ uuid }) => ({ uuid }))
-        .filter(({ uuid }) => getResourceType(uuid)?.count > 0)
-    );
+    const newSelected = newSelection(selectedPermissions)
+      .filter(({ uuid, application }) => application !== 'cost-management' || getResourceType(uuid)?.count > 0)
+      .map(({ uuid }) => ({ uuid }));
+
+    setSelectedPermissions(isEqual(newSelected, selectedPermissions) ? [] : newSelected);
   };
 
   const calculateSelected = (filter) =>
