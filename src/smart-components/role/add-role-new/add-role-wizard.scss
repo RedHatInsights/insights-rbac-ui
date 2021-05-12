@@ -119,6 +119,8 @@
 
 .ins-c-rbac-cost-resource-select {
     .pf-c-select__menu {
+        max-height: 300px;
+        overflow: auto;
         .pf-c-select__menu-item:nth-child(3) {
             .pf-c-check__input {
                 display: none;
