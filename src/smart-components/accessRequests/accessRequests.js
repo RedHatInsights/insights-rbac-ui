@@ -40,7 +40,6 @@ const AccessRequests = () => {
             scope="accessRequests"
             fallback={fallback}
             isInternal={false}
-            baseUrl={routes['access-requests']}
             getRegistry={getRegistry}
           />
         )}
