@@ -50,7 +50,7 @@ const EditGroupModal = ({
   }, [group]);
 
   const onSubmit = (data) => {
-    const user_data = { ...data };
+    const user_data = { description: null, ...data };
     postMethod
       ? updateGroup(user_data)
           .then(() => postMethod({ limit: pagination?.limit, filters }))
@@ -78,7 +78,7 @@ const EditGroupModal = ({
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
         ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
-          { type: 'validate-group-name', id: match ? match.params.id : group.id, idKey: 'uuid' },
+          { type: 'validate-group-name', id: match ? match.params.id : group.uuid, idKey: 'uuid' },
           {
             type: validatorTypes.REQUIRED,
           },
