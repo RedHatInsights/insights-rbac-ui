@@ -77,6 +77,7 @@ describe('<RemoveGroupModal />', () => {
   it('should call cancel action', () => {
     const store = mockStore(initialState);
     fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');

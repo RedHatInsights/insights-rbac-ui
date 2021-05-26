@@ -91,6 +91,7 @@ const Group = ({
     <DropdownItem
       component={
         <Link
+          onClick={() => setDropdownOpen(false)}
           to={(location.pathname.includes('members') ? routes['group-detail-members-edit'] : routes['group-detail-roles-edit']).replace(
             ':uuid',
             uuid
