@@ -100,7 +100,14 @@ const Role = ({ onDelete }) => {
   const title = !isRecordLoading && role ? role.display_name || role.name : undefined;
   const description = !isRecordLoading && role ? role.description : undefined;
   const dropdownItems = [
-    <DropdownItem component={<Link to={routes['role-detail-edit'].replace(':id', uuid)}>Edit</Link>} key="edit-role" />,
+    <DropdownItem
+      component={
+        <Link onClick={() => setDropdownOpen(false)} to={routes['role-detail-edit'].replace(':id', uuid)}>
+          Edit
+        </Link>
+      }
+      key="edit-role"
+    />,
     <DropdownItem
       component={
         <Link onClick={onDelete} to={routes['role-detail-remove'].replace(':id', uuid)}>
