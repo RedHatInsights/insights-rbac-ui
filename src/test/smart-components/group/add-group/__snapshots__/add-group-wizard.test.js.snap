@@ -43,6 +43,14 @@ exports[`<AddGroupWizard /> should render correctly 1`] = `
     initialIndex={1}
   >
     <AddGroupWizard
+      filters={Object {}}
+      pagination={
+        Object {
+          "itemCount": 0,
+          "limit": 20,
+          "offset": 0,
+        }
+      }
       uuid="123"
     />
   </MemoryRouter>

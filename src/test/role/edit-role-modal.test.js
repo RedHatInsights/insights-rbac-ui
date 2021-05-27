@@ -13,6 +13,22 @@ import * as RoleActions from '../../redux/actions/role-actions';
 import EditRoleModal from '../../smart-components/role/edit-role-modal';
 import { FormGroup } from '@patternfly/react-core';
 
+jest.mock('../../helpers/role/role-helper', () => {
+  const actual = jest.requireActual('../../helpers/role/role-helper');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
+jest.mock('../../redux/actions/role-actions', () => {
+  const actual = jest.requireActual('../../redux/actions/role-actions');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
 describe('<EditRoleModal />', () => {
   const ROLE_ID = 'foo';
   const initialProps = {

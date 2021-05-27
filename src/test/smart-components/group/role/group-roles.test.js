@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -10,6 +11,17 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
 import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 
+import * as GroupActions from '../../../../redux/actions/group-actions';
+import { FETCH_ROLES_FOR_GROUP } from '../../../../redux/action-types';
+
+jest.mock('../../../../redux/actions/group-actions', () => {
+  const actual = jest.requireActual('../../../../redux/actions/group-actions');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
 describe('<GroupPrincipals />', () => {
   let initialProps;
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -17,7 +29,15 @@ describe('<GroupPrincipals />', () => {
   let emptyState;
   let initialState;
 
+  const fetchRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchRolesForGroup');
+  const fetchMembersForGroupSpy = jest.spyOn(GroupActions, 'fetchMembersForGroup');
+  const fetchAddRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchAddRolesForGroup');
+
   beforeEach(() => {
+    fetchMembersForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchRolesForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
+
     initialProps = {};
     mockStore = configureStore(middlewares);
     (emptyState = {
@@ -73,42 +93,55 @@ describe('<GroupPrincipals />', () => {
       });
   });
 
-  it('should render empty correctly', () => {
+  afterEach(() => {
+    fetchRolesForGroupSpy.mockReset();
+    fetchMembersForGroupSpy.mockReset();
+    fetchAddRolesForGroupSpy.mockReset();
+  });
+
+  it('should render empty correctly', async () => {
     const store = mockStore(emptyState);
-    const wrapper = mount(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
-          <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
-        </MemoryRouter>
-      </Provider>
-    );
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
+            <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
     expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
     expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
   });
 
-  it('should render correctly', () => {
+  it('should fetch group roles on mount', async () => {
     const store = mockStore(initialState);
-    const wrapper = mount(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
-          <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
-        </MemoryRouter>
-      </Provider>
-    );
-    expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(1);
-    expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
-  });
-
-  it('should fetch group roles on mount', () => {
-    const store = mockStore(initialState);
-    mount(
-      <Provider store={store}>
-        <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
-          <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
-        </MemoryRouter>
-      </Provider>
-    );
-    const expectedPayload = [{ type: 'FETCH_ROLES_FOR_GROUP_PENDING' }, { type: 'FETCH_ADD_ROLES_FOR_GROUP_PENDING' }];
+    await act(async () => {
+      mount(
+        <Provider store={store}>
+          <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
+            <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    const expectedPayload = [
+      {
+        type: 'FETCH_ROLES_FOR_GROUP_PENDING',
+      },
+      {
+        type: 'FETCH_ROLES_FOR_GROUP_PENDING',
+      },
+      {
+        payload: {},
+        type: 'FETCH_ROLES_FOR_GROUP_FULFILLED',
+      },
+      {
+        payload: {},
+        type: 'FETCH_ROLES_FOR_GROUP_FULFILLED',
+      },
+    ];
     expect(store.getActions()).toEqual(expectedPayload);
   });
 });

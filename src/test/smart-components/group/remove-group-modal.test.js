@@ -100,7 +100,9 @@ describe('<RemoveGroupModal />', () => {
 
     const input = wrapper.find({ type: 'checkbox' }).first();
     input.getDOMNode().checked = !input.getDOMNode().checked;
-    input.simulate('change');
+    await act(async () => {
+      input.simulate('change');
+    });
     wrapper.update();
     await act(async () => {
       wrapper.find(Button).at(1).simulate('click');
