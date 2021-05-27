@@ -4,8 +4,8 @@ import { Radio, Alert } from '@patternfly/react-core';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { sortable } from '@patternfly/react-table';
 
 const columns = ['', { title: 'Name', key: 'display_name', transforms: [sortable] }, 'Description'];
