@@ -6,9 +6,10 @@ const config = require('@redhat-cloud-services/frontend-components-config');
 const { config: webpackConfig, plugins } = config({
   rootFolder: resolve(__dirname, '../'),
   debug: true,
-  https: false,
   sassPrefix: '.rbac, .my-user-access',
-  ...(process.env.BETA && { deployment: 'beta/apps' }),
+  deployment: process.env.BETA ? 'beta/apps' : 'apps',
+  useProxy: true,
+  appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 });
 
 plugins.push(
