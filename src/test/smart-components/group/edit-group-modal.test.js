@@ -14,6 +14,14 @@ import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 
+jest.mock('../../../redux/actions/group-actions', () => {
+  const actual = jest.requireActual('../../../redux/actions/group-actions');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
 describe('<EditGroupModal />', () => {
   let initialProps;
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];

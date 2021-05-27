@@ -1,8 +1,8 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';

@@ -2,7 +2,7 @@ import { Button } from '@patternfly/react-core';
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const selectNext = (nextStep, getState) =>
   ({

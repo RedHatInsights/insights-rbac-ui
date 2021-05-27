@@ -9,7 +9,7 @@ import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import RemoveRole from './remove-role-modal';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';

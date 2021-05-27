@@ -8,7 +8,7 @@ import { createRows } from './principal-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { routes as paths } from '../../../../package.json';

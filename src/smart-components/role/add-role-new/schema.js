@@ -1,5 +1,5 @@
 import React from 'react';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewTemplate from './review-template';
 import CostResourcesTemplate from './cost-resources-template';

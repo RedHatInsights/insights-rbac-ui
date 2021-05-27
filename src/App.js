@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { Routes } from './routes';
-import { Main } from '@redhat-cloud-services/frontend-components';
+import Main from '@redhat-cloud-services/frontend-components/Main';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';

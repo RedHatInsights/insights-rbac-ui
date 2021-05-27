@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -68,7 +68,10 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
   const dispatch = useDispatch();
 
   const validatorMapper = {
-    'validate-role-name': ({ idKey, id, validationPromise }) => (value) => uniqueNameValidator(value, idKey, id, validationPromise),
+    'validate-role-name':
+      ({ idKey, id, validationPromise }) =>
+      (value) =>
+        uniqueNameValidator(value, idKey, id, validationPromise),
   };
 
   const role = useSelector((state) => roleSelector(state, id));

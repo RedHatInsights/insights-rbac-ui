@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
@@ -60,17 +61,18 @@ describe('<AddGroupWizard />', () => {
     mockStore = configureStore(middlewares);
   });
 
-  it('should render correctly', () => {
+  it('should render correctly', async () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(
-      <GroupWrapper store={store}>
-        <AddGroupWizard {...initialProps} />
-      </GroupWrapper>
-    ).dive();
-
-    setImmediate(() => {
-      expect(shallowToJson(wrapper)).toMatchSnapshot();
+    let wrapper;
+    await act(async () => {
+      wrapper = shallow(
+        <GroupWrapper store={store}>
+          <AddGroupWizard {...initialProps} />
+        </GroupWrapper>
+      ).dive();
     });
+
+    expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('onCancel call right callback with empty data', () => {

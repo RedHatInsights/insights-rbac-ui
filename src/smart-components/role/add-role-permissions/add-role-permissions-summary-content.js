@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const AddRolePermissionSummaryContent = () => {
   const formOptions = useFormApi();
