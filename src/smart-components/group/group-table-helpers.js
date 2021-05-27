@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { DateFormat } from '@redhat-cloud-services/frontend-components';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Popover } from '@patternfly/react-core';
 import classNames from 'classnames';

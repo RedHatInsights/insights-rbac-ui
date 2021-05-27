@@ -22,47 +22,49 @@ const columns = [
   { title: 'Status', transforms: [nowrap] },
 ];
 
-const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
-  return data
-    ? data.reduce(
-        (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
-          ...acc,
-          {
-            uuid: username,
-            cells: [
-              isOrgAdmin ? (
-                <Fragment>
-                  <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                  <span key="yes">Yes</span>
-                </Fragment>
-              ) : (
-                <Fragment>
-                  <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                  <span key="no">No</span>
-                </Fragment>
-              ),
-              { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
-              email,
-              firstName,
-              lastName,
-              {
-                title: (
-                  <Label key="status" color={isActive && 'green'}>
-                    {isActive ? 'Active' : 'Inactive'}
-                  </Label>
+const createRows =
+  (userLinks) =>
+  (data, _expanded, checkedRows = []) => {
+    return data
+      ? data.reduce(
+          (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+            ...acc,
+            {
+              uuid: username,
+              cells: [
+                isOrgAdmin ? (
+                  <Fragment>
+                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                    <span key="yes">Yes</span>
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+                    <span key="no">No</span>
+                  </Fragment>
                 ),
-                props: {
-                  'data-is-active': isActive,
+                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
+                email,
+                firstName,
+                lastName,
+                {
+                  title: (
+                    <Label key="status" color={isActive && 'green'}>
+                      {isActive ? 'Active' : 'Inactive'}
+                    </Label>
+                  ),
+                  props: {
+                    'data-is-active': isActive,
+                  },
                 },
-              },
-            ],
-            selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
-          },
-        ],
-        []
-      )
-    : [];
-};
+              ],
+              selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
+            },
+          ],
+          []
+        )
+      : [];
+  };
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
@@ -72,11 +74,17 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const history = useHistory();
 
-  let filters = useSelector(({ userReducer: { users: { filters } } }) => ({
-    username: (!inModal && filters?.username) || '',
-    email: (!inModal && filters?.email) || '',
-    status: (!inModal && filters?.status) || ['Active'],
-  }));
+  let filters = useSelector(
+    ({
+      userReducer: {
+        users: { filters },
+      },
+    }) => ({
+      username: (!inModal && filters?.username) || '',
+      email: (!inModal && filters?.email) || '',
+      status: (!inModal && filters?.status) || ['Active'],
+    })
+  );
 
   useEffect(() => {
     const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);

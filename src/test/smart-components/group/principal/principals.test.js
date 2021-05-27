@@ -5,7 +5,7 @@ import configureStore from 'redux-mock-store';
 import toJson from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupPrincipals from '../../../../smart-components/group/principal/principals';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import * as GroupActions from '../../../../redux/actions/group-actions';
 import { FETCH_MEMBERS_FOR_GROUP } from '../../../../redux/action-types';
 

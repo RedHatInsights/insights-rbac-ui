@@ -69,7 +69,7 @@ const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, r
 });
 
 const validatorMapper = {
-  'validate-resources': () => (value) => (value && value.length > 0 ? undefined : 'At least one resource must be defined for this permission'),
+  'validate-resources': () => (value) => value && value.length > 0 ? undefined : 'At least one resource must be defined for this permission',
 };
 
 const EditResourceDefinitionsModal = ({ cancelRoute }) => {

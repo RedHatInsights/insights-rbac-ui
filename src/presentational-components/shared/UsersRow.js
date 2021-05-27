@@ -13,6 +13,7 @@ UsersRow.propTypes = {
   row: PropTypes.shape({
     status: PropTypes.shape({
       props: PropTypes.shape({
+        'data-is-active': PropTypes.bool,
         data: PropTypes.shape({
           isActive: PropTypes.bool,
         }),

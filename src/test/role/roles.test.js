@@ -7,7 +7,7 @@ import { Provider } from 'react-redux';
 import toJson from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import Roles from '../../smart-components/role/roles';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { rolesInitialState } from '../../redux/reducers/role-reducer';
 
 import * as RoleActions from '../../redux/actions/role-actions';

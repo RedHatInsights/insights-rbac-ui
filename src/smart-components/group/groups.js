@@ -11,7 +11,7 @@ import { createRows } from './group-table-helpers';
 import { fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
 import { routes as paths } from '../../../package.json';

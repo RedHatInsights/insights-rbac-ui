@@ -1,5 +1,6 @@
 import React from 'react';
-import { PrimaryToolbar, ConditionalFilter } from '@redhat-cloud-services/frontend-components';
+import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
+import ConditionalFilter from '@redhat-cloud-services/frontend-components/ConditionalFilter';
 import PropTypes from 'prop-types';
 import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';

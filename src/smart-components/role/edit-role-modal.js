@@ -68,7 +68,10 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
   const dispatch = useDispatch();
 
   const validatorMapper = {
-    'validate-role-name': ({ idKey, id, validationPromise }) => (value) => uniqueNameValidator(value, idKey, id, validationPromise),
+    'validate-role-name':
+      ({ idKey, id, validationPromise }) =>
+      (value) =>
+        uniqueNameValidator(value, idKey, id, validationPromise),
   };
 
   const role = useSelector((state) => roleSelector(state, id));

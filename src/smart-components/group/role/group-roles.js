@@ -4,7 +4,8 @@ import PropTypes from 'prop-types';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Button, Tooltip } from '@patternfly/react-core';
-import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -178,12 +179,13 @@ const GroupRoles = ({
             },
             onClick: () => {
               const multipleRolesSelected = selectedRoles.length > 1;
-              setConfirmDelete(() => () =>
-                removeRoles(
-                  uuid,
-                  selectedRoles.map((role) => role.uuid),
-                  () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
-                )
+              setConfirmDelete(
+                () => () =>
+                  removeRoles(
+                    uuid,
+                    selectedRoles.map((role) => role.uuid),
+                    () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
+                  )
               );
               setDeleteInfo({
                 title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',

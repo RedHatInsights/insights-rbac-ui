@@ -99,7 +99,10 @@ const EditGroupModal = ({
   };
 
   const validatorMapper = {
-    'validate-group-name': ({ idKey, id }) => (value) => debouncedAsyncValidator(value, idKey, id),
+    'validate-group-name':
+      ({ idKey, id }) =>
+      (value) =>
+        debouncedAsyncValidator(value, idKey, id),
   };
 
   return (

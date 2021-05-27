@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 

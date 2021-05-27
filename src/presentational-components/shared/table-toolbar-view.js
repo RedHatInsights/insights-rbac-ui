@@ -1,7 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import propTypes from 'prop-types';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
-import { TableToolbar } from '@redhat-cloud-services/frontend-components';
+import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';

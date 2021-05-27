@@ -3,7 +3,8 @@ import React from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 
 import { LockIcon } from '@patternfly/react-icons';
-import { PageHeader, PageHeaderTitle, Main } from '@redhat-cloud-services/frontend-components';
+import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import Main from '@redhat-cloud-services/frontend-components/Main';
 
 import './DeniedState.scss';
 

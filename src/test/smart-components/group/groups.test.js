@@ -7,7 +7,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import * as GroupActions from '../../../redux/actions/group-actions';

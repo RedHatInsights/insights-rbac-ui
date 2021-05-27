@@ -6,7 +6,7 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import { mountToJson } from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupRoles from '../../../../smart-components/group/role/group-roles';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
 import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 
