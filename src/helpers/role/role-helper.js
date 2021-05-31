@@ -19,7 +19,21 @@ export function fetchRoles({
   permission,
   options,
 }) {
-  return roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options);
+  return roleApi.listRoles(
+    limit,
+    offset,
+    name,
+    undefined,
+    undefined,
+    nameMatch,
+    scope,
+    orderBy,
+    addFields,
+    username,
+    application,
+    permission,
+    options
+  );
 }
 
 export async function fetchRolesWithPolicies({
@@ -38,7 +52,7 @@ export async function fetchRolesWithPolicies({
 }) {
   return {
     ...(await roleApi
-      .listRoles(limit, offset, undefined, filters.name, nameMatch, scope, orderBy, addFields, username, application, permission, options)
+      .listRoles(limit, offset, filters.name, undefined, undefined, nameMatch, scope, orderBy, addFields, username, application, permission, options)
       .then(({ data, meta }) => {
         return {
           data,
