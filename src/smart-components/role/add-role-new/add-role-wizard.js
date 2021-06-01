@@ -53,7 +53,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
   });
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const container = useRef(document.createElement('div'));
-  const [schema, setSchema] = useState({});
+  const [schema, setSchema] = useState();
 
   useEffect(() => {
     setSchema(schemaBuilder(container.current));
@@ -127,6 +127,9 @@ const AddRoleWizard = ({ pagination, filters }) => {
     });
   };
 
+  if (!schema) {
+    return null;
+  }
   return (
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
