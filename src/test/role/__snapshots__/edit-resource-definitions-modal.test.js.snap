@@ -671,6 +671,7 @@ Array [
                           showFormControls={false}
                         >
                           <FormTemplate
+                            BeforeError={[Function]}
                             Button={[Function]}
                             ButtonGroup={[Function]}
                             Description={[Function]}
