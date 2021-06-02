@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment } from 'react';
+import React, { useEffect, Fragment, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
@@ -74,22 +74,29 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const history = useHistory();
 
-  let filters = useSelector(
+  let stateFilters = useSelector(
     ({
       userReducer: {
         users: { filters },
       },
-    }) => ({
-      username: (!inModal && filters?.username) || '',
-      email: (!inModal && filters?.email) || '',
-      status: (!inModal && filters?.status) || ['Active'],
-    })
+    }) => filters
+  );
+
+  const [filters, setFilters] = useState(
+    inModal
+      ? {
+          username: '',
+          email: '',
+          status: ['Active'],
+        }
+      : stateFilters
   );
 
   useEffect(() => {
     const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
-    filters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
-    fetchUsers({ ...mappedProps({ ...pagination, filters }), inModal });
+    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    setFilters(newFilters);
+    fetchUsers({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
   }, []);
 
   const setCheckedItems = (newSelection) => {
@@ -100,7 +107,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const updateFilters = (payload) => {
     inModal || updateUsersFilters(payload);
-    filters = payload;
+    setFilters({ username: '', ...payload });
   };
 
   return (
@@ -120,9 +127,11 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {
-        typeof username !== 'undefined' && updateFilters({ ...filters, username });
-        typeof email !== 'undefined' && updateFilters({ ...filters, email });
-        typeof status === 'undefined' || status === filters.status || updateFilters({ ...filters, status });
+        updateFilters({
+          username: typeof username === 'undefined' ? filters.username : username,
+          email: typeof email === 'undefined' ? filters.email : email,
+          status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
+        });
       }}
       isLoading={isLoading}
       pagination={pagination}

@@ -33,7 +33,7 @@ const SetUsers = (props) => {
           <StackItem>
             <FormGroup fieldId="select-user">
               <Card>
-                <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+                <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal={true} />
               </Card>
             </FormGroup>
           </StackItem>
