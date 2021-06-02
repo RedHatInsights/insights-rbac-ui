@@ -32,7 +32,7 @@ describe('<Users />', () => {
         limit: 10,
         offset: undefined,
       },
-      filters: {},
+      filters: { status: ['Active'] },
       pagination: defaultSettings,
     };
     mockStore = configureStore(middlewares);
@@ -119,8 +119,8 @@ describe('<Users />', () => {
       orderBy: '-username',
       filters: {
         status: ['Active'],
-        email: '',
-        username: '',
+        email: undefined,
+        username: undefined,
       },
       inModal: false,
     });
@@ -160,7 +160,7 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      filters: { status: ['Active'], username: 'something', email: '' },
+      filters: { status: ['Active'], username: 'something', email: undefined },
       inModal: false,
     });
   });
