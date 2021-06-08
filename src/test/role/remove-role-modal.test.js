@@ -12,6 +12,22 @@ import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 import * as RoleHelper from '../../helpers/role/role-helper';
 import * as RoleActions from '../../redux/actions/role-actions';
 
+jest.mock('../../helpers/role/role-helper', () => {
+  const actual = jest.requireActual('../../helpers/role/role-helper');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
+jest.mock('../../redux/actions/role-actions', () => {
+  const actual = jest.requireActual('../../redux/actions/role-actions');
+  return {
+    __esModule: true,
+    ...actual,
+  };
+});
+
 describe('<RemoveRoleModal />', () => {
   const ROLE_ID = 'foo';
   const initialProps = {

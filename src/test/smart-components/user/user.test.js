@@ -12,6 +12,22 @@ import { FETCH_USERS } from '../../../redux/action-types';
 import * as UserActions from '../../../redux/actions/user-actions';
 import * as RoleActions from '../../../redux/actions/role-actions';
 
+jest.mock('../../../redux/actions/user-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/user-actions');
+  return {
+    __esModule: true,
+    ...actions,
+  };
+});
+
+jest.mock('../../../redux/actions/role-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/role-actions');
+  return {
+    __esModule: true,
+    ...actions,
+  };
+});
+
 describe('<User />', () => {
   const middlewares = [promiseMiddleware];
   let mockStore;
@@ -37,11 +53,6 @@ describe('<User />', () => {
         ...rolesInitialState,
       },
     };
-  });
-
-  afterEach(() => {
-    fetchUsersSpy.mockReset();
-    fetchRolesSpy.mockReset();
   });
 
   it('should render user', async () => {

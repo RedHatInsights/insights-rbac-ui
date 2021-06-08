@@ -5,7 +5,7 @@ import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, addMembersToGroup, fetchMembersForGroup } from '../../../redux/actions/group-actions';
+import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { CompactUsersList } from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 
@@ -18,6 +18,7 @@ const AddGroupMembers = ({
   closeUrl,
   addMembersToGroup,
   fetchMembersForGroup,
+  fetchGroups,
 }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const onSubmit = () => {
@@ -30,7 +31,10 @@ const AddGroupMembers = ({
         dismissable: false,
         description: `Adding member${userList.length > 1 ? 's' : ''} to group initiated.`,
       });
-      addMembersToGroup(uuid, userList).then(() => fetchMembersForGroup(uuid));
+      addMembersToGroup(uuid, userList).then(() => {
+        fetchMembersForGroup(uuid);
+        fetchGroups({ inModal: false });
+      });
     }
 
     push(closeUrl);
@@ -98,6 +102,7 @@ AddGroupMembers.propTypes = {
   match: PropTypes.object,
   closeUrl: PropTypes.string,
   addMembersToGroup: PropTypes.func.isRequired,
+  fetchGroups: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = ({ groupReducer: { isLoading } }) => ({
@@ -111,6 +116,7 @@ const mapDispatchToProps = (dispatch) =>
       addGroup,
       addMembersToGroup,
       fetchMembersForGroup,
+      fetchGroups,
     },
     dispatch
   );

@@ -1,24 +1,51 @@
-import React, { lazy, Suspense } from 'react';
-import PropTypes from 'prop-types';
-import { Switch, Route } from 'react-router-dom';
+import React, { useContext, Fragment } from 'react';
+import { Route } from 'react-router-dom';
+import { Bullseye, Spinner } from '@patternfly/react-core';
+import AsyncComponent from '@redhat-cloud-services/frontend-components/AsyncComponent';
 import { routes } from '../../../package.json';
+import { RegistryContext } from '../../utilities/store';
 
-const AccessRequestsPage = lazy(() => import('@redhat-cloud-services/access-requests-frontend/lib/Routes/AccessRequestsPage'));
-const AccessRequestDetailsPage = lazy(() => import('@redhat-cloud-services/access-requests-frontend/lib/Routes/AccessRequestDetailsPage'));
-
-const AccessRequestsPageWrapper = () => <AccessRequestsPage isInternal={false} />;
-const AccessRequestDetailsPageWrapper = ({ match }) => <AccessRequestDetailsPage requestId={match.params.requestId} isInternal={false} />;
-AccessRequestDetailsPageWrapper.propTypes = {
-  match: PropTypes.object,
-};
-
-const AccessRequests = () => (
-  <Suspense fallback={<React.Fragment />}>
-    <Switch>
-      <Route path={routes['access-requests']} exact component={AccessRequestsPageWrapper} />
-      <Route path={routes['access-requests-detail']} exact component={AccessRequestDetailsPageWrapper} />
-    </Switch>
-  </Suspense>
+const fallback = (
+  <Bullseye>
+    <Spinner size="xl" />
+  </Bullseye>
 );
+
+const AccessRequests = () => {
+  const { getRegistry } = useContext(RegistryContext);
+
+  return (
+    <Fragment>
+      <Route
+        path={routes['access-requests']}
+        exact
+        render={() => (
+          <AsyncComponent
+            appName="access-requests"
+            module="./AccessRequestsPage"
+            scope="accessRequests"
+            isInternal={false}
+            fallback={fallback}
+            getRegistry={getRegistry}
+          />
+        )}
+      />
+      <Route
+        path={routes['access-requests-detail']}
+        exact
+        render={() => (
+          <AsyncComponent
+            appName="access-requests"
+            module="./AccessRequestDetailsPage"
+            scope="accessRequests"
+            fallback={fallback}
+            isInternal={false}
+            getRegistry={getRegistry}
+          />
+        )}
+      />
+    </Fragment>
+  );
+};
 
 export default AccessRequests;

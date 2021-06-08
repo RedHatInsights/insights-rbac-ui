@@ -4,11 +4,10 @@ import PropTypes from 'prop-types';
 import { Link, Route, useHistory } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Button, Tooltip } from '@patternfly/react-core';
-import { Section, DateFormat } from '@redhat-cloud-services/frontend-components';
-import { mappedProps } from '../../../helpers/shared/helpers';
+import Section from '@redhat-cloud-services/frontend-components/Section';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { fetchRoles } from '../../../redux/actions/role-actions';
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
@@ -178,12 +177,13 @@ const GroupRoles = ({
             },
             onClick: () => {
               const multipleRolesSelected = selectedRoles.length > 1;
-              setConfirmDelete(() => () =>
-                removeRoles(
-                  uuid,
-                  selectedRoles.map((role) => role.uuid),
-                  () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
-                )
+              setConfirmDelete(
+                () => () =>
+                  removeRoles(
+                    uuid,
+                    selectedRoles.map((role) => role.uuid),
+                    () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
+                  )
               );
               setDeleteInfo({
                 title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',
@@ -278,9 +278,6 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, groups } }) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    fetchRoles: (apiProps) => {
-      dispatch(fetchRoles(mappedProps(apiProps)));
-    },
     addRoles: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
     removeRoles: (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback)),
     fetchRolesForGroup: (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options)),
@@ -298,7 +295,6 @@ GroupRoles.propTypes = {
   roles: PropTypes.array,
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
-  fetchRoles: PropTypes.func.isRequired,
   fetchRolesForGroup: PropTypes.func.isRequired,
   fetchAddRolesForGroup: PropTypes.func.isRequired,
   selectedRoles: PropTypes.array,

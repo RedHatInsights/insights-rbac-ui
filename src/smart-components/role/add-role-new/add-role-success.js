@@ -3,8 +3,9 @@ import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStat
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { Link } from 'react-router-dom';
 import { AddRoleWizardContext } from './add-role-wizard';
+import PropTypes from 'prop-types';
 
-const AddRoleSuccess = () => {
+const AddRoleSuccess = ({ onClose }) => {
   const { setHideForm } = useContext(AddRoleWizardContext);
   return (
     <EmptyState variant={EmptyStateVariant.large}>
@@ -13,7 +14,7 @@ const AddRoleSuccess = () => {
         You have successfully created a new role
       </Title>
       <EmptyStateBody></EmptyStateBody>
-      <Button component={(props) => <Link to="/roles" {...props} />} variant="primary">
+      <Button onClick={onClose} variant="primary">
         Exit
       </Button>
       <EmptyStateSecondaryActions>
@@ -31,6 +32,10 @@ const AddRoleSuccess = () => {
       </EmptyStateSecondaryActions>
     </EmptyState>
   );
+};
+
+AddRoleSuccess.propTypes = {
+  onClose: PropTypes.func.isRequired,
 };
 
 export default AddRoleSuccess;

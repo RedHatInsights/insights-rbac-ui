@@ -1,10 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render correctly loader 1`] = `
-<ListLoader
-  items={5}
-/>
-`;
+exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
 
 exports[`<GroupPrincipals /> should render correctly with data 1`] = `
 <TableToolbarView

@@ -17,7 +17,10 @@ describe('Role reducer', () => {
   });
 
   it('should set roles data and set loading state to false', () => {
-    const payload = { data: 'Foo' };
+    const payload = {
+      ...initialState.roles,
+      data: 'Foo',
+    };
     const expectedState = { ...initialState, isLoading: false, roles: payload };
     expect(reducer(initialState, { type: `${FETCH_ROLES}_FULFILLED`, payload })).toEqual(expectedState);
   });
