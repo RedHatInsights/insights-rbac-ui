@@ -156,6 +156,7 @@ export const TableToolbarView = ({
           rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
           cells={columns}
           {...(rows.length > 0 && { actionResolver })}
+          className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
           areActionsDisabled={areActionsDisabled}
           rowWrapper={rowWrapper}
           sortBy={sortByState}
