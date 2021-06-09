@@ -14,7 +14,7 @@
     "@data-driven-forms/react-form-renderer": "^3.7.0",
     "@patternfly/react-core": "^4.128.2",
     "@patternfly/react-icons": "^4.10.11",
-    "@patternfly/react-table": "^4.27.7",
+    "@patternfly/react-table": "^4.27.24",
     "@patternfly/react-tokens": "^4.11.12",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
     "@redhat-cloud-services/cost-management-client": "^1.0.97",
