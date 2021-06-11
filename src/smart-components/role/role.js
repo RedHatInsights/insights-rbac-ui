@@ -83,11 +83,11 @@ const Role = ({ onDelete }) => {
             },
           ]
         : [undefined]
-      : groupExists
+      : groupExists || !groupUuid
       ? []
       : [{ title: 'Invalid group', isActive: true }]),
 
-    ...(groupExists
+    ...(groupExists || !groupUuid
       ? [
           {
             title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : 'Invalid role',
@@ -121,7 +121,7 @@ const Role = ({ onDelete }) => {
 
   return (
     <Fragment>
-      {groupExists && roleExists ? (
+      {(groupExists || !groupUuid) && roleExists ? (
         <Fragment>
           <TopToolbar breadcrumbs={breadcrumbsList()}>
             <Level>
