@@ -20,7 +20,7 @@ export const fetchSystemGroup = (filterValue) => ({
   type: ActionTypes.FETCH_SYSTEM_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
-    name: filterValue || 'default',
+    filters: { name: filterValue?.length > 0 ? filterValue : 'default' },
     nameMatch: 'partial',
   }),
 });

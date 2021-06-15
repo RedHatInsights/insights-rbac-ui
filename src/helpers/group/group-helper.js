@@ -2,13 +2,37 @@ import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
 
-export async function fetchGroups({ limit, offset, name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options }) {
+export async function fetchGroups({
+  limit,
+  offset,
+  nameMatch,
+  scope,
+  username,
+  filters = {},
+  uuid,
+  roleNames,
+  roleDiscriminator,
+  orderBy,
+  options,
+  inModal = true,
+}) {
   const [groups, auth] = await Promise.all([
-    groupApi.listGroups(limit, offset, name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
+    groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
     insights.chrome.auth.getUser(),
   ]);
+
   return {
     ...groups,
+    ...(inModal
+      ? {}
+      : {
+          filters,
+          pagination: {
+            ...groups?.meta,
+            offset,
+            limit,
+          },
+        }),
     ...auth,
   };
 }
@@ -49,7 +73,7 @@ export async function addPrincipalsToGroup(groupId, users) {
 }
 
 export async function fetchRolesForGroup(groupId, excluded, { limit, offset, name, description }, options = {}) {
-  return await groupApi.listRolesForGroup(groupId, excluded, undefined, name, description, limit, offset, 'display_name', options);
+  return await groupApi.listRolesForGroup(groupId, excluded, undefined, name, description, true, limit, offset, 'display_name', options);
 }
 
 export async function deleteRolesFromGroup(groupId, roles) {

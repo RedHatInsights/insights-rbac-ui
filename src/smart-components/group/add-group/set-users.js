@@ -1,8 +1,8 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Card, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { CompactUsersList } from './users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import '../../../App.scss';
@@ -33,7 +33,7 @@ const SetUsers = (props) => {
           <StackItem>
             <FormGroup fieldId="select-user">
               <Card>
-                <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+                <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
               </Card>
             </FormGroup>
           </StackItem>

@@ -3,20 +3,31 @@ import { useHistory, useRouteMatch } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/dist/esm/component-mapper';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
+import { routes } from '../../../package.json';
 
-const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, closeUrl, group, onClose }) => {
+const EditGroupModal = ({
+  addNotification,
+  updateGroup,
+  postMethod,
+  pagination,
+  filters,
+  cancelRoute,
+  submitRoute = cancelRoute,
+  group,
+  onClose,
+}) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const history = useHistory();
+  const { push } = useHistory();
   const match = useRouteMatch('/groups/edit/:id');
 
   const setGroupData = (groupData) => {
@@ -39,12 +50,12 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
   }, [group]);
 
   const onSubmit = (data) => {
-    const user_data = { ...data };
+    const user_data = { description: null, ...data };
     postMethod
       ? updateGroup(user_data)
-          .then(() => postMethod({ limit: pagination.limit }))
-          .then(history.push(closeUrl))
-      : updateGroup(user_data).then(() => history.push(closeUrl));
+          .then(() => postMethod({ limit: pagination?.limit, filters }))
+          .then(push(submitRoute))
+      : updateGroup(user_data).then(() => push(submitRoute));
   };
 
   const onCancel = () => {
@@ -56,7 +67,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
       description: selectedGroup ? 'Edit group was canceled by the user.' : 'Adding group was canceled by the user.',
     });
     onClose();
-    history.push(closeUrl);
+    push(cancelRoute);
   };
 
   const schema = {
@@ -67,7 +78,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
         ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
-          { type: 'validate-group-name', id: match ? match.params.id : group.id, idKey: 'uuid' },
+          { type: 'validate-group-name', id: match ? match.params.id : group.uuid, idKey: 'uuid' },
           {
             type: validatorTypes.REQUIRED,
           },
@@ -88,7 +99,10 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
   };
 
   const validatorMapper = {
-    'validate-group-name': ({ idKey, id }) => (value) => debouncedAsyncValidator(value, idKey, id),
+    'validate-group-name':
+      ({ idKey, id }) =>
+      (value) =>
+        debouncedAsyncValidator(value, idKey, id),
   };
 
   return (
@@ -110,7 +124,7 @@ const EditGroupModal = ({ addNotification, updateGroup, postMethod, pagination, 
 };
 
 EditGroupModal.defaultProps = {
-  closeUrl: '/groups',
+  cancelRoute: routes.groups,
   onClose: () => null,
   onSubmit: () => null,
 };
@@ -124,7 +138,25 @@ EditGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  closeUrl: PropTypes.string,
+  filters: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
   group: PropTypes.object,
   onClose: PropTypes.func,
 };

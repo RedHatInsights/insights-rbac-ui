@@ -11,12 +11,15 @@ import { createRows } from './group-table-helpers';
 import { fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
 import { routes as paths } from '../../../package.json';
 import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
+import { applyPaginationToUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
+import { applyFiltersToUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
+import { getBackRoute } from '../../helpers/shared/helpers';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [sortable] },
@@ -26,18 +29,18 @@ const columns = [
 ];
 
 const Groups = () => {
-  const [filterValue, setFilterValue] = useState('');
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [removeGroupsList, setRemoveGroupsList] = useState([]);
-
   const dispatch = useDispatch();
-  const { groups, pagination, userIdentity, isLoading } = useSelector(
+  const history = useHistory();
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
+
+  const { groups, meta, filters, userIdentity, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
       groups: [
-        ...(systemGroup?.name?.match(new RegExp(filterValue, 'i')) ? [systemGroup] : []),
+        ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
         ...(groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []),
       ],
-      pagination: groups.meta,
+      meta: groups.pagination || groups.meta,
+      filters: groups.filters,
       userIdentity: groups.identity,
       isLoading,
       systemGroup,
@@ -45,13 +48,20 @@ const Groups = () => {
     shallowEqual
   );
 
-  useEffect(() => {
-    insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
-    dispatch(fetchGroups({ ...pagination, name: filterValue }));
-    dispatch(fetchSystemGroup(filterValue));
-  }, []);
+  const [pagination, setPagination] = useState(meta);
+  const [filterValue, setFilterValue] = useState(filters.name || '');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [removeGroupsList, setRemoveGroupsList] = useState([]);
 
-  const history = useHistory();
+  useEffect(() => {
+    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    setPagination(syncedPagination);
+    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+    setFilterValue(name);
+    insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
+    fetchData({ ...syncedPagination, filters: { name } });
+    dispatch(fetchSystemGroup(name));
+  }, []);
 
   const setCheckedItems = (newSelection) => {
     setSelectedRows((rows) =>
@@ -61,13 +71,19 @@ const Groups = () => {
     );
   };
 
+  useEffect(() => {
+    setFilterValue(filters.name);
+    setPagination(meta);
+  }, [filters, meta]);
+
   const routes = () => (
     <Fragment>
       <Route exact path={paths['add-group']}>
         <AddGroupWizard
           pagination={pagination}
+          filters={filters}
           postMethod={(config) => {
-            dispatch(fetchGroups(config));
+            fetchData(config);
             setFilterValue('');
           }}
         />
@@ -75,20 +91,24 @@ const Groups = () => {
       <Route exact path={paths['group-edit'].path}>
         <EditGroup
           pagination={pagination}
+          filters={filters}
           postMethod={(config) => {
-            dispatch(fetchGroups(config));
-            setFilterValue('');
+            fetchData(config);
           }}
+          cancelRoute={getBackRoute(paths.groups, pagination, filters)}
+          submitRoute={getBackRoute(paths.groups, { ...pagination, offset: 0 }, filters)}
         />
       </Route>
       <Route exact path={paths['remove-group']}>
         <RemoveGroup
           pagination={pagination}
+          filters={filters}
           postMethod={(ids, config) => {
-            dispatch(fetchGroups(config));
+            fetchData(config);
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
-            setFilterValue('');
           }}
+          cancelRoute={getBackRoute(paths.groups, pagination, filters)}
+          submitRoute={getBackRoute(paths.groups, { ...pagination, offset: 0 }, filters)}
           isModalOpen
           groupsUuid={removeGroupsList}
         />
@@ -177,7 +197,12 @@ const Groups = () => {
             ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
-            fetchData={(config) => dispatch(fetchGroups(config))}
+            fetchData={(config) => {
+              const { name, count, limit, offset, orderBy } = config;
+              applyPaginationToUrl(history, config.limit, config.offset);
+              applyFiltersToUrl(history, { name });
+              return fetchData({ count, limit, offset, orderBy, filters: { name } });
+            }}
             setFilterValue={({ name }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
             isLoading={isLoading}

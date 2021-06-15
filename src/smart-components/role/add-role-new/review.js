@@ -1,5 +1,5 @@
 import React from 'react';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
 import './review.scss';
 
