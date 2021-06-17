@@ -12,7 +12,17 @@ export const usersInitialState = {
   },
 };
 
-const setLoadingState = (state) => ({ ...state, isUserDataLoading: true });
+const setLoadingState = (state) => ({
+  ...state,
+  isUserDataLoading: true,
+  users: {
+    ...state.users,
+    pagination: {
+      ...state.users.pagination,
+      redirected: false,
+    },
+  },
+});
 
 const setUsers = (state, { payload }) => ({ ...state, users: { ...state.users, ...payload }, isUserDataLoading: false });
 
