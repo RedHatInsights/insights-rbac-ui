@@ -16,7 +16,7 @@ export const groupsInitialState = {
     data: [],
     meta: defaultSettings,
     filters: {},
-    pagination: { ...defaultSettings, count: 0 },
+    pagination: { ...defaultSettings, count: 0, redirected: false },
   },
   selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, pagination: defaultSettings },
   isLoading: false,
