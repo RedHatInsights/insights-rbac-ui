@@ -85,9 +85,5 @@ export async function addRolesToGroup(groupId, roles) {
 }
 
 export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
-  return await groupApi.getPrincipalsFromGroup(groupId, usernames, undefined, {
-    query: {
-      ...options,
-    },
-  });
+  return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
 }
