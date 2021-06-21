@@ -14,6 +14,11 @@ const fallback = (
 const AccessRequests = () => {
   const { getRegistry } = useContext(RegistryContext);
 
+  /**
+   * The module name has changes after the nav rework.
+   * We have to keep these changes in sync with the nav promotion.
+   */
+  const appName = window.insights.chrome.getEnvironment() === 'ci' && window.insights.chrome.isBeta() ? 'accessRequests' : 'access-requests';
   return (
     <Fragment>
       <Route
@@ -21,7 +26,7 @@ const AccessRequests = () => {
         exact
         render={() => (
           <AsyncComponent
-            appName="access-requests"
+            appName={appName}
             module="./AccessRequestsPage"
             scope="accessRequests"
             isInternal={false}
@@ -35,7 +40,7 @@ const AccessRequests = () => {
         exact
         render={() => (
           <AsyncComponent
-            appName="access-requests"
+            appName={appName}
             module="./AccessRequestDetailsPage"
             scope="accessRequests"
             fallback={fallback}
