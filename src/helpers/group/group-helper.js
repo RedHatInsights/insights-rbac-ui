@@ -1,3 +1,4 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
@@ -20,12 +21,11 @@ export async function fetchGroups({
     groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
     insights.chrome.auth.getUser(),
   ]);
-  const isPaginationValid = offset === 0 || groups.meta.count > offset;
-  offset = isPaginationValid ? offset : groups.meta.count - (groups.meta.count % limit);
+  const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(groups.meta.count, limit);
   let response = isPaginationValid
     ? groups
     : await groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options);
-
   return {
     ...response,
     ...(inModal

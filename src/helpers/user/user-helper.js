@@ -1,3 +1,4 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
 
 const principalApi = getPrincipalApi();
@@ -11,8 +12,8 @@ export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inM
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
   const response = await principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus);
-  const isPaginationValid = offset === 0 || response.meta.count > offset;
-  offset = isPaginationValid ? offset : response.meta.count - (response.meta.count % limit);
+  const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);
   const { data, meta } = isPaginationValid
     ? response
     : await principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus);

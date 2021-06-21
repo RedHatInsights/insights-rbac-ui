@@ -1,3 +1,4 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getRoleApi } from '../shared/user-login';
 
 const roleApi = getRoleApi();
@@ -66,8 +67,8 @@ export async function fetchRolesWithPolicies({
     options
   );
 
-  const isPaginationValid = offset === 0 || roles.meta.count > offset;
-  offset = isPaginationValid ? offset : roles.meta.count - (roles.meta.count % limit);
+  const isPaginationValid = isOffsetValid(offset, roles?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(roles.meta.count, limit);
   let { data, meta } = isPaginationValid
     ? roles
     : await roleApi.listRoles(
