@@ -72,6 +72,10 @@ const Groups = () => {
   };
 
   useEffect(() => {
+    pagination.redirected && applyPaginationToUrl(history, pagination.limit, pagination.offset);
+  }, [pagination.redirected]);
+
+  useEffect(() => {
     setFilterValue(filters.name);
     setPagination(meta);
   }, [filters, meta]);
@@ -199,7 +203,7 @@ const Groups = () => {
             filterValue={filterValue}
             fetchData={(config) => {
               const { name, count, limit, offset, orderBy } = config;
-              applyPaginationToUrl(history, config.limit, config.offset);
+              applyPaginationToUrl(history, limit, offset);
               applyFiltersToUrl(history, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}

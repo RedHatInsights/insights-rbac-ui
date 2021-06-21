@@ -29,6 +29,10 @@ export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaul
   return { ...defaultPagination, limit, offset };
 };
 
+export const isOffsetValid = (offset, count) => offset === 0 || count > offset;
+
+export const getLastPageOffset = (count, limit) => count - (count % limit);
+
 export const applyPaginationToUrl = (history, limit, offset = 0) => {
   const searchParams = new URLSearchParams(history.location.search);
   searchParams.set('per_page', limit);

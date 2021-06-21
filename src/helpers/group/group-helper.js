@@ -1,3 +1,4 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
@@ -20,17 +21,22 @@ export async function fetchGroups({
     groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
     insights.chrome.auth.getUser(),
   ]);
-
+  const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(groups.meta.count, limit);
+  let response = isPaginationValid
+    ? groups
+    : await groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options);
   return {
-    ...groups,
+    ...response,
     ...(inModal
       ? {}
       : {
           filters,
           pagination: {
-            ...groups?.meta,
+            ...response?.meta,
             offset,
             limit,
+            redirected: !isPaginationValid,
           },
         }),
     ...auth,
@@ -85,9 +91,5 @@ export async function addRolesToGroup(groupId, roles) {
 }
 
 export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
-  return await groupApi.getPrincipalsFromGroup(groupId, usernames, undefined, {
-    query: {
-      ...options,
-    },
-  });
+  return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
 }

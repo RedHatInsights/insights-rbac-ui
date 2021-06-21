@@ -70,6 +70,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
     limit: inModal ? users.meta.limit : users.pagination.limit || defaultSettings.limit,
     offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
+    count: inModal ? users.meta.count : users.pagination.count,
+    redirected: !inModal && users.pagination.redirected,
   }));
 
   const history = useHistory();
@@ -91,6 +93,10 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         }
       : stateFilters
   );
+
+  useEffect(() => {
+    inModal || (defaultPagination.redirected && applyPaginationToUrl(history, defaultPagination.limit, defaultPagination.offset));
+  }, [defaultPagination.redirected]);
 
   useEffect(() => {
     const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
@@ -123,7 +129,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
         fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
-        inModal || applyPaginationToUrl(history, config.limit, config.offset);
+        inModal || applyPaginationToUrl(history, limit, offset);
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {

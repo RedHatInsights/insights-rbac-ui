@@ -8,11 +8,21 @@ export const usersInitialState = {
   users: {
     meta: defaultSettings,
     filters: { status: ['Active'] },
-    pagination: defaultSettings,
+    pagination: { ...defaultSettings, redirected: false },
   },
 };
 
-const setLoadingState = (state) => ({ ...state, isUserDataLoading: true });
+const setLoadingState = (state) => ({
+  ...state,
+  isUserDataLoading: true,
+  users: {
+    ...state.users,
+    pagination: {
+      ...state.users.pagination,
+      redirected: false,
+    },
+  },
+});
 
 const setUsers = (state, { payload }) => ({ ...state, users: { ...state.users, ...payload }, isUserDataLoading: false });
 
