@@ -20,7 +20,7 @@ describe('group helper', () => {
   const mockedData = {
     ...getUserMock,
   };
-  const pagination = { limit: 10, offset: 0 };
+  const pagination = { limit: 10, offset: 0, redirected: false };
 
   const groupApi = UserLogin.getGroupApi();
   const addPrincipalToGroupSpy = jest.spyOn(groupApi, 'addPrincipalToGroup');

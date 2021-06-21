@@ -8,7 +8,7 @@ export const usersInitialState = {
   users: {
     meta: defaultSettings,
     filters: { status: ['Active'] },
-    pagination: defaultSettings,
+    pagination: { ...defaultSettings, redirected: false },
   },
 };
 
