@@ -17,6 +17,7 @@ import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../helpers/shared/filters';
+import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -115,7 +116,7 @@ const Roles = () => {
       : [];
 
   const renderRolesList = () => (
-    <Stack>
+    <Stack className="ins-c-rbac__roles">
       <StackItem>
         <TopToolbar>
           <TopToolbarTitle title="Roles" />

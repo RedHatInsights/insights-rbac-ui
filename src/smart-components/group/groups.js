@@ -175,7 +175,7 @@ const Groups = () => {
   ];
 
   const renderGroupsList = () => (
-    <Stack>
+    <Stack className="ins-c-rbac__groups">
       <StackItem>
         <TopToolbar paddingBottom>
           <TopToolbarTitle title="Groups" />
