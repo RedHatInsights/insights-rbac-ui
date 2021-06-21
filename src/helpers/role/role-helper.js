@@ -50,25 +50,56 @@ export async function fetchRolesWithPolicies({
   application,
   inModal = true,
 }) {
+  const roles = await roleApi.listRoles(
+    limit,
+    offset,
+    filters.name,
+    undefined,
+    undefined,
+    nameMatch,
+    scope,
+    orderBy,
+    addFields,
+    username,
+    application,
+    permission,
+    options
+  );
+
+  const isPaginationValid = offset === 0 || roles.meta.count > offset;
+  offset = isPaginationValid ? offset : roles.meta.count - (roles.meta.count % limit);
+  let { data, meta } = isPaginationValid
+    ? roles
+    : await roleApi.listRoles(
+        limit,
+        offset,
+        filters.name,
+        undefined,
+        undefined,
+        nameMatch,
+        scope,
+        orderBy,
+        addFields,
+        username,
+        application,
+        permission,
+        options
+      );
+
   return {
-    ...(await roleApi
-      .listRoles(limit, offset, filters.name, undefined, undefined, nameMatch, scope, orderBy, addFields, username, application, permission, options)
-      .then(({ data, meta }) => {
-        return {
-          data,
-          meta,
-          ...(inModal
-            ? {}
-            : {
-                filters,
-                pagination: {
-                  ...meta,
-                  offset,
-                  limit,
-                },
-              }),
-        };
-      })),
+    data,
+    meta,
+    ...(inModal
+      ? {}
+      : {
+          filters,
+          pagination: {
+            ...meta,
+            offset,
+            limit,
+            redirected: !isPaginationValid,
+          },
+        }),
     ...(await insights.chrome.auth.getUser()),
   };
 }

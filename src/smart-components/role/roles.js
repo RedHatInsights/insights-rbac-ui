@@ -61,6 +61,10 @@ const Roles = () => {
     setPagination(meta);
   }, [filters, meta]);
 
+  useEffect(() => {
+    meta.redirected && applyPaginationToUrl(history, meta.limit, meta.offset);
+  }, [meta.redirected]);
+
   const routes = () => (
     <Suspense fallback={<Fragment />}>
       <Route exact path={paths['add-role']}>
@@ -142,7 +146,7 @@ const Roles = () => {
             filterValue={filterValue}
             fetchData={(config) => {
               const { name, count, limit, offset, orderBy } = config;
-              applyPaginationToUrl(history, config.limit, config.offset);
+              applyPaginationToUrl(history, limit, offset);
               applyFiltersToUrl(history, { name });
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { name } }));
             }}
