@@ -50,7 +50,11 @@ const EditGroupModal = ({
   }, [group]);
 
   const onSubmit = (data) => {
-    const user_data = { description: null, ...data };
+    const user_data = {
+      uuid: data.uuid,
+      description: data.description || null,
+      name: data.name,
+    };
     postMethod
       ? updateGroup(user_data)
           .then(() => postMethod({ limit: pagination?.limit, filters }))
