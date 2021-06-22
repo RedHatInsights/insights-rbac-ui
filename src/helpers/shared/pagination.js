@@ -29,7 +29,7 @@ export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaul
   return { ...defaultPagination, limit, offset };
 };
 
-export const isOffsetValid = (offset, count) => offset === 0 || count > offset;
+export const isOffsetValid = (offset = 0, count = 0) => offset === 0 || count > offset;
 
 export const getLastPageOffset = (count, limit) => count - (count % limit);
 
