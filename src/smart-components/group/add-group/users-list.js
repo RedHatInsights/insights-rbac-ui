@@ -151,8 +151,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       titlePlural="users"
       titleSingular="user"
       filters={[
-        { key: 'username', value: filters.username, placeholder: 'Filter by exact username' },
-        { key: 'email', value: filters.email, placeholder: 'Filter by exact email' },
+        { key: 'username', value: filters.username, placeholder: 'Filter by username' },
+        { key: 'email', value: filters.email, placeholder: 'Filter by email' },
         {
           key: 'status',
           value: filters.status,
