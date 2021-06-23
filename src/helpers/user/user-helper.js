@@ -7,16 +7,16 @@ const principalStatusApiMap = {
   Active: 'enabled',
   Inactive: 'disabled',
 };
-export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inModal }) {
+export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inModal, matchCriteria = 'partial' }) {
   const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
-  const response = await principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus);
+  const response = await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
   const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
   offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);
   const { data, meta } = isPaginationValid
     ? response
-    : await principalApi.listPrincipals(limit, offset, undefined, username, sortOrder, email, mappedStatus);
+    : await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
   return {
     data,
     meta: {
