@@ -209,7 +209,7 @@ const Groups = () => {
             }}
             setFilterValue={({ name }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
-            isLoading={isLoading}
+            isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             filterPlaceholder="name"
             rowWrapper={GroupRowWrapper}
             tableId="groups"
