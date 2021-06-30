@@ -151,7 +151,7 @@ const Roles = () => {
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { name } }));
             }}
             setFilterValue={({ name }) => setFilterValue(name)}
-            isLoading={isLoading}
+            isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}
             ouiaId="roles-table"
