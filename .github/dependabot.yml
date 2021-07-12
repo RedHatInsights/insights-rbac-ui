@@ -10,7 +10,6 @@ updates:
   reviewers:
   - karelhala
   - ryelo
-  - panspagetka
   allow:
   - dependency-name: "@redhat-cloud-services/frontend*"
   - dependency-name: "@patternfly/*"
