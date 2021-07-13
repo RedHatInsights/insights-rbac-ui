@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
@@ -9,6 +10,7 @@ import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import AddGroupWizard, { onCancel } from '../../../../smart-components/group/add-group/add-group-wizard';
+import { defaultSettings } from '../../../../helpers/shared/pagination';
 
 describe('<AddGroupWizard />', () => {
   let initialProps;
@@ -27,6 +29,8 @@ describe('<AddGroupWizard />', () => {
   beforeEach(() => {
     initialProps = {
       uuid: '123',
+      pagination: defaultSettings,
+      filters: {},
     };
 
     initialState = {
@@ -57,17 +61,18 @@ describe('<AddGroupWizard />', () => {
     mockStore = configureStore(middlewares);
   });
 
-  it('should render correctly', () => {
+  it('should render correctly', async () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(
-      <GroupWrapper store={store}>
-        <AddGroupWizard {...initialProps} />
-      </GroupWrapper>
-    ).dive();
-
-    setImmediate(() => {
-      expect(shallowToJson(wrapper)).toMatchSnapshot();
+    let wrapper;
+    await act(async () => {
+      wrapper = shallow(
+        <GroupWrapper store={store}>
+          <AddGroupWizard {...initialProps} />
+        </GroupWrapper>
+      ).dive();
     });
+
+    expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('onCancel call right callback with empty data', () => {

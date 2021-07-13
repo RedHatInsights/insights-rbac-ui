@@ -1,6 +1,6 @@
 import React from 'react';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddGroupWizardContext } from './add-group-wizard';

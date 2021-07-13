@@ -1,5 +1,5 @@
-const { Fragment, useEffect } = require('react');
-const { default: useIsMounted } = require('../../hooks/useIsMounted');
+import React, { Fragment, useEffect } from 'react';
+import useIsMounted from '../../hooks/useIsMounted';
 
 describe('useIsMounted', () => {
   const DummyComponent = ({ mountSpy }) => {

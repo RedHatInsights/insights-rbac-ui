@@ -9,9 +9,18 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { FETCH_GROUPS, REMOVE_GROUPS } from '../../../redux/action-types';
+import { FETCH_GROUP, FETCH_GROUPS, REMOVE_GROUPS } from '../../../redux/action-types';
 import { Button } from '@patternfly/react-core';
+import { routes } from '../../../../package.json';
 import * as GroupActions from '../../../redux/actions/group-actions';
+
+jest.mock('../../../redux/actions/group-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/group-actions');
+  return {
+    __esModule: true,
+    ...actions,
+  };
+});
 
 describe('<RemoveGroupModal />', () => {
   let initialProps;
@@ -20,6 +29,7 @@ describe('<RemoveGroupModal />', () => {
   let initialState;
 
   const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
+  const fetchGroupsSpy = jest.spyOn(GroupActions, 'fetchGroups');
   const removeGroupsSpy = jest.spyOn(GroupActions, 'removeGroups');
 
   const GroupWrapper = ({ store }) => (
@@ -27,7 +37,17 @@ describe('<RemoveGroupModal />', () => {
       <MemoryRouter initialEntries={['/groups/', '/groups/removegroups']} initialIndex={2}>
         <Route
           path="/groups/removegroups"
-          render={(args) => <RemoveGroupModal {...args} {...initialProps} isModalOpen groupsUuid={[{ uuid: '123' }]} pagination={{ limit: 0 }} />}
+          render={(args) => (
+            <RemoveGroupModal
+              {...args}
+              {...initialProps}
+              isModalOpen
+              groupsUuid={[{ uuid: '123' }]}
+              pagination={{ limit: 0 }}
+              filters={{}}
+              cancelRoute={routes.groups}
+            />
+          )}
         />
       </MemoryRouter>
     </Provider>
@@ -50,23 +70,26 @@ describe('<RemoveGroupModal />', () => {
   });
 
   afterEach(() => {
-    fetchGroupSpy.mockReset();
     removeGroupsSpy.mockReset();
+    fetchGroupSpy.mockReset();
   });
 
   it('should call cancel action', () => {
     const store = mockStore(initialState);
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual('/groups/');
+    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(routes.groups);
   });
 
   it('should call the remove action', async () => {
     const store = mockStore(initialState);
 
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     removeGroupsSpy.mockImplementationOnce(() => ({ type: REMOVE_GROUPS, payload: Promise.resolve({}) }));
 
     let wrapper;
@@ -77,7 +100,9 @@ describe('<RemoveGroupModal />', () => {
 
     const input = wrapper.find({ type: 'checkbox' }).first();
     input.getDOMNode().checked = !input.getDOMNode().checked;
-    input.simulate('change');
+    await act(async () => {
+      input.simulate('change');
+    });
     wrapper.update();
     await act(async () => {
       wrapper.find(Button).at(1).simulate('click');

@@ -7,16 +7,29 @@ import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patte
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
+import { routes } from '../../../package.json';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUuid, isModalOpen, postMethod, pagination, closeUrl }) => {
+const RemoveGroupModal = ({
+  removeGroups,
+  group,
+  isLoading,
+  fetchGroup,
+  groupsUuid,
+  isModalOpen,
+  postMethod,
+  pagination,
+  filters,
+  cancelRoute,
+  submitRoute = cancelRoute,
+}) => {
   useEffect(() => {
     if (groupsUuid.length === 1) {
       fetchGroup(groupsUuid[0].uuid);
     }
   }, []);
 
-  const history = useHistory();
+  const { push } = useHistory();
 
   const [checked, setChecked] = useState(false);
 
@@ -25,11 +38,11 @@ const RemoveGroupModal = ({ removeGroups, group, isLoading, fetchGroup, groupsUu
   const onSubmit = () => {
     const uuids = groupsUuid.map((group) => group.uuid);
     removeGroups(uuids)
-      .then(() => postMethod(uuids, { limit: pagination.limit }))
-      .then(history.push(closeUrl));
+      .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
+      .then(push(submitRoute));
   };
 
-  const onCancel = () => history.goBack();
+  const onCancel = () => push(cancelRoute);
 
   return (
     <Modal
@@ -81,7 +94,7 @@ RemoveGroupModal.defaultProps = {
   group: {},
   groupsUuid: [],
   isLoading: true,
-  closeUrl: '/groups',
+  cancelUrl: routes.groups,
 };
 
 RemoveGroupModal.propTypes = {
@@ -92,10 +105,28 @@ RemoveGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
+  filters: PropTypes.shape({
+    name: PropTypes.string,
+  }).isRequired,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
   groupsUuid: PropTypes.array,
-  closeUrl: PropTypes.string,
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
 };
 
 const mapStateToProps = ({ groupReducer: { selectedGroup } }) => ({

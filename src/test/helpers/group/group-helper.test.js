@@ -20,6 +20,7 @@ describe('group helper', () => {
   const mockedData = {
     ...getUserMock,
   };
+  const pagination = { limit: 10, offset: 0, redirected: false };
 
   const groupApi = UserLogin.getGroupApi();
   const addPrincipalToGroupSpy = jest.spyOn(groupApi, 'addPrincipalToGroup');
@@ -33,10 +34,16 @@ describe('group helper', () => {
     deleteGroupSpy.mockReset();
   });
 
-  it('should call list groups helper', async () => {
+  it('should call list groups helper in Modal', async () => {
     axiosGetSpy.mockResolvedValueOnce(mockedData);
-    const data = await GroupsHelper.fetchGroups({ limit: 10, offset: 0 });
+    const data = await GroupsHelper.fetchGroups(pagination);
     expect(data).toEqual(mockedData);
+  });
+
+  it('should call list groups helper in Table', async () => {
+    axiosGetSpy.mockResolvedValueOnce(mockedData);
+    const data = await GroupsHelper.fetchGroups({ ...pagination, inModal: false });
+    expect(data).toEqual({ ...mockedData, filters: {}, pagination });
   });
 
   it('should call addGroup, addPrincipalToGroup and addRoleToGroup', async () => {

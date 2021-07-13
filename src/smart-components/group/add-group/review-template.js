@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Bullseye, Spinner, Title } from '@patternfly/react-core';
 import { AddGroupWizardContext } from './add-group-wizard';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { asyncValidator } from '../validators';
 import WizardError from '../../common/wizard-error';
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
@@ -59,7 +59,7 @@ const uniqueNameValidator = asyncDebounce((value, idKey, id, validationPromise) 
   return validationPromise(value, idKey, id);
 });
 
-const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
+const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const isMounted = useIsMounted();
   const {
     params: { id },
@@ -68,7 +68,10 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   const dispatch = useDispatch();
 
   const validatorMapper = {
-    'validate-role-name': ({ idKey, id, validationPromise }) => (value) => uniqueNameValidator(value, idKey, id, validationPromise),
+    'validate-role-name':
+      ({ idKey, id, validationPromise }) =>
+      (value) =>
+        uniqueNameValidator(value, idKey, id, validationPromise),
   };
 
   const role = useSelector((state) => roleSelector(state, id));
@@ -90,7 +93,7 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
   const handleSubmit = (data) =>
     dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
-      push(cancelRoute);
+      push(submitRoute);
     });
 
   useEffect(() => {
@@ -121,7 +124,22 @@ const EditRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
 EditRoleModal.propTypes = {
   routeMatch: PropTypes.string.isRequired,
-  cancelRoute: PropTypes.string.isRequired,
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]).isRequired,
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
   afterSubmit: PropTypes.func.isRequired,
 };
 
