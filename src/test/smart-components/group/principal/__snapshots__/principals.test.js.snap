@@ -1,10 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render correctly loader 1`] = `
-<ListLoader
-  items={5}
-/>
-`;
+exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
 
 exports[`<GroupPrincipals /> should render correctly with data 1`] = `
 <TableToolbarView
@@ -14,11 +10,23 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   columns={
     Array [
       Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+        ],
+      },
+      Object {
         "title": "Username",
       },
-      "Email",
-      "Last name",
-      "First name",
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
     ]
   }
   createRows={[Function]}
@@ -27,9 +35,18 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
       Object {
         "email": "test",
         "first_name": "test",
+        "is_active": true,
         "last_name": "test",
         "username": "test",
         "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
       },
     ]
   }
@@ -46,21 +63,27 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   filterItems={Array []}
   filterPlaceholder="username"
   filterValue=""
+  filters={Array []}
+  hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="members-table"
   pagination={
     Object {
-      "count": 1,
+      "count": 2,
       "limit": 10,
       "offset": 0,
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  textFilters={Array []}
+  tableId="group-members"
   titlePlural="members"
   titleSingular="member"
   toolbarButtons={[Function]}
@@ -81,6 +104,10 @@ Array [
       <Card>
         <article
           className="pf-c-card"
+          data-ouia-component-id="OUIA-Generated-Card-1"
+          data-ouia-component-type="PF4/Card"
+          data-ouia-safe={true}
+          id=""
         >
           <CardBody>
             <div
@@ -123,6 +150,10 @@ Array [
     <Card>
       <article
         className="pf-c-card"
+        data-ouia-component-id="OUIA-Generated-Card-1"
+        data-ouia-component-type="PF4/Card"
+        data-ouia-safe={true}
+        id=""
       >
         <CardBody>
           <div
@@ -160,7 +191,7 @@ Array [
 `;
 
 exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
-<EmptyWithFilter
+<EmptyWithAction
   description={
     Array [
       "Add a user to configure user access.",
@@ -180,11 +211,23 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   columns={
     Array [
       Object {
+        "title": "Status",
+        "transforms": Array [
+          [Function],
+        ],
+      },
+      Object {
         "title": "Username",
       },
-      "Email",
-      "Last name",
-      "First name",
+      Object {
+        "title": "Email",
+      },
+      Object {
+        "title": "Last name",
+      },
+      Object {
+        "title": "First name",
+      },
     ]
   }
   createRows={[Function]}
@@ -193,9 +236,18 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       Object {
         "email": "test",
         "first_name": "test",
+        "is_active": true,
         "last_name": "test",
         "username": "test",
         "uuid": "test",
+      },
+      Object {
+        "email": "test2",
+        "first_name": "test2",
+        "is_active": false,
+        "last_name": "test2",
+        "username": "test2",
+        "uuid": "test2",
       },
     ]
   }
@@ -212,21 +264,27 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   filterItems={Array []}
   filterPlaceholder="username"
   filterValue=""
+  filters={Array []}
+  hideFilterChips={false}
+  hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  ouiaId="members-table"
   pagination={
     Object {
-      "count": 1,
+      "count": 2,
       "limit": 10,
       "offset": 0,
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
-  textFilters={Array []}
+  tableId="group-members"
   titlePlural="members"
   titleSingular="member"
   toolbarButtons={[Function]}

@@ -1,122 +1,180 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { shallowEqual, useSelector, useDispatch  } from 'react-redux';
+import React, { Fragment, Suspense, useState, useEffect, lazy } from 'react';
+import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
-import { cellWidth, sortable } from '@patternfly/react-table';
+import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
-import { mappedProps } from '../../helpers/shared/helpers';
+import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import AddRoleWizard from './add-role/add-role-wizard';
 import RemoveRole from './remove-role-modal';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
+import { routes as paths } from '../../../package.json';
+import EditRole from './edit-role-modal';
+import PageActionRoute from '../common/page-action-route';
+import ResourceDefinitions from './role-resource-definitions';
+import { syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../helpers/shared/filters';
+import './roles.scss';
+
+const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
 const columns = [
-  { title: 'Name', key: 'name', transforms: [ cellWidth(20), sortable ]},
+  { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },
   { title: 'Description' },
-  { title: 'Permissions', transforms: [ cellWidth(5) ]},
-  { title: 'Groups', transforms: [ cellWidth(5) ]},
-  { title: 'Last modified', key: 'modified', transforms: [ cellWidth(10), sortable ]}
+  { title: 'Permissions', transforms: [nowrap] },
+  { title: 'Groups', transforms: [nowrap] },
+  { title: 'Last modified', key: 'modified', transforms: [nowrap, sortable] },
 ];
 
-const selector = ({ roleReducer: { roles, isLoading }}) => ({
+const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
-  pagination: roles.meta,
+  filters: roles.filters,
+  meta: roles.pagination,
   userIdentity: roles.identity,
-  userEntitlements: roles.entitlements,
-  isLoading
+  isLoading,
 });
 
 const Roles = () => {
-  const [ filterValue, setFilterValue ] = useState('');
-  const [ isCostAdmin, setIsCostAdmin ] = useState(false);
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const {
-    roles,
-    isLoading,
-    pagination,
-    userIdentity,
-    userEntitlements
-  } = useSelector(selector, shallowEqual);
-  const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
+  const { roles, isLoading, filters, meta, userIdentity } = useSelector(selector, shallowEqual);
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
+  const history = useHistory();
+
+  const [pagination, setPagination] = useState(meta);
+  const [filterValue, setFilterValue] = useState(filters.name || '');
 
   useEffect(() => {
-    fetchData({ ...pagination, name: filterValue });
-    window.insights.chrome.getUserPermissions('cost-management').then(
-      allPermissions => {
-        const permissionList = allPermissions.map(permissions => permissions.permission);
-        setIsCostAdmin(permissionList.includes('cost-management:*:*'));
-      }
-    );
+    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    setPagination(syncedPagination);
+    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+    setFilterValue(name);
+    insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
+    fetchData({ ...syncedPagination, filters: { name } });
   }, []);
 
-  const routes = () => <Fragment>
-    <Route exact path="/roles/add-role" component={ AddRoleWizard } />
-    <Route exact path="/roles/remove/:id" component={ RemoveRole } />
-  </Fragment>;
+  useEffect(() => {
+    setFilterValue(filters.name);
+    setPagination(meta);
+  }, [filters, meta]);
+
+  useEffect(() => {
+    meta.redirected && applyPaginationToUrl(history, meta.limit, meta.offset);
+  }, [meta.redirected]);
+
+  const routes = () => (
+    <Suspense fallback={<Fragment />}>
+      <Route exact path={paths['add-role']}>
+        <AddRoleWizard pagination={pagination} filters={{ name: filterValue }} />
+      </Route>
+      <Route exact path={paths['remove-role']}>
+        {!isLoading && (
+          <RemoveRole
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
+            routeMatch={paths['remove-role']}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+          />
+        )}
+      </Route>
+      <Route exact path={paths['edit-role']}>
+        {!isLoading && (
+          <EditRole
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
+            routeMatch={paths['edit-role']}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+          />
+        )}
+      </Route>
+    </Suspense>
+  );
 
   const actionResolver = ({ system }) => {
-    const userAllowed = insights.chrome.isBeta() && userIdentity && userIdentity.user && userIdentity.user.is_org_admin;
-    return (system || !userAllowed) ? [] : [
-      {
-        title: 'Delete',
-        onClick: (_event, _rowId, role) =>
-          push(`/roles/remove/${role.uuid}`)
-      }
-    ];
+    return system
+      ? []
+      : [
+          {
+            title: 'Edit',
+            onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
+          },
+          {
+            title: 'Delete',
+            onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
+          },
+        ];
   };
 
-  const toolbarButtons = () => [
-    <Fragment key="add-role">
-      { userEntitlements && userEntitlements.cost_management && window.insights.chrome.isBeta() && isCostAdmin ?
-        <Link to="/roles/add-role" >
-          <Button
-            variant="primary"
-            aria-label="Create role"
-          >
-          Create role
-          </Button>
-        </Link> :
-        <Fragment /> }
-    </Fragment>
-  ];
+  const toolbarButtons = () =>
+    userIdentity?.user?.is_org_admin
+      ? [
+          <Link to={paths['add-role']} key="add-role" className="pf-m-visible-on-md">
+            <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
+              Create role
+            </Button>
+          </Link>,
+        ]
+      : [];
 
-  const renderRolesList = () =>
-    <Stack>
+  const renderRolesList = () => (
+    <Stack className="ins-c-rbac__roles">
       <StackItem>
         <TopToolbar>
           <TopToolbarTitle title="Roles" />
         </TopToolbar>
       </StackItem>
       <StackItem>
-        <Section type="content" id={ 'tab-roles' }>
+        <Section type="content" id={'tab-roles'}>
           <TableToolbarView
-            actionResolver={ actionResolver }
-            columns={ columns }
-            createRows={ createRows }
-            data={ roles }
-            filterValue={ filterValue }
-            fetchData={ (config) => fetchData(mappedProps(config)) }
-            setFilterValue={ ({ name }) => setFilterValue(name) }
-            isLoading={ isLoading }
-            pagination={ pagination }
-            routes={ routes }
+            dedicatedAction={
+              userIdentity?.user?.is_org_admin ? (
+                <Link to={paths['add-role']}>
+                  <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
+                    Create role
+                  </Button>
+                </Link>
+              ) : undefined
+            }
+            actionResolver={actionResolver}
+            sortBy={{ index: 0, direction: 'asc' }}
+            columns={columns}
+            createRows={createRows}
+            data={roles}
+            filterValue={filterValue}
+            fetchData={(config) => {
+              const { name, count, limit, offset, orderBy } = config;
+              applyPaginationToUrl(history, limit, offset);
+              applyFiltersToUrl(history, { name });
+              return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { name } }));
+            }}
+            setFilterValue={({ name }) => setFilterValue(name)}
+            isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
+            pagination={pagination}
+            routes={routes}
+            ouiaId="roles-table"
             titlePlural="roles"
             titleSingular="role"
-            toolbarButtons = { toolbarButtons }
+            toolbarButtons={toolbarButtons}
             filterPlaceholder="name"
+            tableId="roles"
           />
         </Section>
       </StackItem>
-    </Stack>;
+    </Stack>
+  );
 
   return (
     <Switch>
-      <Route path={ '/roles/detail/:uuid' } render={ props => <Role { ...props }/> } />
-      <Route path={ '/roles' } render={ () => renderRolesList() } />
+      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission']}>
+        <ResourceDefinitions />
+      </PageActionRoute>
+      <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
+        <Role onDelete={() => setFilterValue('')} />
+      </PageActionRoute>
+      <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
     </Switch>
   );
 };

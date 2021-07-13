@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<AddGroupWizard /> should post a warning message on Cancel 1`] = `
+exports[`<AddGroupWizard /> should render correctly 1`] = `
 <ContextProvider
   value={
     Object {
@@ -42,7 +42,15 @@ exports[`<AddGroupWizard /> should post a warning message on Cancel 1`] = `
     }
     initialIndex={1}
   >
-    <ConnectFunction
+    <AddGroupWizard
+      filters={Object {}}
+      pagination={
+        Object {
+          "itemCount": 0,
+          "limit": 20,
+          "offset": 0,
+        }
+      }
       uuid="123"
     />
   </MemoryRouter>

@@ -1,76 +1,72 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  Grid,
-  GridItem,
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextVariants,
-  Title
-} from '@patternfly/react-core';
+import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
-import {  } from '@patternfly/react-core';
+const SummaryContent = () => {
+  const formOptions = useFormApi();
+  const {
+    'group-name': name,
+    'group-description': description,
+    'users-list': selectedUsers,
+    'roles-list': selectedRoles,
+  } = formOptions.getState().values;
 
-const SummaryContent = (formData) => {
-  const { name, description } =
-      formData.values ? formData.values : { name: '', description: '' };
-  const selectedUsers = formData.selectedUsers ? formData.selectedUsers : [];
-  const selectedRoles = formData.selectedRoles ? formData.selectedRoles : [];
   return (
-    <Fragment>
-      <Stack gutter="md">
+    <div className="rbac">
+      <Stack hasGutter>
         <StackItem>
-          <Stack gutter="md">
-            <StackItem>
-              <TextContent>
-                <Title headingLevel="h4" size="xl"> Add members to the group </Title>
-                <Text
-                  className="pf-u-mt-0"
-                  component={ TextVariants.h6 }>
-                 Confirm the details for this group, or click Back to revise.
-                </Text>
-              </TextContent>
-            </StackItem>
+          <Stack hasGutter>
             <StackItem className="ins-c-rbac__summary">
-              <Grid gutter="md">
-                <GridItem span={ 2 }>
-                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group name</Text>
+              <Grid>
+                <GridItem md={3}>
+                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                    Group name
+                  </Text>
                 </GridItem>
-                <GridItem span={ 10 }>
-                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ name }</Text>
-                </GridItem>
-              </Grid>
-              <Grid gutter="md">
-                <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Group description</Text>
-                </GridItem>
-                <GridItem span = { 10 }>
-                  <Text className="data-table-detail content content" component={ TextVariants.p }>{ description }</Text>
+                <GridItem md={9}>
+                  <Text component={TextVariants.p}>{name}</Text>
                 </GridItem>
               </Grid>
-              <Grid gutter="md">
-                <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Member(s)</Text>
+              <Grid>
+                <GridItem md={3}>
+                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                    Group description
+                  </Text>
                 </GridItem>
-                <GridItem span= { 10 }>
-                  <Text
-                    className="groups-table-detail content"
-                    component={ TextVariants.h5 }>
-                    { selectedUsers.map((role, index) => <Text className="pf-u-mb-0" key={ index }>{ role.label }</Text>) }
+                <GridItem md={9}>
+                  <Text component={TextVariants.p}>{description}</Text>
+                </GridItem>
+              </Grid>
+              <Grid>
+                <GridItem md={3}>
+                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                    Roles
+                  </Text>
+                </GridItem>
+                <GridItem md={9}>
+                  <Text component={TextVariants.p}>
+                    {selectedRoles.map((role, index) => (
+                      <Text className="pf-u-mb-0" key={index}>
+                        {role.label}
+                      </Text>
+                    ))}
                   </Text>
                 </GridItem>
               </Grid>
-              <Grid gutter="md">
-                <GridItem span = { 2 }>
-                  <Text className="data-table-detail heading content" component={ TextVariants.h5 }>Role(s)</Text>
+              <Grid>
+                <GridItem md={3}>
+                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                    Members
+                  </Text>
                 </GridItem>
-                <GridItem span= { 10 }>
-                  <Text
-                    className="groups-table-detail content"
-                    component={ TextVariants.h5 }>
-                    { selectedRoles.map((role, index) => <Text className= "pf-u-mb-0" key={ index }>{ role.label }</Text>)  }
+                <GridItem md={9}>
+                  <Text component={TextVariants.p}>
+                    {selectedUsers.map((role, index) => (
+                      <Text className="pf-u-mb-0" key={index}>
+                        {role.label}
+                      </Text>
+                    ))}
                   </Text>
                 </GridItem>
               </Grid>
@@ -78,15 +74,14 @@ const SummaryContent = (formData) => {
           </Stack>
         </StackItem>
       </Stack>
-    </Fragment>
+    </div>
   );
 };
 
 SummaryContent.propTypes = {
   name: PropTypes.string,
   description: PropTypes.string,
-  groups: PropTypes.array
+  groups: PropTypes.array,
 };
 
 export default SummaryContent;
-

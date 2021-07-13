@@ -27,80 +27,92 @@ exports[`<Pf4SelectWrapper /> should render correctly 1`] = `
   >
     <div
       className="pf-c-form__group"
+      isValid={true}
     >
-      <Select
-        FieldProvider={[Function]}
-        id="bazz"
-        input={
-          Object {
-            "name": "bazz",
-            "onChange": [MockFunction],
-            "value": "",
-          }
-        }
-        isValid={true}
-        options={
-          Array [
-            Object {
-              "label": "Foo",
-              "value": "bar",
-            },
-          ]
-        }
+      <div
+        className="pf-c-form__group-control"
       >
-        <FormSelect
-          className=""
+        <Select
+          FieldProvider={[Function]}
           id="bazz"
-          isDisabled={false}
-          isRequired={false}
+          input={
+            Object {
+              "name": "bazz",
+              "onChange": [MockFunction],
+              "value": "",
+            }
+          }
           isValid={true}
-          name="bazz"
-          onBlur={[Function]}
-          onChange={[MockFunction]}
-          onFocus={[Function]}
-          validated="default"
-          value=""
+          options={
+            Array [
+              Object {
+                "label": "Foo",
+                "value": "bar",
+              },
+            ]
+          }
         >
-          <select
-            aria-invalid={false}
-            className="pf-c-form-control"
-            disabled={false}
+          <FormSelect
+            FieldProvider={[Function]}
+            className=""
             id="bazz"
+            isDisabled={false}
+            isRequired={false}
+            isValid={true}
             name="bazz"
             onBlur={[Function]}
-            onChange={[Function]}
+            onChange={[MockFunction]}
             onFocus={[Function]}
-            required={false}
+            ouiaSafe={true}
+            validated="default"
             value=""
           >
-            <FormSelectOption
-              key="None"
-              label="None"
+            <select
+              FieldProvider={[Function]}
+              aria-invalid={false}
+              className="pf-c-form-control"
+              data-ouia-component-id="OUIA-Generated-FormSelect-default-1"
+              data-ouia-component-type="PF4/FormSelect"
+              data-ouia-safe={true}
+              disabled={false}
+              id="bazz"
+              isValid={true}
+              name="bazz"
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              required={false}
+              value=""
             >
-              <option
-                className=""
-                disabled={false}
-                value=""
+              <FormSelectOption
+                key="None"
+                label="None"
               >
-                None
-              </option>
-            </FormSelectOption>
-            <FormSelectOption
-              key="bar"
-              label="Foo"
-              value="bar"
-            >
-              <option
-                className=""
-                disabled={false}
+                <option
+                  className=""
+                  disabled={false}
+                  value=""
+                >
+                  None
+                </option>
+              </FormSelectOption>
+              <FormSelectOption
+                key="bar"
+                label="Foo"
                 value="bar"
               >
-                Foo
-              </option>
-            </FormSelectOption>
-          </select>
-        </FormSelect>
-      </Select>
+                <option
+                  className=""
+                  disabled={false}
+                  value="bar"
+                >
+                  Foo
+                </option>
+              </FormSelectOption>
+            </select>
+          </FormSelect>
+        </Select>
+      </div>
     </div>
   </FormGroup>
 </Pf4SelectWrapper>
@@ -139,86 +151,91 @@ exports[`<Pf4SelectWrapper /> should render correctly in error state 1`] = `
   >
     <div
       className="pf-c-form__group"
+      isValid={false}
     >
-      <Select
-        FieldProvider={[Function]}
-        id="bazz"
-        input={
-          Object {
-            "name": "bazz",
-            "onChange": [MockFunction],
-            "value": "",
-          }
-        }
-        isValid={false}
-        options={
-          Array [
-            Object {
-              "label": "Foo",
-              "value": "bar",
-            },
-          ]
-        }
+      <div
+        className="pf-c-form__group-control"
       >
-        <FormSelect
-          className=""
+        <Select
+          FieldProvider={[Function]}
           id="bazz"
-          isDisabled={false}
-          isRequired={false}
+          input={
+            Object {
+              "name": "bazz",
+              "onChange": [MockFunction],
+              "value": "",
+            }
+          }
           isValid={false}
-          name="bazz"
-          onBlur={[Function]}
-          onChange={[MockFunction]}
-          onFocus={[Function]}
-          validated="default"
-          value=""
+          options={
+            Array [
+              Object {
+                "label": "Foo",
+                "value": "bar",
+              },
+            ]
+          }
         >
-          <select
-            aria-invalid={true}
-            className="pf-c-form-control"
-            disabled={false}
+          <FormSelect
+            FieldProvider={[Function]}
+            className=""
             id="bazz"
+            isDisabled={false}
+            isRequired={false}
+            isValid={false}
             name="bazz"
             onBlur={[Function]}
-            onChange={[Function]}
+            onChange={[MockFunction]}
             onFocus={[Function]}
-            required={false}
+            ouiaSafe={true}
+            validated="default"
             value=""
           >
-            <FormSelectOption
-              key="None"
-              label="None"
+            <select
+              FieldProvider={[Function]}
+              aria-invalid={false}
+              className="pf-c-form-control"
+              data-ouia-component-id="OUIA-Generated-FormSelect-default-6"
+              data-ouia-component-type="PF4/FormSelect"
+              data-ouia-safe={true}
+              disabled={false}
+              id="bazz"
+              isValid={false}
+              name="bazz"
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              required={false}
+              value=""
             >
-              <option
-                className=""
-                disabled={false}
-                value=""
+              <FormSelectOption
+                key="None"
+                label="None"
               >
-                None
-              </option>
-            </FormSelectOption>
-            <FormSelectOption
-              key="bar"
-              label="Foo"
-              value="bar"
-            >
-              <option
-                className=""
-                disabled={false}
+                <option
+                  className=""
+                  disabled={false}
+                  value=""
+                >
+                  None
+                </option>
+              </FormSelectOption>
+              <FormSelectOption
+                key="bar"
+                label="Foo"
                 value="bar"
               >
-                Foo
-              </option>
-            </FormSelectOption>
-          </select>
-        </FormSelect>
-      </Select>
-      <div
-        aria-live="polite"
-        className="pf-c-form__helper-text pf-m-error"
-        id="bazz-helper"
-      >
-        Error
+                <option
+                  className=""
+                  disabled={false}
+                  value="bar"
+                >
+                  Foo
+                </option>
+              </FormSelectOption>
+            </select>
+          </FormSelect>
+        </Select>
       </div>
     </div>
   </FormGroup>
@@ -253,96 +270,108 @@ exports[`<Pf4SelectWrapper /> should render correctly with description 1`] = `
   >
     <div
       className="pf-c-form__group"
+      isValid={true}
     >
-      <TextContent>
-        <div
-          className="pf-c-content"
-        >
-          <Text
-            component="small"
-          >
-            <small
-              className=""
-              data-pf-content={true}
-            >
-              description
-            </small>
-          </Text>
-        </div>
-      </TextContent>
-      <Select
-        FieldProvider={[Function]}
-        id="bazz"
-        input={
-          Object {
-            "name": "bazz",
-            "onChange": [MockFunction],
-            "value": "",
-          }
-        }
-        isValid={true}
-        options={
-          Array [
-            Object {
-              "label": "Foo",
-              "value": "bar",
-            },
-          ]
-        }
+      <div
+        className="pf-c-form__group-control"
       >
-        <FormSelect
-          className=""
+        <TextContent>
+          <div
+            className="pf-c-content"
+          >
+            <Text
+              component="small"
+            >
+              <small
+                className=""
+                data-pf-content={true}
+              >
+                description
+              </small>
+            </Text>
+          </div>
+        </TextContent>
+        <Select
+          FieldProvider={[Function]}
           id="bazz"
-          isDisabled={false}
-          isRequired={false}
+          input={
+            Object {
+              "name": "bazz",
+              "onChange": [MockFunction],
+              "value": "",
+            }
+          }
           isValid={true}
-          name="bazz"
-          onBlur={[Function]}
-          onChange={[MockFunction]}
-          onFocus={[Function]}
-          validated="default"
-          value=""
+          options={
+            Array [
+              Object {
+                "label": "Foo",
+                "value": "bar",
+              },
+            ]
+          }
         >
-          <select
-            aria-invalid={false}
-            className="pf-c-form-control"
-            disabled={false}
+          <FormSelect
+            FieldProvider={[Function]}
+            className=""
             id="bazz"
+            isDisabled={false}
+            isRequired={false}
+            isValid={true}
             name="bazz"
             onBlur={[Function]}
-            onChange={[Function]}
+            onChange={[MockFunction]}
             onFocus={[Function]}
-            required={false}
+            ouiaSafe={true}
+            validated="default"
             value=""
           >
-            <FormSelectOption
-              key="None"
-              label="None"
+            <select
+              FieldProvider={[Function]}
+              aria-invalid={false}
+              className="pf-c-form-control"
+              data-ouia-component-id="OUIA-Generated-FormSelect-default-7"
+              data-ouia-component-type="PF4/FormSelect"
+              data-ouia-safe={true}
+              disabled={false}
+              id="bazz"
+              isValid={true}
+              name="bazz"
+              onBlur={[Function]}
+              onChange={[Function]}
+              onFocus={[Function]}
+              required={false}
+              value=""
             >
-              <option
-                className=""
-                disabled={false}
-                value=""
+              <FormSelectOption
+                key="None"
+                label="None"
               >
-                None
-              </option>
-            </FormSelectOption>
-            <FormSelectOption
-              key="bar"
-              label="Foo"
-              value="bar"
-            >
-              <option
-                className=""
-                disabled={false}
+                <option
+                  className=""
+                  disabled={false}
+                  value=""
+                >
+                  None
+                </option>
+              </FormSelectOption>
+              <FormSelectOption
+                key="bar"
+                label="Foo"
                 value="bar"
               >
-                Foo
-              </option>
-            </FormSelectOption>
-          </select>
-        </FormSelect>
-      </Select>
+                <option
+                  className=""
+                  disabled={false}
+                  value="bar"
+                >
+                  Foo
+                </option>
+              </FormSelectOption>
+            </select>
+          </FormSelect>
+        </Select>
+      </div>
     </div>
   </FormGroup>
 </Pf4SelectWrapper>
