@@ -59,10 +59,6 @@ const AddRoleWizard = ({ pagination, filters }) => {
     setSchema(schemaBuilder(container.current));
   }, []);
 
-  useEffect(() => {
-    container.current.hidden = cancelWarningVisible;
-  }, [cancelWarningVisible]);
-
   const onClose = () =>
     push({
       pathname: paths.roles,
@@ -132,7 +128,15 @@ const AddRoleWizard = ({ pagination, filters }) => {
   }
   return (
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
-      <WarningModal type="role" isOpen={cancelWarningVisible} onModalCancel={() => setCancelWarningVisible(false)} onConfirmCancel={onCancel} />
+      <WarningModal
+        type="role"
+        isOpen={cancelWarningVisible}
+        onModalCancel={() => {
+          container.current.hidden = false;
+          setCancelWarningVisible(false);
+        }}
+        onConfirmCancel={onCancel}
+      />
       {wizardContextValue.hideForm ? (
         <Wizard
           title="Create role"
@@ -160,6 +164,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
           onCancel={(values) => {
             const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
             if (showWarning) {
+              container.current.hidden = true;
               setCancelWarningVisible(true);
             } else {
               onCancel();
