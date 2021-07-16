@@ -1,48 +1,39 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import {
-  Card,
-  Form,
-  FormGroup,
-  Stack,
-  StackItem,
-  Text,
-  TextContent,
-  TextVariants,
-  Title
-} from '@patternfly/react-core';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { FormGroup, Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
 import RolesList from './roles-list';
 import '../../../App.scss';
 
-const SetRoles = ({ selectedRoles, setSelectedRoles, title, description }) => {
+const SetRoles = (props) => {
+  const [selectedRoles, setSelectedRoles] = useState([]);
+  const { input } = useFieldApi(props);
+  const formOptions = useFormApi();
+
+  useEffect(() => {
+    setSelectedRoles(formOptions.getState().values['roles-list'] || []);
+  }, []);
+
+  useEffect(() => {
+    input.onChange(selectedRoles);
+    formOptions.change('roles-list', selectedRoles);
+  }, [selectedRoles]);
+
   return (
     <Fragment>
-      <Form>
-        <Stack gutter="md">
-          { title && <StackItem>
-            <Title size="xl">{ title }</Title>
-          </StackItem> }
-          <StackItem>
-            <TextContent>
-              <Title headingLevel="h4" size="xl"> Assign roles to the group </Title>
-              <Text
-                className="pf-u-mt-0"
-                component={ TextVariants.h6 }>
-                { description || 'Select one or more roles to add to this group.' }
-              </Text>
-            </TextContent>
-          </StackItem>
-          <StackItem>
-            <FormGroup
-              fieldId="select-role"
-            >
-              <Card>
-                <RolesList selectedRoles={ selectedRoles } setSelectedRoles={ setSelectedRoles }/>
-              </Card>
-            </FormGroup>
-          </StackItem>
-        </Stack>
-      </Form>
+      <Stack hasGutter>
+        <StackItem>
+          <TextContent>
+            <Text>Select one or more roles to add to this group.</Text>
+          </TextContent>
+        </StackItem>
+        <StackItem>
+          <FormGroup fieldId="select-role">
+            <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} />
+          </FormGroup>
+        </StackItem>
+      </Stack>
     </Fragment>
   );
 };
@@ -51,8 +42,7 @@ SetRoles.propTypes = {
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   title: PropTypes.string,
-  description: PropTypes.string
+  description: PropTypes.string,
 };
 
 export default SetRoles;
-

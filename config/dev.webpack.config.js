@@ -1,27 +1,42 @@
-/* global require, module */
+/* global */
+const webpack = require('webpack');
+const { resolve } = require('path');
+const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
+const config = require('@redhat-cloud-services/frontend-components-config');
 
-const _ = require('lodash');
-const webpackConfig = require('./base.webpack.config');
-const config = require('./webpack.common.js');
-const history = require('connect-history-api-fallback');
-const convert = require('koa-connect');
-
-webpackConfig.serve = {
-  content: config.paths.public,
-  mode: 'development',
-  port: 8002,
-  // Setting inline and hot to false disables websockets
-  inline: false,
-  hot: false,
-  host: '0.0.0.0',
-  dev: {
-    publicPath: config.paths.publicPath
-  },
-  // https://github.com/webpack-contrib/webpack-serve/blob/master/docs/addons/history-fallback.config.js
-  add: app => app.use(convert(history({})))
+const insightsProxy = {
+  https: false,
+  ...(process.env.BETA && { deployment: 'beta/apps' }),
 };
 
-module.exports = _.merge({},
-  webpackConfig,
-  require('./dev.webpack.plugins.js')
+const webpackProxy = {
+  deployment: process.env.BETA ? 'beta/apps' : 'apps',
+  useProxy: true,
+  useCloud: true,
+  appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
+};
+
+const { config: webpackConfig, plugins } = config({
+  rootFolder: resolve(__dirname, '../'),
+  debug: true,
+  sassPrefix: '.rbac, .my-user-access',
+  ...(process.env.PROXY ? webpackProxy : insightsProxy),
+});
+
+plugins.push(
+  require('@redhat-cloud-services/frontend-components-config/federated-modules')({
+    root: resolve(__dirname, '../'),
+  })
 );
+
+plugins.push(
+  new webpack.DefinePlugin({
+    API_BASE: JSON.stringify('/api/rbac/v1'),
+  })
+);
+
+module.exports = (env) => {
+  env && env.analyze === 'true' && plugins.push(new BundleAnalyzerPlugin());
+
+  return { ...webpackConfig, plugins };
+};

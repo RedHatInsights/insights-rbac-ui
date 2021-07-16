@@ -1,40 +1,27 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import ReactFormRender, { componentTypes } from '@data-driven-forms/react-form-renderer';
-import { layoutMapper, formFieldsMapper } from '@data-driven-forms/pf4-component-mapper';
 import Pf4SelectWrapper from '../../presentational-components/shared/pf4-select-wrapper';
+import FormButtons from './FormButtons';
+import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
+import TextField from '@data-driven-forms/pf4-component-mapper/text-field';
+import Textarea from '@data-driven-forms/pf4-component-mapper/textarea';
+import ReactFormRender from '@data-driven-forms/react-form-renderer/form-renderer';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 
-const buttonPositioning = {
-  default: {},
-  modal: {
-    buttonOrder: [ 'cancel', 'reset', 'save' ],
-    buttonClassName: 'modal-form-right-align'
-  }
-};
-
-const FormRenderer = ({ componentMapper, formContainer, ...rest }) => (
-  <div className={ buttonPositioning[formContainer].buttonClassName }>
-    <ReactFormRender
-      formFieldsMapper={ {
-        ...formFieldsMapper,
-        componentMapper,
-        [componentTypes.SELECT]: Pf4SelectWrapper
-      } }
-      layoutMapper={ layoutMapper }
-      { ...buttonPositioning[formContainer] }
-      { ...rest }
-    />
-  </div>
+const FormRenderer = ({ formTemplateProps, ...props }) => (
+  <ReactFormRender
+    componentMapper={{
+      [componentTypes.TEXT_FIELD]: TextField,
+      [componentTypes.TEXTAREA]: Textarea,
+      [componentTypes.SELECT]: Pf4SelectWrapper,
+    }}
+    FormTemplate={(props) => <FormTemplate {...formTemplateProps} {...props} FormButtons={FormButtons} />}
+    {...props}
+  />
 );
 
 FormRenderer.propTypes = {
-  componentMapper: PropTypes.object,
-  formContainer: PropTypes.oneOf([ 'default', 'modal' ])
-};
-
-FormRenderer.defaultProps = {
-  componentMapper: {},
-  formContainer: 'default'
+  formTemplateProps: PropTypes.object,
 };
 
 export default FormRenderer;

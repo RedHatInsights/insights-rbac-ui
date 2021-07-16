@@ -1,43 +1,54 @@
-import React from 'react';
-import { Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+/* eslint-disable */
+import React, { useEffect } from 'react';
+import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section } from '@redhat-cloud-services/frontend-components';
 import UsersList from '../group/add-group/users-list';
+import ActiveUser from '../../presentational-components/shared/ActiveUsers';
+import User from './user';
+import { routes as paths } from '../../../package.json';
+import PageActionRoute from '../common/page-action-route';
 
 const Users = () => {
-  const isProd = window.insights.chrome.isProd;
-  const description = (<TextContent>
-    <Text>
-    These are the users in your organization. To add new users to your organization, go to{ ' ' }
-      <Text
-        component={ TextVariants.a }
-        href={ `https://www.${isProd ? '' : 'qa.'}redhat.com/wapps/ugc/protected/usermgt/userList.html` }>
-      user management list.
-      </Text>
-    </Text>
-  </TextContent>);
+  const description = (
+    <ActiveUser
+      description="These are all of the users in your Red Hat organization. To add new users or manage existing users, go to your"
+    />
+  );
+
+  useEffect(() => {
+    insights.chrome.appNavClick({ id: 'users', secondaryNav: true });
+  }, []);
+
+  const renderUsers = () => <Stack >
+    <StackItem>
+      <TopToolbar paddingBottm={ false }>
+        <TopToolbarTitle
+          title="Users"
+          description={ description }
+        />
+      </TopToolbar>
+    </StackItem>
+    <StackItem>
+      <Section type="content" id={ 'users' }>
+        <UsersList
+          userLinks
+          props={ {
+            isSelectable: false,
+            isCompact: false
+          } }
+        />
+      </Section>
+    </StackItem>
+  </Stack >;
 
   return (
-    <Stack >
-      <StackItem>
-        <TopToolbar paddingBottm={ false }>
-          <TopToolbarTitle
-            title="Users"
-            description={ description }
-          />
-        </TopToolbar>
-      </StackItem>
-      <StackItem>
-        <Section type="content" id={ 'users' }>
-          <UsersList
-            props={ {
-              isSelectable: false,
-              isCompact: false
-            } }
-          />
-        </Section>
-      </StackItem>
-    </Stack >
+    <Switch>
+      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
+      <PageActionRoute pageAction="users-list" path={ [ paths.users, paths.rbac] } render={ () => renderUsers() } />
+    </Switch>
+
   );
 };
 

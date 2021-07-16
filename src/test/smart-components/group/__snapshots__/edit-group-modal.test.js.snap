@@ -32,12 +32,20 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
     }
   }
 >
-  <ConnectFunction
-    closeUrl="/groups"
-    groupData={
+  <Connect(EditGroupModal)
+    cancelRoute="/groups"
+    filters={Object {}}
+    group={
       Object {
         "id": "1",
         "name": "Foo",
+      }
+    }
+    pagination={
+      Object {
+        "itemCount": 0,
+        "limit": 20,
+        "offset": 0,
       }
     }
   />

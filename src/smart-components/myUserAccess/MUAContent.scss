@@ -1,0 +1,10 @@
+.ins-l-myUserAccess-section__cards--unentitled {
+    .pf-c-title {
+        border-top: 1px solid var(--pf-global--BorderColor--100);
+        padding-top: var(--pf-global--spacer--md);
+    }
+    .ins-c-mua-cardWrapper {
+        cursor: not-allowed;
+    }
+}
+

@@ -1,25 +1,30 @@
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/files/debounce';
+export const BAD_UUID = 'bad uuid';
 
-export const scrollToTop = () => document.getElementById('root').scrollTo({
-  behavior: 'smooth',
-  top: 0,
-  left: 0
-});
+import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
+import { calculatePage } from './pagination';
 
-export const getCurrentPage = (limit = 1, offset = 0) => Math.floor(offset / limit) + 1;
+export const scrollToTop = () =>
+  document.getElementById('root').scrollTo({
+    behavior: 'smooth',
+    top: 0,
+    left: 0,
+  });
 
-export const getNewPage = (page = 1, offset) => (page - 1) * offset;
+export const mappedProps = (apiProps) =>
+  Object.entries(apiProps).reduce(
+    (acc, [key, value]) => ({
+      ...acc,
+      ...(value && { [key]: value }),
+    }),
+    {}
+  );
 
-export const mappedProps = (apiProps) => Object.entries(apiProps).reduce((acc, [ key, value ]) => ({
-  ...acc,
-  ...value && { [key]: value }
-}), {});
-
-export const debouncedFetch = debouncePromise(callback => callback());
+export const debouncedFetch = debouncePromise((callback) => callback());
 
 export const calculateChecked = (rows = [], selected) => {
-  return (rows.length !== 0 && rows.every(({ uuid }) => selected.find(row => row.uuid === uuid))) || (
-    (rows.length !== 0 && rows.some(({ uuid }) => selected.find(row => row.uuid === uuid))) ? null : false
+  const nonDefaults = rows.filter((row) => !row.platform_default);
+  return (
+    (nonDefaults.length !== 0 && nonDefaults.every(({ uuid }) => selected.find((row) => row.uuid === uuid))) || (selected.length > 0 ? null : false)
   );
 };
 
@@ -28,10 +33,30 @@ export const selectedRows = (newSelection, isSelected) => (selected) => {
     return selected.filter((row) => !newSelection.find(({ uuid }) => uuid === row.uuid));
   }
 
-  return [
-    ...selected,
-    ...newSelection
-  ].filter((row, key, arr) => arr.findIndex(({ uuid }) => row.uuid === uuid) === key);
+  return [...selected, ...newSelection].filter((row, key, arr) => arr.findIndex(({ uuid }) => row.uuid === uuid) === key);
 };
 
 export const firstUpperCase = (text) => text.charAt(0).toUpperCase() + text.slice(1);
+
+export const createQueryParams = (params) => {
+  const searchParams = new URLSearchParams();
+  Object.keys(params).forEach((key) => {
+    const value = params[key];
+
+    if (Array.isArray(value)) {
+      value.forEach((item) => item && searchParams.append(key, item));
+    } else {
+      value && searchParams.set(key, value);
+    }
+  });
+  return searchParams.toString();
+};
+
+export const getBackRoute = (pathname, pagination, filters) => ({
+  pathname,
+  search: createQueryParams({
+    page: calculatePage(pagination.limit, pagination.offset),
+    per_page: pagination.limit,
+    ...filters,
+  }),
+});
