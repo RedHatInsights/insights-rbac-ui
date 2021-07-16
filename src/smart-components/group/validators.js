@@ -10,7 +10,7 @@ export const asyncValidator = async (groupName, idKey, id) => {
     throw 'Can have maximum of 150 characters.';
   }
 
-  const response = await fetchGroups({ limit: 10, offset: 0, name: groupName, nameMatch: 'exact' }).catch((error) => {
+  const response = await fetchGroups({ limit: 10, offset: 0, filters: { name: groupName }, nameMatch: 'exact' }).catch((error) => {
     console.error(error);
     return undefined;
   });

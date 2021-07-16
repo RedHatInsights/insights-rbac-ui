@@ -9,7 +9,7 @@ const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
     <Title headingLevel="h4" size="lg">
       {title}
     </Title>
-    <EmptyStateBody>
+    <EmptyStateBody className="pf-u-mb-md">
       {description.map((text, key) => (
         <React.Fragment key={key}>
           {text} <br />

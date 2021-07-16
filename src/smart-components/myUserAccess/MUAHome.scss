@@ -63,4 +63,13 @@
       > .pf-c-title { display: none; }
     }
   }
+
+  .ins-l-myUserAccess-section__table {
+    background-color: transparent;
+    h3 {
+      background-color: var(--pf-global--BackgroundColor--100);
+      margin-top: var(--pf-global--spacer--md);
+      padding-left: var(--pf-global--spacer--md);
+    }
+  }
 }

@@ -1,3 +1,4 @@
+import { createContext } from 'react';
 import promiseMiddleware from 'redux-promise-middleware';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
@@ -12,6 +13,10 @@ import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
+
+export const RegistryContext = createContext({
+  getRegistry: () => {},
+});
 
 const registry = new ReducerRegistry({}, [
   thunk,
@@ -34,4 +39,4 @@ registry.register({
   notifications: notificationsReducer,
 });
 
-export default registry.getStore();
+export default registry;

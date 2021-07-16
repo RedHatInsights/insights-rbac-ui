@@ -1,8 +1,8 @@
 import { Button } from '@patternfly/react-core';
-import React, { Fragment, useContext } from 'react';
+import React, { useContext, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const selectNext = (nextStep, getState) =>
   ({
@@ -31,7 +31,7 @@ NextButton.propTypes = {
   getState: PropTypes.func.isRequired,
 };
 
-const ReviewStepButtons = ({ disableBack, handlePrev, nextStep, handleNext, buttonLabels: { cancel, submit, back, next }, context }) => {
+const ReviewStepButtons = ({ renderNextButton, disableBack, handlePrev, buttonLabels: { cancel, back }, context }) => {
   const formOptions = useFormApi();
   const { success, error, submitting } = useContext(context);
   if (success || typeof error === 'undefined' || error || submitting) {
@@ -40,7 +40,7 @@ const ReviewStepButtons = ({ disableBack, handlePrev, nextStep, handleNext, butt
 
   return (
     <Fragment>
-      <NextButton {...formOptions} handleNext={handleNext} nextStep={nextStep} nextLabel={next} submitLabel={submit} />
+      {renderNextButton()}
       <Button type="button" variant="secondary" isDisabled={disableBack} onClick={handlePrev}>
         {back}
       </Button>
@@ -70,6 +70,7 @@ ReviewStepButtons.propTypes = {
     next: PropTypes.node.isRequired,
   }).isRequired,
   context: PropTypes.object.isRequired,
+  renderNextButton: PropTypes.func,
 };
 
 export default ReviewStepButtons;

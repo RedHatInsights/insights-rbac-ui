@@ -1,4 +1,5 @@
 import React from 'react';
+import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { shallow } from 'enzyme';
@@ -40,17 +41,18 @@ describe('<AddRoleWizard />', () => {
     mockStore = configureStore(middlewares);
   });
 
-  it('should render correctly', () => {
+  it('should render correctly', async () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(
-      <RoleWrapper store={store}>
-        <AddRoleWizard {...initialProps} />
-      </RoleWrapper>
-    ).dive();
-
-    setImmediate(() => {
-      expect(shallowToJson(wrapper)).toMatchSnapshot();
+    let wrapper;
+    await act(async () => {
+      wrapper = shallow(
+        <RoleWrapper store={store}>
+          <AddRoleWizard {...initialProps} />
+        </RoleWrapper>
+      ).dive();
     });
+
+    expect(shallowToJson(wrapper)).toMatchSnapshot();
   });
 
   it('should show a warning modal on Cancel', () => {
@@ -71,14 +73,17 @@ describe('<AddRoleWizard />', () => {
     expect(wrapper.find(WarningModal).getElement().props.isOpen).toBeTruthy();
   });
 
-  it('should not show a warning modal on Cancel when clean', (done) => {
+  it('should not show a warning modal on Cancel when clean', async () => {
     const store = mockStore(initialState);
-
-    const wrapper = mount(
-      <RoleWrapper store={store}>
-        <Route path="/roles/add-role/" render={() => <AddRoleWizard {...initialProps} />} />
-      </RoleWrapper>
-    );
+    let wrapper;
+    await act(async () => {
+      wrapper = mount(
+        <RoleWrapper store={store}>
+          <Route path="/roles/add-role/" render={() => <AddRoleWizard {...initialProps} />} />
+        </RoleWrapper>
+      );
+    });
+    wrapper.update();
     const expectedActions = expect.arrayContaining([
       expect.objectContaining({
         type: ADD_NOTIFICATION,
@@ -90,10 +95,7 @@ describe('<AddRoleWizard />', () => {
     wrapper.update();
     wrapper.find('.pf-m-link').simulate('click');
 
-    setImmediate(() => {
-      expect(store.getActions()).toEqual(expectedActions);
-      expect(wrapper.find(WarningModal)).toHaveLength(0);
-      done();
-    });
+    expect(store.getActions()).toEqual(expectedActions);
+    expect(wrapper.find(WarningModal)).toHaveLength(0);
   });
 });

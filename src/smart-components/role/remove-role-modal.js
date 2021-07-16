@@ -10,7 +10,7 @@ import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';
 import { roleNameSelector } from './role-selectors';
 
-const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
+const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const isMounted = useIsMounted();
   const {
     params: { id },
@@ -34,7 +34,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
   const onSubmit = () =>
     dispatch(removeRole(id)).then(() => {
-      push('/roles');
+      push(submitRoute);
       return afterSubmit();
     });
 
@@ -89,7 +89,22 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, afterSubmit }) => {
 
 RemoveRoleModal.propTypes = {
   routeMatch: PropTypes.string.isRequired,
-  cancelRoute: PropTypes.string.isRequired,
+  cancelRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]).isRequired,
+  submitRoute: PropTypes.oneOfType([
+    PropTypes.string,
+    PropTypes.shape({
+      pathname: PropTypes.string.isRequired,
+      search: PropTypes.string,
+      hash: PropTypes.string,
+    }),
+  ]),
   afterSubmit: PropTypes.func.isRequired,
 };
 

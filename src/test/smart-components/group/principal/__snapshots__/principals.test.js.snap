@@ -1,10 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render correctly loader 1`] = `
-<ListLoader
-  items={5}
-/>
-`;
+exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
 
 exports[`<GroupPrincipals /> should render correctly with data 1`] = `
 <TableToolbarView
@@ -130,6 +126,9 @@ Array [
                       >
                         <h1
                           className=""
+                          data-ouia-component-id="OUIA-Generated-Text-1"
+                          data-ouia-component-type="PF4/Text"
+                          data-ouia-safe={true}
                           data-pf-content={true}
                         >
                           All users in this organization are members of this group.
@@ -176,6 +175,9 @@ Array [
                     >
                       <h1
                         className=""
+                        data-ouia-component-id="OUIA-Generated-Text-1"
+                        data-ouia-component-type="PF4/Text"
+                        data-ouia-safe={true}
                         data-pf-content={true}
                       >
                         All users in this organization are members of this group.

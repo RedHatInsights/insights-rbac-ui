@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Stack, StackItem } from '@patternfly/react-core';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/TextInput';
 import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea/TextArea';
 import { FormGroup } from '@patternfly/react-core/dist/esm/components/Form/FormGroup';

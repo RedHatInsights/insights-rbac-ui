@@ -1,7 +1,8 @@
 import React from 'react';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewTemplate from './review-template';
+import CostResourcesTemplate from './cost-resources-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddRoleWizardContext } from './add-role-wizard';
@@ -168,6 +169,7 @@ export default (container) => ({
           name: 'cost-resources-definition',
           title: 'Define Cost Management resources',
           nextStep: 'review',
+          StepTemplate: CostResourcesTemplate,
           fields: [
             {
               component: 'plain-text',

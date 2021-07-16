@@ -1,6 +1,6 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<AddRoleWizard /> should render correctly 1`] = `
+exports[`<AddGroupWizard /> should render correctly 1`] = `
 <ContextProvider
   value={
     Object {
@@ -35,11 +35,24 @@ exports[`<AddRoleWizard /> should render correctly 1`] = `
   <MemoryRouter
     initialEntries={
       Array [
-        "/roles/add-role/",
+        "/groups/",
+        "/groups/add-group/",
+        "/groups/",
       ]
     }
+    initialIndex={1}
   >
-    <withRouter(Connect(AddRoleWizard)) />
+    <AddGroupWizard
+      filters={Object {}}
+      pagination={
+        Object {
+          "itemCount": 0,
+          "limit": 20,
+          "offset": 0,
+        }
+      }
+      uuid="123"
+    />
   </MemoryRouter>
 </ContextProvider>
 `;
