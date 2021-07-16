@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
-import WizardContext from '@data-driven-forms/react-form-renderer/dist/esm/wizard-context';
+import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import PropTypes from 'prop-types';
 

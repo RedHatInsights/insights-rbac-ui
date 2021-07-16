@@ -8,6 +8,8 @@ export const rolesInitialState = {
   roles: {
     data: [],
     meta: defaultSettings,
+    filters: {},
+    pagination: { ...defaultSettings, count: 0 },
   },
   rolesForWizard: {
     data: [],
@@ -23,7 +25,11 @@ const setRole = (state, { payload }) => ({
   ...(!payload.error ? { selectedRole: payload } : payload),
   isRecordLoading: false,
 });
-const setRoles = (state, { payload }) => ({ ...state, ...(!payload.error ? { roles: payload } : payload), isLoading: false });
+const setRoles = (state, { payload }) => ({
+  ...state,
+  ...(!payload.error ? { roles: { ...state.roles, ...payload } } : payload),
+  isLoading: false,
+});
 const setRolesWithAccess = (state, { payload }) => ({
   ...state,
   rolesWithAccess: { ...state.rolesWithAccess, [payload.uuid]: payload },

@@ -2,7 +2,7 @@ import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { DataList, DataListCell, DataListItem, DataListItemRow, DataListItemCells, Form, FormGroup } from '@patternfly/react-core';
 import ContentLoader from 'react-content-loader';
-import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components';
+import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 
 export const ListLoader = ({ items, ...props }) => (
   <Fragment>

@@ -5,10 +5,10 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
-import { fetchMembersForGroup, removeMembersFromGroup } from '../../../redux/actions/group-actions';
+import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import { routes as paths } from '../../../../package.json';
@@ -69,6 +69,7 @@ const GroupPrincipals = () => {
     return dispatch(removeMembersFromGroup(uuid, userNames)).then(() => {
       setSelectedPrincipals([]);
       fetchData(undefined, { ...pagination, offset: 0 });
+      dispatch(fetchGroups({ inModal: false }));
     });
   };
 

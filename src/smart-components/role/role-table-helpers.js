@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { DateFormat } from '@redhat-cloud-services/frontend-components';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { Link } from 'react-router-dom';
 
 export const createRows = (data) =>

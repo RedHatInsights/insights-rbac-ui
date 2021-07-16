@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const SummaryContent = () => {
   const formOptions = useFormApi();
