@@ -52,7 +52,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       data={roles}
       filterValue={filterValue}
       filterPlaceholder="role name"
-      fetchData={(config) => fetchRoles(mappedProps(config))}
+      fetchData={(config) => fetchRoles(mappedProps({ ...config, filters: { name: config.name } }))}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
       ouiaId="roles-table"
