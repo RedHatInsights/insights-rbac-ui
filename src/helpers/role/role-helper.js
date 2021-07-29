@@ -56,7 +56,7 @@ export async function fetchRolesWithPolicies({
     offset,
     filters.name,
     undefined,
-    undefined,
+    filters.display_name,
     nameMatch,
     scope,
     orderBy,
