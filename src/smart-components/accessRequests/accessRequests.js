@@ -18,7 +18,7 @@ const AccessRequests = () => {
    * The module name has changes after the nav rework.
    * We have to keep these changes in sync with the nav promotion.
    */
-  const appName = window.insights.chrome.getEnvironment() === 'ci' && window.insights.chrome.isBeta() ? 'accessRequests' : 'access-requests';
+  const appName = 'accessRequests';
   return (
     <Fragment>
       <Route
