@@ -146,7 +146,7 @@ describe('<Roles />', () => {
       limit: 20,
       orderBy: '-display_name',
       filters: {
-        name: [],
+        display_name: [],
       },
       inModal: false,
     });
