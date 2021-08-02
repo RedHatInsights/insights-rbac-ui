@@ -45,19 +45,19 @@ const Roles = () => {
   const history = useHistory();
 
   const [pagination, setPagination] = useState(meta);
-  const [filterValue, setFilterValue] = useState(filters.name || '');
+  const [filterValue, setFilterValue] = useState(filters.display_name || '');
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
     setPagination(syncedPagination);
-    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
-    setFilterValue(name);
+    const { display_name } = syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+    setFilterValue(display_name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    fetchData({ ...syncedPagination, filters: { name } });
+    fetchData({ ...syncedPagination, filters: { display_name } });
   }, []);
 
   useEffect(() => {
-    setFilterValue(filters.name);
+    setFilterValue(filters.display_name);
     setPagination(meta);
   }, [filters, meta]);
 
@@ -68,12 +68,12 @@ const Roles = () => {
   const routes = () => (
     <Suspense fallback={<Fragment />}>
       <Route exact path={paths['add-role']}>
-        <AddRoleWizard pagination={pagination} filters={{ name: filterValue }} />
+        <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
       </Route>
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['remove-role']}
             cancelRoute={getBackRoute(paths.roles, pagination, filters)}
             submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
@@ -83,7 +83,7 @@ const Roles = () => {
       <Route exact path={paths['edit-role']}>
         {!isLoading && (
           <EditRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { name: filterValue } }, true)}
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['edit-role']}
             cancelRoute={getBackRoute(paths.roles, pagination, filters)}
             submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
@@ -147,8 +147,8 @@ const Roles = () => {
             fetchData={(config) => {
               const { name, count, limit, offset, orderBy } = config;
               applyPaginationToUrl(history, limit, offset);
-              applyFiltersToUrl(history, { name });
-              return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { name } }));
+              applyFiltersToUrl(history, { display_name: name });
+              return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
             setFilterValue={({ name }) => setFilterValue(name)}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
