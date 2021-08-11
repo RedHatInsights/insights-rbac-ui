@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup } from '@patternfly/react-core';
+import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
@@ -135,10 +135,12 @@ const CostResources = (props) => {
     const options = state[permission].filteredOptions;
     return (
       <React.Fragment>
-        <GridItem md={4} sm={12}>
-          <FormGroup label={permission} isRequired></FormGroup>
+        <GridItem md={3} sm={12}>
+          <Tooltip content={<div>{permission}</div>}>
+            <FormGroup label={permission.replace(/^cost-management:/, '')} isRequired></FormGroup>
+          </Tooltip>
         </GridItem>
-        <GridItem md={8} sm={12}>
+        <GridItem md={9} sm={12}>
           <Select
             className="ins-c-rbac-cost-resource-select"
             variant={SelectVariant.checkbox}
@@ -170,12 +172,12 @@ const CostResources = (props) => {
 
   return (
     <Grid hasGutter>
-      <GridItem md={4} className="ins-m-hide-on-sm">
+      <GridItem md={3} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
-          Cost management permissions
+          Permissions
         </Text>
       </GridItem>
-      <GridItem md={8} className="ins-m-hide-on-sm">
+      <GridItem md={9} className="ins-m-hide-on-sm">
         <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
           Resource definitions
         </Text>
