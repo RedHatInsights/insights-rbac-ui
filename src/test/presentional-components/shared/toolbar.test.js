@@ -147,7 +147,7 @@ describe('<Toolbar>', () => {
     it('call filter update with correct value', () => {
       const setFilterValue = jest.fn();
       const wrapper = mount(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} setFilterValue={setFilterValue} />);
-      const target = wrapper.find('input#filter-by-name');
+      const target = wrapper.find('input#filter-by-name').first();
       target.getDOMNode().value = 'something';
       target.simulate('change');
       wrapper.update();
