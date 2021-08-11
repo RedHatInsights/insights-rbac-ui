@@ -121,6 +121,7 @@
     .pf-c-select__menu {
         max-height: 300px;
         overflow: auto;
+        width: inherit;
         .pf-c-select__menu-item:nth-child(3) {
             .pf-c-check__input {
                 display: none;
@@ -129,6 +130,12 @@
                 color: var(--pf-global--link--Color);
             }
         }
+    }
+    .pf-c-check.pf-c-select__menu-item {
+         width: inherit;
+    }
+    .pf-c-check__label {
+        white-space: pre-wrap;
     }
 }
 
