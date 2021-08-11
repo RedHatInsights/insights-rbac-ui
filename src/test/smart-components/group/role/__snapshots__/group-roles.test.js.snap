@@ -158,12 +158,11 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
           "value": undefined,
         }
       }
-      toggleIsExpanded={[Function]}
+      useMobileLayout={true}
     >
       <Toolbar
         className=" ins-c-primary-toolbar"
         id="ins-primary-data-toolbar"
-        toggleIsExpanded={[Function]}
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
@@ -235,443 +234,724 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                 },
                               ]
                             }
+                            useMobileLayout={true}
                             value=""
                           >
-                            <Split
-                              className="ins-c-conditional-filter"
-                            >
-                              <div
-                                className="pf-l-split ins-c-conditional-filter"
+                            <Component>
+                              <ToolbarToggleGroup
+                                breakpoint="md"
+                                toggleIcon={
+                                  <FilterIcon
+                                    color="currentColor"
+                                    noVerticalAlign={false}
+                                    size="sm"
+                                  />
+                                }
                               >
-                                <SplitItem>
+                                <div
+                                  className="pf-c-toolbar__group pf-m-toggle-group pf-m-show-on-md"
+                                >
                                   <div
-                                    className="pf-l-split__item"
+                                    className="pf-c-toolbar__toggle"
                                   >
-                                    <Dropdown
-                                      className="ins-c-conditional-filter__group"
-                                      dropdownItems={
-                                        Array [
-                                          <DropdownItem
-                                            component="button"
-                                            isHovered={true}
-                                            onClick={[Function]}
-                                          >
-                                            Name
-                                          </DropdownItem>,
-                                          <DropdownItem
-                                            component="button"
-                                            isHovered={false}
-                                            onClick={[Function]}
-                                          >
-                                            Description
-                                          </DropdownItem>,
-                                        ]
-                                      }
-                                      isOpen={false}
-                                      onSelect={[Function]}
-                                      toggle={
-                                        <DropdownToggle
-                                          className=""
-                                          isDisabled={false}
-                                          onToggle={[Function]}
+                                    <Button
+                                      aria-controls="ins-primary-data-toolbar-expandable-content-0"
+                                      aria-haspopup={false}
+                                      aria-label="Show Filters"
+                                      onClick={[Function]}
+                                      variant="plain"
+                                    >
+                                      <ButtonBase
+                                        aria-controls="ins-primary-data-toolbar-expandable-content-0"
+                                        aria-haspopup={false}
+                                        aria-label="Show Filters"
+                                        innerRef={null}
+                                        onClick={[Function]}
+                                        variant="plain"
+                                      >
+                                        <button
+                                          aria-controls="ins-primary-data-toolbar-expandable-content-0"
+                                          aria-disabled={false}
+                                          aria-haspopup={false}
+                                          aria-label="Show Filters"
+                                          className="pf-c-button pf-m-plain"
+                                          data-ouia-component-id="OUIA-Generated-Button-plain-1"
+                                          data-ouia-component-type="PF4/Button"
+                                          data-ouia-safe={true}
+                                          disabled={false}
+                                          onClick={[Function]}
+                                          role={null}
+                                          type="button"
                                         >
                                           <FilterIcon
                                             color="currentColor"
                                             noVerticalAlign={false}
                                             size="sm"
-                                          />
-                                          <span
-                                            className="ins-c-conditional-filter__value-selector"
                                           >
-                                            Name
-                                          </span>
-                                        </DropdownToggle>
-                                      }
-                                    >
-                                      <DropdownWithContext
-                                        autoFocus={true}
-                                        className="ins-c-conditional-filter__group"
-                                        direction="down"
-                                        dropdownItems={
-                                          Array [
-                                            <DropdownItem
-                                              component="button"
-                                              isHovered={true}
-                                              onClick={[Function]}
-                                            >
-                                              Name
-                                            </DropdownItem>,
-                                            <DropdownItem
-                                              component="button"
-                                              isHovered={false}
-                                              onClick={[Function]}
-                                            >
-                                              Description
-                                            </DropdownItem>,
-                                          ]
-                                        }
-                                        isGrouped={false}
-                                        isOpen={false}
-                                        isPlain={false}
-                                        menuAppendTo="inline"
-                                        onSelect={[Function]}
-                                        position="left"
-                                        toggle={
-                                          <DropdownToggle
-                                            className=""
-                                            isDisabled={false}
-                                            onToggle={[Function]}
-                                          >
-                                            <FilterIcon
-                                              color="currentColor"
-                                              noVerticalAlign={false}
-                                              size="sm"
-                                            />
-                                            <span
-                                              className="ins-c-conditional-filter__value-selector"
-                                            >
-                                              Name
-                                            </span>
-                                          </DropdownToggle>
-                                        }
-                                      >
-                                        <div
-                                          className="pf-c-dropdown ins-c-conditional-filter__group"
-                                          data-ouia-component-id="OUIA-Generated-Dropdown-1"
-                                          data-ouia-component-type="PF4/Dropdown"
-                                          data-ouia-safe={true}
-                                        >
-                                          <DropdownToggle
-                                            aria-haspopup={true}
-                                            className=""
-                                            getMenuRef={[Function]}
-                                            id="pf-dropdown-toggle-id-0"
-                                            isDisabled={false}
-                                            isOpen={false}
-                                            isPlain={false}
-                                            key=".0"
-                                            onEnter={[Function]}
-                                            onToggle={[Function]}
-                                            parentRef={
-                                              Object {
-                                                "current": <div
-                                                  class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                  data-ouia-component-id="OUIA-Generated-Dropdown-1"
-                                                  data-ouia-component-type="PF4/Dropdown"
-                                                  data-ouia-safe="true"
-                                                >
-                                                  <button
-                                                    aria-expanded="false"
-                                                    aria-haspopup="true"
-                                                    class="pf-c-dropdown__toggle"
-                                                    data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                    data-ouia-component-type="PF4/DropdownToggle"
-                                                    data-ouia-safe="true"
-                                                    id="pf-dropdown-toggle-id-1"
-                                                    type="button"
-                                                  >
-                                                    <span
-                                                      class="pf-c-dropdown__toggle-text"
-                                                    >
-                                                      <svg
-                                                        aria-hidden="true"
-                                                        fill="currentColor"
-                                                        height="1em"
-                                                        role="img"
-                                                        style="vertical-align: -0.125em;"
-                                                        viewBox="0 0 512 512"
-                                                        width="1em"
-                                                      >
-                                                        <path
-                                                          d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-                                                        />
-                                                      </svg>
-                                                      <span
-                                                        class="ins-c-conditional-filter__value-selector"
-                                                      >
-                                                        Name
-                                                      </span>
-                                                    </span>
-                                                    <span
-                                                      class="pf-c-dropdown__toggle-icon"
-                                                    >
-                                                      <svg
-                                                        aria-hidden="true"
-                                                        fill="currentColor"
-                                                        height="1em"
-                                                        role="img"
-                                                        style="vertical-align: -0.125em;"
-                                                        viewBox="0 0 320 512"
-                                                        width="1em"
-                                                      >
-                                                        <path
-                                                          d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                                                        />
-                                                      </svg>
-                                                    </span>
-                                                  </button>
-                                                </div>,
-                                              }
-                                            }
-                                          >
-                                            <Toggle
-                                              aria-haspopup={true}
-                                              bubbleEvent={false}
-                                              className=""
-                                              data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                              data-ouia-component-type="PF4/DropdownToggle"
-                                              data-ouia-safe={true}
-                                              getMenuRef={[Function]}
-                                              id="pf-dropdown-toggle-id-0"
-                                              isActive={false}
-                                              isDisabled={false}
-                                              isOpen={false}
-                                              isPlain={false}
-                                              isPrimary={false}
-                                              isSplitButton={false}
-                                              onEnter={[Function]}
-                                              onToggle={[Function]}
-                                              parentRef={
+                                            <svg
+                                              aria-hidden={true}
+                                              aria-labelledby={null}
+                                              fill="currentColor"
+                                              height="1em"
+                                              role="img"
+                                              style={
                                                 Object {
-                                                  "current": <div
-                                                    class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                    data-ouia-component-id="OUIA-Generated-Dropdown-1"
-                                                    data-ouia-component-type="PF4/Dropdown"
-                                                    data-ouia-safe="true"
-                                                  >
-                                                    <button
-                                                      aria-expanded="false"
-                                                      aria-haspopup="true"
-                                                      class="pf-c-dropdown__toggle"
-                                                      data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                      data-ouia-component-type="PF4/DropdownToggle"
-                                                      data-ouia-safe="true"
-                                                      id="pf-dropdown-toggle-id-1"
-                                                      type="button"
-                                                    >
-                                                      <span
-                                                        class="pf-c-dropdown__toggle-text"
-                                                      >
-                                                        <svg
-                                                          aria-hidden="true"
-                                                          fill="currentColor"
-                                                          height="1em"
-                                                          role="img"
-                                                          style="vertical-align: -0.125em;"
-                                                          viewBox="0 0 512 512"
-                                                          width="1em"
-                                                        >
-                                                          <path
-                                                            d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-                                                          />
-                                                        </svg>
-                                                        <span
-                                                          class="ins-c-conditional-filter__value-selector"
-                                                        >
-                                                          Name
-                                                        </span>
-                                                      </span>
-                                                      <span
-                                                        class="pf-c-dropdown__toggle-icon"
-                                                      >
-                                                        <svg
-                                                          aria-hidden="true"
-                                                          fill="currentColor"
-                                                          height="1em"
-                                                          role="img"
-                                                          style="vertical-align: -0.125em;"
-                                                          viewBox="0 0 320 512"
-                                                          width="1em"
-                                                        >
-                                                          <path
-                                                            d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                                                          />
-                                                        </svg>
-                                                      </span>
-                                                    </button>
-                                                  </div>,
+                                                  "verticalAlign": "-0.125em",
                                                 }
                                               }
+                                              viewBox="0 0 512 512"
+                                              width="1em"
                                             >
-                                              <button
-                                                aria-expanded={false}
-                                                aria-haspopup={true}
-                                                className="pf-c-dropdown__toggle"
-                                                data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
-                                                data-ouia-component-type="PF4/DropdownToggle"
-                                                data-ouia-safe={true}
-                                                disabled={false}
-                                                id="pf-dropdown-toggle-id-0"
-                                                onClick={[Function]}
+                                              <path
+                                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                              />
+                                            </svg>
+                                          </FilterIcon>
+                                        </button>
+                                      </ButtonBase>
+                                    </Button>
+                                  </div>
+                                  <ForwardRef
+                                    className="ins-c-conditional-filter mobile"
+                                  >
+                                    <ToolbarGroupWithRef
+                                      className="ins-c-conditional-filter mobile"
+                                      innerRef={null}
+                                    >
+                                      <div
+                                        className="pf-c-toolbar__group ins-c-conditional-filter mobile"
+                                      >
+                                        <ToolbarItem
+                                          key="0"
+                                        >
+                                          <div
+                                            className="pf-c-toolbar__item"
+                                          >
+                                            <Text
+                                              aria-label="text input"
+                                              id="filter-by-name"
+                                              isDisabled={true}
+                                              key="filter-by-name"
+                                              onChange={[Function]}
+                                              onSubmit={[Function]}
+                                              placeholder="Filter by name"
+                                              value=""
+                                            >
+                                              <TextInput
+                                                aria-label="text input"
+                                                className="ins-c-conditional-filter "
+                                                data-ouia-component-type="PF4/TextInput"
+                                                id="filter-by-name"
+                                                isDisabled={true}
+                                                onChange={[Function]}
                                                 onKeyDown={[Function]}
-                                                type="button"
+                                                placeholder="Filter by name"
+                                                value=""
+                                                widget-type="InsightsInput"
                                               >
+                                                <TextInputBase
+                                                  aria-label="text input"
+                                                  className="ins-c-conditional-filter "
+                                                  data-ouia-component-type="PF4/TextInput"
+                                                  id="filter-by-name"
+                                                  innerRef={null}
+                                                  isDisabled={true}
+                                                  isLeftTruncated={false}
+                                                  isReadOnly={false}
+                                                  isRequired={false}
+                                                  onChange={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  placeholder="Filter by name"
+                                                  type="text"
+                                                  validated="default"
+                                                  value=""
+                                                  widget-type="InsightsInput"
+                                                >
+                                                  <input
+                                                    aria-invalid={false}
+                                                    aria-label="text input"
+                                                    className="pf-c-form-control ins-c-conditional-filter "
+                                                    data-ouia-component-type="PF4/TextInput"
+                                                    disabled={true}
+                                                    id="filter-by-name"
+                                                    onBlur={[Function]}
+                                                    onChange={[Function]}
+                                                    onFocus={[Function]}
+                                                    onKeyDown={[Function]}
+                                                    placeholder="Filter by name"
+                                                    readOnly={false}
+                                                    required={false}
+                                                    type="text"
+                                                    value=""
+                                                    widget-type="InsightsInput"
+                                                  />
+                                                </TextInputBase>
+                                              </TextInput>
+                                              <SearchIcon
+                                                className="ins-c-search-icon"
+                                                color="currentColor"
+                                                noVerticalAlign={false}
+                                                size="sm"
+                                              >
+                                                <svg
+                                                  aria-hidden={true}
+                                                  aria-labelledby={null}
+                                                  className="ins-c-search-icon"
+                                                  fill="currentColor"
+                                                  height="1em"
+                                                  role="img"
+                                                  style={
+                                                    Object {
+                                                      "verticalAlign": "-0.125em",
+                                                    }
+                                                  }
+                                                  viewBox="0 0 512 512"
+                                                  width="1em"
+                                                >
+                                                  <path
+                                                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                                  />
+                                                </svg>
+                                              </SearchIcon>
+                                            </Text>
+                                          </div>
+                                        </ToolbarItem>
+                                        <ToolbarItem
+                                          key="1"
+                                        >
+                                          <div
+                                            className="pf-c-toolbar__item"
+                                          >
+                                            <Text
+                                              aria-label="text input"
+                                              id="filter-by-description"
+                                              isDisabled={true}
+                                              key="filter-by-description"
+                                              onChange={[Function]}
+                                              onSubmit={[Function]}
+                                              placeholder="Filter by description"
+                                              value=""
+                                            >
+                                              <TextInput
+                                                aria-label="text input"
+                                                className="ins-c-conditional-filter "
+                                                data-ouia-component-type="PF4/TextInput"
+                                                id="filter-by-description"
+                                                isDisabled={true}
+                                                onChange={[Function]}
+                                                onKeyDown={[Function]}
+                                                placeholder="Filter by description"
+                                                value=""
+                                                widget-type="InsightsInput"
+                                              >
+                                                <TextInputBase
+                                                  aria-label="text input"
+                                                  className="ins-c-conditional-filter "
+                                                  data-ouia-component-type="PF4/TextInput"
+                                                  id="filter-by-description"
+                                                  innerRef={null}
+                                                  isDisabled={true}
+                                                  isLeftTruncated={false}
+                                                  isReadOnly={false}
+                                                  isRequired={false}
+                                                  onChange={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  placeholder="Filter by description"
+                                                  type="text"
+                                                  validated="default"
+                                                  value=""
+                                                  widget-type="InsightsInput"
+                                                >
+                                                  <input
+                                                    aria-invalid={false}
+                                                    aria-label="text input"
+                                                    className="pf-c-form-control ins-c-conditional-filter "
+                                                    data-ouia-component-type="PF4/TextInput"
+                                                    disabled={true}
+                                                    id="filter-by-description"
+                                                    onBlur={[Function]}
+                                                    onChange={[Function]}
+                                                    onFocus={[Function]}
+                                                    onKeyDown={[Function]}
+                                                    placeholder="Filter by description"
+                                                    readOnly={false}
+                                                    required={false}
+                                                    type="text"
+                                                    value=""
+                                                    widget-type="InsightsInput"
+                                                  />
+                                                </TextInputBase>
+                                              </TextInput>
+                                              <SearchIcon
+                                                className="ins-c-search-icon"
+                                                color="currentColor"
+                                                noVerticalAlign={false}
+                                                size="sm"
+                                              >
+                                                <svg
+                                                  aria-hidden={true}
+                                                  aria-labelledby={null}
+                                                  className="ins-c-search-icon"
+                                                  fill="currentColor"
+                                                  height="1em"
+                                                  role="img"
+                                                  style={
+                                                    Object {
+                                                      "verticalAlign": "-0.125em",
+                                                    }
+                                                  }
+                                                  viewBox="0 0 512 512"
+                                                  width="1em"
+                                                >
+                                                  <path
+                                                    d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                                  />
+                                                </svg>
+                                              </SearchIcon>
+                                            </Text>
+                                          </div>
+                                        </ToolbarItem>
+                                      </div>
+                                    </ToolbarGroupWithRef>
+                                  </ForwardRef>
+                                  <Split
+                                    className="ins-c-conditional-filter desktop"
+                                  >
+                                    <div
+                                      className="pf-l-split ins-c-conditional-filter desktop"
+                                    >
+                                      <SplitItem>
+                                        <div
+                                          className="pf-l-split__item"
+                                        >
+                                          <Dropdown
+                                            className="ins-c-conditional-filter__group"
+                                            dropdownItems={
+                                              Array [
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={true}
+                                                  onClick={[Function]}
+                                                >
+                                                  Name
+                                                </DropdownItem>,
+                                                <DropdownItem
+                                                  component="button"
+                                                  isHovered={false}
+                                                  onClick={[Function]}
+                                                >
+                                                  Description
+                                                </DropdownItem>,
+                                              ]
+                                            }
+                                            isOpen={false}
+                                            onSelect={[Function]}
+                                            toggle={
+                                              <DropdownToggle
+                                                className=""
+                                                isDisabled={false}
+                                                onToggle={[Function]}
+                                              >
+                                                <FilterIcon
+                                                  color="currentColor"
+                                                  noVerticalAlign={false}
+                                                  size="sm"
+                                                />
                                                 <span
-                                                  className="pf-c-dropdown__toggle-text"
+                                                  className="ins-c-conditional-filter__value-selector"
+                                                >
+                                                  Name
+                                                </span>
+                                              </DropdownToggle>
+                                            }
+                                          >
+                                            <DropdownWithContext
+                                              autoFocus={true}
+                                              className="ins-c-conditional-filter__group"
+                                              direction="down"
+                                              dropdownItems={
+                                                Array [
+                                                  <DropdownItem
+                                                    component="button"
+                                                    isHovered={true}
+                                                    onClick={[Function]}
+                                                  >
+                                                    Name
+                                                  </DropdownItem>,
+                                                  <DropdownItem
+                                                    component="button"
+                                                    isHovered={false}
+                                                    onClick={[Function]}
+                                                  >
+                                                    Description
+                                                  </DropdownItem>,
+                                                ]
+                                              }
+                                              isGrouped={false}
+                                              isOpen={false}
+                                              isPlain={false}
+                                              menuAppendTo="inline"
+                                              onSelect={[Function]}
+                                              position="left"
+                                              toggle={
+                                                <DropdownToggle
+                                                  className=""
+                                                  isDisabled={false}
+                                                  onToggle={[Function]}
                                                 >
                                                   <FilterIcon
                                                     color="currentColor"
                                                     noVerticalAlign={false}
                                                     size="sm"
-                                                  >
-                                                    <svg
-                                                      aria-hidden={true}
-                                                      aria-labelledby={null}
-                                                      fill="currentColor"
-                                                      height="1em"
-                                                      role="img"
-                                                      style={
-                                                        Object {
-                                                          "verticalAlign": "-0.125em",
-                                                        }
-                                                      }
-                                                      viewBox="0 0 512 512"
-                                                      width="1em"
-                                                    >
-                                                      <path
-                                                        d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
-                                                      />
-                                                    </svg>
-                                                  </FilterIcon>
+                                                  />
                                                   <span
                                                     className="ins-c-conditional-filter__value-selector"
                                                   >
                                                     Name
                                                   </span>
-                                                </span>
-                                                <span
-                                                  className="pf-c-dropdown__toggle-icon"
+                                                </DropdownToggle>
+                                              }
+                                            >
+                                              <div
+                                                className="pf-c-dropdown ins-c-conditional-filter__group"
+                                                data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                data-ouia-component-type="PF4/Dropdown"
+                                                data-ouia-safe={true}
+                                              >
+                                                <DropdownToggle
+                                                  aria-haspopup={true}
+                                                  className=""
+                                                  getMenuRef={[Function]}
+                                                  id="pf-dropdown-toggle-id-0"
+                                                  isDisabled={false}
+                                                  isOpen={false}
+                                                  isPlain={false}
+                                                  key=".0"
+                                                  onEnter={[Function]}
+                                                  onToggle={[Function]}
+                                                  parentRef={
+                                                    Object {
+                                                      "current": <div
+                                                        class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                        data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                        data-ouia-component-type="PF4/Dropdown"
+                                                        data-ouia-safe="true"
+                                                      >
+                                                        <button
+                                                          aria-expanded="false"
+                                                          aria-haspopup="true"
+                                                          class="pf-c-dropdown__toggle"
+                                                          data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                          data-ouia-component-type="PF4/DropdownToggle"
+                                                          data-ouia-safe="true"
+                                                          id="pf-dropdown-toggle-id-1"
+                                                          type="button"
+                                                        >
+                                                          <span
+                                                            class="pf-c-dropdown__toggle-text"
+                                                          >
+                                                            <svg
+                                                              aria-hidden="true"
+                                                              fill="currentColor"
+                                                              height="1em"
+                                                              role="img"
+                                                              style="vertical-align: -0.125em;"
+                                                              viewBox="0 0 512 512"
+                                                              width="1em"
+                                                            >
+                                                              <path
+                                                                d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                              />
+                                                            </svg>
+                                                            <span
+                                                              class="ins-c-conditional-filter__value-selector"
+                                                            >
+                                                              Name
+                                                            </span>
+                                                          </span>
+                                                          <span
+                                                            class="pf-c-dropdown__toggle-icon"
+                                                          >
+                                                            <svg
+                                                              aria-hidden="true"
+                                                              fill="currentColor"
+                                                              height="1em"
+                                                              role="img"
+                                                              style="vertical-align: -0.125em;"
+                                                              viewBox="0 0 320 512"
+                                                              width="1em"
+                                                            >
+                                                              <path
+                                                                d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                              />
+                                                            </svg>
+                                                          </span>
+                                                        </button>
+                                                      </div>,
+                                                    }
+                                                  }
                                                 >
-                                                  <CaretDownIcon
-                                                    color="currentColor"
-                                                    noVerticalAlign={false}
-                                                    size="sm"
-                                                  >
-                                                    <svg
-                                                      aria-hidden={true}
-                                                      aria-labelledby={null}
-                                                      fill="currentColor"
-                                                      height="1em"
-                                                      role="img"
-                                                      style={
-                                                        Object {
-                                                          "verticalAlign": "-0.125em",
-                                                        }
+                                                  <Toggle
+                                                    aria-haspopup={true}
+                                                    bubbleEvent={false}
+                                                    className=""
+                                                    data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                    data-ouia-component-type="PF4/DropdownToggle"
+                                                    data-ouia-safe={true}
+                                                    getMenuRef={[Function]}
+                                                    id="pf-dropdown-toggle-id-0"
+                                                    isActive={false}
+                                                    isDisabled={false}
+                                                    isOpen={false}
+                                                    isPlain={false}
+                                                    isPrimary={false}
+                                                    isSplitButton={false}
+                                                    onEnter={[Function]}
+                                                    onToggle={[Function]}
+                                                    parentRef={
+                                                      Object {
+                                                        "current": <div
+                                                          class="pf-c-dropdown ins-c-conditional-filter__group"
+                                                          data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                          data-ouia-component-type="PF4/Dropdown"
+                                                          data-ouia-safe="true"
+                                                        >
+                                                          <button
+                                                            aria-expanded="false"
+                                                            aria-haspopup="true"
+                                                            class="pf-c-dropdown__toggle"
+                                                            data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                            data-ouia-component-type="PF4/DropdownToggle"
+                                                            data-ouia-safe="true"
+                                                            id="pf-dropdown-toggle-id-1"
+                                                            type="button"
+                                                          >
+                                                            <span
+                                                              class="pf-c-dropdown__toggle-text"
+                                                            >
+                                                              <svg
+                                                                aria-hidden="true"
+                                                                fill="currentColor"
+                                                                height="1em"
+                                                                role="img"
+                                                                style="vertical-align: -0.125em;"
+                                                                viewBox="0 0 512 512"
+                                                                width="1em"
+                                                              >
+                                                                <path
+                                                                  d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                                />
+                                                              </svg>
+                                                              <span
+                                                                class="ins-c-conditional-filter__value-selector"
+                                                              >
+                                                                Name
+                                                              </span>
+                                                            </span>
+                                                            <span
+                                                              class="pf-c-dropdown__toggle-icon"
+                                                            >
+                                                              <svg
+                                                                aria-hidden="true"
+                                                                fill="currentColor"
+                                                                height="1em"
+                                                                role="img"
+                                                                style="vertical-align: -0.125em;"
+                                                                viewBox="0 0 320 512"
+                                                                width="1em"
+                                                              >
+                                                                <path
+                                                                  d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                                />
+                                                              </svg>
+                                                            </span>
+                                                          </button>
+                                                        </div>,
                                                       }
-                                                      viewBox="0 0 320 512"
-                                                      width="1em"
+                                                    }
+                                                  >
+                                                    <button
+                                                      aria-expanded={false}
+                                                      aria-haspopup={true}
+                                                      className="pf-c-dropdown__toggle"
+                                                      data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                      data-ouia-component-type="PF4/DropdownToggle"
+                                                      data-ouia-safe={true}
+                                                      disabled={false}
+                                                      id="pf-dropdown-toggle-id-0"
+                                                      onClick={[Function]}
+                                                      onKeyDown={[Function]}
+                                                      type="button"
                                                     >
-                                                      <path
-                                                        d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
-                                                      />
-                                                    </svg>
-                                                  </CaretDownIcon>
-                                                </span>
-                                              </button>
-                                            </Toggle>
-                                          </DropdownToggle>
+                                                      <span
+                                                        className="pf-c-dropdown__toggle-text"
+                                                      >
+                                                        <FilterIcon
+                                                          color="currentColor"
+                                                          noVerticalAlign={false}
+                                                          size="sm"
+                                                        >
+                                                          <svg
+                                                            aria-hidden={true}
+                                                            aria-labelledby={null}
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style={
+                                                              Object {
+                                                                "verticalAlign": "-0.125em",
+                                                              }
+                                                            }
+                                                            viewBox="0 0 512 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M487.976 0H24.028C2.71 0-8.047 25.866 7.058 40.971L192 225.941V432c0 7.831 3.821 15.17 10.237 19.662l80 55.98C298.02 518.69 320 507.493 320 487.98V225.941l184.947-184.97C520.021 25.896 509.338 0 487.976 0z"
+                                                            />
+                                                          </svg>
+                                                        </FilterIcon>
+                                                        <span
+                                                          className="ins-c-conditional-filter__value-selector"
+                                                        >
+                                                          Name
+                                                        </span>
+                                                      </span>
+                                                      <span
+                                                        className="pf-c-dropdown__toggle-icon"
+                                                      >
+                                                        <CaretDownIcon
+                                                          color="currentColor"
+                                                          noVerticalAlign={false}
+                                                          size="sm"
+                                                        >
+                                                          <svg
+                                                            aria-hidden={true}
+                                                            aria-labelledby={null}
+                                                            fill="currentColor"
+                                                            height="1em"
+                                                            role="img"
+                                                            style={
+                                                              Object {
+                                                                "verticalAlign": "-0.125em",
+                                                              }
+                                                            }
+                                                            viewBox="0 0 320 512"
+                                                            width="1em"
+                                                          >
+                                                            <path
+                                                              d="M31.3 192h257.3c17.8 0 26.7 21.5 14.1 34.1L174.1 354.8c-7.8 7.8-20.5 7.8-28.3 0L17.2 226.1C4.6 213.5 13.5 192 31.3 192z"
+                                                            />
+                                                          </svg>
+                                                        </CaretDownIcon>
+                                                      </span>
+                                                    </button>
+                                                  </Toggle>
+                                                </DropdownToggle>
+                                              </div>
+                                            </DropdownWithContext>
+                                          </Dropdown>
                                         </div>
-                                      </DropdownWithContext>
-                                    </Dropdown>
-                                  </div>
-                                </SplitItem>
-                                <SplitItem
-                                  isFilled={true}
-                                >
-                                  <div
-                                    className="pf-l-split__item pf-m-fill"
-                                  >
-                                    <Text
-                                      aria-label="text input"
-                                      id="filter-by-name"
-                                      isDisabled={true}
-                                      key="filter-by-name"
-                                      onChange={[Function]}
-                                      onSubmit={[Function]}
-                                      placeholder="Filter by name"
-                                      value=""
-                                    >
-                                      <TextInput
-                                        aria-label="text input"
-                                        className="ins-c-conditional-filter "
-                                        data-ouia-component-type="PF4/TextInput"
-                                        id="filter-by-name"
-                                        isDisabled={true}
-                                        onChange={[Function]}
-                                        onKeyDown={[Function]}
-                                        placeholder="Filter by name"
-                                        value=""
-                                        widget-type="InsightsInput"
+                                      </SplitItem>
+                                      <SplitItem
+                                        isFilled={true}
                                       >
-                                        <TextInputBase
-                                          aria-label="text input"
-                                          className="ins-c-conditional-filter "
-                                          data-ouia-component-type="PF4/TextInput"
-                                          id="filter-by-name"
-                                          innerRef={null}
-                                          isDisabled={true}
-                                          isLeftTruncated={false}
-                                          isReadOnly={false}
-                                          isRequired={false}
-                                          onChange={[Function]}
-                                          onKeyDown={[Function]}
-                                          placeholder="Filter by name"
-                                          type="text"
-                                          validated="default"
-                                          value=""
-                                          widget-type="InsightsInput"
+                                        <div
+                                          className="pf-l-split__item pf-m-fill"
                                         >
-                                          <input
-                                            aria-invalid={false}
+                                          <Text
                                             aria-label="text input"
-                                            className="pf-c-form-control ins-c-conditional-filter "
-                                            data-ouia-component-type="PF4/TextInput"
-                                            disabled={true}
                                             id="filter-by-name"
-                                            onBlur={[Function]}
+                                            isDisabled={true}
+                                            key="filter-by-name"
                                             onChange={[Function]}
-                                            onFocus={[Function]}
-                                            onKeyDown={[Function]}
+                                            onSubmit={[Function]}
                                             placeholder="Filter by name"
-                                            readOnly={false}
-                                            required={false}
-                                            type="text"
                                             value=""
-                                            widget-type="InsightsInput"
-                                          />
-                                        </TextInputBase>
-                                      </TextInput>
-                                      <SearchIcon
-                                        className="ins-c-search-icon"
-                                        color="currentColor"
-                                        noVerticalAlign={false}
-                                        size="sm"
-                                      >
-                                        <svg
-                                          aria-hidden={true}
-                                          aria-labelledby={null}
-                                          className="ins-c-search-icon"
-                                          fill="currentColor"
-                                          height="1em"
-                                          role="img"
-                                          style={
-                                            Object {
-                                              "verticalAlign": "-0.125em",
-                                            }
-                                          }
-                                          viewBox="0 0 512 512"
-                                          width="1em"
-                                        >
-                                          <path
-                                            d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
-                                          />
-                                        </svg>
-                                      </SearchIcon>
-                                    </Text>
-                                  </div>
-                                </SplitItem>
-                              </div>
-                            </Split>
+                                          >
+                                            <TextInput
+                                              aria-label="text input"
+                                              className="ins-c-conditional-filter "
+                                              data-ouia-component-type="PF4/TextInput"
+                                              id="filter-by-name"
+                                              isDisabled={true}
+                                              onChange={[Function]}
+                                              onKeyDown={[Function]}
+                                              placeholder="Filter by name"
+                                              value=""
+                                              widget-type="InsightsInput"
+                                            >
+                                              <TextInputBase
+                                                aria-label="text input"
+                                                className="ins-c-conditional-filter "
+                                                data-ouia-component-type="PF4/TextInput"
+                                                id="filter-by-name"
+                                                innerRef={null}
+                                                isDisabled={true}
+                                                isLeftTruncated={false}
+                                                isReadOnly={false}
+                                                isRequired={false}
+                                                onChange={[Function]}
+                                                onKeyDown={[Function]}
+                                                placeholder="Filter by name"
+                                                type="text"
+                                                validated="default"
+                                                value=""
+                                                widget-type="InsightsInput"
+                                              >
+                                                <input
+                                                  aria-invalid={false}
+                                                  aria-label="text input"
+                                                  className="pf-c-form-control ins-c-conditional-filter "
+                                                  data-ouia-component-type="PF4/TextInput"
+                                                  disabled={true}
+                                                  id="filter-by-name"
+                                                  onBlur={[Function]}
+                                                  onChange={[Function]}
+                                                  onFocus={[Function]}
+                                                  onKeyDown={[Function]}
+                                                  placeholder="Filter by name"
+                                                  readOnly={false}
+                                                  required={false}
+                                                  type="text"
+                                                  value=""
+                                                  widget-type="InsightsInput"
+                                                />
+                                              </TextInputBase>
+                                            </TextInput>
+                                            <SearchIcon
+                                              className="ins-c-search-icon"
+                                              color="currentColor"
+                                              noVerticalAlign={false}
+                                              size="sm"
+                                            >
+                                              <svg
+                                                aria-hidden={true}
+                                                aria-labelledby={null}
+                                                className="ins-c-search-icon"
+                                                fill="currentColor"
+                                                height="1em"
+                                                role="img"
+                                                style={
+                                                  Object {
+                                                    "verticalAlign": "-0.125em",
+                                                  }
+                                                }
+                                                viewBox="0 0 512 512"
+                                                width="1em"
+                                              >
+                                                <path
+                                                  d="M505 442.7L405.3 343c-4.5-4.5-10.6-7-17-7H372c27.6-35.3 44-79.7 44-128C416 93.1 322.9 0 208 0S0 93.1 0 208s93.1 208 208 208c48.3 0 92.7-16.4 128-44v16.3c0 6.4 2.5 12.5 7 17l99.7 99.7c9.4 9.4 24.6 9.4 33.9 0l28.3-28.3c9.4-9.4 9.4-24.6.1-34zM208 336c-70.7 0-128-57.2-128-128 0-70.7 57.2-128 128-128 70.7 0 128 57.2 128 128 0 70.7-57.2 128-128 128z"
+                                                />
+                                              </svg>
+                                            </SearchIcon>
+                                          </Text>
+                                        </div>
+                                      </SplitItem>
+                                    </div>
+                                  </Split>
+                                </div>
+                              </ToolbarToggleGroup>
+                            </Component>
                           </ConditionalFilter>
                         </div>
                       </ToolbarItem>
@@ -734,6 +1014,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             }
             clearFiltersButtonText="Clear all filters"
             collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
             numberOfFilters={0}
             showClearFiltersButton={false}
           >
