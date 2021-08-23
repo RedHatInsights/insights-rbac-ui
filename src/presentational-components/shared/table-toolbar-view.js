@@ -108,93 +108,98 @@ export const TableToolbarView = ({
     },
   });
 
-  const renderTable = () => (
-    <Fragment>
-      <Toolbar
-        isSelectable={isSelectable}
-        checkedRows={checkedRows}
-        setCheckedItems={setCheckedItems}
-        isLoading={isLoading || noData}
-        data={data}
-        titleSingular={titleSingular}
-        filterValue={filterValue}
-        setFilterValue={setFilterValue}
-        sortBy={
-          (sortByState.index !== undefined &&
-            sortByState.index - isSelectable >= 0 &&
-            `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByState.index - isSelectable].key}`) ||
-          undefined
-        }
-        pagination={pagination}
-        fetchData={fetchData}
-        toolbarButtons={toolbarButtons}
-        filterPlaceholder={filterPlaceholder}
-        filters={filters}
-        isFilterable={isFilterable}
-        onShowMore={onShowMore}
-        showMoreTitle={showMoreTitle}
-        onFilter={onFilter}
-        onChange={onChange}
-        value={value}
-        hideFilterChips={hideFilterChips}
-        tableId={tableId}
-      />
-      {isLoading ? (
-        <ListLoader />
-      ) : (
-        <Table
-          canSelectAll={false}
-          aria-label={`${titlePlural} table`}
-          variant={isCompact ? TableVariant.compact : null}
-          borders={borders}
-          {...(isCollapsible && { onCollapse })}
-          {...(isSelectable &&
-            rows.length > 0 && {
-              onSelect: (_e, isSelected, _idx, { uuid, cells: [name] }) => setCheckedItems(selectedRows([{ uuid, name }], isSelected)),
-            })}
-          {...(isExpandable && { onExpand })}
-          rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
-          cells={columns}
-          {...(rows.length > 0 && { actionResolver })}
-          className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
-          areActionsDisabled={areActionsDisabled}
-          rowWrapper={rowWrapper}
-          sortBy={sortByState}
-          ouiaId={ouiaId}
-          onSort={(e, index, direction) => {
-            setSortByState({ index, direction });
-            filters && filters.length > 0
-              ? fetchData({
-                  ...pagination,
-                  offset: 0,
-                  ...filters.reduce(
-                    (acc, curr) => ({
-                      ...acc,
-                      [curr.key]: curr.value,
-                    }),
-                    {}
-                  ),
-                  orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
-                })
-              : fetchData({
-                  ...pagination,
-                  offset: 0,
-                  name: filterValue,
-                  orderBy: `${direction === 'desc' ? '-' : ''}${columns[index - isSelectable].key}`,
-                });
-          }}
-        >
-          {!hideHeader && <TableHeader />}
-          <TableBody />
-        </Table>
-      )}
-      {!pagination.noBottom && (
-        <TableToolbar>
-          {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
-        </TableToolbar>
-      )}
-    </Fragment>
-  );
+  const renderTable = () => {
+    const selectColumnOffset = isSelectable && data?.length > 0;
+    const sortByIndex = Math.min((sortByState?.index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
+    return (
+      <Fragment>
+        <Toolbar
+          isSelectable={isSelectable}
+          checkedRows={checkedRows}
+          setCheckedItems={setCheckedItems}
+          isLoading={isLoading || noData}
+          data={data}
+          titleSingular={titleSingular}
+          filterValue={filterValue}
+          setFilterValue={setFilterValue}
+          sortBy={
+            (sortByState.index !== undefined &&
+              sortByIndex >= 0 &&
+              sortByIndex < columns.length &&
+              `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
+            undefined
+          }
+          pagination={pagination}
+          fetchData={fetchData}
+          toolbarButtons={toolbarButtons}
+          filterPlaceholder={filterPlaceholder}
+          filters={filters}
+          isFilterable={isFilterable}
+          onShowMore={onShowMore}
+          showMoreTitle={showMoreTitle}
+          onFilter={onFilter}
+          onChange={onChange}
+          value={value}
+          hideFilterChips={hideFilterChips}
+          tableId={tableId}
+        />
+        {isLoading ? (
+          <ListLoader />
+        ) : (
+          <Table
+            canSelectAll={false}
+            aria-label={`${titlePlural} table`}
+            variant={isCompact ? TableVariant.compact : null}
+            borders={borders}
+            {...(isCollapsible && { onCollapse })}
+            {...(isSelectable &&
+              rows.length > 0 && {
+                onSelect: (_e, isSelected, _idx, { uuid, cells: [name] }) => setCheckedItems(selectedRows([{ uuid, name }], isSelected)),
+              })}
+            {...(isExpandable && { onExpand })}
+            rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
+            cells={columns}
+            {...(rows.length > 0 && { actionResolver })}
+            className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
+            areActionsDisabled={areActionsDisabled}
+            rowWrapper={rowWrapper}
+            sortBy={sortByState}
+            ouiaId={ouiaId}
+            onSort={(e, index, direction) => {
+              setSortByState({ index, direction });
+              filters && filters.length > 0
+                ? fetchData({
+                    ...pagination,
+                    offset: 0,
+                    ...filters.reduce(
+                      (acc, curr) => ({
+                        ...acc,
+                        [curr.key]: curr.value,
+                      }),
+                      {}
+                    ),
+                    orderBy: `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`,
+                  })
+                : fetchData({
+                    ...pagination,
+                    offset: 0,
+                    name: filterValue,
+                    orderBy: `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`,
+                  });
+            }}
+          >
+            {!hideHeader && <TableHeader />}
+            <TableBody />
+          </Table>
+        )}
+        {!pagination.noBottom && (
+          <TableToolbar>
+            {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
+          </TableToolbar>
+        )}
+      </Fragment>
+    );
+  };
 
   return (
     <Fragment>
