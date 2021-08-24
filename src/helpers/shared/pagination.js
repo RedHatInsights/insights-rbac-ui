@@ -17,10 +17,19 @@ export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (pag
 export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaultSettings) => {
   const searchParams = new URLSearchParams(history.location.search);
 
-  isNaN(parseInt(searchParams.get('per_page'))) && searchParams.set('per_page', defaultPagination.limit);
-  const limit = parseInt(searchParams.get('per_page'));
-  isNaN(parseInt(searchParams.get('page'))) && searchParams.set('page', 1);
-  const offset = calculateOffset(parseInt(searchParams.get('page')), limit);
+  let limit = parseInt(searchParams.get('per_page'));
+  if (isNaN(limit) || limit <= 0) {
+    limit = defaultPagination.limit;
+    searchParams.set('per_page', limit);
+  }
+
+  let page = parseInt(searchParams.get('page'));
+  if (isNaN(page) || page <= 0) {
+    page = 1;
+    searchParams.set('page', page);
+  }
+
+  const offset = calculateOffset(page, limit);
 
   history.replace({
     pathname: history.location.pathname,
