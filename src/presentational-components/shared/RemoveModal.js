@@ -12,7 +12,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
       className="rbac"
       title={
         <div>
-          <ExclamationTriangleIcon className="ins-m-alert ins-c-rbac__delete-icon" /> {title}
+          <ExclamationTriangleIcon className="ins-m-alert rbac-c__delete-icon" /> {title}
         </div>
       }
       isOpen={isOpen}

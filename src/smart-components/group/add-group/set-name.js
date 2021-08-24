@@ -38,7 +38,7 @@ const SetName = (props) => {
 
   return (
     <Stack hasGutter>
-      <StackItem className="ins-c-rbac__summary">
+      <StackItem className="rbac-c-summary">
         <FormGroup
           label="Group name"
           helperTextInvalid={groupName ? groupNameError : 'Required'}

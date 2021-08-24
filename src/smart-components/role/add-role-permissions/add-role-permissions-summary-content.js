@@ -21,7 +21,7 @@ const AddRolePermissionSummaryContent = () => {
           </Title>
         </TextContent>
       </StackItem>
-      <StackItem classnem="ins-c-rbac__summary">
+      <StackItem classnem="rbac-c-summary">
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>

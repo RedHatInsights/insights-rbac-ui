@@ -102,11 +102,11 @@ const ResourceDefinitions = () => {
       >
         <Level>
           <LevelItem>
-            <PageHeaderTitle title={permissionId || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
+            <PageHeaderTitle title={permissionId || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
           </LevelItem>
         </Level>
       </TopToolbar>
-      <section className="pf-c-page__main-section ins-c-role__permissions">
+      <section className="pf-c-page__main-section rbac-c-role__permissions">
         <TextContent>
           <Text component={TextVariants.h1}>Defined resources</Text>
         </TextContent>

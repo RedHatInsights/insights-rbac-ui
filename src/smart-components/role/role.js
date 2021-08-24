@@ -114,7 +114,7 @@ const Role = ({ onDelete }) => {
           Delete
         </Link>
       }
-      className="ins-c-role__action"
+      className="rbac-c-role__action"
       key="delete-role"
     />,
   ];
@@ -126,7 +126,7 @@ const Role = ({ onDelete }) => {
           <TopToolbar breadcrumbs={breadcrumbsList()}>
             <Level>
               <LevelItem>
-                <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
+                <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
               </LevelItem>
               {!isRecordLoading && role && !role.system && (
                 <LevelItem>
@@ -142,7 +142,7 @@ const Role = ({ onDelete }) => {
               )}
             </Level>
             {description && (
-              <TextContent className="ins-rbac-page-header__description">
+              <TextContent className="rbac-page-header__description">
                 <Text component="p">{description}</Text>
               </TextContent>
             )}
