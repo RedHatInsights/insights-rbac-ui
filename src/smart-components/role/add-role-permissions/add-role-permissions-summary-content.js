@@ -16,7 +16,7 @@ const AddRolePermissionSummaryContent = () => {
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+          <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
             Review details
           </Title>
         </TextContent>
