@@ -19,7 +19,7 @@ const AddPermissionTemplate = ({ formFields }) => {
   return (
     <div className="rbac">
       {selectedPermissions.length > 0 ? (
-        <div className="rbac-c-seleted-chips">
+        <div className="rbac-c-selected-chips">
           <ChipGroup categoryName="Selected permissions">
             {/* immutable reverse */}
             {selectedPermissions
