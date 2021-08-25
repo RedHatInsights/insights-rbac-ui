@@ -17,7 +17,7 @@ const SummaryContent = () => {
       <Stack hasGutter>
         <StackItem>
           <Stack hasGutter>
-            <StackItem className="rbac-c-summary">
+            <StackItem className="rbac-l-stack__item-summary">
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">

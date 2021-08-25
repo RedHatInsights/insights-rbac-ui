@@ -48,7 +48,7 @@ const ReviewStep = () => {
   return (
     <React.Fragment>
       <Stack>
-        <StackItem className="rbac-c-summary">
+        <StackItem className="rbac-l-stack__item-summary">
           <Grid>
             <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="rbac-bold-text">
