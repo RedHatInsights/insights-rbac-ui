@@ -60,7 +60,7 @@ const User = ({
   });
 
   useEffect(() => {
-    fetchUsers({ ...defaultSettings, limit: 0, filters: { username } });
+    fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
