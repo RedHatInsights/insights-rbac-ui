@@ -37,10 +37,10 @@ const ReviewTemplate = ({ formFields }) => {
 
   return (
     <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+      <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
         Review details
       </Title>
-      <TextContent className="ins-c-rbac__gutter-md">
+      <TextContent className="pf-u-mb-md">
         <Text>Review and confirm the details for your role, or click Back to revise.</Text>
       </TextContent>
       {[[{ ...formFields?.[0]?.[0] }]]}

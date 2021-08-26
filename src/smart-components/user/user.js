@@ -60,7 +60,7 @@ const User = ({
   });
 
   useEffect(() => {
-    fetchUsers({ ...defaultSettings, limit: 0, filters: { username } });
+    fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
@@ -168,7 +168,7 @@ const User = ({
                   user && !isLoading ? (
                     <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
                   ) : (
-                    <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton>
+                    <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
                   )
                 }
                 description={`${username}'s roles, groups and permissions.`}

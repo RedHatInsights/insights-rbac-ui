@@ -143,7 +143,7 @@ const CostResources = (props) => {
         </GridItem>
         <GridItem md={8} sm={12}>
           <Select
-            className="ins-c-rbac-cost-resource-select"
+            className="rbac-m-cost-resource-select"
             variant={SelectVariant.checkbox}
             typeAheadAriaLabel="Select a state"
             onToggle={(isOpen) => {
@@ -174,12 +174,12 @@ const CostResources = (props) => {
   return (
     <Grid hasGutter>
       <GridItem md={4} className="ins-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+        <Text component={TextVariants.h4} className="rbac-bold-text">
           Permissions
         </Text>
       </GridItem>
       <GridItem md={8} className="ins-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+        <Text component={TextVariants.h4} className="rbac-bold-text">
           Resource definitions
         </Text>
       </GridItem>

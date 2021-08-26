@@ -179,7 +179,7 @@ const Groups = () => {
   ];
 
   const renderGroupsList = () => (
-    <Stack className="ins-c-rbac__groups">
+    <Stack className="rbac-c-groups">
       <StackItem>
         <TopToolbar paddingBottom>
           <TopToolbarTitle title="Groups" />
@@ -224,7 +224,15 @@ const Groups = () => {
       <PageActionRoute
         pageAction="group-detail"
         path={paths['group-detail']}
-        render={(props) => <Group {...props} onDelete={() => setFilterValue('')} />}
+        render={(props) => (
+          <Group
+            {...props}
+            onDelete={(uuid) => {
+              setFilterValue('');
+              setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
+            }}
+          />
+        )}
       />
       <PageActionRoute pageAction="group-list" path={paths.groups} render={() => renderGroupsList()} />
     </Switch>
