@@ -14,7 +14,7 @@ export const TopToolbar = ({ children, breadcrumbs }) => (
         <RbacBreadcrumbs {...breadcrumbs} />
       </section>
     )}
-    <PageHeader className="ins-rbac-page-header">{children}</PageHeader>
+    <PageHeader className="rbac-page-header">{children}</PageHeader>
   </Fragment>
 );
 
@@ -32,12 +32,12 @@ export const TopToolbarTitle = ({ title, renderTitleTag, description, children }
   <Fragment>
     <Flex>
       <FlexItem className="pf-u-mb-sm">
-        <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="ins-rbac-page-header__title" />
+        <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
       </FlexItem>
       <FlexItem alignSelf={{ modifier: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
     </Flex>
     {description && (
-      <TextContent className="ins-rbac-page-header__description">
+      <TextContent className="rbac-page-header__description">
         {typeof description === 'string' ? <Text component={TextVariants.p}>{description}</Text> : description}
       </TextContent>
     )}

@@ -120,7 +120,7 @@ const Roles = () => {
       : [];
 
   const renderRolesList = () => (
-    <Stack className="ins-c-rbac__roles">
+    <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
           <TopToolbarTitle title="Roles" />

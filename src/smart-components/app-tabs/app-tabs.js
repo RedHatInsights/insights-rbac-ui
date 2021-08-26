@@ -9,7 +9,7 @@ const AppTabs = ({ history: { push }, location: { pathname }, tabItems, isHeader
   const handleTabClick = (_event, tabIndex) => push(tabItems[tabIndex].name);
 
   return (
-    <Tabs className={isHeader ? `ins-rbac-page-header__tabs` : ''} activeKey={activeTab ? activeTab.eventKey : 0} onSelect={handleTabClick}>
+    <Tabs className={isHeader ? `rbac-page-header__tabs` : ''} activeKey={activeTab ? activeTab.eventKey : 0} onSelect={handleTabClick}>
       {tabItems.map((item) => (
         <Tab title={item.title} key={item.eventKey} eventKey={item.eventKey} name={item.name} />
       ))}

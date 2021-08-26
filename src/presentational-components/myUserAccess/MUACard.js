@@ -32,9 +32,9 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
             const isEntitled = entitlements.find(([key]) => data.entitlement === key);
             const key = data.entitlement;
             return isEntitled ? (
-              <StackItem key={key} className="ins-c-mua-cardWrapper">
+              <StackItem key={key} className="rbac-c-mua-cardWrapper">
                 <NavLink
-                  className={classNames('ins-c-mua-bundles__cardlink', { 'ins-c-mua-bundles__cardlink--disabled': isDisabled })}
+                  className={classNames('rbac-c-mua-bundles__cardlink', { 'rbac-c-mua-bundles__cardlink--disabled': isDisabled })}
                   to={{ pathname: routes['my-user-access'], search: `bundle=${key}` }}
                 >
                   <Card
@@ -42,14 +42,14 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
                     isFlat={isDisabled || key !== bundleParam}
                     isSelectable={!isDisabled}
                     isSelected={!isDisabled && key === bundleParam}
-                    className={classNames('ins-c-mua-bundles__card', `ins-c-mua-bundles__card--${data.entitlement}`, {
-                      'ins-c-mua-bundles__card--disabled': isDisabled,
+                    className={classNames('rbac-c-mua-bundles__card', `rbac-c-mua-bundles__card--${data.entitlement}`, {
+                      'rbac-c-mua-bundles__card--disabled': isDisabled,
                     })}
                   >
-                    <CardTitle className="ins-c-mua-bundles__card--header"> {data.title}</CardTitle>
+                    <CardTitle className="rbac-c-mua-bundles__card--header"> {data.title}</CardTitle>
                     <CardBody>
                       <Stack hasGutter>
-                        <StackItem className="ins-c-mua-bundles__card--applist">
+                        <StackItem className="rbac-c-mua-bundles__card--applist">
                           {Object.entries(data.apps || {}).map(([appName]) => (
                             <span key={appName}> {appName} </span>
                           ))}
