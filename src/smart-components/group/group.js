@@ -105,7 +105,7 @@ const Group = ({
     <DropdownItem
       component={
         <Link
-          onClick={onDelete}
+          onClick={() => onDelete(uuid)}
           to={() =>
             (location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
               ':uuid',
