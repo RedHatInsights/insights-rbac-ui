@@ -102,14 +102,14 @@ describe('EditResourceDefinitionsModal', () => {
         </Provider>
       );
     });
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(0);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
     wrapper.update();
     wrapper.find('.pf-c-button.pf-m-plain').at(4).simulate('click');
     wrapper.find('button#cancel-modal').first().simulate('click');
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(1);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(1);
     wrapper.find('button.pf-c-button.pf-m-plain').simulate('click');
     wrapper.update();
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(0);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
   });
 
   it('should not show warning modal on cancel without changes', async () => {
@@ -125,10 +125,10 @@ describe('EditResourceDefinitionsModal', () => {
         </Provider>
       );
     });
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(0);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
     wrapper.update();
     wrapper.find('button#cancel-modal').first().simulate('click');
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(0);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
     expect(wrapper.find('.button#cancel-modal')).toHaveLength(0);
   });
 
@@ -145,11 +145,11 @@ describe('EditResourceDefinitionsModal', () => {
         </Provider>
       );
     });
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(0);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
     wrapper.update();
     wrapper.find('.pf-c-button.pf-m-plain').at(4).simulate('click');
     wrapper.find('.pf-c-button.pf-m-plain').first().simulate('click');
-    expect(wrapper.find('.ins-c-wizard__cancel-warning-header')).toHaveLength(1);
+    expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(1);
   });
 
   it('should show alert on removing last resource and cancel', async () => {

@@ -10,18 +10,18 @@
 }
 
 .pf-c-select__menu {
-    .ins-c-select__scrollable-section {
+    .rbac-c-select__scrollable-section {
         max-height: 365px; 
         overflow: auto;
     }
 }
 
-.ins-c-rbac-add-permission-title {
+.rbac-c-add-permission-title {
     display: block;
 }
 
 .pf-c-wizard__main-body{
-    .ins-c-rbac-seleted-chips {
+    .rbac-c-selected-chips {
         padding-bottom: var(--pf-global--spacer--md);
         .pf-c-chip-group {
             background-color: var(--pf-global--BackgroundColor--100);
@@ -45,7 +45,7 @@
 
 
 @media only screen and (max-width: 815px) {
-    .ins-c-rbac-permissions-table {
+    .rbac-c-permissions-table {
         .ins-c-primary-toolbar {
             .pf-c-toolbar__content {
                 padding: 0px;
@@ -60,7 +60,7 @@
 }
 
 @media only screen and (max-width: 895px) {
-    .ins-c-rbac-permissions-table {
+    .rbac-c-permissions-table {
         .ins-c-primary-toolbar {
             .pf-c-toolbar__content {
                 .pf-c-toolbar__content-section {
@@ -74,7 +74,7 @@
 }
 
 @media only screen and (min-width: 992px) {
-    .ins-c-rbac-permissions-table {
+    .rbac-c-permissions-table {
         .ins-c-primary-toolbar {
             .pf-c-toolbar__content {
                 padding: 0px;
@@ -89,7 +89,7 @@
 }
 
 @media only screen and (min-width: 1055px) {
-    .ins-c-rbac-permissions-table {
+    .rbac-c-permissions-table {
         .ins-c-primary-toolbar {
             .pf-c-toolbar__content {
                 .pf-c-toolbar__content-section {
@@ -104,7 +104,7 @@
 
 
 @media only screen and (min-width: 1150px) {
-    .ins-c-rbac-permissions-table {
+    .rbac-c-permissions-table {
         .ins-c-primary-toolbar {
             .pf-c-toolbar__content {
                 .pf-c-toolbar__content-section {
@@ -117,7 +117,7 @@
     }
 }
 
-.ins-c-rbac-cost-resource-select {
+.rbac-m-cost-resource-select {
     .pf-c-select__menu {
         max-height: 300px;
         overflow: auto;
@@ -139,6 +139,6 @@
     }
 }
 
-.ins-c-rbac-disabled-row {
+.rbac-c-disabled-row {
     background-color: var(--pf-global--disabled-color--300);
 }

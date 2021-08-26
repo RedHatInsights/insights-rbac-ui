@@ -81,7 +81,7 @@ const Group = ({
             </div>
           }
         >
-          <InfoCircleIcon className="ins-c-rbac__default-group-info-icon" />
+          <InfoCircleIcon className="rbac-default-group-info-icon" />
         </Popover>
       </div>
     </div>
@@ -116,7 +116,7 @@ const Group = ({
           Delete
         </Link>
       }
-      className="ins-c-group__action"
+      className="rbac-c-group__action"
       key="delete-group"
     />,
   ];

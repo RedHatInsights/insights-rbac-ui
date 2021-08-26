@@ -30,8 +30,8 @@ describe('<MUAContent />', () => {
       );
     });
 
-    expect(wrapper.find('div.pf-l-stack__item.ins-l-myUserAccess-section__cards--entitled')).toHaveLength(1);
-    expect(wrapper.find('div.pf-l-stack__item.ins-l-myUserAccess-section__cards--unentitled')).toHaveLength(1);
+    expect(wrapper.find('div.pf-l-stack__item.rbac-l-myUserAccess-section__cards--entitled')).toHaveLength(1);
+    expect(wrapper.find('div.pf-l-stack__item.rbac-l-myUserAccess-section__cards--unentitled')).toHaveLength(1);
   });
   it('should render permissions title for non org admins', async () => {
     const entitlements = {};

@@ -15,7 +15,7 @@ const DeniedState = () => {
         <PageHeaderTitle title="User access" />
       </PageHeader>
       <Main>
-        <EmptyState variant={EmptyStateVariant.full} className="ins-c-rbac-denied-state">
+        <EmptyState variant={EmptyStateVariant.full} className="rbac-m-denied-state">
           <EmptyStateIcon icon={LockIcon} />
           <Title headingLevel="h4">You do not have permissions to view or manage User access</Title>
           <EmptyStateBody>Contact your organization administrator(s) for more information.</EmptyStateBody>

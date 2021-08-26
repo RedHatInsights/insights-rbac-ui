@@ -1,5 +1,5 @@
-.ins-c-rbac__sticky {
-	.ins-c-rbac__sticky--title {
+.rbac-c-sticky {
+	.rbac-c-sticky--title {
         margin-bottom: var(--pf-global--spacer--sm);
 		border-bottom: 1px solid var(--pf-global--palette--black-300);
         .pf-l-grid__item {
@@ -9,7 +9,7 @@
         }
     }
 
-	.ins-c-rbac__sticky--data {
+	.rbac-c-sticky--data {
          max-height: 240px;
         overflow: auto;
         -ms-overflow-style: none;  /* IE and Edge */
@@ -20,12 +20,4 @@
     .data::-webkit-scrollbar {
         display: none;
     }
-}
-
-.ins-c-rbac__gutter-sm {
-    margin-bottom: var(--pf-global--spacer--sm)
-}
-
-.ins-c-rbac__gutter-md {
-    margin-bottom: var(--pf-global--spacer--md)
 }

@@ -153,7 +153,7 @@ const GroupRoles = ({
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
           <Link
-            className={`pf-m-visible-on-md ins-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`pf-m-visible-on-md rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
