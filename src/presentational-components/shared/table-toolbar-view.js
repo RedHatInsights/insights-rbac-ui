@@ -166,6 +166,7 @@ export const TableToolbarView = ({
             sortBy={sortByState}
             ouiaId={ouiaId}
             onSort={(e, index, direction) => {
+              const sortByIndex = Math.min((index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
               setSortByState({ index, direction });
               filters && filters.length > 0
                 ? fetchData({
