@@ -55,8 +55,8 @@ export const createQueryParams = (params) => {
 export const getBackRoute = (pathname, pagination, filters) => ({
   pathname,
   search: createQueryParams({
-    page: calculatePage(pagination.limit, pagination.offset),
     per_page: pagination.limit,
+    page: calculatePage(pagination.limit, pagination.offset),
     ...filters,
   }),
 });

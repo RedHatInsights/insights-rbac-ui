@@ -9,8 +9,14 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import { defaultCompactSettings, defaultSettings, syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../../helpers/shared/filters';
+import {
+  defaultCompactSettings,
+  defaultSettings,
+  syncDefaultPaginationWithUrl,
+  applyPaginationToUrl,
+  isPaginationPresentInUrl,
+} from '../../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -104,6 +110,15 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     setFilters(newFilters);
     fetchUsers({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
   }, []);
+
+  useEffect(() => {
+    if (!inModal) {
+      isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+      Object.values(filters).some((filter) => filter?.length > 0) &&
+        !areFiltersPresentInUrl(history, Object.keys(filters)) &&
+        syncDefaultFiltersWithUrl(history, Object.keys(filters), filters);
+    }
+  });
 
   const setCheckedItems = (newSelection) => {
     setSelectedUsers((users) => {
