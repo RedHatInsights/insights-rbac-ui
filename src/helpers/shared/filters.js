@@ -32,6 +32,11 @@ export const syncDefaultFiltersWithUrl = (history, keys, defaults = {}) => {
   return filters;
 };
 
+export const areFiltersPresentInUrl = (history, keys) => {
+  const searchParams = new URLSearchParams(history.location.search);
+  return keys.some((key) => searchParams.get(key));
+};
+
 export const applyFiltersToUrl = (history, newValues) => {
   const searchParams = new URLSearchParams(history.location.search);
   Object.keys(newValues).forEach((key) => searchParams.delete(key));

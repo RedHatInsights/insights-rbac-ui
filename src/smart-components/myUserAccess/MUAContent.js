@@ -19,19 +19,19 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
       <Grid>
-        <GridItem className="pf-m-3-col-on-md ins-l-myUserAccess-section__cards ins-m-hide-on-sm">
+        <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards ins-m-hide-on-sm">
           <Stack>
-            <StackItem className="ins-l-myUserAccess-section__cards--entitled">
+            <StackItem className="rbac-l-myUserAccess-section__cards--entitled">
               <MUACard entitlements={entitledBundles} />
             </StackItem>
             {unEntitledBundles.length > 0 && (
-              <StackItem className="ins-l-myUserAccess-section__cards--unentitled">
+              <StackItem className="rbac-l-myUserAccess-section__cards--unentitled">
                 <MUACard header="Not subscribed" entitlements={unEntitledBundles} isDisabled />
               </StackItem>
             )}
           </Stack>
         </GridItem>
-        <GridItem className="pf-m-9-col-on-md ins-l-myUserAccess-section__table">
+        <GridItem className="pf-m-9-col-on-md rbac-l-myUserAccess-section__table">
           {bundle !== 'application_services' && (
             <Title headingLevel="h3" size="xl">
               {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}

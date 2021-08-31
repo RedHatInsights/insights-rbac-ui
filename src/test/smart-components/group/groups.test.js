@@ -145,7 +145,10 @@ describe('<Groups />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper.find('input#filter-by-string').simulate('change', { target: { value: filterValue } });
+      wrapper
+        .find('input#filter-by-string')
+        .first()
+        .simulate('change', { target: { value: filterValue } });
     });
     const expectedFilterPayload = [{ type: 'FETCH_GROUPS_PENDING' }];
     jest.runAllTimers();

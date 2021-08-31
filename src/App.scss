@@ -1,10 +1,10 @@
-.ins-c-rbac__summary {
+.rbac-l-stack__item-summary {
   .pf-l-grid {
     margin-bottom: var(--pf-global--gutter--md);
   }
 }
 
-.ins-c-rbac__bold-text {
+.rbac-bold-text {
     font-weight: var(--pf-global--FontWeight--bold);
 }
 
@@ -19,7 +19,7 @@
     > td::before {display: none;}
   }
 
-  .ins-c-rbac__user-row .pf-c-label{
+  .rbac__user-row .pf-c-label{
     width: max-content;
   }
 
