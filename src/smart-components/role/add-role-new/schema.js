@@ -174,7 +174,11 @@ export default (container) => ({
             {
               component: 'plain-text',
               name: 'text-description',
-              label: <p>Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.</p>,
+              label: (
+                <p className="pf-u-mb-md">
+                  Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.
+                </p>
+              ),
             },
             {
               component: 'cost-resources',

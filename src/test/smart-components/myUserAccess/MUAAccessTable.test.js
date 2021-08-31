@@ -140,7 +140,7 @@ describe('<MUAAccessTable />', () => {
     });
     wrapper.update();
 
-    wrapper.find('button.pf-c-select__toggle').prop('onClick')();
+    wrapper.find('button.pf-c-select__toggle').first().prop('onClick')();
     wrapper.update();
     /**
      * Select last option in applications select

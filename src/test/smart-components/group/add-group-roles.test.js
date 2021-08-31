@@ -106,7 +106,7 @@ describe('<AddGroupRoles />', () => {
       );
     });
     wrapper.update();
-    wrapper.find('button.pf-m-plain').simulate('click');
+    wrapper.find('button.pf-m-plain').first().simulate('click');
     expect(addNotification).toHaveBeenCalled();
   });
 

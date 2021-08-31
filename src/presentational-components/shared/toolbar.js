@@ -264,6 +264,7 @@ const Toolbar = ({
       value,
       sortBy
     )}
+    useMobileLayout
     actionsConfig={{
       actions: toolbarButtons(),
     }}

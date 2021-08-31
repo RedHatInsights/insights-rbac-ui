@@ -25,7 +25,7 @@ Array [
     aria-describedby=""
     aria-label=""
     aria-labelledby=""
-    className="rbac ins-c-wizard__cancel-warning"
+    className="rbac rbac-c-wizard__cancel-warning"
     hasNoBodyWrapper={false}
     isOpen={false}
     onClose={[Function]}
@@ -33,10 +33,10 @@ Array [
     showClose={true}
     title={
       <span
-        className="ins-c-wizard__cancel-warning-header"
+        className="rbac-c-wizard__cancel-warning-header"
       >
         <ExclamationTriangleIcon
-          className="ins-c-wizard__cancel-warning-header--icon"
+          className="rbac-c-wizard__cancel-warning-header--icon"
           color="currentColor"
           noVerticalAlign={false}
           size="md"
@@ -78,7 +78,7 @@ Array [
         aria-label=""
         aria-labelledby=""
         boxId="pf-modal-part-0"
-        className="rbac ins-c-wizard__cancel-warning"
+        className="rbac rbac-c-wizard__cancel-warning"
         descriptorId="pf-modal-part-2"
         hasNoBodyWrapper={false}
         isOpen={false}
@@ -89,10 +89,10 @@ Array [
         showClose={true}
         title={
           <span
-            className="ins-c-wizard__cancel-warning-header"
+            className="rbac-c-wizard__cancel-warning-header"
           >
             <ExclamationTriangleIcon
-              className="ins-c-wizard__cancel-warning-header--icon"
+              className="rbac-c-wizard__cancel-warning-header--icon"
               color="currentColor"
               noVerticalAlign={false}
               size="md"

@@ -207,7 +207,7 @@ const Permissions = () => {
   );
 
   return (
-    <section className="pf-c-page__main-section ins-c-role__permissions">
+    <section className="pf-c-page__main-section rbac-c-role__permissions">
       {showRemoveModal && (
         <RemoveModal
           text={deleteInfo.text}
