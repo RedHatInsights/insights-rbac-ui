@@ -7,7 +7,7 @@ const GroupRowWrapper = ({ className, row, ...props }) => {
   return (
     <RowWrapper
       className={classnames(className, {
-        'ins-c-rbac__group-default': row.isPlatformDefault,
+        'rbac-c-group-default': row.isPlatformDefault,
       })}
       row={row}
       {...props}

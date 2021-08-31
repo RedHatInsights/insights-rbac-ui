@@ -166,7 +166,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       ></WarningModal>
       {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
         <Modal
-          className="ins-m-resource-definitions"
+          className="rbac-m-resource-definitions"
           isOpen={true}
           title="Edit resource definitions"
           onClose={() => {

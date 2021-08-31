@@ -20,7 +20,7 @@ const ResourceDefinitionsFormTemplate = ({ ModalProps, ...props }) => {
         values['dual-list-select']
           ? undefined
           : () => (
-              <div className="ins-m-resource-definitions">
+              <div className="rbac-m-resource-definitions">
                 <Alert className="pf-c-modal__alert" variant="danger" isInline title="At least one resource must be defined for this permission" />
               </div>
             )

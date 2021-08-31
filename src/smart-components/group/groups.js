@@ -17,8 +17,8 @@ import GroupRowWrapper from './group-row-wrapper';
 import { routes as paths } from '../../../package.json';
 import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
-import { applyPaginationToUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
-import { applyFiltersToUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
+import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
 
 const columns = [
@@ -62,6 +62,11 @@ const Groups = () => {
     fetchData({ ...syncedPagination, filters: { name } });
     dispatch(fetchSystemGroup(name));
   }, []);
+
+  useEffect(() => {
+    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    filterValue?.length > 0 && !areFiltersPresentInUrl(history, ['name']) && syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+  });
 
   const setCheckedItems = (newSelection) => {
     setSelectedRows((rows) =>
@@ -179,7 +184,7 @@ const Groups = () => {
   ];
 
   const renderGroupsList = () => (
-    <Stack className="ins-c-rbac__groups">
+    <Stack className="rbac-c-groups">
       <StackItem>
         <TopToolbar paddingBottom>
           <TopToolbarTitle title="Groups" />
@@ -224,7 +229,15 @@ const Groups = () => {
       <PageActionRoute
         pageAction="group-detail"
         path={paths['group-detail']}
-        render={(props) => <Group {...props} onDelete={() => setFilterValue('')} />}
+        render={(props) => (
+          <Group
+            {...props}
+            onDelete={(uuid) => {
+              setFilterValue('');
+              setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
+            }}
+          />
+        )}
       />
       <PageActionRoute pageAction="group-list" path={paths.groups} render={() => renderGroupsList()} />
     </Switch>
