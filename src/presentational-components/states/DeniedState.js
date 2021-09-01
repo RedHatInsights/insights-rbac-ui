@@ -3,7 +3,8 @@ import React from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 
 import { LockIcon } from '@patternfly/react-icons';
-import { PageHeader, PageHeaderTitle, Main } from '@redhat-cloud-services/frontend-components';
+import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import Main from '@redhat-cloud-services/frontend-components/Main';
 
 import './DeniedState.scss';
 
@@ -14,7 +15,7 @@ const DeniedState = () => {
         <PageHeaderTitle title="User access" />
       </PageHeader>
       <Main>
-        <EmptyState variant={EmptyStateVariant.full} className="ins-c-rbac-denied-state">
+        <EmptyState variant={EmptyStateVariant.full} className="rbac-m-denied-state">
           <EmptyStateIcon icon={LockIcon} />
           <Title headingLevel="h4">You do not have permissions to view or manage User access</Title>
           <EmptyStateBody>Contact your organization administrator(s) for more information.</EmptyStateBody>

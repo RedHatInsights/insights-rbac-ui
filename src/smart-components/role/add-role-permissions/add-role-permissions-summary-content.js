@@ -1,6 +1,6 @@
 import React from 'react';
 import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const AddRolePermissionSummaryContent = () => {
   const formOptions = useFormApi();
@@ -16,12 +16,12 @@ const AddRolePermissionSummaryContent = () => {
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+          <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
             Review details
           </Title>
         </TextContent>
       </StackItem>
-      <StackItem classnem="ins-c-rbac__summary">
+      <StackItem className="rbac-l-stack__item-summary">
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>

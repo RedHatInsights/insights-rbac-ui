@@ -27,6 +27,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
             "extraParams": Object {
               "actionResolver": undefined,
               "actions": undefined,
+              "actionsToggle": undefined,
               "allRowsSelected": false,
               "areActionsDisabled": undefined,
               "canSelectAll": false,
@@ -962,6 +963,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                 "extraParams": Object {
                   "actionResolver": undefined,
                   "actions": undefined,
+                  "actionsToggle": undefined,
                   "allRowsSelected": false,
                   "areActionsDisabled": undefined,
                   "canSelectAll": false,
@@ -1394,18 +1396,15 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                 "cell": [Function],
                 "row": Object {
                   "$$typeof": Symbol(react.forward_ref),
-                  "displayName": "Tr",
                   "render": [Function],
                 },
                 "wrapper": Object {
                   "$$typeof": Symbol(react.forward_ref),
-                  "displayName": "Thead",
                   "render": [Function],
                 },
               },
               "table": Object {
                 "$$typeof": Symbol(react.forward_ref),
-                "displayName": "TableComposable",
                 "render": [Function],
               },
             }
@@ -2211,6 +2210,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -2382,6 +2382,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -2553,6 +2554,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -2724,6 +2726,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -2895,6 +2898,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3066,6 +3070,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3237,6 +3242,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3408,6 +3414,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3579,6 +3586,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3750,6 +3758,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -3921,6 +3930,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4092,6 +4102,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4263,6 +4274,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4434,6 +4446,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4605,6 +4618,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4776,6 +4790,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -4947,6 +4962,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -5118,6 +5134,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -5289,6 +5306,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,
@@ -5460,6 +5478,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                           "extraParams": Object {
                             "actionResolver": undefined,
                             "actions": undefined,
+                            "actionsToggle": undefined,
                             "allRowsSelected": false,
                             "areActionsDisabled": undefined,
                             "canSelectAll": false,

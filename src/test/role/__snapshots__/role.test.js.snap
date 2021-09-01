@@ -34,7 +34,10 @@ exports[`role should render top toolbar 1`] = `
     Array [
       Object {
         "title": "Roles",
-        "to": "/roles",
+        "to": Object {
+          "pathname": "/roles",
+          "search": "per_page=20&page=1",
+        },
       },
       Object {
         "isActive": true,

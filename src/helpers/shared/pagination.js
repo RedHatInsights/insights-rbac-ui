@@ -10,29 +10,47 @@ export const defaultCompactSettings = {
   itemCount: 0,
 };
 
-export const getCurrentPage = (limit = 1, offset = 0) => Math.floor(offset / limit) + 1;
+export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math.floor(offset / limit) + 1;
 
-export const getNewPage = (page = 1, offset) => (page - 1) * offset;
+export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (page - 1) * limit;
 
-export const syncDefaultPaginationWithUrl = (history, defaultPagination, initialLoad) => {
-  const searchParams = new URLSearchParams(history.location.search);
+export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaultSettings) => {
+  let searchParams = new URLSearchParams();
 
-  isNaN(parseInt(searchParams.get('per_page'))) && searchParams.set('per_page', defaultPagination.limit);
-  const limit = parseInt(searchParams.get('per_page'));
-  isNaN(parseInt(searchParams.get('page'))) && searchParams.set('page', initialLoad ? 1 : defaultPagination.offset / limit + 1);
-  const offset = (parseInt(searchParams.get('page')) - 1) * limit;
+  let limit = parseInt(searchParams.get('per_page'));
+  let page = parseInt(searchParams.get('page'));
+
+  if (isNaN(limit) || limit <= 0) {
+    limit = defaultPagination.limit;
+    searchParams.set('per_page', limit);
+  }
+  if (isNaN(page) || page <= 0) {
+    page = 1;
+    searchParams.set('page', page);
+  }
+
+  const offset = calculateOffset(page, limit);
 
   history.replace({
     pathname: history.location.pathname,
     search: searchParams.toString(),
   });
-  return { limit, offset };
+  return { ...defaultPagination, limit, offset };
 };
+
+export const isPaginationPresentInUrl = (history) => {
+  const searchParams = new URLSearchParams(history.location.search);
+  return searchParams.get('per_page') && searchParams.get('per_page');
+};
+
+export const isOffsetValid = (offset = 0, count = 0) => offset === 0 || count > offset;
+
+export const getLastPageOffset = (count, limit) => count - (count % limit);
 
 export const applyPaginationToUrl = (history, limit, offset = 0) => {
   const searchParams = new URLSearchParams(history.location.search);
   searchParams.set('per_page', limit);
-  searchParams.set('page', offset / limit + 1);
+  searchParams.set('page', calculatePage(limit, offset));
 
   history.replace({
     pathname: history.location.pathname,

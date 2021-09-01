@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 
 const SummaryContent = () => {
   const formOptions = useFormApi();
@@ -17,10 +17,10 @@ const SummaryContent = () => {
       <Stack hasGutter>
         <StackItem>
           <Stack hasGutter>
-            <StackItem className="ins-c-rbac__summary">
+            <StackItem className="rbac-l-stack__item-summary">
               <Grid>
                 <GridItem md={3}>
-                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                  <Text component={TextVariants.h4} className="rbac-bold-text">
                     Group name
                   </Text>
                 </GridItem>
@@ -30,7 +30,7 @@ const SummaryContent = () => {
               </Grid>
               <Grid>
                 <GridItem md={3}>
-                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                  <Text component={TextVariants.h4} className="rbac-bold-text">
                     Group description
                   </Text>
                 </GridItem>
@@ -40,7 +40,7 @@ const SummaryContent = () => {
               </Grid>
               <Grid>
                 <GridItem md={3}>
-                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                  <Text component={TextVariants.h4} className="rbac-bold-text">
                     Roles
                   </Text>
                 </GridItem>
@@ -56,7 +56,7 @@ const SummaryContent = () => {
               </Grid>
               <Grid>
                 <GridItem md={3}>
-                  <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                  <Text component={TextVariants.h4} className="rbac-bold-text">
                     Members
                   </Text>
                 </GridItem>

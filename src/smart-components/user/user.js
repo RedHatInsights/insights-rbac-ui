@@ -6,7 +6,9 @@ import debounce from 'lodash/debounce';
 import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import { Section, DateFormat, Skeleton } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
@@ -58,22 +60,22 @@ const User = ({
   });
 
   useEffect(() => {
-    fetchUsers({ ...defaultSettings, limit: 0, filters: { username } });
+    fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true });
     insights.chrome.appObjectId(username);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
 
   const history = useHistory();
 
-  const createRows = (data) => {
-    return data
+  const createRows = (data) =>
+    data
       ? data.reduce(
-          (acc, { uuid, name, groups_in = [], modified, accessCount }, i) => [
+          (acc, { uuid, display_name, groups_in = [], modified, accessCount }, i) => [
             ...acc,
             {
               uuid,
               cells: [
-                { title: name, props: { component: 'th', isOpen: false } },
+                { title: display_name, props: { component: 'th', isOpen: false } },
                 { title: `${groups_in.length}`, props: { isOpen: expanded[uuid] === 1 } },
                 { title: accessCount, props: { isOpen: expanded[uuid] === 2 } },
                 { title: <DateFormat type="exact" date={modified} /> },
@@ -130,7 +132,6 @@ const User = ({
           []
         )
       : [];
-  };
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username });
@@ -166,7 +167,7 @@ const User = ({
                   user && !isLoading ? (
                     <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
                   ) : (
-                    <Skeleton size="xs" className="ins-c-rbac__user-label-skeleton"></Skeleton>
+                    <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
                   )
                 }
                 description={`${username}'s roles, groups and permissions.`}

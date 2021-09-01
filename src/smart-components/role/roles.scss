@@ -1,0 +1,9 @@
+.rbac-c-roles {
+  .pf-c-dropdown button { // make button emulate link styling in kebab
+     --pf-c-button--disabled--BackgroundColor: transparent;
+     --pf-c-button--m-primary--BackgroundColor: transparent;
+     --pf-c-button--after--BorderColor: transparent;
+     --pf-c-button--hover--after--BorderWidth: 0;
+     color: var(--pf-global--Color--200);
+   }
+ }

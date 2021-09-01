@@ -1,21 +1,23 @@
-import React, { Fragment, useState, useEffect, lazy } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
-import { mappedProps } from '../../helpers/shared/helpers';
+import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import RemoveRole from './remove-role-modal';
-import { Section } from '@redhat-cloud-services/frontend-components';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
 import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
-import { Suspense } from 'react';
+import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -29,40 +31,70 @@ const columns = [
 
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
-  pagination: roles.meta,
+  filters: roles.filters,
+  meta: roles.pagination,
   userIdentity: roles.identity,
   isLoading,
 });
 
 const Roles = () => {
-  const [filterValue, setFilterValue] = useState('');
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, pagination, userIdentity } = useSelector(selector, shallowEqual);
-  const fetchData = (options) => dispatch(fetchRolesWithPolicies(options));
+  const { roles, isLoading, filters, meta, userIdentity } = useSelector(selector, shallowEqual);
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
+  const history = useHistory();
+
+  const [pagination, setPagination] = useState(meta);
+  const [filterValue, setFilterValue] = useState(filters.display_name || '');
 
   useEffect(() => {
+    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    setPagination(syncedPagination);
+    const { display_name } = syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+    setFilterValue(display_name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    fetchData({ ...pagination, name: filterValue });
+    fetchData({ ...syncedPagination, filters: { display_name } });
   }, []);
+
+  useEffect(() => {
+    setFilterValue(filters.display_name);
+    setPagination(meta);
+  }, [filters, meta]);
+
+  useEffect(() => {
+    meta.redirected && applyPaginationToUrl(history, meta.limit, meta.offset);
+  }, [meta.redirected]);
+
+  useEffect(() => {
+    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    filterValue?.length > 0 &&
+      !areFiltersPresentInUrl(history, ['display_name']) &&
+      syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+  });
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
       <Route exact path={paths['add-role']}>
-        <AddRoleWizard pagination={pagination} />
+        <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
       </Route>
       <Route exact path={paths['remove-role']}>
         {!isLoading && (
           <RemoveRole
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['remove-role']}
-            cancelRoute={paths.roles}
-            afterSubmit={() => fetchData({ ...pagination, name: filterValue })}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
       <Route exact path={paths['edit-role']}>
         {!isLoading && (
-          <EditRole afterSubmit={() => fetchData({ ...pagination, name: filterValue })} routeMatch={paths['edit-role']} cancelRoute={paths.roles} />
+          <EditRole
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
+            routeMatch={paths['edit-role']}
+            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+          />
         )}
       </Route>
     </Suspense>
@@ -95,7 +127,7 @@ const Roles = () => {
       : [];
 
   const renderRolesList = () => (
-    <Stack>
+    <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
           <TopToolbarTitle title="Roles" />
@@ -119,9 +151,14 @@ const Roles = () => {
             createRows={createRows}
             data={roles}
             filterValue={filterValue}
-            fetchData={(config) => fetchData(mappedProps(config))}
+            fetchData={(config) => {
+              const { name, count, limit, offset, orderBy } = config;
+              applyPaginationToUrl(history, limit, offset);
+              applyFiltersToUrl(history, { display_name: name });
+              return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
+            }}
             setFilterValue={({ name }) => setFilterValue(name)}
-            isLoading={isLoading}
+            isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}
             ouiaId="roles-table"

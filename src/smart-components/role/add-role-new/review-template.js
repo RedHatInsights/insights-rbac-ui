@@ -4,7 +4,7 @@ import { Bullseye, Spinner, Text, TextContent, Title } from '@patternfly/react-c
 import { AddRoleWizardContext } from './add-role-wizard';
 import { asyncValidator } from './validators';
 import './review.scss';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import WizardError from '../../common/wizard-error';
 
 const ReviewTemplate = ({ formFields }) => {
@@ -37,10 +37,10 @@ const ReviewTemplate = ({ formFields }) => {
 
   return (
     <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+      <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
         Review details
       </Title>
-      <TextContent className="ins-c-rbac__gutter-md">
+      <TextContent className="pf-u-mb-md">
         <Text>Review and confirm the details for your role, or click Back to revise.</Text>
       </TextContent>
       {[[{ ...formFields?.[0]?.[0] }]]}

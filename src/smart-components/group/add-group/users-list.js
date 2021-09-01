@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment } from 'react';
+import React, { useEffect, Fragment, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
@@ -9,8 +9,14 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import { defaultCompactSettings, defaultSettings, syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../../helpers/shared/filters';
+import {
+  defaultCompactSettings,
+  defaultSettings,
+  syncDefaultPaginationWithUrl,
+  applyPaginationToUrl,
+  isPaginationPresentInUrl,
+} from '../../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 const columns = [
@@ -22,67 +28,97 @@ const columns = [
   { title: 'Status', transforms: [nowrap] },
 ];
 
-const createRows = (userLinks) => (data, _expanded, checkedRows = []) => {
-  return data
-    ? data.reduce(
-        (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
-          ...acc,
-          {
-            uuid: username,
-            cells: [
-              isOrgAdmin ? (
-                <Fragment>
-                  <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                  <span key="yes">Yes</span>
-                </Fragment>
-              ) : (
-                <Fragment>
-                  <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                  <span key="no">No</span>
-                </Fragment>
-              ),
-              { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
-              email,
-              firstName,
-              lastName,
-              {
-                title: (
-                  <Label key="status" color={isActive && 'green'}>
-                    {isActive ? 'Active' : 'Inactive'}
-                  </Label>
+const createRows =
+  (userLinks) =>
+  (data, _expanded, checkedRows = []) => {
+    return data
+      ? data.reduce(
+          (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+            ...acc,
+            {
+              uuid: username,
+              cells: [
+                isOrgAdmin ? (
+                  <Fragment>
+                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                    <span key="yes">Yes</span>
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+                    <span key="no">No</span>
+                  </Fragment>
                 ),
-                props: {
-                  'data-is-active': isActive,
+                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
+                email,
+                firstName,
+                lastName,
+                {
+                  title: (
+                    <Label key="status" color={isActive && 'green'}>
+                      {isActive ? 'Active' : 'Inactive'}
+                    </Label>
+                  ),
+                  props: {
+                    'data-is-active': isActive,
+                  },
                 },
-              },
-            ],
-            selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
-          },
-        ],
-        []
-      )
-    : [];
-};
+              ],
+              selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
+            },
+          ],
+          []
+        )
+      : [];
+  };
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
     limit: inModal ? users.meta.limit : users.pagination.limit || defaultSettings.limit,
     offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
+    count: inModal ? users.meta.count : users.pagination.count,
+    redirected: !inModal && users.pagination.redirected,
   }));
 
   const history = useHistory();
 
-  let filters = useSelector(({ userReducer: { users: { filters } } }) => ({
-    username: (!inModal && filters?.username) || '',
-    email: (!inModal && filters?.email) || '',
-    status: (!inModal && filters?.status) || ['Active'],
-  }));
+  let stateFilters = useSelector(
+    ({
+      userReducer: {
+        users: { filters },
+      },
+    }) => filters
+  );
+
+  const [filters, setFilters] = useState(
+    inModal
+      ? {
+          username: '',
+          email: '',
+          status: ['Active'],
+        }
+      : stateFilters
+  );
 
   useEffect(() => {
-    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination, true);
-    filters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
-    fetchUsers({ ...mappedProps({ ...pagination, filters }), inModal });
+    inModal || (defaultPagination.redirected && applyPaginationToUrl(history, defaultPagination.limit, defaultPagination.offset));
+  }, [defaultPagination.redirected]);
+
+  useEffect(() => {
+    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
+    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    setFilters(newFilters);
+    fetchUsers({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
   }, []);
+
+  useEffect(() => {
+    if (!inModal) {
+      isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+      Object.values(filters).some((filter) => filter?.length > 0) &&
+        !areFiltersPresentInUrl(history, Object.keys(filters)) &&
+        syncDefaultFiltersWithUrl(history, Object.keys(filters), filters);
+    }
+  });
 
   const setCheckedItems = (newSelection) => {
     setSelectedUsers((users) => {
@@ -92,7 +128,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
 
   const updateFilters = (payload) => {
     inModal || updateUsersFilters(payload);
-    filters = payload;
+    setFilters({ username: '', ...payload });
   };
 
   return (
@@ -108,13 +144,15 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
         fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
-        inModal || applyPaginationToUrl(history, config.limit, config.offset);
+        inModal || applyPaginationToUrl(history, limit, offset);
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
       setFilterValue={({ username, email, status }) => {
-        typeof username !== 'undefined' && updateFilters({ ...filters, username });
-        typeof email !== 'undefined' && updateFilters({ ...filters, email });
-        typeof status === 'undefined' || status === filters.status || updateFilters({ ...filters, status });
+        updateFilters({
+          username: typeof username === 'undefined' ? filters.username : username,
+          email: typeof email === 'undefined' ? filters.email : email,
+          status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
+        });
       }}
       isLoading={isLoading}
       pagination={pagination}
@@ -128,8 +166,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       titlePlural="users"
       titleSingular="user"
       filters={[
-        { key: 'username', value: filters.username, placeholder: 'Filter by exact username' },
-        { key: 'email', value: filters.email, placeholder: 'Filter by exact email' },
+        { key: 'username', value: filters.username, placeholder: 'Filter by username' },
+        { key: 'email', value: filters.email, placeholder: 'Filter by email' },
         {
           key: 'status',
           value: filters.status,

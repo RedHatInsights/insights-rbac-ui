@@ -1,3 +1,4 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getRoleApi } from '../shared/user-login';
 
 const roleApi = getRoleApi();
@@ -19,13 +20,27 @@ export function fetchRoles({
   permission,
   options,
 }) {
-  return roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options);
+  return roleApi.listRoles(
+    limit,
+    offset,
+    name,
+    undefined,
+    undefined,
+    nameMatch,
+    scope,
+    orderBy,
+    addFields,
+    username,
+    application,
+    permission,
+    options
+  );
 }
 
 export async function fetchRolesWithPolicies({
   limit,
   offset,
-  name,
+  filters = {},
   nameMatch,
   scope = 'account',
   orderBy = 'display_name',
@@ -34,9 +49,58 @@ export async function fetchRolesWithPolicies({
   options,
   permission,
   application,
+  inModal = true,
 }) {
+  const roles = await roleApi.listRoles(
+    limit,
+    offset,
+    filters.name,
+    undefined,
+    filters.display_name,
+    nameMatch,
+    scope,
+    orderBy,
+    addFields,
+    username,
+    application,
+    permission,
+    options
+  );
+
+  const isPaginationValid = isOffsetValid(offset, roles?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(roles.meta.count, limit);
+  let { data, meta } = isPaginationValid
+    ? roles
+    : await roleApi.listRoles(
+        limit,
+        offset,
+        filters.name,
+        undefined,
+        undefined,
+        nameMatch,
+        scope,
+        orderBy,
+        addFields,
+        username,
+        application,
+        permission,
+        options
+      );
+
   return {
-    ...(await roleApi.listRoles(limit, offset, undefined, name, nameMatch, scope, orderBy, addFields, username, application, permission, options)),
+    data,
+    meta,
+    ...(inModal
+      ? {}
+      : {
+          filters,
+          pagination: {
+            ...meta,
+            offset,
+            limit,
+            redirected: !isPaginationValid,
+          },
+        }),
     ...(await insights.chrome.auth.getUser()),
   };
 }

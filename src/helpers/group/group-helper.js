@@ -1,14 +1,44 @@
+import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getGroupApi } from '../shared/user-login';
 
 const groupApi = getGroupApi();
 
-export async function fetchGroups({ limit, offset, name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options }) {
+export async function fetchGroups({
+  limit,
+  offset,
+  nameMatch,
+  scope,
+  username,
+  filters = {},
+  uuid,
+  roleNames,
+  roleDiscriminator,
+  orderBy,
+  options,
+  inModal = true,
+}) {
   const [groups, auth] = await Promise.all([
-    groupApi.listGroups(limit, offset, name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
+    groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
     insights.chrome.auth.getUser(),
   ]);
+  const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(groups.meta.count, limit);
+  let response = isPaginationValid
+    ? groups
+    : await groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options);
   return {
-    ...groups,
+    ...response,
+    ...(inModal
+      ? {}
+      : {
+          filters,
+          pagination: {
+            ...response?.meta,
+            offset,
+            limit,
+            redirected: !isPaginationValid,
+          },
+        }),
     ...auth,
   };
 }
@@ -49,7 +79,7 @@ export async function addPrincipalsToGroup(groupId, users) {
 }
 
 export async function fetchRolesForGroup(groupId, excluded, { limit, offset, name, description }, options = {}) {
-  return await groupApi.listRolesForGroup(groupId, excluded, undefined, name, description, limit, offset, 'display_name', options);
+  return await groupApi.listRolesForGroup(groupId, excluded, undefined, name, description, undefined, limit, offset, 'display_name', options);
 }
 
 export async function deleteRolesFromGroup(groupId, roles) {
@@ -61,9 +91,5 @@ export async function addRolesToGroup(groupId, roles) {
 }
 
 export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
-  return await groupApi.getPrincipalsFromGroup(groupId, usernames, undefined, {
-    query: {
-      ...options,
-    },
-  });
+  return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
 }

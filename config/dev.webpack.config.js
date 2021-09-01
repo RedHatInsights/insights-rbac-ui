@@ -3,12 +3,26 @@ const webpack = require('webpack');
 const { resolve } = require('path');
 const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPlugin;
 const config = require('@redhat-cloud-services/frontend-components-config');
+
+const insightsProxy = {
+  https: false,
+  ...(process.env.BETA && { deployment: 'beta/apps' }),
+};
+
+const webpackProxy = {
+  deployment: process.env.BETA ? 'beta/apps' : 'apps',
+  useProxy: true,
+  useCloud: true,
+  env: 'ci-beta',
+  // localChrome: '/home/martin/insights/insights-chrome/build/',
+  appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
+};
+
 const { config: webpackConfig, plugins } = config({
   rootFolder: resolve(__dirname, '../'),
   debug: true,
-  https: false,
   sassPrefix: '.rbac, .my-user-access',
-  ...(process.env.BETA && { deployment: 'beta/apps' }),
+  ...(process.env.PROXY ? webpackProxy : insightsProxy),
 });
 
 plugins.push(

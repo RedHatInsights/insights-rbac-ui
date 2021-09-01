@@ -6,13 +6,14 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
+import { sortable } from '@patternfly/react-table';
 
 const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResourceDefinitions }) => {
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
   const { current: columns } = useRef([
-    { title: 'Application' },
-    { title: 'Resource type' },
-    { title: 'Operation' },
+    { title: 'Application', key: 'application', transforms: [sortable] },
+    { title: 'Resource type', key: 'resource_type', transforms: [sortable] },
+    { title: 'Operation', key: 'verb', transforms: [sortable] },
     ...(showResourceDefinitions ? [{ title: 'Resource definitions' }] : []),
   ]);
 

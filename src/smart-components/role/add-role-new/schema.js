@@ -1,7 +1,8 @@
 import React from 'react';
-import validatorTypes from '@data-driven-forms/react-form-renderer/dist/esm/validator-types';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewTemplate from './review-template';
+import CostResourcesTemplate from './cost-resources-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddRoleWizardContext } from './add-role-wizard';
@@ -168,11 +169,16 @@ export default (container) => ({
           name: 'cost-resources-definition',
           title: 'Define Cost Management resources',
           nextStep: 'review',
+          StepTemplate: CostResourcesTemplate,
           fields: [
             {
               component: 'plain-text',
               name: 'text-description',
-              label: <p>Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.</p>,
+              label: (
+                <p className="pf-u-mb-md">
+                  Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.
+                </p>
+              ),
             },
             {
               component: 'cost-resources',

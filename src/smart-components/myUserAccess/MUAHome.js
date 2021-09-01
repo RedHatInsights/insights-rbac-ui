@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 
-import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components';
+import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 
@@ -27,7 +27,7 @@ const MyUserAccess = () => {
       {Object.prototype.hasOwnProperty.call(user, 'entitlements') && Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') ? (
         <React.Fragment>
           <PageHeaderTitle
-            className="ins-p-myUserAccess--title sticky"
+            className="rbac-p-myUserAccess--title sticky"
             title={
               <React.Fragment>
                 <span> My User Access </span>
@@ -35,10 +35,10 @@ const MyUserAccess = () => {
               </React.Fragment>
             }
           />
-          <Text component="p" className="ins-p-myUserAccess--subtitle">
+          <Text component="p" className="rbac-p-myUserAccess--subtitle">
             Select applications to view your personal permissions.
           </Text>
-          <div className="ins-p-myUserAccess--dropdown sticky">
+          <div className="rbac-p-myUserAccess--dropdown sticky">
             <Dropdown
               ouiaId="mua-bundle-dropdown"
               toggle={

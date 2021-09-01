@@ -2,11 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import Pf4SelectWrapper from '../../presentational-components/shared/pf4-select-wrapper';
 import FormButtons from './FormButtons';
-import FormTemplate from '@data-driven-forms/pf4-component-mapper/dist/esm/form-template';
-import TextField from '@data-driven-forms/pf4-component-mapper/dist/esm/text-field';
-import Textarea from '@data-driven-forms/pf4-component-mapper/dist/esm/textarea';
-import ReactFormRender from '@data-driven-forms/react-form-renderer/dist/esm/form-renderer';
-import componentTypes from '@data-driven-forms/react-form-renderer/dist/esm/component-types';
+import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
+import TextField from '@data-driven-forms/pf4-component-mapper/text-field';
+import Textarea from '@data-driven-forms/pf4-component-mapper/textarea';
+import ReactFormRender from '@data-driven-forms/react-form-renderer/form-renderer';
+import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 
 const FormRenderer = ({ formTemplateProps, ...props }) => (
   <ReactFormRender

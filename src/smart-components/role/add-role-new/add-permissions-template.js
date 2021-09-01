@@ -1,7 +1,7 @@
 import React, { useState, useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import './add-role-wizard.scss';
 import { AddRolePermissionWizardContext } from '../add-role-permissions/add-role-permission-wizard';
@@ -19,7 +19,7 @@ const AddPermissionTemplate = ({ formFields }) => {
   return (
     <div className="rbac">
       {selectedPermissions.length > 0 ? (
-        <div className="ins-c-rbac-seleted-chips">
+        <div className="rbac-c-selected-chips">
           <ChipGroup categoryName="Selected permissions">
             {/* immutable reverse */}
             {selectedPermissions
@@ -32,7 +32,7 @@ const AddPermissionTemplate = ({ formFields }) => {
           </ChipGroup>
         </div>
       ) : null}
-      <Title headingLevel="h1" size="xl" className="ins-c-rbac-add-permission-title">
+      <Title headingLevel="h1" size="xl" className="rbac-c-add-permission-title">
         Add permissions
       </Title>
       <TextContent>

@@ -1,41 +1,43 @@
 import React, { Fragment } from 'react';
-import { DateFormat } from '@redhat-cloud-services/frontend-components';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Link } from 'react-router-dom';
 import flatten from 'lodash/flatten';
 
-export const createRows = (showResDefinitions, uuid) => (data, opened, selectedRows = []) =>
-  data.reduce((acc, { resourceDefinitions, permission, modified }) => {
-    const [appName, type, operation] = permission.split(':');
-    return [
-      ...acc,
-      {
-        uuid: permission,
-        cells: [
-          appName,
-          type,
-          operation,
-          ...(showResDefinitions
-            ? [
-                permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
-                  <Fragment key="resource-definitions">
-                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
-                      {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
-                    </Link>
-                  </Fragment>
-                ) : (
-                  <span className="ins-c-text__disabled">N/A</span>
-                ),
-              ]
-            : []),
-          <Fragment key={`${appName}-modified`}>
-            <DateFormat date={modified} type="relative" />
-          </Fragment>,
-        ],
-        selected: Boolean(selectedRows?.find(({ uuid }) => uuid === permission)),
-      },
-    ];
-  }, []);
+export const createRows =
+  (showResDefinitions, uuid) =>
+  (data, opened, selectedRows = []) =>
+    data.reduce((acc, { resourceDefinitions, permission, modified }) => {
+      const [appName, type, operation] = permission.split(':');
+      return [
+        ...acc,
+        {
+          uuid: permission,
+          cells: [
+            appName,
+            type,
+            operation,
+            ...(showResDefinitions
+              ? [
+                  permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
+                    <Fragment key="resource-definitions">
+                      <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
+                        {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
+                      </Link>
+                    </Fragment>
+                  ) : (
+                    <span className="rbac-c-text__disabled">N/A</span>
+                  ),
+                ]
+              : []),
+            <Fragment key={`${appName}-modified`}>
+              <DateFormat date={modified} type="relative" />
+            </Fragment>,
+          ],
+          selected: Boolean(selectedRows?.find(({ uuid }) => uuid === permission)),
+        },
+      ];
+    }, []);
 
 export const rolePermissionsReducerInitialState = {
   pagination: defaultSettings,

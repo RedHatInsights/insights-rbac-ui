@@ -6,7 +6,7 @@ import { mount } from 'enzyme';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../smart-components/user/users';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications';
+import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
@@ -32,7 +32,7 @@ describe('<Users />', () => {
         limit: 10,
         offset: undefined,
       },
-      filters: {},
+      filters: { status: ['Active'] },
       pagination: defaultSettings,
     };
     mockStore = configureStore(middlewares);
@@ -119,8 +119,8 @@ describe('<Users />', () => {
       orderBy: '-username',
       filters: {
         status: ['Active'],
-        email: '',
-        username: '',
+        email: undefined,
+        username: undefined,
       },
       inModal: false,
     });
@@ -138,7 +138,7 @@ describe('<Users />', () => {
         </Router>
       </Provider>
     );
-    const target = wrapper.find('input#filter-by-username');
+    const target = wrapper.find('input#filter-by-username').first();
     target.getDOMNode().value = 'something';
     await act(async () => {
       target.simulate('change');
@@ -160,7 +160,7 @@ describe('<Users />', () => {
       count: 39,
       limit: 10,
       orderBy: 'username',
-      filters: { status: ['Active'], username: 'something', email: '' },
+      filters: { status: ['Active'], username: 'something', email: undefined },
       inModal: false,
     });
   });

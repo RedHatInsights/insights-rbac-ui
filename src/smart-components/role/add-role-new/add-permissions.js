@@ -1,14 +1,15 @@
 import React, { useCallback, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import useFieldApi from '@data-driven-forms/react-form-renderer/dist/esm/use-field-api';
-import useFormApi from '@data-driven-forms/react-form-renderer/dist/esm/use-form-api';
+import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
 import { DisabledRowWrapper } from './DisabledRowWrapper';
+import { isEqual } from 'lodash';
 
 const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
@@ -190,7 +191,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, [permissions, baseRole]);
 
   const setCheckedItems = (newSelection) => {
-    setSelectedPermissions(newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })));
+    const newSelected = newSelection(selectedPermissions)
+      .filter(({ uuid, application }) => application !== 'cost-management' || getResourceType(uuid)?.count > 0)
+      .map(({ uuid }) => ({ uuid }));
+
+    setSelectedPermissions(isEqual(newSelected, selectedPermissions) ? [] : newSelected);
   };
 
   const calculateSelected = (filter) =>
@@ -217,7 +222,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
-    <div className="ins-c-rbac-permissions-table">
+    <div className="rbac-c-permissions-table">
       <TableToolbarView
         columns={columns}
         isSelectable={true}

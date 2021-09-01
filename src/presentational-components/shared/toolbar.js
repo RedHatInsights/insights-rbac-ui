@@ -1,19 +1,20 @@
 import React from 'react';
-import { PrimaryToolbar, ConditionalFilter } from '@redhat-cloud-services/frontend-components';
+import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
+import ConditionalFilter from '@redhat-cloud-services/frontend-components/ConditionalFilter';
 import PropTypes from 'prop-types';
 import { pickBy } from 'lodash';
-import { getCurrentPage, selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
-import { defaultSettings } from '../../helpers/shared/pagination';
+import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
+import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
 
 export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '', sortBy = '') => ({
   ...pagination,
   itemCount: pagination.count,
   perPage: pagination.limit,
-  page: getCurrentPage(pagination.limit, pagination.offset),
+  page: calculatePage(pagination.limit, pagination.offset),
   onSetPage: (_event, page) => {
     fetchData({
       ...pagination,
-      offset: (page - 1) * pagination.limit,
+      offset: calculateOffset(page, pagination.limit),
       name: filterValue,
       orderBy: sortBy,
     });
@@ -263,6 +264,7 @@ const Toolbar = ({
       value,
       sortBy
     )}
+    useMobileLayout
     actionsConfig={{
       actions: toolbarButtons(),
     }}

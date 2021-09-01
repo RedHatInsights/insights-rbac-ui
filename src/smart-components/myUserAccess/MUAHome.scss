@@ -1,4 +1,4 @@
-.ins-p-myUserAccess {
+.rbac-p-myUserAccess {
   &--title {
     display: flex;      
     align-items: center;
@@ -17,15 +17,15 @@
   }
 }
 
-.ins-l-myUserAccess-section__cards,
-.ins-l-myUserAccess-section__table {
+.rbac-l-myUserAccess-section__cards,
+.rbac-l-myUserAccess-section__table {
   background-color: var(--pf-global--BackgroundColor--100);
   height: calc(100vh - 111px - 84px);
   padding: 0 var(--pf-global--spacer--lg);
   overflow-x: auto;
   h3 {padding: var(--pf-global--spacer--lg) 0;}
 }
-.ins-l-myUserAccess-section__cards {border-right: 1px solid var(--pf-global--BorderColor--100);}
+.rbac-l-myUserAccess-section__cards {border-right: 1px solid var(--pf-global--BorderColor--100);}
 
 @media only screen and (max-width: 768px) {
   .sticky {
@@ -37,7 +37,7 @@
     z-index: 200;
   }
 
-  .ins-p-myUserAccess {
+  .rbac-p-myUserAccess {
     &--title {
       padding: var(--pf-global--spacer--xl) var(--pf-global--spacer--lg) var(--pf-global--spacer--md) var(--pf-global--spacer--lg);
       top: 0;
@@ -61,6 +61,15 @@
       height: auto;
       margin: var(--pf-global--spacer--md);
       > .pf-c-title { display: none; }
+    }
+  }
+
+  .rbac-l-myUserAccess-section__table {
+    background-color: transparent;
+    h3 {
+      background-color: var(--pf-global--BackgroundColor--100);
+      margin-top: var(--pf-global--spacer--md);
+      padding-left: var(--pf-global--spacer--md);
     }
   }
 }
