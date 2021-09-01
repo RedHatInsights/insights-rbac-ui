@@ -15,8 +15,8 @@ import { routes as paths } from '../../../package.json';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
-import { syncDefaultPaginationWithUrl, applyPaginationToUrl } from '../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl } from '../../helpers/shared/filters';
+import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
+import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
@@ -64,6 +64,13 @@ const Roles = () => {
   useEffect(() => {
     meta.redirected && applyPaginationToUrl(history, meta.limit, meta.offset);
   }, [meta.redirected]);
+
+  useEffect(() => {
+    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    filterValue?.length > 0 &&
+      !areFiltersPresentInUrl(history, ['display_name']) &&
+      syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+  });
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
