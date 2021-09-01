@@ -6,7 +6,7 @@ import classNames from 'classnames';
 const UsersRow = ({ row, ...props }) => {
   const { status } = row;
   const isActive = status?.props?.['data-is-active'];
-  return <RowWrapper className={classNames('ins-c-rbac__user-row', { 'ins-m-inactive': !isActive })} row={row} {...props} />;
+  return <RowWrapper className={classNames('rbac__user-row', { 'ins-m-inactive': !isActive })} row={row} {...props} />;
 };
 
 UsersRow.propTypes = {

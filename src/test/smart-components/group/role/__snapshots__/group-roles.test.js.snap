@@ -158,12 +158,11 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
           "value": undefined,
         }
       }
-      toggleIsExpanded={[Function]}
+      useMobileLayout={true}
     >
       <Toolbar
         className=" ins-c-primary-toolbar"
         id="ins-primary-data-toolbar"
-        toggleIsExpanded={[Function]}
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
@@ -235,13 +234,14 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                 },
                               ]
                             }
+                            useMobileLayout={true}
                             value=""
                           >
                             <Split
-                              className="ins-c-conditional-filter"
+                              className="ins-c-conditional-filter desktop"
                             >
                               <div
-                                className="pf-l-split ins-c-conditional-filter"
+                                className="pf-l-split ins-c-conditional-filter desktop"
                               >
                                 <SplitItem>
                                   <div
@@ -734,6 +734,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             }
             clearFiltersButtonText="Clear all filters"
             collapseListedFiltersBreakpoint="lg"
+            isExpanded={false}
             numberOfFilters={0}
             showClearFiltersButton={false}
           >

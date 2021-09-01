@@ -19,7 +19,7 @@ const AddPermissionTemplate = ({ formFields }) => {
   return (
     <div className="rbac">
       {selectedPermissions.length > 0 ? (
-        <div className="ins-c-rbac-seleted-chips">
+        <div className="rbac-c-selected-chips">
           <ChipGroup categoryName="Selected permissions">
             {/* immutable reverse */}
             {selectedPermissions
@@ -32,7 +32,7 @@ const AddPermissionTemplate = ({ formFields }) => {
           </ChipGroup>
         </div>
       ) : null}
-      <Title headingLevel="h1" size="xl" className="ins-c-rbac-add-permission-title">
+      <Title headingLevel="h1" size="xl" className="rbac-c-add-permission-title">
         Add permissions
       </Title>
       <TextContent>

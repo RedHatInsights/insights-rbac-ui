@@ -138,7 +138,7 @@ describe('<Users />', () => {
         </Router>
       </Provider>
     );
-    const target = wrapper.find('input#filter-by-username');
+    const target = wrapper.find('input#filter-by-username').first();
     target.getDOMNode().value = 'something';
     await act(async () => {
       target.simulate('change');

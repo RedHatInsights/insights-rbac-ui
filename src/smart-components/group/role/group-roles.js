@@ -41,9 +41,14 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
     : [];
 };
 
-const addRoleButton = (isDisabled) => {
+const generateOuiaID = (name) => {
+  // given a group name, generate an OUIA ID for the 'Add role' button
+  return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
+};
+
+const addRoleButton = (isDisabled, ouiaId) => {
   const addRoleButtonContent = (
-    <Button variant="primary" className="ins-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
+    <Button ouiaId={ouiaId} variant="primary" className="ins-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
       Add role
     </Button>
   );
@@ -153,11 +158,11 @@ const GroupRoles = ({
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
           <Link
-            className={`pf-m-visible-on-md ins-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`pf-m-visible-on-md rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
-            {addRoleButton(disableAddRoles)}
+            {addRoleButton(disableAddRoles, generateOuiaID(name || ''))}
           </Link>,
           {
             label: 'Add role',

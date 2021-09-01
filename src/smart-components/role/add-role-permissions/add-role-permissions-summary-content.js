@@ -16,12 +16,12 @@ const AddRolePermissionSummaryContent = () => {
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Title headingLevel="h1" size="xl" className="ins-c-rbac__gutter-sm">
+          <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
             Review details
           </Title>
         </TextContent>
       </StackItem>
-      <StackItem classnem="ins-c-rbac__summary">
+      <StackItem className="rbac-l-stack__item-summary">
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
