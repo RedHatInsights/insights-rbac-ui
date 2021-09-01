@@ -3,11 +3,11 @@ import { bundleData } from '../presentational-components/myUserAccess/bundles';
 
 const useBundleApps = (bundle) => {
   const {
-    push,
+    replace,
     location: { pathname },
   } = useHistory();
   if (typeof bundle !== 'string' || bundle.length === 0) {
-    push({ to: pathname, search: 'bundle=rhel' });
+    replace({ to: pathname, search: 'bundle=rhel' });
     return [];
   }
 
