@@ -135,7 +135,10 @@ const User = ({
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username });
-    debouncedFetch = debounce((limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }), 500);
+    debouncedFetch = debounce(
+      (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, displayName: name, addFields, username }),
+      500
+    );
   }, []);
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
