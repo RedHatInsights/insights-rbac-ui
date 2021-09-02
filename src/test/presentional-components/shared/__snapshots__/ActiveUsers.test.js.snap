@@ -6,7 +6,7 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
 >
   <Text
     component="a"
-    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
     rel="noopener noreferrer"
     target="_blank"
   >
@@ -28,7 +28,7 @@ exports[`<ActiveUsers /> should render correctly with description 1`] = `
   some description
   <Text
     component="a"
-    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
     rel="noopener noreferrer"
     target="_blank"
   >
@@ -49,7 +49,7 @@ exports[`<ActiveUsers /> should render correctly with link title 1`] = `
 >
   <Text
     component="a"
-    href="https://www.qa.redhat.com/wapps/ugc/protected/usermgt/userList.html"
+    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
     rel="noopener noreferrer"
     target="_blank"
   >

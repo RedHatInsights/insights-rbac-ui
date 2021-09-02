@@ -7,13 +7,13 @@ import './warningModal.scss';
 export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, customTitle, customDescription }) => (
   <Modal
     title={
-      <span className="ins-c-wizard__cancel-warning-header">
-        <ExclamationTriangleIcon size="md" className="ins-c-wizard__cancel-warning-header--icon" />
+      <span className="rbac-c-wizard__cancel-warning-header">
+        <ExclamationTriangleIcon size="md" className="rbac-c-wizard__cancel-warning-header--icon" />
         {customTitle || `Exit ${type} creation?`}
       </span>
     }
     variant={ModalVariant.small}
-    className="rbac ins-c-wizard__cancel-warning"
+    className="rbac rbac-c-wizard__cancel-warning"
     isOpen={isOpen}
     onClose={onModalCancel}
     actions={[

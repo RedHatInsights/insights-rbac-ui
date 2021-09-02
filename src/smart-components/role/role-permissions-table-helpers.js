@@ -26,7 +26,7 @@ export const createRows =
                       </Link>
                     </Fragment>
                   ) : (
-                    <span className="ins-c-text__disabled">N/A</span>
+                    <span className="rbac-c-text__disabled">N/A</span>
                   ),
                 ]
               : []),

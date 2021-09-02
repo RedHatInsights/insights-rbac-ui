@@ -4,15 +4,15 @@ import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfl
 import './review.scss';
 
 const stickyTable = (columns, rows) => (
-  <div className="ins-c-rbac__sticky">
-    <Grid className="ins-c-rbac__sticky--title">
+  <div className="rbac-c-sticky">
+    <Grid className="rbac-c-sticky--title">
       {columns.map((col) => (
         <GridItem span={12 / columns.length} key={col}>
           {col}
         </GridItem>
       ))}
     </Grid>
-    <Grid className="ins-c-rbac__sticky--data">
+    <Grid className="rbac-c-sticky--data">
       {rows.map((row) =>
         row.cells.map((cell) => (
           <GridItem span={12 / columns.length} key={cell}>
@@ -48,10 +48,10 @@ const ReviewStep = () => {
   return (
     <React.Fragment>
       <Stack>
-        <StackItem className="ins-c-rbac__summary">
+        <StackItem className="rbac-l-stack__item-summary">
           <Grid>
             <GridItem sm={12} md={2}>
-              <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+              <Text component={TextVariants.h4} className="rbac-bold-text">
                 Name
               </Text>
             </GridItem>
@@ -61,7 +61,7 @@ const ReviewStep = () => {
           </Grid>
           <Grid>
             <GridItem sm={12} md={2}>
-              <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+              <Text component={TextVariants.h4} className="rbac-bold-text">
                 Description
               </Text>
             </GridItem>
@@ -71,7 +71,7 @@ const ReviewStep = () => {
           </Grid>
           <Grid>
             <GridItem sm={12} md={2}>
-              <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+              <Text component={TextVariants.h4} className="rbac-bold-text">
                 Permissions
               </Text>
             </GridItem>
@@ -82,7 +82,7 @@ const ReviewStep = () => {
           {hasCostResources && (
             <Grid>
               <GridItem sm={12} md={2}>
-                <Text component={TextVariants.h4} className="ins-c-rbac__bold-text">
+                <Text component={TextVariants.h4} className="rbac-bold-text">
                   Resource definitions
                 </Text>
               </GridItem>

@@ -109,7 +109,7 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
   return (
     <React.Fragment>
       <Wizard
-        className={cancelWarningVisible && 'ins-m-wizard__hidden'}
+        className={cancelWarningVisible && 'rbac-m-wizard__hidden'}
         title="Add role"
         isOpen
         onClose={() => {
