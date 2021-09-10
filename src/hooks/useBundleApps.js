@@ -6,8 +6,9 @@ const useBundleApps = (bundle) => {
     replace,
     location: { pathname },
   } = useHistory();
-  if (typeof bundle !== 'string' || bundle.length === 0) {
-    replace({ to: pathname, search: 'bundle=rhel' });
+  if (typeof bundle !== 'string' || bundle.length === 0 || !['application_services', 'openshift', 'rhel', 'ansible'].includes(bundle)) {
+    bundle = 'rhel';
+    replace({ to: pathname, search: `bundle=${bundle}` });
     return [];
   }
 
