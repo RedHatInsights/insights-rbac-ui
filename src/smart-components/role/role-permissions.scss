@@ -23,3 +23,12 @@
   }
   
 }
+
+.ins-c-conditional-filter {
+  .pf-l-split__item.pf-m-fill {
+    .pf-c-menu-toggle {
+      height: 100%;
+      padding-left: var(--pf-global--spacer--sm);
+    }
+  }
+}
