@@ -158,7 +158,7 @@ const GroupRoles = ({
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
           <Link
-            className={`pf-m-visible-on-md rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`ins-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
@@ -168,7 +168,7 @@ const GroupRoles = ({
             label: 'Add role',
             props: {
               isDisabled: disableAddRoles,
-              className: 'pf-m-hidden-on-md',
+              className: 'ins-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/roles/add_roles`);

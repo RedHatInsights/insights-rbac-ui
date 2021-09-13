@@ -144,7 +144,7 @@ const Permissions = () => {
     {
       label: 'Add Permission',
       props: {
-        className: 'pf-m-hidden-on-md',
+        className: 'ins-m-hide-on-md',
       },
       onClick: () => {
         history.push(`/roles/detail/${role.uuid}/role-add-permission`);

@@ -17,6 +17,7 @@ import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
@@ -46,6 +47,7 @@ const Roles = () => {
 
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
+  const screenSize = useScreenSize();
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -118,11 +120,21 @@ const Roles = () => {
   const toolbarButtons = () =>
     userIdentity?.user?.is_org_admin
       ? [
-          <Link to={paths['add-role']} key="add-role" className="pf-m-visible-on-md">
+          <Link to={paths['add-role']} key="add-role" className="ins-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
               Create role
             </Button>
           </Link>,
+          ...(isSmallScreen(screenSize)
+            ? [
+                {
+                  label: 'Create role',
+                  onClick: () => {
+                    history.push(paths['add-role']);
+                  },
+                },
+              ]
+            : []),
         ]
       : [];
 
@@ -136,15 +148,6 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
-            dedicatedAction={
-              userIdentity?.user?.is_org_admin ? (
-                <Link to={paths['add-role']}>
-                  <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
-                    Create role
-                  </Button>
-                </Link>
-              ) : undefined
-            }
             actionResolver={actionResolver}
             sortBy={{ index: 0, direction: 'asc' }}
             columns={columns}

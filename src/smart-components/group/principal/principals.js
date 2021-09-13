@@ -113,7 +113,7 @@ const GroupPrincipals = () => {
           {
             label: 'Add member',
             props: {
-              className: 'pf-m-hidden-on-md',
+              className: 'ins-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/members/add_members`);
