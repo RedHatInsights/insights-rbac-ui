@@ -156,7 +156,7 @@ const Groups = () => {
           {
             label: 'Create group',
             props: {
-              className: 'pf-m-hidden-on-md',
+              className: 'ins-m-hide-on-md',
             },
             onClick: () => {
               history.push(paths['add-group']);
