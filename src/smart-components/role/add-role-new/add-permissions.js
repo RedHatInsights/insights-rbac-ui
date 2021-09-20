@@ -201,12 +201,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   const calculateSelected = (filter) =>
     filter.reduce(
       (acc, curr) => ({
-        0: {
-          ...acc?.['0'],
+        '': {
+          ...acc?.[''],
           [curr]: true,
         },
       }),
-      { 0: {} }
+      { '': {} }
     );
 
   const preparedFilterItems = {
