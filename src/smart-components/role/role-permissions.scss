@@ -25,6 +25,15 @@
 }
 
 .ins-c-conditional-filter {
+  .pf-l-split__item {
+    .pf-c-dropdown.ins-c-conditional-filter__group {
+      height: 100%;
+      button.pf-c-dropdown__toggle {
+        height: 100%;
+      }
+    }
+  }
+
   .pf-l-split__item.pf-m-fill {
     .pf-c-menu-toggle {
       height: 100%;
