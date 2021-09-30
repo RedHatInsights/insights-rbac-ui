@@ -1,4 +1,4 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
@@ -65,6 +65,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
   const maxFilterItems = 10;
+  const containerRef = useRef();
 
   const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
@@ -222,8 +223,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
-    <div className="rbac-c-permissions-table">
+    <div className="rbac-c-permissions-table" ref={containerRef}>
       <TableToolbarView
+        containerRef={containerRef.current}
         columns={columns}
         isSelectable={true}
         isCompact={true}
