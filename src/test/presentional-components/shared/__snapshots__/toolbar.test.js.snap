@@ -27,6 +27,7 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -102,6 +103,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -177,6 +179,7 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -223,6 +226,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -264,6 +268,7 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -330,6 +335,7 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -408,6 +414,7 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -483,6 +490,7 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -521,6 +529,7 @@ exports[`<Toolbar> should render buttons 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -581,6 +590,7 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -641,6 +651,7 @@ exports[`<Toolbar> should render pagination 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -712,6 +723,7 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -807,6 +819,7 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
@@ -903,6 +916,7 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
   }
   filterConfig={
     Object {
+      "containerRef": undefined,
       "items": Array [
         Object {
           "filterValues": Object {
