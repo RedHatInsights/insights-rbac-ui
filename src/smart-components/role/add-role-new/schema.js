@@ -17,6 +17,7 @@ export default (container) => ({
       showTitles: true,
       crossroads: ['role-type'],
       title: 'Create role',
+      style: { overflow: 'hidden' },
       container,
       fields: [
         {

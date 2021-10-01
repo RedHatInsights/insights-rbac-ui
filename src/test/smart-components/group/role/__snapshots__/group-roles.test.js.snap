@@ -122,6 +122,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       }
       filterConfig={
         Object {
+          "containerRef": undefined,
           "items": Array [
             Object {
               "filterValues": Object {
@@ -163,10 +164,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       <Toolbar
         className=" ins-c-primary-toolbar"
         id="ins-primary-data-toolbar"
+        ouiaId="PrimaryToolbar"
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
           id="ins-primary-data-toolbar"
+          ouiaId="PrimaryToolbar"
         >
           <ToolbarContent
             isExpanded={false}
@@ -255,6 +258,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             component="button"
                                             isHovered={true}
                                             onClick={[Function]}
+                                            ouiaId="Name"
                                           >
                                             Name
                                           </DropdownItem>,
@@ -262,6 +266,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             component="button"
                                             isHovered={false}
                                             onClick={[Function]}
+                                            ouiaId="Description"
                                           >
                                             Description
                                           </DropdownItem>,
@@ -269,11 +274,13 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       }
                                       isOpen={false}
                                       onSelect={[Function]}
+                                      ouiaId="ConditionalFilter"
                                       toggle={
                                         <DropdownToggle
                                           className=""
                                           isDisabled={false}
                                           onToggle={[Function]}
+                                          ouiaId="ConditionalFilter"
                                         >
                                           <FilterIcon
                                             color="currentColor"
@@ -298,6 +305,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               component="button"
                                               isHovered={true}
                                               onClick={[Function]}
+                                              ouiaId="Name"
                                             >
                                               Name
                                             </DropdownItem>,
@@ -305,6 +313,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               component="button"
                                               isHovered={false}
                                               onClick={[Function]}
+                                              ouiaId="Description"
                                             >
                                               Description
                                             </DropdownItem>,
@@ -321,6 +330,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             className=""
                                             isDisabled={false}
                                             onToggle={[Function]}
+                                            ouiaId="ConditionalFilter"
                                           >
                                             <FilterIcon
                                               color="currentColor"
@@ -337,7 +347,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       >
                                         <div
                                           className="pf-c-dropdown ins-c-conditional-filter__group"
-                                          data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                          data-ouia-component-id="ConditionalFilter"
                                           data-ouia-component-type="PF4/Dropdown"
                                           data-ouia-safe={true}
                                         >
@@ -352,11 +362,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             key=".0"
                                             onEnter={[Function]}
                                             onToggle={[Function]}
+                                            ouiaId="ConditionalFilter"
                                             parentRef={
                                               Object {
                                                 "current": <div
                                                   class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                  data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                  data-ouia-component-id="ConditionalFilter"
                                                   data-ouia-component-type="PF4/Dropdown"
                                                   data-ouia-safe="true"
                                                 >
@@ -364,7 +375,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     aria-expanded="false"
                                                     aria-haspopup="true"
                                                     class="pf-c-dropdown__toggle"
-                                                    data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                    data-ouia-component-id="ConditionalFilter"
                                                     data-ouia-component-type="PF4/DropdownToggle"
                                                     data-ouia-safe="true"
                                                     id="pf-dropdown-toggle-id-1"
@@ -418,7 +429,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               aria-haspopup={true}
                                               bubbleEvent={false}
                                               className=""
-                                              data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                              data-ouia-component-id="ConditionalFilter"
                                               data-ouia-component-type="PF4/DropdownToggle"
                                               data-ouia-safe={true}
                                               getMenuRef={[Function]}
@@ -435,7 +446,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                 Object {
                                                   "current": <div
                                                     class="pf-c-dropdown ins-c-conditional-filter__group"
-                                                    data-ouia-component-id="OUIA-Generated-Dropdown-1"
+                                                    data-ouia-component-id="ConditionalFilter"
                                                     data-ouia-component-type="PF4/Dropdown"
                                                     data-ouia-safe="true"
                                                   >
@@ -443,7 +454,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                       aria-expanded="false"
                                                       aria-haspopup="true"
                                                       class="pf-c-dropdown__toggle"
-                                                      data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                      data-ouia-component-id="ConditionalFilter"
                                                       data-ouia-component-type="PF4/DropdownToggle"
                                                       data-ouia-safe="true"
                                                       id="pf-dropdown-toggle-id-1"
@@ -497,7 +508,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                 aria-expanded={false}
                                                 aria-haspopup={true}
                                                 className="pf-c-dropdown__toggle"
-                                                data-ouia-component-id="OUIA-Generated-DropdownToggle-1"
+                                                data-ouia-component-id="ConditionalFilter"
                                                 data-ouia-component-type="PF4/DropdownToggle"
                                                 data-ouia-safe={true}
                                                 disabled={false}
@@ -599,6 +610,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         isDisabled={true}
                                         onChange={[Function]}
                                         onKeyDown={[Function]}
+                                        ouiaId="ConditionalFilter"
                                         placeholder="Filter by name"
                                         value=""
                                         widget-type="InsightsInput"
@@ -615,6 +627,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           isRequired={false}
                                           onChange={[Function]}
                                           onKeyDown={[Function]}
+                                          ouiaId="ConditionalFilter"
                                           placeholder="Filter by name"
                                           type="text"
                                           validated="default"
@@ -632,6 +645,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             onChange={[Function]}
                                             onFocus={[Function]}
                                             onKeyDown={[Function]}
+                                            ouiaId="ConditionalFilter"
                                             placeholder="Filter by name"
                                             readOnly={false}
                                             required={false}
