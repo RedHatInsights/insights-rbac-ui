@@ -65,7 +65,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
   const maxFilterItems = 10;
-  const containerRef = useRef();
 
   const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
@@ -90,7 +89,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
       ),
     }));
 
-  const debounbcedGetApplicationOptions = useCallback(
+  const debouncedGetApplicationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -104,7 +103,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
     ),
     []
   );
-  const debounbcedGetResourceOptions = useCallback(
+  const debouncedGetResourceOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -118,7 +117,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
     ),
     []
   );
-  const debounbcedGetOperationOptions = useCallback(
+  const debouncedGetOperationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
@@ -144,18 +143,18 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, []);
 
   useEffect(() => {
-    debounbcedGetResourceOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetResourceOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.applications]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.resources]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetResourceOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetResourceOptions(filters);
   }, [filters.operations]);
 
   useEffect(() => {
@@ -223,9 +222,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
-    <div className="rbac-c-permissions-table" ref={containerRef}>
+    <div className="rbac-c-permissions-table">
       <TableToolbarView
-        containerRef={containerRef.current}
         columns={columns}
         isSelectable={true}
         isCompact={true}

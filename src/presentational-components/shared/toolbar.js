@@ -79,10 +79,8 @@ export const filterConfigBuilder = (
   onFilter,
   onChange,
   value,
-  sortBy,
-  containerRef
+  sortBy
 ) => ({
-  containerRef,
   onChange,
   value,
   items: [
@@ -243,7 +241,6 @@ const Toolbar = ({
   value,
   hideFilterChips,
   tableId,
-  containerRef,
 }) => (
   <PrimaryToolbar
     {...(isSelectable && {
@@ -265,8 +262,7 @@ const Toolbar = ({
       onFilter,
       onChange,
       value,
-      sortBy,
-      containerRef
+      sortBy
     )}
     useMobileLayout
     actionsConfig={{
@@ -317,7 +313,6 @@ Toolbar.propTypes = {
   toolbarButtons: PropTypes.func,
   hideFilterChips: PropTypes.bool,
   tableId: PropTypes.string,
-  containerRef: PropTypes.element,
 };
 
 Toolbar.defaultProps = {
