@@ -26,6 +26,10 @@
 
 .ins-c-conditional-filter {
   .pf-l-split__item {
+    height: auto;
+    >div {
+      height: 100%;
+    }
     .pf-c-dropdown.ins-c-conditional-filter__group {
       height: 100%;
       button.pf-c-dropdown__toggle {
