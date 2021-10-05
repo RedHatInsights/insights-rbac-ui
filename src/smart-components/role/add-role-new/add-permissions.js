@@ -99,7 +99,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
@@ -113,7 +113,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
@@ -121,7 +121,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
-      3000
+      2000
     ),
     []
   );
