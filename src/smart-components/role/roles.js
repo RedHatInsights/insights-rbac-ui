@@ -11,7 +11,7 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import RemoveRole from './remove-role-modal';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';

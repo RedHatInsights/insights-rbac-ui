@@ -11,7 +11,7 @@ import AddGroupMembers from './add-group-members';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
 
 const columns = [
   { title: 'Status', transforms: [nowrap] },

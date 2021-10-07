@@ -14,7 +14,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
-import { routes as paths } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
 import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
@@ -87,7 +87,7 @@ const Groups = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={paths['add-group']}>
+      <Route exact path={pathnames['add-group']}>
         <AddGroupWizard
           pagination={pagination}
           filters={filters}
@@ -97,18 +97,18 @@ const Groups = () => {
           }}
         />
       </Route>
-      <Route exact path={paths['group-edit'].path}>
+      <Route exact path={pathnames['group-edit'].path}>
         <EditGroup
           pagination={pagination}
           filters={filters}
           postMethod={(config) => {
             fetchData(config);
           }}
-          cancelRoute={getBackRoute(paths.groups, pagination, filters)}
-          submitRoute={getBackRoute(paths.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
         />
       </Route>
-      <Route exact path={paths['remove-group']}>
+      <Route exact path={pathnames['remove-group']}>
         <RemoveGroup
           pagination={pagination}
           filters={filters}
@@ -116,8 +116,8 @@ const Groups = () => {
             fetchData(config);
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
           }}
-          cancelRoute={getBackRoute(paths.groups, pagination, filters)}
-          submitRoute={getBackRoute(paths.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
           isModalOpen
           groupsUuid={removeGroupsList}
         />
@@ -139,7 +139,7 @@ const Groups = () => {
             title: 'Delete',
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              history.push(paths['remove-group']);
+              history.push(pathnames['remove-group']);
             },
           },
         ];
@@ -148,7 +148,7 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
-          <Link to={paths['add-group']} key="add-group" className="ins-m-hide-on-sm">
+          <Link to={pathnames['add-group']} key="add-group" className="ins-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               Create group
             </Button>
@@ -159,7 +159,7 @@ const Groups = () => {
               className: 'ins-m-hide-on-md',
             },
             onClick: () => {
-              history.push(paths['add-group']);
+              history.push(pathnames['add-group']);
             },
           },
           {
@@ -176,7 +176,7 @@ const Groups = () => {
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              history.push(paths['remove-group']);
+              history.push(pathnames['remove-group']);
             },
           },
         ]
@@ -225,10 +225,10 @@ const Groups = () => {
   );
   return (
     <Switch>
-      <PageActionRoute pageAction="role-detail" path={paths['group-detail-role-detail']} render={(props) => <Role {...props} />} />
+      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail']} render={(props) => <Role {...props} />} />
       <PageActionRoute
         pageAction="group-detail"
-        path={paths['group-detail']}
+        path={pathnames['group-detail']}
         render={(props) => (
           <Group
             {...props}
@@ -239,7 +239,7 @@ const Groups = () => {
           />
         )}
       />
-      <PageActionRoute pageAction="group-list" path={paths.groups} render={() => renderGroupsList()} />
+      <PageActionRoute pageAction="group-list" path={pathnames.groups} render={() => renderGroupsList()} />
     </Switch>
   );
 };

@@ -11,7 +11,7 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
 import './group-roles.scss';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];

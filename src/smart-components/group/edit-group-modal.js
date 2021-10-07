@@ -12,7 +12,7 @@ import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
-import { routes } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 
 const EditGroupModal = ({
   addNotification,
@@ -128,7 +128,7 @@ const EditGroupModal = ({
 };
 
 EditGroupModal.defaultProps = {
-  cancelRoute: routes.groups,
+  cancelRoute: pathnames.groups,
   onClose: () => null,
   onSubmit: () => null,
 };
