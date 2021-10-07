@@ -17,7 +17,7 @@ import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
 import './add-role-wizard.scss';
 
 export const AddRoleWizardContext = createContext({

@@ -21,7 +21,7 @@ import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 const maxFilterItems = 10;

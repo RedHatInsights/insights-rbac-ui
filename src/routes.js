@@ -1,7 +1,7 @@
 import { Route, Switch, Redirect } from 'react-router-dom';
 import React, { lazy, Suspense } from 'react';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
-import { routes } from '../package.json';
+import pathnames from './utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
@@ -27,13 +27,13 @@ export const Routes = () => {
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <Switch>
-        <Route path={routes.groups} component={Groups} />
-        <Route path={routes.roles} component={Roles} />
-        <Route path={routes.users} component={Users} />
-        <Route path={routes['my-user-access']} component={MyUserAccess} />
-        <Route path={routes['access-requests']} component={AccessRequests} />
+        <Route path={pathnames.groups} component={Groups} />
+        <Route path={pathnames.roles} component={Roles} />
+        <Route path={pathnames.users} component={Users} />
+        <Route path={pathnames['my-user-access']} component={MyUserAccess} />
+        <Route path={pathnames['access-requests']} component={AccessRequests} />
         <Route>
-          <Redirect to={routes.users} />
+          <Redirect to={pathnames.users} />
         </Route>
       </Switch>
     </Suspense>

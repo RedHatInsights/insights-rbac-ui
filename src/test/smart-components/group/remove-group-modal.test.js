@@ -11,7 +11,7 @@ import RemoveGroupModal from '../../../smart-components/group/remove-group-modal
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { FETCH_GROUP, FETCH_GROUPS, REMOVE_GROUPS } from '../../../redux/action-types';
 import { Button } from '@patternfly/react-core';
-import { routes } from '../../../../package.json';
+import pathnames from '../../../utilities/pathnames';
 import * as GroupActions from '../../../redux/actions/group-actions';
 
 jest.mock('../../../redux/actions/group-actions', () => {
@@ -45,7 +45,7 @@ describe('<RemoveGroupModal />', () => {
               groupsUuid={[{ uuid: '123' }]}
               pagination={{ limit: 0 }}
               filters={{}}
-              cancelRoute={routes.groups}
+              cancelRoute={pathnames.groups}
             />
           )}
         />
@@ -81,7 +81,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(routes.groups);
+    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(pathnames.groups);
   });
 
   it('should call the remove action', async () => {

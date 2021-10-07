@@ -9,7 +9,7 @@ import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/Page
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import flatten from 'lodash/flatten';

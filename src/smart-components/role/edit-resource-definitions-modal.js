@@ -5,7 +5,7 @@ import FormRenderer from '../common/form-renderer';
 import { useHistory, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { WarningModal } from '../common/warningModal';
