@@ -32,6 +32,7 @@ const pathnames = {
   'my-user-access': '/my-user-access',
   'access-requests': '/access-requests',
   'access-requests-detail': '/access-requests/:requestId',
+  'quickstarts-test': '/quickstarts-test',
 };
 
 export default pathnames;
