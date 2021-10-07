@@ -22,6 +22,7 @@ const { config: webpackConfig, plugins } = config({
   rootFolder: resolve(__dirname, '../'),
   debug: true,
   sassPrefix: '.rbac, .my-user-access',
+  client: { overlay: false },
   ...(process.env.PROXY ? webpackProxy : insightsProxy),
 });
 
