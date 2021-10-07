@@ -50,6 +50,7 @@ export const TableToolbarView = ({
   noDataDescription,
   ouiaId,
   tableId,
+  containerRef,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -142,6 +143,7 @@ export const TableToolbarView = ({
           value={value}
           hideFilterChips={hideFilterChips}
           tableId={tableId}
+          containerRef={containerRef}
         />
         {isLoading ? (
           <ListLoader />

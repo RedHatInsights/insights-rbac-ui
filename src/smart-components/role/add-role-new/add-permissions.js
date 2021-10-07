@@ -89,7 +89,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
       ),
     }));
 
-  const debounbcedGetApplicationOptions = useCallback(
+  const debouncedGetApplicationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -99,11 +99,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
-  const debounbcedGetResourceOptions = useCallback(
+  const debouncedGetResourceOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -113,15 +113,15 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
-  const debounbcedGetOperationOptions = useCallback(
+  const debouncedGetOperationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
-      3000
+      2000
     ),
     []
   );
@@ -143,18 +143,18 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, []);
 
   useEffect(() => {
-    debounbcedGetResourceOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetResourceOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.applications]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.resources]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetResourceOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetResourceOptions(filters);
   }, [filters.operations]);
 
   useEffect(() => {
