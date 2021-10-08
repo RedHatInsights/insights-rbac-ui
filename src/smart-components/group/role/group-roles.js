@@ -12,6 +12,7 @@ import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRole
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
 import paths from '../../../utilities/pathnames';
+import { getDateFormat } from '../../../helpers/shared/helpers';
 import './group-roles.scss';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
@@ -30,7 +31,7 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
               </Fragment>,
               description,
               <Fragment key={`${uuid}-modified`}>
-                <DateFormat date={modified} type="relative" />
+                <DateFormat date={modified} type={getDateFormat(modified)} />
               </Fragment>,
             ],
             selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),

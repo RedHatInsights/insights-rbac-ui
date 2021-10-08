@@ -1,6 +1,7 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { Link } from 'react-router-dom';
+import { getDateFormat } from '../../helpers/shared/helpers';
 
 export const createRows = (data) =>
   data.reduce(
@@ -19,7 +20,7 @@ export const createRows = (data) =>
           </Fragment>,
           groupsCount,
           <Fragment key={`${uuid}-modified`}>
-            <DateFormat date={modified} type="relative" />
+            <DateFormat date={modified} type={getDateFormat(modified)} />
           </Fragment>,
         ],
       },
