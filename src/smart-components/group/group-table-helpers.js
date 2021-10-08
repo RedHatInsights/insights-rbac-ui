@@ -5,6 +5,7 @@ import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Popover } from '@patternfly/react-core';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import { getDateFormat } from '../../helpers/shared/helpers';
 
 const DefaultPlatformPopover = ({ uuid }) => {
   const [isPopoverVisible, setPopoverVisible] = useState(false);
@@ -53,7 +54,7 @@ export const createRows = (data, opened, selectedRows = []) => {
           roleCount,
           principalCount,
           <Fragment key={`${uuid}-modified`}>
-            <DateFormat date={modified} type="relative" />
+            <DateFormat date={modified} type={getDateFormat(modified)} />
           </Fragment>,
         ],
         selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
