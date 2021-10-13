@@ -40,9 +40,16 @@ const selector = ({
   resourceTypes: resourceTypes.data,
 });
 
-const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isInExistingRole, ...props }) => {
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
-  const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
+
+  const fetchData = (apiProps) =>
+    dispatch(
+      listPermissions({
+        ...apiProps,
+        ...(existingRoleId ? { exclude_roles: existingRoleId } : {}),
+      })
+    );
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
   const {
     permissions,
@@ -61,6 +68,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   // TODO: use reducer when cleaning this code
   const [filters, setFilters] = useState({ applications: [], resources: [], operations: [] });
   const roleType = formOptions.getState().values['role-type']; // create/copy
+  const existingRoleId = formOptions.getState().values['role-uuid'];
   const [isToggled, setIsToggled] = useState(false);
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
@@ -78,10 +86,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || isInExistingRole(uuid),
-      disabledContent: isInExistingRole(uuid) ? (
-        <div>This permission is already added into this role.</div>
-      ) : (
+      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
+      disabledContent: (
         <div>
           To add this permission to your role and define specific resources for it, at least one data source must be connected.{' '}
           <a href="./settings/sources">Configure sources for Cost Management</a>
@@ -336,7 +342,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 AddPermissionsTable.propTypes = {
   selectedPermissions: PropTypes.array,
   setSelectedPermissions: PropTypes.func,
-  isInExistingRole: PropTypes.func,
 };
 
 export default AddPermissionsTable;

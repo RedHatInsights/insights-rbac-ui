@@ -125,6 +125,7 @@ const AddRolePermissionWizard = ({ role }) => {
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
           initialValues={{
+            'role-uuid': role.uuid,
             'role-type': 'create',
             'role-name': role.display_name,
             'role-description': role.description,
