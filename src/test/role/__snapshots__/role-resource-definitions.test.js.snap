@@ -9,7 +9,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
   data-ouia-safe={true}
   role="grid"
 >
-  <Component>
+  <TableBody>
     <ContextBody
       className=""
       headerData={
@@ -37,6 +37,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
               "dropdownPosition": "right",
               "expandId": "expandable-toggle",
               "firstUserColumnIndex": 0,
+              "isHeaderSelectDisabled": false,
               "onCollapse": undefined,
               "onExpand": undefined,
               "onFavorite": undefined,
@@ -172,7 +173,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
         ]
       }
     >
-      <Component
+      <Body
         className=""
         headerRows={null}
         mappedRows={
@@ -973,6 +974,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   "dropdownPosition": "right",
                   "expandId": "expandable-toggle",
                   "firstUserColumnIndex": 0,
+                  "isHeaderSelectDisabled": false,
                   "onCollapse": undefined,
                   "onExpand": undefined,
                   "onFavorite": undefined,
@@ -2220,6 +2222,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -2281,7 +2284,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -2312,12 +2316,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -2325,7 +2331,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -2392,6 +2399,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -2453,7 +2461,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -2484,12 +2493,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -2497,7 +2508,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -2564,6 +2576,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -2625,7 +2638,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -2656,12 +2670,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -2669,7 +2685,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -2736,6 +2753,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -2797,7 +2815,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -2828,12 +2847,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -2841,7 +2862,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -2908,6 +2930,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -2969,7 +2992,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3000,12 +3024,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3013,7 +3039,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3080,6 +3107,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -3141,7 +3169,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3172,12 +3201,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3185,7 +3216,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3252,6 +3284,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -3313,7 +3346,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3344,12 +3378,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3357,7 +3393,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3424,6 +3461,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -3485,7 +3523,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3516,12 +3555,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3529,7 +3570,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3596,6 +3638,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -3657,7 +3700,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3688,12 +3732,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3701,7 +3747,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3768,6 +3815,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -3829,7 +3877,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -3860,12 +3909,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -3873,7 +3924,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -3940,6 +3992,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4001,7 +4054,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4032,12 +4086,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4045,7 +4101,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4112,6 +4169,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4173,7 +4231,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4204,12 +4263,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4217,7 +4278,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4284,6 +4346,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4345,7 +4408,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4376,12 +4440,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4389,7 +4455,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4456,6 +4523,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4517,7 +4585,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4548,12 +4617,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4561,7 +4632,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4628,6 +4700,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4689,7 +4762,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4720,12 +4794,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4733,7 +4809,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4800,6 +4877,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -4861,7 +4939,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -4892,12 +4971,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -4905,7 +4986,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -4972,6 +5054,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -5033,7 +5116,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -5064,12 +5148,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -5077,7 +5163,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -5144,6 +5231,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -5205,7 +5293,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -5236,12 +5325,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -5249,7 +5340,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -5316,6 +5408,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -5377,7 +5470,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -5408,12 +5502,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -5421,7 +5517,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -5488,6 +5585,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "dropdownPosition": "right",
                             "expandId": "expandable-toggle",
                             "firstUserColumnIndex": 0,
+                            "isHeaderSelectDisabled": false,
                             "onCollapse": undefined,
                             "onExpand": undefined,
                             "onFavorite": undefined,
@@ -5549,7 +5647,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   >
                     <RowWrapper
                       className=""
-                      onMouseDown={[Function]}
+                      onClick={[Function]}
+                      onKeyDown={[Function]}
                       row={
                         Object {
                           "cells": Array [
@@ -5580,12 +5679,14 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                     >
                       <Tr
                         className=""
-                        onMouseDown={[Function]}
+                        onClick={[Function]}
+                        onKeyDown={[Function]}
                       >
                         <TrBase
                           className=""
                           innerRef={null}
-                          onMouseDown={[Function]}
+                          onClick={[Function]}
+                          onKeyDown={[Function]}
                         >
                           <tr
                             className=""
@@ -5593,7 +5694,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             data-ouia-component-type="PF4/TableRow"
                             data-ouia-safe={true}
                             hidden={false}
-                            onMouseDown={[Function]}
+                            onClick={[Function]}
+                            onKeyDown={[Function]}
                           >
                             <BodyCell
                               data-key={0}
@@ -5639,8 +5741,8 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
             </Tbody>
           </BodyWrapper>
         </BaseBody>
-      </Component>
+      </Body>
     </ContextBody>
-  </Component>
+  </TableBody>
 </table>
 `;
