@@ -203,10 +203,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
 };
 
 EditResourceDefinitionsModal.propTypes = {
-  routeMatch: PropTypes.string.isRequired,
   cancelRoute: PropTypes.string.isRequired,
-  resources: PropTypes.array,
-  resourcesPath: PropTypes.string,
 };
 
 export default EditResourceDefinitionsModal;
