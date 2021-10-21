@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
@@ -194,7 +195,6 @@ export default (container) => ({
         {
           name: 'review',
           title: 'Review details',
-          // eslint-disable-next-line react/display-name
           buttons: (props) => <ReviewStepButtons {...props} context={AddRoleWizardContext} />,
           StepTemplate: ReviewTemplate,
           fields: [

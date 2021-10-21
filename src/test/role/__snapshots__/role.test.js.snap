@@ -10,7 +10,7 @@ exports[`role should render permissions table 1`] = `
   role="grid"
 >
   <TableHeader />
-  <Component />
+  <TableBody />
 </table>
 `;
 
@@ -24,7 +24,7 @@ exports[`role should render second page of table 1`] = `
   role="grid"
 >
   <TableHeader />
-  <Component />
+  <TableBody />
 </table>
 `;
 
