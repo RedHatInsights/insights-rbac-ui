@@ -239,9 +239,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         filterValue={''}
         noData={permissions?.length === 0}
         noDataDescription={[
-          'Adjust your filters and try again. Note: Applications that only have wildcard \
-          permissions (for example, compliance:*:*) aren’t included in this table and can’t be \
-          added to your custom role.',
+          "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
         ]}
         fetchData={({ limit, offset, applications, resources, operations }) => {
           fetchData({
