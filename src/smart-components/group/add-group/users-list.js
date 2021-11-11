@@ -165,6 +165,11 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       rowWrapper={UsersRow}
       titlePlural="users"
       titleSingular="user"
+      noDataDescription={[
+        'This filter criteria matches no users.',
+        'Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.',
+      ]}
+      noData={users.length === 0}
       filters={[
         { key: 'username', value: filters.username, placeholder: 'Filter by username' },
         { key: 'email', value: filters.email, placeholder: 'Filter by email' },
