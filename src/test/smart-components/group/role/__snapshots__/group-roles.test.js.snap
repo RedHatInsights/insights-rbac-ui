@@ -167,8 +167,10 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
+          data-ouia-component-id="PrimaryToolbar"
+          data-ouia-component-type="PF4/Toolbar"
+          data-ouia-safe={true}
           id="ins-primary-data-toolbar"
-          ouiaId="PrimaryToolbar"
         >
           <ToolbarContent
             isExpanded={false}
@@ -627,6 +629,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           onChange={[Function]}
                                           onKeyDown={[Function]}
                                           ouiaId="ConditionalFilter"
+                                          ouiaSafe={true}
                                           placeholder="Filter by name"
                                           type="text"
                                           validated="default"
@@ -637,14 +640,15 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             aria-invalid={false}
                                             aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-id="ConditionalFilter"
                                             data-ouia-component-type="PF4/TextInput"
+                                            data-ouia-safe={true}
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
                                             onChange={[Function]}
                                             onFocus={[Function]}
                                             onKeyDown={[Function]}
-                                            ouiaId="ConditionalFilter"
                                             placeholder="Filter by name"
                                             readOnly={false}
                                             required={false}
