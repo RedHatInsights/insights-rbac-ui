@@ -98,24 +98,32 @@ const AddRoleWizard = ({ pagination, filters }) => {
       'role-type': type,
     } = formData;
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
+
+    const selectedPermissionIds = permissions.map((record) => record.uuid);
     const roleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || null,
       name: type === 'create' ? name : copyName,
-      access: permissions.map(({ uuid: permission }) => ({
-        permission,
-        resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-          ? [
-              {
-                attributeFilter: {
-                  key: `cost-management.${permission.split(':')[1]}`,
-                  operation: 'in',
-                  value: resourceDefinitions?.find((r) => r.permission === permission).resources,
-                },
-              },
-            ]
-          : [],
-      })),
+      access: permissions.reduce(
+        (acc, { uuid: permission, requires = [] }) => [
+          ...acc,
+          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
+            permission,
+            resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
+              ? [
+                  {
+                    attributeFilter: {
+                      key: `cost-management.${permission.split(':')[1]}`,
+                      operation: 'in',
+                      value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+                    },
+                  },
+                ]
+              : [],
+          })),
+        ],
+        []
+      ),
     };
     return dispatch(createRole(roleData)).then(() => {
       setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));

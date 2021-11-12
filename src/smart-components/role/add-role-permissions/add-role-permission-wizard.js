@@ -68,24 +68,30 @@ const AddRolePermissionWizard = ({ role }) => {
   const onSubmit = async (formData) => {
     const { 'add-permissions-table': selectedPermissions, 'cost-resources': resourceDefinitions } = formData;
 
+    const selectedPermissionIds = [...role.access.map((record) => record.permission), ...selectedPermissions.map((record) => record.uuid)];
     const roleData = {
       ...role,
       access: [
-        ...role.access,
-        ...selectedPermissions.map(({ uuid: permission }) => ({
-          permission,
-          resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-            ? [
-                {
-                  attributeFilter: {
-                    key: `cost-management.${permission.split(':')[1]}`,
-                    operation: 'in',
-                    value: resourceDefinitions?.find((r) => r.permission === permission).resources,
-                  },
-                },
-              ]
-            : [],
-        })),
+        ...selectedPermissions.reduce(
+          (acc, { uuid: permission, requires }) => [
+            ...acc,
+            ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
+              permission,
+              resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
+                ? [
+                    {
+                      attributeFilter: {
+                        key: `cost-management.${permission.split(':')[1]}`,
+                        operation: 'in',
+                        value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+                      },
+                    },
+                  ]
+                : [],
+            })),
+          ],
+          role.access
+        ),
       ],
       accessCount: role.accessCount + selectedPermissions.length,
     };

@@ -23,11 +23,12 @@ const selector = ({
   roleReducer: { isRecordLoading, selectedRole },
   costReducer: { resourceTypes },
 }) => ({
-  permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
+  permissions: permission.data.map(({ application, resource_type: resource, verb, permission, requires } = {}) => ({
     application,
     resource,
     operation: verb,
     uuid: permission,
+    requires,
   })),
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
@@ -76,8 +77,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 
   const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
-    permissions.map(({ application, resource, operation, uuid }) => ({
+    permissions.map(({ application, resource, operation, uuid, requires }) => ({
       uuid: `${application}:${resource}:${operation}`,
+      requires,
       cells: [
         {
           title: application,
@@ -199,7 +201,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const setCheckedItems = (newSelection) => {
     const newSelected = newSelection(selectedPermissions)
       .filter(({ uuid, application }) => application !== 'cost-management' || getResourceType(uuid)?.count > 0)
-      .map(({ uuid }) => ({ uuid }));
+      .map(({ uuid, requires }) => ({ uuid, requires }));
 
     setSelectedPermissions(isEqual(newSelected, selectedPermissions) ? [] : newSelected);
   };
