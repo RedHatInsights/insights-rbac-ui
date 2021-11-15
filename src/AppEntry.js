@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import registry, { RegistryContext } from './utilities/store';
 import App from './App';
 import { getBaseName } from '@redhat-cloud-services/frontend-components-utilities/helpers';
+import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 
 const InsightsRbac = () => (
   <RegistryContext.Provider
@@ -12,9 +13,11 @@ const InsightsRbac = () => (
     }}
   >
     <Provider store={registry.getStore()}>
-      <Router basename={getBaseName(location.pathname, 2).includes('rbac') ? getBaseName(location.pathname, 2) : getBaseName(location.pathname, 1)}>
-        <App />
-      </Router>
+      <ErroReducerCatcher>
+        <Router basename={getBaseName(location.pathname, 2).includes('rbac') ? getBaseName(location.pathname, 2) : getBaseName(location.pathname, 1)}>
+          <App />
+        </Router>
+      </ErroReducerCatcher>
     </Provider>
   </RegistryContext.Provider>
 );

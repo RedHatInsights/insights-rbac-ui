@@ -1,6 +1,5 @@
 import * as GroupsHelper from '../../../helpers/group/group-helper';
 
-import axiosInstance from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { getUserMock } from '../../../../config/setupTests';
 import * as UserLogin from '../../../helpers/shared/user-login';
 
@@ -16,7 +15,6 @@ jest.mock('@redhat-cloud-services/frontend-components-utilities/interceptors', (
 }));
 
 describe('group helper', () => {
-  const axiosGetSpy = jest.spyOn(axiosInstance, 'get');
   const mockedData = {
     ...getUserMock,
   };
@@ -28,20 +26,21 @@ describe('group helper', () => {
   const deleteGroupSpy = jest.spyOn(groupApi, 'deleteGroup');
 
   afterEach(() => {
-    axiosGetSpy.mockReset();
     addPrincipalToGroupSpy.mockReset();
     addRoleToGroupSpy.mockReset();
     deleteGroupSpy.mockReset();
   });
 
   it('should call list groups helper in Modal', async () => {
-    axiosGetSpy.mockResolvedValueOnce(mockedData);
+    const listGroupsGroupSpy = jest.spyOn(groupApi, 'listGroups');
+    listGroupsGroupSpy.mockResolvedValueOnce(mockedData);
     const data = await GroupsHelper.fetchGroups(pagination);
     expect(data).toEqual(mockedData);
   });
 
   it('should call list groups helper in Table', async () => {
-    axiosGetSpy.mockResolvedValueOnce(mockedData);
+    const listGroupsGroupSpy = jest.spyOn(groupApi, 'listGroups');
+    listGroupsGroupSpy.mockResolvedValueOnce(mockedData);
     const data = await GroupsHelper.fetchGroups({ ...pagination, inModal: false });
     expect(data).toEqual({ ...mockedData, filters: {}, pagination });
   });
