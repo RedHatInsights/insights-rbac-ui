@@ -2,16 +2,24 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { useSelector } from 'react-redux';
 import NotAuthorized from '@redhat-cloud-services/frontend-components/NotAuthorized/NotAuthorized';
+import { useLocation } from 'react-router-dom';
+import { API_ERROR } from '../../redux/action-types';
 
 const errorStates = {
   403: NotAuthorized,
+};
+
+const sectionTitles = {
+  '/users': 'RBAC Users',
+  '/groups': 'RBAC Groups',
 };
 
 const ErroReducerCatcher = ({ children }) => {
   const errorCode = useSelector(({ errorReducer: { errorCode } }) => errorCode);
   if (errorCode) {
     const State = errorStates[errorCode];
-    return <State />;
+    const name = sectionTitles[Object.keys(sectionTitles).find((key) => pathname.includes(key))] || 'RBAC';
+    return <State serviceName={name} />;
   }
 
   return children;
