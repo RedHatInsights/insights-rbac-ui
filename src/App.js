@@ -8,6 +8,8 @@ import NotificationPortal from '@redhat-cloud-services/frontend-components-notif
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
 import DeniedState from './presentational-components/states/DeniedState';
+import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
+
 import './App.scss';
 
 class App extends Component {
@@ -50,9 +52,11 @@ class App extends Component {
       <IntlProvider locale="en">
         <React.Fragment>
           <NotificationPortal />
-          <Main style={{ marginLeft: 0, padding: 0 }}>
-            <Routes />
-          </Main>
+          <ErroReducerCatcher>
+            <Main style={{ marginLeft: 0, padding: 0 }}>
+              <Routes />
+            </Main>
+          </ErroReducerCatcher>
         </React.Fragment>
       </IntlProvider>
     );
