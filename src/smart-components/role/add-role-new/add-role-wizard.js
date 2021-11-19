@@ -125,10 +125,16 @@ const AddRoleWizard = ({ pagination, filters }) => {
         []
       ),
     };
-    return dispatch(createRole(roleData)).then(() => {
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-      dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
-    });
+    return dispatch(createRole(roleData))
+      .then(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+      })
+      .catch(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+        onClose();
+      });
   };
 
   if (!schema) {
@@ -146,18 +152,20 @@ const AddRoleWizard = ({ pagination, filters }) => {
         onConfirmCancel={onCancel}
       />
       {wizardContextValue.hideForm ? (
-        <Wizard
-          title="Create role"
-          isOpen
-          onClose={onClose}
-          steps={[
-            {
-              name: 'success',
-              component: <AddRoleSuccess onClose={onClose} />,
-              isFinishedStep: true,
-            },
-          ]}
-        />
+        wizardContextValue.success ? (
+          <Wizard
+            title="Create role"
+            isOpen
+            onClose={onClose}
+            steps={[
+              {
+                name: 'success',
+                component: <AddRoleSuccess onClose={onClose} />,
+                isFinishedStep: true,
+              },
+            ]}
+          />
+        ) : null
       ) : (
         <FormRenderer
           schema={schema}
