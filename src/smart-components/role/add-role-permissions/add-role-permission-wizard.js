@@ -97,9 +97,12 @@ const AddRolePermissionWizard = ({ role }) => {
     };
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
-    dispatch(updateRole(currentRoleID, roleData)).then(() =>
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }))
-    );
+    dispatch(updateRole(currentRoleID, roleData))
+      .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
+      .catch(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
+        history.push(`/roles/detail/${role.uuid}`);
+      });
   };
 
   return (
@@ -113,17 +116,19 @@ const AddRolePermissionWizard = ({ role }) => {
         onConfirmCancel={handleConfirmCancel}
       />
       {wizardContextValue.hideForm ? (
-        <Wizard
-          title="Add permissions"
-          isOpen
-          steps={[
-            {
-              name: 'success',
-              component: new AddRolePermissionSuccess({ currentRoleID }),
-              isFinishedStep: true,
-            },
-          ]}
-        />
+        wizardContextValue.success ? (
+          <Wizard
+            title="Add permissions"
+            isOpen
+            steps={[
+              {
+                name: 'success',
+                component: new AddRolePermissionSuccess({ currentRoleID }),
+                isFinishedStep: true,
+              },
+            ]}
+          />
+        ) : null
       ) : (
         <FormRenderer
           container={container}
