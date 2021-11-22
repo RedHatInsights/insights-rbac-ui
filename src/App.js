@@ -7,7 +7,6 @@ import Main from '@redhat-cloud-services/frontend-components/Main';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
-import DeniedState from './presentational-components/states/DeniedState';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 
 import './App.scss';
@@ -24,7 +23,7 @@ class App extends Component {
     insights.chrome.init();
     insights.chrome.registerModule('access-requests');
     !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
-    insights.chrome.auth.getUser().then((user) => this.setState({ userReady: true, isAdmin: user.identity.user.is_org_admin }));
+    insights.chrome.auth.getUser().then(() => this.setState({ userReady: true }));
     insights.chrome.identifyApp(insights.chrome.getApp());
     this.unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
@@ -38,14 +37,10 @@ class App extends Component {
   }
 
   render() {
-    const { userReady, isAdmin } = this.state;
+    const { userReady } = this.state;
 
     if (!userReady) {
       return <AppPlaceholder />;
-    }
-
-    if (!isAdmin && insights.chrome.getApp() === 'rbac') {
-      return <DeniedState />;
     }
 
     return (
