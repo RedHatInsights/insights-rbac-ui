@@ -4,25 +4,31 @@ import { Button } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from '../utilities/pathnames';
 import monitorSampleAppQuickStart from './sample-quickstart';
+import { QuickStartContext } from '@patternfly/quickstarts';
 
 const QuickstartsTestButtons = () => {
   const [openQuickstart, setOpenQuickstart] = useState(false);
   const chromeHook = useChrome();
   const history = useHistory();
+  const quickstartsContext = React.useContext(QuickStartContext);
   const { quickStarts } = chromeHook;
   const [isQuickstartEnabled, setIsQuickstartEnabled] = useState(false);
 
+  /*
+    This effect is to populate our catalog for this test 'environment' given that there is still no db being connected to the platform to pull
+    persistant quickstarts from. For now, we enable the quickstarts while pushing a new entry to the catalog in Chrome through the set function.
+  */
   useEffect(() => {
     const flag = localStorage.getItem('quickstarts:enabled') === 'true';
 
     if (flag) {
-      chromeHook.quickStarts.set('monitor-sampleapp', [monitorSampleAppQuickStart]);
+      quickStarts.set('monitor-sampleapp', [monitorSampleAppQuickStart]);
       setIsQuickstartEnabled(flag);
     }
   }, []);
 
   const handleActivateQuickstart = () => {
-    openQuickstart ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
+    openQuickstart & (quickstartsContext.activeQuickStartID !== '') ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
     setOpenQuickstart(!openQuickstart);
   };
 
