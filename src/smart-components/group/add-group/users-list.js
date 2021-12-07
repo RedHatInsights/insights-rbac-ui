@@ -169,7 +169,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         'This filter criteria matches no users.',
         'Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.',
       ]}
-      noData={users.length === 0}
+      noData={users.length === 0 && !filters.username && !filters.email}
       filters={[
         { key: 'username', value: filters.username, placeholder: 'Filter by username' },
         { key: 'email', value: filters.email, placeholder: 'Filter by email' },
