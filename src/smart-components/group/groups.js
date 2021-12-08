@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useState } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
@@ -20,6 +20,7 @@ import PageActionRoute from '../common/page-action-route';
 import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
+import PermissionsContext from '../../utilities/permissions-context';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [sortable] },
@@ -32,8 +33,9 @@ const Groups = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
 
-  const { groups, meta, filters, userIdentity, isLoading } = useSelector(
+  const { groups, meta, filters, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
       groups: [
         ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
@@ -126,7 +128,7 @@ const Groups = () => {
   );
 
   const actionResolver = ({ isPlatformDefault }) =>
-    isPlatformDefault || !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin)
+    isPlatformDefault || !(orgAdmin || userAccessAdministrator)
       ? null
       : [
           {
@@ -146,7 +148,7 @@ const Groups = () => {
 
   // TODO check this later
   const toolbarButtons = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(orgAdmin
       ? [
           <Link to={pathnames['add-group']} key="add-group" className="ins-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
@@ -196,7 +198,7 @@ const Groups = () => {
             data={groups.map((group) => (group.platform_default ? { ...group, principalCount: 'All' } : group))}
             createRows={createRows}
             columns={columns}
-            isSelectable={userIdentity && userIdentity.user && userIdentity.user.is_org_admin}
+            isSelectable={orgAdmin}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
             routes={routes}
