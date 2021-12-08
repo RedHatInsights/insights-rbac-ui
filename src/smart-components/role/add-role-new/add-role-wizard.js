@@ -18,6 +18,7 @@ import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
+
 import './add-role-wizard.scss';
 
 export const AddRoleWizardContext = createContext({
@@ -77,9 +78,16 @@ const AddRoleWizard = ({ pagination, filters }) => {
       );
     }
 
-    push({
-      pathname: paths.roles,
-      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+    setCancelWarningVisible(false);
+    /**
+     * This timeout should force React to wait for the modal close and push to history afterwards.
+     * That should fix the runtime error we are seeing in the production version of the code.
+     */
+    setTimeout(() => {
+      push({
+        pathname: paths.roles,
+        search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+      });
     });
   };
 
