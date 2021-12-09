@@ -148,7 +148,7 @@ const Groups = () => {
 
   // TODO check this later
   const toolbarButtons = () => [
-    ...(orgAdmin
+    ...(orgAdmin || userAccessAdministrator
       ? [
           <Link to={pathnames['add-group']} key="add-group" className="ins-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
@@ -198,7 +198,7 @@ const Groups = () => {
             data={groups.map((group) => (group.platform_default ? { ...group, principalCount: 'All' } : group))}
             createRows={createRows}
             columns={columns}
-            isSelectable={orgAdmin}
+            isSelectable={orgAdmin || userAccessAdministrator}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
             routes={routes}
