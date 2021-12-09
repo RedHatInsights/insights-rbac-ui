@@ -6,19 +6,17 @@
 
 ## Getting Started
 
-### Insights Proxy
-[Insights Proxy](https://github.com/RedHatInsights/insights-proxy) is required to run the RBAC frontend application. 
-To run the proxy with insights-rbac-specific configuration run:
+### Running dev server
 
+```bash
+npm run start:proxy:beta
 ```
-SPANDX_CONFIG="$(pwd)/insights-rbac-ui/config/spandx.config.js" bash insights-proxy/scripts/run.sh
 
 ## License
 
 This project is available as open source under the terms of the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0).
-```
 
-### Quickstarts Test Environment
+## Quickstarts Test Environment
 
 In order to test current Quickstarts tutorials iteration, you must enable the testing local variable through your browser's console.
 ```localStorage.setItem('quickstarts:enabled', true)```
