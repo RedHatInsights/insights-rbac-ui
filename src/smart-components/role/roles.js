@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useState, useEffect, lazy } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -19,6 +19,7 @@ import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresent
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import './roles.scss';
+import PermissionsContext from '../../utilities/permissions-context';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -34,16 +35,16 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   filters: roles.filters,
   meta: roles.pagination,
-  userIdentity: roles.identity,
   isLoading,
 });
 
 const Roles = () => {
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, filters, meta, userIdentity } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   const history = useHistory();
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
 
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
@@ -118,7 +119,7 @@ const Roles = () => {
   };
 
   const toolbarButtons = () =>
-    userIdentity?.user?.is_org_admin
+    orgAdmin || userAccessAdministrator
       ? [
           <Link to={paths['add-role']} key="add-role" className="ins-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
