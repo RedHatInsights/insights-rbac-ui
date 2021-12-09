@@ -20,6 +20,7 @@ import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
 
 import './add-role-wizard.scss';
+import SilentErrorBoundary from '../../common/silent-error-boundary';
 
 export const AddRoleWizardContext = createContext({
   success: false,
@@ -150,15 +151,17 @@ const AddRoleWizard = ({ pagination, filters }) => {
   }
   return (
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
-      <WarningModal
-        type="role"
-        isOpen={cancelWarningVisible}
-        onModalCancel={() => {
-          container.current.hidden = false;
-          setCancelWarningVisible(false);
-        }}
-        onConfirmCancel={onCancel}
-      />
+      <SilentErrorBoundary silentErrorString="focus-trap">
+        <WarningModal
+          type="role"
+          isOpen={cancelWarningVisible}
+          onModalCancel={() => {
+            container.current.hidden = false;
+            setCancelWarningVisible(false);
+          }}
+          onConfirmCancel={onCancel}
+        />
+      </SilentErrorBoundary>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
