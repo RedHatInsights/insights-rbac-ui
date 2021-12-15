@@ -35,7 +35,7 @@ DefaultPlatformPopover.propTypes = {
   uuid: PropTypes.string.isRequired,
 };
 
-export const createRows = (data, opened, selectedRows = []) => {
+export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
   return data.reduce(
     (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault }) => [
       ...acc,
@@ -45,9 +45,13 @@ export const createRows = (data, opened, selectedRows = []) => {
         cells: [
           <Fragment key={uuid}>
             <div className="pf-m-inline-flex">
-              <Link key={`${uuid}-link`} to={`/groups/detail/${uuid}`}>
-                {name}
-              </Link>
+              {isAdmin ? (
+                <Link key={`${uuid}-link`} to={`/groups/detail/${uuid}`}>
+                  {name}
+                </Link>
+              ) : (
+                name
+              )}
               {isPlatformDefault && <DefaultPlatformPopover uuid={uuid} />}
             </div>
           </Fragment>,
