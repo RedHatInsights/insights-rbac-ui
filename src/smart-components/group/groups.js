@@ -34,6 +34,7 @@ const Groups = () => {
   const history = useHistory();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const isAdmin = orgAdmin || userAccessAdministrator;
 
   const { groups, meta, filters, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
@@ -128,7 +129,7 @@ const Groups = () => {
   );
 
   const actionResolver = ({ isPlatformDefault }) =>
-    isPlatformDefault || !(orgAdmin || userAccessAdministrator)
+    isPlatformDefault || !isAdmin
       ? null
       : [
           {
@@ -148,7 +149,7 @@ const Groups = () => {
 
   // TODO check this later
   const toolbarButtons = () => [
-    ...(orgAdmin || userAccessAdministrator
+    ...(isAdmin
       ? [
           <Link to={pathnames['add-group']} key="add-group" className="ins-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
@@ -196,9 +197,9 @@ const Groups = () => {
         <Section type="content" id={'tab-groups'}>
           <TableToolbarView
             data={groups.map((group) => (group.platform_default ? { ...group, principalCount: 'All' } : group))}
-            createRows={createRows}
+            createRows={(...args) => createRows(isAdmin, ...args)}
             columns={columns}
-            isSelectable={orgAdmin || userAccessAdministrator}
+            isSelectable={isAdmin}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
             routes={routes}
