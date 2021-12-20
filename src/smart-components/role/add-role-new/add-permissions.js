@@ -49,9 +49,10 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       listPermissions({
         ...apiProps,
         ...(existingRoleId ? { exclude_roles: existingRoleId } : {}),
+        allowed_only: true,
       })
     );
-  const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  const fetchOptions = (apiProps) => dispatch(listPermissionOptions({ ...apiProps, allowedOnly: true }));
   const {
     permissions,
     isLoading,
