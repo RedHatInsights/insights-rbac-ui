@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover, Alert } from '@patternfly/react-core';
+import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover, Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import './add-role-wizard.scss';
@@ -8,6 +8,7 @@ import './add-role-wizard.scss';
 const AddPermissionTemplate = ({ formFields }) => {
   const formOptions = useFormApi();
   const [selectedPermissions, setSelectedPermissions] = useState(formOptions.getState().values['add-permissions-table'] || []);
+  const [alertClosed, setAlertClosed] = useState(false);
   const notAllowedBasePermissions = formOptions.getState().values['not-allowed-permissions'];
 
   const unresolvedSplats =
@@ -48,13 +49,14 @@ const AddPermissionTemplate = ({ formFields }) => {
           )}
         </Text>
       </TextContent>
-      {notAllowedBasePermissions?.length > 0 ? (
+      {notAllowedBasePermissions?.length > 0 && !alertClosed ? (
         <Alert
           variant="default"
           isInline
           title={`The following permissions can not be added to a custom role and were removed from the copied role: ${notAllowedBasePermissions.join(
             ', '
           )}`}
+          actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
         />
       ) : null}
       {[
