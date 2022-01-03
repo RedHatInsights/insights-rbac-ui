@@ -49,9 +49,10 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       listPermissions({
         ...apiProps,
         ...(existingRoleId ? { exclude_roles: existingRoleId } : {}),
+        allowed_only: true,
       })
     );
-  const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+  const fetchOptions = (apiProps) => dispatch(listPermissionOptions({ ...apiProps, allowedOnly: true }));
   const {
     permissions,
     isLoading,
@@ -182,7 +183,21 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       return;
     }
 
-    const basePermissions = baseRole?.access || [];
+    let notAllowed = [];
+
+    const basePermissions =
+      baseRole?.access.filter((item) => {
+        if (applicationOptions.includes(item?.permission?.split(':')[0])) {
+          return true;
+        }
+        notAllowed.push(item);
+
+        return false;
+      }) || [];
+    formOptions.change(
+      'not-allowed-permissions',
+      notAllowed.map(({ permission }) => permission)
+    );
     if (expandedPermissions.length === 0 && typeof isLoadingExpandSplats === 'undefined') {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
       dispatch(expandSplats({ application: applications.join() }));
