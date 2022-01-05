@@ -40,8 +40,10 @@ const createRows =
               cells: [
                 isOrgAdmin ? (
                   <Fragment>
-                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                    <span key="yes">Yes</span>
+                    <span>
+                      <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                      <span key="yes">Yes</span>
+                    </span>
                   </Fragment>
                 ) : (
                   <Fragment>
