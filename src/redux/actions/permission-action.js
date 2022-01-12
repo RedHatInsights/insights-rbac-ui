@@ -1,9 +1,33 @@
 import * as ActionTypes from '../action-types';
 import * as PermissionsHelper from '../../helpers/permission/permission-helper';
 
-export const listPermissions = ({ limit, offset, orderBy, application, resourceType, verb, permission, exclude_globals = true, options }) => ({
+export const listPermissions = ({
+  limit,
+  offset,
+  orderBy,
+  application,
+  resourceType,
+  verb,
+  permission,
+  exclude_globals = true,
+  exclude_roles,
+  allowed_only,
+  options,
+}) => ({
   type: ActionTypes.LIST_PERMISSIONS,
-  payload: PermissionsHelper.listPermissions(limit, offset, orderBy, application, resourceType, verb, permission, exclude_globals, options),
+  payload: PermissionsHelper.listPermissions(
+    limit,
+    offset,
+    orderBy,
+    application,
+    resourceType,
+    verb,
+    permission,
+    exclude_globals,
+    exclude_roles,
+    allowed_only,
+    options
+  ),
 });
 
 const fieldToAction = {
@@ -12,9 +36,9 @@ const fieldToAction = {
   verb: ActionTypes.LIST_OPERATION_OPTIONS,
 };
 
-export const listPermissionOptions = ({ field, limit, offset, application, resourceType, verb, options }) => ({
+export const listPermissionOptions = ({ field, limit, offset, application, resourceType, verb, allowedOnly, options }) => ({
   type: fieldToAction[field],
-  payload: PermissionsHelper.listPermissionOptions(field, limit, offset, application, resourceType, verb, options),
+  payload: PermissionsHelper.listPermissionOptions(field, limit, offset, application, resourceType, verb, allowedOnly, options),
 });
 
 export const expandSplats = ({

@@ -14,7 +14,7 @@ import SetRoles from './set-roles';
 import SetUsers from './set-users';
 import SummaryContent from './summary-content';
 import { createQueryParams } from '../../../helpers/shared/helpers';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
 
 export const AddGroupWizardContext = createContext({
   success: false,

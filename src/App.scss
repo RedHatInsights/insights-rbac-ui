@@ -8,6 +8,10 @@
     font-weight: var(--pf-global--FontWeight--bold);
 }
 
+@media screen and (min-width: 768px) {
+  .ins-m-hide-on-md {display: none;}
+}
+
 @media only screen and (max-width: 768px) {
   .ins-m-hide-on-sm {display: none;}
 

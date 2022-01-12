@@ -51,6 +51,7 @@ const BaseRoleTable = (props) => {
                   formOptions.change('role-copy-description', role.description);
                   formOptions.change('add-permissions-table', []);
                   formOptions.change('base-permissions-loaded', false);
+                  formOptions.change('not-allowed-permissions', []);
                 });
               }}
             />

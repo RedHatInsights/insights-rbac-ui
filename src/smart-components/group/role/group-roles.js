@@ -11,7 +11,8 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
+import { getDateFormat } from '../../../helpers/shared/helpers';
 import './group-roles.scss';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
@@ -30,7 +31,7 @@ const createRows = (groupUuid, data, expanded, checkedRows = []) => {
               </Fragment>,
               description,
               <Fragment key={`${uuid}-modified`}>
-                <DateFormat date={modified} type="relative" />
+                <DateFormat date={modified} type={getDateFormat(modified)} />
               </Fragment>,
             ],
             selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
@@ -158,7 +159,7 @@ const GroupRoles = ({
     ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
       ? [
           <Link
-            className={`pf-m-visible-on-md rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`ins-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
@@ -168,7 +169,7 @@ const GroupRoles = ({
             label: 'Add role',
             props: {
               isDisabled: disableAddRoles,
-              className: 'pf-m-hidden-on-md',
+              className: 'ins-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/roles/add_roles`);

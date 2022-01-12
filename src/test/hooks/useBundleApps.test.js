@@ -28,7 +28,7 @@ describe('useBundleApps', () => {
     expect(wrapper.find(SpyComponent).prop('result')).toEqual([]);
   });
 
-  it('should redirect to rhelfirst app if no bundle id is passed', async () => {
+  it('should redirect to rhel first app if no bundle id is passed', async () => {
     const wrapper = mount(<DummyComponent initialEntries={['/foo']} bundle="" />);
     expect(wrapper.find(SpyComponent).prop('result')).toEqual([]);
     /**

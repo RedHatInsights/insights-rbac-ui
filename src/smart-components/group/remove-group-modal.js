@@ -7,7 +7,7 @@ import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patte
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
-import { routes } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 import './remove-group-modal.scss';
 
 const RemoveGroupModal = ({
@@ -94,7 +94,7 @@ RemoveGroupModal.defaultProps = {
   group: {},
   groupsUuid: [],
   isLoading: true,
-  cancelUrl: routes.groups,
+  cancelUrl: pathnames.groups,
 };
 
 RemoveGroupModal.propTypes = {

@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useState, useEffect, lazy } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -11,13 +11,15 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import RemoveRole from './remove-role-modal';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import './roles.scss';
+import PermissionsContext from '../../utilities/permissions-context';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -33,19 +35,20 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   filters: roles.filters,
   meta: roles.pagination,
-  userIdentity: roles.identity,
   isLoading,
 });
 
 const Roles = () => {
   const dispatch = useDispatch();
   const { push } = useHistory();
-  const { roles, isLoading, filters, meta, userIdentity } = useSelector(selector, shallowEqual);
+  const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   const history = useHistory();
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
 
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
+  const screenSize = useScreenSize();
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -116,13 +119,23 @@ const Roles = () => {
   };
 
   const toolbarButtons = () =>
-    userIdentity?.user?.is_org_admin
+    orgAdmin || userAccessAdministrator
       ? [
-          <Link to={paths['add-role']} key="add-role" className="pf-m-visible-on-md">
+          <Link to={paths['add-role']} key="add-role" className="ins-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
               Create role
             </Button>
           </Link>,
+          ...(isSmallScreen(screenSize)
+            ? [
+                {
+                  label: 'Create role',
+                  onClick: () => {
+                    history.push(paths['add-role']);
+                  },
+                },
+              ]
+            : []),
         ]
       : [];
 
@@ -136,15 +149,6 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
-            dedicatedAction={
-              userIdentity?.user?.is_org_admin ? (
-                <Link to={paths['add-role']}>
-                  <Button ouiaId="create-role-button" variant="primary" aria-label="Create role" className="pf-m-visible-on-md">
-                    Create role
-                  </Button>
-                </Link>
-              ) : undefined
-            }
             actionResolver={actionResolver}
             sortBy={{ index: 0, direction: 'asc' }}
             columns={columns}

@@ -50,6 +50,7 @@ export const TableToolbarView = ({
   noDataDescription,
   ouiaId,
   tableId,
+  containerRef,
 }) => {
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
@@ -142,6 +143,7 @@ export const TableToolbarView = ({
           value={value}
           hideFilterChips={hideFilterChips}
           tableId={tableId}
+          containerRef={containerRef}
         />
         {isLoading ? (
           <ListLoader />
@@ -154,7 +156,8 @@ export const TableToolbarView = ({
             {...(isCollapsible && { onCollapse })}
             {...(isSelectable &&
               rows.length > 0 && {
-                onSelect: (_e, isSelected, _idx, { uuid, cells: [name] }) => setCheckedItems(selectedRows([{ uuid, name }], isSelected)),
+                onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
+                  setCheckedItems(selectedRows([{ uuid, name, requires }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
             rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}

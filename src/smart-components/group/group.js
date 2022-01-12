@@ -11,7 +11,7 @@ import { fetchGroup, fetchGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle, Button } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
-import { routes } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
@@ -50,7 +50,7 @@ const Group = ({
   const breadcrumbsList = () => [
     {
       title: 'Groups',
-      to: getBackRoute(routes.groups, pagination, filters),
+      to: getBackRoute(pathnames.groups, pagination, filters),
     },
     groupExists ? { title: isFetching ? undefined : group.name, isActive: true } : { title: 'Invalid group', isActive: true },
   ];
@@ -92,7 +92,7 @@ const Group = ({
       component={
         <Link
           onClick={() => setDropdownOpen(false)}
-          to={(location.pathname.includes('members') ? routes['group-detail-members-edit'] : routes['group-detail-roles-edit']).replace(
+          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).replace(
             ':uuid',
             uuid
           )}
@@ -107,7 +107,7 @@ const Group = ({
         <Link
           onClick={() => onDelete(uuid)}
           to={() =>
-            (location.pathname.includes('members') ? routes['group-detail-members-remove'] : routes['group-detail-roles-remove']).replace(
+            (location.pathname.includes('members') ? pathnames['group-detail-members-remove'] : pathnames['group-detail-roles-remove']).replace(
               ':uuid',
               uuid
             )
@@ -165,7 +165,7 @@ const Group = ({
           </TopToolbar>
           <AppTabs isHeader tabItems={tabItems} />
           <Route
-            path={[routes['group-detail-roles-remove'], routes['group-detail-members-remove']]}
+            path={[pathnames['group-detail-roles-remove'], pathnames['group-detail-members-remove']]}
             render={(props) => (
               <RemoveGroup
                 {...props}
@@ -173,14 +173,14 @@ const Group = ({
                   dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
                 }}
                 cancelRoute={`group/detail/${uuid}`}
-                submitRoute={getBackRoute(routes.groups, { ...pagination, offset: 0 }, filters)}
+                submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
                 isModalOpen
                 groupsUuid={[group]}
               />
             )}
           />
           <Route
-            path={[routes['group-detail-roles-edit'], routes['group-detail-members-edit']]}
+            path={[pathnames['group-detail-roles-edit'], pathnames['group-detail-members-edit']]}
             render={(props) => (
               <EditGroup
                 {...props}
@@ -193,10 +193,10 @@ const Group = ({
             )}
           />
           <Route
-            path={routes['group-detail-roles']}
+            path={pathnames['group-detail-roles']}
             render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
           />
-          <Route path={routes['group-detail-members']} component={GroupPrincipals} />
+          <Route path={pathnames['group-detail-members']} component={GroupPrincipals} />
           <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
           {!group && <ListLoader />}
         </Fragment>
