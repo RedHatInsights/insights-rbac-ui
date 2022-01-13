@@ -23,7 +23,7 @@ const registry = new ReducerRegistry({}, [
   thunk,
   promiseMiddleware,
   notificationsMiddleware({
-    errorTitleKey: ['statusText', 'message'],
+    errorTitleKey: ['statusText', 'message', 'errors[0].status'],
     errorDescriptionKey: ['errors[0].detail', 'errors', 'stack'],
   }),
   reduxLogger,
