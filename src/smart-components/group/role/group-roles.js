@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route, useHistory } from 'react-router-dom';
@@ -13,6 +13,7 @@ import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
 import paths from '../../../utilities/pathnames';
 import { getDateFormat } from '../../../helpers/shared/helpers';
+import PermissionsContext from '../../../utilities/permissions-context';
 import './group-roles.scss';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
@@ -71,7 +72,6 @@ const GroupRoles = ({
   match: {
     params: { uuid },
   },
-  userIdentity,
   name,
   isDefault,
   isChanged,
@@ -88,6 +88,8 @@ const GroupRoles = ({
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
+  const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);
@@ -96,6 +98,10 @@ const GroupRoles = ({
   useEffect(() => {
     fetchAddRolesForGroup(uuid);
   }, [roles]);
+
+  useEffect(() => {
+    hasPermissions.current = orgAdmin || userAccessAdministrator;
+  }, [orgAdmin, userAccessAdministrator]);
 
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
@@ -111,7 +117,7 @@ const GroupRoles = ({
   );
 
   const actionResolver = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(hasPermissions.current
       ? [
           {
             title: 'Remove',
@@ -156,7 +162,7 @@ const GroupRoles = ({
   const history = useHistory();
 
   const toolbarButtons = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(hasPermissions.current
       ? [
           <Link
             className={`ins-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
@@ -229,7 +235,7 @@ const GroupRoles = ({
       <Section type="content" id={'tab-roles'}>
         <TableToolbarView
           columns={columns}
-          isSelectable={userIdentity && userIdentity.user && userIdentity.user.is_org_admin}
+          isSelectable={hasPermissions.current}
           createRows={(...props) => createRows(uuid, ...props)}
           data={roles}
           filterValue={filterValue}
@@ -267,14 +273,13 @@ const reloadWrapper = (event, callback) => {
   return event;
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, groups } }) => {
+const mapStateToProps = ({ groupReducer: { selectedGroup } }) => {
   const roles = selectedGroup.roles;
 
   return {
     roles,
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
-    userIdentity: groups.identity,
     name: selectedGroup.name,
     isDefault: selectedGroup.platform_default,
     isChanged: !selectedGroup.system,
@@ -315,11 +320,6 @@ GroupRoles.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.object.isRequired,
   }).isRequired,
-  userIdentity: PropTypes.shape({
-    user: PropTypes.shape({
-      is_org_admin: PropTypes.bool,
-    }),
-  }),
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
@@ -332,7 +332,6 @@ GroupRoles.defaultProps = {
   roles: [],
   pagination: defaultCompactSettings,
   selectedRoles: [],
-  userIdentity: {},
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupRoles);

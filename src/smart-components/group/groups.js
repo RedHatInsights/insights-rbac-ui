@@ -44,7 +44,6 @@ const Groups = () => {
       ],
       meta: groups?.pagination || groups?.meta,
       filters: groups?.filters,
-      userIdentity: groups?.identity,
       isLoading,
       systemGroup,
     }),
