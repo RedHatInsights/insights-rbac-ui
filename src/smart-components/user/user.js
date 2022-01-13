@@ -17,7 +17,7 @@ import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@pa
 import { Fragment } from 'react';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
-import { BAD_UUID } from '../../helpers/shared/helpers';
+import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
 import './user.scss';
 
 const columns = [
@@ -31,7 +31,7 @@ const columns = [
     cellTransforms: [compoundExpand],
   },
   {
-    title: 'Last commit',
+    title: 'Last modified',
   },
 ];
 
@@ -78,7 +78,7 @@ const User = ({
                 { title: display_name, props: { component: 'th', isOpen: false } },
                 { title: `${groups_in.length}`, props: { isOpen: expanded[uuid] === 1 } },
                 { title: accessCount, props: { isOpen: expanded[uuid] === 2 } },
-                { title: <DateFormat type="exact" date={modified} /> },
+                { title: <DateFormat type={getDateFormat(modified)} date={modified} /> },
               ],
             },
             {
@@ -135,7 +135,10 @@ const User = ({
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username });
-    debouncedFetch = debounce((limit, offset, name, addFields, username) => fetchRoles({ limit, offset, name, addFields, username }), 500);
+    debouncedFetch = debounce(
+      (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, displayName: name, addFields, username }),
+      500
+    );
   }, []);
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {

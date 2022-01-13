@@ -7,7 +7,7 @@ import { Section } from '@redhat-cloud-services/frontend-components';
 import UsersList from '../group/add-group/users-list';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import PageActionRoute from '../common/page-action-route';
 
 const Users = () => {

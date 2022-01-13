@@ -17,8 +17,10 @@ import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
-import { routes as paths } from '../../../../package.json';
+import paths from '../../../utilities/pathnames';
+
 import './add-role-wizard.scss';
+import SilentErrorBoundary from '../../common/silent-error-boundary';
 
 export const AddRoleWizardContext = createContext({
   success: false,
@@ -77,9 +79,16 @@ const AddRoleWizard = ({ pagination, filters }) => {
       );
     }
 
-    push({
-      pathname: paths.roles,
-      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+    setCancelWarningVisible(false);
+    /**
+     * This timeout should force React to wait for the modal close and push to history afterwards.
+     * That should fix the runtime error we are seeing in the production version of the code.
+     */
+    setTimeout(() => {
+      push({
+        pathname: paths.roles,
+        search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+      });
     });
   };
 
@@ -98,29 +107,43 @@ const AddRoleWizard = ({ pagination, filters }) => {
       'role-type': type,
     } = formData;
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
+
+    const selectedPermissionIds = permissions.map((record) => record.uuid);
     const roleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || null,
       name: type === 'create' ? name : copyName,
-      access: permissions.map(({ uuid: permission }) => ({
-        permission,
-        resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-          ? [
-              {
-                attributeFilter: {
-                  key: `cost-management.${permission.split(':')[1]}`,
-                  operation: 'in',
-                  value: resourceDefinitions?.find((r) => r.permission === permission).resources,
-                },
-              },
-            ]
-          : [],
-      })),
+      access: permissions.reduce(
+        (acc, { uuid: permission, requires = [] }) => [
+          ...acc,
+          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
+            permission,
+            resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
+              ? [
+                  {
+                    attributeFilter: {
+                      key: `cost-management.${permission.split(':')[1]}`,
+                      operation: 'in',
+                      value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+                    },
+                  },
+                ]
+              : [],
+          })),
+        ],
+        []
+      ),
     };
-    return dispatch(createRole(roleData)).then(() => {
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-      dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
-    });
+    return dispatch(createRole(roleData))
+      .then(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+      })
+      .catch(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+        onClose();
+      });
   };
 
   if (!schema) {
@@ -128,28 +151,32 @@ const AddRoleWizard = ({ pagination, filters }) => {
   }
   return (
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
-      <WarningModal
-        type="role"
-        isOpen={cancelWarningVisible}
-        onModalCancel={() => {
-          container.current.hidden = false;
-          setCancelWarningVisible(false);
-        }}
-        onConfirmCancel={onCancel}
-      />
-      {wizardContextValue.hideForm ? (
-        <Wizard
-          title="Create role"
-          isOpen
-          onClose={onClose}
-          steps={[
-            {
-              name: 'success',
-              component: <AddRoleSuccess onClose={onClose} />,
-              isFinishedStep: true,
-            },
-          ]}
+      <SilentErrorBoundary silentErrorString="focus-trap">
+        <WarningModal
+          type="role"
+          isOpen={cancelWarningVisible}
+          onModalCancel={() => {
+            container.current.hidden = false;
+            setCancelWarningVisible(false);
+          }}
+          onConfirmCancel={onCancel}
         />
+      </SilentErrorBoundary>
+      {wizardContextValue.hideForm ? (
+        wizardContextValue.success ? (
+          <Wizard
+            title="Create role"
+            isOpen
+            onClose={onClose}
+            steps={[
+              {
+                name: 'success',
+                component: <AddRoleSuccess onClose={onClose} />,
+                isFinishedStep: true,
+              },
+            ]}
+          />
+        ) : null
       ) : (
         <FormRenderer
           schema={schema}

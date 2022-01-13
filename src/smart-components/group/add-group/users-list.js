@@ -40,8 +40,10 @@ const createRows =
               cells: [
                 isOrgAdmin ? (
                   <Fragment>
-                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                    <span key="yes">Yes</span>
+                    <span>
+                      <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                      <span key="yes">Yes</span>
+                    </span>
                   </Fragment>
                 ) : (
                   <Fragment>
@@ -49,10 +51,10 @@ const createRows =
                     <span key="no">No</span>
                   </Fragment>
                 ),
-                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username}</Link> : username },
-                email,
-                firstName,
-                lastName,
+                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
+                email.toString(),
+                firstName.toString(),
+                lastName.toString(),
                 {
                   title: (
                     <Label key="status" color={isActive && 'green'}>
@@ -165,6 +167,11 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       rowWrapper={UsersRow}
       titlePlural="users"
       titleSingular="user"
+      noDataDescription={[
+        'This filter criteria matches no users.',
+        'Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.',
+      ]}
+      noData={users.length === 0 && !filters.username && !filters.email}
       filters={[
         { key: 'username', value: filters.username, placeholder: 'Filter by username' },
         { key: 'email', value: filters.email, placeholder: 'Filter by email' },

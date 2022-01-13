@@ -12,8 +12,7 @@ const insightsProxy = {
 const webpackProxy = {
   deployment: process.env.BETA ? 'beta/apps' : 'apps',
   useProxy: true,
-  useCloud: true,
-  env: 'ci-beta',
+  env: 'stage-beta',
   // localChrome: '/home/martin/insights/insights-chrome/build/',
   appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 };
@@ -22,6 +21,7 @@ const { config: webpackConfig, plugins } = config({
   rootFolder: resolve(__dirname, '../'),
   debug: true,
   sassPrefix: '.rbac, .my-user-access',
+  client: { overlay: false },
   ...(process.env.PROXY ? webpackProxy : insightsProxy),
 });
 

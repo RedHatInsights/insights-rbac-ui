@@ -68,32 +68,41 @@ const AddRolePermissionWizard = ({ role }) => {
   const onSubmit = async (formData) => {
     const { 'add-permissions-table': selectedPermissions, 'cost-resources': resourceDefinitions } = formData;
 
+    const selectedPermissionIds = [...role.access.map((record) => record.permission), ...selectedPermissions.map((record) => record.uuid)];
     const roleData = {
       ...role,
       access: [
-        ...role.access,
-        ...selectedPermissions.map(({ uuid: permission }) => ({
-          permission,
-          resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-            ? [
-                {
-                  attributeFilter: {
-                    key: `cost-management.${permission.split(':')[1]}`,
-                    operation: 'in',
-                    value: resourceDefinitions?.find((r) => r.permission === permission).resources,
-                  },
-                },
-              ]
-            : [],
-        })),
+        ...selectedPermissions.reduce(
+          (acc, { uuid: permission, requires }) => [
+            ...acc,
+            ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
+              permission,
+              resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
+                ? [
+                    {
+                      attributeFilter: {
+                        key: `cost-management.${permission.split(':')[1]}`,
+                        operation: 'in',
+                        value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+                      },
+                    },
+                  ]
+                : [],
+            })),
+          ],
+          role.access
+        ),
       ],
       accessCount: role.accessCount + selectedPermissions.length,
     };
 
     setWizardContextValue((prev) => ({ ...prev, submitting: true }));
-    dispatch(updateRole(currentRoleID, roleData)).then(() =>
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }))
-    );
+    dispatch(updateRole(currentRoleID, roleData))
+      .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
+      .catch(() => {
+        setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
+        history.push(`/roles/detail/${role.uuid}`);
+      });
   };
 
   return (
@@ -107,17 +116,19 @@ const AddRolePermissionWizard = ({ role }) => {
         onConfirmCancel={handleConfirmCancel}
       />
       {wizardContextValue.hideForm ? (
-        <Wizard
-          title="Add permissions"
-          isOpen
-          steps={[
-            {
-              name: 'success',
-              component: new AddRolePermissionSuccess({ currentRoleID }),
-              isFinishedStep: true,
-            },
-          ]}
-        />
+        wizardContextValue.success ? (
+          <Wizard
+            title="Add permissions"
+            isOpen
+            steps={[
+              {
+                name: 'success',
+                component: new AddRolePermissionSuccess({ currentRoleID }),
+                isFinishedStep: true,
+              },
+            ]}
+          />
+        ) : null
       ) : (
         <FormRenderer
           container={container}
@@ -125,6 +136,7 @@ const AddRolePermissionWizard = ({ role }) => {
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
           initialValues={{
+            'role-uuid': role.uuid,
             'role-type': 'create',
             'role-name': role.display_name,
             'role-description': role.description,

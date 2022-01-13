@@ -21,7 +21,7 @@ import { Link, Route, useHistory } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
-import { routes as paths } from '../../../package.json';
+import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 
 const maxFilterItems = 10;
@@ -144,7 +144,7 @@ const Permissions = () => {
     {
       label: 'Add Permission',
       props: {
-        className: 'pf-m-hidden-on-md',
+        className: 'ins-m-hide-on-md',
       },
       onClick: () => {
         history.push(`/roles/detail/${role.uuid}/role-add-permission`);
@@ -183,12 +183,12 @@ const Permissions = () => {
   const calculateSelected = (filter) =>
     filter.reduce(
       (acc, curr) => ({
-        0: {
-          ...acc?.['0'],
+        '': {
+          ...acc?.[''],
           [curr]: true,
         },
       }),
-      { 0: {} }
+      { '': {} }
     );
 
   const emptyItem = {

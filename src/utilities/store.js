@@ -13,6 +13,7 @@ import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
+import errorReducer from '../redux/reducers/errorReducer';
 
 export const RegistryContext = createContext({
   getRegistry: () => {},
@@ -22,8 +23,8 @@ const registry = new ReducerRegistry({}, [
   thunk,
   promiseMiddleware,
   notificationsMiddleware({
-    errorTitleKey: ['message'],
-    errorDescriptionKey: ['errors', 'stack'],
+    errorTitleKey: ['statusText', 'message', 'errors[0].status'],
+    errorDescriptionKey: ['errors[0].detail', 'errors', 'stack'],
   }),
   reduxLogger,
 ]);
@@ -36,6 +37,7 @@ registry.register({
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
   costReducer: applyReducerHash(costReducer, costInitialState),
+  errorReducer: applyReducerHash(errorReducer),
   notifications: notificationsReducer,
 });
 

@@ -4,7 +4,7 @@ import { EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, Title } 
 import { SearchIcon } from '@patternfly/react-icons';
 
 const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
-  <EmptyState variant={EmptyStateVariant.full} {...props}>
+  <EmptyState variant={EmptyStateVariant.small} {...props}>
     <EmptyStateIcon icon={icon || SearchIcon} />
     <Title headingLevel="h4" size="lg">
       {title}

@@ -23,11 +23,12 @@ const selector = ({
   roleReducer: { isRecordLoading, selectedRole },
   costReducer: { resourceTypes },
 }) => ({
-  permissions: permission.data.map(({ application, resource_type: resource, verb, permission } = {}) => ({
+  permissions: permission.data.map(({ application, resource_type: resource, verb, permission, requires } = {}) => ({
     application,
     resource,
     operation: verb,
     uuid: permission,
+    requires,
   })),
   pagination: permission.meta,
   isLoading: isLoading || isRecordLoading,
@@ -40,10 +41,18 @@ const selector = ({
   resourceTypes: resourceTypes.data,
 });
 
-const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isInExistingRole, ...props }) => {
+const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
-  const fetchData = (apiProps) => dispatch(listPermissions(apiProps));
-  const fetchOptions = (apiProps) => dispatch(listPermissionOptions(apiProps));
+
+  const fetchData = (apiProps) =>
+    dispatch(
+      listPermissions({
+        ...apiProps,
+        ...(existingRoleId ? { exclude_roles: existingRoleId } : {}),
+        allowed_only: true,
+      })
+    );
+  const fetchOptions = (apiProps) => dispatch(listPermissionOptions({ ...apiProps, allowedOnly: true }));
   const {
     permissions,
     isLoading,
@@ -61,6 +70,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   // TODO: use reducer when cleaning this code
   const [filters, setFilters] = useState({ applications: [], resources: [], operations: [] });
   const roleType = formOptions.getState().values['role-type']; // create/copy
+  const existingRoleId = formOptions.getState().values['role-uuid'];
   const [isToggled, setIsToggled] = useState(false);
   const [filterBy, setFilterBy] = useState('');
   const [value, setValue] = useState();
@@ -68,8 +78,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 
   const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
-    permissions.map(({ application, resource, operation, uuid }) => ({
+    permissions.map(({ application, resource, operation, uuid, requires }) => ({
       uuid: `${application}:${resource}:${operation}`,
+      requires,
       cells: [
         {
           title: application,
@@ -78,10 +89,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || isInExistingRole(uuid),
-      disabledContent: isInExistingRole(uuid) ? (
-        <div>This permission is already added into this role.</div>
-      ) : (
+      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
+      disabledContent: (
         <div>
           To add this permission to your role and define specific resources for it, at least one data source must be connected.{' '}
           <a href="./settings/sources">Configure sources for Cost Management</a>
@@ -89,7 +98,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
       ),
     }));
 
-  const debounbcedGetApplicationOptions = useCallback(
+  const debouncedGetApplicationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -99,11 +108,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
-  const debounbcedGetResourceOptions = useCallback(
+  const debouncedGetResourceOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({
@@ -113,15 +122,15 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      3000
+      2000
     ),
     []
   );
-  const debounbcedGetOperationOptions = useCallback(
+  const debouncedGetOperationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
-      3000
+      2000
     ),
     []
   );
@@ -143,18 +152,18 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   }, []);
 
   useEffect(() => {
-    debounbcedGetResourceOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetResourceOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.applications]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetOperationOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetOperationOptions(filters);
   }, [filters.resources]);
 
   useEffect(() => {
-    debounbcedGetApplicationOptions(filters);
-    debounbcedGetResourceOptions(filters);
+    debouncedGetApplicationOptions(filters);
+    debouncedGetResourceOptions(filters);
   }, [filters.operations]);
 
   useEffect(() => {
@@ -174,7 +183,21 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
       return;
     }
 
-    const basePermissions = baseRole?.access || [];
+    let notAllowed = [];
+
+    const basePermissions =
+      baseRole?.access.filter((item) => {
+        if (applicationOptions.includes(item?.permission?.split(':')[0])) {
+          return true;
+        }
+        notAllowed.push(item);
+
+        return false;
+      }) || [];
+    formOptions.change(
+      'not-allowed-permissions',
+      notAllowed.map(({ permission }) => permission)
+    );
     if (expandedPermissions.length === 0 && typeof isLoadingExpandSplats === 'undefined') {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
       dispatch(expandSplats({ application: applications.join() }));
@@ -193,7 +216,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   const setCheckedItems = (newSelection) => {
     const newSelected = newSelection(selectedPermissions)
       .filter(({ uuid, application }) => application !== 'cost-management' || getResourceType(uuid)?.count > 0)
-      .map(({ uuid }) => ({ uuid }));
+      .map(({ uuid, requires }) => ({ uuid, requires }));
 
     setSelectedPermissions(isEqual(newSelected, selectedPermissions) ? [] : newSelected);
   };
@@ -201,12 +224,12 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
   const calculateSelected = (filter) =>
     filter.reduce(
       (acc, curr) => ({
-        0: {
-          ...acc?.['0'],
+        '': {
+          ...acc?.[''],
           [curr]: true,
         },
       }),
-      { 0: {} }
+      { '': {} }
     );
 
   const preparedFilterItems = {
@@ -233,9 +256,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
         filterValue={''}
         noData={permissions?.length === 0}
         noDataDescription={[
-          'Adjust your filters and try again. Note: Applications that only have wildcard \
-          permissions (for example, compliance:*:*) aren’t included in this table and can’t be \
-          added to your custom role.',
+          "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
         ]}
         fetchData={({ limit, offset, applications, resources, operations }) => {
           fetchData({
@@ -336,7 +357,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, isIn
 AddPermissionsTable.propTypes = {
   selectedPermissions: PropTypes.array,
   setSelectedPermissions: PropTypes.func,
-  isInExistingRole: PropTypes.func,
 };
 
 export default AddPermissionsTable;

@@ -1,16 +1,15 @@
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover } from '@patternfly/react-core';
+import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover, Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import './add-role-wizard.scss';
-import { AddRolePermissionWizardContext } from '../add-role-permissions/add-role-permission-wizard';
 
 const AddPermissionTemplate = ({ formFields }) => {
   const formOptions = useFormApi();
   const [selectedPermissions, setSelectedPermissions] = useState(formOptions.getState().values['add-permissions-table'] || []);
-  const { rolePermissions } = useContext(AddRolePermissionWizardContext);
-  const isInExistingRole = (rowPermission) => rolePermissions?.some(({ permission }) => permission === rowPermission);
+  const [alertClosed, setAlertClosed] = useState(false);
+  const notAllowedBasePermissions = formOptions.getState().values['not-allowed-permissions'];
 
   const unresolvedSplats =
     formOptions.getState().values?.['copy-base-role']?.applications?.filter((app) => !selectedPermissions?.find(({ uuid }) => uuid.includes(app))) ||
@@ -50,6 +49,16 @@ const AddPermissionTemplate = ({ formFields }) => {
           )}
         </Text>
       </TextContent>
+      {notAllowedBasePermissions?.length > 0 && !alertClosed ? (
+        <Alert
+          variant="default"
+          isInline
+          title={`The following permissions can not be added to a custom role and were removed from the copied role: ${notAllowedBasePermissions.join(
+            ', '
+          )}`}
+          actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
+        />
+      ) : null}
       {[
         [
           {
@@ -58,7 +67,6 @@ const AddPermissionTemplate = ({ formFields }) => {
               ...addPermissions.props,
               selectedPermissions,
               setSelectedPermissions,
-              isInExistingRole,
             },
           },
         ],

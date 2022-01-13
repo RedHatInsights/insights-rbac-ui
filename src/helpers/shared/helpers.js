@@ -60,3 +60,8 @@ export const getBackRoute = (pathname, pagination, filters) => ({
     ...filters,
   }),
 });
+
+export const getDateFormat = (date) => {
+  const monthAgo = new Date(Date.now());
+  return Date.parse(date) < monthAgo.setMonth(monthAgo.getMonth() - 1) ? 'onlyDate' : 'relative';
+};

@@ -104,7 +104,10 @@ const CostResources = (props) => {
 
   useEffect(() => {
     (formOptions.getState().values['resource-definitions'] || []).map(({ permission, resources }) =>
-      resources.map((resource) => permissions.includes(permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }))
+      resources.map(
+        (resource) =>
+          permissions.find((item) => item?.uuid === permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission })
+      )
     );
     fetchData();
     formOptions.change('has-cost-resources', true);

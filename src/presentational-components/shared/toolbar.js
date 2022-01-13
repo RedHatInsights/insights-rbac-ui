@@ -99,7 +99,7 @@ export const filterConfigBuilder = (
             items,
             onChange: (_e, filterBy) => {
               const newFilter =
-                typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[0], (value) => value)) : filterBy;
+                typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[''], (value) => value)) : filterBy;
               setFilterValue({
                 ...filterValue,
                 ...pagination,

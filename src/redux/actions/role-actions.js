@@ -7,13 +7,13 @@ export const createRole = (roleData) => ({
   payload: RoleHelper.createRole(roleData),
   meta: {
     notifications: {
-      rejected: {
+      rejected: (payload) => ({
         variant: 'danger',
         title: 'Failed adding role',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The role was not added successfuly.',
-      },
+        description: payload?.errors?.[0]?.detail || 'The role was not added successfuly.',
+      }),
     },
   },
 });
@@ -90,13 +90,13 @@ export const updateRole = (roleId, data, useCustomAccess) => ({
   payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
   meta: {
     notifications: {
-      rejected: {
+      rejected: (payload) => ({
         variant: 'danger',
         title: 'Failed updating role',
         dismissDelay: 8000,
         dismissable: false,
-        description: 'The role was not updated successfuly.',
-      },
+        description: payload?.errors?.[0]?.detail || 'The role was not updated successfuly.',
+      }),
     },
   },
 });

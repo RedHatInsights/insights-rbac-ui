@@ -4,7 +4,7 @@ import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
-import { routes } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
@@ -66,11 +66,11 @@ const Role = ({ onDelete }) => {
     groupUuid
       ? {
           title: 'Groups',
-          to: getBackRoute(routes.groups, groupsPagination, groupsFilters),
+          to: getBackRoute(pathnames.groups, groupsPagination, groupsFilters),
         }
       : {
           title: 'Roles',
-          to: getBackRoute(routes.roles, rolesPagination, rolesFilters),
+          to: getBackRoute(pathnames.roles, rolesPagination, rolesFilters),
         },
 
     ...(groupUuid && groupExists
@@ -102,7 +102,7 @@ const Role = ({ onDelete }) => {
   const dropdownItems = [
     <DropdownItem
       component={
-        <Link onClick={() => setDropdownOpen(false)} to={routes['role-detail-edit'].replace(':id', uuid)}>
+        <Link onClick={() => setDropdownOpen(false)} to={pathnames['role-detail-edit'].replace(':id', uuid)}>
           Edit
         </Link>
       }
@@ -110,7 +110,7 @@ const Role = ({ onDelete }) => {
     />,
     <DropdownItem
       component={
-        <Link onClick={onDelete} to={routes['role-detail-remove'].replace(':id', uuid)}>
+        <Link onClick={onDelete} to={pathnames['role-detail-remove'].replace(':id', uuid)}>
           Delete
         </Link>
       }
@@ -148,24 +148,24 @@ const Role = ({ onDelete }) => {
             )}
           </TopToolbar>
           {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
-          <Route path={routes['role-detail-remove']}>
+          <Route path={pathnames['role-detail-remove']}>
             {!isRecordLoading && (
               <RemoveRoleModal
                 afterSubmit={() => {
                   dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, inModal: false }));
                 }}
-                cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
-                submitRoute={getBackRoute(routes.roles, { ...rolesPagination, offset: 0 }, rolesFilters)}
-                routeMatch={routes['role-detail-remove']}
+                cancelRoute={pathnames['role-detail'].replace(':uuid', uuid)}
+                submitRoute={getBackRoute(pathnames.roles, { ...rolesPagination, offset: 0 }, rolesFilters)}
+                routeMatch={pathnames['role-detail-remove']}
               />
             )}
           </Route>
-          <Route path={routes['role-detail-edit']}>
+          <Route path={pathnames['role-detail-edit']}>
             {!isRecordLoading && (
               <EditRoleModal
                 afterSubmit={fetchData}
-                cancelRoute={routes['role-detail'].replace(':uuid', uuid)}
-                routeMatch={routes['role-detail-edit']}
+                cancelRoute={pathnames['role-detail'].replace(':uuid', uuid)}
+                routeMatch={pathnames['role-detail-edit']}
               />
             )}
           </Route>

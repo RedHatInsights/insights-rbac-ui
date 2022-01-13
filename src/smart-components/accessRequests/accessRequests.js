@@ -2,7 +2,7 @@ import React, { useContext, Fragment } from 'react';
 import { Route } from 'react-router-dom';
 import { Bullseye, Spinner } from '@patternfly/react-core';
 import AsyncComponent from '@redhat-cloud-services/frontend-components/AsyncComponent';
-import { routes } from '../../../package.json';
+import pathnames from '../../utilities/pathnames';
 import { RegistryContext } from '../../utilities/store';
 
 const fallback = (
@@ -22,7 +22,7 @@ const AccessRequests = () => {
   return (
     <Fragment>
       <Route
-        path={routes['access-requests']}
+        path={pathnames['access-requests']}
         exact
         render={() => (
           <AsyncComponent
@@ -36,7 +36,7 @@ const AccessRequests = () => {
         )}
       />
       <Route
-        path={routes['access-requests-detail']}
+        path={pathnames['access-requests-detail']}
         exact
         render={() => (
           <AsyncComponent
