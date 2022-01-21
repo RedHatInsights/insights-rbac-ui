@@ -53,17 +53,18 @@ export async function updateGroup(data) {
 
 export async function addGroup(data) {
   let newGroup = await groupApi.createGroup(data);
-  let ret = newGroup;
+  const promises = [];
 
   if (data.user_list && data.user_list.length > 0) {
-    ret = groupApi.addPrincipalToGroup(newGroup.uuid, { principals: data.user_list });
+    promises.push(groupApi.addPrincipalToGroup(newGroup.uuid, { principals: data.user_list }));
   }
 
   if (data.roles_list && data.roles_list.length > 0) {
-    ret = groupApi.addRoleToGroup(newGroup.uuid, { roles: data.roles_list });
+    promises.push(groupApi.addRoleToGroup(newGroup.uuid, { roles: data.roles_list }));
   }
 
-  return ret;
+  await Promise.all(promises);
+  return newGroup;
 }
 
 export async function removeGroups(uuids) {
