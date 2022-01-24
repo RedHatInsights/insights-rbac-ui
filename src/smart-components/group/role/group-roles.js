@@ -50,7 +50,7 @@ const generateOuiaID = (name) => {
 
 const addRoleButton = (isDisabled, ouiaId) => {
   const addRoleButtonContent = (
-    <Button ouiaId={ouiaId} variant="primary" className="ins-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
+    <Button ouiaId={ouiaId} variant="primary" className="rbac-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
       Add role
     </Button>
   );
@@ -165,7 +165,7 @@ const GroupRoles = ({
     ...(hasPermissions.current
       ? [
           <Link
-            className={`ins-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
@@ -175,7 +175,7 @@ const GroupRoles = ({
             label: 'Add role',
             props: {
               isDisabled: disableAddRoles,
-              className: 'ins-m-hide-on-md',
+              className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/roles/add_roles`);

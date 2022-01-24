@@ -19,7 +19,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
   return (
     <OrgAdminContext.Provider value={isOrgAdmin}>
       <Grid>
-        <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards ins-m-hide-on-sm">
+        <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards rbac-m-hide-on-sm">
           <Stack>
             <StackItem className="rbac-l-myUserAccess-section__cards--entitled">
               <MUACard entitlements={entitledBundles} />

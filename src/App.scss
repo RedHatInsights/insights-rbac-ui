@@ -9,11 +9,11 @@
 }
 
 @media screen and (min-width: 768px) {
-  .ins-m-hide-on-md {display: none;}
+  .rbac-m-hide-on-md {display: none;}
 }
 
 @media only screen and (max-width: 768px) {
-  .ins-m-hide-on-sm {display: none;}
+  .rbac-m-hide-on-sm {display: none;}
 
   // fix for mobile layout: https://github.com/patternfly/patternfly-react/issues/4922
   .pf-c-table__expandable-row.pf-m-expanded {
