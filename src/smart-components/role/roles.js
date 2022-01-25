@@ -121,7 +121,7 @@ const Roles = () => {
   const toolbarButtons = () =>
     orgAdmin || userAccessAdministrator
       ? [
-          <Link to={paths['add-role']} key="add-role" className="ins-m-hide-on-sm">
+          <Link to={paths['add-role']} key="add-role" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
               Create role
             </Button>
