@@ -13,7 +13,7 @@ import PageActionRoute from '../common/page-action-route';
 const Users = () => {
   const description = (
     <ActiveUser
-      description="These are all of the users in your Red Hat organization. To add new users or manage existing users, go to your"
+      linkDescription="To add new users or manage existing users, go to your"
     />
   );
 
