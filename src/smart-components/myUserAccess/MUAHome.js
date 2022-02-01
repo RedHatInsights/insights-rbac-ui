@@ -1,15 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
+import PermissionsContext from '../../utilities/permissions-context';
 
 import './MUAHome.scss';
 import MUAContent from './MUAContent';
 
 const MyUserAccess = () => {
   const [user, setUser] = useState({});
+  const userAccessAdministrator = useContext(PermissionsContext);
   useEffect(() => {
     insights.chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
   }, []);
@@ -24,14 +26,15 @@ const MyUserAccess = () => {
 
   return (
     <React.Fragment>
-      {Object.prototype.hasOwnProperty.call(user, 'entitlements') && Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') ? (
+      {Object.prototype.hasOwnProperty.call(user, 'entitlements') &&
+      (Object.prototype.hasOwnProperty.call(user, 'isOrgAdmin') || userAccessAdministrator) ? (
         <React.Fragment>
           <PageHeaderTitle
             className="rbac-p-myUserAccess--title sticky"
             title={
               <React.Fragment>
                 <span> My User Access </span>
-                <StatusLabel isOrgAdmin={user.isOrgAdmin} />
+                <StatusLabel isOrgAdmin={user.isOrgAdmin} isUserAccessAdmin={userAccessAdministrator} />
               </React.Fragment>
             }
           />
@@ -51,7 +54,7 @@ const MyUserAccess = () => {
             />
           </div>
           <section>
-            <MUAContent entitlements={enhancedEntitlements} isOrgAdmin={user.isOrgAdmin} />
+            <MUAContent entitlements={enhancedEntitlements} isOrgAdmin={user.isOrgAdmin} isUserAccessAdmin={userAccessAdministrator} />
           </section>
         </React.Fragment>
       ) : (
