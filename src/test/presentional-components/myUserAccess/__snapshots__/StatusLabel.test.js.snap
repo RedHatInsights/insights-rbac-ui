@@ -74,7 +74,9 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
         <Label
           color="purple"
         >
-           Org. Administrator 
+           
+          Org. Administrator
+           
         </Label>
       }
       zIndex={9999}
@@ -91,7 +93,9 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
             <span
               className="pf-c-label__content"
             >
-               Org. Administrator 
+               
+              Org. Administrator
+               
             </span>
           </span>
         </Label>

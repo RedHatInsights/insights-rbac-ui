@@ -11,13 +11,14 @@ import OrgAdminContext from '../../utilities/org-admin-context';
 import useSearchParams from '../../hooks/useSearchParams';
 import { bundleData } from '../../presentational-components/myUserAccess/bundles';
 
-const MUAContent = ({ entitlements, isOrgAdmin }) => {
+const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
   const entitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => is_entitled);
   const unEntitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => !is_entitled);
   const { bundle } = useSearchParams('bundle');
+  const hasAdminAccess = isOrgAdmin || isUserAccessAdmin;
 
   return (
-    <OrgAdminContext.Provider value={isOrgAdmin}>
+    <OrgAdminContext.Provider value={hasAdminAccess}>
       <Grid>
         <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards rbac-m-hide-on-sm">
           <Stack>
@@ -34,7 +35,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
         <GridItem className="pf-m-9-col-on-md rbac-l-myUserAccess-section__table">
           {bundle !== 'application_services' && (
             <Title headingLevel="h3" size="xl">
-              {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${isOrgAdmin ? 'roles' : 'permissions'}`}
+              {`Your ${bundleData.find(({ entitlement }) => entitlement === bundle)?.title} ${hasAdminAccess ? 'roles' : 'permissions'}`}
             </Title>
           )}
           <MuaBundleRoute />
@@ -47,6 +48,7 @@ const MUAContent = ({ entitlements, isOrgAdmin }) => {
 MUAContent.propTypes = {
   entitlements: PropTypes.object,
   isOrgAdmin: PropTypes.bool,
+  isUserAccessAdmin: PropTypes.bool,
 };
 
 export default MUAContent;
