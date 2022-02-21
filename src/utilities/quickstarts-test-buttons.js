@@ -32,9 +32,7 @@ const QuickstartsTestButtons = () => {
   }, [quickstartsContext]);
 
   const handleActivateQuickstart = () => {
-    openQuickstart & (quickstartsContext.activeQuickStartID !== '' && typeof quickstartsContext.activeQuickStartID !== 'undefined')
-      ? quickStarts.toggle()
-      : quickStarts.toggle('monitor-sampleapp', {});
+    openQuickstart & !!quickstartsContext.activeQuickStartID ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
     setOpenQuickstart(!openQuickstart);
   };
 
