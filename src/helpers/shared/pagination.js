@@ -15,7 +15,7 @@ export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math
 export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (page - 1) * limit;
 
 export const syncDefaultPaginationWithUrl = (history, defaultPagination = defaultSettings) => {
-  let searchParams = new URLSearchParams();
+  let searchParams = new URLSearchParams(history.location.search);
 
   let limit = parseInt(searchParams.get('per_page'));
   let page = parseInt(searchParams.get('page'));
