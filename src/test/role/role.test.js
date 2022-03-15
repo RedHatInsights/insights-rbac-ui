@@ -199,7 +199,7 @@ describe('role', () => {
       );
     });
     wrapper.update();
-    expect(wrapper.find('.ins-c-skeleton').length).toBe(5);
+    expect(wrapper.find('.ins-c-skeleton').length).toBe(10);
   });
 
   it('should render permissions table', async () => {
