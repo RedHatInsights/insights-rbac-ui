@@ -1,5 +1,5 @@
 import { Route, Switch, Redirect } from 'react-router-dom';
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useContext, useEffect, useState } from 'react';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
@@ -11,9 +11,26 @@ const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'
 const AccessRequests = lazy(() => import('./smart-components/accessRequests/accessRequests'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
+import { HelpTopicContext } from '@patternfly/quickstarts';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+
 export const Routes = () => {
+  const [topicsReady, setTopicsReady] = useState(false);
+  const {
+    helpTopics: { updateHelpTopics },
+  } = useChrome();
+  const { activeHelpTopic, setActiveHelpTopicByName, helpTopics } = useContext(HelpTopicContext);
+  useEffect(() => {
+    fetch('/api/quickstarts/v1/helptopics?bundle=application-services').then(async (data) => {
+      const response = await data.json();
+      setTopicsReady(true);
+      updateHelpTopics(...response.data.map(({ content }) => content).flat());
+    });
+  }, []);
+  console.log({ activeHelpTopic, helpTopics });
   return (
     <Suspense fallback={<AppPlaceholder />}>
+      {topicsReady && <button onClick={() => setActiveHelpTopicByName('workspace')}>Trigger help topic</button>}
       <QuickstartsTestButtons />
       <Switch>
         <Route path={pathnames.groups} component={Groups} />
