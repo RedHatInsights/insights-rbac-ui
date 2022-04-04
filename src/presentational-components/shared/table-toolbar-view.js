@@ -112,6 +112,12 @@ export const TableToolbarView = ({
   const renderTable = () => {
     const selectColumnOffset = isSelectable && data?.length > 0;
     const sortByIndex = Math.min((sortByState?.index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
+    const sortBy =
+      (sortByState.index !== undefined &&
+        sortByIndex >= 0 &&
+        sortByIndex < columns.length &&
+        `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
+      undefined;
     return (
       <Fragment>
         <Toolbar
@@ -123,13 +129,7 @@ export const TableToolbarView = ({
           titleSingular={titleSingular}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortBy={
-            (sortByState.index !== undefined &&
-              sortByIndex >= 0 &&
-              sortByIndex < columns.length &&
-              `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
-            undefined
-          }
+          sortBy={sortBy}
           pagination={pagination}
           fetchData={fetchData}
           toolbarButtons={toolbarButtons}
@@ -170,6 +170,7 @@ export const TableToolbarView = ({
             ouiaId={ouiaId}
             onSort={(e, index, direction) => {
               const sortByIndex = Math.min((index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
+              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
               setSortByState({ index, direction });
               filters && filters.length > 0
                 ? fetchData({
@@ -182,13 +183,13 @@ export const TableToolbarView = ({
                       }),
                       {}
                     ),
-                    orderBy: `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`,
+                    orderBy,
                   })
                 : fetchData({
                     ...pagination,
                     offset: 0,
                     name: filterValue,
-                    orderBy: `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`,
+                    orderBy,
                   });
             }}
           >
@@ -198,7 +199,7 @@ export const TableToolbarView = ({
         )}
         {!pagination.noBottom && (
           <TableToolbar>
-            {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue)} variant="bottom" dropDirection="up" />}
+            {!isLoading && <Pagination {...paginationBuilder(pagination, fetchData, filterValue, sortBy)} variant="bottom" dropDirection="up" />}
           </TableToolbar>
         )}
       </Fragment>
