@@ -4,42 +4,15 @@ exports[`<ActiveUsers /> should render correctly 1`] = `
 <Text
   className="pf-u-mt-0"
 >
-  <Text
-    component="a"
-    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-     user management list 
-    <ExternalLinkAltIcon
-      color="currentColor"
-      noVerticalAlign={false}
-      size="sm"
-    />
-  </Text>
-  .
+  These are all of the users in your Red Hat organization. 
 </Text>
 `;
 
-exports[`<ActiveUsers /> should render correctly with description 1`] = `
+exports[`<ActiveUsers /> should render correctly with link description 1`] = `
 <Text
   className="pf-u-mt-0"
 >
-  some description
-  <Text
-    component="a"
-    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-     user management list 
-    <ExternalLinkAltIcon
-      color="currentColor"
-      noVerticalAlign={false}
-      size="sm"
-    />
-  </Text>
-  .
+  These are all of the users in your Red Hat organization. 
 </Text>
 `;
 
@@ -47,19 +20,6 @@ exports[`<ActiveUsers /> should render correctly with link title 1`] = `
 <Text
   className="pf-u-mt-0"
 >
-  <Text
-    component="a"
-    href="https://www.test.redhat.com/wapps/ugc/protected/usermgt/userList.html"
-    rel="noopener noreferrer"
-    target="_blank"
-  >
-    some title
-    <ExternalLinkAltIcon
-      color="currentColor"
-      noVerticalAlign={false}
-      size="sm"
-    />
-  </Text>
-  .
+  These are all of the users in your Red Hat organization. 
 </Text>
 `;

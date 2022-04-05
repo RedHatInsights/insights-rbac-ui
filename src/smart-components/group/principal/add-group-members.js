@@ -69,7 +69,7 @@ const AddGroupMembers = ({
       <Stack hasGutter>
         <StackItem>
           <TextContent>
-            <ActiveUser description="These are all of the users in your Red Hat organization. To manage users, go to your" />
+            <ActiveUser linkDescription="To manage users, go to your" />
           </TextContent>
         </StackItem>
         <StackItem>

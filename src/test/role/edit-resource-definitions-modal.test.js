@@ -104,7 +104,7 @@ describe('EditResourceDefinitionsModal', () => {
     });
     expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(0);
     wrapper.update();
-    wrapper.find('.pf-c-button.pf-m-plain').at(4).simulate('click');
+    wrapper.find('.pf-c-button.pf-m-plain').at(3).simulate('click');
     wrapper.find('button#cancel-modal').first().simulate('click');
     expect(wrapper.find('.rbac-c-wizard__cancel-warning-header')).toHaveLength(1);
     wrapper.find('button.pf-c-button.pf-m-plain').simulate('click');
@@ -167,7 +167,7 @@ describe('EditResourceDefinitionsModal', () => {
     });
     wrapper.update();
     expect(wrapper.find('.pf-c-alert')).toHaveLength(0);
-    wrapper.find('.pf-c-button.pf-m-plain').at(4).simulate('click');
+    wrapper.find('.pf-c-button.pf-m-plain').at(3).simulate('click');
     expect(wrapper.find('.pf-c-alert')).toHaveLength(1);
   });
 
