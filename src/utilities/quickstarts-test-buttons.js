@@ -27,8 +27,12 @@ const QuickstartsTestButtons = () => {
     }
   }, []);
 
+  useEffect(() => {
+    setOpenQuickstart(quickstartsContext.activeQuickStartID === '' ? false : true);
+  }, [quickstartsContext]);
+
   const handleActivateQuickstart = () => {
-    openQuickstart & (quickstartsContext.activeQuickStartID !== '') ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
+    openQuickstart & !!quickstartsContext.activeQuickStartID ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
     setOpenQuickstart(!openQuickstart);
   };
 
@@ -44,7 +48,7 @@ const QuickstartsTestButtons = () => {
     <>
       {isQuickstartEnabled && (
         <>
-          <Button onClick={handleActivateQuickstart} variant={'primary'} style={btnStyle}>
+          <Button onClick={handleActivateQuickstart} variant={'primary'} style={btnStyle} isDisabled={openQuickstart}>
             Trigger my quickstart
           </Button>
           <Button onClick={handleOpenCatalog} variant={'primary'} style={btnStyle}>

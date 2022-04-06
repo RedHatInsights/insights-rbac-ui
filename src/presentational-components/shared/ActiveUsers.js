@@ -1,13 +1,19 @@
-import React from 'react';
+import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Text, TextVariants } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-const ActiveUser = ({ description, linkTitle }) => {
+import PermissionsContext from '../../utilities/permissions-context';
+
+const ActiveUser = ({ linkDescription, linkTitle }) => {
   const env = insights.chrome.getEnvironment();
   const prefix = insights.chrome.isProd ? '' : `${env === 'ci' ? 'qa' : env}.`;
-  return (
+  const description = 'These are all of the users in your Red Hat organization. ';
+  const { orgAdmin } = useContext(PermissionsContext);
+
+  return orgAdmin ? (
     <Text className="pf-u-mt-0" component={TextVariants.h7}>
       {description}
+      {linkDescription}
       <Text
         component={TextVariants.a}
         href={`https://www.${prefix}redhat.com/wapps/ugc/protected/usermgt/userList.html`}
@@ -19,16 +25,20 @@ const ActiveUser = ({ description, linkTitle }) => {
       </Text>
       .
     </Text>
+  ) : (
+    <Text className="pf-u-mt-0" component={TextVariants.h7}>
+      {description}
+    </Text>
   );
 };
 
 ActiveUser.propTypes = {
-  description: PropTypes.node,
+  linkDescription: PropTypes.node,
   linkTitle: PropTypes.node,
 };
 
 ActiveUser.defaultProps = {
-  description: '',
+  linkDescription: '',
   linkTitle: ' user management list ',
 };
 

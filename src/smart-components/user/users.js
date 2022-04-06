@@ -1,5 +1,5 @@
 /* eslint-disable */
-import React, { useEffect } from 'react';
+import React, { useEffect, useContext } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -9,11 +9,14 @@ import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
 import paths from '../../utilities/pathnames';
 import PageActionRoute from '../common/page-action-route';
+import PermissionsContext from '../../utilities/permissions-context';
 
 const Users = () => {
+  const activeUserPermissions = useContext(PermissionsContext);
+
   const description = (
     <ActiveUser
-      description="These are all of the users in your Red Hat organization. To add new users or manage existing users, go to your"
+      linkDescription="To add new users or manage existing users, go to your"
     />
   );
 
@@ -33,7 +36,7 @@ const Users = () => {
     <StackItem>
       <Section type="content" id={ 'users' }>
         <UsersList
-          userLinks
+          userLinks={activeUserPermissions.userAccessAdministrator}
           props={ {
             isSelectable: false,
             isCompact: false

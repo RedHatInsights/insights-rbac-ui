@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
 import { Routes } from './routes';
 import Main from '@redhat-cloud-services/frontend-components/Main';
-import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { IntlProvider } from 'react-intl';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
@@ -52,7 +51,6 @@ const App = () => {
   return (
     <IntlProvider locale="en">
       <PermissionsContext.Provider value={{ ...userData }}>
-        <NotificationPortal />
         <ErroReducerCatcher>
           <Main style={{ marginLeft: 0, padding: 0 }}>
             <Routes />

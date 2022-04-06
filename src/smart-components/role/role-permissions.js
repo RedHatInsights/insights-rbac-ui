@@ -136,7 +136,7 @@ const Permissions = () => {
   ];
 
   const toolbarButtons = () => [
-    <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="ins-m-hide-on-sm">
+    <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
       <Button variant="primary" aria-label="Add Permission">
         Add permissions
       </Button>
@@ -144,7 +144,7 @@ const Permissions = () => {
     {
       label: 'Add Permission',
       props: {
-        className: 'ins-m-hide-on-md',
+        className: 'rbac-m-hide-on-md',
       },
       onClick: () => {
         history.push(`/roles/detail/${role.uuid}/role-add-permission`);
