@@ -201,9 +201,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                           className="pf-c-toolbar__item ins-c-primary-toolbar__filter"
                         >
                           <ConditionalFilter
-                            hideLabel={false}
-                            id="default-input"
-                            isDisabled={false}
                             items={
                               Array [
                                 Object {
@@ -239,7 +236,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                               ]
                             }
                             useMobileLayout={true}
-                            value=""
                           >
                             <Split
                               className="ins-c-conditional-filter desktop"
@@ -604,13 +600,11 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   <div
                                     className="pf-l-split__item pf-m-fill"
                                   >
-                                    <Text
-                                      aria-label="text input"
+                                    <TextFilter
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
                                       onChange={[Function]}
-                                      onSubmit={[Function]}
                                       placeholder="Filter by name"
                                       value=""
                                     >
@@ -695,7 +689,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           />
                                         </svg>
                                       </SearchIcon>
-                                    </Text>
+                                    </TextFilter>
                                   </div>
                                 </SplitItem>
                               </div>
