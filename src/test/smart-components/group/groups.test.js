@@ -11,7 +11,7 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import * as GroupActions from '../../../redux/actions/group-actions';
-import { FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<Groups />', () => {
@@ -21,6 +21,7 @@ describe('<Groups />', () => {
   let initialState;
 
   const fetchGroupsSpy = jest.spyOn(GroupActions, 'fetchGroups');
+  const fetchAdminGroupSpy = jest.spyOn(GroupActions, 'fetchAdminGroup');
   const fetchSystemGroupSpy = jest.spyOn(GroupActions, 'fetchSystemGroup');
   beforeEach(() => {
     enhanceState = {
@@ -51,11 +52,13 @@ describe('<Groups />', () => {
 
   afterEach(() => {
     fetchGroupsSpy.mockReset();
+    fetchAdminGroupSpy.mockReset();
     fetchSystemGroupSpy.mockReset();
   });
 
   it('should render group list correctly', async () => {
     fetchGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
@@ -74,6 +77,7 @@ describe('<Groups />', () => {
   it('should fetch groups on mount', async () => {
     const store = mockStore(initialState);
     fetchGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     await act(async () => {
       mount(
@@ -87,8 +91,10 @@ describe('<Groups />', () => {
     });
     const expectedPayload = [
       { type: 'FETCH_GROUPS_PENDING' },
+      { type: 'FETCH_ADMIN_GROUP_PENDING' },
       { type: 'FETCH_SYSTEM_GROUP_PENDING' },
       { payload: {}, type: 'FETCH_GROUPS_FULFILLED' },
+      { payload: {}, type: 'FETCH_ADMIN_GROUP_FULFILLED' },
       { payload: {}, type: 'FETCH_SYSTEM_GROUP_FULFILLED' },
     ];
     expect(store.getActions()).toEqual(expectedPayload);
@@ -99,6 +105,7 @@ describe('<Groups />', () => {
     fetchGroupsSpy
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
@@ -132,6 +139,7 @@ describe('<Groups />', () => {
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
@@ -175,6 +183,7 @@ describe('<Groups />', () => {
     fetchGroupsSpy
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
