@@ -1,4 +1,5 @@
 export const FETCH_GROUP = 'FETCH_GROUP';
+export const FETCH_ADMIN_GROUP = 'FETCH_ADMIN_GROUP';
 export const FETCH_SYSTEM_GROUP = 'FETCH_SYSTEM_GROUP';
 export const FETCH_GROUPS = 'FETCH_GROUPS';
 

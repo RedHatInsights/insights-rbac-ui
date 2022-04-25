@@ -7,7 +7,7 @@ const GroupRowWrapper = ({ className, row, ...props }) => {
   return (
     <RowWrapper
       className={classnames(className, {
-        'rbac-c-group-default': row.isPlatformDefault,
+        'rbac-c-group-default': row.isPlatformDefault || row.isAdminDefault,
       })}
       row={row}
       {...props}
@@ -17,6 +17,7 @@ const GroupRowWrapper = ({ className, row, ...props }) => {
 
 GroupRowWrapper.propTypes = {
   row: PropTypes.shape({
+    isAdminDefault: PropTypes.bool,
     isPlatformDefault: PropTypes.bool,
   }),
   className: PropTypes.string,
