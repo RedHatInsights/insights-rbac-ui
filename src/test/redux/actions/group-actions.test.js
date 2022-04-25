@@ -3,8 +3,8 @@ import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import { fetchGroup, fetchGroups, fetchSystemGroup } from '../../../redux/actions/group-actions';
-import { FETCH_GROUP, FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+import { fetchAdminGroup, fetchGroup, fetchGroups, fetchSystemGroup } from '../../../redux/actions/group-actions';
+import { FETCH_GROUP, FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 
 import * as GroupHelper from '../../../helpers/group/group-helper';
 
@@ -34,6 +34,17 @@ describe('group actions', () => {
 
     fetchGroupsSpy.mockResolvedValueOnce({ data: [{ name: 'groupName', uuid: '1234' }] });
     await store.dispatch(fetchGroups());
+    expect(store.getActions()).toEqual(expectedActions);
+  });
+
+  it('should dispatch correct actions after fetching admin group', async () => {
+    const store = mockStore({});
+    const expectedActions = createActionResult(FETCH_ADMIN_GROUP, {
+      data: [{ name: 'admin-group', uuid: 'admin-group', members: undefined }],
+    });
+
+    fetchGroupsSpy.mockResolvedValueOnce({ data: [{ name: 'admin-group', uuid: 'admin-group' }] });
+    await store.dispatch(fetchAdminGroup());
     expect(store.getActions()).toEqual(expectedActions);
   });
 

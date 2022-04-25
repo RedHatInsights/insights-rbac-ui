@@ -22,7 +22,7 @@ export const mappedProps = (apiProps) =>
 export const debouncedFetch = debouncePromise((callback) => callback());
 
 export const calculateChecked = (rows = [], selected) => {
-  const nonDefaults = rows.filter((row) => !row.platform_default);
+  const nonDefaults = rows.filter((row) => !(row.platform_default || row.admin_default));
   return (
     (nonDefaults.length !== 0 && nonDefaults.every(({ uuid }) => selected.find((row) => row.uuid === uuid))) || (selected.length > 0 ? null : false)
   );

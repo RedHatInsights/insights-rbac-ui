@@ -138,7 +138,7 @@ const Group = ({
                 />
               </SplitItem>
               <SplitItem>
-                {group.platform_default ? null : (
+                {group.platform_default || group.admin_default ? null : (
                   <Dropdown
                     ouiaId="group-title-actions-dropdown"
                     toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
@@ -252,6 +252,7 @@ Group.propTypes = {
     uuid: PropTypes.string,
     name: PropTypes.string,
     description: PropTypes.string,
+    admin_default: PropTypes.bool,
     platform_default: PropTypes.bool,
     system: PropTypes.bool,
   }),

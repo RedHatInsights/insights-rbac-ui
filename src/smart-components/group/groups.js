@@ -8,7 +8,7 @@ import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
-import { fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
+import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -37,10 +37,11 @@ const Groups = () => {
   const isAdmin = orgAdmin || userAccessAdministrator;
 
   const { groups, meta, filters, isLoading } = useSelector(
-    ({ groupReducer: { groups, isLoading, systemGroup } }) => ({
+    ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
+        ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
         ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
-        ...(groups?.data?.filter(({ platform_default } = {}) => !platform_default) || []),
+        ...(groups?.data?.filter(({ platform_default, admin_default } = {}) => !(platform_default || admin_default)) || []),
       ],
       meta: groups?.pagination || groups?.meta,
       filters: groups?.filters,
@@ -62,6 +63,7 @@ const Groups = () => {
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ ...syncedPagination, filters: { name } });
+    dispatch(fetchAdminGroup(name));
     dispatch(fetchSystemGroup(name));
   }, []);
 
@@ -73,7 +75,7 @@ const Groups = () => {
   const setCheckedItems = (newSelection) => {
     setSelectedRows((rows) =>
       newSelection(rows)
-        .filter(({ platform_default: isPlatformDefault }) => !isPlatformDefault)
+        .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault }) => !(isPlatformDefault || isAdminDefault))
         .map(({ uuid, name }) => ({ uuid, label: name }))
     );
   };
@@ -127,8 +129,8 @@ const Groups = () => {
     </Fragment>
   );
 
-  const actionResolver = ({ isPlatformDefault }) =>
-    isPlatformDefault || !isAdmin
+  const actionResolver = ({ isPlatformDefault, isAdminDefault }) =>
+    isPlatformDefault || isAdminDefault || !isAdmin
       ? null
       : [
           {
@@ -195,7 +197,7 @@ const Groups = () => {
       <StackItem>
         <Section type="content" id={'tab-groups'}>
           <TableToolbarView
-            data={groups.map((group) => (group.platform_default ? { ...group, principalCount: 'All' } : group))}
+            data={groups.map((group) => (group.platform_default || group.admin_default ? { ...group, principalCount: 'All' } : group))}
             createRows={(...args) => createRows(isAdmin, ...args)}
             columns={columns}
             isSelectable={isAdmin}
