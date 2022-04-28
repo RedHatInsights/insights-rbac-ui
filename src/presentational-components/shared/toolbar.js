@@ -1,6 +1,5 @@
 import React from 'react';
 import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
-import { ConditionalFilterItem } from '@redhat-cloud-services/frontend-components/ConditionalFilter';
 import PropTypes from 'prop-types';
 import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
@@ -306,7 +305,16 @@ Toolbar.propTypes = {
     count: PropTypes.number,
   }),
   sortBy: PropTypes.string,
-  filterItems: PropTypes.arrayOf(ConditionalFilterItem),
+  filterItems: PropTypes.arrayOf(
+    PropTypes.shape({
+      id: PropTypes.string,
+      label: PropTypes.element,
+      value: PropTypes.string,
+      type: PropTypes.string.isRequired,
+      filterValues: PropTypes.object,
+      placeholder: PropTypes.string,
+    })
+  ),
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,

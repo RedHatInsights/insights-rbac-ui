@@ -26,6 +26,7 @@ const selector = ({ groupReducer: { selectedGroup } }) => ({
   principals: selectedGroup.members.data,
   pagination: selectedGroup.members.meta,
   groupName: selectedGroup.name,
+  admin_default: selectedGroup.admin_default,
   platform_default: selectedGroup.platform_default,
   isLoading: selectedGroup.members.isLoading,
 });
@@ -49,7 +50,7 @@ const GroupPrincipals = () => {
   const [deleteInfo, setDeleteInfo] = useState({});
 
   const { uuid } = useParams();
-  const { principals, pagination, groupName, isLoading, platform_default } = useSelector(selector, shallowEqual);
+  const { principals, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
@@ -165,7 +166,7 @@ const GroupPrincipals = () => {
         }}
       />
       <Section type="content" id={'tab-principals'}>
-        {platform_default ? (
+        {platform_default || admin_default ? (
           <Card>
             <CardBody>
               <Bullseye>

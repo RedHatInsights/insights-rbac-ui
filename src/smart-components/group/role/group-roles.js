@@ -48,7 +48,7 @@ const generateOuiaID = (name) => {
   return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
 };
 
-const addRoleButton = (isDisabled, ouiaId) => {
+const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
   const addRoleButtonContent = (
     <Button ouiaId={ouiaId} variant="primary" className="rbac-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
       Add role
@@ -56,7 +56,7 @@ const addRoleButton = (isDisabled, ouiaId) => {
   );
 
   return isDisabled ? (
-    <Tooltip content="All available roles have already been added to the group">{addRoleButtonContent}</Tooltip>
+    <Tooltip content={customTooltipText || 'All available roles have already been added to the group'}>{addRoleButtonContent}</Tooltip>
   ) : (
     addRoleButtonContent
   );
@@ -73,7 +73,8 @@ const GroupRoles = ({
     params: { uuid },
   },
   name,
-  isDefault,
+  isAdminDefault,
+  isPlatformDefault,
   isChanged,
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
@@ -148,7 +149,7 @@ const GroupRoles = ({
             closeUrl={`/groups/detail/${uuid}/roles`}
             addRolesToGroup={addRoles}
             name={name}
-            isDefault={isDefault}
+            isDefault={isPlatformDefault || isAdminDefault}
             isChanged={isChanged}
             addNotification={addNotification}
             onDefaultGroupChanged={onDefaultGroupChanged}
@@ -169,7 +170,11 @@ const GroupRoles = ({
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
-            {addRoleButton(disableAddRoles, generateOuiaID(name || ''))}
+            {addRoleButton(
+              disableAddRoles,
+              generateOuiaID(name || ''),
+              isAdminDefault && 'Default admin access group roles cannot be modified manually'
+            )}
           </Link>,
           {
             label: 'Add role',
@@ -221,14 +226,14 @@ const GroupRoles = ({
         title={deleteInfo.title}
         isOpen={showRemoveModal}
         isChanged={isChanged}
-        isDefault={isDefault}
+        isDefault={isPlatformDefault || isAdminDefault}
         confirmButtonLabel={deleteInfo.confirmButtonLabel}
         onClose={() => setShowRemoveModal(false)}
         onSubmit={() => {
           setShowRemoveModal(false);
           confirmDelete();
           setSelectedRoles([]);
-          onDefaultGroupChanged(isDefault && !isChanged);
+          onDefaultGroupChanged(isPlatformDefault && !isChanged);
         }}
       />
 
@@ -281,9 +286,10 @@ const mapStateToProps = ({ groupReducer: { selectedGroup } }) => {
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
     name: selectedGroup.name,
-    isDefault: selectedGroup.platform_default,
+    isPlatformDefault: selectedGroup.platform_default,
+    isAdminDefault: selectedGroup.admin_default,
     isChanged: !selectedGroup.system,
-    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0),
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || selectedGroup.admin_default,
   };
 };
 
@@ -320,7 +326,8 @@ GroupRoles.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.object.isRequired,
   }).isRequired,
-  isDefault: PropTypes.bool,
+  isAdminDefault: PropTypes.bool,
+  isPlatformDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
   disableAddRoles: PropTypes.bool.isRequired,
