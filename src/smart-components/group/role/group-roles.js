@@ -163,7 +163,7 @@ const GroupRoles = ({
   const history = useHistory();
 
   const toolbarButtons = () => [
-    ...(hasPermissions.current
+    ...(hasPermissions.current && !isAdminDefault
       ? [
           <Link
             className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
@@ -261,7 +261,10 @@ const GroupRoles = ({
           actionResolver={actionResolver}
           routes={routes}
           ouiaId="roles-table"
-          emptyProps={{ title: 'There are no roles in this group', description: ['Add a role to configure user access.', ''] }}
+          emptyProps={{
+            title: 'There are no roles in this group',
+            description: [isAdminDefault ? 'Contact your platform service team to add roles.' : 'Add a role to configure user access.', ''],
+          }}
           filters={[
             { key: 'name', value: filterValue },
             { key: 'description', value: descriptionValue },
