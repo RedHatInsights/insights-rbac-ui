@@ -13,10 +13,11 @@ export const bundleData = [
     title: 'OpenShift',
     apps: {
       clusters: '/',
+      advisor: '/insights/advisor',
       subscriptions: '/subscriptions',
       'cost management': '/cost-management',
     },
-    appsIds: ['cost-management', 'subscriptions'],
+    appsIds: ['cost-management', 'subscriptions', 'ocp-advisor'],
   },
   {
     entitlement: 'rhel',

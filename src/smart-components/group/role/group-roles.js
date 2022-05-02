@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react';
+import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, Route, useHistory } from 'react-router-dom';
@@ -13,6 +13,7 @@ import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
 import paths from '../../../utilities/pathnames';
 import { getDateFormat } from '../../../helpers/shared/helpers';
+import PermissionsContext from '../../../utilities/permissions-context';
 import './group-roles.scss';
 
 const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
@@ -47,15 +48,15 @@ const generateOuiaID = (name) => {
   return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
 };
 
-const addRoleButton = (isDisabled, ouiaId) => {
+const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
   const addRoleButtonContent = (
-    <Button ouiaId={ouiaId} variant="primary" className="ins-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
+    <Button ouiaId={ouiaId} variant="primary" className="rbac-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
       Add role
     </Button>
   );
 
   return isDisabled ? (
-    <Tooltip content="All available roles have already been added to the group">{addRoleButtonContent}</Tooltip>
+    <Tooltip content={customTooltipText || 'All available roles have already been added to the group'}>{addRoleButtonContent}</Tooltip>
   ) : (
     addRoleButtonContent
   );
@@ -71,9 +72,9 @@ const GroupRoles = ({
   match: {
     params: { uuid },
   },
-  userIdentity,
   name,
-  isDefault,
+  isAdminDefault,
+  isPlatformDefault,
   isChanged,
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
@@ -88,6 +89,8 @@ const GroupRoles = ({
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
+  const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
   useEffect(() => {
     fetchRolesForGroup(pagination)(uuid);
@@ -96,6 +99,10 @@ const GroupRoles = ({
   useEffect(() => {
     fetchAddRolesForGroup(uuid);
   }, [roles]);
+
+  useEffect(() => {
+    hasPermissions.current = orgAdmin || userAccessAdministrator;
+  }, [orgAdmin, userAccessAdministrator]);
 
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
@@ -111,7 +118,7 @@ const GroupRoles = ({
   );
 
   const actionResolver = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(hasPermissions.current
       ? [
           {
             title: 'Remove',
@@ -142,7 +149,7 @@ const GroupRoles = ({
             closeUrl={`/groups/detail/${uuid}/roles`}
             addRolesToGroup={addRoles}
             name={name}
-            isDefault={isDefault}
+            isDefault={isPlatformDefault || isAdminDefault}
             isChanged={isChanged}
             addNotification={addNotification}
             onDefaultGroupChanged={onDefaultGroupChanged}
@@ -156,20 +163,24 @@ const GroupRoles = ({
   const history = useHistory();
 
   const toolbarButtons = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(hasPermissions.current
       ? [
           <Link
-            className={`ins-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
+            className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
             to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
-            {addRoleButton(disableAddRoles, generateOuiaID(name || ''))}
+            {addRoleButton(
+              disableAddRoles,
+              generateOuiaID(name || ''),
+              isAdminDefault && 'Default admin access group roles cannot be modified manually'
+            )}
           </Link>,
           {
             label: 'Add role',
             props: {
               isDisabled: disableAddRoles,
-              className: 'ins-m-hide-on-md',
+              className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/roles/add_roles`);
@@ -215,21 +226,21 @@ const GroupRoles = ({
         title={deleteInfo.title}
         isOpen={showRemoveModal}
         isChanged={isChanged}
-        isDefault={isDefault}
+        isDefault={isPlatformDefault || isAdminDefault}
         confirmButtonLabel={deleteInfo.confirmButtonLabel}
         onClose={() => setShowRemoveModal(false)}
         onSubmit={() => {
           setShowRemoveModal(false);
           confirmDelete();
           setSelectedRoles([]);
-          onDefaultGroupChanged(isDefault && !isChanged);
+          onDefaultGroupChanged(isPlatformDefault && !isChanged);
         }}
       />
 
       <Section type="content" id={'tab-roles'}>
         <TableToolbarView
           columns={columns}
-          isSelectable={userIdentity && userIdentity.user && userIdentity.user.is_org_admin}
+          isSelectable={hasPermissions.current}
           createRows={(...props) => createRows(uuid, ...props)}
           data={roles}
           filterValue={filterValue}
@@ -267,18 +278,18 @@ const reloadWrapper = (event, callback) => {
   return event;
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, groups } }) => {
+const mapStateToProps = ({ groupReducer: { selectedGroup } }) => {
   const roles = selectedGroup.roles;
 
   return {
     roles,
     pagination: selectedGroup.pagination || { ...defaultSettings, count: roles && roles.length },
     isLoading: !selectedGroup.loaded,
-    userIdentity: groups.identity,
     name: selectedGroup.name,
-    isDefault: selectedGroup.platform_default,
+    isPlatformDefault: selectedGroup.platform_default,
+    isAdminDefault: selectedGroup.admin_default,
     isChanged: !selectedGroup.system,
-    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0),
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || selectedGroup.admin_default,
   };
 };
 
@@ -315,12 +326,8 @@ GroupRoles.propTypes = {
   match: PropTypes.shape({
     params: PropTypes.object.isRequired,
   }).isRequired,
-  userIdentity: PropTypes.shape({
-    user: PropTypes.shape({
-      is_org_admin: PropTypes.bool,
-    }),
-  }),
-  isDefault: PropTypes.bool,
+  isAdminDefault: PropTypes.bool,
+  isPlatformDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
   disableAddRoles: PropTypes.bool.isRequired,
@@ -332,7 +339,6 @@ GroupRoles.defaultProps = {
   roles: [],
   pagination: defaultCompactSettings,
   selectedRoles: [],
-  userIdentity: {},
 };
 
 export default connect(mapStateToProps, mapDispatchToProps)(GroupRoles);

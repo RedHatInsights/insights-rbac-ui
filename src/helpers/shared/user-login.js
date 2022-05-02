@@ -1,4 +1,5 @@
 /* eslint-disable no-unused-vars */
+import React from 'react';
 import axios from 'axios';
 import {
   authInterceptor,
@@ -16,6 +17,7 @@ import { API_ERROR } from '../../redux/action-types';
 
 const interceptor403 = (error) => {
   const store = registry.getStore();
+
   if (error.response && error.response.status === 403) {
     store.dispatch({ type: API_ERROR, payload: 403 });
   }

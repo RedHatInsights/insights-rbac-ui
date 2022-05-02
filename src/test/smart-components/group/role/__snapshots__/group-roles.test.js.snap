@@ -167,8 +167,10 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
+          data-ouia-component-id="PrimaryToolbar"
+          data-ouia-component-type="PF4/Toolbar"
+          data-ouia-safe={true}
           id="ins-primary-data-toolbar"
-          ouiaId="PrimaryToolbar"
         >
           <ToolbarContent
             isExpanded={false}
@@ -199,9 +201,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                           className="pf-c-toolbar__item ins-c-primary-toolbar__filter"
                         >
                           <ConditionalFilter
-                            hideLabel={false}
-                            id="default-input"
-                            isDisabled={false}
                             items={
                               Array [
                                 Object {
@@ -237,7 +236,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                               ]
                             }
                             useMobileLayout={true}
-                            value=""
                           >
                             <Split
                               className="ins-c-conditional-filter desktop"
@@ -276,6 +274,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       ouiaId="ConditionalFilter"
                                       toggle={
                                         <DropdownToggle
+                                          aria-label="Conditional filter"
                                           className=""
                                           isDisabled={false}
                                           onToggle={[Function]}
@@ -321,11 +320,13 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         isGrouped={false}
                                         isOpen={false}
                                         isPlain={false}
+                                        isText={false}
                                         menuAppendTo="inline"
                                         onSelect={[Function]}
                                         position="left"
                                         toggle={
                                           <DropdownToggle
+                                            aria-label="Conditional filter"
                                             className=""
                                             isDisabled={false}
                                             onToggle={[Function]}
@@ -352,12 +353,14 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         >
                                           <DropdownToggle
                                             aria-haspopup={true}
+                                            aria-label="Conditional filter"
                                             className=""
                                             getMenuRef={[Function]}
                                             id="pf-dropdown-toggle-id-0"
                                             isDisabled={false}
                                             isOpen={false}
                                             isPlain={false}
+                                            isText={false}
                                             key=".0"
                                             onEnter={[Function]}
                                             onToggle={[Function]}
@@ -373,6 +376,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                   <button
                                                     aria-expanded="false"
                                                     aria-haspopup="true"
+                                                    aria-label="Conditional filter"
                                                     class="pf-c-dropdown__toggle"
                                                     data-ouia-component-id="ConditionalFilter"
                                                     data-ouia-component-type="PF4/DropdownToggle"
@@ -426,6 +430,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           >
                                             <Toggle
                                               aria-haspopup={true}
+                                              aria-label="Conditional filter"
                                               bubbleEvent={false}
                                               className=""
                                               data-ouia-component-id="ConditionalFilter"
@@ -439,6 +444,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                               isPlain={false}
                                               isPrimary={false}
                                               isSplitButton={false}
+                                              isText={false}
                                               onEnter={[Function]}
                                               onToggle={[Function]}
                                               parentRef={
@@ -452,6 +458,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     <button
                                                       aria-expanded="false"
                                                       aria-haspopup="true"
+                                                      aria-label="Conditional filter"
                                                       class="pf-c-dropdown__toggle"
                                                       data-ouia-component-id="ConditionalFilter"
                                                       data-ouia-component-type="PF4/DropdownToggle"
@@ -502,10 +509,12 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                   </div>,
                                                 }
                                               }
+                                              toggleVariant="default"
                                             >
                                               <button
                                                 aria-expanded={false}
                                                 aria-haspopup={true}
+                                                aria-label="Conditional filter"
                                                 className="pf-c-dropdown__toggle"
                                                 data-ouia-component-id="ConditionalFilter"
                                                 data-ouia-component-type="PF4/DropdownToggle"
@@ -591,13 +600,11 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   <div
                                     className="pf-l-split__item pf-m-fill"
                                   >
-                                    <Text
-                                      aria-label="text input"
+                                    <TextFilter
                                       id="filter-by-name"
                                       isDisabled={true}
                                       key="filter-by-name"
                                       onChange={[Function]}
-                                      onSubmit={[Function]}
                                       placeholder="Filter by name"
                                       value=""
                                     >
@@ -627,6 +634,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           onChange={[Function]}
                                           onKeyDown={[Function]}
                                           ouiaId="ConditionalFilter"
+                                          ouiaSafe={true}
                                           placeholder="Filter by name"
                                           type="text"
                                           validated="default"
@@ -637,14 +645,15 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             aria-invalid={false}
                                             aria-label="text input"
                                             className="pf-c-form-control ins-c-conditional-filter "
+                                            data-ouia-component-id="ConditionalFilter"
                                             data-ouia-component-type="PF4/TextInput"
+                                            data-ouia-safe={true}
                                             disabled={true}
                                             id="filter-by-name"
                                             onBlur={[Function]}
                                             onChange={[Function]}
                                             onFocus={[Function]}
                                             onKeyDown={[Function]}
-                                            ouiaId="ConditionalFilter"
                                             placeholder="Filter by name"
                                             readOnly={false}
                                             required={false}
@@ -680,7 +689,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           />
                                         </svg>
                                       </SearchIcon>
-                                    </Text>
+                                    </TextFilter>
                                   </div>
                                 </SplitItem>
                               </div>
@@ -749,6 +758,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             collapseListedFiltersBreakpoint="lg"
             isExpanded={false}
             numberOfFilters={0}
+            numberOfFiltersText={[Function]}
             showClearFiltersButton={false}
           >
             <div
@@ -814,7 +824,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                     Array [
                       <DataListCell>
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         />
                       </DataListCell>,
@@ -833,14 +842,19 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         className="pf-c-data-list__cell"
                       >
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         >
-                          <div
+                          <Skeleton
                             className="ins-c-skeleton ins-c-skeleton__lg"
                           >
-                             
-                          </div>
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
                         </Skeleton>
                       </div>
                     </DataListCell>
@@ -876,7 +890,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                     Array [
                       <DataListCell>
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         />
                       </DataListCell>,
@@ -895,14 +908,19 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         className="pf-c-data-list__cell"
                       >
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         >
-                          <div
+                          <Skeleton
                             className="ins-c-skeleton ins-c-skeleton__lg"
                           >
-                             
-                          </div>
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
                         </Skeleton>
                       </div>
                     </DataListCell>
@@ -938,7 +956,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                     Array [
                       <DataListCell>
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         />
                       </DataListCell>,
@@ -957,14 +974,19 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         className="pf-c-data-list__cell"
                       >
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         >
-                          <div
+                          <Skeleton
                             className="ins-c-skeleton ins-c-skeleton__lg"
                           >
-                             
-                          </div>
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
                         </Skeleton>
                       </div>
                     </DataListCell>
@@ -1000,7 +1022,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                     Array [
                       <DataListCell>
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         />
                       </DataListCell>,
@@ -1019,14 +1040,19 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         className="pf-c-data-list__cell"
                       >
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         >
-                          <div
+                          <Skeleton
                             className="ins-c-skeleton ins-c-skeleton__lg"
                           >
-                             
-                          </div>
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
                         </Skeleton>
                       </div>
                     </DataListCell>
@@ -1062,7 +1088,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                     Array [
                       <DataListCell>
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         />
                       </DataListCell>,
@@ -1081,14 +1106,19 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                         className="pf-c-data-list__cell"
                       >
                         <Skeleton
-                          isDark={false}
                           size="lg"
                         >
-                          <div
+                          <Skeleton
                             className="ins-c-skeleton ins-c-skeleton__lg"
                           >
-                             
-                          </div>
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
                         </Skeleton>
                       </div>
                     </DataListCell>
@@ -1101,9 +1131,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       </ul>
     </DataList>
   </ListLoader>
-  <TableToolbar
-    isFooter={false}
-  >
+  <TableToolbar>
     <Toolbar
       className="ins-c-table__toolbar"
       data-ouia-component-id="OUIA-Generated-RHI/TableToolbar-true-1"
@@ -1137,6 +1165,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             collapseListedFiltersBreakpoint="lg"
             isExpanded={false}
             numberOfFilters={0}
+            numberOfFiltersText={[Function]}
             showClearFiltersButton={false}
           >
             <div

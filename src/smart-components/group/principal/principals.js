@@ -1,6 +1,6 @@
 /* eslint-disable camelcase */
 import { nowrap } from '@patternfly/react-table';
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -12,6 +12,7 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import paths from '../../../utilities/pathnames';
+import PermissionsContext from '../../../utilities/permissions-context';
 
 const columns = [
   { title: 'Status', transforms: [nowrap] },
@@ -21,11 +22,11 @@ const columns = [
   { title: 'First name' },
 ];
 
-const selector = ({ groupReducer: { groups, selectedGroup } }) => ({
+const selector = ({ groupReducer: { selectedGroup } }) => ({
   principals: selectedGroup.members.data,
   pagination: selectedGroup.members.meta,
-  userIdentity: groups.identity,
   groupName: selectedGroup.name,
+  admin_default: selectedGroup.admin_default,
   platform_default: selectedGroup.platform_default,
   isLoading: selectedGroup.members.isLoading,
 });
@@ -49,7 +50,9 @@ const GroupPrincipals = () => {
   const [deleteInfo, setDeleteInfo] = useState({});
 
   const { uuid } = useParams();
-  const { principals, pagination, groupName, userIdentity, isLoading, platform_default } = useSelector(selector, shallowEqual);
+  const { principals, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
+  const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
   const dispatch = useDispatch();
 
@@ -60,6 +63,10 @@ const GroupPrincipals = () => {
   useEffect(() => {
     fetchData();
   }, []);
+
+  useEffect(() => {
+    hasPermissions.current = orgAdmin || userAccessAdministrator;
+  }, [orgAdmin, userAccessAdministrator]);
 
   const setCheckedPrincipals = (newSelection) => {
     setSelectedPrincipals((principals) => newSelection(principals));
@@ -74,7 +81,7 @@ const GroupPrincipals = () => {
   };
 
   const actionResolver = () =>
-    !(userIdentity && userIdentity.user && userIdentity.user.is_org_admin)
+    !hasPermissions.current
       ? null
       : [
           {
@@ -103,9 +110,9 @@ const GroupPrincipals = () => {
   const history = useHistory();
 
   const toolbarButtons = () => [
-    ...(userIdentity && userIdentity.user && userIdentity.user.is_org_admin
+    ...(hasPermissions.current
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="ins-m-hide-on-sm">
+          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               Add member
             </Button>
@@ -113,7 +120,7 @@ const GroupPrincipals = () => {
           {
             label: 'Add member',
             props: {
-              className: 'ins-m-hide-on-md',
+              className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
               history.push(`/groups/detail/${uuid}/members/add_members`);
@@ -159,7 +166,7 @@ const GroupPrincipals = () => {
         }}
       />
       <Section type="content" id={'tab-principals'}>
-        {platform_default ? (
+        {platform_default || admin_default ? (
           <Card>
             <CardBody>
               <Bullseye>
@@ -172,7 +179,7 @@ const GroupPrincipals = () => {
         ) : (
           <TableToolbarView
             data={(principals || []).map((user) => ({ ...user, uuid: user.username }))}
-            isSelectable={userIdentity && userIdentity.user && userIdentity.user.is_org_admin}
+            isSelectable={hasPermissions.current}
             createRows={createRows}
             columns={columns}
             routes={routes}

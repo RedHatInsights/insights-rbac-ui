@@ -7,19 +7,19 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { getDateFormat } from '../../helpers/shared/helpers';
 
-const DefaultPlatformPopover = ({ uuid }) => {
+const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
   const [isPopoverVisible, setPopoverVisible] = useState(false);
   const popoverRootRef = useRef(null);
 
   return (
-    <span ref={popoverRootRef} key={`${uuid}-popover`} id="default-group-popover">
+    <span ref={popoverRootRef} key={`${uuid}-popover`} id={id}>
       <Popover
         zIndex="110"
         position="right"
         isVisible={isPopoverVisible}
         shouldClose={() => setPopoverVisible(false)}
         hideOnOutsideClick
-        bodyContent="This group contains the roles that all users in your organization inherit by default."
+        bodyContent={bodyContent}
         appendTo={popoverRootRef.current}
       >
         <OutlinedQuestionCircleIcon
@@ -32,15 +32,18 @@ const DefaultPlatformPopover = ({ uuid }) => {
 };
 
 DefaultPlatformPopover.propTypes = {
+  id: PropTypes.string.isRequired,
   uuid: PropTypes.string.isRequired,
+  bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
-  return data.reduce(
-    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault }) => [
+export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
+  data.reduce(
+    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
       ...acc,
       {
         uuid,
+        isAdminDefault,
         isPlatformDefault,
         cells: [
           <Fragment key={uuid}>
@@ -52,7 +55,15 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
               ) : (
                 name
               )}
-              {isPlatformDefault && <DefaultPlatformPopover uuid={uuid} />}
+              {(isPlatformDefault || isAdminDefault) && (
+                <DefaultPlatformPopover
+                  id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
+                  uuid={uuid}
+                  bodyContent={`This group contains the roles that all ${
+                    isAdminDefault ? 'org admin users' : 'users in your organization'
+                  } inherit by default.`}
+                />
+              )}
             </div>
           </Fragment>,
           roleCount,
@@ -66,4 +77,3 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
     ],
     []
   );
-};

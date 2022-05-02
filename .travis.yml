@@ -3,17 +3,10 @@ sudo: required
 notifications:
   email: false
 node_js:
-- '15'
+- '16'
 install:
   - npm ci
-jobs:
-  include:
-    - stage: Lint
-      script: npm run lint
-    - stage: Test
-      script: npm run test && npx codecov
-    - stage: Deploy
-      script: npm run deploy && curl -sSL https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/master/src/bootstrap.sh | bash -s
+script: npm run lint && npm run test && npx codecov && npm run deploy && curl -sSL https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/master/src/bootstrap.sh | bash -s
 env:
     global:
     - REPO="git@github.com:RedHatInsights/rbac-frontend-deploy.git"

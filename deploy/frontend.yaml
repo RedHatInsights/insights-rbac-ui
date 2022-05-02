@@ -1,0 +1,63 @@
+---
+apiVersion: v1
+kind: Template
+metadata:
+  name: rbac-frontend
+objects:
+  - apiVersion: cloud.redhat.com/v1alpha1
+    kind: Frontend
+    metadata:
+      name: rbac
+    spec:
+      envName: ${ENV_NAME}
+      title: RBAC
+      deploymentRepo: https://github.com/RedHatInsights/insights-rbac-ui
+      API:
+        versions:
+          - v1
+      frontend:
+        paths:
+          - /apps/rbac
+      image: ${IMAGE}:${IMAGE_TAG}
+      navItems:
+        - appId: 'rbac'
+          title: 'My User Access'
+          href: '/settings/my-user-access'
+        - title: 'User Access'
+          expandable: true
+          permissions:
+            - method: 'isEntitled'
+          routes:
+            - appId: 'rbac'
+              title: 'Users'
+              href: '/settings/rbac/users'
+            - appId: 'rbac'
+              title: 'Roles'
+              href: '/settings/rbac/roles'
+            - appId: 'rbac'
+              title: 'Groups'
+              href: '/settings/rbac/groups'
+            - appId: 'rbac'
+              title: 'Red Hat Access Requests'
+              href: '/settings/rbac/access-requests'
+              notifier: 'chrome.accessRequests.hasUnseen'
+      module:
+        manifestLocation: '/apps/rbac/fed-mods.json'
+        modules:
+          - id: 'my-user-access'
+            module: './RootApp'
+            routes:
+              - pathname: /settings
+              - pathname: /settings/my-user-access
+          - id: 'user-access'
+            module: './RootApp'
+            routes:
+              - pathname: /settings/rbac
+
+parameters:
+  - name: ENV_NAME
+    required: true
+  - name: IMAGE_TAG
+    required: true
+  - name: IMAGE
+    value: quay.io/cloudservices/rbac-frontend
