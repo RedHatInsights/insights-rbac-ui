@@ -9,7 +9,7 @@ import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-acti
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
-import { fetchGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
@@ -23,11 +23,12 @@ const Role = ({ onDelete }) => {
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const { uuid, groupUuid } = useParams();
-  const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters } = useSelector(
+  const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
       isRecordLoading: state.roleReducer.isRecordLoading,
       ...(groupUuid && { group: state.groupReducer.selectedGroup }),
+      systemGroupUuid: state.groupReducer.systemGroup?.uuid,
       rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
       rolesFilters: state.roleReducer?.roles?.filters || {},
       groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
@@ -53,14 +54,26 @@ const Role = ({ onDelete }) => {
   const dispatch = useDispatch();
   const fetchData = () => {
     dispatch(fetchRole(uuid));
-    groupUuid && dispatch(fetchGroup(groupUuid));
+    if (groupUuid) {
+      if (groupUuid !== 'default-access') {
+        dispatch(fetchGroup(groupUuid));
+      } else {
+        if (systemGroupUuid) {
+          fetchData(systemGroupUuid);
+          insights.chrome.appObjectId(systemGroupUuid);
+          return () => insights.chrome.appObjectId(undefined);
+        } else {
+          dispatch(fetchSystemGroup());
+        }
+      }
+    }
   };
 
   useEffect(() => {
     fetchData();
     insights.chrome.appObjectId(uuid);
     return () => insights.chrome.appObjectId(undefined);
-  }, [uuid, groupUuid]);
+  }, [uuid, groupUuid, systemGroupUuid]);
 
   const breadcrumbsList = () => [
     groupUuid
@@ -73,7 +86,7 @@ const Role = ({ onDelete }) => {
           to: getBackRoute(pathnames.roles, rolesPagination, rolesFilters),
         },
 
-    ...(groupUuid && groupExists
+    ...(groupExists && groupUuid && (groupUuid === 'default-access' ? systemGroupUuid : groupExists)
       ? group
         ? [
             {

@@ -7,7 +7,7 @@ import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
-import { fetchGroup, fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle, Button } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
@@ -28,6 +28,7 @@ const Group = ({
   isFetching,
   onDelete,
 }) => {
+  const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
@@ -38,11 +39,12 @@ const Group = ({
 
   const history = useHistory();
 
-  const { pagination, filters, groupExists } = useSelector(
-    ({ groupReducer: { groups, error } }) => ({
+  const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
+    ({ groupReducer: { groups, error, systemGroup } }) => ({
       pagination: groups.pagination || groups.meta,
       filters: groups.filters,
       groupExists: error !== BAD_UUID,
+      systemGroupUuid: systemGroup?.uuid,
     }),
     shallowEqual
   );
@@ -63,10 +65,14 @@ const Group = ({
   const location = useLocation();
 
   useEffect(() => {
-    fetchData(uuid);
-    insights.chrome.appObjectId(uuid);
-    return () => insights.chrome.appObjectId(undefined);
-  }, []);
+    fetchSystemGroup();
+    const currUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
+    fetchData(currUuid);
+    if (currUuid) {
+      insights.chrome.appObjectId(currUuid);
+      return () => insights.chrome.appObjectId(undefined);
+    }
+  }, [systemGroupUuid]);
 
   const defaultGroupChangedIcon = (name) => (
     <div style={{ display: 'inline-flex' }}>
@@ -94,7 +100,7 @@ const Group = ({
           onClick={() => setDropdownOpen(false)}
           to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).replace(
             ':uuid',
-            uuid
+            isPlatformDefault ? 'default-access' : uuid
           )}
         >
           Edit
@@ -120,6 +126,8 @@ const Group = ({
       key="delete-group"
     />,
   ];
+
+  const fetchUuid = isPlatformDefault ? systemGroupUuid : uuid;
 
   return (
     <Fragment>
@@ -187,7 +195,7 @@ const Group = ({
                 group={group}
                 cancelRoute={`group/detail/${uuid}`}
                 postMethod={() => {
-                  fetchData(uuid);
+                  fetchData(fetchUuid);
                 }}
               />
             )}
@@ -259,6 +267,7 @@ Group.propTypes = {
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func,
   onDelete: PropTypes.func,
+  defaultUuid: PropTypes.string,
 };
 
 Group.defaultProps = {
