@@ -20,8 +20,8 @@ export const fetchAdminGroup = (filterValue) => ({
   type: ActionTypes.FETCH_ADMIN_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
-    filters: { name: filterValue?.length > 0 ? filterValue : 'default admin' },
-    nameMatch: 'partial',
+    ...(filterValue?.length > 0 ? { filters: { name: filterValue }, nameMatch: 'partial' } : {}),
+    adminDefault: true,
   }),
 });
 
@@ -29,8 +29,8 @@ export const fetchSystemGroup = (filterValue) => ({
   type: ActionTypes.FETCH_SYSTEM_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
-    filters: { name: filterValue?.length > 0 ? filterValue : 'custom default' },
-    nameMatch: 'partial',
+    ...(filterValue?.length > 0 ? { filters: { name: filterValue }, nameMatch: 'partial' } : {}),
+    platformDefault: true,
   }),
 });
 
