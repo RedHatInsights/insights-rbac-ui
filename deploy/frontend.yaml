@@ -27,7 +27,6 @@ objects:
           expandable: true
           permissions:
             - method: 'isEntitled'
-              args: ''
           routes:
             - appId: 'rbac'
               title: 'Users'

@@ -14,11 +14,29 @@ export async function fetchGroups({
   roleNames,
   roleDiscriminator,
   orderBy,
+  platformDefault,
+  adminDefault,
+  system,
   options,
   inModal = true,
 }) {
   const [groups, auth] = await Promise.all([
-    groupApi.listGroups(limit, offset, filters.name, nameMatch, scope, username, uuid, roleNames, roleDiscriminator, orderBy, options),
+    groupApi.listGroups(
+      limit,
+      offset,
+      filters.name,
+      nameMatch,
+      scope,
+      username,
+      uuid,
+      roleNames,
+      roleDiscriminator,
+      orderBy,
+      platformDefault,
+      adminDefault,
+      system,
+      options
+    ),
     insights.chrome.auth.getUser(),
   ]);
   const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
