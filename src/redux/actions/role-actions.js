@@ -121,3 +121,8 @@ export const removeRolePermissions = (role, permissionsToRemove) => ({
   type: ActionTypes.UPDATE_ROLE,
   payload: RoleHelper.removeRolePermissions(role, permissionsToRemove),
 });
+
+export const updateRolesFilters = (filters) => ({
+  type: ActionTypes.UPDATE_ROLES_FILTERS,
+  payload: filters,
+});
