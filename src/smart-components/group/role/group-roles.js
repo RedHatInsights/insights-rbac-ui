@@ -118,7 +118,7 @@ const GroupRoles = ({
   );
 
   const actionResolver = () => [
-    ...(hasPermissions.current
+    ...(hasPermissions.current && !isAdminDefault
       ? [
           {
             title: 'Remove',
@@ -240,7 +240,7 @@ const GroupRoles = ({
       <Section type="content" id={'tab-roles'}>
         <TableToolbarView
           columns={columns}
-          isSelectable={hasPermissions.current}
+          isSelectable={hasPermissions.current && !isAdminDefault}
           createRows={(...props) => createRows(uuid, ...props)}
           data={roles}
           filterValue={filterValue}
