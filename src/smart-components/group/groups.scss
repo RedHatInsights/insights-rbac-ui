@@ -1,6 +1,8 @@
 .rbac-c-groups {
   .pf-c-table tbody tr.rbac-c-group-default {
-    .pf-c-table__check:first-of-type input { display: none; }
+    .pf-c-table__check  > * {
+      display: none;
+    }
   }
 
   .pf-c-question-circle-icon {
