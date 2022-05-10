@@ -4,6 +4,9 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
+import { useDispatch } from 'react-redux';
+import { fetchGroup } from './helpers/group/group-helper';
+import { EXPERIMENTAL_UPDATE_GROUP_ENTITY } from './redux/experimental/groups-reducer';
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
@@ -14,10 +17,14 @@ const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quicks
 
 export const Routes = () => {
   const { registerEvent } = useChrome();
+  const dispatch = useDispatch();
   console.log({ registerEvent });
   useEffect(() => {
     if (typeof registerEvent === 'function') {
-      registerEvent('invalidate', 'rbac', 'group', (data) => console.log('RBAC EVENT: ', data));
+      registerEvent('invalidate', 'rbac', 'group', (data) => {
+        console.log('invalidate rbac group', data);
+        fetchGroup(data.uuid).then((resp) => dispatch({ type: EXPERIMENTAL_UPDATE_GROUP_ENTITY, payload: resp }));
+      });
     }
   }, []);
   return (

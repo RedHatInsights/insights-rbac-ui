@@ -14,13 +14,72 @@ import accessReducer, { accessInitialState } from '../redux/reducers/access-redu
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
 import errorReducer from '../redux/reducers/errorReducer';
+import experimentalGroupsReducer, { experimentalGroupsReducerInitialState } from '../redux/experimental/groups-reducer';
 
 export const RegistryContext = createContext({
   getRegistry: () => {},
 });
 
+const constructFetchAction = (prevAction) => ({
+  type: prevAction.type,
+  payload: prevAction.req(),
+  meta: {
+    ...prevAction.meta,
+    query: prevAction?.meta?.query,
+  },
+});
+
+const experimentalInvalidationMiddleware = (store) => (next) => (action) => {
+  /**
+   * Check cache for data
+   */
+  if (action.prefferCache && action.req) {
+    const ts = Date.now();
+    const query = action.meta.query;
+    const state = store.getState()[action.reducer]?.storage;
+    /**
+     * get data list from cache
+     */
+    if (state && action.reqType === 'list') {
+      const page = state.pages[query];
+      if (typeof page !== 'undefined' && page.expiration >= ts) {
+        const newAction = {
+          type: `${action.type}_SET`,
+          payload: {
+            filters: page.filters,
+            links: page.links,
+            meta: page.meta,
+            pagination: page.pagination,
+            data: page.entities.map((uuid) => state.entities[uuid]),
+          },
+          meta: {
+            query,
+          },
+        };
+
+        return next(newAction);
+        /**
+         * Data is expired or not in cache
+         */
+      } else if (!page || (state && page.expiration < ts)) {
+        return next(constructFetchAction(action));
+      }
+    }
+    /**
+     * Bypass cache
+     */
+  } else if (!action.prefferCache && action.req) {
+    return next(constructFetchAction(action));
+  }
+  /**
+   * Ignore action and pass it allong
+   */
+  return next(action);
+};
+
 const registry = new ReducerRegistry({}, [
   thunk,
+  experimentalInvalidationMiddleware,
   promiseMiddleware,
   notificationsMiddleware({
     errorTitleKey: ['statusText', 'message', 'errors[0].status'],
@@ -39,6 +98,7 @@ registry.register({
   costReducer: applyReducerHash(costReducer, costInitialState),
   errorReducer: applyReducerHash(errorReducer),
   notifications: notificationsReducer,
+  experimentalGroupsReducer: applyReducerHash(experimentalGroupsReducer, experimentalGroupsReducerInitialState),
 });
 
 export default registry;

@@ -8,7 +8,7 @@ import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
-import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
+import { fetchAdminGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -21,6 +21,7 @@ import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWi
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import PermissionsContext from '../../utilities/permissions-context';
+import { experimentalFetchGroups } from '../../redux/experimental/groups-actions';
 
 const columns = [
   { title: 'Name', key: 'name', transforms: [sortable] },
@@ -32,12 +33,12 @@ const columns = [
 const Groups = () => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
+  const fetchData = (options) => dispatch(experimentalFetchGroups({ ...options, name: options?.filters?.name, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
   const { groups, meta, filters, isLoading } = useSelector(
-    ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
+    ({ experimentalGroupsReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
         ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
         ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
