@@ -89,7 +89,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       userReducer: {
         users: { filters },
       },
-    }) => (history.location.search.length > 0 ? filters : { status: ['Active'] })
+    }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
   );
 
   const [filters, setFilters] = useState(
