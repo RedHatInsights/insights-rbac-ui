@@ -1,5 +1,6 @@
 import { Route, Switch, Redirect } from 'react-router-dom';
-import React, { lazy, Suspense } from 'react';
+import React, { lazy, Suspense, useEffect } from 'react';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
@@ -12,6 +13,13 @@ const AccessRequests = lazy(() => import('./smart-components/accessRequests/acce
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 export const Routes = () => {
+  const { registerEvent } = useChrome();
+  console.log({ registerEvent });
+  useEffect(() => {
+    if (typeof registerEvent === 'function') {
+      registerEvent('invalidate', 'rbac', 'group', (data) => console.log('RBAC EVENT: ', data));
+    }
+  }, []);
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <QuickstartsTestButtons />
