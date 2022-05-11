@@ -35,7 +35,7 @@ const experimentalInvalidationMiddleware = (store) => (next) => (action) => {
    */
   if (action.prefferCache && action.req) {
     const ts = Date.now();
-    const query = action.meta.query;
+    const query = action?.meta?.query;
     const state = store.getState()[action.reducer]?.storage;
     /**
      * get data list from cache
@@ -64,6 +64,15 @@ const experimentalInvalidationMiddleware = (store) => (next) => (action) => {
       } else if (!page || (state && page.expiration < ts)) {
         return next(constructFetchAction(action));
       }
+    } else if (state && action.reqType === 'entity') {
+      const entity = state.entities[action?.meta?.entityId];
+      const newAction = entity
+        ? {
+            type: `${action.type}_SET`,
+            payload: action?.meta?.entityId,
+          }
+        : constructFetchAction(action);
+      return next(newAction);
     }
     /**
      * Bypass cache

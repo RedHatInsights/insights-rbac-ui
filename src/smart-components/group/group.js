@@ -1,13 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
-import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
-import { fetchGroup, fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle, Button } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
@@ -18,20 +17,49 @@ import EmptyWithAction from '../../presentational-components/shared/empty-state'
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import './group.scss';
+import { experimentalFetchGroup } from '../../redux/experimental/groups-actions';
+
+const extractIdFromSymbol = (s) => s.toString().replace(/(^Symbol\(|\)$)/gm, '');
+
+const useActiveEntity = (entityId) => {
+  const dispatch = useDispatch();
+  const { isRecordLoading, activeEntity, entities } = useSelector(
+    ({
+      experimentalGroupsReducer: {
+        isRecordLoading,
+        activeEntity,
+        storage: { entities },
+      },
+    }) => ({
+      isRecordLoading,
+      entities,
+      activeEntity,
+    })
+  );
+  useEffect(() => {
+    dispatch(experimentalFetchGroup(entityId));
+  }, []);
+
+  const entity = entities[extractIdFromSymbol(activeEntity)];
+  return {
+    isFetching: isRecordLoading,
+    entity,
+    activeEntity,
+  };
+};
 
 const Group = ({
   match: {
     params: { uuid },
   },
-  group,
-  fetchGroup,
-  isFetching,
   onDelete,
 }) => {
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
   ];
+
+  const { isFetching, entity: group = {} } = useActiveEntity(uuid);
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
@@ -52,18 +80,17 @@ const Group = ({
       title: 'Groups',
       to: getBackRoute(pathnames.groups, pagination, filters),
     },
-    groupExists ? { title: isFetching ? undefined : group.name, isActive: true } : { title: 'Invalid group', isActive: true },
+    groupExists ? { title: isFetching ? undefined : group?.name, isActive: true } : { title: 'Invalid group', isActive: true },
   ];
-
-  const fetchData = (apiProps) => {
-    fetchGroup(apiProps);
-  };
 
   const dispatch = useDispatch();
   const location = useLocation();
 
+  const fetchData = (apiProps) => {
+    dispatch(experimentalFetchGroup(apiProps));
+  };
+
   useEffect(() => {
-    fetchData(uuid);
     insights.chrome.appObjectId(uuid);
     return () => insights.chrome.appObjectId(undefined);
   }, []);
@@ -227,19 +254,6 @@ const Group = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading } }) => ({
-  group: selectedGroup,
-  isFetching: isRecordLoading || isRecordRolesLoading,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      fetchGroup,
-    },
-    dispatch
-  );
-
 Group.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string.isRequired,
@@ -248,21 +262,7 @@ Group.propTypes = {
     push: PropTypes.func.isRequired,
   }),
   match: PropTypes.object,
-  group: PropTypes.shape({
-    uuid: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    admin_default: PropTypes.bool,
-    platform_default: PropTypes.bool,
-    system: PropTypes.bool,
-  }),
-  isFetching: PropTypes.bool,
-  fetchGroup: PropTypes.func,
   onDelete: PropTypes.func,
 };
 
-Group.defaultProps = {
-  isFetching: false,
-};
-
-export default connect(mapStateToProps, mapDispatchToProps)(Group);
+export default Group;

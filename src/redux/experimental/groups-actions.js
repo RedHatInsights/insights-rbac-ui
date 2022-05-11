@@ -1,5 +1,5 @@
 import { getAxiosInstance } from '../../helpers/shared/user-login';
-import { EXPERIMENTAL_GROUPS_PAGINATED } from './groups-reducer';
+import { EXPERIMENTAL_GET_GROUP_ENTITY, EXPERIMENTAL_GROUPS_PAGINATED } from './groups-reducer';
 
 const generateQuery = (base, params) => {
   const search = new URLSearchParams();
@@ -8,14 +8,16 @@ const generateQuery = (base, params) => {
       search.append(key, val);
     }
   });
-  return `${base}?${search.toString()}`;
+  const query = search.toString();
+  return `${base}${query.length > 0 ? `?${search.toString()}` : ''}`;
 };
 
-const createAction = (baseUrl, { filters, ...params }, options) => {
+const createAction = (baseUrl, { filters, entityId, ...params } = {}, options) => {
   const query = generateQuery(baseUrl, params);
   return {
     meta: {
       query,
+      entityId,
     },
     prefferCache: true,
     reducer: 'experimentalGroupsReducer',
@@ -35,6 +37,11 @@ const createAction = (baseUrl, { filters, ...params }, options) => {
       })),
   };
 };
+
+export const experimentalFetchGroup = (uuid) => ({
+  type: EXPERIMENTAL_GET_GROUP_ENTITY,
+  ...createAction(`/api/rbac/v1/groups/${uuid}/`, { entityId: uuid }, { reqType: 'entity' }),
+});
 
 export const experimentalFetchGroups = (params = {}, options = {}) => ({
   type: EXPERIMENTAL_GROUPS_PAGINATED,
