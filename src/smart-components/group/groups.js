@@ -1,11 +1,11 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useContext, useEffect, useState } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchAdminGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
@@ -30,27 +30,73 @@ const columns = [
   { title: 'Last modified', key: 'modified', transforms: [sortable] },
 ];
 
+const extractIdFromSymbol = (s) => s.toString().replace(/(^Symbol\(|\)$)/gm, '');
+
+const useActivePage = (options) => {
+  const dispatch = useDispatch();
+  const { pages, isLoading, activePage, defaultPageMeta, entities } = useSelector(
+    ({
+      experimentalGroupsReducer: {
+        activePage,
+        isLoading,
+        storage: { pages, entities },
+        defaultPageMeta,
+      },
+    }) => {
+      return {
+        isLoading,
+        pages,
+        activePage,
+        defaultPageMeta,
+        entities,
+      };
+    },
+    shallowEqual
+  );
+
+  const pageQuery = extractIdFromSymbol(activePage);
+  const {
+    meta,
+    pagination,
+    filters,
+    entities: pageEntities,
+  } = pages[pageQuery] || {
+    ...defaultPageMeta,
+    entities: [],
+  };
+
+  const data = pageEntities.map((id) => entities[id]);
+  useEffect(() => {
+    const internalOptions = typeof options === 'function' ? options() : options;
+    dispatch(experimentalFetchGroups(internalOptions));
+  }, []);
+
+  return {
+    meta: pagination || meta,
+    filters: filters,
+    isLoading,
+    entities: data || [],
+  };
+};
+
 const Groups = () => {
   const dispatch = useDispatch();
   const history = useHistory();
   const fetchData = (options) => dispatch(experimentalFetchGroups({ ...options, name: options?.filters?.name, inModal: false }));
+  const optionsSetup = useCallback(() => {
+    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+
+    return {
+      ...syncedPagination,
+      filters: { name },
+      name,
+      inModal: false,
+    };
+  }, []);
+  const { meta, filters, isLoading, entities: groups } = useActivePage(optionsSetup);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
-
-  const { groups, meta, filters, isLoading } = useSelector(
-    ({ experimentalGroupsReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
-      groups: [
-        ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
-        ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
-        ...(groups?.data?.filter(({ platform_default, admin_default } = {}) => !(platform_default || admin_default)) || []),
-      ],
-      meta: groups?.pagination || groups?.meta,
-      filters: groups?.filters,
-      isLoading,
-      systemGroup,
-    }),
-    shallowEqual
-  );
 
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.name || '');
@@ -63,7 +109,6 @@ const Groups = () => {
     const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
-    fetchData({ ...syncedPagination, filters: { name } });
     dispatch(fetchAdminGroup(name));
     dispatch(fetchSystemGroup(name));
   }, []);

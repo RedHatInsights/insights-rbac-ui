@@ -45,13 +45,7 @@ const experimentalInvalidationMiddleware = (store) => (next) => (action) => {
       if (typeof page !== 'undefined' && page.expiration >= ts) {
         const newAction = {
           type: `${action.type}_SET`,
-          payload: {
-            filters: page.filters,
-            links: page.links,
-            meta: page.meta,
-            pagination: page.pagination,
-            data: page.entities.map((uuid) => state.entities[uuid]),
-          },
+          payload: query,
           meta: {
             query,
           },

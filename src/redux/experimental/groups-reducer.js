@@ -7,12 +7,12 @@ export const EXPERIMENTAL_GET_GROUP_ENTITY = '@@rbac/experimental/group/entity/g
 
 export const experimentalGroupsReducerInitialState = {
   activeEntity: Symbol(''),
+  activePage: Symbol(''),
   storage: {
     pages: {},
     entities: {},
   },
-  groups: {
-    data: [],
+  defaultPageMeta: {
     meta: defaultSettings,
     filters: {},
     pagination: { ...defaultSettings, count: 0 },
@@ -23,17 +23,13 @@ export const experimentalGroupsReducerInitialState = {
 
 const setGroups = (state, { payload }) => ({
   ...state,
-  groups: payload,
+  activePage: Symbol(payload),
 });
 
 const updateGroup = (state, { payload }) => {
   const newGroup = { ...payload, expiration: Date.now() + STORAGE_TOMEOUT };
   return {
     ...state,
-    groups: {
-      ...state.groups,
-      data: state.groups.data.map((group) => (group.uuid === newGroup.uuid ? newGroup : group)),
-    },
     storage: {
       ...state.storage,
       entities: {
@@ -46,14 +42,11 @@ const updateGroup = (state, { payload }) => {
 
 const storePaginatedData = (state, { payload: { data, ...rest }, meta: { query } }) => {
   const expiration = Date.now() + STORAGE_TOMEOUT;
+
   return {
     ...state,
+    activePage: Symbol(query),
     isLoading: false,
-    groups: {
-      ...state.groups,
-      ...rest,
-      data,
-    },
     storage: {
       pages: {
         ...state?.storage?.pages,
