@@ -171,7 +171,9 @@ const GroupPrincipals = () => {
             <CardBody>
               <Bullseye>
                 <TextContent>
-                  <Text component={TextVariants.h1}>All users in this organization are members of this group.</Text>
+                  <Text component={TextVariants.h1}>{`All ${
+                    admin_default ? 'organization administrators' : 'users'
+                  } in this organization are members of this group.`}</Text>
                 </TextContent>
               </Bullseye>
             </CardBody>

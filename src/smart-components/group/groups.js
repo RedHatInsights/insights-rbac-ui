@@ -197,7 +197,9 @@ const Groups = () => {
       <StackItem>
         <Section type="content" id={'tab-groups'}>
           <TableToolbarView
-            data={groups.map((group) => (group.platform_default || group.admin_default ? { ...group, principalCount: 'All' } : group))}
+            data={groups.map((group) =>
+              group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
+            )}
             createRows={(...args) => createRows(isAdmin, ...args)}
             columns={columns}
             isSelectable={isAdmin}
