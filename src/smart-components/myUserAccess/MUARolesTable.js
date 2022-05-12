@@ -140,6 +140,7 @@ const MUARolesTable = ({
           debouncedFetch(limit, offset, name, application, permission, orderBy);
         }}
         sortBy={{ index: 0, direction: 'asc' }}
+        emptyFilters={{ name: '', application: [] }}
         setFilterValue={setFilters}
         isLoading={isLoading}
         pagination={roles.meta}

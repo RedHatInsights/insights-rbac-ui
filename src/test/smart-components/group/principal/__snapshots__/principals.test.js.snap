@@ -50,6 +50,7 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
       },
     ]
   }
+  emptyFilters={Object {}}
   emptyProps={
     Object {
       "description": Array [
@@ -257,6 +258,7 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       },
     ]
   }
+  emptyFilters={Object {}}
   emptyProps={
     Object {
       "description": Array [
