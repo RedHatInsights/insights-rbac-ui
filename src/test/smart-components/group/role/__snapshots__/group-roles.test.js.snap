@@ -21,6 +21,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   }
   createRows={[Function]}
   data={Array []}
+  emptyFilters={Object {}}
   emptyProps={
     Object {
       "description": Array [

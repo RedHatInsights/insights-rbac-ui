@@ -161,7 +161,7 @@ const Roles = () => {
               applyFiltersToUrl(history, { display_name: name });
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}

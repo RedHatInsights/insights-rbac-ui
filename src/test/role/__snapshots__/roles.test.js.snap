@@ -54,6 +54,7 @@ exports[`<Roles /> should render correctly 1`] = `
       },
     ]
   }
+  emptyFilters={Object {}}
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
@@ -150,6 +151,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       },
     ]
   }
+  emptyFilters={Object {}}
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"

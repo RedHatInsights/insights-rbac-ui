@@ -149,6 +149,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         inModal || applyPaginationToUrl(history, limit, offset);
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
+      emptyFilters={{ username: '', email: '', status: '' }}
       setFilterValue={({ username, email, status }) => {
         updateFilters({
           username: typeof username === 'undefined' ? filters.username : username,

@@ -218,7 +218,7 @@ const Groups = () => {
               applyFiltersToUrl(history, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
             isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             filterPlaceholder="name"
