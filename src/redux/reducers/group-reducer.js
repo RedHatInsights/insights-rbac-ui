@@ -7,6 +7,7 @@ import {
   FETCH_ROLES_FOR_GROUP,
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_MEMBERS_FOR_GROUP,
+  UPDATE_GROUPS_FILTERS,
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -103,6 +104,8 @@ const setAddRolesForGroup = (state, { payload }) => ({
   ...(payload.error ? payload : {}),
 });
 
+const setFilters = (state, { payload }) => ({ ...state, groups: { ...state.groups, filters: payload } });
+
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
@@ -119,4 +122,5 @@ export default {
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_FULFILLED`]: setAddRolesForGroup,
   [RESET_SELECTED_GROUP]: resetSelectedGroup,
+  [UPDATE_GROUPS_FILTERS]: setFilters,
 };

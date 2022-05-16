@@ -215,3 +215,8 @@ export const removeRolesFromGroup = (groupId, roles) => ({
     },
   },
 });
+
+export const updateGroupsFilters = (filters) => ({
+  type: ActionTypes.UPDATE_GROUPS_FILTERS,
+  payload: filters,
+});

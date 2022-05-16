@@ -1,4 +1,11 @@
-import { FETCH_ROLE, FETCH_ROLES, FETCH_ROLE_FOR_USER, FETCH_ROLE_FOR_PRINCIPAL, FETCH_ROLES_FOR_WIZARD } from '../../redux/action-types';
+import {
+  FETCH_ROLE,
+  FETCH_ROLES,
+  FETCH_ROLE_FOR_USER,
+  FETCH_ROLE_FOR_PRINCIPAL,
+  FETCH_ROLES_FOR_WIZARD,
+  UPDATE_ROLES_FILTERS,
+} from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
@@ -39,6 +46,8 @@ const setRolesWithAccess = (state, { payload }) => ({
 const setRolesForWizard = (state, { payload }) => ({ ...state, rolesForWizard: payload, isWizardLoading: false });
 const setWizardLoadingState = (state) => ({ ...state, isWizardLoading: true });
 
+const setFilters = (state, { payload }) => ({ ...state, roles: { ...state.roles, filters: payload } });
+
 export default {
   [`${FETCH_ROLE}_FULFILLED`]: setRole,
   [`${FETCH_ROLE}_PENDING`]: setRecordLoadingState,
@@ -50,4 +59,5 @@ export default {
   [`${FETCH_ROLE_FOR_PRINCIPAL}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLES_FOR_WIZARD}_FULFILLED`]: setRolesForWizard,
   [`${FETCH_ROLES_FOR_WIZARD}_PENDING`]: setWizardLoadingState,
+  [UPDATE_ROLES_FILTERS]: setFilters,
 };
