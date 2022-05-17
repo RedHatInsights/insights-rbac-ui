@@ -9,7 +9,7 @@ import paths from '../../utilities/pathnames';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { WarningModal } from '../common/warningModal';
-import { Spinner, Modal } from '@patternfly/react-core';
+import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import flatten from 'lodash/flattenDeep';
 import './role-permissions.scss';
@@ -57,6 +57,7 @@ const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) 
       filterValueTitle: 'Filter by resource...',
       options: [...(resourcesPath && resources ? options : [])],
       validate: [{ type: 'validate-resources' }],
+      isSearchable: true,
     },
   ],
 });
@@ -166,6 +167,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       ></WarningModal>
       {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
         <Modal
+          variant={ModalVariant.large}
           className="rbac-m-resource-definitions"
           isOpen={true}
           title="Edit resource definitions"
@@ -174,7 +176,9 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
             onCancel();
           }}
         >
-          <Spinner />
+          <Bullseye>
+            <Spinner />
+          </Bullseye>
         </Modal>
       ) : (
         <FormRenderer
