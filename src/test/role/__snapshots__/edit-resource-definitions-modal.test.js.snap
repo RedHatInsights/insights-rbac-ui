@@ -233,6 +233,19 @@ Array [
                               </div>
                             </div>
                             <div
+                              class="pf-c-dual-list-selector__tools"
+                            >
+                              <div
+                                class="pf-c-dual-list-selector__tools-filter"
+                              >
+                                <input
+                                  aria-label="Available search input"
+                                  class="pf-c-form-control pf-m-search"
+                                  type="search"
+                                />
+                              </div>
+                            </div>
+                            <div
                               class="pf-c-dual-list-selector__status"
                             >
                               <div
@@ -391,6 +404,19 @@ Array [
                                 >
                                   Chosen options
                                 </div>
+                              </div>
+                            </div>
+                            <div
+                              class="pf-c-dual-list-selector__tools"
+                            >
+                              <div
+                                class="pf-c-dual-list-selector__tools-filter"
+                              >
+                                <input
+                                  aria-label="Chosen search input"
+                                  class="pf-c-form-control pf-m-search"
+                                  type="search"
+                                />
                               </div>
                             </div>
                             <div
@@ -647,6 +673,7 @@ Array [
                                 component="dual-list-select"
                                 filterOptionsTitle="Filter by resource..."
                                 filterValueTitle="Filter by resource..."
+                                isSearchable={true}
                                 leftTitle="Resources available for the permission"
                                 name="dual-list-select"
                                 options={Array []}
@@ -668,6 +695,7 @@ Array [
                                   "component": "dual-list-select",
                                   "filterOptionsTitle": "Filter by resource...",
                                   "filterValueTitle": "Filter by resource...",
+                                  "isSearchable": true,
                                   "leftTitle": "Resources available for the permission",
                                   "name": "dual-list-select",
                                   "options": Array [],
@@ -698,6 +726,7 @@ Array [
                                   component="dual-list-select"
                                   filterOptionsTitle="Filter by resource..."
                                   filterValueTitle="Filter by resource..."
+                                  isSearchable={true}
                                   leftTitle="Resources available for the permission"
                                   name="dual-list-select"
                                   options={Array []}
@@ -719,6 +748,7 @@ Array [
                                     "component": "dual-list-select",
                                     "filterOptionsTitle": "Filter by resource...",
                                     "filterValueTitle": "Filter by resource...",
+                                    "isSearchable": true,
                                     "leftTitle": "Resources available for the permission",
                                     "name": "dual-list-select",
                                     "options": Array [],
@@ -838,6 +868,7 @@ Array [
                                     component="dual-list-select"
                                     filterOptionsTitle="Filter by resource..."
                                     filterValueTitle="Filter by resource..."
+                                    isSearchable={true}
                                     key="dual-list-select"
                                     leftTitle="Resources available for the permission"
                                     name="dual-list-select"
@@ -857,6 +888,7 @@ Array [
                                           "component": "dual-list-select",
                                           "filterOptionsTitle": "Filter by resource...",
                                           "filterValueTitle": "Filter by resource...",
+                                          "isSearchable": true,
                                           "leftTitle": "Resources available for the permission",
                                           "name": "dual-list-select",
                                           "options": Array [],
@@ -876,6 +908,7 @@ Array [
                                           component="dual-list-select"
                                           filterOptionsTitle="Filter by resource..."
                                           filterValueTitle="Filter by resource..."
+                                          isSearchable={true}
                                           leftTitle="Resources available for the permission"
                                           name="dual-list-select"
                                           options={Array []}
@@ -892,6 +925,7 @@ Array [
                                             component="dual-list-select"
                                             filterOptionsTitle="Filter by resource..."
                                             filterValueTitle="Filter by resource..."
+                                            isSearchable={true}
                                             leftTitle="Resources available for the permission"
                                             name="dual-list-select"
                                             options={Array []}
@@ -976,6 +1010,7 @@ Array [
                                                       filterValueTitle="Filter by resource..."
                                                       id="dual-list-select"
                                                       isDisabled={false}
+                                                      isSearchable={true}
                                                       isTree={false}
                                                       leftTitle="Resources available for the permission"
                                                       onListChange={[Function]}
@@ -994,6 +1029,7 @@ Array [
                                                         <DualListSelectorPane
                                                           id="dual-list-select-available-pane"
                                                           isDisabled={false}
+                                                          isSearchable={true}
                                                           onFilterUpdate={[Function]}
                                                           onOptionCheck={[Function]}
                                                           onOptionSelect={[Function]}
@@ -1017,6 +1053,21 @@ Array [
                                                                 >
                                                                   Available options
                                                                 </div>
+                                                              </div>
+                                                            </div>
+                                                            <div
+                                                              className="pf-c-dual-list-selector__tools"
+                                                            >
+                                                              <div
+                                                                className="pf-c-dual-list-selector__tools-filter"
+                                                              >
+                                                                <input
+                                                                  aria-label="Available search input"
+                                                                  className="pf-c-form-control pf-m-search"
+                                                                  disabled={false}
+                                                                  onChange={[Function]}
+                                                                  type="search"
+                                                                />
                                                               </div>
                                                             </div>
                                                             <div
@@ -1605,6 +1656,7 @@ Array [
                                                           id="dual-list-select-chosen-pane"
                                                           isChosen={true}
                                                           isDisabled={false}
+                                                          isSearchable={true}
                                                           onFilterUpdate={[Function]}
                                                           onOptionCheck={[Function]}
                                                           onOptionSelect={[Function]}
@@ -1628,6 +1680,21 @@ Array [
                                                                 >
                                                                   Chosen options
                                                                 </div>
+                                                              </div>
+                                                            </div>
+                                                            <div
+                                                              className="pf-c-dual-list-selector__tools"
+                                                            >
+                                                              <div
+                                                                className="pf-c-dual-list-selector__tools-filter"
+                                                              >
+                                                                <input
+                                                                  aria-label="Chosen search input"
+                                                                  className="pf-c-form-control pf-m-search"
+                                                                  disabled={false}
+                                                                  onChange={[Function]}
+                                                                  type="search"
+                                                                />
                                                               </div>
                                                             </div>
                                                             <div
