@@ -14,7 +14,7 @@ const webpackProxy = {
   useProxy: true,
   proxyVerbose: true,
   env: 'stage-beta',
-  // localChrome: '/Users/hq/SoftwareDev/arivepr/insights-chrome/build/',
+  localChrome: '/home/martin/insights/insights-chrome/build/',
   appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 };
 
