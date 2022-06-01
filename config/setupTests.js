@@ -39,6 +39,7 @@ global.insights = {
     appNavClick: () => Promise.resolve(),
     getUserPermissions: () => Promise.resolve([]),
     isBeta: () => true,
+    isProd: () => true,
     getEnvironment: () => 'test',
     appAction: () => {},
     appObjectId: () => {},
