@@ -6,10 +6,9 @@ import PermissionsContext from '../../utilities/permissions-context';
 
 const ActiveUser = ({ linkDescription, linkTitle }) => {
   const env = insights.chrome.getEnvironment();
-  const prefix = insights.chrome.isProd ? '' : `${env === 'ci' ? 'qa' : env}.`;
+  const prefix = insights.chrome.isProd() ? '' : `${env}.`;
   const description = 'These are all of the users in your Red Hat organization. ';
   const { orgAdmin } = useContext(PermissionsContext);
-
   return orgAdmin ? (
     <Text className="pf-u-mt-0" component={TextVariants.h7}>
       {description}
