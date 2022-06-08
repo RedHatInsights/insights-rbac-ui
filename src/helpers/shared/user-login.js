@@ -73,6 +73,6 @@ export function getAxiosInstance() {
 export function getCostApi() {
   return {
     getResourceTypes: () => costApi.axios.get(`${COST_API_BASE}/resource-types/`),
-    getResource: (path) => costApi.axios.get(`${path}?limit=1000`),
+    getResource: (path) => costApi.axios.get(`${path}?limit=20000`),
   };
 }
