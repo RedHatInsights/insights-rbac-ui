@@ -247,6 +247,7 @@ const GroupRoles = ({
           fetchData={(config) => {
             fetchRolesForGroup(config)(uuid);
           }}
+          emptyFilters={{ name: '', description: '' }}
           setFilterValue={({ name, description }) => {
             typeof name !== 'undefined' && setFilterValue(name);
             typeof description !== 'undefined' && setDescriptionValue(description);
