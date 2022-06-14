@@ -74,7 +74,7 @@ const validatorMapper = {
 };
 
 const EditResourceDefinitionsModal = ({ cancelRoute }) => {
-  const routeMatch = useRouteMatch(paths['role-detail-permission-edit']);
+  const routeMatch = useRouteMatch(paths['role-detail-permission-edit'].path);
   const {
     params: { permissionId, roleId },
   } = useRouteMatch(routeMatch);

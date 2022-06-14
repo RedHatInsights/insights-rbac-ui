@@ -45,7 +45,7 @@ describe('<RemoveGroupModal />', () => {
               groupsUuid={[{ uuid: '123' }]}
               pagination={{ limit: 0 }}
               filters={{}}
-              cancelRoute={pathnames.groups}
+              cancelRoute={pathnames.groups.path}
             />
           )}
         />
@@ -81,7 +81,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(pathnames.groups);
+    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(pathnames.groups.path);
   });
 
   it('should call the remove action', async () => {

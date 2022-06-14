@@ -94,7 +94,7 @@ RemoveGroupModal.defaultProps = {
   group: {},
   groupsUuid: [],
   isLoading: true,
-  cancelUrl: pathnames.groups,
+  cancelUrl: pathnames.groups.path,
 };
 
 RemoveGroupModal.propTypes = {
