@@ -48,8 +48,8 @@ const Users = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
-      <PageActionRoute pageAction="users-list" path={ [ paths.users, paths.rbac] } render={ () => renderUsers() } />
+      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'].path } render={ props => <User {...props}/> } />
+      <PageActionRoute pageAction="users-list" path={ [ paths.users.path, paths.rbac.path] } render={ () => renderUsers() } />
     </Switch>
 
   );

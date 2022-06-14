@@ -70,9 +70,9 @@ const ResourceDefinitions = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={paths['role-detail-permission-edit']}>
+      <Route exact path={paths['role-detail-permission-edit'].path}>
         <EditResourceDefinitionsModal
-          cancelRoute={paths['role-detail-permission'].replace(':roleId', roleId).replace(':permissionId', permissionId)}
+          cancelRoute={paths['role-detail-permission'].path.replace(':roleId', roleId).replace(':permissionId', permissionId)}
         />
       </Route>
     </Fragment>

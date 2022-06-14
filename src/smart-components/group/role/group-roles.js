@@ -139,7 +139,7 @@ const GroupRoles = ({
   const routes = () => (
     <Fragment>
       <Route
-        path={paths['group-add-roles']}
+        path={paths['group-add-roles'].path}
         render={(args) => (
           <AddGroupRoles
             fetchGroup={() => reloadGroup(uuid)}

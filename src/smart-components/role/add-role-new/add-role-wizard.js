@@ -63,7 +63,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
 
   const onClose = () =>
     push({
-      pathname: paths.roles,
+      pathname: paths.roles.path,
       search: createQueryParams({ page: 1, per_page: pagination.limit }),
     });
 
@@ -86,7 +86,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
      */
     setTimeout(() => {
       push({
-        pathname: paths.roles,
+        pathname: paths.roles.path,
         search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
       });
     });
