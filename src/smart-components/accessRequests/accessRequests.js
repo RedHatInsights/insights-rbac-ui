@@ -22,7 +22,7 @@ const AccessRequests = () => {
   return (
     <Fragment>
       <Route
-        path={pathnames['access-requests']}
+        path={pathnames['access-requests'].path}
         exact
         render={() => (
           <AsyncComponent
@@ -36,7 +36,7 @@ const AccessRequests = () => {
         )}
       />
       <Route
-        path={pathnames['access-requests-detail']}
+        path={pathnames['access-requests-detail'].path}
         exact
         render={() => (
           <AsyncComponent

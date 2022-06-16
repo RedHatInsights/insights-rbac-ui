@@ -168,7 +168,7 @@ const GroupRoles = ({
   const routes = () => (
     <Fragment>
       <Route
-        path={paths['group-add-roles']}
+        path={paths['group-add-roles'].path}
         render={(args) => (
           <AddGroupRoles
             fetchUuid={fetchUuid}
@@ -277,6 +277,7 @@ const GroupRoles = ({
           fetchData={(config) => {
             fetchRolesForGroup(config)(fetchUuid);
           }}
+          emptyFilters={{ name: '', description: '' }}
           setFilterValue={({ name, description }) => {
             typeof name !== 'undefined' && setFilterValue(name);
             typeof description !== 'undefined' && setDescriptionValue(description);
