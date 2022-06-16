@@ -36,7 +36,7 @@ const Groups = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  const { groups, meta, filters, isLoading } = useSelector(
+  const { groups, meta, filters, isLoading, systemGroup } = useSelector(
     ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
         ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
@@ -238,6 +238,7 @@ const Groups = () => {
         render={(props) => (
           <Group
             {...props}
+            defaultUuid={systemGroup?.uuid}
             onDelete={(uuid) => {
               setFilterValue('');
               setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));

@@ -36,9 +36,14 @@ const setRecordRolesLoadingState = (state) => ({
   isRecordRolesLoading: true,
   selectedGroup: { ...state.selectedGroup, error: undefined, loaded: false },
 });
+const setSystemGroupLoadingState = (state) => ({
+  ...state,
+  isSystemGroupLoading: true,
+  error: undefined,
+});
 const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
 const setAdminGroup = (state, { payload }) => ({ ...state, adminGroup: payload?.data?.filter((group) => group?.admin_default)?.[0] });
-const setSystemGroup = (state, { payload }) => ({ ...state, systemGroup: payload?.data?.filter((group) => group?.platform_default)?.[0] });
+const setSystemGroup = (state, { payload }) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
 const setGroup = (state, { payload }) => ({
   ...state,
   isRecordLoading: false,
@@ -111,7 +116,7 @@ export default {
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
   [`${FETCH_ADMIN_GROUP}_PENDING`]: setLoadingState,
   [`${FETCH_ADMIN_GROUP}_FULFILLED`]: setAdminGroup,
-  [`${FETCH_SYSTEM_GROUP}_PENDING`]: setLoadingState,
+  [`${FETCH_SYSTEM_GROUP}_PENDING`]: setSystemGroupLoadingState,
   [`${FETCH_SYSTEM_GROUP}_FULFILLED`]: setSystemGroup,
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,

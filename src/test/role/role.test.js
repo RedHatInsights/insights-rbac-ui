@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
 import toJson from 'enzyme-to-json';
-import { FETCH_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
@@ -21,6 +21,7 @@ describe('role', () => {
 
   const roleApi = UserLogin.getRoleApi();
 
+  const fetchSystemGroupSpy = jest.spyOn(GroupActions, 'fetchSystemGroup');
   const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
   const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
   const getRoleAccessSpy = jest.spyOn(roleApi, 'getRoleAccess');
@@ -30,6 +31,7 @@ describe('role', () => {
   removeRolePermissionsSpy.mockImplementation(() => ({ type: UPDATE_ROLE, payload: Promise.resolve({}) }));
 
   afterEach(() => {
+    fetchSystemGroupSpy.mockReset();
     fetchRoleSpy.mockReset();
     fetchGroupSpy.mockReset();
     getRoleAccessSpy.mockReset();
@@ -123,6 +125,7 @@ describe('role', () => {
           },
         },
       });
+      fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
       fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       let wrapper;

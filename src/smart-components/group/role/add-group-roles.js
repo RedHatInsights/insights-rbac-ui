@@ -7,9 +7,6 @@ import '../../../App.scss';
 
 const AddGroupRoles = ({
   history: { push },
-  match: {
-    params: { uuid },
-  },
   selectedRoles,
   setSelectedRoles,
   title,
@@ -22,6 +19,7 @@ const AddGroupRoles = ({
   onDefaultGroupChanged,
   fetchRolesForGroup,
   fetchGroup,
+  fetchUuid,
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
@@ -39,7 +37,7 @@ const AddGroupRoles = ({
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
-    addRolesToGroup(uuid, rolesList, () => {
+    addRolesToGroup(fetchUuid, rolesList, () => {
       fetchRolesForGroup();
       fetchGroup();
     });
@@ -125,6 +123,7 @@ AddGroupRoles.propTypes = {
   onDefaultGroupChanged: PropTypes.func,
   fetchRolesForGroup: PropTypes.func,
   fetchGroup: PropTypes.func,
+  fetchUuid: PropTypes.string,
 };
 
 export default AddGroupRoles;
