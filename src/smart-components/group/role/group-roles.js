@@ -8,7 +8,14 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { removeRolesFromGroup, addRolesToGroup, fetchRolesForGroup, fetchAddRolesForGroup, fetchGroup } from '../../../redux/actions/group-actions';
+import {
+  removeRolesFromGroup,
+  addRolesToGroup,
+  fetchRolesForGroup,
+  fetchAddRolesForGroup,
+  fetchGroup,
+  fetchSystemGroup,
+} from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
 import paths from '../../../utilities/pathnames';
@@ -75,12 +82,14 @@ const GroupRoles = ({
   name,
   isAdminDefault,
   isPlatformDefault,
+  systemGroupUuid,
   isChanged,
   onDefaultGroupChanged,
   fetchAddRolesForGroup,
   disableAddRoles,
   addNotification,
   reloadGroup,
+  fetchSystemGroup,
 }) => {
   const [descriptionValue, setDescriptionValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
@@ -93,12 +102,30 @@ const GroupRoles = ({
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
   useEffect(() => {
-    fetchRolesForGroup(pagination)(uuid);
-  }, []);
+    fetchSystemGroup();
+    if (uuid !== 'default-access') {
+      fetchRolesForGroup(pagination)(uuid);
+    } else {
+      if (systemGroupUuid) {
+        fetchRolesForGroup(pagination)(systemGroupUuid);
+      } else {
+        fetchSystemGroup();
+      }
+    }
+  }, [systemGroupUuid]);
 
   useEffect(() => {
-    fetchAddRolesForGroup(uuid);
-  }, [roles]);
+    fetchSystemGroup();
+    if (uuid !== 'default-access') {
+      fetchAddRolesForGroup(uuid);
+    } else {
+      if (systemGroupUuid) {
+        fetchAddRolesForGroup(systemGroupUuid);
+      } else {
+        fetchSystemGroup();
+      }
+    }
+  }, [roles, systemGroupUuid]);
 
   useEffect(() => {
     hasPermissions.current = orgAdmin || userAccessAdministrator;
@@ -136,14 +163,17 @@ const GroupRoles = ({
       : []),
   ];
 
+  const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
+
   const routes = () => (
     <Fragment>
       <Route
-        path={paths['group-add-roles']}
+        path={paths['group-add-roles'].path}
         render={(args) => (
           <AddGroupRoles
-            fetchGroup={() => reloadGroup(uuid)}
-            fetchRolesForGroup={() => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)}
+            fetchUuid={fetchUuid}
+            fetchGroup={() => reloadGroup(fetchUuid)}
+            fetchRolesForGroup={() => fetchRolesForGroup({ ...pagination, offset: 0 })(fetchUuid)}
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
             closeUrl={`/groups/detail/${uuid}/roles`}
@@ -245,8 +275,9 @@ const GroupRoles = ({
           data={roles}
           filterValue={filterValue}
           fetchData={(config) => {
-            fetchRolesForGroup(config)(uuid);
+            fetchRolesForGroup(config)(fetchUuid);
           }}
+          emptyFilters={{ name: '', description: '' }}
           setFilterValue={({ name, description }) => {
             typeof name !== 'undefined' && setFilterValue(name);
             typeof description !== 'undefined' && setDescriptionValue(description);
@@ -281,7 +312,7 @@ const reloadWrapper = (event, callback) => {
   return event;
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup } }) => {
+const mapStateToProps = ({ groupReducer: { selectedGroup, systemGroup } }) => {
   const roles = selectedGroup.roles;
 
   return {
@@ -293,6 +324,7 @@ const mapStateToProps = ({ groupReducer: { selectedGroup } }) => {
     isAdminDefault: selectedGroup.admin_default,
     isChanged: !selectedGroup.system,
     disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || selectedGroup.admin_default,
+    systemGroupUuid: systemGroup?.uuid,
   };
 };
 
@@ -304,6 +336,7 @@ const mapDispatchToProps = (dispatch) => {
     fetchAddRolesForGroup: (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {})),
     addNotification: (...props) => dispatch(addNotification(...props)),
     reloadGroup: (apiProps) => dispatch(fetchGroup(apiProps)),
+    fetchSystemGroup: () => dispatch(fetchSystemGroup()),
   };
 };
 
@@ -336,6 +369,8 @@ GroupRoles.propTypes = {
   disableAddRoles: PropTypes.bool.isRequired,
   addNotification: PropTypes.func,
   reloadGroup: PropTypes.func,
+  systemGroupUuid: PropTypes.string,
+  fetchSystemGroup: PropTypes.func,
 };
 
 GroupRoles.defaultProps = {

@@ -12,7 +12,7 @@ import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
 import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 
 import * as GroupActions from '../../../../redux/actions/group-actions';
-import { FETCH_ROLES_FOR_GROUP } from '../../../../redux/action-types';
+import { FETCH_ROLES_FOR_GROUP, FETCH_SYSTEM_GROUP } from '../../../../redux/action-types';
 
 jest.mock('../../../../redux/actions/group-actions', () => {
   const actual = jest.requireActual('../../../../redux/actions/group-actions');
@@ -29,11 +29,13 @@ describe('<GroupPrincipals />', () => {
   let emptyState;
   let initialState;
 
+  const fetchSystemGroupSpy = jest.spyOn(GroupActions, 'fetchSystemGroup');
   const fetchRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchRolesForGroup');
   const fetchMembersForGroupSpy = jest.spyOn(GroupActions, 'fetchMembersForGroup');
   const fetchAddRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchAddRolesForGroup');
 
   beforeEach(() => {
+    fetchSystemGroupSpy.mockImplementation(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     fetchMembersForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
     fetchRolesForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
     fetchAddRolesForGroupSpy.mockImplementation(() => ({ type: FETCH_ROLES_FOR_GROUP, payload: Promise.resolve({}) }));
@@ -63,6 +65,23 @@ describe('<GroupPrincipals />', () => {
                 is_org_admin: true,
               },
             },
+          },
+          systemGroup: {
+            uuid: '123',
+            name: 'Test group',
+            description: 'Description',
+            platform_default: true,
+            roleCount: 11,
+            roles: [
+              {
+                uuid: '123',
+                name: 'User role',
+                description: 'Description',
+                modified: '2020-03-31T19:06:06.682885Z',
+                system: true,
+                platform_default: true,
+              },
+            ],
           },
           selectedGroup: {
             addRoles: {
@@ -94,6 +113,7 @@ describe('<GroupPrincipals />', () => {
   });
 
   afterEach(() => {
+    fetchSystemGroupSpy.mockReset();
     fetchRolesForGroupSpy.mockReset();
     fetchMembersForGroupSpy.mockReset();
     fetchAddRolesForGroupSpy.mockReset();
@@ -128,14 +148,28 @@ describe('<GroupPrincipals />', () => {
     });
     const expectedPayload = [
       {
+        type: 'FETCH_SYSTEM_GROUP_PENDING',
+      },
+      {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
+      },
+      {
+        type: 'FETCH_SYSTEM_GROUP_PENDING',
       },
       {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
       },
       {
         payload: {},
+        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
+      },
+      {
+        payload: {},
         type: 'FETCH_ROLES_FOR_GROUP_FULFILLED',
+      },
+      {
+        payload: {},
+        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
       },
       {
         payload: {},

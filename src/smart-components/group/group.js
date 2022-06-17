@@ -7,7 +7,7 @@ import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
-import { fetchGroup, fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle, Button } from '@patternfly/react-core';
 import { InfoCircleIcon } from '@patternfly/react-icons';
@@ -28,6 +28,7 @@ const Group = ({
   isFetching,
   onDelete,
 }) => {
+  const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
@@ -38,11 +39,12 @@ const Group = ({
 
   const history = useHistory();
 
-  const { pagination, filters, groupExists } = useSelector(
-    ({ groupReducer: { groups, error } }) => ({
+  const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
+    ({ groupReducer: { groups, error, systemGroup } }) => ({
       pagination: groups.pagination || groups.meta,
       filters: groups.filters,
       groupExists: error !== BAD_UUID,
+      systemGroupUuid: systemGroup?.uuid,
     }),
     shallowEqual
   );
@@ -50,7 +52,7 @@ const Group = ({
   const breadcrumbsList = () => [
     {
       title: 'Groups',
-      to: getBackRoute(pathnames.groups, pagination, filters),
+      to: getBackRoute(pathnames.groups.path, pagination, filters),
     },
     groupExists ? { title: isFetching ? undefined : group.name, isActive: true } : { title: 'Invalid group', isActive: true },
   ];
@@ -63,10 +65,14 @@ const Group = ({
   const location = useLocation();
 
   useEffect(() => {
-    fetchData(uuid);
-    insights.chrome.appObjectId(uuid);
-    return () => insights.chrome.appObjectId(undefined);
-  }, []);
+    fetchSystemGroup();
+    const currUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
+    fetchData(currUuid);
+    if (currUuid) {
+      insights.chrome.appObjectId(currUuid);
+      return () => insights.chrome.appObjectId(undefined);
+    }
+  }, [systemGroupUuid]);
 
   const defaultGroupChangedIcon = (name) => (
     <div style={{ display: 'inline-flex' }}>
@@ -92,9 +98,9 @@ const Group = ({
       component={
         <Link
           onClick={() => setDropdownOpen(false)}
-          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).replace(
+          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).path.replace(
             ':uuid',
-            uuid
+            isPlatformDefault ? 'default-access' : uuid
           )}
         >
           Edit
@@ -107,7 +113,7 @@ const Group = ({
         <Link
           onClick={() => onDelete(uuid)}
           to={() =>
-            (location.pathname.includes('members') ? pathnames['group-detail-members-remove'] : pathnames['group-detail-roles-remove']).replace(
+            (location.pathname.includes('members') ? pathnames['group-detail-members-remove'] : pathnames['group-detail-roles-remove']).path.replace(
               ':uuid',
               uuid
             )
@@ -120,6 +126,8 @@ const Group = ({
       key="delete-group"
     />,
   ];
+
+  const fetchUuid = isPlatformDefault ? systemGroupUuid : uuid;
 
   return (
     <Fragment>
@@ -165,7 +173,7 @@ const Group = ({
           </TopToolbar>
           <AppTabs isHeader tabItems={tabItems} />
           <Route
-            path={[pathnames['group-detail-roles-remove'], pathnames['group-detail-members-remove']]}
+            path={[pathnames['group-detail-roles-remove'].path, pathnames['group-detail-members-remove'].path]}
             render={(props) => (
               <RemoveGroup
                 {...props}
@@ -173,30 +181,30 @@ const Group = ({
                   dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
                 }}
                 cancelRoute={`group/detail/${uuid}`}
-                submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
+                submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
                 isModalOpen
                 groupsUuid={[group]}
               />
             )}
           />
           <Route
-            path={[pathnames['group-detail-roles-edit'], pathnames['group-detail-members-edit']]}
+            path={[pathnames['group-detail-roles-edit'].path, pathnames['group-detail-members-edit'].path]}
             render={(props) => (
               <EditGroup
                 {...props}
                 group={group}
                 cancelRoute={`group/detail/${uuid}`}
                 postMethod={() => {
-                  fetchData(uuid);
+                  fetchData(fetchUuid);
                 }}
               />
             )}
           />
           <Route
-            path={pathnames['group-detail-roles']}
+            path={pathnames['group-detail-roles'].path}
             render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
           />
-          <Route path={pathnames['group-detail-members']} component={GroupPrincipals} />
+          <Route path={pathnames['group-detail-members'].path} component={GroupPrincipals} />
           <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
           {!group && <ListLoader />}
         </Fragment>
@@ -259,6 +267,7 @@ Group.propTypes = {
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func,
   onDelete: PropTypes.func,
+  defaultUuid: PropTypes.string,
 };
 
 Group.defaultProps = {

@@ -29,8 +29,10 @@ export const fetchSystemGroup = (filterValue) => ({
   type: ActionTypes.FETCH_SYSTEM_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
-    ...(filterValue?.length > 0 ? { filters: { name: filterValue }, nameMatch: 'partial' } : {}),
+    filters: { name: filterValue },
+    nameMatch: 'partial',
     platformDefault: true,
+    system: false,
   }),
 });
 
