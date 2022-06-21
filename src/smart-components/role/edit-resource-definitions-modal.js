@@ -2,7 +2,7 @@ import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import FormRenderer from '../common/form-renderer';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
 import paths from '../../utilities/pathnames';
@@ -78,7 +78,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const {
     params: { permissionId, roleId },
   } = useRouteMatch(routeMatch);
-  const { replace, push } = useHistory();
+  const navigate = useNavigate();
 
   const dispatch = useDispatch();
   const fetchResourceDefinitions = () => dispatch(getResourceDefinitions());
@@ -116,7 +116,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     }
   }, [resourceTypes]);
 
-  const onCancel = () => replace(cancelRoute);
+  const onCancel = () => navigate(cancelRoute, { replace: true });
 
   const handleCancel = (data) => {
     if (data['dual-list-select'] === definedResources) {
@@ -149,7 +149,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     dispatch(updateRole(roleId, { ...role, access: [...role.access.filter((item) => item.permission !== permissionId), newAccess] }), true).then(
       () => {
         dispatch(fetchRole(roleId));
-        push(cancelRoute);
+        navigate(cancelRoute);
       }
     );
   };

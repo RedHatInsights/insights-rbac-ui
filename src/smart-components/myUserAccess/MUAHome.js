@@ -6,7 +6,6 @@ import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/Page
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 import PermissionsContext from '../../utilities/permissions-context';
-import pathnames from '../../utilities/pathnames';
 import { bundleData } from '../../presentational-components/myUserAccess/bundles';
 import './MUAHome.scss';
 import MUAContent from './MUAContent';
@@ -56,7 +55,7 @@ const MyUserAccess = () => {
                   </DropdownToggle>
                 }
                 dropdownItems={bundleData.map((data) => (
-                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${data.entitlement}` }}>
+                  <NavLink key={data.entitlement} to={{ pathname: '', search: `bundle=${data.entitlement}` }}>
                     <DropdownItem
                       onClick={() => {
                         setBundleParam(data.title), setDropdownOpen(false);

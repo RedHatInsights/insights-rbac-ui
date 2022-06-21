@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import { useNavigate } from 'react-router-dom';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
 import '../../../App.scss';
 
 const AddGroupRoles = ({
-  history: { push },
   selectedRoles,
   setSelectedRoles,
   title,
@@ -22,6 +22,7 @@ const AddGroupRoles = ({
   fetchUuid,
 }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const navigate = useNavigate();
 
   const onCancel = () => {
     setSelectedRoles && setSelectedRoles([]);
@@ -32,7 +33,7 @@ const AddGroupRoles = ({
       dismissable: false,
       description: 'Adding roles to group was canceled by the user.',
     });
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   const onSubmit = () => {
@@ -45,8 +46,12 @@ const AddGroupRoles = ({
       onDefaultGroupChanged(true);
     }
 
-    return push(closeUrl);
+    return navigate(closeUrl);
   };
+
+  if (!selectedRoles) {
+    return null;
+  }
 
   return isDefault && !isChanged && showConfirmModal ? (
     <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={onSubmit} />
@@ -104,13 +109,6 @@ const AddGroupRoles = ({
 };
 
 AddGroupRoles.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.any,
-    goBack: PropTypes.func.isRequired,
-  }).isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.object.isRequired,
-  }).isRequired,
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   addRolesToGroup: PropTypes.func,

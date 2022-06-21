@@ -1,6 +1,6 @@
 import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { Link, Route, Routes, Switch, useLocation, useNavigate } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
@@ -40,10 +40,10 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 
 const Roles = () => {
   const dispatch = useDispatch();
-  const { push } = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
-  const history = useHistory();
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
 
   const [pagination, setPagination] = useState(meta);
@@ -51,9 +51,9 @@ const Roles = () => {
   const screenSize = useScreenSize();
 
   useEffect(() => {
-    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    const syncedPagination = syncDefaultPaginationWithUrl(location, navigate, pagination);
     setPagination(syncedPagination);
-    const { display_name } = syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+    const { display_name } = syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ ...syncedPagination, filters: { display_name } });
@@ -65,41 +65,52 @@ const Roles = () => {
   }, [filters, meta]);
 
   useEffect(() => {
-    meta.redirected && applyPaginationToUrl(history, meta.limit, meta.offset);
+    meta.redirected && applyPaginationToUrl(location, navigate, meta.limit, meta.offset);
   }, [meta.redirected]);
 
   useEffect(() => {
-    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
     filterValue?.length > 0 &&
-      !areFiltersPresentInUrl(history, ['display_name']) &&
-      syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
+      !areFiltersPresentInUrl(location, ['display_name']) &&
+      syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
   });
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
-      <Route exact path={paths['add-role'].path}>
-        <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
-      </Route>
-      <Route exact path={paths['remove-role'].path}>
-        {!isLoading && (
-          <RemoveRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['remove-role'].path}
-            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
-          />
-        )}
-      </Route>
-      <Route exact path={paths['edit-role'].path}>
-        {!isLoading && (
-          <EditRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['edit-role'].path}
-            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
-          />
-        )}
-      </Route>
+      <Routes>
+        <Route path="add-role" element={<AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />} />
+        <Route
+          exact
+          path={paths['remove-role'].path}
+          element={
+            <>
+              {!isLoading && (
+                <RemoveRole
+                  afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
+                  routeMatch={paths['remove-role'].path}
+                  cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+                  submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
+                />
+              )}
+            </>
+          }
+        />
+        <Route
+          exact
+          path={paths['edit-role'].path}
+          element={
+            <>
+              {!isLoading && (
+                <EditRole
+                  afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
+                  cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+                  submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
+                />
+              )}
+            </>
+          }
+        ></Route>
+      </Routes>
     </Suspense>
   );
 
@@ -121,7 +132,7 @@ const Roles = () => {
   const toolbarButtons = () =>
     orgAdmin || userAccessAdministrator
       ? [
-          <Link to={paths['add-role'].path} key="add-role" className="rbac-m-hide-on-sm">
+          <Link to="add-role" key="add-role" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
               Create role
             </Button>
@@ -131,7 +142,7 @@ const Roles = () => {
                 {
                   label: 'Create role',
                   onClick: () => {
-                    history.push(paths['add-role'].path);
+                    navigate(paths['add-role'].path);
                   },
                 },
               ]
@@ -157,8 +168,8 @@ const Roles = () => {
             filterValue={filterValue}
             fetchData={(config) => {
               const { name, count, limit, offset, orderBy } = config;
-              applyPaginationToUrl(history, limit, offset);
-              applyFiltersToUrl(history, { display_name: name });
+              applyPaginationToUrl(location, navigate, limit, offset);
+              applyFiltersToUrl(location, navigate, { display_name: name });
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
@@ -178,15 +189,25 @@ const Roles = () => {
   );
 
   return (
-    <Switch>
-      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission'].path}>
-        <ResourceDefinitions />
-      </PageActionRoute>
-      <PageActionRoute pageAction="role-detail" path={paths['role-detail'].path}>
-        <Role onDelete={() => setFilterValue('')} />
-      </PageActionRoute>
-      <PageActionRoute pageAction="roles-list" path={paths.roles.path} render={() => renderRolesList()} />
-    </Switch>
+    <Routes>
+      <Route
+        path={paths['role-detail-permission'].path}
+        element={
+          <PageActionRoute pageAction="role-detail-permission">
+            <ResourceDefinitions />
+          </PageActionRoute>
+        }
+      />
+      <Route
+        path="detail/:uuid/*"
+        element={
+          <PageActionRoute pageAction="role-detail">
+            <Role onDelete={() => setFilterValue('')} />
+          </PageActionRoute>
+        }
+      />
+      <Route path="/*" element={<PageActionRoute pageAction="roles-list">{renderRolesList()}</PageActionRoute>} />
+    </Routes>
   );
 };
 

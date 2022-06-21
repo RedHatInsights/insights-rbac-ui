@@ -1,5 +1,5 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import React, { useContext, useEffect, useState } from 'react';
+import { Link, Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import AddGroupWizard from './add-group/add-group-wizard';
@@ -31,7 +31,8 @@ const columns = [
 
 const Groups = () => {
   const dispatch = useDispatch();
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
@@ -57,9 +58,9 @@ const Groups = () => {
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
 
   useEffect(() => {
-    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
+    const syncedPagination = syncDefaultPaginationWithUrl(location, navigate, pagination);
     setPagination(syncedPagination);
-    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+    const { name } = syncDefaultFiltersWithUrl(location, navigate, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ ...syncedPagination, filters: { name } });
@@ -68,8 +69,10 @@ const Groups = () => {
   }, []);
 
   useEffect(() => {
-    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
-    filterValue?.length > 0 && !areFiltersPresentInUrl(history, ['name']) && syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+    isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
+    filterValue?.length > 0 &&
+      !areFiltersPresentInUrl(location, ['name']) &&
+      syncDefaultFiltersWithUrl(location, navigate, ['name'], { name: filterValue });
   });
 
   const setCheckedItems = (newSelection) => {
@@ -81,7 +84,7 @@ const Groups = () => {
   };
 
   useEffect(() => {
-    pagination.redirected && applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    pagination.redirected && applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
   }, [pagination.redirected]);
 
   useEffect(() => {
@@ -90,43 +93,52 @@ const Groups = () => {
   }, [filters, meta]);
 
   const routes = () => (
-    <Fragment>
-      <Route exact path={pathnames['add-group'].path}>
-        <AddGroupWizard
-          pagination={pagination}
-          filters={filters}
-          postMethod={(config) => {
-            fetchData(config);
-            setFilterValue('');
-          }}
-        />
-      </Route>
-      <Route exact path={pathnames['group-edit'].path}>
-        <EditGroup
-          pagination={pagination}
-          filters={filters}
-          postMethod={(config) => {
-            fetchData(config);
-          }}
-          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-        />
-      </Route>
-      <Route exact path={pathnames['remove-group'].path}>
-        <RemoveGroup
-          pagination={pagination}
-          filters={filters}
-          postMethod={(ids, config) => {
-            fetchData(config);
-            setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
-          }}
-          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-          isModalOpen
-          groupsUuid={removeGroupsList}
-        />
-      </Route>
-    </Fragment>
+    <Routes>
+      <Route
+        path="add-group"
+        element={
+          <AddGroupWizard
+            pagination={pagination}
+            filters={filters}
+            postMethod={(config) => {
+              fetchData(config);
+              setFilterValue('');
+            }}
+          />
+        }
+      />
+      <Route
+        path="edit/:id"
+        element={
+          <EditGroup
+            pagination={pagination}
+            filters={filters}
+            postMethod={(config) => {
+              fetchData(config);
+            }}
+            cancelRoute={getBackRoute('../', pagination, filters)}
+            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
+          />
+        }
+      />
+      <Route
+        path="removegroups"
+        element={
+          <RemoveGroup
+            pagination={pagination}
+            filters={filters}
+            postMethod={(ids, config) => {
+              fetchData(config);
+              setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
+            }}
+            cancelRoute={getBackRoute('../', pagination, filters)}
+            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
+            isModalOpen
+            groupsUuid={removeGroupsList}
+          />
+        }
+      />
+    </Routes>
   );
 
   const actionResolver = ({ isPlatformDefault, isAdminDefault }) =>
@@ -136,14 +148,14 @@ const Groups = () => {
           {
             title: 'Edit',
             onClick: (_event, _rowId, group) => {
-              history.push(`/groups/edit/${group.uuid}`);
+              navigate(`edit/${group.uuid}`);
             },
           },
           {
             title: 'Delete',
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              history.push(pathnames['remove-group'].path);
+              navigate('removegroups');
             },
           },
         ];
@@ -152,7 +164,7 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
-          <Link to={pathnames['add-group'].path} key="add-group" className="rbac-m-hide-on-sm">
+          <Link to="add-group" key="add-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               Create group
             </Button>
@@ -163,7 +175,7 @@ const Groups = () => {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(pathnames['add-group'].path);
+              navigate('add-group');
             },
           },
           {
@@ -171,7 +183,7 @@ const Groups = () => {
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
-            onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`),
+            onClick: () => navigate(`/groups/edit/${selectedRows[0].uuid}`),
           },
           {
             label: 'Delete',
@@ -180,7 +192,7 @@ const Groups = () => {
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              history.push(pathnames['remove-group'].path);
+              navigate(pathnames['remove-group'].path);
             },
           },
         ]
@@ -214,8 +226,8 @@ const Groups = () => {
             filterValue={filterValue}
             fetchData={(config) => {
               const { name, count, limit, offset, orderBy } = config;
-              applyPaginationToUrl(history, limit, offset);
-              applyFiltersToUrl(history, { name });
+              applyPaginationToUrl(location, navigate, limit, offset);
+              applyFiltersToUrl(location, navigate, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
@@ -230,24 +242,31 @@ const Groups = () => {
     </Stack>
   );
   return (
-    <Switch>
-      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail'].path} render={(props) => <Role {...props} />} />
-      <PageActionRoute
-        pageAction="group-detail"
-        path={pathnames['group-detail'].path}
-        render={(props) => (
-          <Group
-            {...props}
-            defaultUuid={systemGroup?.uuid}
-            onDelete={(uuid) => {
-              setFilterValue('');
-              setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
-            }}
-          />
-        )}
+    <Routes>
+      <Route
+        path="detail/:groupUuid/roles/detail/:uuid/*"
+        element={
+          <PageActionRoute pageAction="role-detail">
+            <Role />
+          </PageActionRoute>
+        }
       />
-      <PageActionRoute pageAction="group-list" path={pathnames.groups.path} render={() => renderGroupsList()} />
-    </Switch>
+      <Route
+        path="detail/:uuid/*"
+        element={
+          <PageActionRoute pageAction="group-detail">
+            <Group
+              defaultUuid={systemGroup?.uuid}
+              onDelete={(uuid) => {
+                setFilterValue('');
+                setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
+              }}
+            />
+          </PageActionRoute>
+        }
+      />
+      <Route path="/*" element={<PageActionRoute pageAction="group-list">{renderGroupsList()}</PageActionRoute>} />
+    </Routes>
   );
 };
 

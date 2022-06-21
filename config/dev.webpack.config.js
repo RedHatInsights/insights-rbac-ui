@@ -14,7 +14,7 @@ const webpackProxy = {
   useProxy: true,
   proxyVerbose: true,
   env: 'stage-beta',
-  // localChrome: '/Users/hq/SoftwareDev/arivepr/insights-chrome/build/',
+  localChrome: '/home/martin/insights/insights-chrome/build/',
   appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 };
 
@@ -29,6 +29,11 @@ const { config: webpackConfig, plugins } = config({
 plugins.push(
   require('@redhat-cloud-services/frontend-components-config/federated-modules')({
     root: resolve(__dirname, '../'),
+    shared: [
+      {
+        'react-router-dom': { singleton: true, requiredVersion: '*' },
+      },
+    ],
   })
 );
 

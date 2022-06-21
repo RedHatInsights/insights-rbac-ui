@@ -12,11 +12,11 @@ export const createRows = (data) =>
         system,
         cells: [
           <Fragment key={`${uuid}-name`}>
-            <Link to={`/roles/detail/${uuid}`}>{display_name || name}</Link>
+            <Link to={`detail/${uuid}`}>{display_name || name}</Link>
           </Fragment>,
           description,
           <Fragment key={`${uuid}-accessCount`}>
-            <Link to={`/roles/detail/${uuid}`}>{accessCount}</Link>
+            <Link to={`detail/${uuid}`}>{accessCount}</Link>
           </Fragment>,
           groupsCount,
           <Fragment key={`${uuid}-modified`}>

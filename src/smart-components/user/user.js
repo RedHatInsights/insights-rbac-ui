@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { connect, useSelector } from 'react-redux';
-import { Link, useHistory, withRouter } from 'react-router-dom';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -37,20 +37,18 @@ const columns = [
 
 let debouncedFetch;
 
-const User = ({
-  match: {
-    params: { username },
-  },
-  fetchRoles,
-  fetchRoleForUser,
-  fetchUsers,
-  roles,
-  isLoading,
-  rolesWithAccess,
-  user,
-}) => {
+const User = ({ fetchRoles, fetchRoleForUser, fetchUsers, roles, isLoading, rolesWithAccess }) => {
+  const { username } = useParams();
+  console.log({ username });
   const [filter, setFilter] = useState('');
   const [expanded, setExpanded] = useState({});
+  const user = useSelector(
+    ({
+      userReducer: {
+        users: { data },
+      },
+    }) => data && data.filter((user) => user.username === username)[0]
+  );
 
   const userExists = useSelector((state) => {
     const {
@@ -65,7 +63,7 @@ const User = ({
     return () => insights.chrome.appObjectId(undefined);
   }, []);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const createRows = (data) =>
     data
@@ -154,7 +152,7 @@ const User = ({
   };
 
   const breadcrumbsList = () => [
-    { title: 'Users', to: '/users' },
+    { title: 'Users', to: '../../users' },
     { title: userExists ? username : 'Invalid user', isActive: true },
   ];
 
@@ -217,7 +215,7 @@ const User = ({
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => history.goBack()}
+                onClick={() => navigate(-1)}
               >
                 Back to previous page
               </Button>,
@@ -240,23 +238,10 @@ User.propTypes = {
   user: PropTypes.object,
 };
 
-const mapStateToProps = (
-  {
-    roleReducer: { roles, isLoading, rolesWithAccess },
-    userReducer: {
-      users: { data },
-    },
-  },
-  {
-    match: {
-      params: { username },
-    },
-  }
-) => ({
+const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess } }) => ({
   roles,
   isLoading,
   rolesWithAccess,
-  user: data && data.filter((user) => user.username === username)[0],
 });
 const mapDispatchToProps = (dispatch) => ({
   fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
@@ -264,4 +249,4 @@ const mapDispatchToProps = (dispatch) => ({
   fetchUsers: (apiProps) => dispatch(fetchUsers(apiProps)),
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(User));
+export default connect(mapStateToProps, mapDispatchToProps)(User);

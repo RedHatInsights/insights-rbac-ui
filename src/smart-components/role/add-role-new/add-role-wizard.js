@@ -15,12 +15,12 @@ import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
-import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
 
 import './add-role-wizard.scss';
 import SilentErrorBoundary from '../../common/silent-error-boundary';
+import { useNavigate } from 'react-router-dom';
 
 export const AddRoleWizardContext = createContext({
   success: false,
@@ -46,7 +46,7 @@ export const mapperExtension = {
 
 const AddRoleWizard = ({ pagination, filters }) => {
   const dispatch = useDispatch();
-  const { push } = useHistory();
+  const navigate = useNavigate();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -62,7 +62,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
   }, []);
 
   const onClose = () =>
-    push({
+    navigate({
       pathname: paths.roles.path,
       search: createQueryParams({ page: 1, per_page: pagination.limit }),
     });
@@ -85,8 +85,8 @@ const AddRoleWizard = ({ pagination, filters }) => {
      * That should fix the runtime error we are seeing in the production version of the code.
      */
     setTimeout(() => {
-      push({
-        pathname: paths.roles.path,
+      navigate({
+        pathname: '../roles',
         search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
       });
     });

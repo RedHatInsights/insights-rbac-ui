@@ -1,7 +1,7 @@
 import React, { useEffect, Fragment, useState } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
@@ -51,7 +51,7 @@ const createRows =
                     <span key="no">No</span>
                   </Fragment>
                 ),
-                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
+                { title: userLinks ? <Link to={`detail/${username}`}>{username.toString()}</Link> : username.toString() },
                 email.toString(),
                 firstName.toString(),
                 lastName.toString(),
@@ -82,14 +82,15 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     redirected: !inModal && users.pagination.redirected,
   }));
 
-  const history = useHistory();
+  const location = useLocation();
+  const navigate = useNavigate();
 
   let stateFilters = useSelector(
     ({
       userReducer: {
         users: { filters },
       },
-    }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
+    }) => (location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
   );
 
   const [filters, setFilters] = useState(
@@ -103,22 +104,22 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   );
 
   useEffect(() => {
-    inModal || (defaultPagination.redirected && applyPaginationToUrl(history, defaultPagination.limit, defaultPagination.offset));
+    inModal || (defaultPagination.redirected && applyPaginationToUrl(location, navigate, defaultPagination.limit, defaultPagination.offset));
   }, [defaultPagination.redirected]);
 
   useEffect(() => {
-    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
-    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(location, navigate, defaultPagination);
+    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters);
     setFilters(newFilters);
     fetchUsers({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
   }, []);
 
   useEffect(() => {
     if (!inModal) {
-      isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+      isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
       Object.values(filters).some((filter) => filter?.length > 0) &&
-        !areFiltersPresentInUrl(history, Object.keys(filters)) &&
-        syncDefaultFiltersWithUrl(history, Object.keys(filters), filters);
+        !areFiltersPresentInUrl(location, Object.keys(filters)) &&
+        syncDefaultFiltersWithUrl(location, navigate, Object.keys(filters), filters);
     }
   });
 
@@ -146,8 +147,8 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
         fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
-        inModal || applyPaginationToUrl(history, limit, offset);
-        inModal || applyFiltersToUrl(history, { username, email, status });
+        inModal || applyPaginationToUrl(location, navigate, limit, offset);
+        inModal || applyFiltersToUrl(location, navigate, { username, email, status });
       }}
       emptyFilters={{ username: '', email: '', status: '' }}
       setFilterValue={({ username, email, status }) => {
@@ -225,10 +226,6 @@ const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
 };
 
 UsersList.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
-  }),
   users: PropTypes.array,
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,

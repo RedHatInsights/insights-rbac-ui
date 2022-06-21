@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -12,8 +11,10 @@ import RoleInformation from './role-information';
 import PermissionInformation from './permission-information';
 import { WarningModal } from '../../common/warningModal';
 import '../../common/hideWizard.scss';
+import { useNavigate } from 'react-router-dom';
 
-const AddRoleWizard = ({ addNotification, createRole, history: { push }, pagination }) => {
+const AddRoleWizard = ({ addNotification, createRole, pagination }) => {
+  const navigate = useNavigate();
   const [formData, setValues] = useState({});
   const [isRoleFormValid, setIsRoleFormValid] = useState(false);
   const [isPermissionFormValid, setIsPermissionFormValid] = useState(false);
@@ -90,7 +91,7 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
       ],
     };
     const role = await createRole(roleData);
-    fetchRoles(pagination).then(push('/roles'));
+    fetchRoles(pagination).then(navigate('/roles'));
     return role;
   };
 
@@ -101,7 +102,7 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
       dismissDelay: 8000,
       dismissable: false,
     });
-    push('/roles');
+    navigate('/roles');
   };
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
@@ -165,4 +166,4 @@ const mapDispatchToProps = (dispatch) =>
     dispatch
   );
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddRoleWizard));
+export default connect(mapStateToProps, mapDispatchToProps)(AddRoleWizard);

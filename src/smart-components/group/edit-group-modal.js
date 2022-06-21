@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -27,16 +27,16 @@ const EditGroupModal = ({
 }) => {
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const { push } = useHistory();
-  const match = useRouteMatch('/groups/edit/:id');
+  const navigate = useNavigate();
+  const { id: uuid } = useParams();
 
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
   };
 
   const fetchData = () => {
-    match &&
-      fetchGroup(match.params.id)
+    uuid &&
+      fetchGroup(uuid)
         .payload.then((data) => setGroupData(data))
         .catch(() => setGroupData(undefined));
   };
@@ -58,8 +58,8 @@ const EditGroupModal = ({
     postMethod
       ? updateGroup(user_data)
           .then(() => postMethod({ limit: pagination?.limit, filters }))
-          .then(push(submitRoute))
-      : updateGroup(user_data).then(() => push(submitRoute));
+          .then(navigate(submitRoute))
+      : updateGroup(user_data).then(() => navigate(submitRoute));
   };
 
   const onCancel = () => {
@@ -71,7 +71,7 @@ const EditGroupModal = ({
       description: selectedGroup ? 'Edit group was canceled by the user.' : 'Adding group was canceled by the user.',
     });
     onClose();
-    push(cancelRoute);
+    navigate(cancelRoute);
   };
 
   const schema = {
@@ -82,7 +82,7 @@ const EditGroupModal = ({
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
         ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
-          { type: 'validate-group-name', id: match ? match.params.id : group.uuid, idKey: 'uuid' },
+          { type: 'validate-group-name', id: uuid ? uuid : group.uuid, idKey: 'uuid' },
           {
             type: validatorTypes.REQUIRED,
           },

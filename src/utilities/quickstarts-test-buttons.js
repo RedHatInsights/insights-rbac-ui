@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from '../utilities/pathnames';
@@ -9,7 +9,7 @@ import { QuickStartContext } from '@patternfly/quickstarts';
 const QuickstartsTestButtons = () => {
   const [openQuickstart, setOpenQuickstart] = useState(false);
   const chromeHook = useChrome();
-  const history = useHistory();
+  const navigate = useNavigate();
   const quickstartsContext = React.useContext(QuickStartContext);
   const { quickStarts } = chromeHook;
   const [isQuickstartEnabled, setIsQuickstartEnabled] = useState(false);
@@ -37,7 +37,7 @@ const QuickstartsTestButtons = () => {
   };
 
   const handleOpenCatalog = () => {
-    history.push(pathnames['quickstarts-test'].path);
+    navigate(pathnames['quickstarts-test'].path);
   };
 
   const btnStyle = {

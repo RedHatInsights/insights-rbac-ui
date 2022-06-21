@@ -2,7 +2,7 @@
 import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Link, Route, useHistory, useParams } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './principal-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
@@ -11,7 +11,6 @@ import AddGroupMembers from './add-group-members';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import paths from '../../../utilities/pathnames';
 import PermissionsContext from '../../../utilities/permissions-context';
 
 const columns = [
@@ -99,20 +98,17 @@ const GroupPrincipals = () => {
         ];
 
   const routes = () => (
-    <Fragment>
-      <Route
-        path={paths['group-add-members'].path}
-        render={(args) => <AddGroupMembers fetchData={fetchData} closeUrl={`/groups/detail/${uuid}/members`} {...args} />}
-      />
-    </Fragment>
+    <Routes>
+      <Route path="add_members" element={<AddGroupMembers fetchData={fetchData} closeUrl="../" />} />
+    </Routes>
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const toolbarButtons = () => [
     ...(hasPermissions.current
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="rbac-m-hide-on-sm">
+          <Link to="add_members" key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               Add member
             </Button>
@@ -123,7 +119,7 @@ const GroupPrincipals = () => {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(`/groups/detail/${uuid}/members/add_members`);
+              navigate('add_members');
             },
           },
           {

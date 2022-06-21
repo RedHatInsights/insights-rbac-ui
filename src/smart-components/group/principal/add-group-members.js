@@ -1,5 +1,4 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
@@ -8,19 +7,12 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { CompactUsersList } from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
+import { useNavigate, useParams } from 'react-router-dom';
 
-const AddGroupMembers = ({
-  history: { push },
-  match: {
-    params: { uuid },
-  },
-  addNotification,
-  closeUrl,
-  addMembersToGroup,
-  fetchMembersForGroup,
-  fetchGroups,
-}) => {
+const AddGroupMembers = ({ addNotification, closeUrl, addMembersToGroup, fetchMembersForGroup, fetchGroups }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const navigate = useNavigate();
+  const { uuid } = useParams();
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
@@ -37,7 +29,7 @@ const AddGroupMembers = ({
       });
     }
 
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   const onCancel = () => {
@@ -48,7 +40,7 @@ const AddGroupMembers = ({
       dismissable: false,
       description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was canceled by the user.`,
     });
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   return (
@@ -121,4 +113,4 @@ const mapDispatchToProps = (dispatch) =>
     dispatch
   );
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));
+export default connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers);

@@ -1,7 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
@@ -186,4 +185,4 @@ const mapDispatchToProps = (dispatch) => ({
   fetchRoleForPrincipal: (uuid) => dispatch(fetchRoleForPrincipal(uuid)),
 });
 
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUARolesTable));
+export default connect(mapStateToProps, mapDispatchToProps)(MUARolesTable);

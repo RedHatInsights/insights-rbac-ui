@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
@@ -9,6 +8,7 @@ import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import pathnames from '../../utilities/pathnames';
 import './remove-group-modal.scss';
+import { useNavigate } from 'react-router-dom';
 
 const RemoveGroupModal = ({
   removeGroups,
@@ -29,7 +29,7 @@ const RemoveGroupModal = ({
     }
   }, []);
 
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const [checked, setChecked] = useState(false);
 
@@ -39,10 +39,10 @@ const RemoveGroupModal = ({
     const uuids = groupsUuid.map((group) => group.uuid);
     removeGroups(uuids)
       .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
-      .then(push(submitRoute));
+      .then(navigate(submitRoute));
   };
 
-  const onCancel = () => push(cancelRoute);
+  const onCancel = () => navigate(cancelRoute);
 
   return (
     <Modal

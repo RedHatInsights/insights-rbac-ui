@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useRouteMatch } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
@@ -19,7 +19,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
   const [isDisabled, setIsDisabled] = useState(true);
   const [internalRoleName, setInternalRoleName] = useState(roleName);
   const dispatch = useDispatch();
-  const { push, replace } = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     !internalRoleName &&
@@ -34,11 +34,11 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
 
   const onSubmit = () =>
     dispatch(removeRole(id)).then(() => {
-      push(submitRoute);
+      navigate(submitRoute);
       return afterSubmit();
     });
 
-  const onCancel = () => replace(cancelRoute);
+  const onCancel = () => navigate(cancelRoute, { replace: true });
   if (!internalRoleName) {
     return null;
   }

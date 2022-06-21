@@ -4,7 +4,6 @@ import AddRolePermissionSummaryContent from './add-role-permissions-summary-cont
 import AddRolePermissionSuccess from './add-role-permission-success';
 import PropTypes from 'prop-types';
 import { WarningModal } from '../../common/warningModal';
-import { useHistory } from 'react-router-dom';
 import { Wizard } from '@patternfly/react-core';
 import { updateRole } from '../../../redux/actions/role-actions.js';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -13,6 +12,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import AddPermissionsTable from '../add-role-new/add-permissions';
 import CostResources from '../add-role-new/cost-resources';
 import { schemaBuilder } from './schema';
+import { useNavigate } from 'react-router-dom';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -32,7 +32,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
   const [schema, setSchema] = useState({});
-  const history = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
@@ -62,7 +62,7 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   const handleConfirmCancel = () => {
-    history.push(`/roles/detail/${role.uuid}`);
+    navigate('../');
   };
 
   const onSubmit = async (formData) => {
@@ -101,7 +101,7 @@ const AddRolePermissionWizard = ({ role }) => {
       .then(() => setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true })))
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        history.push(`/roles/detail/${role.uuid}`);
+        navigate('../');
       });
   };
 

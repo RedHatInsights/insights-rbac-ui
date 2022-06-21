@@ -1,4 +1,4 @@
-import { Route, Switch, Redirect } from 'react-router-dom';
+import { Route, Routes as RouterRoutes, Navigate } from 'react-router-dom';
 import React, { lazy, Suspense, useEffect } from 'react';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import pathnames from './utilities/pathnames';
@@ -18,30 +18,31 @@ export const Routes = () => {
     insights.chrome.updateDocumentTitle(
       Object.values(pathnames).find(
         (item) =>
-          !!matchPath(location.pathname, {
-            path: item.path,
-            exact: true,
-            strict: false,
-          })
+          !!matchPath(
+            {
+              path: item.path,
+              end: true,
+            },
+            location.pathname
+          )
       )?.title || 'User Access'
     );
   }, [location.pathname]);
+  console.log({ location });
 
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <QuickstartsTestButtons />
-      <Switch>
-        <Route path={pathnames.groups.path} component={Groups} />
-        <Route path={pathnames.roles.path} component={Roles} />
-        <Route path={pathnames.users.path} component={Users} />
-        <Route path={pathnames['my-user-access'].path} component={MyUserAccess} />
-        <Route path={pathnames['access-requests'].path} component={AccessRequests} />
+      <RouterRoutes>
+        <Route path={pathnames.groups.path} element={<Groups />} />
+        <Route path={pathnames.roles.path} element={<Roles />} />
+        <Route path={pathnames.users.path} element={<Users />} />
+        <Route path={pathnames['access-requests'].path} element={<AccessRequests />} />
+        <Route path={'/'} element={<MyUserAccess />} />
 
-        {localStorage.getItem('quickstarts:enabled') === 'true' && <Route path={pathnames['quickstarts-test'].path} component={QuickstartsTest} />}
-        <Route>
-          <Redirect to={pathnames.users.path} />
-        </Route>
-      </Switch>
+        {localStorage.getItem('quickstarts:enabled') === 'true' && <Route path={pathnames['quickstarts-test'].path} element={<QuickstartsTest />} />}
+        <Route path="*" element={<Navigate to="users" />} />
+      </RouterRoutes>
     </Suspense>
   );
 };

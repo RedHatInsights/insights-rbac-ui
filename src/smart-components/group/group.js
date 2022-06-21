@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
+import { Route, Link, useLocation, useNavigate, useParams, Routes, Navigate } from 'react-router-dom';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
 import AppTabs from '../app-tabs/app-tabs';
@@ -19,25 +19,18 @@ import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms'
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import './group.scss';
 
-const Group = ({
-  match: {
-    params: { uuid },
-  },
-  group,
-  fetchGroup,
-  isFetching,
-  onDelete,
-}) => {
+const Group = ({ group, fetchGroup, isFetching, onDelete }) => {
+  const { uuid } = useParams();
   const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
-    { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
-    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
+    { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles`, to: 'roles' },
+    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members`, to: 'members' },
   ];
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
     ({ groupReducer: { groups, error, systemGroup } }) => ({
@@ -96,13 +89,7 @@ const Group = ({
   const dropdownItems = [
     <DropdownItem
       component={
-        <Link
-          onClick={() => setDropdownOpen(false)}
-          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).path.replace(
-            ':uuid',
-            isPlatformDefault ? 'default-access' : uuid
-          )}
-        >
+        <Link onClick={() => setDropdownOpen(false)} to={location.pathname.includes('members') ? 'members/edit' : 'roles/edit'}>
           Edit
         </Link>
       }
@@ -110,15 +97,7 @@ const Group = ({
     />,
     <DropdownItem
       component={
-        <Link
-          onClick={() => onDelete(uuid)}
-          to={() =>
-            (location.pathname.includes('members') ? pathnames['group-detail-members-remove'] : pathnames['group-detail-roles-remove']).path.replace(
-              ':uuid',
-              uuid
-            )
-          }
-        >
+        <Link onClick={() => onDelete(uuid)} to={location.pathname.includes('members') ? 'members/remove' : 'roles/remove'}>
           Delete
         </Link>
       }
@@ -128,6 +107,8 @@ const Group = ({
   ];
 
   const fetchUuid = isPlatformDefault ? systemGroupUuid : uuid;
+
+  const getCancelRoute = () => (location.pathname.includes('members') ? '../members' : '../roles');
 
   return (
     <Fragment>
@@ -172,40 +153,65 @@ const Group = ({
             ) : null}
           </TopToolbar>
           <AppTabs isHeader tabItems={tabItems} />
-          <Route
-            path={[pathnames['group-detail-roles-remove'].path, pathnames['group-detail-members-remove'].path]}
-            render={(props) => (
-              <RemoveGroup
-                {...props}
-                postMethod={() => {
-                  dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
-                }}
-                cancelRoute={`group/detail/${uuid}`}
-                submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-                isModalOpen
-                groupsUuid={[group]}
-              />
-            )}
-          />
-          <Route
-            path={[pathnames['group-detail-roles-edit'].path, pathnames['group-detail-members-edit'].path]}
-            render={(props) => (
-              <EditGroup
-                {...props}
-                group={group}
-                cancelRoute={`group/detail/${uuid}`}
-                postMethod={() => {
-                  fetchData(fetchUuid);
-                }}
-              />
-            )}
-          />
-          <Route
-            path={pathnames['group-detail-roles'].path}
-            render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
-          />
-          <Route path={pathnames['group-detail-members'].path} component={GroupPrincipals} />
-          <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
+          <Routes>
+            <Route
+              path="roles/remove"
+              element={
+                <RemoveGroup
+                  postMethod={() => {
+                    dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
+                  }}
+                  cancelRoute={getCancelRoute()}
+                  submitRoute={getBackRoute('/settings/rbac/groups', { ...pagination, offset: 0 }, filters)}
+                  isModalOpen
+                  groupsUuid={[group]}
+                />
+              }
+            />
+            <Route
+              path="members/remove"
+              element={
+                <RemoveGroup
+                  postMethod={() => {
+                    dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
+                  }}
+                  cancelRoute={getCancelRoute()}
+                  submitRoute={getBackRoute('/settings/rbac/groups', { ...pagination, offset: 0 }, filters)}
+                  isModalOpen
+                  groupsUuid={[group]}
+                />
+              }
+            />
+            <Route
+              path="roles/edit"
+              element={
+                <EditGroup
+                  group={group}
+                  cancelRoute={getCancelRoute()}
+                  postMethod={() => {
+                    fetchData(fetchUuid);
+                  }}
+                />
+              }
+            />
+            <Route
+              path="members/edit"
+              element={
+                <EditGroup
+                  group={group}
+                  cancelRoute={getCancelRoute()}
+                  postMethod={() => {
+                    fetchData(fetchUuid);
+                  }}
+                />
+              }
+            />
+          </Routes>
+          <Routes>
+            <Route path="members/*" element={<GroupPrincipals />} />
+            <Route path="roles/*" element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />} />
+            <Route path="/*" element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />} />
+          </Routes>
           {!group && <ListLoader />}
         </Fragment>
       ) : (
@@ -223,7 +229,7 @@ const Group = ({
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => history.goBack()}
+                onClick={() => navigate(-1)}
               >
                 Back to previous page
               </Button>,
@@ -251,9 +257,6 @@ const mapDispatchToProps = (dispatch) =>
 Group.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string.isRequired,
-  }),
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
   }),
   match: PropTypes.object,
   group: PropTypes.shape({

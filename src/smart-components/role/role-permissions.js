@@ -17,7 +17,7 @@ import {
 import { cellWidth } from '@patternfly/react-table';
 import './role-permissions.scss';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
-import { Link, Route, useHistory } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
@@ -62,7 +62,8 @@ const Permissions = () => {
     shallowEqual
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
+
   const [
     { pagination, selectedPermissions, showRemoveModal, confirmDelete, deleteInfo, filters, isToggled, resources, operations },
     internalDispatch,
@@ -136,7 +137,7 @@ const Permissions = () => {
   ];
 
   const toolbarButtons = () => [
-    <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
+    <Link to={`role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
       <Button variant="primary" aria-label="Add Permission">
         Add permissions
       </Button>
@@ -147,7 +148,7 @@ const Permissions = () => {
         className: 'rbac-m-hide-on-md',
       },
       onClick: () => {
-        history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+        navigate(`role-add-permission`);
       },
     },
     {
@@ -173,12 +174,6 @@ const Permissions = () => {
       },
     },
   ];
-
-  const routes = () => (
-    <Route exact path={paths['role-add-permission'].path}>
-      <AddRolePermissionWizard isOpen={true} role={role} />
-    </Route>
-  );
 
   const calculateSelected = (filter) =>
     filter.reduce(
@@ -221,6 +216,10 @@ const Permissions = () => {
           }}
         />
       )}
+
+      <Routes>
+        <Route path="role-add-permission" element={<AddRolePermissionWizard isOpen={true} role={role} />} />
+      </Routes>
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
@@ -255,7 +254,6 @@ const Permissions = () => {
         }}
         titlePlural="permissions"
         titleSingular="permission"
-        routes={routes}
         emptyProps={{
           title: 'There are no permissions in this role',
           description: ['To configure user access to applications,', 'add at least one permission to this role.', ''],

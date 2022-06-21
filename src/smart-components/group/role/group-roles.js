@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
 import { connect } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link, Route, useHistory } from 'react-router-dom';
+import { Link, Route, Routes, useNavigate, useParams } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Button, Tooltip } from '@patternfly/react-core';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -18,7 +18,6 @@ import {
 } from '../../../redux/actions/group-actions';
 import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
-import paths from '../../../utilities/pathnames';
 import { getDateFormat } from '../../../helpers/shared/helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
 import './group-roles.scss';
@@ -76,9 +75,6 @@ const GroupRoles = ({
   fetchRolesForGroup,
   isLoading,
   pagination,
-  match: {
-    params: { uuid },
-  },
   name,
   isAdminDefault,
   isPlatformDefault,
@@ -91,6 +87,7 @@ const GroupRoles = ({
   reloadGroup,
   fetchSystemGroup,
 }) => {
+  const { uuid } = useParams();
   const [descriptionValue, setDescriptionValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [selectedRoles, setSelectedRoles] = useState([]);
@@ -166,40 +163,35 @@ const GroupRoles = ({
   const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
 
   const routes = () => (
-    <Fragment>
+    <Routes>
       <Route
-        path={paths['group-add-roles'].path}
-        render={(args) => (
+        path="add_roles"
+        element={
           <AddGroupRoles
             fetchUuid={fetchUuid}
             fetchGroup={() => reloadGroup(fetchUuid)}
             fetchRolesForGroup={() => fetchRolesForGroup({ ...pagination, offset: 0 })(fetchUuid)}
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
-            closeUrl={`/groups/detail/${uuid}/roles`}
+            closeUrl="../"
             addRolesToGroup={addRoles}
             name={name}
             isDefault={isPlatformDefault || isAdminDefault}
             isChanged={isChanged}
             addNotification={addNotification}
             onDefaultGroupChanged={onDefaultGroupChanged}
-            {...args}
           />
-        )}
+        }
       />
-    </Fragment>
+    </Routes>
   );
 
-  const history = useHistory();
+  const navigate = useNavigate();
 
   const toolbarButtons = () => [
     ...(hasPermissions.current && !isAdminDefault
       ? [
-          <Link
-            className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
-            to={`/groups/detail/${uuid}/roles/add_roles`}
-            key="add-to-group"
-          >
+          <Link className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`} to="add_roles" key="add-to-group">
             {addRoleButton(
               disableAddRoles,
               generateOuiaID(name || ''),
@@ -213,7 +205,7 @@ const GroupRoles = ({
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(`/groups/detail/${uuid}/roles/add_roles`);
+              navigate('add_roles');
             },
           },
           {
@@ -341,10 +333,6 @@ const mapDispatchToProps = (dispatch) => {
 };
 
 GroupRoles.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
-  }),
   roles: PropTypes.array,
   isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
@@ -359,9 +347,6 @@ GroupRoles.propTypes = {
     offset: PropTypes.number.isRequired,
     count: PropTypes.number,
   }),
-  match: PropTypes.shape({
-    params: PropTypes.object.isRequired,
-  }).isRequired,
   isAdminDefault: PropTypes.bool,
   isPlatformDefault: PropTypes.bool,
   isChanged: PropTypes.bool,

@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
 import Main from '@redhat-cloud-services/frontend-components/Main';
@@ -24,12 +23,12 @@ const App = () => {
     orgAdmin: false,
     userAccessAdministrator: false,
   });
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     insights.chrome.init();
     insights.chrome.registerModule('access-requests');
-    !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
+    !insights.chrome.getApp() && navigate('/my-user-access'); // redirect to MUA if url is "/settings"
     Promise.all([insights.chrome.auth.getUser(), window.insights.chrome.getUserPermissions('rbac')]).then(([user, permissions]) => {
       setUserData({
         ready: true,
@@ -41,7 +40,7 @@ const App = () => {
 
     const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
-        history.push(`/${event.navId}`);
+        navigate(`/${event.navId}`);
       }
     });
 
@@ -71,10 +70,6 @@ const App = () => {
       </PermissionsContext.Provider>
     </IntlProvider>
   );
-};
-
-App.propTypes = {
-  history: PropTypes.object,
 };
 
 export default App;

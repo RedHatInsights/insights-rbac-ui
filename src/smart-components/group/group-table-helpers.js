@@ -49,7 +49,7 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
           <Fragment key={uuid}>
             <div className="pf-m-inline-flex">
               {isAdmin ? (
-                <Link key={`${uuid}-link`} state={{ uuid }} to={{ pathname: `/groups/detail/${isPlatformDefault ? 'default-access' : uuid}` }}>
+                <Link key={`${uuid}-link`} state={{ uuid }} to={{ pathname: `detail/${isPlatformDefault ? 'default-access' : uuid}` }}>
                   {name}
                 </Link>
               ) : (

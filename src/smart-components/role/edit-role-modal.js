@@ -6,13 +6,14 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
 import useIsMounted from '../../hooks/useIsMounted';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useNavigate, useParams, useRouteMatch } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { roleSelector } from './role-selectors';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 import { patchRole } from '../../redux/actions/role-actions';
+import { restElement } from '@babel/types';
 
 const validationPromise = (name, idKey, id) =>
   name.length < 150
@@ -59,12 +60,10 @@ const uniqueNameValidator = asyncDebounce((value, idKey, id, validationPromise) 
   return validationPromise(value, idKey, id);
 });
 
-const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
+const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const isMounted = useIsMounted();
-  const {
-    params: { id },
-  } = useRouteMatch(routeMatch);
-  const { replace, push } = useHistory();
+  const { uuid: id } = useParams();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const validatorMapper = {
@@ -87,13 +86,13 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
         description: 'Edit role was canceled by the user.',
       })
     );
-    replace(cancelRoute);
+    navigate('../', { replace: true });
   };
 
   const handleSubmit = (data) =>
     dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
-      push(submitRoute);
+      navigate(submitRoute);
     });
 
   useEffect(() => {

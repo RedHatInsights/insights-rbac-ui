@@ -4,7 +4,7 @@ const pathnames = {
     title: 'User Access',
   },
   groups: {
-    path: '/groups',
+    path: '/groups/*',
     title: 'Groups',
   },
   'add-group': {
@@ -61,7 +61,7 @@ const pathnames = {
     title: 'Group role',
   },
   roles: {
-    path: '/roles',
+    path: '/roles/*',
     title: 'Roles',
   },
   'add-role': {
@@ -101,15 +101,15 @@ const pathnames = {
     title: 'Edit permissions',
   },
   users: {
-    path: '/users',
+    path: '/users/*',
     title: 'Users',
   },
   'user-detail': {
-    path: '/users/detail/:username',
+    path: 'users/detail/:username',
     title: 'User',
   },
   'my-user-access': {
-    path: '/my-user-access',
+    path: '/*',
     title: 'My User Access',
   },
   'access-requests': {

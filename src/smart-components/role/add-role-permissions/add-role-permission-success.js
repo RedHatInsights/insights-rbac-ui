@@ -16,7 +16,7 @@ const AddRolePermissionSuccess = ({ currentRoleID }) => {
           You have successfully added permissions to the role
         </Title>
         <EmptyStateBody></EmptyStateBody>
-        <Link to={`/roles/detail/${currentRoleID}`}>
+        <Link to="../">
           <Button onClick={() => dispatch(fetchRole(currentRoleID))}>Exit</Button>
         </Link>
       </EmptyState>
