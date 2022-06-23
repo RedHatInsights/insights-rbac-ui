@@ -77,26 +77,26 @@ const Roles = () => {
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
-      <Route exact path={paths['add-role']}>
+      <Route exact path={paths['add-role'].path}>
         <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
       </Route>
-      <Route exact path={paths['remove-role']}>
+      <Route exact path={paths['remove-role'].path}>
         {!isLoading && (
           <RemoveRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['remove-role']}
-            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+            routeMatch={paths['remove-role'].path}
+            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
-      <Route exact path={paths['edit-role']}>
+      <Route exact path={paths['edit-role'].path}>
         {!isLoading && (
           <EditRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['edit-role']}
-            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+            routeMatch={paths['edit-role'].path}
+            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
@@ -121,7 +121,7 @@ const Roles = () => {
   const toolbarButtons = () =>
     orgAdmin || userAccessAdministrator
       ? [
-          <Link to={paths['add-role']} key="add-role" className="rbac-m-hide-on-sm">
+          <Link to={paths['add-role'].path} key="add-role" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
               Create role
             </Button>
@@ -131,7 +131,7 @@ const Roles = () => {
                 {
                   label: 'Create role',
                   onClick: () => {
-                    history.push(paths['add-role']);
+                    history.push(paths['add-role'].path);
                   },
                 },
               ]
@@ -161,7 +161,7 @@ const Roles = () => {
               applyFiltersToUrl(history, { display_name: name });
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}
@@ -179,13 +179,13 @@ const Roles = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission']}>
+      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission'].path}>
         <ResourceDefinitions />
       </PageActionRoute>
-      <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
+      <PageActionRoute pageAction="role-detail" path={paths['role-detail'].path}>
         <Role onDelete={() => setFilterValue('')} />
       </PageActionRoute>
-      <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
+      <PageActionRoute pageAction="roles-list" path={paths.roles.path} render={() => renderRolesList()} />
     </Switch>
   );
 };

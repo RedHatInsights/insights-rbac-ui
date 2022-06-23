@@ -128,7 +128,7 @@ const EditGroupModal = ({
 };
 
 EditGroupModal.defaultProps = {
-  cancelRoute: pathnames.groups,
+  cancelRoute: pathnames.groups.path,
   onClose: () => null,
   onSubmit: () => null,
 };

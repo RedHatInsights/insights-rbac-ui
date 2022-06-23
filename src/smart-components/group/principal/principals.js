@@ -101,7 +101,7 @@ const GroupPrincipals = () => {
   const routes = () => (
     <Fragment>
       <Route
-        path={paths['group-add-members']}
+        path={paths['group-add-members'].path}
         render={(args) => <AddGroupMembers fetchData={fetchData} closeUrl={`/groups/detail/${uuid}/members`} {...args} />}
       />
     </Fragment>

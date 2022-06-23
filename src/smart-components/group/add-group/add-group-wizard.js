@@ -69,7 +69,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
       })
     );
     push({
-      pathname: paths.groups,
+      pathname: paths.groups.path,
       search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
   };
@@ -86,7 +86,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
       roles_list: formData['roles-list'].map((role) => role.uuid),
     };
     push({
-      pathname: paths.groups,
+      pathname: paths.groups.path,
       search: createQueryParams({ page: 1, per_page: pagination.limit }),
     });
     dispatch(addGroup(groupData))

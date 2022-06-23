@@ -56,7 +56,7 @@ const MyUserAccess = () => {
                   </DropdownToggle>
                 }
                 dropdownItems={bundleData.map((data) => (
-                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'], search: `bundle=${data.entitlement}` }}>
+                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${data.entitlement}` }}>
                     <DropdownItem
                       onClick={() => {
                         setBundleParam(data.title), setDropdownOpen(false);

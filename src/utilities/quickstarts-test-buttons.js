@@ -37,7 +37,7 @@ const QuickstartsTestButtons = () => {
   };
 
   const handleOpenCatalog = () => {
-    history.push(pathnames['quickstarts-test']);
+    history.push(pathnames['quickstarts-test'].path);
   };
 
   const btnStyle = {

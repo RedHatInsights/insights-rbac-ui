@@ -36,7 +36,7 @@ const Groups = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  const { groups, meta, filters, isLoading } = useSelector(
+  const { groups, meta, filters, isLoading, systemGroup } = useSelector(
     ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
         ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
@@ -91,7 +91,7 @@ const Groups = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={pathnames['add-group']}>
+      <Route exact path={pathnames['add-group'].path}>
         <AddGroupWizard
           pagination={pagination}
           filters={filters}
@@ -108,11 +108,11 @@ const Groups = () => {
           postMethod={(config) => {
             fetchData(config);
           }}
-          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
         />
       </Route>
-      <Route exact path={pathnames['remove-group']}>
+      <Route exact path={pathnames['remove-group'].path}>
         <RemoveGroup
           pagination={pagination}
           filters={filters}
@@ -120,8 +120,8 @@ const Groups = () => {
             fetchData(config);
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
           }}
-          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
           isModalOpen
           groupsUuid={removeGroupsList}
         />
@@ -143,7 +143,7 @@ const Groups = () => {
             title: 'Delete',
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              history.push(pathnames['remove-group']);
+              history.push(pathnames['remove-group'].path);
             },
           },
         ];
@@ -152,7 +152,7 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
-          <Link to={pathnames['add-group']} key="add-group" className="rbac-m-hide-on-sm">
+          <Link to={pathnames['add-group'].path} key="add-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               Create group
             </Button>
@@ -163,7 +163,7 @@ const Groups = () => {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(pathnames['add-group']);
+              history.push(pathnames['add-group'].path);
             },
           },
           {
@@ -180,7 +180,7 @@ const Groups = () => {
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              history.push(pathnames['remove-group']);
+              history.push(pathnames['remove-group'].path);
             },
           },
         ]
@@ -218,7 +218,7 @@ const Groups = () => {
               applyFiltersToUrl(history, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
             isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             filterPlaceholder="name"
@@ -231,13 +231,14 @@ const Groups = () => {
   );
   return (
     <Switch>
-      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail']} render={(props) => <Role {...props} />} />
+      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail'].path} render={(props) => <Role {...props} />} />
       <PageActionRoute
         pageAction="group-detail"
-        path={pathnames['group-detail']}
+        path={pathnames['group-detail'].path}
         render={(props) => (
           <Group
             {...props}
+            defaultUuid={systemGroup?.uuid}
             onDelete={(uuid) => {
               setFilterValue('');
               setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
@@ -245,7 +246,7 @@ const Groups = () => {
           />
         )}
       />
-      <PageActionRoute pageAction="group-list" path={pathnames.groups} render={() => renderGroupsList()} />
+      <PageActionRoute pageAction="group-list" path={pathnames.groups.path} render={() => renderGroupsList()} />
     </Switch>
   );
 };

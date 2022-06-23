@@ -25,6 +25,7 @@ export const TableToolbarView = ({
   pagination,
   filterValue,
   isLoading,
+  emptyFilters,
   setFilterValue,
   checkedRows,
   isSelectable,
@@ -85,15 +86,11 @@ export const TableToolbarView = ({
                     variant="link"
                     ouiaId="clear-filters-button"
                     onClick={() => {
-                      setFilterValue({
-                        ...pagination,
-                        offset: 0,
-                        name: '',
-                      });
+                      setFilterValue(emptyFilters);
                       fetchData({
                         ...pagination,
                         offset: 0,
-                        name: '',
+                        ...(emptyFilters ? emptyFilters : { name: '' }),
                       });
                     }}
                   >
@@ -233,6 +230,7 @@ TableToolbarView.propTypes = {
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
+  emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
   createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
@@ -254,6 +252,7 @@ TableToolbarView.propTypes = {
 
 TableToolbarView.defaultProps = {
   ...Toolbar.defaultProps,
+  emptyFilters: {},
   isCompact: false,
   borders: true,
   routes: () => null,
