@@ -9,7 +9,6 @@ const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
-const AccessRequests = lazy(() => import('./smart-components/accessRequests/accessRequests'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 export const Routes = () => {
