@@ -35,7 +35,6 @@ export const Routes = () => {
         <Route path={pathnames.roles.path} component={Roles} />
         <Route path={pathnames.users.path} component={Users} />
         <Route path={pathnames['my-user-access'].path} component={MyUserAccess} />
-        <Route path={pathnames['access-requests'].path} component={AccessRequests} />
 
         {localStorage.getItem('quickstarts:enabled') === 'true' && <Route path={pathnames['quickstarts-test'].path} component={QuickstartsTest} />}
         <Route>
