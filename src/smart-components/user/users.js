@@ -36,7 +36,7 @@ const Users = () => {
     <StackItem>
       <Section type="content" id={ 'users' }>
         <UsersList
-          userLinks={activeUserPermissions.userAccessAdministrator}
+          userLinks={activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin}
           props={ {
             isSelectable: false,
             isCompact: false
