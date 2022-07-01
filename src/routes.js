@@ -9,7 +9,6 @@ const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const MyUserAccess = lazy(() => import('./smart-components/myUserAccess/MUAHome'));
-const AccessRequests = lazy(() => import('./smart-components/accessRequests/accessRequests'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 export const Routes = () => {
@@ -35,7 +34,6 @@ export const Routes = () => {
         <Route path={pathnames.roles.path} component={Roles} />
         <Route path={pathnames.users.path} component={Users} />
         <Route path={pathnames['my-user-access'].path} component={MyUserAccess} />
-        <Route path={pathnames['access-requests'].path} component={AccessRequests} />
 
         {localStorage.getItem('quickstarts:enabled') === 'true' && <Route path={pathnames['quickstarts-test'].path} component={QuickstartsTest} />}
         <Route>
