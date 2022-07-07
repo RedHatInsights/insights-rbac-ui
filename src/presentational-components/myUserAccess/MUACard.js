@@ -11,9 +11,15 @@ import { bundleData } from './bundles';
 import useSearchParams from '../../hooks/useSearchParams';
 
 import './MUACard.scss';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 const MUACard = ({ header, entitlements, isDisabled }) => {
   const { bundle: bundleParam } = useSearchParams('bundle');
+  /**
+   * Get the analytics object from chrome API
+   * Analytics API: https://segment.com/docs/connections/sources/catalog/libraries/website/javascript/
+   */
+  const { analytics } = useChrome();
   return (
     <React.Fragment>
       {header && (
@@ -32,7 +38,19 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
             const isEntitled = entitlements.find(([key]) => data.entitlement === key);
             const key = data.entitlement;
             return isEntitled ? (
-              <StackItem key={key} className="rbac-c-mua-cardWrapper">
+              <StackItem
+                onClick={() => {
+                  /**
+                   * Add custom event tracking to events
+                   */
+                  analytics.track('mua-card-click', {
+                    currentBundle: bundleParam,
+                    newBundle: key,
+                  });
+                }}
+                key={key}
+                className="rbac-c-mua-cardWrapper"
+              >
                 <NavLink
                   className={classNames('rbac-c-mua-bundles__cardlink', { 'rbac-c-mua-bundles__cardlink--disabled': isDisabled })}
                   to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${key}` }}

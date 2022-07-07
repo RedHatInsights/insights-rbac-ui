@@ -16,6 +16,7 @@ import { rolesInitialState } from './redux/reducers/role-reducer';
 import { usersInitialState } from './redux/reducers/user-reducer';
 
 import './App.scss';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 const App = () => {
   const dispatch = useDispatch();
@@ -25,6 +26,27 @@ const App = () => {
     userAccessAdministrator: false,
   });
   const history = useHistory();
+
+  /**
+   * Get the setPageMetadata from chrome context
+   * NOTE: The setPageMetadata does not work on the initial module PAGE event!
+   * NOTE: The default data cannot be overriden!
+   */
+  const {
+    segment: { setPageMetadata },
+  } = useChrome();
+
+  useEffect(() => {
+    /**
+     * Set custom metadata for segment analytics page event
+     * Data can be aupdate anytime during the untime
+     */
+    setPageMetadata({
+      customPropertyOne: true,
+      customPropertyTwo: 'John Doe',
+      customDynamicProperty: history.location.pathname,
+    });
+  }, [history.location.pathname]);
 
   useEffect(() => {
     insights.chrome.init();
