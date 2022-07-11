@@ -99,7 +99,6 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
       variant: 'warning',
       title: 'Creating role was canceled by the user',
       dismissDelay: 8000,
-      dismissable: false,
     });
     push('/roles');
   };
