@@ -82,7 +82,6 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
       addNotification({
         variant: 'warning',
         dismissDelay: 8000,
-        dismissable: false,
         title: 'Editing role',
         description: 'Edit role was canceled by the user.',
       })

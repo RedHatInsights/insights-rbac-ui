@@ -64,7 +64,6 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
         variant: 'warning',
         title: 'Adding group',
         dismissDelay: 8000,
-        dismissable: false,
         description: 'Adding group was canceled by the user.',
       })
     );
@@ -97,7 +96,6 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
             variant: 'success',
             title: 'Success adding group',
             dismissDelay: 8000,
-            dismissable: false,
             description: 'The group was added successfully.',
           })
         );

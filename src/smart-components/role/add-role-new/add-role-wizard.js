@@ -74,7 +74,6 @@ const AddRoleWizard = ({ pagination, filters }) => {
           variant: 'warning',
           title: 'Creating role was canceled by the user',
           dismissDelay: 8000,
-          dismissable: false,
         })
       );
     }
