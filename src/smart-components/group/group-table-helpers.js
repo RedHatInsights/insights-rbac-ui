@@ -59,6 +59,7 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
                 <DefaultPlatformPopover
                   id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
                   uuid={uuid}
+                  key={`${uuid}-popover`}
                   bodyContent={`This group contains the roles that all ${
                     isAdminDefault ? 'org admin users' : 'users in your organization'
                   } inherit by default.`}

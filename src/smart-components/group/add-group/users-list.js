@@ -237,7 +237,7 @@ UsersList.propTypes = {
   setSelectedUsers: PropTypes.func.isRequired,
   selectedUsers: PropTypes.array,
   pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
+    limit: PropTypes.number,
     offset: PropTypes.number,
     count: PropTypes.number,
   }),
