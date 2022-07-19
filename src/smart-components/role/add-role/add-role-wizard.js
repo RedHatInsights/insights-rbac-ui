@@ -14,13 +14,13 @@ import { WarningModal } from '../../common/warningModal';
 import '../../common/hideWizard.scss';
 
 const AddRoleWizard = ({ addNotification, createRole, history: { push }, pagination }) => {
-  const [formData, setValues] = useState({});
+  const [formData, setFormData] = useState({});
   const [isRoleFormValid, setIsRoleFormValid] = useState(false);
   const [isPermissionFormValid, setIsPermissionFormValid] = useState(false);
   const [stepIdReached, setStepIdReached] = useState(1);
 
   const handleChange = (data) => {
-    setValues({ ...formData, ...data });
+    setFormData({ ...formData, ...data });
   };
 
   const handleRoleChange = (data, isValid) => {

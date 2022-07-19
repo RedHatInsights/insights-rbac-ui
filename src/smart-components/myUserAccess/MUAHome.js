@@ -16,7 +16,7 @@ const MyUserAccess = () => {
   const [user, setUser] = useState({});
   let { bundle } = useSearchParams('bundle');
   const [bundleParam, setBundleParam] = useState(bundle);
-  const userAccessAdministrator = useContext(PermissionsContext);
+  const { userAccessAdministrator } = useContext(PermissionsContext);
   useEffect(() => {
     insights.chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
   }, []);

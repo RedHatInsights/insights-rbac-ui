@@ -305,16 +305,7 @@ Toolbar.propTypes = {
     count: PropTypes.number,
   }),
   sortBy: PropTypes.string,
-  filterItems: PropTypes.arrayOf(
-    PropTypes.shape({
-      id: PropTypes.string,
-      label: PropTypes.element,
-      value: PropTypes.string,
-      type: PropTypes.string.isRequired,
-      filterValues: PropTypes.object,
-      placeholder: PropTypes.string,
-    })
-  ),
+  filterItems: PropTypes.arrayOf(PropTypes.object),
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
   fetchData: PropTypes.func,
