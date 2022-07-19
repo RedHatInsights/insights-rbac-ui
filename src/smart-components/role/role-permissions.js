@@ -304,6 +304,7 @@ const Permissions = () => {
             ],
           },
         ]}
+        tableId="role-permissions"
       />
     </section>
   );

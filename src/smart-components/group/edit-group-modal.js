@@ -141,9 +141,7 @@ EditGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  filters: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
+  filters: PropTypes.object.isRequired,
   cancelRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({

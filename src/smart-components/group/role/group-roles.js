@@ -323,7 +323,7 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, systemGroup } }) => {
     isPlatformDefault: selectedGroup.platform_default,
     isAdminDefault: selectedGroup.admin_default,
     isChanged: !selectedGroup.system,
-    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || selectedGroup.admin_default,
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default,
     systemGroupUuid: systemGroup?.uuid,
   };
 };
