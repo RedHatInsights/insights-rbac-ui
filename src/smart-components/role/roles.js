@@ -1,4 +1,5 @@
 import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
+import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -15,11 +16,12 @@ import paths from '../../utilities/pathnames';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
+import PermissionsContext from '../../utilities/permissions-context';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import messages from '../../Messages';
 import './roles.scss';
-import PermissionsContext from '../../utilities/permissions-context';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -39,6 +41,7 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 });
 
 const Roles = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const { push } = useHistory();
   const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
@@ -143,7 +146,8 @@ const Roles = () => {
     <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title="Roles" />
+          <TopToolbarTitle title={intl.formatMessage(messages.actions)} />
+          {intl.formatMessage(messages.default)}
         </TopToolbar>
       </StackItem>
       <StackItem>

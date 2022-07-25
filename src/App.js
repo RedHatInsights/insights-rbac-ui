@@ -5,7 +5,6 @@ import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
 import Main from '@redhat-cloud-services/frontend-components/Main';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
-import { IntlProvider } from 'react-intl';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 import PermissionsContext from './utilities/permissions-context';
 import { updateGroupsFilters } from './redux/actions/group-actions';
@@ -61,15 +60,13 @@ const App = () => {
   }
 
   return (
-    <IntlProvider locale="en">
-      <PermissionsContext.Provider value={{ ...userData }}>
-        <ErroReducerCatcher>
-          <Main style={{ marginLeft: 0, padding: 0 }}>
-            <Routes />
-          </Main>
-        </ErroReducerCatcher>
-      </PermissionsContext.Provider>
-    </IntlProvider>
+    <PermissionsContext.Provider value={{ ...userData }}>
+      <ErroReducerCatcher>
+        <Main style={{ marginLeft: 0, padding: 0 }}>
+          <Routes />
+        </Main>
+      </ErroReducerCatcher>
+    </PermissionsContext.Provider>
   );
 };
 
