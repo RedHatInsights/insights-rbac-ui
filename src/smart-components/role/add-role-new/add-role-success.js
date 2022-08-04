@@ -6,7 +6,7 @@ import { AddRoleWizardContext } from './add-role-wizard';
 import PropTypes from 'prop-types';
 
 const AddRoleSuccess = ({ onClose }) => {
-  const { setHideForm } = useContext(AddRoleWizardContext);
+  const { setHideForm, setWizardSuccess } = useContext(AddRoleWizardContext);
   return (
     <EmptyState variant={EmptyStateVariant.large}>
       <EmptyStateIcon color="green" icon={CheckCircleIcon} />
@@ -21,6 +21,7 @@ const AddRoleSuccess = ({ onClose }) => {
         <Button
           onClick={() => {
             setHideForm(false);
+            setWizardSuccess(false);
           }}
           variant="link"
         >

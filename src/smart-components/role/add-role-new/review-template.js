@@ -43,7 +43,7 @@ const ReviewTemplate = ({ formFields }) => {
       <TextContent className="pf-u-mb-md">
         <Text>Review and confirm the details for your role, or click Back to revise.</Text>
       </TextContent>
-      {[[{ ...formFields?.[0]?.[0] }]]}
+      {formFields?.[0]?.[0]}
     </div>
   );
 };
