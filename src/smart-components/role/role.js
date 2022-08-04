@@ -22,7 +22,7 @@ import './role.scss';
 const Role = ({ onDelete }) => {
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [isOCMSystem, setIsOCMSystem] = useState(false);
+  const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { uuid, groupUuid } = useParams();
   const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
@@ -78,7 +78,7 @@ const Role = ({ onDelete }) => {
 
   useEffect(() => {
     if (role?.accessCount === 0 && role?.external_tenant !== '' && role?.external_role_id !== '' && role?.system) {
-      setIsOCMSystem(true);
+      setIsNonPermissionAddingRole(true);
     }
   }, [role]);
 
@@ -167,7 +167,7 @@ const Role = ({ onDelete }) => {
               </TextContent>
             )}
           </TopToolbar>
-          {isRecordLoading || !role ? <ListLoader /> : <Permissions isOCM={isOCMSystem} />}
+          {isRecordLoading || !role ? <ListLoader /> : <Permissions canAddPermissions={isNonPermissionAddingRole} />}
           <Route path={pathnames['role-detail-remove'].path}>
             {!isRecordLoading && (
               <RemoveRoleModal

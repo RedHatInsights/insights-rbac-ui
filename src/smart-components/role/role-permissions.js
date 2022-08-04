@@ -53,7 +53,7 @@ const removeModalText = (permissions, role, plural) =>
     </p>
   );
 
-const Permissions = (isOCM) => {
+const Permissions = (canAddPermissions) => {
   const { role, isRecordLoading } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
@@ -75,7 +75,9 @@ const Permissions = (isOCM) => {
   const setCheckedItems = (newSelection) => {
     internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
   };
-  const emptyPropsDescription = isOCM ? [''] : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
+  const emptyPropsDescription = canAddPermissions
+    ? ['']
+    : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
 
   useEffect(() => {
     if (Object.keys(role).length > 0) {
@@ -137,7 +139,7 @@ const Permissions = (isOCM) => {
   ];
 
   const toolbarButtons = () =>
-    !isOCM
+    !canAddPermissions
       ? [
           <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
