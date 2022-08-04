@@ -167,7 +167,7 @@ const Role = ({ onDelete }) => {
               </TextContent>
             )}
           </TopToolbar>
-          {isRecordLoading || !role ? <ListLoader /> : <Permissions canAddPermissions={isNonPermissionAddingRole} />}
+          {isRecordLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
           <Route path={pathnames['role-detail-remove'].path}>
             {!isRecordLoading && (
               <RemoveRoleModal

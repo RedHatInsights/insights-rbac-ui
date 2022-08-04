@@ -53,7 +53,7 @@ const removeModalText = (permissions, role, plural) =>
     </p>
   );
 
-const Permissions = (canAddPermissions) => {
+const Permissions = (cantAddPermissions) => {
   const { role, isRecordLoading } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
@@ -75,7 +75,7 @@ const Permissions = (canAddPermissions) => {
   const setCheckedItems = (newSelection) => {
     internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
   };
-  const emptyPropsDescription = canAddPermissions
+  const emptyPropsDescription = cantAddPermissions
     ? ['']
     : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
 
@@ -139,8 +139,9 @@ const Permissions = (canAddPermissions) => {
   ];
 
   const toolbarButtons = () =>
-    !canAddPermissions
-      ? [
+    cantAddPermissions
+      ? []
+      : [
           <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
               Add permissions
@@ -177,8 +178,7 @@ const Permissions = (canAddPermissions) => {
               });
             },
           },
-        ]
-      : [];
+        ];
 
   const routes = () => (
     <Route exact path={paths['role-add-permission'].path}>
