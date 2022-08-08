@@ -53,7 +53,7 @@ const removeModalText = (permissions, role, plural) =>
     </p>
   );
 
-const Permissions = () => {
+const Permissions = (cantAddPermissions) => {
   const { role, isRecordLoading } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
@@ -75,6 +75,9 @@ const Permissions = () => {
   const setCheckedItems = (newSelection) => {
     internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
   };
+  const emptyPropsDescription = cantAddPermissions
+    ? ['']
+    : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
 
   useEffect(() => {
     if (Object.keys(role).length > 0) {
@@ -135,44 +138,47 @@ const Permissions = () => {
     },
   ];
 
-  const toolbarButtons = () => [
-    <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
-      <Button variant="primary" aria-label="Add Permission">
-        Add permissions
-      </Button>
-    </Link>,
-    {
-      label: 'Add Permission',
-      props: {
-        className: 'rbac-m-hide-on-md',
-      },
-      onClick: () => {
-        history.push(`/roles/detail/${role.uuid}/role-add-permission`);
-      },
-    },
-    {
-      label: 'Remove',
-      props: {
-        isDisabled: !selectedPermissions.length > 0,
-      },
-      onClick: () => {
-        const multiplePermissionsSelected = selectedPermissions.length > 1;
-        internalDispatch({
-          type: INITIATE_REMOVE_PERMISSION,
-          confirmDelete: () => removePermissions([...selectedPermissions]),
-          deleteInfo: {
-            title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
-            text: removeModalText(
-              multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
-              role,
-              selectedPermissions.length > 1
-            ),
-            confirmButtonLabel: multiplePermissionsSelected ? 'Remove permissions' : 'Remove permission',
+  const toolbarButtons = () =>
+    cantAddPermissions
+      ? []
+      : [
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
+            <Button variant="primary" aria-label="Add Permission">
+              Add permissions
+            </Button>
+          </Link>,
+          {
+            label: 'Add Permission',
+            props: {
+              className: 'rbac-m-hide-on-md',
+            },
+            onClick: () => {
+              history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+            },
           },
-        });
-      },
-    },
-  ];
+          {
+            label: 'Remove',
+            props: {
+              isDisabled: !selectedPermissions.length > 0,
+            },
+            onClick: () => {
+              const multiplePermissionsSelected = selectedPermissions.length > 1;
+              internalDispatch({
+                type: INITIATE_REMOVE_PERMISSION,
+                confirmDelete: () => removePermissions([...selectedPermissions]),
+                deleteInfo: {
+                  title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
+                  text: removeModalText(
+                    multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
+                    role,
+                    selectedPermissions.length > 1
+                  ),
+                  confirmButtonLabel: multiplePermissionsSelected ? 'Remove permissions' : 'Remove permission',
+                },
+              });
+            },
+          },
+        ];
 
   const routes = () => (
     <Route exact path={paths['role-add-permission'].path}>
@@ -258,7 +264,7 @@ const Permissions = () => {
         routes={routes}
         emptyProps={{
           title: 'There are no permissions in this role',
-          description: ['To configure user access to applications,', 'add at least one permission to this role.', ''],
+          description: emptyPropsDescription,
         }}
         filters={[
           {
