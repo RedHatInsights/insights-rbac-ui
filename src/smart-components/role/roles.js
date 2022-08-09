@@ -35,7 +35,7 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 const Roles = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
+  const { roles, filters, meta, isLoading } = useSelector(selector, shallowEqual);
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   const history = useHistory();
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
@@ -82,7 +82,7 @@ const Roles = () => {
   const routes = () => (
     <Suspense fallback={<Fragment />}>
       <Route exact path={paths['add-role'].path}>
-        <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
+        <AddRoleWizard pagination={pagination} orderBy={orderBy} filters={{ display_name: filterValue }} />
       </Route>
       <Route exact path={paths['remove-role'].path}>
         {!isLoading && (

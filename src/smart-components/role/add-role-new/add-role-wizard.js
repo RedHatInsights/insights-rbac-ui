@@ -46,7 +46,7 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard = ({ pagination, filters }) => {
+const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const { push } = useHistory();
@@ -139,11 +139,11 @@ const AddRoleWizard = ({ pagination, filters }) => {
     return dispatch(createRole(roleData))
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, filters, inModal: false }));
       })
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, inModal: false }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, filters, inModal: false }));
         onClose();
       });
   };
@@ -212,6 +212,7 @@ AddRoleWizard.propTypes = {
   filters: PropTypes.shape({
     name: PropTypes.string,
   }).isRequired,
+  orderBy: PropTypes.string,
 };
 
 export default AddRoleWizard;

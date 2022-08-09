@@ -174,7 +174,7 @@ export const TableToolbarView = ({
             ouiaId={ouiaId}
             onSort={
               testRoles
-                ? onSort
+                ? (e, index, direction, isSelectable) => onSort(e, index, direction, isSelectable)
                 : (e, index, direction) => {
                     const sortByIndex = isSelectable ? index - 1 : index;
                     const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
