@@ -11,7 +11,7 @@ import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const createRows = (data, expanded, checkedRows = []) => {
+const createRows = (data, checkedRows = []) => {
   return data
     ? data.reduce(
         (acc, { uuid, display_name, name, description }) => [
@@ -35,22 +35,23 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
     { title: intl.formatMessage(messages.description) },
   ]);
 
-  useEffect(() => {
-    fetchRoles({ orderBy: 'display_name' });
-  }, []);
-
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
       return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
     });
   };
 
+  const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
+
+  const rows = createRows(roles, selectedRoles);
+
   return (
     <TableToolbarView
-      columns={columns}
       isSelectable
       isCompact
       borders={false}
+      columns={columns}
+      rowsTesting={rows}
       createRows={createRows}
       data={roles}
       filterValue={filterValue}
@@ -65,6 +66,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
       titleSingular={intl.formatMessage(messages.role)}
       tableId="roles-list"
+      testRoles={true}
     />
   );
 };

@@ -15,6 +15,7 @@ import './table-toolbar-view.scss';
 export const TableToolbarView = ({
   isCompact,
   createRows,
+  rowsTesting,
   borders,
   columns,
   toolbarButtons,
@@ -54,9 +55,20 @@ export const TableToolbarView = ({
   ouiaId,
   tableId,
   containerRef,
+  testRoles,
+  onSort,
 }) => {
   const intl = useIntl();
   const [opened, openRow] = useState({});
+
+  let rows;
+
+  if (testRoles == true) {
+    // debugger
+    rows = rowsTesting;
+  } else {
+    rows = createRows(data, checkedRows);
+  }
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
   useEffect(() => {
     setSortByState({
@@ -64,8 +76,6 @@ export const TableToolbarView = ({
       ...(sortByState.index !== undefined && sortByState),
     });
   }, [sortBy]);
-
-  const rows = createRows(data, opened, checkedRows);
 
   const onCollapse = (_event, _index, isOpen, { uuid }) =>
     openRow((opened) => ({
@@ -112,14 +122,6 @@ export const TableToolbarView = ({
   });
 
   const renderTable = () => {
-    const selectColumnOffset = isSelectable && data?.length > 0;
-    const sortByIndex = Math.min((sortByState?.index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
-    const sortBy =
-      (sortByState.index !== undefined &&
-        sortByIndex >= 0 &&
-        sortByIndex < columns.length &&
-        `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
-      undefined;
     return (
       <Fragment>
         <Toolbar
@@ -168,32 +170,36 @@ export const TableToolbarView = ({
             className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
             areActionsDisabled={areActionsDisabled}
             rowWrapper={rowWrapper}
-            sortBy={sortByState}
+            sortBy={sortBy}
             ouiaId={ouiaId}
-            onSort={(e, index, direction) => {
-              const sortByIndex = Math.min((index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
-              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
-              setSortByState({ index, direction });
-              filters && filters.length > 0
-                ? fetchData({
-                    ...pagination,
-                    offset: 0,
-                    ...filters.reduce(
-                      (acc, curr) => ({
-                        ...acc,
-                        [curr.key]: curr.value,
-                      }),
-                      {}
-                    ),
-                    orderBy,
-                  })
-                : fetchData({
-                    ...pagination,
-                    offset: 0,
-                    name: filterValue,
-                    orderBy,
-                  });
-            }}
+            onSort={
+              testRoles
+                ? onSort
+                : (e, index, direction) => {
+                    const sortByIndex = isSelectable ? index - 1 : index;
+                    const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
+                    setSortByState({ sortByIndex, direction });
+                    filters && filters.length > 0
+                      ? fetchData({
+                          ...pagination,
+                          offset: 0,
+                          ...filters.reduce(
+                            (acc, curr) => ({
+                              ...acc,
+                              [curr.key]: curr.value,
+                            }),
+                            {}
+                          ),
+                          orderBy,
+                        })
+                      : fetchData({
+                          ...pagination,
+                          offset: 0,
+                          name: filterValue,
+                          orderBy,
+                        });
+                  }
+            }
           >
             {!hideHeader && <TableHeader />}
             <TableBody />
@@ -240,7 +246,7 @@ TableToolbarView.propTypes = {
   borders: propTypes.bool,
   emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
-  createRows: propTypes.func.isRequired,
+  createRows: propTypes.func,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
   routes: propTypes.func,
