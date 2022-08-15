@@ -8,7 +8,7 @@ import { createRows } from './role-table-helpers';
 import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewForRoles } from '../../presentational-components/shared/table-toolbar-view-for-roles';
 import RemoveRole from './remove-role-modal';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import Role from './role';
@@ -39,11 +39,9 @@ const Roles = () => {
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   const history = useHistory();
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
-
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const screenSize = useScreenSize();
-
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
     { title: intl.formatMessage(messages.description) },
@@ -159,12 +157,11 @@ const Roles = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id={'tab-roles'}>
-          <TableToolbarView
+          <TableToolbarViewForRoles
             actionResolver={actionResolver}
             sortBy={sortByState}
             columns={columns}
-            rowsTesting={rows}
-            createRows={createRows}
+            rows={rows}
             data={roles}
             filterValue={filterValue}
             fetchData={(config) => {
@@ -187,12 +184,25 @@ const Roles = () => {
             onSort={(e, index, direction) => {
               const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
               setSortByState({ index, direction });
-              fetchTableData({
-                ...pagination,
-                offset: 0,
-                name: filterValue,
-                orderBy,
-              });
+              filters && filters.length > 0
+                ? fetchTableData({
+                    ...pagination,
+                    offset: 0,
+                    ...filters.reduce(
+                      (acc, curr) => ({
+                        ...acc,
+                        [curr.key]: curr.value,
+                      }),
+                      {}
+                    ),
+                    orderBy,
+                  })
+                : fetchTableData({
+                    ...pagination,
+                    offset: 0,
+                    name: filterValue,
+                    orderBy,
+                  });
             }}
           />
         </Section>
