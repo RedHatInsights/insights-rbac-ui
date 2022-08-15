@@ -1,5 +1,7 @@
-import React, { Fragment, useState } from 'react';
+import React, { Fragment, useState, useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
+import messages from '../../Messages';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
@@ -10,11 +12,11 @@ import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 
-export const TableToolbarViewForRoles = ({
+export const TableToolbarViewOld = ({
   isCompact,
+  createRows,
   borders,
   columns,
-  rows,
   toolbarButtons,
   data,
   actionResolver,
@@ -52,10 +54,19 @@ export const TableToolbarViewForRoles = ({
   ouiaId,
   tableId,
   containerRef,
-  onSort,
 }) => {
-  // eslint-disable-next-line no-unused-vars
+  const intl = useIntl();
   const [opened, openRow] = useState({});
+  const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
+  useEffect(() => {
+    setSortByState({
+      ...sortBy,
+      ...(sortByState.index !== undefined && sortByState),
+    });
+  }, [sortBy]);
+
+  const rows = createRows(data, opened, checkedRows);
+
   const onCollapse = (_event, _index, isOpen, { uuid }) =>
     openRow((opened) => ({
       ...opened,
@@ -65,9 +76,11 @@ export const TableToolbarViewForRoles = ({
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
-        title={`No matching ${titlePlural} found`}
+        title={intl.formatMessage(messages.noMatchingItemsFound, { items: titlePlural })}
         description={
-          noData && noDataDescription ? noDataDescription : [`This filter criteria matches no ${titlePlural}.`, `Try changing your filter settings.`]
+          noData && noDataDescription
+            ? noDataDescription
+            : [intl.formatMessage(messages.filterMatchesNoItems, { items: titlePlural }), intl.formatMessage(messages.tryChangingFilters)]
         }
         actions={
           noData && noDataDescription
@@ -86,7 +99,7 @@ export const TableToolbarViewForRoles = ({
                       });
                     }}
                   >
-                    Clear all filters
+                    {intl.formatMessage(messages.clearAllFilters)}
                   </Button>
                 </EmptyStatePrimary>,
               ]
@@ -99,7 +112,14 @@ export const TableToolbarViewForRoles = ({
   });
 
   const renderTable = () => {
-    const orderBy = `${sortBy?.direction === 'desc' ? '-' : ''}${columns[sortBy?.index]?.key}`;
+    const selectColumnOffset = isSelectable && data?.length > 0;
+    const sortByIndex = Math.min((sortByState?.index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
+    const sortBy =
+      (sortByState.index !== undefined &&
+        sortByIndex >= 0 &&
+        sortByIndex < columns.length &&
+        `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
+      undefined;
     return (
       <Fragment>
         <Toolbar
@@ -111,7 +131,7 @@ export const TableToolbarViewForRoles = ({
           titleSingular={titleSingular}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortBy={orderBy}
+          sortBy={sortBy}
           pagination={pagination}
           fetchData={fetchData}
           toolbarButtons={toolbarButtons}
@@ -132,7 +152,7 @@ export const TableToolbarViewForRoles = ({
         ) : (
           <Table
             canSelectAll={false}
-            aria-label={`${titlePlural} table`}
+            aria-label={`${titlePlural.toLowerCase()} table`}
             variant={isCompact ? TableVariant.compact : null}
             borders={borders}
             {...(isCollapsible && { onCollapse })}
@@ -148,9 +168,32 @@ export const TableToolbarViewForRoles = ({
             className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
             areActionsDisabled={areActionsDisabled}
             rowWrapper={rowWrapper}
-            sortBy={sortBy}
+            sortBy={sortByState}
             ouiaId={ouiaId}
-            onSort={(e, index, direction, isSelectable) => onSort(e, index, direction, isSelectable)}
+            onSort={(e, index, direction) => {
+              const sortByIndex = Math.min((index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
+              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
+              setSortByState({ index, direction });
+              filters && filters.length > 0
+                ? fetchData({
+                    ...pagination,
+                    offset: 0,
+                    ...filters.reduce(
+                      (acc, curr) => ({
+                        ...acc,
+                        [curr.key]: curr.value,
+                      }),
+                      {}
+                    ),
+                    orderBy,
+                  })
+                : fetchData({
+                    ...pagination,
+                    offset: 0,
+                    name: filterValue,
+                    orderBy,
+                  });
+            }}
           >
             {!hideHeader && <TableHeader />}
             <TableBody />
@@ -170,9 +213,12 @@ export const TableToolbarViewForRoles = ({
       {routes()}
       {!isLoading && rows.length === 0 && filterValue.length === 0 && filters.every(({ value }) => !value) ? (
         <EmptyWithAction
-          title={`Configure ${titlePlural}`}
+          title={intl.formatMessage(messages.configureItems, { items: titlePlural })}
           icon={PlusCircleIcon}
-          description={[`To configure user access to applications`, `create at least one ${titleSingular}`]}
+          description={[
+            intl.formatMessage(messages.toConfigureUserAccess),
+            intl.formatMessage(messages.createAtLeastOneItem, { item: titleSingular }),
+          ]}
           actions={toolbarButtons()[0]}
           {...emptyProps}
         />
@@ -183,7 +229,7 @@ export const TableToolbarViewForRoles = ({
   );
 };
 
-TableToolbarViewForRoles.propTypes = {
+TableToolbarViewOld.propTypes = {
   ...Toolbar.propTypes,
   sortBy: propTypes.shape({
     directions: propTypes.string,
@@ -194,7 +240,7 @@ TableToolbarViewForRoles.propTypes = {
   borders: propTypes.bool,
   emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
-  createRows: propTypes.func,
+  createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
   routes: propTypes.func,
@@ -212,7 +258,7 @@ TableToolbarViewForRoles.propTypes = {
   tableId: propTypes.string.isRequired,
 };
 
-TableToolbarViewForRoles.defaultProps = {
+TableToolbarViewOld.defaultProps = {
   ...Toolbar.defaultProps,
   emptyFilters: {},
   isCompact: false,

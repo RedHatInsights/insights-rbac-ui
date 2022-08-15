@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Radio, Alert } from '@patternfly/react-core';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
@@ -73,7 +73,7 @@ const BaseRoleTable = (props) => {
   return (
     <div>
       <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} />
-      <TableToolbarView
+      <TableToolbarViewOld
         columns={columns}
         createRows={createRows}
         data={roles}

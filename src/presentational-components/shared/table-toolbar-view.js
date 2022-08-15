@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
 import messages from '../../Messages';
@@ -14,9 +14,9 @@ import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
   isCompact,
-  createRows,
   borders,
   columns,
+  rows,
   toolbarButtons,
   data,
   actionResolver,
@@ -33,7 +33,6 @@ export const TableToolbarView = ({
   isSelectable,
   fetchData,
   setCheckedItems,
-  isCollapsible,
   emptyProps,
   filterPlaceholder,
   rowWrapper,
@@ -54,25 +53,9 @@ export const TableToolbarView = ({
   ouiaId,
   tableId,
   containerRef,
+  onSort,
 }) => {
   const intl = useIntl();
-  const [opened, openRow] = useState({});
-  const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
-  useEffect(() => {
-    setSortByState({
-      ...sortBy,
-      ...(sortByState.index !== undefined && sortByState),
-    });
-  }, [sortBy]);
-
-  const rows = createRows(data, opened, checkedRows);
-
-  const onCollapse = (_event, _index, isOpen, { uuid }) =>
-    openRow((opened) => ({
-      ...opened,
-      [uuid]: isOpen,
-    }));
-
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
@@ -107,19 +90,12 @@ export const TableToolbarView = ({
       />
     ),
     props: {
-      colSpan: columns.length + Boolean(onCollapse),
+      colSpan: columns.length,
     },
   });
 
   const renderTable = () => {
-    const selectColumnOffset = isSelectable && data?.length > 0;
-    const sortByIndex = Math.min((sortByState?.index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
-    const sortBy =
-      (sortByState.index !== undefined &&
-        sortByIndex >= 0 &&
-        sortByIndex < columns.length &&
-        `${sortByState.direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`) ||
-      undefined;
+    const orderBy = `${sortBy?.direction === 'desc' ? '-' : ''}${columns[sortBy?.index]?.key}`;
     return (
       <Fragment>
         <Toolbar
@@ -131,7 +107,7 @@ export const TableToolbarView = ({
           titleSingular={titleSingular}
           filterValue={filterValue}
           setFilterValue={setFilterValue}
-          sortBy={sortBy}
+          sortBy={orderBy}
           pagination={pagination}
           fetchData={fetchData}
           toolbarButtons={toolbarButtons}
@@ -155,7 +131,6 @@ export const TableToolbarView = ({
             aria-label={`${titlePlural.toLowerCase()} table`}
             variant={isCompact ? TableVariant.compact : null}
             borders={borders}
-            {...(isCollapsible && { onCollapse })}
             {...(isSelectable &&
               rows.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
@@ -168,32 +143,9 @@ export const TableToolbarView = ({
             className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
             areActionsDisabled={areActionsDisabled}
             rowWrapper={rowWrapper}
-            sortBy={sortByState}
+            sortBy={sortBy}
             ouiaId={ouiaId}
-            onSort={(e, index, direction) => {
-              const sortByIndex = Math.min((index || selectColumnOffset) - selectColumnOffset, columns?.length - 1);
-              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[sortByIndex].key}`;
-              setSortByState({ index, direction });
-              filters && filters.length > 0
-                ? fetchData({
-                    ...pagination,
-                    offset: 0,
-                    ...filters.reduce(
-                      (acc, curr) => ({
-                        ...acc,
-                        [curr.key]: curr.value,
-                      }),
-                      {}
-                    ),
-                    orderBy,
-                  })
-                : fetchData({
-                    ...pagination,
-                    offset: 0,
-                    name: filterValue,
-                    orderBy,
-                  });
-            }}
+            onSort={(e, index, direction, isSelectable) => onSort(e, index, direction, isSelectable)}
           >
             {!hideHeader && <TableHeader />}
             <TableBody />
@@ -240,7 +192,6 @@ TableToolbarView.propTypes = {
   borders: propTypes.bool,
   emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
-  createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
   titlePlural: propTypes.string,
   routes: propTypes.func,

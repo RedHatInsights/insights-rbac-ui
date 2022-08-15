@@ -7,7 +7,7 @@ import { Button, Tooltip } from '@patternfly/react-core';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import {
   removeRolesFromGroup,
   addRolesToGroup,
@@ -284,7 +284,7 @@ const GroupRoles = ({
       />
 
       <Section type="content" id={'tab-roles'}>
-        <TableToolbarView
+        <TableToolbarViewOld
           columns={columns}
           isSelectable={hasPermissions.current && !isAdminDefault}
           createRows={(...props) => createRows(uuid, ...props)}

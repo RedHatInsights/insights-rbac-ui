@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import {
   createRows,
   INITIALIZE_ROLE,
@@ -239,7 +239,7 @@ const Permissions = ({ cantAddPermissions }) => {
           }}
         />
       )}
-      <TableToolbarView
+      <TableToolbarViewOld
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
         actionResolver={role.system ? undefined : actionResolver}

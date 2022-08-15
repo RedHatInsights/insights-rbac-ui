@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormGroup, Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
-import { RolesList } from './roles-list';
+import RolesList from './roles-list';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import '../../../App.scss';

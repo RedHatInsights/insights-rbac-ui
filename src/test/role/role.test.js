@@ -346,7 +346,7 @@ describe('role', () => {
     expect(wrapper.find(RemoveModal)).toHaveLength(0);
   });
 
-  it('should chould check permission and remove it', async () => {
+  it('should check permission and remove it', async () => {
     getRoleAccessSpy.mockResolvedValueOnce({ payload: { data: [] } });
     updateRoleSpy.mockResolvedValueOnce({ payload: {} });
     /**Two fetch role API calls */

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
-import { RolesList } from '../add-group/roles-list';
+import RolesList from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';

@@ -1,9 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import PropTypes from 'prop-types';
+import { defaultSettings, defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { TableToolbarViewForRoles } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 import { useIntl } from 'react-intl';
@@ -25,24 +26,34 @@ const createRows = (data, checkedRows = []) => {
     : [];
 };
 
-export const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
+const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const selector = ({ roleReducer: { roles, isLoading }, groupReducer: { selectedGroup } }) => ({
-    roles: rolesExcluded ? selectedGroup.addRoles.roles : roles.data,
-    pagination: rolesExcluded ? selectedGroup.addRoles.pagination || { ...defaultSettings, count: roles && roles.length } : roles.meta,
-    isLoading: rolesExcluded ? !selectedGroup.addRoles.loaded : isLoading,
+  const selector = ({ roleReducer: { roles, isLoading } }) => ({
+    roles: roles.data,
+    pagination: roles.meta,
+    isLoading: isLoading,
     filters: roles.filters,
-    groupId: selectedGroup.uuid,
   });
+  const selectorRolesExluded = ({
+    groupReducer: {
+      selectedGroup: { addRoles, uuid },
+    },
+  }) => ({
+    roles: addRoles.roles,
+    pagination: addRoles.pagination || { ...defaultSettings, count: roles && roles.length },
+    isLoading: !addRoles.loaded,
+    groupId: uuid,
+  });
+  const { roles, pagination, isLoading, groupId, filters } = useSelector(rolesExcluded ? selectorRolesExluded : selector, shallowEqual);
+
   const { current: columns } = useRef([
-    { title: intl.formatMessage(messages.name), key: 'display_name', ...(!rolesExcluded ? { transforms: [sortable] } : { orderBy: 'name' }) },
+    { title: intl.formatMessage(messages.name), key: 'display_name', ...(rolesExcluded ? { orderBy: 'name' } : { transforms: [sortable] }) },
     { title: intl.formatMessage(messages.description) },
   ]);
-  const { roles, pagination, isLoading, groupId, filters } = useSelector(selector, shallowEqual);
-  const fetchRoles = (config) => dispatch(fetchRolesWithPolicies(mappedProps(config)));
-  const fetchRolesForGroup = (groupId, config) => dispatch(fetchAddRolesForGroup(groupId, config));
+
   const [filterValue, setFilterValue] = useState('');
+  const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
 
   const setCheckedItems = (newSelection) => {
     setSelectedRoles((roles) => {
@@ -50,20 +61,23 @@ export const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) =>
     });
   };
 
-  const fetchTableData = (config) => {
+  const fetchRoles = useCallback(
+    (groupId, config) => (rolesExcluded ? dispatch(fetchAddRolesForGroup(groupId, config)) : dispatch(fetchRolesWithPolicies(mappedProps(config)))),
+    [rolesExcluded]
+  );
+  const fetchTableData = (groupId, config) => {
     const { name, count, limit, offset, orderBy } = config;
-    return fetchRoles(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
+    return fetchRoles(groupId, mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
   };
-  const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
   const rows = createRows(roles, selectedRoles);
 
   useEffect(() => {
-    fetchRoles({ ...pagination, orderBy });
+    fetchRoles(groupId, { ...pagination, orderBy });
   }, []);
 
   return (
-    <TableToolbarViewForRoles
+    <TableToolbarView
       isSelectable
       isCompact
       borders={false}
@@ -73,34 +87,27 @@ export const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) =>
       onSort={(e, index, direction, isSelectable) => {
         const orderBy = `${direction === 'desc' ? '-' : ''}${columns[isSelectable ? index - 1 : index].key}`;
         setSortByState({ index, direction });
-        filters && filters.length > 0
-          ? fetchTableData({
-              ...pagination,
-              offset: 0,
-              ...filters.reduce(
-                (acc, curr) => ({
-                  ...acc,
-                  [curr.key]: curr.value,
-                }),
-                {}
-              ),
-              orderBy,
-            })
-          : fetchTableData({
-              ...pagination,
-              offset: 0,
-              name: filterValue,
-              orderBy,
-            });
+        fetchTableData(groupId, {
+          ...pagination,
+          offset: 0,
+          orderBy,
+          ...(filters?.length > 0
+            ? {
+                ...filters.reduce(
+                  (acc, curr) => ({
+                    ...acc,
+                    [curr.key]: curr.value,
+                  }),
+                  {}
+                ),
+              }
+            : { name: filterValue }),
+        });
       }}
       data={roles}
       filterValue={filterValue}
       filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
-      fetchData={
-        rolesExcluded
-          ? (config) => fetchRolesForGroup(groupId, { ...config, filters: { display_name: config.name } })
-          : (config) => fetchRoles({ ...config, filters: { display_name: config.name } })
-      }
+      fetchData={(config) => fetchRoles(groupId, { ...config, filters: { display_name: config.name } })}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
       ouiaId="roles-table"
@@ -110,7 +117,6 @@ export const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) =>
       titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
       titleSingular={intl.formatMessage(messages.role)}
       tableId="roles-list"
-      testRoles={true}
     />
   );
 };
@@ -127,3 +133,5 @@ RolesList.defaultProps = {
   pagination: defaultCompactSettings,
   canSort: true,
 };
+
+export default RolesList;
