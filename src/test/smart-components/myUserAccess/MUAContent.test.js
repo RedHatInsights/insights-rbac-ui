@@ -45,6 +45,6 @@ describe('<MUAContent />', () => {
       );
     });
 
-    expect(wrapper.find(Title).last().text()).toEqual('Your Red Hat Enterprise Linux permissions');
+    expect(wrapper.find(Title).last().text()).toEqual('Your {name} permissions');
   });
 });

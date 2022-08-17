@@ -251,7 +251,7 @@
     "resourceDefinitionsApplyToCost": "Resource definitions only apply to Cost Management permissions",
     "removePermissionQuestion": "Remove permission?",
     "removePermission": "Remove permission",
-    "removePermissionsQuestion": "Remoe permissions?",
+    "removePermissionsQuestion": "Remove permissions?",
     "removePermissions": "Remove permissions",
     "noRolePermissions": "There are no permissions in this role",
     "definedResources": "Defined resources",
