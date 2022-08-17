@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { Button, Form, FormGroup, Stack, StackItem, Text, TextContent, TextInput, TextVariants, Title } from '@patternfly/react-core';
 import ResourceDefinitionsTable from './resource-definitions-table';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const ResourceDefinitions = (formData, handleChange) => {
+  const intl = useIntl();
   // The current resource definition defined in the page
   const [resourceDefinition, setResourceDefinition] = useState({
     key: '',
@@ -76,19 +79,17 @@ const ResourceDefinitions = (formData, handleChange) => {
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h4" size="xl">
-          Resource definitions
+          {intl.formatMessage(messages.resourceDefinitions)}
         </Title>
       </StackItem>
       <StackItem>
         <TextContent>
-          <Text component={TextVariants.h6}>
-            If there needs to be more details on the resources the permission is to be used for, it would be detailed here.
-          </Text>
+          <Text component={TextVariants.h6}>{intl.formatMessage(messages.permissionResourcesDetails)}</Text>
         </TextContent>
       </StackItem>
       <StackItem>
         <Form>
-          <FormGroup label="Key" fieldId="resource-key">
+          <FormGroup label={intl.formatMessage(messages.key)} fieldId="resource-key">
             <TextInput
               aria-describedby="resource-key"
               id="resource-key"
@@ -98,7 +99,7 @@ const ResourceDefinitions = (formData, handleChange) => {
               value={resourceDefinition.key}
             />
           </FormGroup>
-          <FormGroup label="Operation" fieldId="resource-operation">
+          <FormGroup label={intl.formatMessage(messages.operation)} fieldId="resource-operation">
             <TextInput
               aria-describedby="resource-operation"
               id="resource-operation"
@@ -108,7 +109,7 @@ const ResourceDefinitions = (formData, handleChange) => {
               value={resourceDefinition.operation}
             />
           </FormGroup>
-          <FormGroup label="Value" fieldId="resource-value">
+          <FormGroup label={intl.formatMessage(messages.value)} fieldId="resource-value">
             <TextInput
               aria-describedby="resource-value"
               id="resource-value"
@@ -122,7 +123,7 @@ const ResourceDefinitions = (formData, handleChange) => {
       </StackItem>
       <StackItem>
         <Button variant="primary" isDisabled={!isFormValid} onClick={addDefinition}>
-          Add to definitions
+          {intl.formatMessage(messages.addToDefinitions)}
         </Button>
       </StackItem>
       <StackItem>{new ResourceDefinitionsTable(formData, removeDefinition, true)}</StackItem>

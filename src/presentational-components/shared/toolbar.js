@@ -1,6 +1,8 @@
 import React from 'react';
 import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import messages from '../../Messages';
 import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
@@ -35,32 +37,35 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
   },
 });
 
-export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = [], tableId) => ({
-  count: checkedRows.length,
-  items: [
-    {
-      title: 'Select none (0)',
-      onClick: () => {
-        setCheckedItems(() => []);
+export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = [], tableId) => {
+  const intl = useIntl();
+  return {
+    count: checkedRows.length,
+    items: [
+      {
+        title: intl.formatMessage(messages.selectNone),
+        onClick: () => {
+          setCheckedItems(() => []);
+        },
       },
+      {
+        ...(!isLoading && data && data.length > 0
+          ? {
+              title: intl.formatMessage(messages.selectPage, { length: data.length }),
+              onClick: () => {
+                setCheckedItems(selectedRows(data, true));
+              },
+            }
+          : {}),
+      },
+    ],
+    checked: calculateChecked(data, checkedRows),
+    onSelect: (value) => {
+      !isLoading && setCheckedItems(selectedRows(data, value));
     },
-    {
-      ...(!isLoading && data && data.length > 0
-        ? {
-            title: `Select page (${data.length})`,
-            onClick: () => {
-              setCheckedItems(selectedRows(data, true));
-            },
-          }
-        : {}),
-    },
-  ],
-  checked: calculateChecked(data, checkedRows),
-  onSelect: (value) => {
-    !isLoading && setCheckedItems(selectedRows(data, value));
-  },
-  id: tableId,
-});
+    id: tableId,
+  };
+};
 
 export const filterConfigBuilder = (
   isLoading,
@@ -79,82 +84,85 @@ export const filterConfigBuilder = (
   onChange,
   value,
   sortBy
-) => ({
-  onChange,
-  value,
-  items: [
-    ...(filters && filters.length > 0
-      ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items }) => ({
-          label: label || firstUpperCase(key),
-          type,
-          filterValues: {
-            id: `filter-by-${key}`,
-            key: `filter-by-${key}`,
-            placeholder: placeholder ? placeholder : `Filter by ${key}`,
-            value,
-            selected,
-            ...(type !== 'text' ? { isFilterable, onShowMore, showMoreTitle, onFilter } : {}),
-            groups,
-            items,
-            onChange: (_e, filterBy) => {
-              const newFilter =
-                typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[''], (value) => value)) : filterBy;
-              setFilterValue({
-                ...filterValue,
-                ...pagination,
-                offset: 0,
-                [key]: newFilter,
-              });
-              debouncedFetch(() =>
-                fetchData({
-                  ...pagination,
-                  offset: 0,
-                  orderBy: sortBy,
-                  ...filters.reduce(
-                    (acc, curr) => ({
-                      ...acc,
-                      [curr.key]: curr.value,
-                    }),
-                    {}
-                  ),
-                  [key]: newFilter,
-                })
-              );
-            },
-            isDisabled: isLoading,
-          },
-        }))
-      : [
-          {
-            label: firstUpperCase(filterPlaceholder || titleSingular),
-            type: 'text',
+) => {
+  const intl = useIntl();
+  return {
+    onChange,
+    value,
+    items: [
+      ...(filters && filters.length > 0
+        ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items }) => ({
+            label: label || firstUpperCase(key),
+            type,
             filterValues: {
-              id: 'filter-by-string',
-              key: 'filter-by-string',
-              placeholder: `Filter by ${filterPlaceholder || titleSingular}`,
-              value: filterValue,
-              onChange: (_e, value) => {
+              id: `filter-by-${key}`,
+              key: `filter-by-${key}`,
+              placeholder: placeholder ? placeholder : intl.formatMessage(messages.filterByKey, { key }),
+              value,
+              selected,
+              ...(type !== 'text' ? { isFilterable, onShowMore, showMoreTitle, onFilter } : {}),
+              groups,
+              items,
+              onChange: (_e, filterBy) => {
+                const newFilter =
+                  typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[''], (value) => value)) : filterBy;
                 setFilterValue({
+                  ...filterValue,
                   ...pagination,
                   offset: 0,
-                  name: value,
+                  [key]: newFilter,
                 });
                 debouncedFetch(() =>
                   fetchData({
                     ...pagination,
                     offset: 0,
-                    name: value,
                     orderBy: sortBy,
+                    ...filters.reduce(
+                      (acc, curr) => ({
+                        ...acc,
+                        [curr.key]: curr.value,
+                      }),
+                      {}
+                    ),
+                    [key]: newFilter,
                   })
                 );
               },
               isDisabled: isLoading,
             },
-          },
-        ]),
-    ...(filterItems || []),
-  ],
-});
+          }))
+        : [
+            {
+              label: firstUpperCase(filterPlaceholder || titleSingular),
+              type: 'text',
+              filterValues: {
+                id: 'filter-by-string',
+                key: 'filter-by-string',
+                placeholder: intl.formatMessage(messages.filterByKey, { key: filterPlaceholder || titleSingular }),
+                value: filterValue,
+                onChange: (_e, value) => {
+                  setFilterValue({
+                    ...pagination,
+                    offset: 0,
+                    name: value,
+                  });
+                  debouncedFetch(() =>
+                    fetchData({
+                      ...pagination,
+                      offset: 0,
+                      name: value,
+                      orderBy: sortBy,
+                    })
+                  );
+                },
+                isDisabled: isLoading,
+              },
+            },
+          ]),
+      ...(filterItems || []),
+    ],
+  };
+};
 
 export const activeFiltersConfigBuilder = (
   filterValue = '',

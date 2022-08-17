@@ -25,14 +25,6 @@ import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
-const columns = [
-  { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },
-  { title: 'Description' },
-  { title: 'Permissions', transforms: [nowrap] },
-  { title: 'Groups', transforms: [nowrap] },
-  { title: 'Last modified', key: 'modified', transforms: [nowrap, sortable] },
-];
-
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
   filters: roles.filters,
@@ -52,6 +44,14 @@ const Roles = () => {
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const screenSize = useScreenSize();
+
+  const columns = [
+    { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
+    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.permissions), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.groups), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
+  ];
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -111,11 +111,11 @@ const Roles = () => {
       ? []
       : [
           {
-            title: 'Edit',
+            title: intl.formatMessage(messages.edit),
             onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
           },
           {
-            title: 'Delete',
+            title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
           },
         ];
@@ -126,13 +126,13 @@ const Roles = () => {
       ? [
           <Link to={paths['add-role'].path} key="add-role" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-              Create role
+              {intl.formatMessage(messages.createRole)}
             </Button>
           </Link>,
           ...(isSmallScreen(screenSize)
             ? [
                 {
-                  label: 'Create role',
+                  label: intl.formatMessage(messages.createRole),
                   onClick: () => {
                     history.push(paths['add-role'].path);
                   },
@@ -146,8 +146,7 @@ const Roles = () => {
     <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title={intl.formatMessage(messages.actions)} />
-          {intl.formatMessage(messages.default)}
+          <TopToolbarTitle title={intl.formatMessage(messages.roles)} />
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -170,10 +169,10 @@ const Roles = () => {
             pagination={pagination}
             routes={routes}
             ouiaId="roles-table"
-            titlePlural="roles"
-            titleSingular="role"
+            titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+            titleSingular={intl.formatMessage(messages.role).toLowerCase()}
             toolbarButtons={toolbarButtons}
-            filterPlaceholder="name"
+            filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             tableId="roles"
           />
         </Section>

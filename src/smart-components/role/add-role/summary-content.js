@@ -13,37 +13,40 @@ import {
   Title,
 } from '@patternfly/react-core';
 import ResourceDefinitionsTable from './resource-definitions-table';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const SummaryContent = (formData) => {
+  const intl = useIntl();
   const { application = '', description = '', name = '', permission = '', resourceType = '' } = formData;
   return (
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h4" size="xl">
-          Confirm details
+          {intl.formatMessage(messages.confirmDetails)}
         </Title>
       </StackItem>
       <StackItem>
         <Stack hasGutter>
           <StackItem>
             <TextContent>
-              <Text component={TextVariants.h5}>Confirm the details for your source, or click Back to revise</Text>
+              <Text component={TextVariants.h5}>{intl.formatMessage(messages.confirmDetailsDescription)}</Text>
             </TextContent>
           </StackItem>
           <StackItem>
             <TextContent>
               <TextList component={TextListVariants.dl}>
-                <TextListItem component={TextListItemVariants.dt}>Name</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.name)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{name}</TextListItem>
-                <TextListItem component={TextListItemVariants.dt}>Description</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.description)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{description}</TextListItem>
-                <TextListItem component={TextListItemVariants.dt}>Application</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.application)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{application}</TextListItem>
-                <TextListItem component={TextListItemVariants.dt}>Resource type</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.resourceType)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{resourceType}</TextListItem>
-                <TextListItem component={TextListItemVariants.dt}>Operation</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.operation)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{permission}</TextListItem>
-                <TextListItem component={TextListItemVariants.dt}>Resource definition</TextListItem>
+                <TextListItem component={TextListItemVariants.dt}>{intl.formatMessage(messages.resourceDefinition)}</TextListItem>
                 <TextListItem component={TextListItemVariants.dd}>{new ResourceDefinitionsTable(formData)}</TextListItem>
               </TextList>
             </TextContent>

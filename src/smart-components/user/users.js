@@ -10,13 +10,16 @@ import User from './user';
 import paths from '../../utilities/pathnames';
 import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const Users = () => {
+  const intl = useIntl();
   const activeUserPermissions = useContext(PermissionsContext);
 
   const description = (
     <ActiveUser
-      linkDescription="To add new users or manage existing users, go to your"
+      linkDescription={intl.formatMessage(messages.addNewUsersText)}
     />
   );
 
@@ -28,7 +31,7 @@ const Users = () => {
     <StackItem>
       <TopToolbar paddingBottm={ false }>
         <TopToolbarTitle
-          title="Users"
+          title={intl.formatMessage(messages.users)}
           description={ description }
         />
       </TopToolbar>

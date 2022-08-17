@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Chip, ChipGroup, Text, TextContent, Title, Button, Popover, Alert, AlertActionCloseButton } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import './add-role-wizard.scss';
 
 const AddPermissionTemplate = ({ formFields }) => {
@@ -10,6 +12,7 @@ const AddPermissionTemplate = ({ formFields }) => {
   const [selectedPermissions, setSelectedPermissions] = useState(formOptions.getState().values['add-permissions-table'] || []);
   const [alertClosed, setAlertClosed] = useState(false);
   const notAllowedBasePermissions = formOptions.getState().values['not-allowed-permissions'];
+  const intl = useIntl();
 
   const unresolvedSplats =
     formOptions.getState().values?.['copy-base-role']?.applications?.filter((app) => !selectedPermissions?.find(({ uuid }) => uuid.includes(app))) ||
@@ -19,7 +22,7 @@ const AddPermissionTemplate = ({ formFields }) => {
     <div className="rbac">
       {selectedPermissions.length > 0 ? (
         <div className="rbac-c-selected-chips">
-          <ChipGroup categoryName="Selected permissions">
+          <ChipGroup categoryName={intl.formatMessage(messages.selectedPermissions)}>
             {/* immutable reverse */}
             {selectedPermissions
               .reduce((acc, i) => [i, ...acc], [])
@@ -32,18 +35,18 @@ const AddPermissionTemplate = ({ formFields }) => {
         </div>
       ) : null}
       <Title headingLevel="h1" size="xl" className="rbac-c-add-permission-title">
-        Add permissions
+        {intl.formatMessage(messages.addPermissions)}
       </Title>
       <TextContent>
         <Text>
-          Select permissions to add to your role
+          {intl.formatMessage(messages.selectPermissionsForRole)}
           {unresolvedSplats.length !== 0 && (
             <Popover
-              headerContent="Custom roles only support granular permissions"
-              bodyContent="Wildcard permissions (for example, approval:*:*) aren’t included in this table and can’t be added to your custom role."
+              headerContent={intl.formatMessage(messages.onlyGranularPermissions)}
+              bodyContent={intl.formatMessage(messages.noWildcardPermissions)}
             >
               <Button variant="link">
-                Why am I not seeing all of my permissions? <QuestionCircleIcon />
+                {intl.formatMessage(messages.whyNotSeeingAllPermissions)} <QuestionCircleIcon />
               </Button>
             </Popover>
           )}
@@ -53,9 +56,7 @@ const AddPermissionTemplate = ({ formFields }) => {
         <Alert
           variant="default"
           isInline
-          title={`The following permissions can not be added to a custom role and were removed from the copied role: ${notAllowedBasePermissions.join(
-            ', '
-          )}`}
+          title={`${intl.formatMessage(messages.followingPermissionsCannotBeAdded)} ${notAllowedBasePermissions.join(', ')}`}
           actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}
         />
       ) : null}
