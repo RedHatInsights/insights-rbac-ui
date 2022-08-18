@@ -2,8 +2,11 @@ import React, { useState } from 'react';
 import { Radio } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const TypeSelector = (props) => {
+  const intl = useIntl();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const [checked, setChecked] = useState(formOptions.getState().values['role-type']);
@@ -22,7 +25,7 @@ const TypeSelector = (props) => {
         className="pf-u-mb-sm"
         name="role-type-create"
         onChange={() => handleChange('create')}
-        label="Create a role from scratch"
+        label={intl.formatMessage(messages.createRoleFromScratch)}
         id="role-type-create"
         value="create"
       />
@@ -30,7 +33,7 @@ const TypeSelector = (props) => {
         isChecked={checked === 'copy'}
         name="role-type-copy"
         onChange={() => handleChange('copy')}
-        label="Copy an existing role"
+        label={intl.formatMessage(messages.copyAnExistingRole)}
         id="role-type-copy"
         value="copy"
       />

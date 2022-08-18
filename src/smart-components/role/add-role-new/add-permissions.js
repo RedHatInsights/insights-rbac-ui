@@ -10,8 +10,9 @@ import { getResourceDefinitions } from '../../../redux/actions/cost-management-a
 import { fetchRole } from '../../../redux/actions/role-actions';
 import { DisabledRowWrapper } from './DisabledRowWrapper';
 import { isEqual } from 'lodash';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
-const columns = ['Application', 'Resource type', 'Operation'];
 const selector = ({
   permissionReducer: {
     permission,
@@ -43,6 +44,9 @@ const selector = ({
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
 
   const fetchData = (apiProps) =>
     dispatch(
@@ -92,8 +96,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
       disabledContent: (
         <div>
-          To add this permission to your role and define specific resources for it, at least one data source must be connected.{' '}
-          <a href="./settings/sources">Configure sources for Cost Management</a>
+          {intl.formatMessage(messages.configureResourcesForPermission)}{' '}
+          <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a>
         </div>
       ),
     }));
@@ -239,7 +243,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   };
 
   const emptyItem = {
-    label: <div> No results found</div>,
+    label: <div>{intl.formatMessage(messages.noResultsFound)}</div>,
     isDisabled: true,
   };
 
@@ -255,9 +259,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         data={permissions}
         filterValue={''}
         noData={permissions?.length === 0}
-        noDataDescription={[
-          "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
-        ]}
+        noDataDescription={[intl.formatMessage(messages.permissionNotDisplayedDescription)]}
         fetchData={({ limit, offset, applications, resources, operations }) => {
           fetchData({
             limit,
@@ -279,9 +281,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         pagination={{ ...pagination, count: pagination.count }}
         checkedRows={selectedPermissions}
         setCheckedItems={setCheckedItems}
-        titlePlural="permissions"
-        titleSingular="permission"
-        showMoreTitle={isToggled ? 'See less' : 'See more'}
+        titlePlural={intl.formatMessage(messages.permissions).toLowerCase()}
+        titleSingular={intl.formatMessage(messages.permission).toLowerCase()}
+        showMoreTitle={intl.formatMessage(isToggled ? messages.seeLess : messages.seeMore)}
         onFilter={(filterBy) => setFilterBy(filterBy)}
         onShowMore={
           filterItemOverflow
@@ -299,7 +301,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           {
             key: 'applications',
             value: filters.applications,
-            placeholder: 'Filter by application',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.application).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.applications),
             groups: [
@@ -315,7 +317,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           {
             key: 'resources',
             value: filters.resources,
-            placeholder: 'Filter by resource type',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resourceType).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.resources),
             groups: [
@@ -331,7 +333,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           {
             key: 'operations',
             value: filters.operations,
-            placeholder: 'Filter by operation',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.operation).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.operations),
             groups: [

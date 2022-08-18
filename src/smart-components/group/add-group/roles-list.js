@@ -8,6 +8,8 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const createRows = (data, expanded, checkedRows = []) => {
   return data
@@ -26,10 +28,11 @@ const createRows = (data, expanded, checkedRows = []) => {
 };
 
 const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, canSort, setSelectedRoles }) => {
+  const intl = useIntl();
   const [filterValue, setFilterValue] = useState('');
   const { current: columns } = useRef([
-    { title: 'Name', key: 'display_name', ...(canSort ? { transforms: [sortable] } : { orderBy: 'name' }) },
-    { title: 'Description' },
+    { title: intl.formatMessage(messages.name), key: 'display_name', ...(canSort ? { transforms: [sortable] } : { orderBy: 'name' }) },
+    { title: intl.formatMessage(messages.description) },
   ]);
 
   useEffect(() => {
@@ -51,7 +54,7 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       createRows={createRows}
       data={roles}
       filterValue={filterValue}
-      filterPlaceholder="role name"
+      filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
       fetchData={(config) => fetchRoles(mappedProps({ ...config, filters: { display_name: config.name } }))}
       setFilterValue={({ name }) => setFilterValue(name)}
       isLoading={isLoading}
@@ -59,8 +62,8 @@ const RolesList = ({ roles, fetchRoles, isLoading, pagination, selectedRoles, ca
       pagination={pagination}
       checkedRows={selectedRoles}
       setCheckedItems={setCheckedItems}
-      titlePlural="roles"
-      titleSingular="role"
+      titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+      titleSingular={intl.formatMessage(messages.role)}
       tableId="roles-list"
     />
   );

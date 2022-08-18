@@ -18,6 +18,8 @@ import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 import './add-role-wizard.scss';
 import SilentErrorBoundary from '../../common/silent-error-boundary';
@@ -45,6 +47,7 @@ export const mapperExtension = {
 };
 
 const AddRoleWizard = ({ pagination, filters }) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const { push } = useHistory();
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -72,7 +75,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
       dispatch(
         addNotification({
           variant: 'warning',
-          title: 'Creating role was canceled by the user',
+          title: intl.formatMessage(messages.creatingRoleCanceled),
           dismissDelay: 8000,
         })
       );
@@ -164,7 +167,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
-            title="Create role"
+            title={intl.formatMessage(messages.createRole)}
             isOpen
             onClose={onClose}
             steps={[

@@ -3,8 +3,11 @@ import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDefinitions }) => {
+  const intl = useIntl();
   const columns = [''];
   const [{ rows, pagination, filterValue }, setRows] = useState(() => ({
     filterValue: '',
@@ -37,17 +40,21 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
     <Modal
       actions={[
         <Button key="close-action" variant="primary" onClick={handleClose}>
-          Close
+          {intl.formatMessage(messages.close)}
         </Button>,
       ]}
       variant="large"
       isOpen={isOpen}
       onClose={handleClose}
-      title="Resource definitions"
+      title={intl.formatMessage(messages.resourceDefinitions)}
       description={
-        <p>
-          View resource definitions for the <strong>{permission}</strong> permission
-        </p>
+        <FormattedMessage
+          {...messages.viewResourceDefinitions}
+          values={{
+            strong: (text) => <strong>{text}</strong>,
+            permission,
+          }}
+        />
       }
     >
       <TableToolbarView
@@ -59,9 +66,9 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         ouiaId="resource-definition-table"
         noData={resourceDefinitions.length === 0}
         createRows={(data) => data.map((value) => ({ cells: [value] }))}
-        titlePlural="Resource definitions"
-        titleSingular="Resource definition"
-        noDataDescription={[`There are no resource definitions for ${permission} permission`]}
+        titlePlural={intl.formatMessage(messages.resourceDefinitions)}
+        titleSingular={intl.formatMessage(messages.resourceDefinition)}
+        noDataDescription={[intl.formatMessage(messages.resourceDefinition, { permission: permission })]}
         fetchData={handleFilterValue}
         tableId="resource-definitions-modal"
       />
