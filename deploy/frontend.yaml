@@ -37,6 +37,10 @@ objects:
             - appId: 'rbac'
               title: 'Groups'
               href: '/settings/rbac/groups'
+            - appId: 'accessRequests'
+              title: 'Red Hat Access Requests'
+              href: '/settings/rbac/access-requests'
+              notifier: 'chrome.accessRequests.hasUnseen'
       module:
         manifestLocation: '/apps/rbac/fed-mods.json'
         modules:
