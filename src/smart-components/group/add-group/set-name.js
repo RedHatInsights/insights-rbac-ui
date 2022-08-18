@@ -7,11 +7,14 @@ import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/
 import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea/TextArea';
 import { FormGroup } from '@patternfly/react-core/dist/esm/components/Form/FormGroup';
 import { debouncedAsyncValidator } from '../validators';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const groupNameValidated = (groupName, groupNameError) => (groupName === undefined || groupNameError ? 'error' : 'default');
 const groupDescriptionValidated = (groupDescription) => (groupDescription?.length > 150 ? 'error' : 'default');
 
 const SetName = (props) => {
+  const intl = useIntl();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const { 'group-name': name, 'group-description': description } = formOptions.getState().values;
@@ -40,8 +43,8 @@ const SetName = (props) => {
     <Stack hasGutter>
       <StackItem className="rbac-l-stack__item-summary">
         <FormGroup
-          label="Group name"
-          helperTextInvalid={groupName ? groupNameError : 'Required'}
+          label={intl.formatMessage(messages.groupName)}
+          helperTextInvalid={groupName ? groupNameError : intl.formatMessage(messages.required)}
           isRequired
           validated={groupNameValidated(groupName, groupNameError)}
         >
@@ -57,8 +60,8 @@ const SetName = (props) => {
       </StackItem>
       <StackItem>
         <FormGroup
-          label="Group description"
-          helperTextInvalid="Can have maximum of 150 characters."
+          label={intl.formatMessage(messages.groupDescription)}
+          helperTextInvalid={intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}
           validated={groupDescriptionValidated(groupDescription)}
         >
           <TextArea

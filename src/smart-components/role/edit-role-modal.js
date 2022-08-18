@@ -13,9 +13,12 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 import { patchRole } from '../../redux/actions/role-actions';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
-const validationPromise = (name, idKey, id) =>
-  name.length < 150
+const validationPromise = (name, idKey, id) => {
+  const intl = useIntl();
+  return name.length < 150
     ? fetchRoles({ name }).then(({ data }) => {
         if (data.length === 0) {
           return undefined;
@@ -23,37 +26,42 @@ const validationPromise = (name, idKey, id) =>
 
         const taken = data.some((item) => item[idKey] !== id && item.display_name === name);
         if (taken) {
-          throw 'Role with this name already exists.';
+          throw intl.formatMessage(messages.roleWithNameExists);
         }
       })
-    : Promise.reject('Can have maximum of 150 characters.');
+    : Promise.reject(intl.formatMessage(messages.maxCharactersWarning, { number: 150 }));
+};
 
-const createEditRoleSchema = (id) => ({
-  fields: [
-    {
-      name: 'name',
-      component: componentTypes.TEXT_FIELD,
-      label: 'Name',
-      isRequired: true,
-      validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
-    },
-    {
-      name: 'description',
-      component: componentTypes.TEXTAREA,
-      label: 'Description',
-      validate: [
-        {
-          type: validatorTypes.MAX_LENGTH,
-          threshold: 150,
-        },
-      ],
-    },
-  ],
-});
+const createEditRoleSchema = (id) => {
+  const intl = useIntl();
+  return {
+    fields: [
+      {
+        name: 'name',
+        component: componentTypes.TEXT_FIELD,
+        label: intl.formatMessage(messages.name),
+        isRequired: true,
+        validate: [{ type: 'validate-role-name', id, idKey: 'uuid', validationPromise }],
+      },
+      {
+        name: 'description',
+        component: componentTypes.TEXTAREA,
+        label: intl.formatMessage(messages.description),
+        validate: [
+          {
+            type: validatorTypes.MAX_LENGTH,
+            threshold: 150,
+          },
+        ],
+      },
+    ],
+  };
+};
 
 const uniqueNameValidator = asyncDebounce((value, idKey, id, validationPromise) => {
   if (!value || value.length === 0) {
-    return Promise.reject('Required');
+    const intl = useIntl();
+    return Promise.reject(intl.formatMessage(messages.required));
   }
 
   return validationPromise(value, idKey, id);
@@ -78,12 +86,13 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
   const [initialValues, setInitialValues] = useState(role);
 
   const onCancel = () => {
+    const intl = useIntl();
     dispatch(
       addNotification({
         variant: 'warning',
         dismissDelay: 8000,
-        title: 'Editing role',
-        description: 'Edit role was canceled by the user.',
+        title: intl.formatMessage(messages.editingRole),
+        description: intl.formatMessage(messages.editingRoleCanceledDescription),
       })
     );
     replace(cancelRoute);

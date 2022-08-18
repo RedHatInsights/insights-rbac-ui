@@ -1,13 +1,16 @@
 import { fetchGroups } from '../../helpers/group/group-helper';
 import asyncDebounce from '../../utilities/async-debounce';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 export const asyncValidator = async (groupName, idKey, id) => {
+  const intl = useIntl();
   if (!groupName) {
     return undefined;
   }
 
   if (groupName.length > 150) {
-    throw 'Can have maximum of 150 characters.';
+    throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
   }
 
   const response = await fetchGroups({ limit: 10, offset: 0, filters: { name: groupName }, nameMatch: 'exact' }).catch((error) => {
@@ -16,7 +19,7 @@ export const asyncValidator = async (groupName, idKey, id) => {
   });
 
   if (id ? response?.data?.some((item) => item[idKey] !== id) : response?.data?.length > 0) {
-    throw 'Name has already been taken.';
+    throw intl.formatMessage(messages.nameAlreadyTaken);
   }
 
   return undefined;

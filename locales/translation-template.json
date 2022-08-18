@@ -1,0 +1,1066 @@
+{
+  "actionsOnClustersPermissions": {
+    "defaultMessage": "Only Org. Administrators and cluster owners can perform actions on clusters.",
+    "description": "Actions on clusters permissions message"
+  },
+  "active": {
+    "defaultMessage": "Active",
+    "description": "Active label"
+  },
+  "addGroupMembersErrorDescription": {
+    "defaultMessage": "The members were not added successfully.",
+    "description": "Add group members error notification description"
+  },
+  "addGroupMembersErrorTitle": {
+    "defaultMessage": "Failed adding members to group",
+    "description": "Add group members error notification title"
+  },
+  "addGroupMembersSuccessDescription": {
+    "defaultMessage": "The members were successfully added to the group.",
+    "description": "Add group members success notification description"
+  },
+  "addGroupMembersSuccessTitle": {
+    "defaultMessage": "Success adding members to group",
+    "description": "Add group members success notification title"
+  },
+  "addGroupRolesErrorDescription": {
+    "defaultMessage": "The roles were not added successfully.",
+    "description": "Add group roles error notification description"
+  },
+  "addGroupRolesErrorTitle": {
+    "defaultMessage": "Failed adding roles to group",
+    "description": "Add group roles error notification title"
+  },
+  "addGroupRolesSuccessDescription": {
+    "defaultMessage": "The roles were successfully added to the group.",
+    "description": "Add group roles success notification description"
+  },
+  "addGroupSuccessDescription": {
+    "defaultMessage": "The group was added successfully.",
+    "description": "Add group success notification description"
+  },
+  "addGroupSuccessTitle": {
+    "defaultMessage": "Success adding group",
+    "description": "Add group success notification title"
+  },
+  "addGrouprolesSuccessTitle": {
+    "defaultMessage": "Success adding roles to group",
+    "description": "Add group roles success notification title"
+  },
+  "addMember": {
+    "defaultMessage": "Add member",
+    "description": "Add member"
+  },
+  "addMembers": {
+    "defaultMessage": "Add members",
+    "description": "Add members wizard step title"
+  },
+  "addNewUsersText": {
+    "defaultMessage": "To add new users or manage existing users, go to your",
+    "description": "Add new users text"
+  },
+  "addPermissions": {
+    "defaultMessage": "Add permissions",
+    "description": "Add permissions label"
+  },
+  "addPolicyErrorDescription": {
+    "defaultMessage": "The policy was not added successfully.",
+    "description": "Add policy error notification description"
+  },
+  "addPolicyErrorTitle": {
+    "defaultMessage": "Failed adding policy",
+    "description": "Add policy error notification title"
+  },
+  "addPolicySuccessDescription": {
+    "defaultMessage": "The policy was added successfully.",
+    "description": "Add policy success notification description"
+  },
+  "addPolicySuccessTitle": {
+    "defaultMessage": "Success adding policy",
+    "description": "Add policy success notification title"
+  },
+  "addRole": {
+    "defaultMessage": "Add role",
+    "description": "Add role title"
+  },
+  "addRoleToConfigureAccess": {
+    "defaultMessage": "Add a role to configure user access.",
+    "description": "Add role to configure user access message"
+  },
+  "addRoleToGroup": {
+    "defaultMessage": "Add role to group",
+    "description": "Add role to group label"
+  },
+  "addRoles": {
+    "defaultMessage": "Add roles",
+    "description": "Add roles wizard step title"
+  },
+  "addRolesToGroup": {
+    "defaultMessage": "Add roles to group",
+    "description": "Add roles to group label"
+  },
+  "addToDefinitions": {
+    "defaultMessage": "Add to definitions",
+    "description": "Add to definitions message"
+  },
+  "addToGroup": {
+    "defaultMessage": "Add to group",
+    "description": "Add to group label"
+  },
+  "addUserToConfigure": {
+    "defaultMessage": "Add a user to configure user access.",
+    "description": "Add a user to configure user access message"
+  },
+  "addedPermissions": {
+    "defaultMessage": "Added permissions",
+    "description": "Added permissions label"
+  },
+  "addingGroupCanceledDescription": {
+    "defaultMessage": "Adding group was canceled by the user.",
+    "description": "Adding group canceled notification description"
+  },
+  "addingGroupMemberCancelled": {
+    "defaultMessage": "Adding member to group was canceled by the user.",
+    "description": "Adding group member cancelled notification description"
+  },
+  "addingGroupMemberDescription": {
+    "defaultMessage": "Adding member to group initialized.",
+    "description": "Adding group member notification description"
+  },
+  "addingGroupMemberTitle": {
+    "defaultMessage": "Adding member to group",
+    "description": "Adding group member notification title"
+  },
+  "addingGroupMembersCancelled": {
+    "defaultMessage": "Adding member to group was canceled by the user.",
+    "description": "Adding group members cancelled notification description"
+  },
+  "addingGroupMembersDescription": {
+    "defaultMessage": "Adding members to group initialized.",
+    "description": "Adding group members notification description"
+  },
+  "addingGroupMembersTitle": {
+    "defaultMessage": "Adding members to group",
+    "description": "Adding group members notification title"
+  },
+  "addingGroupRolesCancelled": {
+    "defaultMessage": "Adding roles to group was canceled by the user.",
+    "description": "Adding group roles cancelled notification description"
+  },
+  "addingGroupRolesTitle": {
+    "defaultMessage": "Adding roles to group",
+    "description": "Adding group roles notification title"
+  },
+  "addingGroupTitle": {
+    "defaultMessage": "Adding group",
+    "description": "Adding group notification title"
+  },
+  "allOrgAdminsAreMembers": {
+    "defaultMessage": "All organization administrators in this organization are members of this group.",
+    "description": "All org. admins are members of this group message"
+  },
+  "allRolesAdded": {
+    "defaultMessage": "All available roles have already been added to the group",
+    "description": "All roles already to the group message"
+  },
+  "allUsersAreMembers": {
+    "defaultMessage": "All users in this organization are members of this group.",
+    "description": "All users are members of this group message"
+  },
+  "allUsersViewEverything": {
+    "defaultMessage": "All users in the organization may view everything.",
+    "description": "All users in the organization may view everything message"
+  },
+  "appServicesNotManaged": {
+    "defaultMessage": "Application Services permissions are not managed with User Access",
+    "description": "Application Services permissions are not managed with User Access message"
+  },
+  "application": {
+    "defaultMessage": "Application",
+    "description": "Application label"
+  },
+  "applyCostPermissionText": {
+    "defaultMessage": "Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.",
+    "description": "Apply Cost permission text"
+  },
+  "assignAtLeastOneResource": {
+    "defaultMessage": "You need to assign at least one resource to each permission.",
+    "description": "Assign at least one resource message"
+  },
+  "backToPreviousPage": {
+    "defaultMessage": "Back to previous page",
+    "description": "Back to previous page label"
+  },
+  "baseRole": {
+    "defaultMessage": "Base role",
+    "description": "Base role label"
+  },
+  "cancel": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel button text"
+  },
+  "changesWillBeLost": {
+    "defaultMessage": "All changes will be lost",
+    "description": "All changes will be lost message"
+  },
+  "checkFilterBeginning": {
+    "defaultMessage": "Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.",
+    "description": "Message advising checking the filter value"
+  },
+  "chooseSubscriptionEllipsis": {
+    "defaultMessage": "Choose a subscription...",
+    "description": "Choose subscription message"
+  },
+  "clearAllFilters": {
+    "defaultMessage": "Clear all filters",
+    "description": "Clear all filters message"
+  },
+  "close": {
+    "defaultMessage": "Close",
+    "description": "Close button text"
+  },
+  "configureCostSources": {
+    "defaultMessage": "Configure sources for Cost Management",
+    "description": "Configure resources for Cost management message"
+  },
+  "configureItems": {
+    "defaultMessage": "Configure {items}",
+    "description": "Configure items message"
+  },
+  "configureResourcesForPermission": {
+    "defaultMessage": "To add this permission to your role and define specific resources for it, at least one data source must be connected.",
+    "description": "Configure resources for permission message"
+  },
+  "confirm": {
+    "defaultMessage": "Confirm",
+    "description": "Confirm button text"
+  },
+  "confirmCheckMessage": {
+    "defaultMessage": "I understand, and I want to continue.",
+    "description": "Confirm modal check message"
+  },
+  "confirmDetails": {
+    "defaultMessage": "Confirm details",
+    "description": "Confirm details message"
+  },
+  "confirmDetailsDescription": {
+    "defaultMessage": "Confirm the details for your source, or click Back to revise",
+    "description": "Confirm details description message"
+  },
+  "contactOrgAdministrator": {
+    "defaultMessage": "Contact your Org. Administrator for more information.",
+    "description": "Contact org. administrator for more info message"
+  },
+  "contactServiceTeamForRoles": {
+    "defaultMessage": "Contact your platform service team to add roles.",
+    "description": "Contact service team to add roles message"
+  },
+  "continue": {
+    "defaultMessage": "Continue",
+    "description": "Continue label"
+  },
+  "copyAnExistingRole": {
+    "defaultMessage": "Copy an existing role",
+    "description": "Copy an existing role option"
+  },
+  "createAnotherRole": {
+    "defaultMessage": "Create another role",
+    "description": "Create another role message"
+  },
+  "createAtLeastOneItem": {
+    "defaultMessage": "create at least one {item}",
+    "description": "Empty state description 2nd part"
+  },
+  "createGroup": {
+    "defaultMessage": "Create group",
+    "description": "Create group wizard title"
+  },
+  "createRole": {
+    "defaultMessage": "Create role",
+    "description": "Create role label"
+  },
+  "createRoleErrorDescription": {
+    "defaultMessage": "The role was not added successfuly.",
+    "description": "Create role error notification description"
+  },
+  "createRoleErrorTitle": {
+    "defaultMessage": "Failed adding role",
+    "description": "Create role error notification title"
+  },
+  "createRoleFromScratch": {
+    "defaultMessage": "Create a role from scratch",
+    "description": "Create role from scratch option"
+  },
+  "creatingRoleCanceled": {
+    "defaultMessage": "Creating role was canceled by the user",
+    "description": "Creating role canceled notification message"
+  },
+  "defaultAccessGroupChanged": {
+    "defaultMessage": "Default access group has changed",
+    "description": "Default access group changed message"
+  },
+  "defaultAccessGroupEditWarning": {
+    "defaultMessage": "Once you edit the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name will change to <b>Custom default access</b>.",
+    "description": "Message warning that editing a Default access group will rename it"
+  },
+  "defaultAccessGroupNameChanged": {
+    "defaultMessage": "Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name has changed to <b>Custom default access</b>.",
+    "description": "Default access group renamed message"
+  },
+  "defaultGroupNotManually": {
+    "defaultMessage": "Default admin access group roles cannot be modified manually",
+    "description": "Message warning that default admin access group cannot be modified manually"
+  },
+  "defineAtLeastOneResource": {
+    "defaultMessage": "At least one resource must be defined for this permission",
+    "description": "Define at least one resource message"
+  },
+  "defineCostResources": {
+    "defaultMessage": "Define Cost Management resources",
+    "description": "Define Cost Management resources label"
+  },
+  "definedResources": {
+    "defaultMessage": "Defined resources",
+    "description": "Defined resources label"
+  },
+  "delete": {
+    "defaultMessage": "Delete",
+    "description": "Delete button text"
+  },
+  "deleteGroup": {
+    "defaultMessage": "Delete group",
+    "description": "Delete group label"
+  },
+  "deleteGroupQuestion": {
+    "defaultMessage": "Delete group?",
+    "description": "Delete group question label"
+  },
+  "deleteGroups": {
+    "defaultMessage": "Delete groups",
+    "description": "Delete groups label"
+  },
+  "deleteGroupsQuestion": {
+    "defaultMessage": "Delete groups?",
+    "description": "Delete groups question label"
+  },
+  "deleteRoleQuestion": {
+    "defaultMessage": "Delete role?",
+    "description": "Delete role question message"
+  },
+  "deletingGroupRemovesRoles": {
+    "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
+    "description": "Delete group label"
+  },
+  "description": {
+    "defaultMessage": "Description",
+    "description": "Description column label"
+  },
+  "discardedInputsWarning": {
+    "defaultMessage": "All inputs will be discarded",
+    "description": "Warning saying that all inputs will be discarded"
+  },
+  "edit": {
+    "defaultMessage": "Edit",
+    "description": "Edit button text"
+  },
+  "editGroupCanceledDescription": {
+    "defaultMessage": "Edit group was canceled by the user.",
+    "description": "Edit group canceled notification description"
+  },
+  "editGroupErrorDescription": {
+    "defaultMessage": "The group was not updated successfuly.",
+    "description": "Edit group error notification description"
+  },
+  "editGroupErrorTitle": {
+    "defaultMessage": "Failed updating group",
+    "description": "Edit group error notification title"
+  },
+  "editGroupInfo": {
+    "defaultMessage": "Edit group's information",
+    "description": "Edit group's information message"
+  },
+  "editGroupSuccessDescription": {
+    "defaultMessage": "The group was updated successfully.",
+    "description": "Edit group success notification description"
+  },
+  "editGroupSuccessTitle": {
+    "defaultMessage": "Success updating group",
+    "description": "Edit group success notification title"
+  },
+  "editPermissionsUsingArrows": {
+    "defaultMessage": "Give or remove permissions to specific resources using the arrows below.",
+    "description": "Edit permissions using arrows label"
+  },
+  "editPolicyErrorDescription": {
+    "defaultMessage": "The policy was not updated successfully.",
+    "description": "Edit policy error notification description"
+  },
+  "editPolicyErrorTitle": {
+    "defaultMessage": "Failed updating policy",
+    "description": "Edit policy error notification title"
+  },
+  "editPolicySuccessDescription": {
+    "defaultMessage": "The policy was updated successfully.",
+    "description": "Edit policy success notification description"
+  },
+  "editPolicySuccessTitle": {
+    "defaultMessage": "Success updating policy",
+    "description": "Edit policy success notification title"
+  },
+  "editResourceDefinitions": {
+    "defaultMessage": "Edit resource definitions",
+    "description": "Edit resource definitions label"
+  },
+  "editRoleErrorDescription": {
+    "defaultMessage": "The role was not updated successfully.",
+    "description": "Edit role error notification description"
+  },
+  "editRoleErrorTitle": {
+    "defaultMessage": "Failed upating role",
+    "description": "Edit role error notification title"
+  },
+  "editRoleSuccessDescription": {
+    "defaultMessage": "The role was updated successfully.",
+    "description": "Edit role success notification description"
+  },
+  "editRoleSuccessTitle": {
+    "defaultMessage": "Success upating role",
+    "description": "Edit role success notification title"
+  },
+  "editingGroupTitle": {
+    "defaultMessage": "Editing group",
+    "description": "Editing group notification title"
+  },
+  "editingRoleCanceledDescription": {
+    "defaultMessage": "Edit role was canceled by the user.",
+    "description": "Editing role canceled notification description"
+  },
+  "editingRoleTitle": {
+    "defaultMessage": "Editing role",
+    "description": "Editing role notification title"
+  },
+  "email": {
+    "defaultMessage": "Email",
+    "description": "Email label"
+  },
+  "exit": {
+    "defaultMessage": "Exit",
+    "description": "Exit button text"
+  },
+  "exitEditResourceDefinitions": {
+    "defaultMessage": "Exit edit resource definitions?",
+    "description": "Exit edit resource definitions question text"
+  },
+  "exitItemCreation": {
+    "defaultMessage": "Exit {item} creation?",
+    "description": "Exit item creation modal title"
+  },
+  "filterByKey": {
+    "defaultMessage": "Filter by {key}",
+    "description": "Filter by data key label"
+  },
+  "filterByResource": {
+    "defaultMessage": "Filter by resource...",
+    "description": "Filter by resource label"
+  },
+  "filterMatchesNoFilters": {
+    "defaultMessage": "This filter criteria matches no {items}.",
+    "description": "No matching items for filter criteria message"
+  },
+  "filterMatchesNoItems": {
+    "defaultMessage": "This filter criteria matches no {items}.",
+    "description": "No matching items for filter criteria message"
+  },
+  "firstName": {
+    "defaultMessage": "First name",
+    "description": "First name label"
+  },
+  "followingPermissionsCannotBeAdded": {
+    "defaultMessage": "The following permissions can not be added to a custom role and were removed from the copied role:",
+    "description": "Following permissions cannot be added message"
+  },
+  "granularPermissionsWillBeCopied": {
+    "defaultMessage": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
+    "description": "Granular permissions will be copied message"
+  },
+  "groupDescription": {
+    "defaultMessage": "Group description",
+    "description": "Group description label"
+  },
+  "groupDoesNotExist": {
+    "defaultMessage": "Group with ID {id} does not exist.",
+    "description": "Group with given ID does not exist message"
+  },
+  "groupName": {
+    "defaultMessage": "Group name",
+    "description": "Group name label"
+  },
+  "groupNameTakenText": {
+    "defaultMessage": "Please return to Step 1: Group information and choose a unique group name for your group.",
+    "description": "Group name taken error text"
+  },
+  "groupNameTakenTitle": {
+    "defaultMessage": "Group name already taken",
+    "description": "Group name taken error title"
+  },
+  "groupNotFound": {
+    "defaultMessage": "Group not found",
+    "description": "Group not found message"
+  },
+  "groups": {
+    "defaultMessage": "Groups",
+    "description": "Groups plural"
+  },
+  "inactive": {
+    "defaultMessage": "Inactive",
+    "description": "Inactive label"
+  },
+  "invalidGroup": {
+    "defaultMessage": "Invalid group",
+    "description": "Invalid group message"
+  },
+  "invalidRole": {
+    "defaultMessage": "Invalid role",
+    "description": "Invalid role message"
+  },
+  "invalidUser": {
+    "defaultMessage": "Invalid user",
+    "description": "Invalid user message"
+  },
+  "key": {
+    "defaultMessage": "Key",
+    "description": "Key label"
+  },
+  "lastCommit": {
+    "defaultMessage": "Last commit",
+    "description": "Last commit label"
+  },
+  "lastModified": {
+    "defaultMessage": "Last modified",
+    "description": "Last modified column label"
+  },
+  "lastName": {
+    "defaultMessage": "Last name",
+    "description": "Last name label"
+  },
+  "maxCharactersWarning": {
+    "defaultMessage": "Can have maximum of {number} characters.",
+    "description": "Maximum number of characters message"
+  },
+  "member": {
+    "defaultMessage": "member",
+    "description": "Member text"
+  },
+  "members": {
+    "defaultMessage": "Members",
+    "description": "Group members label"
+  },
+  "myUserAccess": {
+    "defaultMessage": "My User Access",
+    "description": "My User Access label"
+  },
+  "name": {
+    "defaultMessage": "Name",
+    "description": "Name column label"
+  },
+  "nameAlreadyTaken": {
+    "defaultMessage": "Name has already been taken.",
+    "description": "Name has been already taken validation message"
+  },
+  "nameAndDescription": {
+    "defaultMessage": "Name and description",
+    "description": "Name and description wizard step title"
+  },
+  "no": {
+    "defaultMessage": "No",
+    "description": "No label"
+  },
+  "noGroupMembers": {
+    "defaultMessage": "There are no members in this group",
+    "description": "No members in a given group title"
+  },
+  "noGroupRoles": {
+    "defaultMessage": "There are no roles in this group",
+    "description": "No roles in a group message"
+  },
+  "noMatchingItemsFound": {
+    "defaultMessage": "No matching {items} found",
+    "description": "No matching items found message"
+  },
+  "noPermissionsForInsights": {
+    "defaultMessage": "You do not have individual permissions for Insights.",
+    "description": "No individual permissions for Insights message"
+  },
+  "noResourceDefinitions": {
+    "defaultMessage": "There are no resource definitions for {permission} permission",
+    "description": "There are no resource definitions for permission message"
+  },
+  "noResultsFound": {
+    "defaultMessage": "No results found",
+    "description": "No results found message"
+  },
+  "noRolePermissions": {
+    "defaultMessage": "There are no permissions in this role",
+    "description": "No role permissions text"
+  },
+  "noWildcardPermissions": {
+    "defaultMessage": "Wildcard permissions (for example, approval:*:*) aren’t included in this table and can’t be added to your custom role.",
+    "description": "No wildcard permissions message"
+  },
+  "none": {
+    "defaultMessage": "None",
+    "description": "None select option text"
+  },
+  "notApplicable": {
+    "defaultMessage": "N/A",
+    "description": "Not applicable text for resource definitions"
+  },
+  "notSubscribed": {
+    "defaultMessage": "Not subscribed",
+    "description": "Not subscribed label"
+  },
+  "onlyGranularPermissions": {
+    "defaultMessage": "Custom roles only support granular permissions",
+    "description": "Only granular permissions message"
+  },
+  "onlyGroupRolesVisible": {
+    "defaultMessage": "This role list has been filtered to only show roles that are not currently in <b>{name}</b>",
+    "description": "Message warning that only roles in given role has been filtered"
+  },
+  "openshiftPermissions": {
+    "defaultMessage": "All users in the organization may view everything, but only Org. Administrators and cluster owners can perform actions on clusters. The table below displays roles for other OpenShift applications and services.",
+    "description": "Openshift permissions message"
+  },
+  "operation": {
+    "defaultMessage": "Operation",
+    "description": "Operation label"
+  },
+  "orgAdminHint": {
+    "defaultMessage": "You can manage other users' permissions with 'User access'",
+    "description": "User Access Admin hint about permissions"
+  },
+  "orgAdminInheritedRoles": {
+    "defaultMessage": "This group contains the roles that all org admin users inherit by default.",
+    "description": "Org. Admin inherited roles message"
+  },
+  "orgAdministrator": {
+    "defaultMessage": "Org. Administrator",
+    "description": "Org. Administrator name"
+  },
+  "pageNotExists": {
+    "defaultMessage": "Page you are looking for does not exist.",
+    "description": "Placeholder text for non existing page"
+  },
+  "permission": {
+    "defaultMessage": "Permission",
+    "description": "Permission label"
+  },
+  "permissionNotDisplayedDescription": {
+    "defaultMessage": "The permission either does not exist or has already been added to this role. Adjust your filters and try again. Note: Applications that only have wildcard permissions (for example, compliance:*:*) aren't included in this table and can't be added to your custom role.",
+    "description": "Permission not displayed description message"
+  },
+  "permissionResourcesDetails": {
+    "defaultMessage": "If there needs to be more details on the resources the permission is to be used for, it would be detailed here.",
+    "description": "Permission resources details message"
+  },
+  "permissionStringDescription": {
+    "defaultMessage": "The permission string is made up of the following inputs where it denotes which application and the resource type the permission will be allowed for.",
+    "description": "Permission string description text"
+  },
+  "permissionWillNotBeGrantedThroughRole": {
+    "defaultMessage": "The <b>{permission}</b> permission will no longer be granted through the <b>{role}</b> role.",
+    "description": "Permission will not be granted through role message"
+  },
+  "permissions": {
+    "defaultMessage": "Permissions",
+    "description": "Permissions label"
+  },
+  "permissionsAddedSuccessfully": {
+    "defaultMessage": "You have successfully added permissions to the role",
+    "description": "Permissions added successfully message"
+  },
+  "permissionsWillNotBeGrantedThroughRole": {
+    "defaultMessage": "The <b>{permissions}</b> permissions will no longer be granted through the <b>{role}</b> role.",
+    "description": "Permissions will not be granted through role message"
+  },
+  "pleaseChoose": {
+    "defaultMessage": "Please choose",
+    "description": "Select placehoder"
+  },
+  "rbacGroups": {
+    "defaultMessage": "RBAC Groups",
+    "description": "RBAC Groups error cather title"
+  },
+  "rbacUsers": {
+    "defaultMessage": "RBAC Users",
+    "description": "RBAC Users error cather title"
+  },
+  "remove": {
+    "defaultMessage": "Remove",
+    "description": "Remove button label"
+  },
+  "removeGroupError": {
+    "defaultMessage": "There was an error deleting the group. Please try again.",
+    "description": "Remove group error notification title"
+  },
+  "removeGroupMembersErrorDescription": {
+    "defaultMessage": "The members were not removed successfully.",
+    "description": "Remove group members error notification description"
+  },
+  "removeGroupMembersErrorTitle": {
+    "defaultMessage": "Failed removing members from the group",
+    "description": "Remove group members error notification title"
+  },
+  "removeGroupMembersSuccessDescription": {
+    "defaultMessage": "The members were successfully removed from the group.",
+    "description": "Remove group members success notification description"
+  },
+  "removeGroupMembersSuccessTitle": {
+    "defaultMessage": "Success removing members to group",
+    "description": "Remove group members success notification title"
+  },
+  "removeGroupRolesErrorDescription": {
+    "defaultMessage": "The roles were not removed successfully.",
+    "description": "Remove group roles error notification description"
+  },
+  "removeGroupRolesErrorTitle": {
+    "defaultMessage": "Failed removing roles from the group",
+    "description": "Remove group roles error notification title"
+  },
+  "removeGroupRolesSuccessDescription": {
+    "defaultMessage": "The roles were successfully removed from the group.",
+    "description": "Remove group roles success notification description"
+  },
+  "removeGroupRolesSuccessTitle": {
+    "defaultMessage": "Success removing roles from group",
+    "description": "Remove group roles success notification title"
+  },
+  "removeGroupSuccess": {
+    "defaultMessage": "Group deleted successfully",
+    "description": "Remove group success notification title"
+  },
+  "removeGroupsError": {
+    "defaultMessage": "There was an error deleting the groups. Please try again.",
+    "description": "Remove groups error notification title"
+  },
+  "removeGroupsSuccess": {
+    "defaultMessage": "Groups deleted successfully",
+    "description": "Remove groups success notification title"
+  },
+  "removeMember": {
+    "defaultMessage": "Remove member",
+    "description": "Remove member"
+  },
+  "removeMemberQuestion": {
+    "defaultMessage": "Remove member?",
+    "description": "Remove member question"
+  },
+  "removeMemberText": {
+    "defaultMessage": "<b>{name}</b> will lose all the roles associated with the <b>{group}</b> group.",
+    "description": "Remove member text"
+  },
+  "removeMembersQuestion": {
+    "defaultMessage": "Remove members?",
+    "description": "Remove members question"
+  },
+  "removeMembersText": {
+    "defaultMessage": "These <b>{name}</b> members will lose all the roles associated with the <b>{group}</b> group.",
+    "description": "Remove members plural text"
+  },
+  "removePermission": {
+    "defaultMessage": "Remove permission",
+    "description": "Remove permission label"
+  },
+  "removePermissionQuestion": {
+    "defaultMessage": "Remove permission?",
+    "description": "Remove permission question text"
+  },
+  "removePermissions": {
+    "defaultMessage": "Remove permissions",
+    "description": "Remove permissions label"
+  },
+  "removePermissionsQuestion": {
+    "defaultMessage": "Remove permissions?",
+    "description": "Remove permissions question text"
+  },
+  "removePolicySuccessDescription": {
+    "defaultMessage": "The policy was removed successfully.",
+    "description": "Remove policy success notification description"
+  },
+  "removePolicySuccessTitle": {
+    "defaultMessage": "Success removing policy",
+    "description": "Remove policy success notification title"
+  },
+  "removeRole": {
+    "defaultMessage": "Remove role",
+    "description": "Remove role label"
+  },
+  "removeRoleErrorDescription": {
+    "defaultMessage": "The role was not removed successfully.",
+    "description": "Remove role error notification description"
+  },
+  "removeRoleErrorTitle": {
+    "defaultMessage": "Failed removing role",
+    "description": "Remove role error notification title"
+  },
+  "removeRoleModalText": {
+    "defaultMessage": "Members in the <b>{name}</b> group will lose the permissions in the <b>{role}</b> role",
+    "description": "Remove role message warning about losing permissions"
+  },
+  "removeRoleQuestion": {
+    "defaultMessage": "Remove role?",
+    "description": "Remove role question label"
+  },
+  "removeRoleSuccessDescription": {
+    "defaultMessage": "The role was removed successfully.",
+    "description": "Remove role success notification description"
+  },
+  "removeRoleSuccessTitle": {
+    "defaultMessage": "Success removing role",
+    "description": "Remove role success notification title"
+  },
+  "removeRolesModalText": {
+    "defaultMessage": "Members in the <b>{name}</b> group will lose the permissions in these <b>{roles}</b> roles",
+    "description": "Remove role message warning about losing permissions"
+  },
+  "removeRolesQuestion": {
+    "defaultMessage": "Remove roles?",
+    "description": "Remove roles question label"
+  },
+  "required": {
+    "defaultMessage": "Required",
+    "description": "Required input label"
+  },
+  "resource": {
+    "defaultMessage": "Resource",
+    "description": "Resource label"
+  },
+  "resourceDefinition": {
+    "defaultMessage": "Resource definition",
+    "description": "Resource definition label"
+  },
+  "resourceDefinitions": {
+    "defaultMessage": "Resource definitions",
+    "description": "Resource definitions label"
+  },
+  "resourceDefinitionsApplyToCost": {
+    "defaultMessage": "Resource definitions only apply to Cost Management permissions",
+    "description": "Resource definitions only apply to Cost Management permissions message"
+  },
+  "resourceType": {
+    "defaultMessage": "Resource type",
+    "description": "Resource type label"
+  },
+  "resources": {
+    "defaultMessage": "Resources",
+    "description": "Resources label"
+  },
+  "resourcesAvailable": {
+    "defaultMessage": "Resources available for the permission",
+    "description": "Resources available for permission message"
+  },
+  "resourcesDefined": {
+    "defaultMessage": "Resources defined for the permission",
+    "description": "Resources defined for permission message"
+  },
+  "returnToStepNumber": {
+    "defaultMessage": "Return to step {number}",
+    "description": "Return to step wizard label"
+  },
+  "review": {
+    "defaultMessage": "Review",
+    "description": "Review label"
+  },
+  "reviewDetails": {
+    "defaultMessage": "Review details",
+    "description": "Review details label"
+  },
+  "reviewRoleDetails": {
+    "defaultMessage": "Review and confirm the details for your role, or click Back to revise.",
+    "description": "Review role details text"
+  },
+  "role": {
+    "defaultMessage": "role",
+    "description": "Role singular"
+  },
+  "roleCreatedSuccessfully": {
+    "defaultMessage": "You have successfully created a new role",
+    "description": "Role created successfully message"
+  },
+  "roleDescription": {
+    "defaultMessage": "Role description",
+    "description": "Role description label"
+  },
+  "roleName": {
+    "defaultMessage": "Role name",
+    "description": "Role name filter placeholder"
+  },
+  "roleNameTakenText": {
+    "defaultMessage": "Please return to Step 1: Create role and choose a unique role name for your custom role.",
+    "description": "Role name taken error text"
+  },
+  "roleNameTakenTitle": {
+    "defaultMessage": "Role name already taken",
+    "description": "Role name taken error title"
+  },
+  "roleWilBeRemovedWithPermissions": {
+    "defaultMessage": "The <strong>{name}</strong> role will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+    "description": "Role will be removed with permissions message"
+  },
+  "roleWithNameExists": {
+    "defaultMessage": "Role with this name already exists.",
+    "description": "Role with name exists message"
+  },
+  "roles": {
+    "defaultMessage": "Roles",
+    "description": "Roles plural"
+  },
+  "save": {
+    "defaultMessage": "Save",
+    "description": "Save button text"
+  },
+  "seeLess": {
+    "defaultMessage": "See less",
+    "description": "See less label"
+  },
+  "seeMore": {
+    "defaultMessage": "See more",
+    "description": "See more label"
+  },
+  "selectAll": {
+    "defaultMessage": "Select all ({length})",
+    "description": "Select all button label"
+  },
+  "selectAppsToViewPermissions": {
+    "defaultMessage": "Select applications to view your personal permissions.",
+    "description": "Select applications to view your personal permissions message"
+  },
+  "selectNone": {
+    "defaultMessage": "Select none (0)",
+    "description": "Select none button label"
+  },
+  "selectPage": {
+    "defaultMessage": "Select page ({length})",
+    "description": "Select page button label"
+  },
+  "selectPermissionsForRole": {
+    "defaultMessage": "Select permissions to add to your role",
+    "description": "Select permissions for role label"
+  },
+  "selectResources": {
+    "defaultMessage": "Select resources",
+    "description": "Select resources label"
+  },
+  "selectRolesForGroupText": {
+    "defaultMessage": "Select one or more roles to add to this group.",
+    "description": "Select roles to be added to a group text"
+  },
+  "selectState": {
+    "defaultMessage": "Select a state",
+    "description": "Select state label"
+  },
+  "selectedPermissions": {
+    "defaultMessage": "Selected permissions",
+    "description": "Selected permissions label"
+  },
+  "status": {
+    "defaultMessage": "Status",
+    "description": "Status label"
+  },
+  "stay": {
+    "defaultMessage": "Stay",
+    "description": "Stay button text"
+  },
+  "toConfigureUserAccess": {
+    "defaultMessage": "To configure user access to applications",
+    "description": "Empty state description 1st part"
+  },
+  "toManageUsersText": {
+    "defaultMessage": "To manage users, go to your",
+    "description": "To manage users text"
+  },
+  "triggerMyCatalog": {
+    "defaultMessage": "Trigger my catalog",
+    "description": "Trigger my catalog text"
+  },
+  "triggerMyQuickstart": {
+    "defaultMessage": "Trigger my quickstart",
+    "description": "Trigger my quickstart text"
+  },
+  "tryChangingFilters": {
+    "defaultMessage": "Try changing your filter settings.",
+    "description": "Message advising change of the filter settings"
+  },
+  "understandActionIrreversible": {
+    "defaultMessage": "I understand that this action cannot be undone.",
+    "description": "Understand action cannot be undone message"
+  },
+  "user": {
+    "defaultMessage": "user",
+    "description": "User label"
+  },
+  "userAccessAdmin": {
+    "defaultMessage": "User Access Admin",
+    "description": "User Access Admin name"
+  },
+  "userAccessAdminHint": {
+    "defaultMessage": "You can manage other users' permissions with 'User access'",
+    "description": "Org. Admin hint about permissions"
+  },
+  "userDescription": {
+    "defaultMessage": "{username}'s roles, groups and permissions.",
+    "description": "User description text"
+  },
+  "userNotFound": {
+    "defaultMessage": "User not found",
+    "description": "User not found text"
+  },
+  "userNotFoundDescription": {
+    "defaultMessage": "User with username {username} does not exist.",
+    "description": "User not found description text"
+  },
+  "username": {
+    "defaultMessage": "Username",
+    "description": "Username label"
+  },
+  "users": {
+    "defaultMessage": "Users",
+    "description": "Users plural label"
+  },
+  "usersDescription": {
+    "defaultMessage": "These are all of the users in your Red Hat organization.",
+    "description": "Description text for user list"
+  },
+  "usersInheritedRoles": {
+    "defaultMessage": "This group contains the roles that all users in your organization inherit by default.",
+    "description": "Users inherited roles message"
+  },
+  "value": {
+    "defaultMessage": "Value",
+    "description": "Value label"
+  },
+  "viewResourceDefinitions": {
+    "defaultMessage": "View resource definitions for the <strong>{permission}</strong> permission",
+    "description": "View resource definitions message"
+  },
+  "warning": {
+    "defaultMessage": "Warning",
+    "description": "Waring label"
+  },
+  "whyNotSeeingAllPermissions": {
+    "defaultMessage": "Why am I not seeing all of my permissions?",
+    "description": "Why am I not seeing all of my permissions message"
+  },
+  "yes": {
+    "defaultMessage": "Yes",
+    "description": "Yes label"
+  },
+  "yourPermissions": {
+    "defaultMessage": "Your {name} permissions",
+    "description": "Your bundle permissions label"
+  },
+  "yourRoles": {
+    "defaultMessage": "Your {name} roles",
+    "description": "Your bundle roles label"
+  }
+}

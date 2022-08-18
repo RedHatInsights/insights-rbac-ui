@@ -5,8 +5,11 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from '../utilities/pathnames';
 import monitorSampleAppQuickStart from './sample-quickstart';
 import { QuickStartContext } from '@patternfly/quickstarts';
+import { useIntl } from 'react-intl';
+import messages from '../Messages';
 
 const QuickstartsTestButtons = () => {
+  const intl = useIntl();
   const [openQuickstart, setOpenQuickstart] = useState(false);
   const chromeHook = useChrome();
   const history = useHistory();
@@ -49,10 +52,10 @@ const QuickstartsTestButtons = () => {
       {isQuickstartEnabled && (
         <>
           <Button onClick={handleActivateQuickstart} variant={'primary'} style={btnStyle} isDisabled={openQuickstart}>
-            Trigger my quickstart
+            {intl.formatMessage(messages.triggerMyQuickstart)}
           </Button>
           <Button onClick={handleOpenCatalog} variant={'primary'} style={btnStyle}>
-            Trigger my catalog
+            {intl.formatMessage(messages.triggerMyCatalog)}
           </Button>
         </>
       )}

@@ -1,21 +1,26 @@
 import * as ActionTypes from '../action-types';
 import * as RoleHelper from '../../helpers/role/role-helper';
 import { BAD_UUID } from '../../helpers/shared/helpers';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
-export const createRole = (roleData) => ({
-  type: ActionTypes.ADD_ROLE,
-  payload: RoleHelper.createRole(roleData),
-  meta: {
-    notifications: {
-      rejected: (payload) => ({
-        variant: 'danger',
-        title: 'Failed adding role',
-        dismissDelay: 8000,
-        description: payload?.errors?.[0]?.detail || 'The role was not added successfuly.',
-      }),
+export const createRole = (roleData) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.ADD_ROLE,
+    payload: RoleHelper.createRole(roleData),
+    meta: {
+      notifications: {
+        rejected: (payload) => ({
+          variant: 'danger',
+          title: intl.formatMessage(messages.createRoleErrorTitle),
+          dismissDelay: 8000,
+          description: payload?.errors?.[0]?.detail || intl.formatMessage(messages.createRoleErrorDescription),
+        }),
+      },
     },
-  },
-});
+  };
+};
 
 export const fetchRole = (apiProps) => ({
   type: ActionTypes.FETCH_ROLE,
@@ -46,26 +51,29 @@ export const fetchRolesWithPolicies = (options = {}) => ({
   payload: RoleHelper.fetchRolesWithPolicies(options),
 });
 
-export const removeRole = (role) => ({
-  type: ActionTypes.REMOVE_ROLE,
-  payload: RoleHelper.removeRole(role),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success removing role',
-        dismissDelay: 8000,
-        description: 'The role was removed successfully.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed removing role',
-        dismissDelay: 8000,
-        description: 'The role was not removed successfuly.',
+export const removeRole = (role) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.REMOVE_ROLE,
+    payload: RoleHelper.removeRole(role),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.removeRoleSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeRoleSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeRoleErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeRoleErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const fetchRoleForUser = (apiProps) => ({
   type: ActionTypes.FETCH_ROLE_FOR_USER,
@@ -82,35 +90,41 @@ export const fetchRolesForWizard = (options = {}) => ({
   payload: RoleHelper.fetchRoles(options),
 });
 
-export const updateRole = (roleId, data, useCustomAccess) => ({
-  type: ActionTypes.UPDATE_ROLE,
-  payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
-  meta: {
-    notifications: {
-      rejected: (payload) => ({
-        variant: 'danger',
-        title: 'Failed updating role',
-        dismissDelay: 8000,
-        description: payload?.errors?.[0]?.detail || 'The role was not updated successfuly.',
-      }),
-    },
-  },
-});
-
-export const patchRole = (roleId, data) => ({
-  type: ActionTypes.PATCH_ROLE,
-  payload: RoleHelper.patchRole(roleId, data),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success updating role',
-        dismissDelay: 8000,
-        description: 'The role was updated successfully.',
+export const updateRole = (roleId, data, useCustomAccess) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.UPDATE_ROLE,
+    payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
+    meta: {
+      notifications: {
+        rejected: (payload) => ({
+          variant: 'danger',
+          title: intl.formatMessage(messages.editRoleErrorTitle),
+          dismissDelay: 8000,
+          description: payload?.errors?.[0]?.detail || intl.formatMessage(messages.editRoleErrorDescription),
+        }),
       },
     },
-  },
-});
+  };
+};
+
+export const patchRole = (roleId, data) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.PATCH_ROLE,
+    payload: RoleHelper.patchRole(roleId, data),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.editRoleSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.editRoleSuccessDescription),
+        },
+      },
+    },
+  };
+};
 
 export const removeRolePermissions = (role, permissionsToRemove) => ({
   type: ActionTypes.UPDATE_ROLE,

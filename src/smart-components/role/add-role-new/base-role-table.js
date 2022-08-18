@@ -7,8 +7,9 @@ import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { sortable } from '@patternfly/react-table';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
-const columns = ['', { title: 'Name', key: 'display_name', transforms: [sortable] }, 'Description'];
 const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
   roles: rolesForWizard.data,
   pagination: rolesForWizard.meta,
@@ -16,12 +17,19 @@ const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
 });
 
 const BaseRoleTable = (props) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const fetchData = (options) => dispatch(fetchRolesForWizard(options));
   const [filterValue, setFilterValue] = useState('');
   const { roles, pagination } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
+
+  const columns = [
+    '',
+    { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [sortable] },
+    intl.formatMessage(messages.description),
+  ];
 
   useEffect(() => {
     fetchData({
@@ -64,14 +72,7 @@ const BaseRoleTable = (props) => {
     }));
   return (
     <div>
-      <Alert
-        variant="info"
-        isInline
-        title={`Only granular permissions will be copied into a custom role \
-        (for example, approval:requests:read). Wildcard permissions will not \
-        be copied into a custom role (for example, approval:*:read).
-        `}
-      />
+      <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} />
       <TableToolbarView
         columns={columns}
         createRows={createRows}
@@ -81,9 +82,9 @@ const BaseRoleTable = (props) => {
         setFilterValue={({ name }) => setFilterValue(name)}
         isLoading={false}
         pagination={pagination}
-        titlePlural="roles"
-        titleSingular="role"
-        filterPlaceholder="role name"
+        titlePlural={intl.formatMessage(messages.roles)}
+        titleSingular={intl.formatMessage(messages.role)}
+        filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
         ouiaId="roles-table"
         isCompact
         tableId="base-role"

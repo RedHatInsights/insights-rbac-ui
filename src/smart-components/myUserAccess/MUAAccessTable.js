@@ -7,14 +7,17 @@ import { TableToolbarView } from '../../presentational-components/shared/table-t
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
 import { sortable } from '@patternfly/react-table';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResourceDefinitions }) => {
+  const intl = useIntl();
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
   const { current: columns } = useRef([
-    { title: 'Application', key: 'application', transforms: [sortable] },
-    { title: 'Resource type', key: 'resource_type', transforms: [sortable] },
-    { title: 'Operation', key: 'verb', transforms: [sortable] },
-    ...(showResourceDefinitions ? [{ title: 'Resource definitions' }] : []),
+    { title: intl.formatMessage(messages.application), key: 'application', transforms: [sortable] },
+    { title: intl.formatMessage(messages.resourceType), key: 'resource_type', transforms: [sortable] },
+    { title: intl.formatMessage(messages.operation), key: 'verb', transforms: [sortable] },
+    ...(showResourceDefinitions ? [{ title: intl.formatMessage(messages.resourceDefinitions) }] : []),
   ]);
 
   const dispatch = useDispatch();
@@ -56,10 +59,10 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
         isLoading={isLoading}
         pagination={permissions?.meta}
         ouiaId="permissions-table"
-        titlePlural="permissions"
-        titleSingular="permission"
+        titlePlural={intl.formatMessage(messages.permissions).toLowerCase()}
+        titleSingular={intl.formatMessage(messages.permission).toLowerCase()}
         noData={!isLoading && !hasActiveFilters && filteredRows.length === 0}
-        noDataDescription={['You do not have individual permissions for Insights.', 'Contact your Org. Administrator for more information.']}
+        noDataDescription={[intl.formatMessage(messages.noPermissionsForInsights), intl.formatMessage(messages.contactOrgAdministrator)]}
         tableId="mua-access"
       />
       <Suspense fallback={<Fragment />}>

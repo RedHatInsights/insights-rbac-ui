@@ -12,6 +12,8 @@ import { WarningModal } from '../common/warningModal';
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import flatten from 'lodash/flattenDeep';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './role-permissions.scss';
 
 const createOptions = (resources) =>
@@ -46,21 +48,24 @@ function reducer(state, action) {
   }
 }
 
-const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) => ({
-  fields: [
-    {
-      component: componentTypes.DUAL_LIST_SELECT,
-      name: 'dual-list-select',
-      leftTitle: 'Resources available for the permission',
-      rightTitle: 'Resources defined for the permission',
-      filterOptionsTitle: 'Filter by resource...',
-      filterValueTitle: 'Filter by resource...',
-      options: [...(resourcesPath && resources ? options : [])],
-      validate: [{ type: 'validate-resources' }],
-      isSearchable: true,
-    },
-  ],
-});
+const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) => {
+  const intl = useIntl();
+  return {
+    fields: [
+      {
+        component: componentTypes.DUAL_LIST_SELECT,
+        name: 'dual-list-select',
+        leftTitle: intl.formatMessage(messages.resourcesAvailable),
+        rightTitle: intl.formatMessage(messages.resourcesDefined),
+        filterOptionsTitle: intl.formatMessage(messages.filterByResource),
+        filterValueTitle: intl.formatMessage(messages.filterByResource),
+        options: [...(resourcesPath && resources ? options : [])],
+        validate: [{ type: 'validate-resources' }],
+        isSearchable: true,
+      },
+    ],
+  };
+};
 
 const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }, resourcesPath) => ({
   resourceTypes: resourceTypes.data,
@@ -74,6 +79,7 @@ const validatorMapper = {
 };
 
 const EditResourceDefinitionsModal = ({ cancelRoute }) => {
+  const intl = useIntl();
   const routeMatch = useRouteMatch(paths['role-detail-permission-edit'].path);
   const {
     params: { permissionId, roleId },
@@ -159,8 +165,8 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   return (
     <React.Fragment>
       <WarningModal
-        customTitle="Exit edit resource definitions?"
-        customDescription="All changes will be lost."
+        customTitle={intl.formatMessage(messages.exitEditResourceDefinitions)}
+        customDescription={intl.formatMessage(messages.changesWillBeLost)}
         isOpen={state.cancelWarningVisible}
         onModalCancel={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
         onConfirmCancel={onCancel}
@@ -170,7 +176,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
           variant={ModalVariant.large}
           className="rbac-m-resource-definitions"
           isOpen={true}
-          title="Edit resource definitions"
+          title={intl.formatMessage(messages.editResourceDefinitions)}
           onClose={() => {
             dispatchLocally({ type: 'update', payload: { loadingStateVisible: false } });
             onCancel();
@@ -195,8 +201,8 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
                 onClose: handleCancel,
                 isOpen: !state.cancelWarningVisible,
                 variant: 'large',
-                title: 'Edit resource definitions',
-                description: 'Give or remove permissions to specific resources using the arrows below.',
+                title: intl.formatMessage(messages.editResourceDefinitions),
+                description: intl.formatMessage(messages.editPermissionsUsingArrows),
               }}
             />
           )}

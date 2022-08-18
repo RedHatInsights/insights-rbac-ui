@@ -2,8 +2,11 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const SummaryContent = () => {
+  const intl = useIntl();
   const formOptions = useFormApi();
   const {
     'group-name': name,
@@ -21,7 +24,7 @@ const SummaryContent = () => {
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">
-                    Group name
+                    {intl.formatMessage(messages.groupName)}
                   </Text>
                 </GridItem>
                 <GridItem md={9}>
@@ -31,7 +34,7 @@ const SummaryContent = () => {
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">
-                    Group description
+                    {intl.formatMessage(messages.groupDescription)}
                   </Text>
                 </GridItem>
                 <GridItem md={9}>
@@ -41,7 +44,7 @@ const SummaryContent = () => {
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">
-                    Roles
+                    {intl.formatMessage(messages.roles)}
                   </Text>
                 </GridItem>
                 <GridItem md={9}>
@@ -57,7 +60,7 @@ const SummaryContent = () => {
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">
-                    Members
+                    {intl.formatMessage(messages.members)}
                   </Text>
                 </GridItem>
                 <GridItem md={9}>

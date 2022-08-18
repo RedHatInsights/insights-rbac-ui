@@ -13,6 +13,8 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import AddPermissionsTable from '../add-role-new/add-permissions';
 import CostResources from '../add-role-new/cost-resources';
 import { schemaBuilder } from './schema';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -29,6 +31,7 @@ export const AddRolePermissionWizardContext = createContext({
 });
 
 const AddRolePermissionWizard = ({ role }) => {
+  const intl = useIntl();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
   const [schema, setSchema] = useState({});
@@ -110,7 +113,7 @@ const AddRolePermissionWizard = ({ role }) => {
       value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm, rolePermissions: role.access }}
     >
       <WarningModal
-        type="Permission"
+        type={intl.formatMessage(messages.permission)}
         isOpen={cancelWarningVisible}
         onModalCancel={() => setCancelWarningVisible(false)}
         onConfirmCancel={handleConfirmCancel}
@@ -118,7 +121,7 @@ const AddRolePermissionWizard = ({ role }) => {
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
-            title="Add permissions"
+            title={intl.formatMessage(messages.addPermissions)}
             isOpen
             steps={[
               {

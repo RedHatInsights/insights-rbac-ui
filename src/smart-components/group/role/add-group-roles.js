@@ -3,6 +3,8 @@ import PropTypes from 'prop-types';
 import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import '../../../App.scss';
 
 const AddGroupRoles = ({
@@ -21,15 +23,16 @@ const AddGroupRoles = ({
   fetchGroup,
   fetchUuid,
 }) => {
+  const intl = useIntl();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const onCancel = () => {
     setSelectedRoles && setSelectedRoles([]);
     addNotification({
       variant: 'warning',
-      title: 'Adding roles to group',
+      title: intl.formatMessage(messages.addingGroupRolesTitle),
       dismissDelay: 8000,
-      description: 'Adding roles to group was canceled by the user.',
+      description: intl.formatMessage(messages.addingGroupRolesCancelled),
     });
     push(closeUrl);
   };
@@ -51,7 +54,7 @@ const AddGroupRoles = ({
     <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={onSubmit} />
   ) : (
     <Modal
-      title="Add roles to group"
+      title={intl.formatMessage(messages.addRolesToGroup)}
       variant={ModalVariant.medium}
       isOpen
       onClose={() => {
@@ -70,10 +73,10 @@ const AddGroupRoles = ({
             (!isDefault || isChanged) && onSubmit();
           }}
         >
-          Add to group
+          {intl.formatMessage(messages.addToGroup)}
         </Button>,
         <Button aria-label="Cancel" ouiaId="secondary-cancel-button" variant="link" key="cancel" onClick={onCancel}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
@@ -88,7 +91,13 @@ const AddGroupRoles = ({
         <StackItem>
           <TextContent>
             <Text component={TextVariants.p}>
-              This role list has been filtered to only show roles that are not currently in <b> {name}</b>.
+              <FormattedMessage
+                {...messages.onlyGroupRolesVisible}
+                values={{
+                  b: (text) => <b>{text}</b>,
+                  name: name,
+                }}
+              />
             </Text>
           </TextContent>
         </StackItem>
