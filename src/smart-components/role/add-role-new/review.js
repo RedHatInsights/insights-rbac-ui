@@ -1,6 +1,8 @@
 import React from 'react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import './review.scss';
 
 const stickyTable = (columns, rows) => (
@@ -25,6 +27,7 @@ const stickyTable = (columns, rows) => (
 );
 
 const ReviewStep = () => {
+  const intl = useIntl();
   const formOptions = useFormApi();
   const {
     'role-name': name,
@@ -36,7 +39,7 @@ const ReviewStep = () => {
     'has-cost-resources': hasCostResources,
     'role-type': type,
   } = formOptions.getState().values;
-  const columns = ['Application', 'Resource type', 'Operation'];
+  const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
   const rows = permissions.map((permission) => ({
     cells: permission.uuid.split(':'),
   }));
@@ -52,7 +55,7 @@ const ReviewStep = () => {
           <Grid>
             <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="rbac-bold-text">
-                Name
+                {intl.formatMessage(messages.name)}
               </Text>
             </GridItem>
             <GridItem sm={12} md={10}>
@@ -62,7 +65,7 @@ const ReviewStep = () => {
           <Grid>
             <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="rbac-bold-text">
-                Description
+                {intl.formatMessage(messages.description)}
               </Text>
             </GridItem>
             <GridItem sm={12} md={10}>
@@ -72,7 +75,7 @@ const ReviewStep = () => {
           <Grid>
             <GridItem sm={12} md={2}>
               <Text component={TextVariants.h4} className="rbac-bold-text">
-                Permissions
+                {intl.formatMessage(messages.permissions)}
               </Text>
             </GridItem>
             <GridItem sm={12} md={10}>
@@ -83,11 +86,11 @@ const ReviewStep = () => {
             <Grid>
               <GridItem sm={12} md={2}>
                 <Text component={TextVariants.h4} className="rbac-bold-text">
-                  Resource definitions
+                  {intl.formatMessage(messages.resourceDefinitions)}
                 </Text>
               </GridItem>
               <GridItem sm={12} md={10}>
-                {stickyTable(['Permission', 'Resource definitions'], resourceDefinitionsRows)}
+                {stickyTable([intl.formatMessage(messages.permission), intl.formatMessage(messages.resourceDefinitions)], resourceDefinitionsRows)}
               </GridItem>
             </Grid>
           )}

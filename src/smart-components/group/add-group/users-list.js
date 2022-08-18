@@ -18,19 +18,12 @@ import {
 } from '../../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-
-const columns = [
-  { title: 'Org. Administrator', key: 'org-admin', transforms: [nowrap] },
-  { title: 'Username', key: 'username', transforms: [sortable] },
-  { title: 'Email' },
-  { title: 'First name', transforms: [nowrap] },
-  { title: 'Last name', transforms: [nowrap] },
-  { title: 'Status', transforms: [nowrap] },
-];
-
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 const createRows =
   (userLinks) =>
   (data, _expanded, checkedRows = []) => {
+    const intl = useIntl();
     return data
       ? data.reduce(
           (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
@@ -42,13 +35,13 @@ const createRows =
                   <Fragment>
                     <span>
                       <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                      <span key="yes">Yes</span>
+                      <span key="yes">{intl.formatMessage(messages.yes)}</span>
                     </span>
                   </Fragment>
                 ) : (
                   <Fragment>
                     <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                    <span key="no">No</span>
+                    <span key="no">{intl.formatMessage(messages.no)}</span>
                   </Fragment>
                 ),
                 { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
@@ -58,7 +51,7 @@ const createRows =
                 {
                   title: (
                     <Label key="status" color={isActive && 'green'}>
-                      {isActive ? 'Active' : 'Inactive'}
+                      {intl.formatMessage(isActive ? messages.active : messages.inactive)}
                     </Label>
                   ),
                   props: {
@@ -81,8 +74,17 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     count: inModal ? users.meta.count : users.pagination.count,
     redirected: !inModal && users.pagination.redirected,
   }));
-
+  const intl = useIntl();
   const history = useHistory();
+
+  const columns = [
+    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
+    { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
+    { title: intl.formatMessage(messages.email) },
+    { title: intl.formatMessage(messages.firstName), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.lastName), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.status), transforms: [nowrap] },
+  ];
 
   let stateFilters = useSelector(
     ({
@@ -97,7 +99,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       ? {
           username: '',
           email: '',
-          status: ['Active'],
+          status: [intl.formatMessage(messages.active)],
         }
       : stateFilters
   );
@@ -166,24 +168,32 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
         direction: 'asc',
       }}
       rowWrapper={UsersRow}
-      titlePlural="users"
-      titleSingular="user"
+      titlePlural={intl.formatMessage(messages.users).toLowerCase()}
+      titleSingular={intl.formatMessage(messages.user)}
       noDataDescription={[
-        'This filter criteria matches no users.',
-        'Make sure the beginning of your search input corresponds to the beginning of the value you are looking for, or try changing your filter settings.',
+        intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.users).toLowerCase() }),
+        intl.formatMessage(messages.checkFilterBeginning),
       ]}
       noData={users.length === 0 && !filters.username && !filters.email}
       filters={[
-        { key: 'username', value: filters.username, placeholder: 'Filter by username' },
-        { key: 'email', value: filters.email, placeholder: 'Filter by email' },
+        {
+          key: 'username',
+          value: filters.username,
+          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+        },
+        {
+          key: 'email',
+          value: filters.email,
+          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+        },
         {
           key: 'status',
           value: filters.status,
-          label: 'Status',
+          label: intl.formatMessage(messages.status),
           type: 'checkbox',
           items: [
-            { label: 'Active', value: 'Active' },
-            { label: 'Inactive', value: 'Inactive' },
+            { label: intl.formatMessage(messages.active), value: 'Active' },
+            { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
           ],
         },
       ]}

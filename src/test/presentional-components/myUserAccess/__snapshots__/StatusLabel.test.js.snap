@@ -9,7 +9,7 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
   <Tooltip
     content={
       <span>
-         You can manage other users' permissions with 'User access' 
+        You can manage other users' permissions with 'User access'
       </span>
     }
     position="right"
@@ -56,7 +56,7 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
             isLeftAligned={false}
           >
             <span>
-               You can manage other users' permissions with 'User access' 
+              You can manage other users' permissions with 'User access'
             </span>
           </TooltipContent>
         </div>

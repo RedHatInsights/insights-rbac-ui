@@ -20,21 +20,24 @@ import PageActionRoute from '../common/page-action-route';
 import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import PermissionsContext from '../../utilities/permissions-context';
 
-const columns = [
-  { title: 'Name', key: 'name', transforms: [sortable] },
-  { title: 'Roles' },
-  { title: 'Members' },
-  { title: 'Last modified', key: 'modified', transforms: [sortable] },
-];
-
 const Groups = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const history = useHistory();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
+
+  const columns = [
+    { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
+    { title: intl.formatMessage(messages.roles) },
+    { title: intl.formatMessage(messages.members) },
+    { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
+  ];
 
   const { groups, meta, filters, isLoading, systemGroup } = useSelector(
     ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
@@ -134,13 +137,13 @@ const Groups = () => {
       ? null
       : [
           {
-            title: 'Edit',
+            title: intl.formatMessage(messages.edit),
             onClick: (_event, _rowId, group) => {
               history.push(`/groups/edit/${group.uuid}`);
             },
           },
           {
-            title: 'Delete',
+            title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
               history.push(pathnames['remove-group'].path);
@@ -154,11 +157,11 @@ const Groups = () => {
       ? [
           <Link to={pathnames['add-group'].path} key="add-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
-              Create group
+              {intl.formatMessage(messages.createGroup)}
             </Button>
           </Link>,
           {
-            label: 'Create group',
+            label: intl.formatMessage(messages.createGroup),
             props: {
               className: 'rbac-m-hide-on-md',
             },
@@ -167,14 +170,14 @@ const Groups = () => {
             },
           },
           {
-            label: 'Edit',
+            label: intl.formatMessage(messages.edit),
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
             onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`),
           },
           {
-            label: 'Delete',
+            label: intl.formatMessage(messages.delete),
             props: {
               isDisabled: !selectedRows.length > 0,
             },
@@ -191,7 +194,7 @@ const Groups = () => {
     <Stack className="rbac-c-groups">
       <StackItem>
         <TopToolbar paddingBottom>
-          <TopToolbarTitle title="Groups" />
+          <TopToolbarTitle title={intl.formatMessage(messages.groups)} />
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -207,8 +210,8 @@ const Groups = () => {
             setCheckedItems={setCheckedItems}
             routes={routes}
             actionResolver={actionResolver}
-            titlePlural="groups"
-            titleSingular="group"
+            titlePlural={intl.formatMessage(messages.groups).toLowerCase()}
+            titleSingular={intl.formatMessage(messages.group).toLowerCase()}
             ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
@@ -221,7 +224,7 @@ const Groups = () => {
             setFilterValue={({ name = '' }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
             isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
-            filterPlaceholder="name"
+            filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             rowWrapper={GroupRowWrapper}
             tableId="groups"
           />

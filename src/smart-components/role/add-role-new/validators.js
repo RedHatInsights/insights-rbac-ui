@@ -2,8 +2,11 @@ import { useEffect } from 'react';
 import { fetchRoles } from '../../../helpers/role/role-helper';
 import asyncDebounce from '../../../utilities/async-debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 export const asyncValidator = async (roleName) => {
+  const intl = useIntl();
   if (!roleName) {
     return undefined;
   }
@@ -14,7 +17,7 @@ export const asyncValidator = async (roleName) => {
   });
 
   if (response?.data?.length > 0) {
-    throw 'Name has already been taken';
+    throw intl.formatMessage(messages.nameAlreadyTaken);
   }
 
   return undefined;

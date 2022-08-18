@@ -1,6 +1,8 @@
 import * as ActionTypes from '../action-types';
 import * as GroupHelper from '../../helpers/group/group-helper';
+import { useIntl } from 'react-intl';
 import { BAD_UUID } from '../../helpers/shared/helpers';
+import messages from '../../Messages';
 
 const handleUuidError = (err) => {
   const error = err?.errors?.[0] || {};
@@ -62,94 +64,105 @@ export const addGroup = (groupData) => ({
   }),
 });
 
-export const updateGroup = (groupData) => ({
-  type: ActionTypes.UPDATE_GROUP,
-  payload: GroupHelper.updateGroup(groupData),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success updating group',
-        dismissDelay: 8000,
-        dismissable: true,
-        description: 'The group was updated successfully.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed updating group',
-        dismissDelay: 8000,
-        dismissable: true,
-        description: 'The group was not updated successfuly.',
+export const updateGroup = (groupData) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.UPDATE_GROUP,
+    payload: GroupHelper.updateGroup(groupData),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.editGroupSuccessTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editGroupSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.editGroupErrorTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editGroupErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
-export const removeGroups = (uuids) => ({
-  type: ActionTypes.REMOVE_GROUPS,
-  payload: GroupHelper.removeGroups(uuids),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        dismissDelay: 8000,
-        title: uuids.length > 1 ? 'Groups deleted successfully' : 'Group deleted successfully',
-      },
-      rejected: {
-        variant: 'danger',
-        dismissDelay: 8000,
-        title:
-          uuids.length > 1 ? 'There was an error deleting the groups. Please try again.' : 'There was an error deleting the group. Please try again.',
+export const removeGroups = (uuids) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.REMOVE_GROUPS,
+    payload: GroupHelper.removeGroups(uuids),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          dismissDelay: 8000,
+          title: intl.formatMessage(uuids.length > 1 ? messages.removeGroupsSuccess : messages.removeGroupSuccess),
+        },
+        rejected: {
+          variant: 'danger',
+          dismissDelay: 8000,
+          title: intl.formatMessage(uuids.length > 1 ? messages.removeGroupsError : messages.removeGroupError),
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const resetSelectedGroup = () => ({
   type: ActionTypes.RESET_SELECTED_GROUP,
 });
 
-export const addMembersToGroup = (groupId, members) => ({
-  type: ActionTypes.ADD_MEMBERS_TO_GROUP,
-  payload: GroupHelper.addPrincipalsToGroup(groupId, members),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding members to group',
-        dismissDelay: 8000,
-        description: 'The members were successfully added to the group.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed adding members to group',
-        dismissDelay: 8000,
-        description: 'The members were not added successfully.',
+export const addMembersToGroup = (groupId, members) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.ADD_MEMBERS_TO_GROUP,
+    payload: GroupHelper.addPrincipalsToGroup(groupId, members),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.addGroupMembersSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupMembersSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.addGroupMembersErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupMembersErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
-export const removeMembersFromGroup = (groupId, members) => ({
-  type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
-  payload: GroupHelper.deletePrincipalsFromGroup(groupId, members),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success removing members from group',
-        dismissDelay: 8000,
-        description: 'The members were successfully removed from the group.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed removing members from group',
-        dismissDelay: 8000,
-        description: 'The members were not removed successfully.',
+export const removeMembersFromGroup = (groupId, members) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
+    payload: GroupHelper.deletePrincipalsFromGroup(groupId, members),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.removeGroupMembersSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupMembersSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeGroupMembersErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupMembersErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const fetchRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ROLES_FOR_GROUP,
@@ -166,47 +179,53 @@ export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
   payload: GroupHelper.fetchRolesForGroup(groupId, true, pagination, options).catch(handleUuidError),
 });
 
-export const addRolesToGroup = (groupId, roles) => ({
-  type: ActionTypes.ADD_ROLES_TO_GROUP,
-  payload: GroupHelper.addRolesToGroup(groupId, roles),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success adding roles to group',
-        dismissDelay: 8000,
-        description: 'The roles were successfully added to the group.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed adding roles to group',
-        dismissDelay: 8000,
-        description: 'The roles were not added successfully.',
+export const addRolesToGroup = (groupId, roles) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.ADD_ROLES_TO_GROUP,
+    payload: GroupHelper.addRolesToGroup(groupId, roles),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.addGroupRolesSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupRolesSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.addGroupRolesErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupRolesErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
-export const removeRolesFromGroup = (groupId, roles) => ({
-  type: ActionTypes.REMOVE_ROLES_FROM_GROUP,
-  payload: GroupHelper.deleteRolesFromGroup(groupId, roles),
-  meta: {
-    notifications: {
-      fulfilled: {
-        variant: 'success',
-        title: 'Success removing roles from group',
-        dismissDelay: 8000,
-        description: 'The roles were successfully removed from the group.',
-      },
-      rejected: {
-        variant: 'danger',
-        title: 'Failed removing roles from group',
-        dismissDelay: 8000,
-        description: 'The roles were not removed successfully.',
+export const removeRolesFromGroup = (groupId, roles) => {
+  const intl = useIntl();
+  return {
+    type: ActionTypes.REMOVE_ROLES_FROM_GROUP,
+    payload: GroupHelper.deleteRolesFromGroup(groupId, roles),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.removeGroupRolesSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupRolesSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeGroupRolesErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupRolesErrorDescription),
+        },
       },
     },
-  },
-});
+  };
+};
 
 export const updateGroupsFilters = (filters) => ({
   type: ActionTypes.UPDATE_GROUPS_FILTERS,

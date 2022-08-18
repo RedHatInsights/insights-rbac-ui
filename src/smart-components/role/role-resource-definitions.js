@@ -13,9 +13,12 @@ import paths from '../../utilities/pathnames';
 import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import flatten from 'lodash/flatten';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './role-permissions.scss';
 
 const ResourceDefinitions = () => {
+  const intl = useIntl();
   const [config, setConfig] = useState({
     pagination: {
       ...defaultSettings,
@@ -84,7 +87,7 @@ const ResourceDefinitions = () => {
           <Fragment key="edit-resource-definitions">
             <Link to={`/roles/detail/${roleId}/permission/${permissionId}/edit`}>
               <Button variant="primary" aria-label="Edit">
-                Edit
+                {intl.formatMessage(messages.edit)}
               </Button>
             </Link>
           </Fragment>,
@@ -95,7 +98,7 @@ const ResourceDefinitions = () => {
     <Fragment>
       <TopToolbar
         breadcrumbs={[
-          { title: 'Roles', to: getBackRoute(routes.roles, rolesPagination, rolesFilters) },
+          { title: intl.formatMessage(messages.roles), to: getBackRoute(routes.roles, rolesPagination, rolesFilters) },
           { title: isRecordLoading ? undefined : role && (role.display_name || role.name), to: `/roles/detail/${roleId}` },
           { title: permissionId, isActive: true },
         ]}
@@ -108,7 +111,7 @@ const ResourceDefinitions = () => {
       </TopToolbar>
       <section className="pf-c-page__main-section rbac-c-role__permissions">
         <TextContent>
-          <Text component={TextVariants.h1}>Defined resources</Text>
+          <Text component={TextVariants.h1}>{intl.formatMessage(messages.definedResources)}</Text>
         </TextContent>
         <TableToolbarView
           columns={[{}]}
@@ -140,8 +143,8 @@ const ResourceDefinitions = () => {
             ...pagination,
             count: filteredRows.length,
           }}
-          titlePlural="resources"
-          titleSingular="resource"
+          titlePlural={intl.formatMessage(messages.resources).toLowerCase()}
+          titleSingular={intl.formatMessage(messages.resource).toLowerCase()}
           hideHeader
           tableId="role-resource-definitions"
         />

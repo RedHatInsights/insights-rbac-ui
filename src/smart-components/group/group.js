@@ -15,8 +15,10 @@ import pathnames from '../../utilities/pathnames';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './group.scss';
 
 const Group = ({
@@ -28,10 +30,11 @@ const Group = ({
   isFetching,
   onDelete,
 }) => {
+  const intl = useIntl();
   const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
-    { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
-    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
+    { eventKey: 0, title: intl.formatMessage(messages.roles), name: `/groups/detail/${uuid}/roles` },
+    { eventKey: 1, title: intl.formatMessage(messages.members), name: `/groups/detail/${uuid}/members` },
   ];
 
   const [isDropdownOpen, setDropdownOpen] = useState(false);
@@ -51,10 +54,12 @@ const Group = ({
 
   const breadcrumbsList = () => [
     {
-      title: 'Groups',
+      title: intl.formatMessage(messages.groups),
       to: getBackRoute(pathnames.groups.path, pagination, filters),
     },
-    groupExists ? { title: isFetching ? undefined : group.name, isActive: true } : { title: 'Invalid group', isActive: true },
+    groupExists
+      ? { title: isFetching ? undefined : group.name, isActive: true }
+      : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
   ];
 
   const fetchData = (apiProps) => {
@@ -81,10 +86,12 @@ const Group = ({
         <Popover
           aria-label="default-group-icon"
           bodyContent={
-            <div>
-              Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
-              name has changed to <b>Custom default access</b>.
-            </div>
+            <FormattedMessage
+              {...messages.defaultAccessGroupNameChanged}
+              values={{
+                b: (text) => <b>{text}</b>,
+              }}
+            />
           }
         >
           <InfoCircleIcon className="rbac-default-group-info-icon" />
@@ -103,7 +110,7 @@ const Group = ({
             isPlatformDefault ? 'default-access' : uuid
           )}
         >
-          Edit
+          {intl.formatMessage(messages.edit)}
         </Link>
       }
       key="edit-group"
@@ -119,7 +126,7 @@ const Group = ({
             )
           }
         >
-          Delete
+          {intl.formatMessage(messages.delete)}
         </Link>
       }
       className="rbac-c-group__action"
@@ -162,12 +169,16 @@ const Group = ({
               <Alert
                 variant="info"
                 isInline
-                title="Default access group has changed"
+                title={intl.formatMessage(messages.defaultAccessGroupChanged)}
                 action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
                 className="pf-u-mb-lg pf-u-mt-sm"
               >
-                Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
-                name has changed to <b>Custom default access</b>.
+                <FormattedMessage
+                  {...messages.defaultAccessGroupNameChanged}
+                  values={{
+                    b: (text) => <b>{text}</b>,
+                  }}
+                />
               </Alert>
             ) : null}
           </TopToolbar>
@@ -214,8 +225,8 @@ const Group = ({
             <RbacBreadcrumbs {...breadcrumbsList()} />
           </section>
           <EmptyWithAction
-            title="Group not found"
-            description={[`Group with ID ${uuid} does not exist.`]}
+            title={intl.formatMessage(messages.groupNotFound)}
+            description={[intl.formatMessage(messages.groupDoesNotExist, { id: uuid })]}
             actions={[
               <Button
                 key="back-button"
@@ -225,7 +236,7 @@ const Group = ({
                 aria-label="Back to previous page"
                 onClick={() => history.goBack()}
               >
-                Back to previous page
+                {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
             ]}
           />

@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import messages from '../../Messages';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { Button, Checkbox, Modal, ModalVariant, Split, SplitItem, Stack, TextContent } from '@patternfly/react-core';
 import './RemoveModal.scss';
 
 const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, withCheckbox }) => {
+  const intl = useIntl();
   const [checked, setChecked] = useState(false);
 
   return (
@@ -23,7 +26,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
           {confirmButtonLabel}
         </Button>,
         <Button key="cancel" ouiaId="secondary-cancel-button" variant="link" onClick={onClose}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
@@ -38,7 +41,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
         <Checkbox
           isChecked={checked}
           onChange={() => setChecked(!checked)}
-          label="I understand, and I want to continue."
+          label={intl.formatMessage(messages.confirmCheckMessage)}
           id="remove-modal-check"
           className="pf-u-mt-lg"
         />

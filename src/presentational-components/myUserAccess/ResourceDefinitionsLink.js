@@ -1,9 +1,13 @@
 import React from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const ResourceDefinitionsLink = ({ onClick, access }) => {
+  const intl = useIntl();
+
   return access.resourceDefinitions.length === 0 ? (
-    <span>N/A</span>
+    <span>{intl.formatMessage(messages.notApplicable)}</span>
   ) : (
     <a
       onClick={() => {

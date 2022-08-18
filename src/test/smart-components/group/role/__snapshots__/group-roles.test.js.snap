@@ -137,7 +137,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                 "items": undefined,
                 "key": "filter-by-name",
                 "onChange": [Function],
-                "placeholder": "Filter by name",
+                "placeholder": "Filter by {key}",
                 "selected": undefined,
                 "value": "",
               },
@@ -152,7 +152,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                 "items": undefined,
                 "key": "filter-by-description",
                 "onChange": [Function],
-                "placeholder": "Filter by description",
+                "placeholder": "Filter by {key}",
                 "selected": undefined,
                 "value": "",
               },
@@ -217,7 +217,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                     "items": undefined,
                                     "key": "filter-by-name",
                                     "onChange": [Function],
-                                    "placeholder": "Filter by name",
+                                    "placeholder": "Filter by {key}",
                                     "selected": undefined,
                                     "value": "",
                                   },
@@ -232,7 +232,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                     "items": undefined,
                                     "key": "filter-by-description",
                                     "onChange": [Function],
-                                    "placeholder": "Filter by description",
+                                    "placeholder": "Filter by {key}",
                                     "selected": undefined,
                                     "value": "",
                                   },
@@ -611,7 +611,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                       isDisabled={true}
                                       key="filter-by-name"
                                       onChange={[Function]}
-                                      placeholder="Filter by name"
+                                      placeholder="Filter by {key}"
                                       value=""
                                     >
                                       <TextInput
@@ -623,7 +623,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         onChange={[Function]}
                                         onKeyDown={[Function]}
                                         ouiaId="ConditionalFilter"
-                                        placeholder="Filter by name"
+                                        placeholder="Filter by {key}"
                                         value=""
                                         widget-type="InsightsInput"
                                       >
@@ -641,7 +641,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           onKeyDown={[Function]}
                                           ouiaId="ConditionalFilter"
                                           ouiaSafe={true}
-                                          placeholder="Filter by name"
+                                          placeholder="Filter by {key}"
                                           type="text"
                                           validated="default"
                                           value=""
@@ -660,7 +660,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             onChange={[Function]}
                                             onFocus={[Function]}
                                             onKeyDown={[Function]}
-                                            placeholder="Filter by name"
+                                            placeholder="Filter by {key}"
                                             readOnly={false}
                                             required={false}
                                             type="text"

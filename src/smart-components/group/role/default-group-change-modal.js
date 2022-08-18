@@ -2,22 +2,29 @@ import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, TextContent } from '@patternfly/react-core';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {
+  const intl = useIntl();
   return (
     <RemoveModal
       text={
         <TextContent>
           <Text>
-            Once you edit the <b>Default access</b> group, the system will no longer update it with new default access roles. The group name will
-            change to <b>Custom default access</b>.
+            <FormattedMessage
+              {...messages.defaultAccessGroupEditWarning}
+              values={{
+                b: (text) => <b>{text}</b>,
+              }}
+            />
           </Text>
         </TextContent>
       }
-      title={'Warning'}
+      title={intl.formatMessage(messages.warning)}
       withCheckbox
       isOpen={isOpen}
-      confirmButtonLabel={'Continue'}
+      confirmButtonLabel={intl.formatMessage(messages.continue)}
       onClose={onClose}
       onSubmit={onSubmit}
     />

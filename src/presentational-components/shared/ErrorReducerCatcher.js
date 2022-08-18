@@ -1,5 +1,7 @@
 import React, { useEffect, Fragment } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import messages from '../../Messages';
 import { useDispatch, useSelector } from 'react-redux';
 import NotAuthorized from '@redhat-cloud-services/frontend-components/NotAuthorized/NotAuthorized';
 import { useLocation } from 'react-router-dom';
@@ -10,15 +12,16 @@ const errorStates = {
   403: NotAuthorized,
 };
 
-const sectionTitles = {
-  '/users': 'RBAC Users',
-  '/groups': 'RBAC Groups',
-};
-
 const ErroReducerCatcher = ({ children }) => {
   const errorCode = useSelector(({ errorReducer: { errorCode } }) => errorCode);
   const { pathname } = useLocation();
   const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const sectionTitles = {
+    '/users': intl.formatMessage(messages.rbacUsers),
+    '/groups': intl.formatMessage(messages.rbacGroups),
+  };
 
   useEffect(() => {
     if (errorCode) {

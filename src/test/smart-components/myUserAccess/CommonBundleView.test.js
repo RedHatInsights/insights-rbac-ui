@@ -81,8 +81,8 @@ describe('<CommonBundleView />', () => {
   it('handleSetFilters should update filters config', () => {
     const initialFilters = createFilter({ name: '', isOrgAdmin: true, apps: [] });
     const expectedFilters = [
-      { items: [], key: 'application', placeholder: 'Filter by application', type: 'checkbox', value: ['foo'] },
-      { key: 'name', type: 'text', value: 'foo', label: 'Role name', placeholder: 'Filter by role name' },
+      { items: [], key: 'application', placeholder: 'Filter by {key}', type: 'checkbox', value: ['foo'] },
+      { key: 'name', type: 'text', value: 'foo', label: 'Role name', placeholder: 'Filter by {key}' },
       // { key: 'permission', value: '', placeholder: 'Filter by permission', type: 'text' },
     ];
     const wrapper = mount(
@@ -109,7 +109,7 @@ describe('<CommonBundleView />', () => {
       {
         key: 'application',
         value: [],
-        placeholder: 'Filter by application',
+        placeholder: 'Filter by {key}',
         type: 'checkbox',
         items: [],
       },
@@ -118,7 +118,7 @@ describe('<CommonBundleView />', () => {
         type: 'text',
         value: name,
         label: 'Role name',
-        placeholder: 'Filter by role name',
+        placeholder: 'Filter by {key}',
       },
       // {
       //   key: 'permission',
@@ -136,7 +136,7 @@ describe('<CommonBundleView />', () => {
       {
         key: 'application',
         value: [],
-        placeholder: 'Filter by application',
+        placeholder: 'Filter by {key}',
         type: 'checkbox',
         items: [{ label: 'foo', value: 'foo' }],
       },
