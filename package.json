@@ -104,7 +104,7 @@
   "scripts": {
     "build": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "analyze": "NODE_ENV=production webpack --config config/prod.webpack.config.js --env analyze=true",
-    "test": "jest --verbose -i",
+    "test": "TZ=UTC jest --verbose -i--no-cache",
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint config src",
     "lint:js:fix": "eslint config src --fix",
