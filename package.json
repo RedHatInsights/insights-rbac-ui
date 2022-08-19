@@ -15,7 +15,7 @@
     "@formatjs/cli": "5.0.6",
     "@patternfly/quickstarts": "^2.2.2",
     "@patternfly/react-core": "4.198.19",
-    "@patternfly/react-icons": "^4.57.2",
+    "@patternfly/react-icons": "^4.82.8",
     "@patternfly/react-table": "^4.67.19",
     "@patternfly/react-tokens": "^4.58.2",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
