@@ -7,10 +7,10 @@ import { getBaseName } from '@redhat-cloud-services/frontend-components-utilitie
 import { IntlProvider } from 'react-intl';
 import messages from './locales/data.json';
 
-const language = 'en';
+export const locale = 'en';
 
 const InsightsRbac = () => (
-  <IntlProvider locale={language} messages={messages[language]}>
+  <IntlProvider locale={locale} messages={messages[locale]}>
     <RegistryContext.Provider
       value={{
         getRegistry: () => registry,

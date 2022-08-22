@@ -7,11 +7,14 @@ import CostResourcesTemplate from './cost-resources-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddRoleWizardContext } from './add-role-wizard';
-import { useIntl } from 'react-intl';
+import { locale } from '../../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
+import providerMessages from '../../../locales/data.json';
 
-export default (container) => {
-  const intl = useIntl();
+export const schemaBuilder = (container) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     fields: [
       {

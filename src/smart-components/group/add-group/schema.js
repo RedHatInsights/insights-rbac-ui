@@ -4,11 +4,14 @@ import componentTypes from '@data-driven-forms/react-form-renderer/component-typ
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddGroupWizardContext } from './add-group-wizard';
-import { useIntl } from 'react-intl';
+import { locale } from '../../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
+import providerMessages from '../../../locales/data.json';
 
 export const schemaBuilder = () => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     fields: [
       {

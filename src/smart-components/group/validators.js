@@ -1,10 +1,13 @@
 import { fetchGroups } from '../../helpers/group/group-helper';
 import asyncDebounce from '../../utilities/async-debounce';
-import { useIntl } from 'react-intl';
+import { locale } from '../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
+import providerMessages from '../../locales/data.json';
 
 export const asyncValidator = async (groupName, idKey, id) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   if (!groupName) {
     return undefined;
   }
