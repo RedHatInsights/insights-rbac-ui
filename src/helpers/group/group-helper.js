@@ -113,7 +113,19 @@ export async function addPrincipalsToGroup(groupId, users) {
 }
 
 export async function fetchRolesForGroup(groupId, excluded, { limit, offset, name, description }, options = {}) {
-  return await groupApi.listRolesForGroup(groupId, excluded, undefined, name, description, undefined, limit, offset, 'display_name', options);
+  return await groupApi.listRolesForGroup(
+    groupId,
+    excluded,
+    undefined,
+    name,
+    description,
+    undefined,
+    undefined,
+    limit,
+    offset,
+    'display_name',
+    options
+  );
 }
 
 export async function deleteRolesFromGroup(groupId, roles) {
