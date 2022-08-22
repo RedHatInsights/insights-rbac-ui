@@ -483,6 +483,10 @@
     "defaultMessage": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
     "description": "Granular permissions will be copied message"
   },
+  "group": {
+    "defaultMessage": "Group",
+    "description": "Group singular"
+  },
   "groupDescription": {
     "defaultMessage": "Group description",
     "description": "Group description label"

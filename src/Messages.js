@@ -567,6 +567,11 @@ export default defineMessages({
     description: 'Groups plural',
     defaultMessage: 'Groups',
   },
+  group: {
+    id: 'group',
+    description: 'Group singular',
+    defaultMessage: 'Group',
+  },
   groupName: {
     id: 'groupName',
     description: 'Group name label',
