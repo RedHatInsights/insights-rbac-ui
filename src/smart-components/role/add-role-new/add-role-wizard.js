@@ -6,7 +6,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core';
-import schemaBuilder from './schema';
+import { schemaBuilder } from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../../smart-components/common/warningModal';
 import AddRoleSuccess from './add-role-success';

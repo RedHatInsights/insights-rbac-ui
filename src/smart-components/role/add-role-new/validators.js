@@ -2,11 +2,14 @@ import { useEffect } from 'react';
 import { fetchRoles } from '../../../helpers/role/role-helper';
 import asyncDebounce from '../../../utilities/async-debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { useIntl } from 'react-intl';
+import { locale } from '../../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
+import providerMessages from '../../../locales/data.json';
 
 export const asyncValidator = async (roleName) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   if (!roleName) {
     return undefined;
   }

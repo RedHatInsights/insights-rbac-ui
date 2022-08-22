@@ -7,11 +7,14 @@ import CostResourcesTemplate from './cost-resources-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { AddRoleWizardContext } from './add-role-wizard';
-import { useIntl } from 'react-intl';
+import { locale } from '../../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
+import providerMessages from '../../../locales/data.json';
 
-export default (container) => {
-  const intl = useIntl();
+export const schemaBuilder = (container) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     fields: [
       {
@@ -186,8 +189,7 @@ export default (container) => {
                 component: 'cost-resources',
                 name: 'cost-resources',
                 validate: [
-                  (value = []) =>
-                    value.every((p) => p.resources.length > 0) ? undefined : 'You need to assign at least one resource to each permission.',
+                  (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
                 ],
               },
             ],
