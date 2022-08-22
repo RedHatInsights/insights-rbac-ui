@@ -120,6 +120,7 @@
   "firstName": "First name",
   "followingPermissionsCannotBeAdded": "The following permissions can not be added to a custom role and were removed from the copied role:",
   "granularPermissionsWillBeCopied": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
+  "group": "Group",
   "groupDescription": "Group description",
   "groupDoesNotExist": "Group with ID {id} does not exist.",
   "groupName": "Group name",
