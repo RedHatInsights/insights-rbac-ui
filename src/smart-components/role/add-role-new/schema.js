@@ -189,8 +189,7 @@ export const schemaBuilder = (container) => {
                 component: 'cost-resources',
                 name: 'cost-resources',
                 validate: [
-                  (value = []) =>
-                    value.every((p) => p.resources.length > 0) ? undefined : 'You need to assign at least one resource to each permission.',
+                  (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
                 ],
               },
             ],
