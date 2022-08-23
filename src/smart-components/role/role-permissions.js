@@ -24,6 +24,7 @@ import AddRolePermissionWizard from './add-role-permissions/add-role-permission-
 import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import { FormattedMessage, useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import messages from '../../Messages';
 
 const maxFilterItems = 10;
@@ -47,7 +48,7 @@ const removeModalText = (permissions, role, plural) => {
   );
 };
 
-const Permissions = (cantAddPermissions) => {
+const Permissions = ({ cantAddPermissions }) => {
   const intl = useIntl();
   const { role, isRecordLoading } = useSelector(
     (state) => ({
@@ -325,6 +326,10 @@ const Permissions = (cantAddPermissions) => {
       />
     </section>
   );
+};
+
+Permissions.propTypes = {
+  cantAddPermissions: PropTypes.bool,
 };
 
 export default Permissions;
