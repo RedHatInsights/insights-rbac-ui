@@ -59,6 +59,10 @@
     "defaultMessage": "To add new users or manage existing users, go to your",
     "description": "Add new users text"
   },
+  "addPermission": {
+    "defaultMessage": "Add permission",
+    "description": "Add permission label"
+  },
   "addPermissions": {
     "defaultMessage": "Add permissions",
     "description": "Add permissions label"

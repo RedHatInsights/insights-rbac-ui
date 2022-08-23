@@ -1071,6 +1071,11 @@ export default defineMessages({
     description: 'Add permissions label',
     defaultMessage: 'Add permissions',
   },
+  addPermission: {
+    id: 'addPermission',
+    description: 'Add permission label',
+    defaultMessage: 'Add permission',
+  },
   selectPermissionsForRole: {
     id: 'selectPermissionsForRole',
     description: 'Select permissions for role label',
