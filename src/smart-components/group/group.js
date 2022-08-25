@@ -71,9 +71,9 @@ const Group = ({
 
   useEffect(() => {
     fetchSystemGroup();
-    const currUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
-    fetchData(currUuid);
+    const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
     if (currUuid) {
+      fetchData(systemGroupUuid);
       insights.chrome.appObjectId(currUuid);
       return () => insights.chrome.appObjectId(undefined);
     }

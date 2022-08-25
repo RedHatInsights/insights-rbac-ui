@@ -152,11 +152,13 @@ const GroupRoles = ({
         values={{
           b: (text) => <b>{text}</b>,
           name,
-          role,
+          ...(plural ? { roles: role } : { role }),
         }}
       />
     </p>
   );
+
+  const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
 
   const actionResolver = () => [
     ...(hasPermissions.current && !isAdminDefault
@@ -164,7 +166,7 @@ const GroupRoles = ({
           {
             title: intl.formatMessage(messages.remove),
             onClick: (_event, _rowId, role) => {
-              setConfirmDelete(() => () => removeRoles(uuid, [role.uuid], () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
+              setConfirmDelete(() => () => removeRoles(fetchUuid, [role.uuid], () => fetchRolesForGroup({ ...pagination, offset: 0 })(fetchUuid)));
               setDeleteInfo({
                 title: intl.formatMessage(messages.removeRoleQuestion),
                 confirmButtonLabel: intl.formatMessage(messages.removeRole),
@@ -176,8 +178,6 @@ const GroupRoles = ({
         ]
       : []),
   ];
-
-  const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
 
   const routes = () => (
     <Fragment>
@@ -211,7 +211,7 @@ const GroupRoles = ({
       ? [
           <Link
             className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
-            to={`/groups/detail/${uuid}/roles/add_roles`}
+            to={`/groups/detail/${fetchUuid}/roles/add_roles`}
             key="add-to-group"
           >
             {addRoleButton(disableAddRoles, generateOuiaID(name || ''), isAdminDefault && intl.formatMessage(messages.defaultGroupNotManually))}
@@ -237,9 +237,9 @@ const GroupRoles = ({
               setConfirmDelete(
                 () => () =>
                   removeRoles(
-                    uuid,
+                    fetchUuid,
                     selectedRoles.map((role) => role.uuid),
-                    () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
+                    () => fetchRolesForGroup({ ...pagination, offset: 0 })(fetchUuid)
                   )
               );
               setDeleteInfo({

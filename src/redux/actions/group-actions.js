@@ -1,8 +1,10 @@
 import * as ActionTypes from '../action-types';
 import * as GroupHelper from '../../helpers/group/group-helper';
-import { useIntl } from 'react-intl';
+import { createIntl, createIntlCache } from 'react-intl';
 import { BAD_UUID } from '../../helpers/shared/helpers';
 import messages from '../../Messages';
+import providerMessages from '../../locales/data.json';
+import { locale } from '../../AppEntry';
 
 const handleUuidError = (err) => {
   const error = err?.errors?.[0] || {};
@@ -63,7 +65,8 @@ export const addGroup = (groupData) => ({
 });
 
 export const updateGroup = (groupData) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.UPDATE_GROUP,
     payload: GroupHelper.updateGroup(groupData),
@@ -89,7 +92,8 @@ export const updateGroup = (groupData) => {
 };
 
 export const removeGroups = (uuids) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_GROUPS,
     payload: GroupHelper.removeGroups(uuids),
@@ -115,7 +119,8 @@ export const resetSelectedGroup = () => ({
 });
 
 export const addMembersToGroup = (groupId, members) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.ADD_MEMBERS_TO_GROUP,
     payload: GroupHelper.addPrincipalsToGroup(groupId, members),
@@ -139,7 +144,8 @@ export const addMembersToGroup = (groupId, members) => {
 };
 
 export const removeMembersFromGroup = (groupId, members) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
     payload: GroupHelper.deletePrincipalsFromGroup(groupId, members),
@@ -178,7 +184,8 @@ export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
 });
 
 export const addRolesToGroup = (groupId, roles) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.ADD_ROLES_TO_GROUP,
     payload: GroupHelper.addRolesToGroup(groupId, roles),
@@ -202,7 +209,8 @@ export const addRolesToGroup = (groupId, roles) => {
 };
 
 export const removeRolesFromGroup = (groupId, roles) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_ROLES_FROM_GROUP,
     payload: GroupHelper.deleteRolesFromGroup(groupId, roles),
