@@ -793,6 +793,11 @@ export default defineMessages({
     description: 'Remove role label',
     defaultMessage: 'Remove role',
   },
+  removeRoles: {
+    id: 'removeRoles',
+    description: 'Remove roles label',
+    defaultMessage: 'Remove roles',
+  },
   removeRoleQuestion: {
     id: 'removeRoleQuestion',
     description: 'Remove role question label',

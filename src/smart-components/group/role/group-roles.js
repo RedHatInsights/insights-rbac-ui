@@ -152,7 +152,7 @@ const GroupRoles = ({
         values={{
           b: (text) => <b>{text}</b>,
           name,
-          role,
+          ...(plural ? { roles: role } : { role }),
         }}
       />
     </p>

@@ -1,11 +1,14 @@
 import * as ActionTypes from '../action-types';
 import * as RoleHelper from '../../helpers/role/role-helper';
 import { BAD_UUID } from '../../helpers/shared/helpers';
-import { useIntl } from 'react-intl';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
+import providerMessages from '../../locales/data.json';
+import { locale } from '../../AppEntry';
 
 export const createRole = (roleData) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.ADD_ROLE,
     payload: RoleHelper.createRole(roleData),
@@ -52,7 +55,8 @@ export const fetchRolesWithPolicies = (options = {}) => ({
 });
 
 export const removeRole = (role) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_ROLE,
     payload: RoleHelper.removeRole(role),
@@ -91,7 +95,8 @@ export const fetchRolesForWizard = (options = {}) => ({
 });
 
 export const updateRole = (roleId, data, useCustomAccess) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.UPDATE_ROLE,
     payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
@@ -109,7 +114,8 @@ export const updateRole = (roleId, data, useCustomAccess) => {
 };
 
 export const patchRole = (roleId, data) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.PATCH_ROLE,
     payload: RoleHelper.patchRole(roleId, data),

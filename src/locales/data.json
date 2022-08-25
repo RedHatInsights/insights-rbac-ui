@@ -207,6 +207,7 @@
     "removeRoleQuestion": "Remove role?",
     "removeRoleSuccessDescription": "The role was removed successfully.",
     "removeRoleSuccessTitle": "Success removing role",
+    "removeRoles": "Remove roles",
     "removeRolesModalText": "Members in the <b>{name}</b> group will lose the permissions in these <b>{roles}</b> roles",
     "removeRolesQuestion": "Remove roles?",
     "required": "Required",

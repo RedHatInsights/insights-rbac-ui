@@ -827,6 +827,10 @@
     "defaultMessage": "Success removing role",
     "description": "Remove role success notification title"
   },
+  "removeRoles": {
+    "defaultMessage": "Remove roles",
+    "description": "Remove roles label"
+  },
   "removeRolesModalText": {
     "defaultMessage": "Members in the <b>{name}</b> group will lose the permissions in these <b>{roles}</b> roles",
     "description": "Remove role message warning about losing permissions"
