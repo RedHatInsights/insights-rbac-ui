@@ -6,7 +6,16 @@ import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import './warningModal.scss';
 
-export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, customTitle, customDescription }) => {
+export const WarningModal = ({
+  type,
+  isOpen,
+  onModalCancel,
+  onConfirmCancel,
+  customTitle,
+  customDescription,
+  customPrimaryButtonTitle,
+  customSecondaryButtonTitle,
+}) => {
   const intl = useIntl();
   return (
     <Modal
@@ -22,10 +31,10 @@ export const WarningModal = ({ type, isOpen, onModalCancel, onConfirmCancel, cus
       onClose={onModalCancel}
       actions={[
         <Button ouiaId="primary-exit-button" key="confirm" variant="primary" onClick={onConfirmCancel}>
-          {intl.formatMessage(messages.exit)}
+          {customPrimaryButtonTitle ?? intl.formatMessage(messages.exit)}
         </Button>,
         <Button ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onModalCancel}>
-          {intl.formatMessage(messages.stay)}
+          {customSecondaryButtonTitle ?? intl.formatMessage(messages.stay)}
         </Button>,
       ]}
     >
@@ -38,6 +47,8 @@ WarningModal.propTypes = {
   type: PropTypes.string,
   customTitle: PropTypes.node,
   customDescription: PropTypes.node,
+  customPrimaryButtonTitle: PropTypes.string,
+  customSecondaryButtonTitle: PropTypes.string,
   isOpen: PropTypes.bool,
   onModalCancel: PropTypes.func,
   onConfirmCancel: PropTypes.func,

@@ -20,6 +20,7 @@ const AddGroupRoles = ({
   addNotification,
   onDefaultGroupChanged,
   fetchRolesForGroup,
+  fetchSystemGroup,
   fetchGroup,
   fetchUuid,
 }) => {
@@ -40,8 +41,16 @@ const AddGroupRoles = ({
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
     addRolesToGroup(fetchUuid, rolesList, () => {
-      fetchRolesForGroup();
-      fetchGroup();
+      if (isDefault) {
+        fetchSystemGroup().then(({ value: { data } }) => {
+          fetchRolesForGroup(data[0].uuid);
+          fetchGroup(data[0].uuid);
+        });
+      } else {
+        fetchRolesForGroup();
+        fetchGroup();
+      }
+      setSelectedRoles([]);
     });
     if (isDefault && !isChanged) {
       onDefaultGroupChanged(true);
@@ -131,6 +140,7 @@ AddGroupRoles.propTypes = {
   onDefaultGroupChanged: PropTypes.func,
   fetchRolesForGroup: PropTypes.func,
   fetchGroup: PropTypes.func,
+  fetchSystemGroup: PropTypes.func,
   fetchUuid: PropTypes.string,
 };
 

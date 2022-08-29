@@ -1354,4 +1354,24 @@ export default defineMessages({
     description: 'Trigger my catalog text',
     defaultMessage: 'Trigger my catalog',
   },
+  restoreToDefaultQuestion: {
+    id: 'restoreToDefaultQuestion',
+    description: 'Restore to default question',
+    defaultMessage: 'Restore to default?',
+  },
+  restoreToDefault: {
+    id: 'restoreToDefault',
+    description: 'Restore to default label',
+    defaultMessage: 'Restore to default',
+  },
+  restoreDefaultAccessInfo: {
+    id: 'restoreDefaultAccessInfo',
+    description: 'Restore Custom Default Access group info',
+    defaultMessage: 'This will restore the group to <b>Default access</b>, removing your custom default access and configurations permanently.',
+  },
+  restoreDefaultAccessDescription: {
+    id: 'restoreDefaultAccessDescription',
+    description: 'Restore Custom Default Access group description',
+    defaultMessage: 'Restoring to default access will remove your custom default access and configurations permanently. Do you wish to continue?',
+  },
 });

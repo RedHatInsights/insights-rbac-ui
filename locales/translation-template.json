@@ -875,6 +875,22 @@
     "defaultMessage": "Resources defined for the permission",
     "description": "Resources defined for permission message"
   },
+  "restoreDefaultAccessDescription": {
+    "defaultMessage": "Restoring to default access will remove your custom default access and configurations permanently. Do you wish to continue?",
+    "description": "Restore Custom Default Access group description"
+  },
+  "restoreDefaultAccessInfo": {
+    "defaultMessage": "This will restore the group to <b>Default access</b>, removing your custom default access and configurations permanently.",
+    "description": "Restore Custom Default Access group info"
+  },
+  "restoreToDefault": {
+    "defaultMessage": "Restore to default",
+    "description": "Restore to default label"
+  },
+  "restoreToDefaultQuestion": {
+    "defaultMessage": "Restore to default?",
+    "description": "Restore to default question"
+  },
   "returnToStepNumber": {
     "defaultMessage": "Return to step {number}",
     "description": "Return to step wizard label"

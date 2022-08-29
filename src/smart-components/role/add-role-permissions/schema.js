@@ -1,11 +1,14 @@
 import React from 'react';
 import AddPermissionTemplate from '../add-role-new/add-permissions-template';
 import ReviewTemplate from './review-template';
-import { useIntl } from 'react-intl';
+import { locale } from '../../../AppEntry';
+import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
+import providerMessages from '../../../locales/data.json';
 
 export const schemaBuilder = (container) => {
-  const intl = useIntl();
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     fields: [
       {

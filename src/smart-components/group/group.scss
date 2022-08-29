@@ -1,3 +1,8 @@
 .rbac-default-group-info-icon {
-  color: var(--pf-global--info-color--100);
+  color: var(--pf-global--Color--200);
+  cursor: pointer;
+}
+
+.rbac-default-group-reset-btn {
+  display: inline-flex;
 }
