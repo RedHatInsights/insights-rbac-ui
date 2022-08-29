@@ -4,9 +4,12 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormGroup, Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
 import RolesList from './roles-list';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import '../../../App.scss';
 
 const SetRoles = (props) => {
+  const intl = useIntl();
   const [selectedRoles, setSelectedRoles] = useState([]);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
@@ -25,7 +28,7 @@ const SetRoles = (props) => {
       <Stack hasGutter>
         <StackItem>
           <TextContent>
-            <Text>Select one or more roles to add to this group.</Text>
+            <Text>{intl.formatMessage(messages.selectRolesForGroupText)}</Text>
           </TextContent>
         </StackItem>
         <StackItem>

@@ -5,11 +5,14 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { CompactUsersList } from './users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import '../../../App.scss';
 
 const SetUsers = (props) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const { input } = useFieldApi(props);
+  const intl = useIntl();
   const formOptions = useFormApi();
 
   useEffect(() => {
@@ -27,7 +30,7 @@ const SetUsers = (props) => {
         <Stack hasGutter>
           <StackItem>
             <TextContent>
-              <ActiveUser linkDescription={'To manage users, go to your'} />
+              <ActiveUser linkDescription={intl.formatMessage(messages.toManageUsersText)} />
             </TextContent>
           </StackItem>
           <StackItem>

@@ -112,14 +112,6 @@ const pathnames = {
     path: '/my-user-access',
     title: 'My User Access',
   },
-  'access-requests': {
-    path: '/access-requests',
-    title: 'Access requests',
-  },
-  'access-requests-detail': {
-    path: '/access-requests/:requestId',
-    title: 'Access request',
-  },
   'quickstarts-test': {
     path: '/quickstarts-test',
     title: 'Quickstarts',

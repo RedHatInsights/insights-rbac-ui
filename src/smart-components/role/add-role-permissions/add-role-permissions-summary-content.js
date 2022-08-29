@@ -1,8 +1,11 @@
 import React from 'react';
 import { Grid, GridItem, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const AddRolePermissionSummaryContent = () => {
+  const intl = useIntl();
   const formOptions = useFormApi();
   const {
     'role-name': name,
@@ -17,7 +20,7 @@ const AddRolePermissionSummaryContent = () => {
       <StackItem>
         <TextContent>
           <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
-            Review details
+            {intl.formatMessage(messages.reviewDetails)}
           </Title>
         </TextContent>
       </StackItem>
@@ -25,7 +28,7 @@ const AddRolePermissionSummaryContent = () => {
         <Grid hasGutter>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role name
+              {intl.formatMessage(messages.roleName)}
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -33,7 +36,7 @@ const AddRolePermissionSummaryContent = () => {
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Role description
+              {intl.formatMessage(messages.roleDescription)}
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -41,7 +44,7 @@ const AddRolePermissionSummaryContent = () => {
           </GridItem>
           <GridItem span={3}>
             <Text className="pf-c-title" component={TextVariants.h6}>
-              Added permissions
+              {intl.formatMessage(messages.addedPermissions)}
             </Text>
           </GridItem>
           <GridItem span={9}>
@@ -55,7 +58,7 @@ const AddRolePermissionSummaryContent = () => {
             <React.Fragment>
               <GridItem span={3}>
                 <Text className="pf-c-title" component={TextVariants.h6}>
-                  Resource definitions
+                  {intl.formatMessage(messages.resourceDefinitions)}
                 </Text>
               </GridItem>
               <GridItem span={9}>

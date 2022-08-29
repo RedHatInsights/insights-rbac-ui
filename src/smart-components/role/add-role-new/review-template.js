@@ -6,8 +6,11 @@ import { asyncValidator } from './validators';
 import './review.scss';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import WizardError from '../../common/wizard-error';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const ReviewTemplate = ({ formFields }) => {
+  const intl = useIntl();
   const { submitting, error, setWizardError } = useContext(AddRoleWizardContext);
   const { getState } = useFormApi();
   useEffect(() => {
@@ -29,8 +32,8 @@ const ReviewTemplate = ({ formFields }) => {
     return (
       <WizardError
         context={AddRoleWizardContext}
-        title="Role name already taken"
-        text="Please return to Step 1: Create role and choose a unique role name for your custom role."
+        title={intl.formatMessage(messages.roleNameTakenTitle)}
+        text={intl.formatMessage(messages.roleNameTakenText)}
       />
     );
   }
@@ -38,12 +41,12 @@ const ReviewTemplate = ({ formFields }) => {
   return (
     <div className="rbac">
       <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
-        Review details
+        {intl.formatMessage(messages.reviewDetails)}
       </Title>
       <TextContent className="pf-u-mb-md">
-        <Text>Review and confirm the details for your role, or click Back to revise.</Text>
+        <Text>{intl.formatMessage(messages.reviewRoleDetails)}</Text>
       </TextContent>
-      {[[{ ...formFields?.[0]?.[0] }]]}
+      {formFields?.[0]?.[0]}
     </div>
   );
 };

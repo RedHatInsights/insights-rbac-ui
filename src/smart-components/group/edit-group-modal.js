@@ -12,6 +12,8 @@ import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 
 const EditGroupModal = ({
@@ -25,6 +27,7 @@ const EditGroupModal = ({
   group,
   onClose,
 }) => {
+  const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
   const { push } = useHistory();
@@ -66,9 +69,8 @@ const EditGroupModal = ({
     addNotification({
       variant: 'warning',
       dismissDelay: 8000,
-      dismissable: false,
-      title: selectedGroup ? 'Editing group' : 'Adding group',
-      description: selectedGroup ? 'Edit group was canceled by the user.' : 'Adding group was canceled by the user.',
+      title: intl.formatMessage(selectedGroup ? messages.editingGroup : messages.addingGroupTitle),
+      description: intl.formatMessage(selectedGroup ? messages.editGroupCanceledDescription : messages.addingGroupCanceledDescription),
     });
     onClose();
     push(cancelRoute);
@@ -78,7 +80,7 @@ const EditGroupModal = ({
     fields: [
       {
         name: 'name',
-        label: 'Name',
+        label: intl.formatMessage(messages.name),
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
         ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
@@ -90,7 +92,7 @@ const EditGroupModal = ({
       },
       {
         name: 'description',
-        label: 'Description',
+        label: intl.formatMessage(messages.description),
         component: selectedGroup ? componentTypes.TEXTAREA : 'skeleton',
         validate: [
           {
@@ -121,7 +123,10 @@ const EditGroupModal = ({
       validatorMapper={validatorMapper}
       initialValues={{ ...selectedGroup }}
       FormTemplate={(props) => (
-        <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: `Edit group's information` }} />
+        <ModalFormTemplate
+          {...props}
+          ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: intl.formatMessage(messages.editGroupInfo) }}
+        />
       )}
     />
   );
@@ -142,9 +147,7 @@ EditGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  filters: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
+  filters: PropTypes.object.isRequired,
   cancelRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({

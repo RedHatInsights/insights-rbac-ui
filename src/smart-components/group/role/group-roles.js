@@ -21,9 +21,9 @@ import RemoveRole from './remove-role-modal';
 import paths from '../../../utilities/pathnames';
 import { getDateFormat } from '../../../helpers/shared/helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import './group-roles.scss';
-
-const columns = [{ title: 'Name', orderBy: 'name' }, { title: 'Description' }, { title: 'Last modified' }];
 
 const createRows = (groupUuid, data, expanded, checkedRows = []) => {
   return data
@@ -56,14 +56,15 @@ const generateOuiaID = (name) => {
 };
 
 const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
+  const intl = useIntl();
   const addRoleButtonContent = (
     <Button ouiaId={ouiaId} variant="primary" className="rbac-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
-      Add role
+      {intl.formatMessage(messages.addRole)}
     </Button>
   );
 
   return isDisabled ? (
-    <Tooltip content={customTooltipText || 'All available roles have already been added to the group'}>{addRoleButtonContent}</Tooltip>
+    <Tooltip content={customTooltipText || intl.formatMessage(messages.allRolesAdded)}>{addRoleButtonContent}</Tooltip>
   ) : (
     addRoleButtonContent
   );
@@ -91,6 +92,7 @@ const GroupRoles = ({
   reloadGroup,
   fetchSystemGroup,
 }) => {
+  const intl = useIntl();
   const [descriptionValue, setDescriptionValue] = useState('');
   const [filterValue, setFilterValue] = useState('');
   const [selectedRoles, setSelectedRoles] = useState([]);
@@ -100,6 +102,12 @@ const GroupRoles = ({
   const [deleteInfo, setDeleteInfo] = useState({});
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
+
+  const columns = [
+    { title: intl.formatMessage(messages.name), orderBy: 'name' },
+    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.lastModified) },
+  ];
 
   useEffect(() => {
     fetchSystemGroup();
@@ -139,21 +147,36 @@ const GroupRoles = ({
 
   const removeModalText = (name, role, plural) => (
     <p>
-      Members in the <b>{name}</b> group will lose the permissions in {plural ? 'these' : 'the'}
-      <b> {role}</b> role{plural ? `s` : ''}.
+      <FormattedMessage
+        {...(plural ? messages.removeRolesModalText : messages.removeRoleModalText)}
+        values={{
+          b: (text) => <b>{text}</b>,
+          name,
+          ...(plural ? { roles: role } : { role }),
+        }}
+      />
     </p>
   );
+
+  const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
 
   const actionResolver = () => [
     ...(hasPermissions.current && !isAdminDefault
       ? [
           {
-            title: 'Remove',
+            title: intl.formatMessage(messages.remove),
             onClick: (_event, _rowId, role) => {
-              setConfirmDelete(() => () => removeRoles(uuid, [role.uuid], () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)));
+              setConfirmDelete(
+                () => () =>
+                  removeRoles(fetchUuid, [role.uuid], () => {
+                    fetchSystemGroup().then(({ value: { data } }) => {
+                      fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
+                    });
+                  })
+              );
               setDeleteInfo({
-                title: 'Remove role?',
-                confirmButtonLabel: 'Remove role',
+                title: intl.formatMessage(messages.removeRoleQuestion),
+                confirmButtonLabel: intl.formatMessage(messages.removeRole),
                 text: removeModalText(name, role.title, false),
               });
               setShowRemoveModal(true);
@@ -163,8 +186,6 @@ const GroupRoles = ({
       : []),
   ];
 
-  const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
-
   const routes = () => (
     <Fragment>
       <Route
@@ -172,11 +193,12 @@ const GroupRoles = ({
         render={(args) => (
           <AddGroupRoles
             fetchUuid={fetchUuid}
-            fetchGroup={() => reloadGroup(fetchUuid)}
-            fetchRolesForGroup={() => fetchRolesForGroup({ ...pagination, offset: 0 })(fetchUuid)}
+            fetchGroup={(customId) => reloadGroup(customId ?? fetchUuid)}
+            fetchRolesForGroup={(customId) => fetchRolesForGroup({ ...pagination, offset: 0 })(customId ?? fetchUuid)}
+            fetchSystemGroup={fetchSystemGroup}
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
-            closeUrl={`/groups/detail/${uuid}/roles`}
+            closeUrl={`/groups/detail/${isPlatformDefault ? 'default-access' : uuid}/roles`}
             addRolesToGroup={addRoles}
             name={name}
             isDefault={isPlatformDefault || isAdminDefault}
@@ -197,17 +219,13 @@ const GroupRoles = ({
       ? [
           <Link
             className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
-            to={`/groups/detail/${uuid}/roles/add_roles`}
+            to={`/groups/detail/${fetchUuid}/roles/add_roles`}
             key="add-to-group"
           >
-            {addRoleButton(
-              disableAddRoles,
-              generateOuiaID(name || ''),
-              isAdminDefault && 'Default admin access group roles cannot be modified manually'
-            )}
+            {addRoleButton(disableAddRoles, generateOuiaID(name || ''), isAdminDefault && intl.formatMessage(messages.defaultGroupNotManually))}
           </Link>,
           {
-            label: 'Add role',
+            label: intl.formatMessage(messages.addRole),
             props: {
               isDisabled: disableAddRoles,
               className: 'rbac-m-hide-on-md',
@@ -217,7 +235,7 @@ const GroupRoles = ({
             },
           },
           {
-            label: 'Remove',
+            label: intl.formatMessage(messages.remove),
             props: {
               isDisabled: !selectedRoles || !selectedRoles.length > 0,
               variant: 'danger',
@@ -227,14 +245,18 @@ const GroupRoles = ({
               setConfirmDelete(
                 () => () =>
                   removeRoles(
-                    uuid,
+                    fetchUuid,
                     selectedRoles.map((role) => role.uuid),
-                    () => fetchRolesForGroup({ ...pagination, offset: 0 })(uuid)
+                    () => {
+                      fetchSystemGroup().then(({ value: { data } }) => {
+                        fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
+                      });
+                    }
                   )
               );
               setDeleteInfo({
-                title: multipleRolesSelected ? 'Remove roles?' : 'Remove role?',
-                confirmButtonLabel: selectedRoles.length > 1 ? 'Remove roles' : 'Remove role',
+                title: intl.formatMessage(multipleRolesSelected ? messages.removeRolesQuestion : messages.removeRoleQuestion),
+                confirmButtonLabel: intl.formatMessage(multipleRolesSelected ? messages.removeRoles : messages.removeRole),
                 text: removeModalText(
                   name,
                   multipleRolesSelected ? selectedRoles.length : roles.find((role) => role.uuid === selectedRoles[0].uuid).name,
@@ -286,15 +308,15 @@ const GroupRoles = ({
           pagination={pagination}
           checkedRows={selectedRoles}
           setCheckedItems={setCheckedItems}
-          titlePlural="roles"
-          titleSingular="role"
+          titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+          titleSingular={intl.formatMessage(messages.role)}
           toolbarButtons={toolbarButtons}
           actionResolver={actionResolver}
           routes={routes}
           ouiaId="roles-table"
           emptyProps={{
-            title: 'There are no roles in this group',
-            description: [isAdminDefault ? 'Contact your platform service team to add roles.' : 'Add a role to configure user access.', ''],
+            title: intl.formatMessage(messages.noGroupRoles),
+            description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForRoles : messages.addRoleToConfigureAccess), ''],
           }}
           filters={[
             { key: 'name', value: filterValue },
@@ -323,7 +345,7 @@ const mapStateToProps = ({ groupReducer: { selectedGroup, systemGroup } }) => {
     isPlatformDefault: selectedGroup.platform_default,
     isAdminDefault: selectedGroup.admin_default,
     isChanged: !selectedGroup.system,
-    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || selectedGroup.admin_default,
+    disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default,
     systemGroupUuid: systemGroup?.uuid,
   };
 };

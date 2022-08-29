@@ -16,24 +16,11 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
 import { Fragment } from 'react';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './user.scss';
-
-const columns = [
-  'Roles',
-  {
-    title: 'Groups',
-    cellTransforms: [compoundExpand],
-  },
-  {
-    title: 'Permissions',
-    cellTransforms: [compoundExpand],
-  },
-  {
-    title: 'Last modified',
-  },
-];
 
 let debouncedFetch;
 
@@ -49,6 +36,7 @@ const User = ({
   rolesWithAccess,
   user,
 }) => {
+  const intl = useIntl();
   const [filter, setFilter] = useState('');
   const [expanded, setExpanded] = useState({});
 
@@ -66,6 +54,21 @@ const User = ({
   }, []);
 
   const history = useHistory();
+
+  const columns = [
+    intl.formatMessage(messages.roles),
+    {
+      title: intl.formatMessage(messages.groups),
+      cellTransforms: [compoundExpand],
+    },
+    {
+      title: intl.formatMessage(messages.permissions),
+      cellTransforms: [compoundExpand],
+    },
+    {
+      title: intl.formatMessage(messages.lastModified),
+    },
+  ];
 
   const createRows = (data) =>
     data
@@ -93,7 +96,7 @@ const User = ({
                       ouiaId="groups-in-role-nested-table"
                       aria-label="Simple Table"
                       variant={TableVariant.compact}
-                      cells={['Name', 'Description']}
+                      cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description)]}
                       rows={groups_in.map((g) => ({ cells: [{ title: <Link to={`/groups/detail/${g.uuid}`}>{g.name}</Link> }, g.description] }))}
                     >
                       <TableHeader />
@@ -116,7 +119,11 @@ const User = ({
                         aria-label="Simple Table"
                         ouiaId="permissions-in-role-nested-table"
                         variant={TableVariant.compact}
-                        cells={['Application', 'Resource type', 'Operation']}
+                        cells={[
+                          intl.formatMessage(messages.application),
+                          intl.formatMessage(messages.resourceType),
+                          intl.formatMessage(messages.operation),
+                        ]}
                         rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
                       >
                         <TableHeader />
@@ -154,8 +161,8 @@ const User = ({
   };
 
   const breadcrumbsList = () => [
-    { title: 'Users', to: '/users' },
-    { title: userExists ? username : 'Invalid user', isActive: true },
+    { title: intl.formatMessage(messages.users), to: '/users' },
+    { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
   return (
@@ -168,12 +175,12 @@ const User = ({
                 title={username}
                 renderTitleTag={() =>
                   user && !isLoading ? (
-                    <Label color={user?.is_active && 'green'}>{user?.is_active ? 'Active' : 'Inactive'}</Label>
+                    <Label color={user?.is_active && 'green'}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
                   ) : (
                     <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
                   )
                 }
-                description={`${username}'s roles, groups and permissions.`}
+                description={intl.formatMessage(messages.userDescription, { username })}
               />
             </TopToolbar>
           </StackItem>
@@ -194,9 +201,9 @@ const User = ({
                 setFilterValue={({ name }) => setFilter(name)}
                 isLoading={isLoading}
                 pagination={roles.meta}
-                filterPlaceholder="role name"
-                titlePlural="roles"
-                titleSingular="role"
+                filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
+                titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+                titleSingular={intl.formatMessage(messages.role).toLowerCase()}
                 tableId="user"
               />
             </Section>
@@ -208,8 +215,8 @@ const User = ({
             <RbacBreadcrumbs {...breadcrumbsList()} />
           </section>
           <EmptyWithAction
-            title="User not found"
-            description={[`User with username ${username} does not exist.`]}
+            title={intl.formatMessage(messages.userNotFound)}
+            description={[intl.formatMessage(messages.userNotFoundDescription, { username })]}
             actions={[
               <Button
                 key="back-button"
@@ -219,7 +226,7 @@ const User = ({
                 aria-label="Back to previous page"
                 onClick={() => history.goBack()}
               >
-                Back to previous page
+                {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
             ]}
           />

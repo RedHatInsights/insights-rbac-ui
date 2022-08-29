@@ -6,7 +6,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core';
-import schemaBuilder from './schema';
+import { schemaBuilder } from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../../smart-components/common/warningModal';
 import AddRoleSuccess from './add-role-success';
@@ -18,6 +18,8 @@ import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 import './add-role-wizard.scss';
 import SilentErrorBoundary from '../../common/silent-error-boundary';
@@ -45,6 +47,7 @@ export const mapperExtension = {
 };
 
 const AddRoleWizard = ({ pagination, filters }) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const { push } = useHistory();
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -72,9 +75,8 @@ const AddRoleWizard = ({ pagination, filters }) => {
       dispatch(
         addNotification({
           variant: 'warning',
-          title: 'Creating role was canceled by the user',
+          title: intl.formatMessage(messages.creatingRoleCanceled),
           dismissDelay: 8000,
-          dismissable: false,
         })
       );
     }
@@ -165,7 +167,7 @@ const AddRoleWizard = ({ pagination, filters }) => {
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
-            title="Create role"
+            title={intl.formatMessage(messages.createRole)}
             isOpen
             onClose={onClose}
             steps={[

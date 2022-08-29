@@ -11,7 +11,7 @@ import { Button } from '@patternfly/react-core/dist/js/components/Button';
 import { Form } from '@patternfly/react-core/dist/js/components/Form/Form';
 
 /**
- * This id is requried to submit form by a byttoun outside of the form element
+ * This id is requried to submit form by a button outside of the form element
  */
 const MODAL_FORM_IDENTIFIER = 'modal-form';
 const CustomFormWrapper = (props) => <Form {...props} id={MODAL_FORM_IDENTIFIER} />;

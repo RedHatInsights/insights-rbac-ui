@@ -11,16 +11,19 @@ import ResourceDefinitions from './resource-definitions';
 import RoleInformation from './role-information';
 import PermissionInformation from './permission-information';
 import { WarningModal } from '../../common/warningModal';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import '../../common/hideWizard.scss';
 
 const AddRoleWizard = ({ addNotification, createRole, history: { push }, pagination }) => {
-  const [formData, setValues] = useState({});
+  const intl = useIntl();
+  const [formData, setFormData] = useState({});
   const [isRoleFormValid, setIsRoleFormValid] = useState(false);
   const [isPermissionFormValid, setIsPermissionFormValid] = useState(false);
   const [stepIdReached, setStepIdReached] = useState(1);
 
   const handleChange = (data) => {
-    setValues({ ...formData, ...data });
+    setFormData({ ...formData, ...data });
   };
 
   const handleRoleChange = (data, isValid) => {
@@ -36,30 +39,30 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
   const steps = [
     {
       id: 1,
-      name: 'Name and Description',
+      name: intl.formatMessage(messages.nameAndDescription),
       canJumpTo: stepIdReached >= 1,
       component: new RoleInformation(formData, handleRoleChange),
       enableNext: isRoleFormValid,
     },
     {
       id: 2,
-      name: 'Permission',
+      name: intl.formatMessage(messages.permission),
       canJumpTo: stepIdReached >= 2 && isRoleFormValid,
       component: new PermissionInformation(formData, handlePermissionChange),
       enableNext: isPermissionFormValid,
     },
     {
       id: 3,
-      name: 'Resource definitions',
+      name: intl.formatMessage(messages.resourceDefinitions),
       canJumpTo: stepIdReached >= 3 && isRoleFormValid && isPermissionFormValid,
       component: new ResourceDefinitions(formData, handleChange),
     },
     {
       id: 4,
-      name: 'Review',
+      name: intl.formatMessage(messages.review),
       canJumpTo: stepIdReached >= 4 && isRoleFormValid && isPermissionFormValid,
       component: new SummaryContent(formData),
-      nextButtonText: 'Confirm',
+      nextButtonText: intl.formatMessage(messages.confirm),
     },
   ];
 
@@ -97,9 +100,8 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: 'Creating role was canceled by the user',
+      title: intl.formatMessage(messages.creatingRoleCanceled),
       dismissDelay: 8000,
-      dismissable: false,
     });
     push('/roles');
   };
@@ -110,7 +112,7 @@ const AddRoleWizard = ({ addNotification, createRole, history: { push }, paginat
     <React.Fragment>
       <Wizard
         className={cancelWarningVisible && 'rbac-m-wizard__hidden'}
-        title="Add role"
+        title={intl.formatMessage(messages.addRole)}
         isOpen
         onClose={() => {
           (!Object.values(formData).filter(Boolean).length > 0 && onCancel()) || setCancelWarningVisible(true);

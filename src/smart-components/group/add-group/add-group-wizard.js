@@ -1,5 +1,4 @@
-import React, { useState, createContext } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, createContext, useRef } from 'react';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useHistory } from 'react-router-dom';
@@ -7,7 +6,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { WarningModal } from '../../common/warningModal';
-import schema from './schema';
+import { schemaBuilder } from './schema';
 import { addGroup } from '../../../redux/actions/group-actions';
 import SetName from './set-name';
 import SetRoles from './set-roles';
@@ -15,6 +14,9 @@ import SetUsers from './set-users';
 import SummaryContent from './summary-content';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
+import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import messages from '../../../Messages';
 
 export const AddGroupWizardContext = createContext({
   success: false,
@@ -48,6 +50,8 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
 
 const AddGroupWizard = ({ postMethod, pagination, filters }) => {
   const dispatch = useDispatch();
+  const intl = useIntl();
+  const schema = useRef(schemaBuilder());
   const { push } = useHistory();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [groupData, setGroupData] = useState({});
@@ -62,10 +66,9 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
     dispatch(
       addNotification({
         variant: 'warning',
-        title: 'Adding group',
+        title: intl.formatMessage(messages.addingGroupTitle),
         dismissDelay: 8000,
-        dismissable: false,
-        description: 'Adding group was canceled by the user.',
+        description: intl.formatMessage(messages.addingGroupCanceledDescription),
       })
     );
     push({
@@ -95,10 +98,9 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
         dispatch(
           addNotification({
             variant: 'success',
-            title: 'Success adding group',
+            title: intl.formatMessage(messages.addGroupSuccessTitle),
             dismissDelay: 8000,
-            dismissable: false,
-            description: 'The group was added successfully.',
+            description: intl.formatMessage(messages.addGroupSuccessDescription),
           })
         );
       });
@@ -114,7 +116,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
   ) : (
     <AddGroupWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <FormRenderer
-        schema={schema}
+        schema={schema.current}
         subscription={{ values: true }}
         FormTemplate={FormTemplate}
         componentMapper={{ ...componentMapper, ...mapperExtension }}
@@ -131,9 +133,7 @@ AddGroupWizard.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  filters: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
+  filters: PropTypes.object.isRequired,
 };
 
 export default AddGroupWizard;

@@ -4,6 +4,8 @@ import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import './cost-resources.scss';
 
 const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
@@ -73,6 +75,7 @@ const reducer = (state, action) => {
 };
 
 const CostResources = (props) => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const fetchData = (apiProps) => dispatch(getResourceDefinitions(apiProps));
   const fetchResource = (apiProps) => dispatch(getResource(apiProps));
@@ -148,24 +151,24 @@ const CostResources = (props) => {
           <Select
             className="rbac-m-cost-resource-select"
             variant={SelectVariant.checkbox}
-            typeAheadAriaLabel="Select a state"
+            typeAheadAriaLabel={intl.formatMessage(messages.selectState)}
             onToggle={(isOpen) => {
               dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: '' });
               onToggle(permission, isOpen);
             }}
             onSelect={(event, selection) => {
-              onSelect(event, selection, selection === `Select All (${options.length})`, permission);
+              onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options.length }), permission);
             }}
             onClear={() => clearSelection(permission)}
             selections={state[permission].selected}
             isOpen={state[permission].isOpen}
             onFilter={(e) => e && dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: e.target.value })}
             aria-labelledby={permission}
-            placeholderText="Select resources"
+            placeholderText={intl.formatMessage(messages.selectResources)}
             hasInlineFilter
           >
             {[
-              <SelectOption key={0} value={`Select All (${options.length})`} />,
+              <SelectOption key={0} value={intl.formatMessage(messages.selectAll, { length: options.length })} />,
               ...options.map((option, index) => <SelectOption key={index + 1} value={option.value} />),
             ]}
           </Select>
@@ -178,12 +181,12 @@ const CostResources = (props) => {
     <Grid hasGutter>
       <GridItem md={4} className="rbac-m-hide-on-sm">
         <Text component={TextVariants.h4} className="rbac-bold-text">
-          Permissions
+          {intl.formatMessage(messages.permissions)}
         </Text>
       </GridItem>
       <GridItem md={8} className="rbac-m-hide-on-sm">
         <Text component={TextVariants.h4} className="rbac-bold-text">
-          Resource definitions
+          {intl.formatMessage(messages.resourceDefinitions)}
         </Text>
       </GridItem>
       {permissions.map(makeRow)}

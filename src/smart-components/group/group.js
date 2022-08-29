@@ -3,20 +3,34 @@ import PropTypes from 'prop-types';
 import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupPrincipals from './principal/principals';
 import GroupRoles from './role/group-roles';
-import { fetchGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
+import { WarningModal } from '../common/warningModal';
+import { fetchGroup, fetchGroups, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { Alert, AlertActionCloseButton, Popover, Split, SplitItem, DropdownItem, Dropdown, KebabToggle, Button } from '@patternfly/react-core';
-import { InfoCircleIcon } from '@patternfly/react-icons';
+import {
+  Alert,
+  AlertActionCloseButton,
+  Popover,
+  PopoverPosition,
+  Split,
+  SplitItem,
+  DropdownItem,
+  Dropdown,
+  KebabToggle,
+  Button,
+} from '@patternfly/react-core';
 import pathnames from '../../utilities/pathnames';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './group.scss';
 
 const Group = ({
@@ -25,15 +39,19 @@ const Group = ({
   },
   group,
   fetchGroup,
+  fetchSystemGroup,
+  removeGroups,
   isFetching,
   onDelete,
 }) => {
+  const intl = useIntl();
   const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
-    { eventKey: 0, title: 'Roles', name: `/groups/detail/${uuid}/roles` },
-    { eventKey: 1, title: 'Members', name: `/groups/detail/${uuid}/members` },
+    { eventKey: 0, title: intl.formatMessage(messages.roles), name: `/groups/detail/${uuid}/roles` },
+    { eventKey: 1, title: intl.formatMessage(messages.members), name: `/groups/detail/${uuid}/members` },
   ];
 
+  const [isResetWarningVisible, setResetWarningVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
@@ -51,10 +69,12 @@ const Group = ({
 
   const breadcrumbsList = () => [
     {
-      title: 'Groups',
+      title: intl.formatMessage(messages.groups),
       to: getBackRoute(pathnames.groups.path, pagination, filters),
     },
-    groupExists ? { title: isFetching ? undefined : group.name, isActive: true } : { title: 'Invalid group', isActive: true },
+    groupExists
+      ? { title: isFetching ? undefined : group.name, isActive: true }
+      : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
   ];
 
   const fetchData = (apiProps) => {
@@ -66,9 +86,9 @@ const Group = ({
 
   useEffect(() => {
     fetchSystemGroup();
-    const currUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
-    fetchData(currUuid);
+    const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
     if (currUuid) {
+      fetchData(systemGroupUuid);
       insights.chrome.appObjectId(currUuid);
       return () => insights.chrome.appObjectId(undefined);
     }
@@ -81,15 +101,39 @@ const Group = ({
         <Popover
           aria-label="default-group-icon"
           bodyContent={
-            <div>
-              Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
-              name has changed to <b>Custom default access</b>.
-            </div>
+            <FormattedMessage
+              {...messages.defaultAccessGroupNameChanged}
+              values={{
+                b: (text) => <b>{text}</b>,
+              }}
+            />
           }
         >
-          <InfoCircleIcon className="rbac-default-group-info-icon" />
+          <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon" />
         </Popover>
       </div>
+    </div>
+  );
+
+  const defaultGroupRestore = () => (
+    <div className="rbac-default-group-reset-btn">
+      <Button variant="link" onClick={() => setResetWarningVisible(true)}>
+        {intl.formatMessage(messages.restoreToDefault)}
+      </Button>
+      <Popover
+        aria-label="default-group-icon"
+        position={PopoverPosition.bottomEnd}
+        bodyContent={
+          <FormattedMessage
+            {...messages.restoreDefaultAccessInfo}
+            values={{
+              b: (text) => <b>{text}</b>,
+            }}
+          />
+        }
+      >
+        <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon pf-u-mt-sm" />
+      </Popover>
     </div>
   );
 
@@ -103,7 +147,7 @@ const Group = ({
             isPlatformDefault ? 'default-access' : uuid
           )}
         >
-          Edit
+          {intl.formatMessage(messages.edit)}
         </Link>
       }
       key="edit-group"
@@ -119,7 +163,7 @@ const Group = ({
             )
           }
         >
-          Delete
+          {intl.formatMessage(messages.delete)}
         </Link>
       }
       className="rbac-c-group__action"
@@ -131,6 +175,26 @@ const Group = ({
 
   return (
     <Fragment>
+      {isResetWarningVisible && (
+        <WarningModal
+          type="group"
+          isOpen={isResetWarningVisible}
+          customTitle={<div>{intl.formatMessage(messages.restoreToDefaultQuestion)}</div>}
+          customDescription={<div>{intl.formatMessage(messages.restoreDefaultAccessDescription)}</div>}
+          customPrimaryButtonTitle={intl.formatMessage(messages.continue)}
+          customSecondaryButtonTitle={intl.formatMessage(messages.cancel)}
+          onModalCancel={() => setResetWarningVisible(false)}
+          onConfirmCancel={() => {
+            removeGroups([systemGroupUuid]).then(() =>
+              fetchSystemGroup().then(() => {
+                setShowDefaultGroupChangedInfo(false);
+              })
+            );
+            setResetWarningVisible(false);
+            history.push('/groups/detail/default-access/roles');
+          }}
+        />
+      )}
       {groupExists ? (
         <Fragment>
           <TopToolbar breadcrumbs={breadcrumbsList()}>
@@ -145,6 +209,7 @@ const Group = ({
                   description={!isFetching && group ? group.description : undefined}
                 />
               </SplitItem>
+              {group.platform_default && !group.system ? <SplitItem>{defaultGroupRestore()}</SplitItem> : null}
               <SplitItem>
                 {group.platform_default || group.admin_default ? null : (
                   <Dropdown
@@ -162,12 +227,16 @@ const Group = ({
               <Alert
                 variant="info"
                 isInline
-                title="Default access group has changed"
+                title={intl.formatMessage(messages.defaultAccessGroupChanged)}
                 action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
                 className="pf-u-mb-lg pf-u-mt-sm"
               >
-                Now that you have edited the <b>Default access</b> group, the system will no longer update it with new default access roles. The group
-                name has changed to <b>Custom default access</b>.
+                <FormattedMessage
+                  {...messages.defaultAccessGroupNameChanged}
+                  values={{
+                    b: (text) => <b>{text}</b>,
+                  }}
+                />
               </Alert>
             ) : null}
           </TopToolbar>
@@ -214,8 +283,8 @@ const Group = ({
             <RbacBreadcrumbs {...breadcrumbsList()} />
           </section>
           <EmptyWithAction
-            title="Group not found"
-            description={[`Group with ID ${uuid} does not exist.`]}
+            title={intl.formatMessage(messages.groupNotFound)}
+            description={[intl.formatMessage(messages.groupDoesNotExist, { id: uuid })]}
             actions={[
               <Button
                 key="back-button"
@@ -225,7 +294,7 @@ const Group = ({
                 aria-label="Back to previous page"
                 onClick={() => history.goBack()}
               >
-                Back to previous page
+                {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
             ]}
           />
@@ -244,6 +313,8 @@ const mapDispatchToProps = (dispatch) =>
   bindActionCreators(
     {
       fetchGroup,
+      fetchSystemGroup,
+      removeGroups,
     },
     dispatch
   );
@@ -266,6 +337,8 @@ Group.propTypes = {
   }),
   isFetching: PropTypes.bool,
   fetchGroup: PropTypes.func,
+  fetchSystemGroup: PropTypes.func,
+  removeGroups: PropTypes.func,
   onDelete: PropTypes.func,
   defaultUuid: PropTypes.string,
 };

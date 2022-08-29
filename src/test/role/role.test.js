@@ -13,6 +13,7 @@ import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
@@ -50,6 +51,7 @@ describe('role', () => {
           uuid: '1234',
           display_name: 'name',
           description: 'description',
+          system: false,
           access: [
             {
               resourceDefinitions: [
@@ -65,6 +67,34 @@ describe('role', () => {
             },
           ],
         },
+      },
+      permissionReducer: {
+        isLoading: false,
+        options: {
+          isLoadingApplication: false,
+          isLoadingResource: false,
+          isLoadingOperation: false,
+          application: { data: [] },
+          resource: { data: [] },
+          operation: { data: [] },
+        },
+        permission: {
+          data: [],
+          meta: defaultSettings,
+        },
+        expandSplats: {
+          data: [],
+          meta: defaultSettings,
+        },
+      },
+      costReducer: {
+        isLoading: false,
+        resourceTypes: {
+          data: [],
+          meta: defaultSettings,
+        },
+        resources: {},
+        loadingResources: 0,
       },
     };
   });
@@ -338,8 +368,7 @@ describe('role', () => {
       wrapper.update();
     });
 
-    wrapper.find('input[type="checkbox"]').at(0).simulate('click');
-    wrapper.find('button[aria-label="Actions"]').at(2).simulate('click');
+    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');

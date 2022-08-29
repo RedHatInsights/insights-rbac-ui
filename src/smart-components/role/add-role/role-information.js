@@ -1,20 +1,23 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form, FormGroup, Stack, StackItem, TextInput, TextArea, Title } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const RoleInformation = (formData, onHandleChange) => {
+  const intl = useIntl();
   const { description = '', name = '' } = formData;
 
   return (
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h4" size="xl">
-          Name and description
+          {intl.formatMessage(messages.nameAndDescription)}
         </Title>
       </StackItem>
       <StackItem>
         <Form>
-          <FormGroup label="Name" isRequired fieldId="name">
+          <FormGroup label={intl.formatMessage(messages.name)} isRequired fieldId="name">
             <TextInput
               isRequired
               type="text"
@@ -25,7 +28,7 @@ const RoleInformation = (formData, onHandleChange) => {
               onChange={(_, event) => onHandleChange({ name: event.currentTarget.value }, event.currentTarget.value.trim().length > 0)}
             />
           </FormGroup>
-          <FormGroup label="Description" fieldId="description">
+          <FormGroup label={intl.formatMessage(messages.description)} fieldId="description">
             <TextArea
               type="text"
               id="description"

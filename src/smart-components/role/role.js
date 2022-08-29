@@ -14,14 +14,18 @@ import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrubms';
+import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
+  const intl = useIntl();
   const history = useHistory();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { uuid, groupUuid } = useParams();
   const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
@@ -75,14 +79,20 @@ const Role = ({ onDelete }) => {
     return () => insights.chrome.appObjectId(undefined);
   }, [uuid, groupUuid, systemGroupUuid]);
 
+  useEffect(() => {
+    if (role?.accessCount === 0 && role?.external_tenant !== '' && role?.external_role_id !== '' && role?.system) {
+      setIsNonPermissionAddingRole(true);
+    }
+  }, [role]);
+
   const breadcrumbsList = () => [
     groupUuid
       ? {
-          title: 'Groups',
+          title: intl.formatMessage(messages.groups),
           to: getBackRoute(pathnames.groups.path, groupsPagination, groupsFilters),
         }
       : {
-          title: 'Roles',
+          title: intl.formatMessage(messages.roles),
           to: getBackRoute(pathnames.roles.path, rolesPagination, rolesFilters),
         },
 
@@ -98,12 +108,12 @@ const Role = ({ onDelete }) => {
         : [undefined]
       : groupExists || !groupUuid
       ? []
-      : [{ title: 'Invalid group', isActive: true }]),
+      : [{ title: intl.formatMessage(messages.invalidGroup), isActive: true }]),
 
     ...(groupExists || !groupUuid
       ? [
           {
-            title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : 'Invalid role',
+            title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : intl.formatMessage(messages.invalidRole),
             isActive: true,
           },
         ]
@@ -116,7 +126,7 @@ const Role = ({ onDelete }) => {
     <DropdownItem
       component={
         <Link onClick={() => setDropdownOpen(false)} to={pathnames['role-detail-edit'].path.replace(':id', uuid)}>
-          Edit
+          {intl.formatMessage(messages.edit)}
         </Link>
       }
       key="edit-role"
@@ -124,7 +134,7 @@ const Role = ({ onDelete }) => {
     <DropdownItem
       component={
         <Link onClick={onDelete} to={pathnames['role-detail-remove'].path.replace(':id', uuid)}>
-          Delete
+          {intl.formatMessage(messages.delete)}
         </Link>
       }
       className="rbac-c-role__action"
@@ -160,7 +170,7 @@ const Role = ({ onDelete }) => {
               </TextContent>
             )}
           </TopToolbar>
-          {isRecordLoading || !role ? <ListLoader /> : <Permissions />}
+          {isRecordLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
           <Route path={pathnames['role-detail-remove'].path}>
             {!isRecordLoading && (
               <RemoveRoleModal
@@ -200,7 +210,7 @@ const Role = ({ onDelete }) => {
                 aria-label="Back to previous page"
                 onClick={() => history.goBack()}
               >
-                Back to previous page
+                {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
             ]}
           />

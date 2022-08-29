@@ -23,37 +23,33 @@ import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
+import { FormattedMessage, useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
+import messages from '../../Messages';
 
 const maxFilterItems = 10;
 
-const columns = [
-  { title: 'Application' },
-  { title: 'Resource type' },
-  { title: 'Operation' },
-  {
-    title: 'Resource definitions',
-    transforms: [
-      info({
-        popover: 'Resource definitions only apply to Cost Management permissions',
-        ariaLabel: 'Resource definitions only apply to Cost Management permissions',
-      }),
-    ],
-  },
-  { title: 'Last commit', transforms: [cellWidth(15)] },
-];
-
-const removeModalText = (permissions, role, plural) =>
-  plural ? (
-    <p>
-      The <b> {`${permissions}`}</b> selected permissions will no longer be granted through the <b>{`${role.name}`}</b> role.
-    </p>
-  ) : (
-    <p>
-      The <b>{`${permissions}`}</b> permission will no longer be granted through the <b> {`${role.name}`}</b> role.
-    </p>
+const removeModalText = (permissions, role, plural) => {
+  return (
+    <FormattedMessage
+      {...(plural ? messages.permissionsWillNotBeGrantedThroughRole : messages.permissionWillNotBeGrantedThroughRole)}
+      values={{
+        b: (text) => <b>{text}</b>,
+        ...(plural
+          ? {
+              permissions,
+            }
+          : {
+              permission: permissions,
+            }),
+        role: role.name,
+      }}
+    />
   );
+};
 
-const Permissions = () => {
+const Permissions = ({ cantAddPermissions }) => {
+  const intl = useIntl();
   const { role, isRecordLoading } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
@@ -72,9 +68,28 @@ const Permissions = () => {
 
   const dispatch = useDispatch();
 
+  const columns = [
+    { title: intl.formatMessage(messages.application) },
+    { title: intl.formatMessage(messages.resourceType) },
+    { title: intl.formatMessage(messages.operation) },
+    {
+      title: intl.formatMessage(messages.resourceDefinitions),
+      transforms: [
+        info({
+          popover: intl.formatMessage(messages.resourceDefinitionsApplyToCost),
+          ariaLabel: intl.formatMessage(messages.resourceDefinitionsApplyToCost),
+        }),
+      ],
+    },
+    { title: intl.formatMessage(messages.lastCommit), transforms: [cellWidth(15)] },
+  ];
+
   const setCheckedItems = (newSelection) => {
     internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
   };
+  const emptyPropsDescription = cantAddPermissions
+    ? ['']
+    : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
 
   useEffect(() => {
     if (Object.keys(role).length > 0) {
@@ -121,58 +136,61 @@ const Permissions = () => {
 
   const actionResolver = () => [
     {
-      title: 'Remove',
+      title: intl.formatMessage(messages.remove),
       onClick: (_event, _rowId, permission) =>
         internalDispatch({
           type: INITIATE_REMOVE_PERMISSION,
           confirmDelete: () => removePermissions([permission]),
           deleteInfo: {
-            title: 'Remove permission?',
+            title: intl.formatMessage(messages.removePermissionQuestion),
             text: removeModalText(permission.uuid, role, false),
-            confirmButtonLabel: 'Remove permission',
+            confirmButtonLabel: intl.formatMessage(messages.removePermission),
           },
         }),
     },
   ];
 
-  const toolbarButtons = () => [
-    <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
-      <Button variant="primary" aria-label="Add Permission">
-        Add permissions
-      </Button>
-    </Link>,
-    {
-      label: 'Add Permission',
-      props: {
-        className: 'rbac-m-hide-on-md',
-      },
-      onClick: () => {
-        history.push(`/roles/detail/${role.uuid}/role-add-permission`);
-      },
-    },
-    {
-      label: 'Remove',
-      props: {
-        isDisabled: !selectedPermissions.length > 0,
-      },
-      onClick: () => {
-        const multiplePermissionsSelected = selectedPermissions.length > 1;
-        internalDispatch({
-          type: INITIATE_REMOVE_PERMISSION,
-          confirmDelete: () => removePermissions([...selectedPermissions]),
-          deleteInfo: {
-            title: multiplePermissionsSelected ? 'Remove permissions?' : 'Remove permission?',
-            text: removeModalText(
-              multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
-              role,
-              selectedPermissions.length > 1
-            ),
-            confirmButtonLabel: multiplePermissionsSelected ? 'Remove permissions' : 'Remove permission',
+  const toolbarButtons = () =>
+    cantAddPermissions
+      ? []
+      : [
+          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
+            <Button variant="primary" aria-label="Add Permission">
+              {intl.formatMessage(messages.addPermissions)}
+            </Button>
+          </Link>,
+          {
+            label: intl.formatMessage(messages.addPermission),
+            props: {
+              className: 'rbac-m-hide-on-md',
+            },
+            onClick: () => {
+              history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+            },
           },
-        });
-      },
-    },
-  ];
+          {
+            label: intl.formatMessage(messages.remove),
+            props: {
+              isDisabled: !selectedPermissions.length > 0,
+            },
+            onClick: () => {
+              const multiplePermissionsSelected = selectedPermissions.length > 1;
+              internalDispatch({
+                type: INITIATE_REMOVE_PERMISSION,
+                confirmDelete: () => removePermissions([...selectedPermissions]),
+                deleteInfo: {
+                  title: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
+                  text: removeModalText(
+                    multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
+                    role,
+                    selectedPermissions.length > 1
+                  ),
+                  confirmButtonLabel: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
+                },
+              });
+            },
+          },
+        ];
 
   const routes = () => (
     <Route exact path={paths['role-add-permission'].path}>
@@ -192,7 +210,7 @@ const Permissions = () => {
     );
 
   const emptyItem = {
-    label: <div> No results found</div>,
+    label: <div> {intl.formatMessage(messages.noResultsFound)}</div>,
     isDisabled: true,
   };
 
@@ -222,7 +240,7 @@ const Permissions = () => {
         />
       )}
       <TableToolbarView
-        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== 'Resource definitions')}
+        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
         createRows={createRows(showResourceDefinitions, role?.uuid)}
         actionResolver={role.system ? undefined : actionResolver}
         data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
@@ -253,18 +271,18 @@ const Permissions = () => {
           ...pagination,
           count: filteredRows.length,
         }}
-        titlePlural="permissions"
-        titleSingular="permission"
+        titlePlural={intl.formatMessage(messages.permissions)}
+        titleSingular={intl.formatMessage(messages.permission)}
         routes={routes}
         emptyProps={{
-          title: 'There are no permissions in this role',
-          description: ['To configure user access to applications,', 'add at least one permission to this role.', ''],
+          title: intl.formatMessage(messages.noRolePermissions),
+          description: emptyPropsDescription,
         }}
         filters={[
           {
             key: 'applications',
             value: filters.applications.length === 0 ? '' : filters.applications,
-            placeholder: 'Filter by application',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.application).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.applications),
             groups: [
@@ -280,7 +298,7 @@ const Permissions = () => {
           {
             key: 'resources',
             value: filters.resources.length === 0 ? '' : filters.resources,
-            placeholder: 'Filter by resource type',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resourceType).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.resources),
             groups: [
@@ -293,7 +311,7 @@ const Permissions = () => {
           {
             key: 'operations',
             value: filters.operations.length === 0 ? '' : filters.operations,
-            placeholder: 'Filter by operation',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.operation).toLowerCase() }),
             type: 'group',
             selected: calculateSelected(filters.operations),
             groups: [
@@ -304,9 +322,14 @@ const Permissions = () => {
             ],
           },
         ]}
+        tableId="role-permissions"
       />
     </section>
   );
+};
+
+Permissions.propTypes = {
+  cantAddPermissions: PropTypes.bool,
 };
 
 export default Permissions;
