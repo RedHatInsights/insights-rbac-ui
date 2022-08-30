@@ -1354,10 +1354,10 @@ export default defineMessages({
     description: 'Trigger my catalog text',
     defaultMessage: 'Trigger my catalog',
   },
-  restoreToDefaultQuestion: {
-    id: 'restoreToDefaultQuestion',
-    description: 'Restore to default question',
-    defaultMessage: 'Restore to default?',
+  restoreDefaultAccessQuestion: {
+    id: 'restoreDefaultAccessQuestion',
+    description: 'Restore Default access group question',
+    defaultMessage: 'Restore Default access group?',
   },
   restoreToDefault: {
     id: 'restoreToDefault',
@@ -1367,11 +1367,13 @@ export default defineMessages({
   restoreDefaultAccessInfo: {
     id: 'restoreDefaultAccessInfo',
     description: 'Restore Custom Default Access group info',
-    defaultMessage: 'This will restore the group to <b>Default access</b>, removing your custom default access and configurations permanently.',
+    defaultMessage:
+      'This restores <b>Default access</b> group and removes <b>Custom default access</b> group. All configurations in <b>Custom default access</b> are deleted and cannot be recovered.',
   },
   restoreDefaultAccessDescription: {
     id: 'restoreDefaultAccessDescription',
     description: 'Restore Custom Default Access group description',
-    defaultMessage: 'Restoring to default access will remove your custom default access and configurations permanently. Do you wish to continue?',
+    defaultMessage:
+      'Restoring <b>Default access</b> group will remove <b>Custom default access</b> group. <b>Custom default access</b> configurations cannot be recovered. Are you sure?',
   },
 });
