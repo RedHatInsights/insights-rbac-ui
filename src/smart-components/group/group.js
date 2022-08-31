@@ -179,8 +179,15 @@ const Group = ({
         <WarningModal
           type="group"
           isOpen={isResetWarningVisible}
-          customTitle={<div>{intl.formatMessage(messages.restoreToDefaultQuestion)}</div>}
-          customDescription={<div>{intl.formatMessage(messages.restoreDefaultAccessDescription)}</div>}
+          customTitle={<div>{intl.formatMessage(messages.restoreDefaultAccessQuestion)}</div>}
+          customDescription={
+            <FormattedMessage
+              {...messages.restoreDefaultAccessDescription}
+              values={{
+                b: (text) => <b>{text}</b>,
+              }}
+            />
+          }
           customPrimaryButtonTitle={intl.formatMessage(messages.continue)}
           customSecondaryButtonTitle={intl.formatMessage(messages.cancel)}
           onModalCancel={() => setResetWarningVisible(false)}
