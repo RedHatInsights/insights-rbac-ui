@@ -3,9 +3,12 @@ import ModalFormTemplate from '../common/ModalFormTemplate';
 import { Alert } from '@patternfly/react-core';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './role-permissions.scss';
 
 const ResourceDefinitionsFormTemplate = ({ ModalProps, ...props }) => {
+  const intl = useIntl();
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
 
@@ -21,7 +24,7 @@ const ResourceDefinitionsFormTemplate = ({ ModalProps, ...props }) => {
           ? undefined
           : () => (
               <div className="rbac-m-resource-definitions">
-                <Alert className="pf-c-modal__alert" variant="danger" isInline title="At least one resource must be defined for this permission" />
+                <Alert className="pf-c-modal__alert" variant="danger" isInline title={intl.formatMessage(messages.defineAtLeastOneResource)} />
               </div>
             )
       }

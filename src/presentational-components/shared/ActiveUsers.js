@@ -1,18 +1,19 @@
 import React, { useContext } from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Text, TextVariants } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import PermissionsContext from '../../utilities/permissions-context';
+import messages from '../../Messages';
 
 const ActiveUser = ({ linkDescription, linkTitle }) => {
+  const intl = useIntl();
   const env = insights.chrome.getEnvironment();
-  const prefix = insights.chrome.isProd ? '' : `${env === 'ci' ? 'qa' : env}.`;
-  const description = 'These are all of the users in your Red Hat organization. ';
+  const prefix = insights.chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext);
-
   return orgAdmin ? (
     <Text className="pf-u-mt-0" component={TextVariants.h7}>
-      {description}
+      {`${intl.formatMessage(messages.usersDescription)} `}
       {linkDescription}
       <Text
         component={TextVariants.a}
@@ -27,7 +28,7 @@ const ActiveUser = ({ linkDescription, linkTitle }) => {
     </Text>
   ) : (
     <Text className="pf-u-mt-0" component={TextVariants.h7}>
-      {description}
+      {`${intl.formatMessage(messages.usersDescription)} `}
     </Text>
   );
 };

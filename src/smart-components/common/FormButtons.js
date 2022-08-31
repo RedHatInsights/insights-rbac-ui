@@ -4,17 +4,20 @@ import { ActionGroup, Button } from '@patternfly/react-core';
 import { isEmpty } from 'lodash';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import FormSpy from '@data-driven-forms/react-form-renderer/form-spy';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) => {
   const { onCancel } = useFormApi();
   const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || (!submitSucceeded && pristine);
+  const intl = useIntl();
   return (
     <ActionGroup className="pf-u-mt-0">
       <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
-        Save
+        {intl.formatMessage(messages.save)}
       </Button>
       <Button ouiaId="secondary-cancel-button" variant="link" onClick={() => onCancel()}>
-        Cancel
+        {intl.formatMessage(messages.cancel)}
       </Button>
     </ActionGroup>
   );

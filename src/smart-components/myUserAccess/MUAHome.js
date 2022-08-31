@@ -11,8 +11,11 @@ import { bundleData } from '../../presentational-components/myUserAccess/bundles
 import './MUAHome.scss';
 import MUAContent from './MUAContent';
 import useSearchParams from '../../hooks/useSearchParams';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const MyUserAccess = () => {
+  const intl = useIntl();
   const [user, setUser] = useState({});
   let { bundle } = useSearchParams('bundle');
   const [bundleParam, setBundleParam] = useState(bundle);
@@ -38,13 +41,13 @@ const MyUserAccess = () => {
             className="rbac-p-myUserAccess--title sticky"
             title={
               <React.Fragment>
-                <span> My User Access </span>
+                <span> {intl.formatMessage(messages.myUserAccess)} </span>
                 <StatusLabel isOrgAdmin={user.isOrgAdmin} isUserAccessAdmin={userAccessAdministrator} />
               </React.Fragment>
             }
           />
           <Text component="p" className="rbac-p-myUserAccess--subtitle">
-            Select applications to view your personal permissions.
+            {intl.formatMessage(messages.selectAppsToViewPermissions)}
           </Text>
           {entitledBundles && (
             <div className="rbac-p-myUserAccess--dropdown sticky">
@@ -52,11 +55,11 @@ const MyUserAccess = () => {
                 ouiaId="mua-bundle-dropdown"
                 toggle={
                   <DropdownToggle onToggle={() => setDropdownOpen(!isDropdownOpen)} id="mua-bundle-dropdown">
-                    {bundleParam ? bundleParam : 'Choose a subscription...'}
+                    {bundleParam ? bundleParam : intl.formatMessage(messages.chooseSubscriptionEllipsis)}
                   </DropdownToggle>
                 }
                 dropdownItems={bundleData.map((data) => (
-                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'], search: `bundle=${data.entitlement}` }}>
+                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${data.entitlement}` }}>
                     <DropdownItem
                       onClick={() => {
                         setBundleParam(data.title), setDropdownOpen(false);

@@ -13,14 +13,8 @@ import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import paths from '../../../utilities/pathnames';
 import PermissionsContext from '../../../utilities/permissions-context';
-
-const columns = [
-  { title: 'Status', transforms: [nowrap] },
-  { title: 'Username' },
-  { title: 'Email' },
-  { title: 'Last name' },
-  { title: 'First name' },
-];
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const selector = ({ groupReducer: { selectedGroup } }) => ({
   principals: selectedGroup.members.data,
@@ -31,18 +25,18 @@ const selector = ({ groupReducer: { selectedGroup } }) => ({
   isLoading: selectedGroup.members.isLoading,
 });
 
-const removeModalText = (name, group, plural) =>
-  plural ? (
-    <p>
-      These <b> {`${name}`}</b> members will lose all the roles associated with the <b>{`${group}`}</b> group.
-    </p>
-  ) : (
-    <p>
-      <b>{`${name}`}</b> will lose all the roles associated with the <b> {`${group}`}</b> group.
-    </p>
-  );
-
+const removeModalText = (name, group, plural) => (
+  <FormattedMessage
+    {...(plural ? messages.removeMembersText : messages.removeMemberText)}
+    values={{
+      b: (text) => <b>{text}</b>,
+      name,
+      group,
+    }}
+  />
+);
 const GroupPrincipals = () => {
+  const intl = useIntl();
   const [filterValue, setFilterValue] = useState('');
   const [selectedPrincipals, setSelectedPrincipals] = useState([]);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -53,6 +47,14 @@ const GroupPrincipals = () => {
   const { principals, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
+
+  const columns = [
+    { title: intl.formatMessage(messages.status), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.username) },
+    { title: intl.formatMessage(messages.email) },
+    { title: intl.formatMessage(messages.lastName) },
+    { title: intl.formatMessage(messages.firstName) },
+  ];
 
   const dispatch = useDispatch();
 
@@ -85,13 +87,13 @@ const GroupPrincipals = () => {
       ? null
       : [
           {
-            title: 'Remove',
+            title: intl.formatMessage(messages.remove),
             onClick: (_event, _rowId, principal) => {
               setConfirmDelete(() => () => removeMembers([principal.username.title]));
               setDeleteInfo({
-                title: 'Remove member?',
+                title: intl.formatMessage(messages.removeMemberQuestion),
                 text: removeModalText(principal.username.title, groupName, false),
-                confirmButtonLabel: 'Remove member',
+                confirmButtonLabel: intl.formatMessage(messages.removeMember),
               });
               setShowRemoveModal(true);
             },
@@ -101,7 +103,7 @@ const GroupPrincipals = () => {
   const routes = () => (
     <Fragment>
       <Route
-        path={paths['group-add-members']}
+        path={paths['group-add-members'].path}
         render={(args) => <AddGroupMembers fetchData={fetchData} closeUrl={`/groups/detail/${uuid}/members`} {...args} />}
       />
     </Fragment>
@@ -114,11 +116,11 @@ const GroupPrincipals = () => {
       ? [
           <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
-              Add member
+              {intl.formatMessage(messages.addMember)}
             </Button>
           </Link>,
           {
-            label: 'Add member',
+            label: intl.formatMessage(messages.addMember),
             props: {
               className: 'rbac-m-hide-on-md',
             },
@@ -127,14 +129,14 @@ const GroupPrincipals = () => {
             },
           },
           {
-            label: 'Remove',
+            label: intl.formatMessage(messages.remove),
             props: {
               isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
               variant: 'danger',
             },
             onClick: () => {
               const multipleMembersSelected = selectedPrincipals.length > 1;
-              const removeText = multipleMembersSelected ? 'Remove members?' : 'Remove member?';
+              const removeText = intl.formatMessage(multipleMembersSelected ? messages.removeMembersQuestion : messages.removeMemberQuestion);
               setConfirmDelete(() => () => removeMembers(selectedPrincipals.map((user) => user.uuid)));
               setDeleteInfo({
                 title: removeText,
@@ -171,9 +173,9 @@ const GroupPrincipals = () => {
             <CardBody>
               <Bullseye>
                 <TextContent>
-                  <Text component={TextVariants.h1}>{`All ${
-                    admin_default ? 'organization administrators' : 'users'
-                  } in this organization are members of this group.`}</Text>
+                  <Text component={TextVariants.h1}>
+                    {intl.formatMessage(admin_default ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}
+                  </Text>
                 </TextContent>
               </Bullseye>
             </CardBody>
@@ -186,9 +188,9 @@ const GroupPrincipals = () => {
             columns={columns}
             routes={routes}
             actionResolver={actionResolver}
-            filterPlaceholder="username"
-            titlePlural="members"
-            titleSingular="member"
+            filterPlaceholder={intl.formatMessage(messages.username).toLowerCase()}
+            titlePlural={intl.formatMessage(messages.members).toLowerCase()}
+            titleSingular={intl.formatMessage(messages.member)}
             ouiaId="members-table"
             pagination={pagination}
             filterValue={filterValue}
@@ -199,7 +201,7 @@ const GroupPrincipals = () => {
             rowWrapper={UsersRow}
             setCheckedItems={setCheckedPrincipals}
             toolbarButtons={toolbarButtons}
-            emptyProps={{ title: 'There are no members in this group', description: ['Add a user to configure user access.', ''] }}
+            emptyProps={{ title: intl.formatMessage(messages.noGroupMembers), description: [intl.formatMessage(messages.addUserToConfigure), ''] }}
             tableId="group-members"
           />
         )}
