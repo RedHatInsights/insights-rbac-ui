@@ -6,6 +6,8 @@ import { Popover } from '@patternfly/react-core';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import { getDateFormat } from '../../helpers/shared/helpers';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
   const [isPopoverVisible, setPopoverVisible] = useState(false);
@@ -37,8 +39,9 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
-  data.reduce(
+export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
+  const intl = useIntl();
+  return data.reduce(
     (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
       ...acc,
       {
@@ -49,7 +52,7 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
           <Fragment key={uuid}>
             <div className="pf-m-inline-flex">
               {isAdmin ? (
-                <Link key={`${uuid}-link`} to={`/groups/detail/${uuid}`}>
+                <Link key={`${uuid}-link`} state={{ uuid }} to={{ pathname: `/groups/detail/${isPlatformDefault ? 'default-access' : uuid}` }}>
                   {name}
                 </Link>
               ) : (
@@ -59,9 +62,8 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
                 <DefaultPlatformPopover
                   id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
                   uuid={uuid}
-                  bodyContent={`This group contains the roles that all ${
-                    isAdminDefault ? 'org admin users' : 'users in your organization'
-                  } inherit by default.`}
+                  key={`${uuid}-popover`}
+                  bodyContent={intl.formatMessage(isAdminDefault ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
                 />
               )}
             </div>
@@ -77,3 +79,4 @@ export const createRows = (isAdmin, data, _opened, selectedRows = []) =>
     ],
     []
   );
+};

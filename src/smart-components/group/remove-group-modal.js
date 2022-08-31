@@ -8,6 +8,8 @@ import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import pathnames from '../../utilities/pathnames';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
 import './remove-group-modal.scss';
 
 const RemoveGroupModal = ({
@@ -23,6 +25,7 @@ const RemoveGroupModal = ({
   cancelRoute,
   submitRoute = cancelRoute,
 }) => {
+  const intl = useIntl();
   useEffect(() => {
     if (groupsUuid.length === 1) {
       fetchGroup(groupsUuid[0].uuid);
@@ -52,29 +55,41 @@ const RemoveGroupModal = ({
       title={
         <Text>
           <ExclamationTriangleIcon className="delete-group-warning-icon" />
-          &nbsp; {multipleGroups ? 'Delete groups?' : 'Delete group?'}
+          &nbsp; {intl.formatMessage(multipleGroups ? messages.deleteGroupsQuestion : messages.deleteGroupQuestion)}
         </Text>
       }
       onClose={onCancel}
       actions={[
         <Button key="submit" isDisabled={!checked} variant="danger" type="button" onClick={onSubmit}>
-          {multipleGroups ? 'Delete groups' : 'Delete group'}
+          {intl.formatMessage(multipleGroups ? messages.deleteGroups : messages.deleteGroup)}
         </Button>,
         <Button key="cancel" variant="link" type="button" onClick={onCancel}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
       <TextContent>
         {multipleGroups ? (
           <Text>
-            Deleting these <b>{groupsUuid.length}</b> groups removes all roles from the members inside the group.
+            <FormattedMessage
+              {...messages.deletingGroupsRemovesRoles}
+              values={{
+                b: (text) => <b>{text}</b>,
+                count: groupsUuid.length,
+              }}
+            />
           </Text>
         ) : isLoading ? (
           <FormItemLoader />
         ) : (
           <Text>
-            Deleting the <b>{group.name}</b> group removes all roles from the members inside the group.
+            <FormattedMessage
+              {...messages.deletingGroupRemovesRoles}
+              values={{
+                b: (text) => <b>{text}</b>,
+                name: group.name,
+              }}
+            />
           </Text>
         )}
       </TextContent>
@@ -82,7 +97,7 @@ const RemoveGroupModal = ({
       <Checkbox
         isChecked={checked}
         onChange={() => setChecked(!checked)}
-        label="I understand that this action cannot be undone."
+        label={intl.formatMessage(messages.understandActionIrreversible)}
         id="delete-group-check"
       />
     </Modal>
@@ -94,7 +109,7 @@ RemoveGroupModal.defaultProps = {
   group: {},
   groupsUuid: [],
   isLoading: true,
-  cancelUrl: pathnames.groups,
+  cancelUrl: pathnames.groups.path,
 };
 
 RemoveGroupModal.propTypes = {
@@ -105,9 +120,7 @@ RemoveGroupModal.propTypes = {
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
-  filters: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
+  filters: PropTypes.object.isRequired,
   isLoading: PropTypes.bool,
   group: PropTypes.object,
   groupsUuid: PropTypes.array,

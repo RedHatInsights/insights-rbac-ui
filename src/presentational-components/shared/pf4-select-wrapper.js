@@ -1,8 +1,12 @@
 import React from 'react';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import messages from '../../Messages';
 import { FormSelect, FormSelectOption, FormGroup, TextContent, Text, TextVariants } from '@patternfly/react-core';
 
 const createOptions = (options, inputValue, isRequired) => {
+  const intl = useIntl();
+
   if (inputValue && isRequired) {
     return options;
   }
@@ -10,7 +14,7 @@ const createOptions = (options, inputValue, isRequired) => {
   let selectOptions = [...options];
   return selectOptions.find(({ value }) => value === undefined)
     ? [...selectOptions]
-    : [{ label: isRequired ? 'Please choose' : 'None' }, ...selectOptions];
+    : [{ label: intl.formatMessage(messages[isRequired ? 'pleaseChoose' : 'none']) }, ...selectOptions];
 };
 
 const Select = ({ input, options, isReadOnly, isDisabled, isRequired, ...rest }) => (

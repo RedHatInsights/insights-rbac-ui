@@ -6,24 +6,13 @@ import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
 import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
-
-const columns = [
-  {
-    title: 'Roles',
-    key: 'display_name',
-    transforms: [sortable],
-  },
-  'Description',
-  {
-    title: 'Permissions',
-    cellTransforms: [compoundExpand, cellWidth(20)],
-  },
-];
 
 const MUARolesTable = ({
   fetchRoles,
@@ -36,8 +25,22 @@ const MUARolesTable = ({
   apps,
   showResourceDefinitions,
 }) => {
+  const intl = useIntl();
   const [expanded, setExpanded] = useState({});
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
+
+  const columns = [
+    {
+      title: intl.formatMessage(messages.roles),
+      key: 'display_name',
+      transforms: [sortable],
+    },
+    intl.formatMessage(messages.description),
+    {
+      title: intl.formatMessage(messages.permissions),
+      cellTransforms: [compoundExpand, cellWidth(20)],
+    },
+  ];
 
   useEffect(() => {
     fetchRoles({ limit: 20, offset: 0, orderBy: 'display_name', scope: 'principal', application: apps.join(',') });
@@ -68,7 +71,12 @@ const MUARolesTable = ({
                   aria-label="Simple Table"
                   borders={false}
                   variant={TableVariant.compact}
-                  cells={['Application', 'Resource type', 'Operation', ...(showResourceDefinitions ? ['Resource definitions'] : [])]}
+                  cells={[
+                    intl.formatMessage(messages.application),
+                    intl.formatMessage(messages.resourceType),
+                    intl.formatMessage(messages.operation),
+                    ...(showResourceDefinitions ? [intl.formatMessage(messages.resourceDefinitions)] : []),
+                  ]}
                   rows={rolesWithAccess[uuid].access.map((access) => ({
                     cells: [
                       ...access.permission.split(':'),
@@ -140,6 +148,7 @@ const MUARolesTable = ({
           debouncedFetch(limit, offset, name, application, permission, orderBy);
         }}
         sortBy={{ index: 0, direction: 'asc' }}
+        emptyFilters={{ name: '', application: [] }}
         setFilterValue={setFilters}
         isLoading={isLoading}
         pagination={roles.meta}

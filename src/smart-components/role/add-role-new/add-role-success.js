@@ -4,30 +4,34 @@ import { CheckCircleIcon } from '@patternfly/react-icons';
 import { Link } from 'react-router-dom';
 import { AddRoleWizardContext } from './add-role-wizard';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const AddRoleSuccess = ({ onClose }) => {
-  const { setHideForm } = useContext(AddRoleWizardContext);
+  const { setHideForm, setWizardSuccess } = useContext(AddRoleWizardContext);
+  const intl = useIntl();
   return (
     <EmptyState variant={EmptyStateVariant.large}>
       <EmptyStateIcon color="green" icon={CheckCircleIcon} />
       <Title headingLevel="h4" size="lg">
-        You have successfully created a new role
+        {intl.formatMessage(messages.roleCreatedSuccessfully)}
       </Title>
       <EmptyStateBody></EmptyStateBody>
       <Button onClick={onClose} variant="primary">
-        Exit
+        {intl.formatMessage(messages.exit)}
       </Button>
       <EmptyStateSecondaryActions>
         <Button
           onClick={() => {
             setHideForm(false);
+            setWizardSuccess(false);
           }}
           variant="link"
         >
-          Create another role
+          {intl.formatMessage(messages.createAnotherRole)}
         </Button>
         <Button component={(props) => <Link to="/groups" {...props} />} variant="link">
-          Add role to group
+          {intl.formatMessage(messages.addRoleToGroup)}
         </Button>
       </EmptyStateSecondaryActions>
     </EmptyState>

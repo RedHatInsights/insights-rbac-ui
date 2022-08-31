@@ -9,8 +9,11 @@ import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import useIsMounted from '../../hooks/useIsMounted';
 import { roleNameSelector } from './role-selectors';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
+  const intl = useIntl();
   const isMounted = useIsMounted();
   const {
     params: { id },
@@ -54,7 +57,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
               <ExclamationTriangleIcon size="lg" style={{ fill: '#f0ab00' }} />
             </SplitItem>
             <SplitItem>
-              <Text component="h1">Delete role?</Text>
+              <Text component="h1">{intl.formatMessage(messages.deleteRoleQuestion)}</Text>
             </SplitItem>
           </Split>
         </TextContent>
@@ -64,21 +67,26 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
       onClose={onCancel}
       actions={[
         <Button isDisabled={isDisabled} key="submit" variant="danger" type="button" id="confirm-delete-portfolio" onClick={onSubmit}>
-          Confirm
+          {intl.formatMessage(messages.confirm)}
         </Button>,
         <Button key="cancel" variant="link" type="button" onClick={onCancel}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
       <TextContent>
         <Text component={TextVariants.p}>
-          The <strong>{internalRoleName}</strong> role will be removed from any group it’s in, and members in the groups will no longer be granted the
-          permissions in the role.
+          <FormattedMessage
+            {...messages.roleWilBeRemovedWithPermissions}
+            values={{
+              strong: (text) => <strong>{text}</strong>,
+              name: internalRoleName,
+            }}
+          />
         </Text>
         <Checkbox
           id="remove-role-checkbox"
-          label="I understand that this action cannot be undone."
+          label={intl.formatMessage(messages.understandActionIrreversible)}
           isChecked={!isDisabled}
           onChange={() => setIsDisabled((prev) => !prev)}
         />

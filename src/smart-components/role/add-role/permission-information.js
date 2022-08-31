@@ -1,8 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Form, FormGroup, Stack, StackItem, Text, TextContent, TextInput, TextVariants, Title } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const PermissionInformation = (formData, onHandleChange) => {
+  const intl = useIntl();
   const { application = '', permission = '', resourceType = '' } = formData;
 
   let getFormValues = (values) => {
@@ -24,20 +27,17 @@ const PermissionInformation = (formData, onHandleChange) => {
     <Stack hasGutter>
       <StackItem>
         <Title headingLevel="h4" size="xl">
-          Permission
+          {intl.formatMessage(messages.permission)}
         </Title>
       </StackItem>
       <StackItem>
         <TextContent>
-          <Text component={TextVariants.h6}>
-            The permission string is made up of the following inputs where it denotes which application and the resource type the permission will be
-            allowed for.
-          </Text>
+          <Text component={TextVariants.h6}>{intl.formatMessage(messages.permissionStringDescription)}</Text>
         </TextContent>
       </StackItem>
       <StackItem>
         <Form>
-          <FormGroup label="Application" isRequired fieldId="application">
+          <FormGroup label={intl.formatMessage(messages.application)} isRequired fieldId="application">
             <TextInput
               aria-describedby="application"
               id="application"
@@ -48,7 +48,7 @@ const PermissionInformation = (formData, onHandleChange) => {
               value={application}
             />
           </FormGroup>
-          <FormGroup label="Resource type" isRequired fieldId="resource-type">
+          <FormGroup label={intl.formatMessage(messages.resourceType)} isRequired fieldId="resource-type">
             <TextInput
               aria-describedby="resource-type"
               id="resource-type"
@@ -59,7 +59,7 @@ const PermissionInformation = (formData, onHandleChange) => {
               value={resourceType}
             />
           </FormGroup>
-          <FormGroup label="Permission" isRequired fieldId="permission">
+          <FormGroup label={intl.formatMessage(messages.permission)} isRequired fieldId="permission">
             <TextInput
               aria-describedby="permission"
               id="permission"

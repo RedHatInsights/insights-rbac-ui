@@ -33,7 +33,7 @@ const testFilter = {
         id: 'filter-by-string',
         isDisabled: undefined,
         key: 'filter-by-string',
-        placeholder: 'Filter by ',
+        placeholder: 'Filter by {key}',
         value: '',
       },
       label: '',

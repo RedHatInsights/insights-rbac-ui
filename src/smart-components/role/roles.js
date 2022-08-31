@@ -1,4 +1,5 @@
 import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
+import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
@@ -15,21 +16,14 @@ import paths from '../../utilities/pathnames';
 import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
+import PermissionsContext from '../../utilities/permissions-context';
 import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import messages from '../../Messages';
 import './roles.scss';
-import PermissionsContext from '../../utilities/permissions-context';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
-
-const columns = [
-  { title: 'Name', key: 'display_name', transforms: [cellWidth(20), sortable] },
-  { title: 'Description' },
-  { title: 'Permissions', transforms: [nowrap] },
-  { title: 'Groups', transforms: [nowrap] },
-  { title: 'Last modified', key: 'modified', transforms: [nowrap, sortable] },
-];
 
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
@@ -39,6 +33,7 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 });
 
 const Roles = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const { push } = useHistory();
   const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
@@ -49,6 +44,14 @@ const Roles = () => {
   const [pagination, setPagination] = useState(meta);
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const screenSize = useScreenSize();
+
+  const columns = [
+    { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
+    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.permissions), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.groups), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
+  ];
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -77,26 +80,26 @@ const Roles = () => {
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
-      <Route exact path={paths['add-role']}>
+      <Route exact path={paths['add-role'].path}>
         <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
       </Route>
-      <Route exact path={paths['remove-role']}>
+      <Route exact path={paths['remove-role'].path}>
         {!isLoading && (
           <RemoveRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['remove-role']}
-            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+            routeMatch={paths['remove-role'].path}
+            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
-      <Route exact path={paths['edit-role']}>
+      <Route exact path={paths['edit-role'].path}>
         {!isLoading && (
           <EditRole
             afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
-            routeMatch={paths['edit-role']}
-            cancelRoute={getBackRoute(paths.roles, pagination, filters)}
-            submitRoute={getBackRoute(paths.roles, { ...pagination, offset: 0 }, filters)}
+            routeMatch={paths['edit-role'].path}
+            cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
+            submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
         )}
       </Route>
@@ -108,11 +111,11 @@ const Roles = () => {
       ? []
       : [
           {
-            title: 'Edit',
+            title: intl.formatMessage(messages.edit),
             onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
           },
           {
-            title: 'Delete',
+            title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
           },
         ];
@@ -121,17 +124,17 @@ const Roles = () => {
   const toolbarButtons = () =>
     orgAdmin || userAccessAdministrator
       ? [
-          <Link to={paths['add-role']} key="add-role" className="rbac-m-hide-on-sm">
+          <Link to={paths['add-role'].path} key="add-role" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
-              Create role
+              {intl.formatMessage(messages.createRole)}
             </Button>
           </Link>,
           ...(isSmallScreen(screenSize)
             ? [
                 {
-                  label: 'Create role',
+                  label: intl.formatMessage(messages.createRole),
                   onClick: () => {
-                    history.push(paths['add-role']);
+                    history.push(paths['add-role'].path);
                   },
                 },
               ]
@@ -143,7 +146,7 @@ const Roles = () => {
     <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title="Roles" />
+          <TopToolbarTitle title={intl.formatMessage(messages.roles)} />
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -161,15 +164,15 @@ const Roles = () => {
               applyFiltersToUrl(history, { display_name: name });
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}
             ouiaId="roles-table"
-            titlePlural="roles"
-            titleSingular="role"
+            titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+            titleSingular={intl.formatMessage(messages.role).toLowerCase()}
             toolbarButtons={toolbarButtons}
-            filterPlaceholder="name"
+            filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             tableId="roles"
           />
         </Section>
@@ -179,13 +182,13 @@ const Roles = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission']}>
+      <PageActionRoute pageAction="role-detail-permission" path={paths['role-detail-permission'].path}>
         <ResourceDefinitions />
       </PageActionRoute>
-      <PageActionRoute pageAction="role-detail" path={paths['role-detail']}>
+      <PageActionRoute pageAction="role-detail" path={paths['role-detail'].path}>
         <Role onDelete={() => setFilterValue('')} />
       </PageActionRoute>
-      <PageActionRoute pageAction="roles-list" path={paths.roles} render={() => renderRolesList()} />
+      <PageActionRoute pageAction="roles-list" path={paths.roles.path} render={() => renderRolesList()} />
     </Switch>
   );
 };

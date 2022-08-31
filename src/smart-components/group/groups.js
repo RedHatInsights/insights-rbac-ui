@@ -20,23 +20,26 @@ import PageActionRoute from '../common/page-action-route';
 import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 import PermissionsContext from '../../utilities/permissions-context';
 
-const columns = [
-  { title: 'Name', key: 'name', transforms: [sortable] },
-  { title: 'Roles' },
-  { title: 'Members' },
-  { title: 'Last modified', key: 'modified', transforms: [sortable] },
-];
-
 const Groups = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
   const history = useHistory();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
-  const { groups, meta, filters, isLoading } = useSelector(
+  const columns = [
+    { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
+    { title: intl.formatMessage(messages.roles) },
+    { title: intl.formatMessage(messages.members) },
+    { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
+  ];
+
+  const { groups, meta, filters, isLoading, systemGroup } = useSelector(
     ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
         ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
@@ -91,7 +94,7 @@ const Groups = () => {
 
   const routes = () => (
     <Fragment>
-      <Route exact path={pathnames['add-group']}>
+      <Route exact path={pathnames['add-group'].path}>
         <AddGroupWizard
           pagination={pagination}
           filters={filters}
@@ -108,11 +111,11 @@ const Groups = () => {
           postMethod={(config) => {
             fetchData(config);
           }}
-          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
         />
       </Route>
-      <Route exact path={pathnames['remove-group']}>
+      <Route exact path={pathnames['remove-group'].path}>
         <RemoveGroup
           pagination={pagination}
           filters={filters}
@@ -120,8 +123,8 @@ const Groups = () => {
             fetchData(config);
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
           }}
-          cancelRoute={getBackRoute(pathnames.groups, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups, { ...pagination, offset: 0 }, filters)}
+          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
+          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
           isModalOpen
           groupsUuid={removeGroupsList}
         />
@@ -134,16 +137,16 @@ const Groups = () => {
       ? null
       : [
           {
-            title: 'Edit',
+            title: intl.formatMessage(messages.edit),
             onClick: (_event, _rowId, group) => {
               history.push(`/groups/edit/${group.uuid}`);
             },
           },
           {
-            title: 'Delete',
+            title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              history.push(pathnames['remove-group']);
+              history.push(pathnames['remove-group'].path);
             },
           },
         ];
@@ -152,35 +155,35 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
-          <Link to={pathnames['add-group']} key="add-group" className="rbac-m-hide-on-sm">
+          <Link to={pathnames['add-group'].path} key="add-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
-              Create group
+              {intl.formatMessage(messages.createGroup)}
             </Button>
           </Link>,
           {
-            label: 'Create group',
+            label: intl.formatMessage(messages.createGroup),
             props: {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(pathnames['add-group']);
+              history.push(pathnames['add-group'].path);
             },
           },
           {
-            label: 'Edit',
+            label: intl.formatMessage(messages.edit),
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
             onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`),
           },
           {
-            label: 'Delete',
+            label: intl.formatMessage(messages.delete),
             props: {
               isDisabled: !selectedRows.length > 0,
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              history.push(pathnames['remove-group']);
+              history.push(pathnames['remove-group'].path);
             },
           },
         ]
@@ -191,7 +194,7 @@ const Groups = () => {
     <Stack className="rbac-c-groups">
       <StackItem>
         <TopToolbar paddingBottom>
-          <TopToolbarTitle title="Groups" />
+          <TopToolbarTitle title={intl.formatMessage(messages.groups)} />
         </TopToolbar>
       </StackItem>
       <StackItem>
@@ -207,8 +210,8 @@ const Groups = () => {
             setCheckedItems={setCheckedItems}
             routes={routes}
             actionResolver={actionResolver}
-            titlePlural="groups"
-            titleSingular="group"
+            titlePlural={intl.formatMessage(messages.groups).toLowerCase()}
+            titleSingular={intl.formatMessage(messages.group).toLowerCase()}
             ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
@@ -218,10 +221,10 @@ const Groups = () => {
               applyFiltersToUrl(history, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
-            setFilterValue={({ name }) => setFilterValue(name)}
+            setFilterValue={({ name = '' }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
             isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
-            filterPlaceholder="name"
+            filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             rowWrapper={GroupRowWrapper}
             tableId="groups"
           />
@@ -231,13 +234,14 @@ const Groups = () => {
   );
   return (
     <Switch>
-      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail']} render={(props) => <Role {...props} />} />
+      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail'].path} render={(props) => <Role {...props} />} />
       <PageActionRoute
         pageAction="group-detail"
-        path={pathnames['group-detail']}
+        path={pathnames['group-detail'].path}
         render={(props) => (
           <Group
             {...props}
+            defaultUuid={systemGroup?.uuid}
             onDelete={(uuid) => {
               setFilterValue('');
               setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
@@ -245,7 +249,7 @@ const Groups = () => {
           />
         )}
       />
-      <PageActionRoute pageAction="group-list" path={pathnames.groups} render={() => renderGroupsList()} />
+      <PageActionRoute pageAction="group-list" path={pathnames.groups.path} render={() => renderGroupsList()} />
     </Switch>
   );
 };

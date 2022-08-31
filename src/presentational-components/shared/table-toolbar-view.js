@@ -1,5 +1,7 @@
 import React, { Fragment, useState, useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
+import messages from '../../Messages';
 import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
@@ -25,6 +27,7 @@ export const TableToolbarView = ({
   pagination,
   filterValue,
   isLoading,
+  emptyFilters,
   setFilterValue,
   checkedRows,
   isSelectable,
@@ -52,6 +55,7 @@ export const TableToolbarView = ({
   tableId,
   containerRef,
 }) => {
+  const intl = useIntl();
   const [opened, openRow] = useState({});
   const [sortByState, setSortByState] = useState({ index: undefined, direction: undefined });
   useEffect(() => {
@@ -72,9 +76,11 @@ export const TableToolbarView = ({
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
-        title={`No matching ${titlePlural} found`}
+        title={intl.formatMessage(messages.noMatchingItemsFound, { items: titlePlural })}
         description={
-          noData && noDataDescription ? noDataDescription : [`This filter criteria matches no ${titlePlural}.`, `Try changing your filter settings.`]
+          noData && noDataDescription
+            ? noDataDescription
+            : [intl.formatMessage(messages.filterMatchesNoItems, { items: titlePlural }), intl.formatMessage(messages.tryChangingFilters)]
         }
         actions={
           noData && noDataDescription
@@ -85,19 +91,15 @@ export const TableToolbarView = ({
                     variant="link"
                     ouiaId="clear-filters-button"
                     onClick={() => {
-                      setFilterValue({
-                        ...pagination,
-                        offset: 0,
-                        name: '',
-                      });
+                      setFilterValue(emptyFilters);
                       fetchData({
                         ...pagination,
                         offset: 0,
-                        name: '',
+                        ...(emptyFilters ? emptyFilters : { name: '' }),
                       });
                     }}
                   >
-                    Clear all filters
+                    {intl.formatMessage(messages.clearAllFilters)}
                   </Button>
                 </EmptyStatePrimary>,
               ]
@@ -150,7 +152,7 @@ export const TableToolbarView = ({
         ) : (
           <Table
             canSelectAll={false}
-            aria-label={`${titlePlural} table`}
+            aria-label={`${titlePlural.toLowerCase()} table`}
             variant={isCompact ? TableVariant.compact : null}
             borders={borders}
             {...(isCollapsible && { onCollapse })}
@@ -211,9 +213,12 @@ export const TableToolbarView = ({
       {routes()}
       {!isLoading && rows.length === 0 && filterValue.length === 0 && filters.every(({ value }) => !value) ? (
         <EmptyWithAction
-          title={`Configure ${titlePlural}`}
+          title={intl.formatMessage(messages.configureItems, { items: titlePlural })}
           icon={PlusCircleIcon}
-          description={[`To configure user access to applications`, `create at least one ${titleSingular}`]}
+          description={[
+            intl.formatMessage(messages.toConfigureUserAccess),
+            intl.formatMessage(messages.createAtLeastOneItem, { item: titleSingular }),
+          ]}
           actions={toolbarButtons()[0]}
           {...emptyProps}
         />
@@ -233,6 +238,7 @@ TableToolbarView.propTypes = {
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   borders: propTypes.bool,
+  emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
   createRows: propTypes.func.isRequired,
   columns: propTypes.array.isRequired,
@@ -254,6 +260,7 @@ TableToolbarView.propTypes = {
 
 TableToolbarView.defaultProps = {
   ...Toolbar.defaultProps,
+  emptyFilters: {},
   isCompact: false,
   borders: true,
   routes: () => null,

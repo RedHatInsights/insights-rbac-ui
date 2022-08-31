@@ -8,6 +8,8 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { CompactUsersList } from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 const AddGroupMembers = ({
   history: { push },
@@ -21,15 +23,15 @@ const AddGroupMembers = ({
   fetchGroups,
 }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
+  const intl = useIntl();
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
       addNotification({
         variant: 'info',
-        title: `Adding member${userList.length > 1 ? 's' : ''} to group`,
+        title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
         dismissDelay: 8000,
-        dismissable: false,
-        description: `Adding member${userList.length > 1 ? 's' : ''} to group initiated.`,
+        description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
       });
       addMembersToGroup(uuid, userList).then(() => {
         fetchMembersForGroup(uuid);
@@ -43,25 +45,24 @@ const AddGroupMembers = ({
   const onCancel = () => {
     addNotification({
       variant: 'warning',
-      title: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group`,
+      title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
       dismissDelay: 8000,
-      dismissable: false,
-      description: `Adding member${selectedUsers.length > 1 ? 's' : ''} to group was canceled by the user.`,
+      description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
     });
     push(closeUrl);
   };
 
   return (
     <Modal
-      title="Add members"
+      title={intl.formatMessage(messages.addMembers)}
       variant={ModalVariant.medium}
       isOpen
       actions={[
         <Button key="confirm" ouiaId="primary-confirm-button" isDisabled={selectedUsers.length === 0} variant="primary" onClick={onSubmit}>
-          Add to group
+          {intl.formatMessage(messages.addToGroup)}
         </Button>,
         <Button id="add-groups-cancel" ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onCancel}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
       onClose={onCancel}
@@ -69,7 +70,7 @@ const AddGroupMembers = ({
       <Stack hasGutter>
         <StackItem>
           <TextContent>
-            <ActiveUser linkDescription="To manage users, go to your" />
+            <ActiveUser linkDescription={intl.formatMessage(messages.toManageUsersText)} />
           </TextContent>
         </StackItem>
         <StackItem>

@@ -7,12 +7,13 @@ import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
 import toJson from 'enzyme-to-json';
-import { FETCH_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
+import { defaultSettings } from '../../helpers/shared/pagination';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
@@ -21,6 +22,7 @@ describe('role', () => {
 
   const roleApi = UserLogin.getRoleApi();
 
+  const fetchSystemGroupSpy = jest.spyOn(GroupActions, 'fetchSystemGroup');
   const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
   const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
   const getRoleAccessSpy = jest.spyOn(roleApi, 'getRoleAccess');
@@ -30,6 +32,7 @@ describe('role', () => {
   removeRolePermissionsSpy.mockImplementation(() => ({ type: UPDATE_ROLE, payload: Promise.resolve({}) }));
 
   afterEach(() => {
+    fetchSystemGroupSpy.mockReset();
     fetchRoleSpy.mockReset();
     fetchGroupSpy.mockReset();
     getRoleAccessSpy.mockReset();
@@ -48,6 +51,7 @@ describe('role', () => {
           uuid: '1234',
           display_name: 'name',
           description: 'description',
+          system: false,
           access: [
             {
               resourceDefinitions: [
@@ -63,6 +67,34 @@ describe('role', () => {
             },
           ],
         },
+      },
+      permissionReducer: {
+        isLoading: false,
+        options: {
+          isLoadingApplication: false,
+          isLoadingResource: false,
+          isLoadingOperation: false,
+          application: { data: [] },
+          resource: { data: [] },
+          operation: { data: [] },
+        },
+        permission: {
+          data: [],
+          meta: defaultSettings,
+        },
+        expandSplats: {
+          data: [],
+          meta: defaultSettings,
+        },
+      },
+      costReducer: {
+        isLoading: false,
+        resourceTypes: {
+          data: [],
+          meta: defaultSettings,
+        },
+        resources: {},
+        loadingResources: 0,
       },
     };
   });
@@ -123,6 +155,7 @@ describe('role', () => {
           },
         },
       });
+      fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
       fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       let wrapper;
@@ -335,8 +368,7 @@ describe('role', () => {
       wrapper.update();
     });
 
-    wrapper.find('input[type="checkbox"]').at(0).simulate('click');
-    wrapper.find('button[aria-label="Actions"]').at(2).simulate('click');
+    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');

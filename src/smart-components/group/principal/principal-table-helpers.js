@@ -1,7 +1,10 @@
 import React from 'react';
 import { Label } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import messages from '../../../Messages';
 
 export const createRows = (data, _opened, checkedRows = []) => {
+  const intl = useIntl();
   return data.reduce(
     (acc, { is_active: isActive, username, email, first_name: firstName, last_name: lastName }) => [
       ...acc,
@@ -10,7 +13,7 @@ export const createRows = (data, _opened, checkedRows = []) => {
         username,
         cells: [
           {
-            title: <Label color={isActive && 'green'}>{isActive ? 'Active' : 'Inactive'}</Label>,
+            title: <Label color={isActive && 'green'}>{intl.formatMessage(isActive ? messages.active : messages.inactive)}</Label>,
             props: {
               data: { isActive },
             },

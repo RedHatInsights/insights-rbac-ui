@@ -10,13 +10,16 @@ import User from './user';
 import paths from '../../utilities/pathnames';
 import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const Users = () => {
+  const intl = useIntl();
   const activeUserPermissions = useContext(PermissionsContext);
 
   const description = (
     <ActiveUser
-      linkDescription="To add new users or manage existing users, go to your"
+      linkDescription={intl.formatMessage(messages.addNewUsersText)}
     />
   );
 
@@ -28,7 +31,7 @@ const Users = () => {
     <StackItem>
       <TopToolbar paddingBottm={ false }>
         <TopToolbarTitle
-          title="Users"
+          title={intl.formatMessage(messages.users)}
           description={ description }
         />
       </TopToolbar>
@@ -36,7 +39,7 @@ const Users = () => {
     <StackItem>
       <Section type="content" id={ 'users' }>
         <UsersList
-          userLinks={activeUserPermissions.userAccessAdministrator}
+          userLinks={activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin}
           props={ {
             isSelectable: false,
             isCompact: false
@@ -48,8 +51,8 @@ const Users = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'] } render={ props => <User {...props}/> } />
-      <PageActionRoute pageAction="users-list" path={ [ paths.users, paths.rbac] } render={ () => renderUsers() } />
+      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'].path } render={ props => <User {...props}/> } />
+      <PageActionRoute pageAction="users-list" path={ [ paths.users.path, paths.rbac.path] } render={ () => renderUsers() } />
     </Switch>
 
   );

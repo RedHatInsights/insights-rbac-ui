@@ -3,13 +3,12 @@ import PropTypes from 'prop-types';
 import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
 import { ExcludedRolesList } from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../../Messages';
 import '../../../App.scss';
 
 const AddGroupRoles = ({
   history: { push },
-  match: {
-    params: { uuid },
-  },
   selectedRoles,
   setSelectedRoles,
   title,
@@ -21,27 +20,37 @@ const AddGroupRoles = ({
   addNotification,
   onDefaultGroupChanged,
   fetchRolesForGroup,
+  fetchSystemGroup,
   fetchGroup,
+  fetchUuid,
 }) => {
+  const intl = useIntl();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
 
   const onCancel = () => {
     setSelectedRoles && setSelectedRoles([]);
     addNotification({
       variant: 'warning',
-      title: 'Adding roles to group',
+      title: intl.formatMessage(messages.addingGroupRolesTitle),
       dismissDelay: 8000,
-      dismissable: false,
-      description: 'Adding roles to group was canceled by the user.',
+      description: intl.formatMessage(messages.addingGroupRolesCancelled),
     });
     push(closeUrl);
   };
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
-    addRolesToGroup(uuid, rolesList, () => {
-      fetchRolesForGroup();
-      fetchGroup();
+    addRolesToGroup(fetchUuid, rolesList, () => {
+      if (isDefault) {
+        fetchSystemGroup().then(({ value: { data } }) => {
+          fetchRolesForGroup(data[0].uuid);
+          fetchGroup(data[0].uuid);
+        });
+      } else {
+        fetchRolesForGroup();
+        fetchGroup();
+      }
+      setSelectedRoles([]);
     });
     if (isDefault && !isChanged) {
       onDefaultGroupChanged(true);
@@ -54,7 +63,7 @@ const AddGroupRoles = ({
     <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={onSubmit} />
   ) : (
     <Modal
-      title="Add roles to group"
+      title={intl.formatMessage(messages.addRolesToGroup)}
       variant={ModalVariant.medium}
       isOpen
       onClose={() => {
@@ -73,10 +82,10 @@ const AddGroupRoles = ({
             (!isDefault || isChanged) && onSubmit();
           }}
         >
-          Add to group
+          {intl.formatMessage(messages.addToGroup)}
         </Button>,
         <Button aria-label="Cancel" ouiaId="secondary-cancel-button" variant="link" key="cancel" onClick={onCancel}>
-          Cancel
+          {intl.formatMessage(messages.cancel)}
         </Button>,
       ]}
     >
@@ -91,7 +100,13 @@ const AddGroupRoles = ({
         <StackItem>
           <TextContent>
             <Text component={TextVariants.p}>
-              This role list has been filtered to only show roles that are not currently in <b> {name}</b>.
+              <FormattedMessage
+                {...messages.onlyGroupRolesVisible}
+                values={{
+                  b: (text) => <b>{text}</b>,
+                  name: name,
+                }}
+              />
             </Text>
           </TextContent>
         </StackItem>
@@ -125,6 +140,8 @@ AddGroupRoles.propTypes = {
   onDefaultGroupChanged: PropTypes.func,
   fetchRolesForGroup: PropTypes.func,
   fetchGroup: PropTypes.func,
+  fetchSystemGroup: PropTypes.func,
+  fetchUuid: PropTypes.string,
 };
 
 export default AddGroupRoles;
