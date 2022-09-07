@@ -45,17 +45,14 @@ const Group = ({
   onDelete,
 }) => {
   const intl = useIntl();
+  const dispatch = useDispatch();
+  const history = useHistory();
+  const location = useLocation();
   const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
     { eventKey: 0, title: intl.formatMessage(messages.roles), name: `/groups/detail/${uuid}/roles` },
     { eventKey: 1, title: intl.formatMessage(messages.members), name: `/groups/detail/${uuid}/members` },
   ];
-
-  const [isResetWarningVisible, setResetWarningVisible] = useState(false);
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
-
-  const history = useHistory();
 
   const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
     ({ groupReducer: { groups, error, systemGroup } }) => ({
@@ -67,6 +64,18 @@ const Group = ({
     shallowEqual
   );
 
+  const [isResetWarningVisible, setResetWarningVisible] = useState(false);
+  const [isDropdownOpen, setDropdownOpen] = useState(false);
+  const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
+
+  useEffect(() => {
+    fetchSystemGroup();
+    const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
+    fetchGroup(currUuid);
+    insights.chrome.appObjectId(currUuid);
+    return () => insights.chrome.appObjectId(undefined);
+  }, [uuid, systemGroupUuid]);
+
   const breadcrumbsList = () => [
     {
       title: intl.formatMessage(messages.groups),
@@ -76,23 +85,6 @@ const Group = ({
       ? { title: isFetching ? undefined : group.name, isActive: true }
       : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
   ];
-
-  const fetchData = (apiProps) => {
-    fetchGroup(apiProps);
-  };
-
-  const dispatch = useDispatch();
-  const location = useLocation();
-
-  useEffect(() => {
-    fetchSystemGroup();
-    const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
-    if (currUuid) {
-      fetchData(systemGroupUuid);
-      insights.chrome.appObjectId(currUuid);
-      return () => insights.chrome.appObjectId(undefined);
-    }
-  }, [systemGroupUuid]);
 
   const defaultGroupChangedIcon = (name) => (
     <div style={{ display: 'inline-flex' }}>
@@ -265,16 +257,7 @@ const Group = ({
           />
           <Route
             path={[pathnames['group-detail-roles-edit'].path, pathnames['group-detail-members-edit'].path]}
-            render={(props) => (
-              <EditGroup
-                {...props}
-                group={group}
-                cancelRoute={`group/detail/${uuid}`}
-                postMethod={() => {
-                  fetchData(fetchUuid);
-                }}
-              />
-            )}
+            render={(props) => <EditGroup {...props} group={group} cancelRoute={`group/detail/${uuid}`} postMethod={() => fetchGroup(fetchUuid)} />}
           />
           <Route
             path={pathnames['group-detail-roles'].path}
