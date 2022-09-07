@@ -213,7 +213,7 @@ const GroupRoles = ({
       ? [
           <Link
             className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
-            to={`/groups/detail/${fetchUuid}/roles/add_roles`}
+            to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
             {addRoleButton(disableAddRoles, generateOuiaID(name || ''), isAdminDefault && intl.formatMessage(messages.defaultGroupNotManually))}
