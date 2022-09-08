@@ -420,7 +420,7 @@
     "description": "Edit role error notification description"
   },
   "editRoleErrorTitle": {
-    "defaultMessage": "Failed upating role",
+    "defaultMessage": "Failed updating role",
     "description": "Edit role error notification title"
   },
   "editRoleSuccessDescription": {
@@ -428,7 +428,7 @@
     "description": "Edit role success notification description"
   },
   "editRoleSuccessTitle": {
-    "defaultMessage": "Success upating role",
+    "defaultMessage": "Success updating role",
     "description": "Edit role success notification title"
   },
   "editingGroupTitle": {

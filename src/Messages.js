@@ -395,7 +395,7 @@ export default defineMessages({
   editRoleSuccessTitle: {
     id: 'editRoleSuccessTitle',
     description: 'Edit role success notification title',
-    defaultMessage: 'Success upating role',
+    defaultMessage: 'Success updating role',
   },
   editRoleSuccessDescription: {
     id: 'editRoleSuccessDescription',
@@ -405,7 +405,7 @@ export default defineMessages({
   editRoleErrorTitle: {
     id: 'editRoleErrorTitle',
     description: 'Edit role error notification title',
-    defaultMessage: 'Failed upating role',
+    defaultMessage: 'Failed updating role',
   },
   editRoleErrorDescription: {
     id: 'editRoleErrorDescription',
