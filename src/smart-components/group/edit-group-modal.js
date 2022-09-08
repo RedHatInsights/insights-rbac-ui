@@ -69,7 +69,7 @@ const EditGroupModal = ({
     addNotification({
       variant: 'warning',
       dismissDelay: 8000,
-      title: intl.formatMessage(selectedGroup ? messages.editingGroup : messages.addingGroupTitle),
+      title: intl.formatMessage(selectedGroup ? messages.editingGroupTitle : messages.addingGroupTitle),
       description: intl.formatMessage(selectedGroup ? messages.editGroupCanceledDescription : messages.addingGroupCanceledDescription),
     });
     onClose();

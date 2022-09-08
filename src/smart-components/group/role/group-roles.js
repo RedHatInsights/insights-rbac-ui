@@ -116,8 +116,6 @@ const GroupRoles = ({
     } else {
       if (systemGroupUuid) {
         fetchRolesForGroup(pagination)(systemGroupUuid);
-      } else {
-        fetchSystemGroup();
       }
     }
   }, [systemGroupUuid]);
@@ -129,8 +127,6 @@ const GroupRoles = ({
     } else {
       if (systemGroupUuid) {
         fetchAddRolesForGroup(systemGroupUuid);
-      } else {
-        fetchSystemGroup();
       }
     }
   }, [roles, systemGroupUuid]);
@@ -140,9 +136,7 @@ const GroupRoles = ({
   }, [orgAdmin, userAccessAdministrator]);
 
   const setCheckedItems = (newSelection) => {
-    setSelectedRoles((roles) => {
-      return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
-    });
+    setSelectedRoles((roles) => newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name })));
   };
 
   const removeModalText = (name, role, plural) => (
@@ -219,7 +213,7 @@ const GroupRoles = ({
       ? [
           <Link
             className={`rbac-m-hide-on-sm rbac-c-button__add-role${disableAddRoles && '-disabled'}`}
-            to={`/groups/detail/${fetchUuid}/roles/add_roles`}
+            to={`/groups/detail/${uuid}/roles/add_roles`}
             key="add-to-group"
           >
             {addRoleButton(disableAddRoles, generateOuiaID(name || ''), isAdminDefault && intl.formatMessage(messages.defaultGroupNotManually))}
