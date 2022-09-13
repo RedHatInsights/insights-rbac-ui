@@ -3,7 +3,7 @@ import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
@@ -136,7 +136,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   };
 
   return (
-    <TableToolbarView
+    <TableToolbarViewOld
       columns={columns}
       isSelectable
       isCompact={true}

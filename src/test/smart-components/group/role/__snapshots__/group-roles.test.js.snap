@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<GroupPrincipals /> should render empty correctly 1`] = `
-<TableToolbarView
+<TableToolbarViewOld
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}
@@ -1196,5 +1196,5 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       </GenerateId>
     </Toolbar>
   </TableToolbar>
-</TableToolbarView>
+</TableToolbarViewOld>
 `;

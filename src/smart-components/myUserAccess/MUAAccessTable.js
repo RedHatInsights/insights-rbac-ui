@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
 import { sortable } from '@patternfly/react-table';
@@ -49,7 +49,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
 
   return (
     <Fragment>
-      <TableToolbarView
+      <TableToolbarViewOld
         columns={columns}
         createRows={(data) => createRows(data, showResourceDefinitions, handleRdClick)}
         data={filteredRows}

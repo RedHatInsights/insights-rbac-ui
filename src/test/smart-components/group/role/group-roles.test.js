@@ -132,7 +132,7 @@ describe('<GroupPrincipals />', () => {
       );
     });
     expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
-    expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
+    expect(mountToJson(wrapper.find('TableToolbarViewOld'), { mode: 'mount' })).toMatchSnapshot();
   });
 
   it('should fetch group roles on mount', async () => {

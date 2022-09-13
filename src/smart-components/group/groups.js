@@ -6,7 +6,7 @@ import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import { createRows } from './group-table-helpers';
 import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
@@ -199,7 +199,7 @@ const Groups = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id={'tab-groups'}>
-          <TableToolbarView
+          <TableToolbarViewOld
             data={groups.map((group) =>
               group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
             )}
