@@ -9,7 +9,7 @@ import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-acti
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
-import { fetchGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
@@ -63,7 +63,7 @@ const Role = ({ onDelete }) => {
         dispatch(fetchGroup(groupUuid));
       } else {
         if (systemGroupUuid) {
-          fetchData(systemGroupUuid);
+          dispatch(fetchRolesForGroup(systemGroupUuid, {}));
           insights.chrome.appObjectId(systemGroupUuid);
           return () => insights.chrome.appObjectId(undefined);
         } else {
