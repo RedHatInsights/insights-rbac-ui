@@ -583,6 +583,10 @@
     "defaultMessage": "No",
     "description": "No label"
   },
+  "noCostManagementPermissions": {
+    "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
+    "description": "No Cost management permissions message"
+  },
   "noGroupMembers": {
     "defaultMessage": "There are no members in this group",
     "description": "No members in a given group title"

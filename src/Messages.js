@@ -1111,6 +1111,11 @@ export default defineMessages({
     description: 'Configure resources for permission message',
     defaultMessage: 'To add this permission to your role and define specific resources for it, at least one data source must be connected.',
   },
+  noCostManagementPermissions: {
+    id: 'noCostManagementPermissions',
+    description: 'No Cost management permissions message',
+    defaultMessage: 'You are not entitled to add cost-management permissions to your role.',
+  },
   configureCostSources: {
     id: 'configureCostSources',
     description: 'Configure resources for Cost management message',

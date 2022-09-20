@@ -146,6 +146,7 @@
     "nameAlreadyTaken": "Name has already been taken.",
     "nameAndDescription": "Name and description",
     "no": "No",
+    "noCostManagementPermissions": "You are not entitled to add cost-management permissions to your role.",
     "noGroupMembers": "There are no members in this group",
     "noGroupRoles": "There are no roles in this group",
     "noMatchingItemsFound": "No matching {items} found",
