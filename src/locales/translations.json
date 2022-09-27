@@ -181,7 +181,7 @@
   "removeGroupMembersErrorDescription": "The members were not removed successfully.",
   "removeGroupMembersErrorTitle": "Failed removing members from the group",
   "removeGroupMembersSuccessDescription": "The members were successfully removed from the group.",
-  "removeGroupMembersSuccessTitle": "Success removing members to group",
+  "removeGroupMembersSuccessTitle": "Success removing members from group",
   "removeGroupRolesErrorDescription": "The roles were not removed successfully.",
   "removeGroupRolesErrorTitle": "Failed removing roles from the group",
   "removeGroupRolesSuccessDescription": "The roles were successfully removed from the group.",

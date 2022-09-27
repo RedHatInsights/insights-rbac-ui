@@ -255,7 +255,7 @@ export default defineMessages({
   removeGroupMembersSuccessTitle: {
     id: 'removeGroupMembersSuccessTitle',
     description: 'Remove group members success notification title',
-    defaultMessage: 'Success removing members to group',
+    defaultMessage: 'Success removing members from group',
   },
   removeGroupMembersSuccessDescription: {
     id: 'removeGroupMembersSuccessDescription',
