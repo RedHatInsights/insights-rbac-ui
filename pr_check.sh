@@ -9,7 +9,7 @@ export COMPONENT="rbac"
 export IMAGE="quay.io/cloudservices/rbac-frontend"
 export WORKSPACE=${WORKSPACE:-$APP_ROOT} # if running in jenkins, use the build's workspace
 export APP_ROOT=$(pwd)
-COMMON_BUILDER=https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/5f0dc8bf608d219f96e5a26d3238d9650d365ba3
+COMMON_BUILDER=https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/d29d6d500435911bf9fc2392e977494142e41c3f
 
 # --------------------------------------------
 # Options that must be configured by app owner
