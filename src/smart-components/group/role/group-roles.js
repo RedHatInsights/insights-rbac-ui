@@ -163,9 +163,13 @@ const GroupRoles = ({
               setConfirmDelete(
                 () => () =>
                   removeRoles(fetchUuid, [role.uuid], () => {
-                    fetchSystemGroup().then(({ value: { data } }) => {
-                      fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
-                    });
+                    if (isPlatformDefault) {
+                      fetchSystemGroup().then(({ value: { data } }) => {
+                        fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
+                      });
+                    } else {
+                      fetchRolesForGroup({ ...pagination, offset: 0 })(uuid);
+                    }
                   })
               );
               setDeleteInfo({
