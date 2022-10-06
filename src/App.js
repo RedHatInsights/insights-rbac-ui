@@ -25,6 +25,7 @@ const App = () => {
     userAccessAdministrator: false,
   });
   const history = useHistory();
+  const { globalConfig } = useChrome();
 
   useEffect(() => {
     insights.chrome.init();
@@ -38,8 +39,10 @@ const App = () => {
       });
     });
     insights.chrome.identifyApp(insights.chrome.getApp());
-    const { globalConfig } = useChrome();
-    console.log(globalConfig);
+
+    if (globalConfig) {
+      console.log(globalConfig);
+    }
 
     const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
