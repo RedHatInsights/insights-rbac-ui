@@ -13,6 +13,7 @@ import { updateUsersFilters } from './redux/actions/user-actions';
 import { groupsInitialState } from './redux/reducers/group-reducer';
 import { rolesInitialState } from './redux/reducers/role-reducer';
 import { usersInitialState } from './redux/reducers/user-reducer';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 import './App.scss';
 
