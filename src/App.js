@@ -42,6 +42,7 @@ const App = () => {
 
     if (globalConfig) {
       console.log(globalConfig);
+      console.log(globalConfig.rbac.check);
     }
 
     const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
