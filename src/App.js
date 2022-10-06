@@ -37,6 +37,10 @@ const App = () => {
       });
     });
     insights.chrome.identifyApp(insights.chrome.getApp());
+    const { globalConfig } = useChrome();
+    console.log(globalConfig);
+    console.log('blah');
+    console.log(globalConfig.rbac);
 
     const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
