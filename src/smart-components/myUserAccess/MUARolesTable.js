@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { useIntl } from 'react-intl';
@@ -135,7 +135,7 @@ const MUARolesTable = ({
 
   return (
     <Fragment>
-      <TableToolbarView
+      <TableToolbarViewOld
         filters={filters}
         columns={columns}
         isCompact={false}

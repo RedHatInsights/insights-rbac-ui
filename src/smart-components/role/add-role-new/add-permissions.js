@@ -4,7 +4,7 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
@@ -12,6 +12,7 @@ import { DisabledRowWrapper } from './DisabledRowWrapper';
 import { isEqual } from 'lodash';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
+import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 
 const selector = ({
   permissionReducer: {
@@ -45,7 +46,7 @@ const selector = ({
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-
+  const { hasAccess } = usePermissions('cost-management', ['cost-management:*:*']);
   const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
 
   const fetchData = (apiProps) =>
@@ -93,11 +94,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0,
+      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || !hasAccess,
       disabledContent: (
         <div>
-          {intl.formatMessage(messages.configureResourcesForPermission)}{' '}
-          <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a>
+          {intl.formatMessage(hasAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
+          {hasAccess ? <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a> : null}
         </div>
       ),
     }));
@@ -145,7 +146,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(fetchRole(baseRoleUuid));
     }
 
-    dispatch(getResourceDefinitions());
+    hasAccess && dispatch(getResourceDefinitions());
     formOptions.change('has-cost-resources', false);
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
@@ -250,7 +251,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const filterItemOverflow = preparedFilterItems[Object.keys(preparedFilterItems)[value ? value : 0]].length > maxFilterItems;
   return (
     <div className="rbac-c-permissions-table">
-      <TableToolbarView
+      <TableToolbarViewOld
         columns={columns}
         isSelectable={true}
         isCompact={true}

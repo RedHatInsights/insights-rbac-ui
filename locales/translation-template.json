@@ -420,7 +420,7 @@
     "description": "Edit role error notification description"
   },
   "editRoleErrorTitle": {
-    "defaultMessage": "Failed upating role",
+    "defaultMessage": "Failed updating role",
     "description": "Edit role error notification title"
   },
   "editRoleSuccessDescription": {
@@ -428,7 +428,7 @@
     "description": "Edit role success notification description"
   },
   "editRoleSuccessTitle": {
-    "defaultMessage": "Success upating role",
+    "defaultMessage": "Success updating role",
     "description": "Edit role success notification title"
   },
   "editingGroupTitle": {
@@ -583,6 +583,10 @@
     "defaultMessage": "No",
     "description": "No label"
   },
+  "noCostManagementPermissions": {
+    "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
+    "description": "No Cost management permissions message"
+  },
   "noGroupMembers": {
     "defaultMessage": "There are no members in this group",
     "description": "No members in a given group title"
@@ -724,7 +728,7 @@
     "description": "Remove group members success notification description"
   },
   "removeGroupMembersSuccessTitle": {
-    "defaultMessage": "Success removing members to group",
+    "defaultMessage": "Success removing members from group",
     "description": "Remove group members success notification title"
   },
   "removeGroupRolesErrorDescription": {

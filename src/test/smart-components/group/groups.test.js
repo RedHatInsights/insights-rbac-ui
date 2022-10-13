@@ -9,7 +9,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -71,7 +71,7 @@ describe('<Groups />', () => {
         </Provider>
       );
     });
-    expect(wrapper.find(TableToolbarView)).toHaveLength(1);
+    expect(wrapper.find(TableToolbarViewOld)).toHaveLength(1);
   });
 
   it('should fetch groups on mount', async () => {
