@@ -909,6 +909,11 @@ export default defineMessages({
     description: 'Delete group label',
     defaultMessage: 'Deleting the <b>{name}</b> group removes all roles from the members inside the group.',
   },
+  deletingGroupsRemovesRoles: {
+    id: 'deletingGroupsRemovesRoles',
+    description: 'Delete groups label',
+    defaultMessage: 'Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.',
+  },
   understandActionIrreversible: {
     id: 'understandActionIrreversible',
     description: 'Understand action cannot be undone message',
