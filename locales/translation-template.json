@@ -355,6 +355,10 @@
     "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
     "description": "Delete group label"
   },
+  "deletingGroupsRemovesRoles": {
+    "defaultMessage": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",
+    "description": "Delete groups label"
+  },
   "description": {
     "defaultMessage": "Description",
     "description": "Description column label"
