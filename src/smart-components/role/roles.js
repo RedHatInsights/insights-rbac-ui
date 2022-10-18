@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy, useContext, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
@@ -41,6 +41,7 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 const Roles = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const textFilterRef = useRef(null);
   const history = useHistory();
   const screenSize = useScreenSize();
 
@@ -169,6 +170,7 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
+            textFilterRef={textFilterRef}
             actionResolver={actionResolver}
             sortBy={sortByState}
             columns={columns}
