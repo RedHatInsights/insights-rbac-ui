@@ -118,8 +118,8 @@ describe('<Roles />', () => {
   it('should fetch roles on sort click', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy
-      .mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }))
-      .mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+      .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }))
+      .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -137,8 +137,9 @@ describe('<Roles />', () => {
     expect(fetchRolesWithPoliciesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(1, {
       filters: {
-        name: undefined,
+        display_name: undefined,
       },
+      orderBy: 'display_name',
       inModal: false,
       ...defaultSettings,
     });
@@ -146,7 +147,7 @@ describe('<Roles />', () => {
       limit: 20,
       orderBy: '-display_name',
       filters: {
-        display_name: [],
+        display_name: undefined,
       },
       inModal: false,
     });

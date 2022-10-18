@@ -255,7 +255,7 @@ export default defineMessages({
   removeGroupMembersSuccessTitle: {
     id: 'removeGroupMembersSuccessTitle',
     description: 'Remove group members success notification title',
-    defaultMessage: 'Success removing members to group',
+    defaultMessage: 'Success removing members from group',
   },
   removeGroupMembersSuccessDescription: {
     id: 'removeGroupMembersSuccessDescription',
@@ -395,7 +395,7 @@ export default defineMessages({
   editRoleSuccessTitle: {
     id: 'editRoleSuccessTitle',
     description: 'Edit role success notification title',
-    defaultMessage: 'Success upating role',
+    defaultMessage: 'Success updating role',
   },
   editRoleSuccessDescription: {
     id: 'editRoleSuccessDescription',
@@ -405,7 +405,7 @@ export default defineMessages({
   editRoleErrorTitle: {
     id: 'editRoleErrorTitle',
     description: 'Edit role error notification title',
-    defaultMessage: 'Failed upating role',
+    defaultMessage: 'Failed updating role',
   },
   editRoleErrorDescription: {
     id: 'editRoleErrorDescription',
@@ -909,6 +909,11 @@ export default defineMessages({
     description: 'Delete group label',
     defaultMessage: 'Deleting the <b>{name}</b> group removes all roles from the members inside the group.',
   },
+  deletingGroupsRemovesRoles: {
+    id: 'deletingGroupsRemovesRoles',
+    description: 'Delete groups label',
+    defaultMessage: 'Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.',
+  },
   understandActionIrreversible: {
     id: 'understandActionIrreversible',
     description: 'Understand action cannot be undone message',
@@ -1110,6 +1115,11 @@ export default defineMessages({
     id: 'configureResourcesForPermission',
     description: 'Configure resources for permission message',
     defaultMessage: 'To add this permission to your role and define specific resources for it, at least one data source must be connected.',
+  },
+  noCostManagementPermissions: {
+    id: 'noCostManagementPermissions',
+    description: 'No Cost management permissions message',
+    defaultMessage: 'You are not entitled to add cost-management permissions to your role.',
   },
   configureCostSources: {
     id: 'configureCostSources',

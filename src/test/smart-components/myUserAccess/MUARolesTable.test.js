@@ -186,7 +186,7 @@ describe('<MUARolesTable />', () => {
       wrapper.find(ResourceDefinitionsLink).prop('onClick')();
     });
     /**
-     * We nned this double update to trigger the react lazy/Suspense interaction
+     * We need this double update to trigger the react lazy/Suspense interaction
      */
     await act(async () => {
       wrapper.update();

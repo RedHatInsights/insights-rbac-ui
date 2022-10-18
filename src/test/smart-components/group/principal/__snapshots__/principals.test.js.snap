@@ -3,7 +3,7 @@
 exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
 
 exports[`<GroupPrincipals /> should render correctly with data 1`] = `
-<TableToolbarView
+<TableToolbarViewOld
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}
@@ -211,7 +211,7 @@ exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
 `;
 
 exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] = `
-<TableToolbarView
+<TableToolbarViewOld
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}

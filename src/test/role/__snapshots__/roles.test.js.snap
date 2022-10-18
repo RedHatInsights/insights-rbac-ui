@@ -40,7 +40,6 @@ exports[`<Roles /> should render correctly 1`] = `
       },
     ]
   }
-  createRows={[Function]}
   data={
     Array [
       Object {
@@ -67,6 +66,7 @@ exports[`<Roles /> should render correctly 1`] = `
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  onSort={[Function]}
   ouiaId="roles-table"
   pagination={
     Object {
@@ -76,6 +76,38 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   routes={[Function]}
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          <React.Fragment>
+            <Link
+              to="/roles/detail/test"
+            >
+              Test name
+            </Link>
+          </React.Fragment>,
+          "test",
+          <React.Fragment>
+            <Link
+              to="/roles/detail/test"
+            >
+              test
+            </Link>
+          </React.Fragment>,
+          5,
+          <React.Fragment>
+            <DateFormat
+              date={1970-01-01T00:00:00.000Z}
+              type="onlyDate"
+            />
+          </React.Fragment>,
+        ],
+        "system": "test",
+        "uuid": "test",
+      },
+    ]
+  }
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   sortBy={
@@ -85,6 +117,7 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   tableId="roles"
+  testRoles={true}
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -137,7 +170,6 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       },
     ]
   }
-  createRows={[Function]}
   data={
     Array [
       Object {
@@ -164,6 +196,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  onSort={[Function]}
   ouiaId="roles-table"
   pagination={
     Object {
@@ -173,6 +206,38 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   routes={[Function]}
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          <React.Fragment>
+            <Link
+              to="/roles/detail/test"
+            >
+              Test name
+            </Link>
+          </React.Fragment>,
+          "test",
+          <React.Fragment>
+            <Link
+              to="/roles/detail/test"
+            >
+              test
+            </Link>
+          </React.Fragment>,
+          5,
+          <React.Fragment>
+            <DateFormat
+              date={1970-01-01T00:00:00.000Z}
+              type="onlyDate"
+            />
+          </React.Fragment>,
+        ],
+        "system": "test",
+        "uuid": "test",
+      },
+    ]
+  }
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   sortBy={
@@ -182,6 +247,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   tableId="roles"
+  testRoles={true}
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}

@@ -33,7 +33,7 @@ const SetRoles = (props) => {
         </StackItem>
         <StackItem>
           <FormGroup fieldId="select-role">
-            <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} />
+            <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} rolesExcluded={false} />
           </FormGroup>
         </StackItem>
       </Stack>

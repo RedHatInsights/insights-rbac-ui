@@ -5,7 +5,7 @@ import { Link, useHistory, withRouter } from 'react-router-dom';
 import debounce from 'lodash/debounce';
 import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
@@ -186,7 +186,7 @@ const User = ({
           </StackItem>
           <StackItem>
             <Section type="content" id={'user-detail'}>
-              <TableToolbarView
+              <TableToolbarViewOld
                 columns={columns}
                 isCompact={false}
                 isExpandable={true}

@@ -3,7 +3,7 @@ import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import { createRows } from './principal-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
@@ -181,7 +181,7 @@ const GroupPrincipals = () => {
             </CardBody>
           </Card>
         ) : (
-          <TableToolbarView
+          <TableToolbarViewOld
             data={(principals || []).map((user) => ({ ...user, uuid: user.username }))}
             isSelectable={hasPermissions.current}
             createRows={createRows}
