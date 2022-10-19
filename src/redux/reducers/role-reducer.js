@@ -16,7 +16,7 @@ export const rolesInitialState = {
     data: [],
     meta: defaultSettings,
     filters: {},
-    pagination: { ...defaultSettings, count: 0 },
+    pagination: { count: 0 },
   },
   rolesForWizard: {
     data: [],

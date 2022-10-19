@@ -17,7 +17,13 @@ import GroupRowWrapper from './group-row-wrapper';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
-import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
+import {
+  applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
+  isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
+} from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import { useIntl } from 'react-intl';
@@ -54,7 +60,7 @@ const Groups = () => {
     shallowEqual
   );
 
-  const [pagination, setPagination] = useState(meta);
+  const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
   const [filterValue, setFilterValue] = useState(filters.name || '');
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);

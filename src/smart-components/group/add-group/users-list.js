@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useState } from 'react';
+import React, { useEffect, Fragment, useState, useContext } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
@@ -12,6 +12,7 @@ import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
   defaultCompactSettings,
   defaultSettings,
+  defaultAdminSettings,
   syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
   isPaginationPresentInUrl,
@@ -20,6 +21,7 @@ import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } 
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
+import PermissionsContext from '../../../utilities/permissions-context';
 const createRows =
   (userLinks) =>
   (data, _expanded, checkedRows = []) => {
@@ -68,9 +70,10 @@ const createRows =
   };
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+  const { orgAdmin } = useContext(PermissionsContext);
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
-    limit: inModal ? users.meta.limit : users.pagination.limit || defaultSettings.limit,
-    offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
+    limit: inModal ? users.meta.limit : users.pagination.limit || (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+    offset: inModal ? users.meta.offset : users.pagination.offset || (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
     count: inModal ? users.meta.count : users.pagination.count,
     redirected: !inModal && users.pagination.redirected,
   }));

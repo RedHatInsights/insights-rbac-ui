@@ -4,10 +4,14 @@ export const defaultSettings = {
   itemCount: 0,
 };
 
+export const defaultAdminSettings = {
+  ...defaultSettings,
+  limit: 50,
+};
+
 export const defaultCompactSettings = {
+  ...defaultSettings,
   limit: 10,
-  offset: 0,
-  itemCount: 0,
 };
 
 export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math.floor(offset / limit) + 1;
