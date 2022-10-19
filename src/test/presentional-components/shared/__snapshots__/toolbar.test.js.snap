@@ -71,6 +71,10 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -145,6 +149,10 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -308,6 +316,10 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -376,6 +388,10 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -451,6 +467,10 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -565,6 +585,10 @@ exports[`<Toolbar> should render buttons 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -624,6 +648,10 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -685,6 +713,10 @@ exports[`<Toolbar> should render pagination 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -755,6 +787,10 @@ exports[`<Toolbar> should render with filterValue 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -852,6 +888,10 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -947,6 +987,10 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }

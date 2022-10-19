@@ -17,7 +17,13 @@ import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import PermissionsContext from '../../utilities/permissions-context';
-import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
+import {
+  syncDefaultPaginationWithUrl,
+  applyPaginationToUrl,
+  isPaginationPresentInUrl,
+  defaultAdminSettings,
+  defaultSettings,
+} from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import messages from '../../Messages';
@@ -35,15 +41,12 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 const Roles = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const { roles, filters, meta, isLoading } = useSelector(selector, shallowEqual);
-  const fetchData = (options) => {
-    return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
-  };
   const history = useHistory();
-  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
-  const [pagination, setPagination] = useState(meta);
-  const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const screenSize = useScreenSize();
+
+  const { roles, filters, meta, isLoading } = useSelector(selector, shallowEqual);
+  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
+
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
     { title: intl.formatMessage(messages.description) },
@@ -51,6 +54,12 @@ const Roles = () => {
     { title: intl.formatMessage(messages.groups), transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
+  const fetchData = (options) => {
+    return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
+  };
+
+  const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
+  const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
 
