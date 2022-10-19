@@ -51,6 +51,6 @@ describe('<ResourceDefinitionsModal />', () => {
       wrapper.find('InternalDropdownItem').last().prop('onClick')();
     });
     wrapper.update();
-    expect(wrapper.find(TableToolbarViewOld).prop('pagination')).toEqual(expect.objectContaining({ limit: 50 }));
+    expect(wrapper.find(TableToolbarViewOld).prop('pagination')).toEqual(expect.objectContaining({ limit: 100 }));
   });
 });
