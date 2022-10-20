@@ -54,6 +54,7 @@ export const TableToolbarViewOld = ({
   ouiaId,
   tableId,
   containerRef,
+  textFilterRef,
 }) => {
   const intl = useIntl();
   const [opened, openRow] = useState({});
@@ -146,6 +147,7 @@ export const TableToolbarViewOld = ({
           hideFilterChips={hideFilterChips}
           tableId={tableId}
           containerRef={containerRef}
+          textFilterRef={textFilterRef}
         />
         {isLoading ? (
           <ListLoader />

@@ -352,6 +352,7 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
           "filterValues": Object {
             "groups": undefined,
             "id": "filter-by-name",
+            "innerRef": undefined,
             "isDisabled": false,
             "items": undefined,
             "key": "filter-by-name",
