@@ -93,10 +93,11 @@ export const filterConfigBuilder = (
     value,
     items: [
       ...(filters && filters.length > 0
-        ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items }) => ({
+        ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items, innerRef }) => ({
             label: label || firstUpperCase(key),
             type,
             filterValues: {
+              innerRef,
               id: `filter-by-${key}`,
               key: `filter-by-${key}`,
               placeholder: placeholder ? placeholder : intl.formatMessage(messages.filterByKey, { key }),
@@ -128,7 +129,10 @@ export const filterConfigBuilder = (
                     ),
                     [key]: newFilter,
                   })
-                );
+                ).then((data) => {
+                  innerRef?.current?.focus();
+                  return data;
+                });
               },
               isDisabled: isLoading,
             },
