@@ -133,6 +133,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "groups": undefined,
                 "id": "filter-by-name",
+                "innerRef": undefined,
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-name",
@@ -148,6 +149,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "groups": undefined,
                 "id": "filter-by-description",
+                "innerRef": undefined,
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-description",
@@ -214,6 +216,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "groups": undefined,
                                     "id": "filter-by-name",
+                                    "innerRef": undefined,
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-name",
@@ -229,6 +232,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "groups": undefined,
                                     "id": "filter-by-description",
+                                    "innerRef": undefined,
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-description",
