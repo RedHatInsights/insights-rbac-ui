@@ -14,7 +14,7 @@
     "@data-driven-forms/react-form-renderer": "^3.16.9",
     "@formatjs/cli": "5.0.6",
     "@patternfly/quickstarts": "^2.3.1",
-    "@patternfly/react-core": "4.198.19",
+    "@patternfly/react-core": "^4.250.1",
     "@patternfly/react-icons": "^4.86.7",
     "@patternfly/react-table": "^4.67.19",
     "@patternfly/react-tokens": "^4.87.7",
@@ -105,7 +105,7 @@
   "scripts": {
     "build": "NODE_ENV=production webpack --config config/prod.webpack.config.js",
     "analyze": "NODE_ENV=production webpack --config config/prod.webpack.config.js --env analyze=true",
-    "test": "TZ=UTC jest --verbose -i--no-cache",
+    "test": "TZ=UTC jest --verbose",
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint config src",
     "lint:js:fix": "eslint config src --fix",
