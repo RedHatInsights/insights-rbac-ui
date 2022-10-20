@@ -161,9 +161,7 @@ export const filterConfigBuilder = (
                       orderBy: sortBy,
                     })
                   ).then((data) => {
-                    if (textFilterRef) {
-                      textFilterRef?.current?.focus();
-                    }
+                    textFilterRef?.current?.focus();
                     return data;
                   });
                 },
