@@ -22,12 +22,15 @@ const { config: webpackConfig, plugins } = config({
   debug: true,
   sassPrefix: '.rbac, .my-user-access',
   client: { overlay: false },
+  useCache: true,
+  useFileHash: false,
   ...(process.env.PROXY ? webpackProxy : insightsProxy),
 });
 
 plugins.push(
   require('@redhat-cloud-services/frontend-components-config/federated-modules')({
     root: resolve(__dirname, '../'),
+    useFileHash: false,
   })
 );
 
