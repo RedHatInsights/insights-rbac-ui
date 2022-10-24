@@ -36,10 +36,13 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
       onFocus={[Function]}
       onMouseEnter={[Function]}
       onMouseLeave={[Function]}
+      onPopperMouseEnter={[Function]}
+      onPopperMouseLeave={[Function]}
       onTriggerEnter={[Function]}
       placement="right"
       popper={
         <div
+          aria-live="off"
           className="pf-c-tooltip"
           id="pf-tooltip-1"
           role="tooltip"
@@ -78,6 +81,7 @@ exports[`<StatusLabel /> should render correctly as admin 1`] = `
           "top-start": "pf-m-top-left",
         }
       }
+      removeFindDomNode={false}
       trigger={
         <Label
           color="purple"

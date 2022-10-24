@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
@@ -37,6 +37,7 @@ const Groups = () => {
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
+  const textFilterRef = useRef(null);
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
@@ -233,6 +234,7 @@ const Groups = () => {
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             rowWrapper={GroupRowWrapper}
             tableId="groups"
+            textFilterRef={textFilterRef}
           />
         </Section>
       </StackItem>

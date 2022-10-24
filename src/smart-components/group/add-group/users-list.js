@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useState, useContext } from 'react';
+import React, { useEffect, Fragment, useState, useContext, useRef } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
@@ -71,6 +71,8 @@ const createRows =
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const { orgAdmin } = useContext(PermissionsContext);
+  // user for text filter to focus
+  const innerRef = useRef(null);
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
     limit: inModal ? users.meta.limit : users.pagination.limit || (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
     offset: inModal ? users.meta.offset : users.pagination.offset || (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
@@ -150,7 +152,9 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       fetchData={(config) => {
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
-        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
+        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal }).then(() => {
+          innerRef?.current?.focus();
+        });
         inModal || applyPaginationToUrl(history, limit, offset);
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
@@ -183,11 +187,13 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
           key: 'username',
           value: filters.username,
           placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+          innerRef,
         },
         {
           key: 'email',
           value: filters.email,
           placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+          innerRef,
         },
         {
           key: 'status',
@@ -217,7 +223,7 @@ const mapStateToProps = ({ userReducer: { users, isUserDataLoading } }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     fetchUsers: (apiProps = defaultSettings) => {
-      dispatch(fetchUsers(apiProps));
+      return dispatch(fetchUsers(apiProps));
     },
     updateUsersFilters: (filters) => {
       dispatch(updateUsersFilters(filters));

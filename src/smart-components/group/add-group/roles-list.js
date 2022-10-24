@@ -29,6 +29,7 @@ const createRows = (data, checkedRows = []) => {
 const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const textFilterRef = useRef(null);
   const selector = ({ roleReducer: { roles, isLoading } }) => ({
     roles: roles.data,
     pagination: roles.meta,
@@ -117,6 +118,7 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
       titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
       titleSingular={intl.formatMessage(messages.role)}
       tableId="roles-list"
+      textFilterRef={textFilterRef}
     />
   );
 };
