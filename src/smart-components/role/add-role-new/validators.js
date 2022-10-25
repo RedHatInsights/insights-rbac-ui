@@ -19,7 +19,13 @@ export const asyncValidator = async (roleName) => {
     return undefined;
   });
 
-  if (response?.data?.length > 0) {
+  //it has to be here twice because API is using AND instead of OR
+  const responseName = await fetchRoles({ limit: 10, offset: 0, displayName: roleName, nameMatch: 'exact' }).catch((error) => {
+    console.error(error);
+    return undefined;
+  });
+
+  if (response?.data?.length > 0 || responseName?.data?.length > 0) {
     throw intl.formatMessage(messages.nameAlreadyTaken);
   }
 
