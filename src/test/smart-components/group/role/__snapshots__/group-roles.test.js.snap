@@ -133,6 +133,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "groups": undefined,
                 "id": "filter-by-name",
+                "innerRef": undefined,
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-name",
@@ -148,6 +149,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
               "filterValues": Object {
                 "groups": undefined,
                 "id": "filter-by-description",
+                "innerRef": undefined,
                 "isDisabled": true,
                 "items": undefined,
                 "key": "filter-by-description",
@@ -170,6 +172,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
         className=" ins-c-primary-toolbar"
         id="ins-primary-data-toolbar"
         ouiaId="PrimaryToolbar"
+        toggleIsExpanded={[Function]}
       >
         <div
           className="pf-c-toolbar  ins-c-primary-toolbar"
@@ -213,6 +216,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "groups": undefined,
                                     "id": "filter-by-name",
+                                    "innerRef": undefined,
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-name",
@@ -228,6 +232,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                   "filterValues": Object {
                                     "groups": undefined,
                                     "id": "filter-by-description",
+                                    "innerRef": undefined,
                                     "isDisabled": true,
                                     "items": undefined,
                                     "key": "filter-by-description",
@@ -323,6 +328,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             </DropdownItem>,
                                           ]
                                         }
+                                        isFlipEnabled={false}
                                         isGrouped={false}
                                         isOpen={false}
                                         isPlain={false}
@@ -330,6 +336,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                         menuAppendTo="inline"
                                         onSelect={[Function]}
                                         position="left"
+                                        removeFindDomNode={false}
                                         toggle={
                                           <DropdownToggle
                                             aria-label="Conditional filter"
@@ -634,6 +641,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                           id="filter-by-name"
                                           innerRef={null}
                                           isDisabled={true}
+                                          isIconSprite={false}
                                           isLeftTruncated={false}
                                           isReadOnly={false}
                                           isRequired={false}
@@ -661,7 +669,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                             onFocus={[Function]}
                                             onKeyDown={[Function]}
                                             placeholder="Filter by {key}"
-                                            readOnly={false}
                                             required={false}
                                             type="text"
                                             value=""
@@ -762,7 +769,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             }
             clearFiltersButtonText="Clear all filters"
             collapseListedFiltersBreakpoint="lg"
-            isExpanded={false}
             numberOfFilters={0}
             numberOfFiltersText={[Function]}
             showClearFiltersButton={false}

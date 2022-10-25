@@ -1,4 +1,4 @@
-import React, { Fragment, useContext, useEffect, useState } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
@@ -17,7 +17,13 @@ import GroupRowWrapper from './group-row-wrapper';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
-import { applyPaginationToUrl, isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../helpers/shared/pagination';
+import {
+  applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
+  isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
+} from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import { useIntl } from 'react-intl';
@@ -31,6 +37,7 @@ const Groups = () => {
   const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
+  const textFilterRef = useRef(null);
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
@@ -54,7 +61,7 @@ const Groups = () => {
     shallowEqual
   );
 
-  const [pagination, setPagination] = useState(meta);
+  const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
   const [filterValue, setFilterValue] = useState(filters.name || '');
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
@@ -227,6 +234,7 @@ const Groups = () => {
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             rowWrapper={GroupRowWrapper}
             tableId="groups"
+            textFilterRef={textFilterRef}
           />
         </Section>
       </StackItem>
