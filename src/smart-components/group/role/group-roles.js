@@ -154,24 +154,23 @@ const GroupRoles = ({
 
   const fetchUuid = uuid !== 'default-access' ? uuid : systemGroupUuid;
 
+  const removeRolesCallback = () => {
+    if (isPlatformDefault) {
+      fetchSystemGroup().then(({ value: { data } }) => {
+        fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
+      });
+    } else {
+      fetchRolesForGroup({ ...pagination, offset: 0 })(uuid);
+    }
+  };
+
   const actionResolver = () => [
     ...(hasPermissions.current && !isAdminDefault
       ? [
           {
             title: intl.formatMessage(messages.remove),
             onClick: (_event, _rowId, role) => {
-              setConfirmDelete(
-                () => () =>
-                  removeRoles(fetchUuid, [role.uuid], () => {
-                    if (isPlatformDefault) {
-                      fetchSystemGroup().then(({ value: { data } }) => {
-                        fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
-                      });
-                    } else {
-                      fetchRolesForGroup({ ...pagination, offset: 0 })(uuid);
-                    }
-                  })
-              );
+              setConfirmDelete(() => () => removeRoles(fetchUuid, [role.uuid], removeRolesCallback));
               setDeleteInfo({
                 title: intl.formatMessage(messages.removeRoleQuestion),
                 confirmButtonLabel: intl.formatMessage(messages.removeRole),
@@ -245,11 +244,7 @@ const GroupRoles = ({
                   removeRoles(
                     fetchUuid,
                     selectedRoles.map((role) => role.uuid),
-                    () => {
-                      fetchSystemGroup().then(({ value: { data } }) => {
-                        fetchRolesForGroup({ ...pagination, offset: 0 })(data[0].uuid);
-                      });
-                    }
+                    removeRolesCallback
                   )
               );
               setDeleteInfo({
