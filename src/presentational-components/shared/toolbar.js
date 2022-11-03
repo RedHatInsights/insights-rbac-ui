@@ -52,7 +52,9 @@ export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems =
       {
         ...(!isLoading && data && data.length > 0
           ? {
-              title: intl.formatMessage(messages.selectPage, { length: data.length }),
+              title: intl.formatMessage(messages.selectPage, {
+                length: data.filter((row) => !(row.platform_default || row.admin_default || row.system)).length,
+              }),
               onClick: () => {
                 setCheckedItems(selectedRows(data, true));
               },

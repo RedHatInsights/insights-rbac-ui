@@ -28,6 +28,7 @@ import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } 
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import messages from '../../Messages';
 import './roles.scss';
+import RoleRowWrapper from './role-row-wrapper';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -39,6 +40,8 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 });
 
 const Roles = () => {
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const [selectedRows, setSelectedRows] = useState([]);
   const intl = useIntl();
   const dispatch = useDispatch();
   const textFilterRef = useRef(null);
@@ -46,7 +49,6 @@ const Roles = () => {
   const screenSize = useScreenSize();
 
   const { roles, filters, meta, isLoading } = useSelector(selector, shallowEqual);
-  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
@@ -97,8 +99,11 @@ const Roles = () => {
       <Route exact path={paths['remove-role'].path}>
         {!isLoading && (
           <RemoveRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, orderBy, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['remove-role'].path}
+            afterSubmit={() => {
+              setSelectedRows([]);
+              fetchData({ ...pagination, offset: 0, orderBy, filters: { display_name: filterValue } }, true);
+            }}
             cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
             submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
@@ -117,19 +122,17 @@ const Roles = () => {
     </Suspense>
   );
 
-  const actionResolver = ({ system }) => {
-    return system
-      ? []
-      : [
-          {
-            title: intl.formatMessage(messages.edit),
-            onClick: (_event, _rowId, role) => history.push(`/roles/edit/${role.uuid}`),
-          },
-          {
-            title: intl.formatMessage(messages.delete),
-            onClick: (_event, _rowId, role) => history.push(`/roles/remove/${role.uuid}`),
-          },
-        ];
+  const actionResolver = () => {
+    return [
+      {
+        title: intl.formatMessage(messages.edit),
+        onClick: (_event, _rowId, role) => history.push(`/roles/edit/${role.uuid}`),
+      },
+      {
+        title: intl.formatMessage(messages.delete),
+        onClick: (_event, _rowId, role) => history.push(`/roles/remove/${role.uuid}`),
+      },
+    ];
   };
 
   const toolbarButtons = () =>
@@ -150,6 +153,22 @@ const Roles = () => {
                 },
               ]
             : []),
+          {
+            label: intl.formatMessage(messages.edit),
+            props: {
+              isDisabled: !(selectedRows.length === 1),
+            },
+            onClick: () => history.push(`/roles/edit/${selectedRows[0].uuid}`),
+          },
+          {
+            label: intl.formatMessage(messages.delete),
+            props: {
+              isDisabled: !selectedRows.length > 0,
+            },
+            onClick: () => {
+              history.push(`/roles/remove/${selectedRows.map(({ uuid }) => uuid)}`);
+            },
+          },
         ]
       : [];
   const fetchTableData = (config) => {
@@ -159,7 +178,15 @@ const Roles = () => {
     return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
   };
 
-  const rows = createRows(roles);
+  const setCheckedItems = (newSelection) => {
+    setSelectedRows((rows) =>
+      newSelection(rows)
+        .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault, system }) => !(isPlatformDefault || isAdminDefault || system))
+        .map(({ uuid, name }) => ({ uuid, label: name }))
+    );
+  };
+
+  const rows = createRows(roles, selectedRows);
   const renderRolesList = () => (
     <Stack className="rbac-c-roles">
       <StackItem>
@@ -170,10 +197,15 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
+            isSelectable={orgAdmin || userAccessAdministrator}
+            checkedRows={selectedRows}
             textFilterRef={textFilterRef}
+            setCheckedItems={setCheckedItems}
             actionResolver={actionResolver}
             sortBy={sortByState}
             columns={columns}
+            areActionsDisabled={({ system }) => !!system}
+            rowWrapper={RoleRowWrapper}
             rows={rows}
             data={roles}
             filterValue={filterValue}
