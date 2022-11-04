@@ -3,6 +3,7 @@
 exports[`<Roles /> should render correctly 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
+  areActionsDisabled={[Function]}
   borders={true}
   checkedRows={Array []}
   columns={
@@ -76,6 +77,7 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   rows={
     Array [
       Object {
@@ -103,6 +105,8 @@ exports[`<Roles /> should render correctly 1`] = `
             />
           </React.Fragment>,
         ],
+        "disableSelection": true,
+        "selected": false,
         "system": "test",
         "uuid": "test",
       },
@@ -150,6 +154,7 @@ exports[`<Roles /> should render correctly in loading state 1`] = `
 exports[`<Roles /> should render correctly in org admin 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
+  areActionsDisabled={[Function]}
   borders={true}
   checkedRows={Array []}
   columns={
@@ -223,6 +228,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   rows={
     Array [
       Object {
@@ -250,6 +256,8 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
             />
           </React.Fragment>,
         ],
+        "disableSelection": true,
+        "selected": false,
         "system": "test",
         "uuid": "test",
       },

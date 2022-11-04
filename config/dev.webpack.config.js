@@ -13,7 +13,7 @@ const webpackProxy = {
   deployment: process.env.BETA ? 'beta/apps' : 'apps',
   useProxy: true,
   proxyVerbose: true,
-  env: 'stage-beta',
+  env: `${process.env.ENVIRONMENT || 'stage'}-${process.env.BETA ? 'beta' : 'stable'}`,
   appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 };
 
