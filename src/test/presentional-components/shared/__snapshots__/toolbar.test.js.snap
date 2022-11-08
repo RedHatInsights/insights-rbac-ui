@@ -31,6 +31,7 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -70,6 +71,10 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -106,6 +111,7 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -146,6 +152,10 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -181,6 +191,7 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": true,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -227,6 +238,7 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": true,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -268,6 +280,7 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -308,6 +321,10 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -335,6 +352,7 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
           "filterValues": Object {
             "groups": undefined,
             "id": "filter-by-name",
+            "innerRef": undefined,
             "isDisabled": false,
             "items": undefined,
             "key": "filter-by-name",
@@ -377,6 +395,10 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -412,6 +434,7 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -452,6 +475,10 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -487,6 +514,7 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": true,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -525,6 +553,7 @@ exports[`<Toolbar> should render buttons 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -564,6 +593,10 @@ exports[`<Toolbar> should render buttons 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -585,6 +618,7 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -625,6 +659,10 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -645,6 +683,7 @@ exports[`<Toolbar> should render pagination 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -686,6 +725,10 @@ exports[`<Toolbar> should render pagination 1`] = `
           "title": "50",
           "value": 50,
         },
+        Object {
+          "title": "100",
+          "value": 100,
+        },
       ],
     }
   }
@@ -716,6 +759,7 @@ exports[`<Toolbar> should render with filterValue 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -755,6 +799,10 @@ exports[`<Toolbar> should render with filterValue 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -811,6 +859,7 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -851,6 +900,10 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }
@@ -907,6 +960,7 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
         Object {
           "filterValues": Object {
             "id": "filter-by-string",
+            "innerRef": undefined,
             "isDisabled": false,
             "key": "filter-by-string",
             "onChange": [Function],
@@ -947,6 +1001,10 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
         Object {
           "title": "50",
           "value": 50,
+        },
+        Object {
+          "title": "100",
+          "value": 100,
         },
       ],
     }

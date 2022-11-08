@@ -7,39 +7,42 @@ import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitI
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
-import useIsMounted from '../../hooks/useIsMounted';
 import { roleNameSelector } from './role-selectors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 
 const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
-  const isMounted = useIsMounted();
   const {
     params: { id },
   } = useRouteMatch(routeMatch);
-  const roleName = useSelector((state) => roleNameSelector(state, id));
+  const roles = id.split(',');
+  const roleName = useSelector((state) => {
+    if (roles.length === 1) {
+      return roleNameSelector(state, roles[0]);
+    }
+
+    return roles.length;
+  });
   const [isDisabled, setIsDisabled] = useState(true);
   const [internalRoleName, setInternalRoleName] = useState(roleName);
   const dispatch = useDispatch();
   const { push, replace } = useHistory();
 
   useEffect(() => {
-    !internalRoleName &&
-      fetchRole(id)
-        .then((role) => {
-          if (isMounted.current) {
-            setInternalRoleName(role.display_name);
-          }
-        })
+    if (roles && roleName) {
+      setInternalRoleName(roleName);
+    } else if (roles && roles.length === 1) {
+      fetchRole(roles[0])
+        .then((role) => setInternalRoleName(role.display_name))
         .catch((error) => dispatch(addNotification({ variant: 'danger', title: 'Could not get role', description: error?.errors?.[0]?.detail })));
-  }, []);
+    }
+  }, [roleName, roles]);
 
-  const onSubmit = () =>
-    dispatch(removeRole(id)).then(() => {
-      push(submitRoute);
-      return afterSubmit();
-    });
+  const onSubmit = () => {
+    Promise.all(roles.map((id) => dispatch(removeRole(id)))).then(() => afterSubmit());
+    push(submitRoute);
+  };
 
   const onCancel = () => replace(cancelRoute);
   if (!internalRoleName) {
@@ -81,6 +84,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
             values={{
               strong: (text) => <strong>{text}</strong>,
               name: internalRoleName,
+              count: roles.length,
             }}
           />
         </Text>

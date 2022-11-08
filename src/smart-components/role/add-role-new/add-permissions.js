@@ -146,7 +146,6 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       dispatch(fetchRole(baseRoleUuid));
     }
 
-    hasAccess && dispatch(getResourceDefinitions());
     formOptions.change('has-cost-resources', false);
     fetchData(pagination);
     fetchOptions({ field: 'application', limit: 50 });
@@ -155,6 +154,10 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
 
     return () => dispatch(resetExpandSplats());
   }, []);
+
+  useEffect(() => {
+    hasAccess && dispatch(getResourceDefinitions());
+  }, [hasAccess]);
 
   useEffect(() => {
     debouncedGetResourceOptions(filters);

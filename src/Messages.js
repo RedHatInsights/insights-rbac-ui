@@ -1267,7 +1267,7 @@ export default defineMessages({
     id: 'roleWilBeRemovedWithPermissions',
     description: 'Role will be removed with permissions message',
     defaultMessage:
-      "The <strong>{name}</strong> role will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+      "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
   },
   defineAtLeastOneResource: {
     id: 'defineAtLeastOneResource',

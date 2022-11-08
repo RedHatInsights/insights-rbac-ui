@@ -3,6 +3,7 @@
 exports[`<Roles /> should render correctly 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
+  areActionsDisabled={[Function]}
   borders={true}
   checkedRows={Array []}
   columns={
@@ -76,6 +77,7 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   rows={
     Array [
       Object {
@@ -103,6 +105,8 @@ exports[`<Roles /> should render correctly 1`] = `
             />
           </React.Fragment>,
         ],
+        "disableSelection": true,
+        "selected": false,
         "system": "test",
         "uuid": "test",
       },
@@ -118,6 +122,23 @@ exports[`<Roles /> should render correctly 1`] = `
   }
   tableId="roles"
   testRoles={true}
+  textFilterRef={
+    Object {
+      "current": <input
+        aria-invalid="false"
+        aria-label="text input"
+        class="pf-c-form-control ins-c-conditional-filter "
+        data-ouia-component-id="ConditionalFilter"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe="true"
+        id="filter-by-string"
+        placeholder="Filter by {key}"
+        type="text"
+        value=""
+        widget-type="InsightsInput"
+      />,
+    }
+  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}
@@ -133,6 +154,7 @@ exports[`<Roles /> should render correctly in loading state 1`] = `
 exports[`<Roles /> should render correctly in org admin 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
+  areActionsDisabled={[Function]}
   borders={true}
   checkedRows={Array []}
   columns={
@@ -206,6 +228,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   routes={[Function]}
+  rowWrapper={[Function]}
   rows={
     Array [
       Object {
@@ -233,6 +256,8 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
             />
           </React.Fragment>,
         ],
+        "disableSelection": true,
+        "selected": false,
         "system": "test",
         "uuid": "test",
       },
@@ -248,6 +273,23 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   }
   tableId="roles"
   testRoles={true}
+  textFilterRef={
+    Object {
+      "current": <input
+        aria-invalid="false"
+        aria-label="text input"
+        class="pf-c-form-control ins-c-conditional-filter "
+        data-ouia-component-id="ConditionalFilter"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe="true"
+        id="filter-by-string"
+        placeholder="Filter by {key}"
+        type="text"
+        value=""
+        widget-type="InsightsInput"
+      />,
+    }
+  }
   titlePlural="roles"
   titleSingular="role"
   toolbarButtons={[Function]}

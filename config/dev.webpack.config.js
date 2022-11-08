@@ -13,7 +13,7 @@ const webpackProxy = {
   deployment: process.env.BETA ? 'beta/apps' : 'apps',
   useProxy: true,
   proxyVerbose: true,
-  env: 'stage-beta',
+  env: `${process.env.ENVIRONMENT || 'stage'}-${process.env.BETA ? 'beta' : 'stable'}`,
   appUrl: process.env.BETA ? ['/beta/settings/my-user-access', '/beta/settings/rbac'] : ['/settings/my-user-access', '/settings/rbac'],
 };
 
@@ -22,12 +22,15 @@ const { config: webpackConfig, plugins } = config({
   debug: true,
   sassPrefix: '.rbac, .my-user-access',
   client: { overlay: false },
+  useCache: true,
+  useFileHash: false,
   ...(process.env.PROXY ? webpackProxy : insightsProxy),
 });
 
 plugins.push(
   require('@redhat-cloud-services/frontend-components-config/federated-modules')({
     root: resolve(__dirname, '../'),
+    useFileHash: false,
   })
 );
 
