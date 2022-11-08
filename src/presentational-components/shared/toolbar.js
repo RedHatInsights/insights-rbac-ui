@@ -25,6 +25,7 @@ export const paginationBuilder = (pagination = {}, fetchData = () => undefined, 
     { title: '10', value: 10 },
     { title: '20', value: 20 },
     { title: '50', value: 50 },
+    { title: '100', value: 100 },
   ],
   onPerPageSelect: (_event, perPage) => {
     fetchData({
@@ -51,7 +52,9 @@ export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems =
       {
         ...(!isLoading && data && data.length > 0
           ? {
-              title: intl.formatMessage(messages.selectPage, { length: data.length }),
+              title: intl.formatMessage(messages.selectPage, {
+                length: data.filter((row) => !(row.platform_default || row.admin_default || row.system)).length,
+              }),
               onClick: () => {
                 setCheckedItems(selectedRows(data, true));
               },
@@ -83,7 +86,8 @@ export const filterConfigBuilder = (
   onFilter,
   onChange,
   value,
-  sortBy
+  sortBy,
+  textFilterRef
 ) => {
   const intl = useIntl();
   return {
@@ -91,10 +95,11 @@ export const filterConfigBuilder = (
     value,
     items: [
       ...(filters && filters.length > 0
-        ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items }) => ({
+        ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items, innerRef }) => ({
             label: label || firstUpperCase(key),
             type,
             filterValues: {
+              innerRef,
               id: `filter-by-${key}`,
               key: `filter-by-${key}`,
               placeholder: placeholder ? placeholder : intl.formatMessage(messages.filterByKey, { key }),
@@ -126,7 +131,10 @@ export const filterConfigBuilder = (
                     ),
                     [key]: newFilter,
                   })
-                );
+                ).then((data) => {
+                  innerRef?.current?.focus();
+                  return data;
+                });
               },
               isDisabled: isLoading,
             },
@@ -136,6 +144,7 @@ export const filterConfigBuilder = (
               label: firstUpperCase(filterPlaceholder || titleSingular),
               type: 'text',
               filterValues: {
+                innerRef: textFilterRef,
                 id: 'filter-by-string',
                 key: 'filter-by-string',
                 placeholder: intl.formatMessage(messages.filterByKey, { key: filterPlaceholder || titleSingular }),
@@ -153,7 +162,10 @@ export const filterConfigBuilder = (
                       name: value,
                       orderBy: sortBy,
                     })
-                  );
+                  ).then((data) => {
+                    textFilterRef?.current?.focus();
+                    return data;
+                  });
                 },
                 isDisabled: isLoading,
               },
@@ -248,6 +260,7 @@ const Toolbar = ({
   value,
   hideFilterChips,
   tableId,
+  textFilterRef,
 }) => (
   <PrimaryToolbar
     {...(isSelectable && {
@@ -269,7 +282,8 @@ const Toolbar = ({
       onFilter,
       onChange,
       value,
-      sortBy
+      sortBy,
+      textFilterRef
     )}
     useMobileLayout
     actionsConfig={{
@@ -320,6 +334,7 @@ Toolbar.propTypes = {
   toolbarButtons: PropTypes.func,
   hideFilterChips: PropTypes.bool,
   tableId: PropTypes.string,
+  textFilterRef: PropTypes.object,
 };
 
 Toolbar.defaultProps = {

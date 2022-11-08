@@ -54,6 +54,7 @@ export const TableToolbarView = ({
   tableId,
   containerRef,
   onSort,
+  textFilterRef,
 }) => {
   const intl = useIntl();
   const renderEmpty = () => ({
@@ -122,6 +123,7 @@ export const TableToolbarView = ({
           hideFilterChips={hideFilterChips}
           tableId={tableId}
           containerRef={containerRef}
+          textFilterRef={textFilterRef}
         />
         {isLoading ? (
           <ListLoader />

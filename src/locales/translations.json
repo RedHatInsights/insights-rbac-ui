@@ -234,7 +234,7 @@
   "roleName": "Role name",
   "roleNameTakenText": "Please return to Step 1: Create role and choose a unique role name for your custom role.",
   "roleNameTakenTitle": "Role name already taken",
-  "roleWilBeRemovedWithPermissions": "The <strong>{name}</strong> role will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+  "roleWilBeRemovedWithPermissions": "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
   "roleWithNameExists": "Role with this name already exists.",
   "roles": "Roles",
   "save": "Save",

@@ -5,4 +5,8 @@
      --pf-c-button--after--BorderColor: transparent;
      --pf-c-button--hover--after--BorderWidth: 0;
    }
+
+   .pf-c-table tbody tr.rbac-c-role-default .pf-c-table__check label input:hover {
+    cursor: not-allowed;
+   }
  }
