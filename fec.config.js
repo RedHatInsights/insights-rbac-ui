@@ -1,5 +1,7 @@
+const path = require('path');
+
 module.exports = {
-  appUrl: ['/settings/my-user-access', '/settings/rbac'],
+  appUrl: ['/settings', '/settings/my-user-access', '/settings/rbac', '/iam', '/iam/user-access'],
   debug: true,
   useProxy: true,
   proxyVerbose: true,
@@ -12,4 +14,13 @@ module.exports = {
    */
   plugins: [],
   _unstableHotReload: process.env.HOT === 'true',
+  moduleFederation: {
+    exposes: {
+      // TODO: Remove root app once CSC is updated
+      './RootApp': path.resolve(__dirname, './src/AppEntry.js'),
+      './SettingsUserAccess': path.resolve(__dirname, './src/entries/SettingsUserAccess.js'),
+      './MyUserAccess': path.resolve(__dirname, './src/entries/MyUserAccess.js'),
+      './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
+    },
+  },
 };

@@ -1,5 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
+import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
@@ -13,31 +12,17 @@ import { updateUsersFilters } from './redux/actions/user-actions';
 import { groupsInitialState } from './redux/reducers/group-reducer';
 import { rolesInitialState } from './redux/reducers/role-reducer';
 import { usersInitialState } from './redux/reducers/user-reducer';
+import useUserData from './hooks/useUserData';
 
 import './App.scss';
 
 const App = () => {
   const dispatch = useDispatch();
-  const [userData, setUserData] = useState({
-    ready: false,
-    orgAdmin: false,
-    userAccessAdministrator: false,
-  });
+  const userData = useUserData();
   const history = useHistory();
 
   useEffect(() => {
     insights.chrome.init();
-    insights.chrome.registerModule('access-requests');
-    !insights.chrome.getApp() && history.push('/my-user-access'); // redirect to MUA if url is "/settings"
-    Promise.all([insights.chrome.auth.getUser(), window.insights.chrome.getUserPermissions('rbac')]).then(([user, permissions]) => {
-      setUserData({
-        ready: true,
-        orgAdmin: user?.identity?.user?.is_org_admin,
-        userAccessAdministrator: !!permissions.find(({ permission }) => permission === 'rbac:*:*'),
-      });
-    });
-    insights.chrome.identifyApp(insights.chrome.getApp());
-
     const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
         history.push(`/${event.navId}`);
@@ -68,10 +53,6 @@ const App = () => {
       </ErroReducerCatcher>
     </PermissionsContext.Provider>
   );
-};
-
-App.propTypes = {
-  history: PropTypes.object,
 };
 
 export default App;
