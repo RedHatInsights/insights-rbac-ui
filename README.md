@@ -9,7 +9,7 @@
 ### Running dev server
 
 ```bash
-npm run start:proxy:beta
+npm run start
 ```
 
 ## License
