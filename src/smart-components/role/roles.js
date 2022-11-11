@@ -61,10 +61,11 @@ const Roles = () => {
     return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
   };
 
+  const isSelectable = orgAdmin || userAccessAdministrator;
   const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
-  const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
-  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
+  const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -197,7 +198,7 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
-            isSelectable={orgAdmin || userAccessAdministrator}
+            isSelectable={isSelectable}
             checkedRows={selectedRows}
             textFilterRef={textFilterRef}
             setCheckedItems={setCheckedItems}
@@ -227,7 +228,7 @@ const Roles = () => {
             tableId="roles"
             testRoles={true}
             onSort={(e, index, direction) => {
-              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isSelectable)].key}`;
               setSortByState({ index, direction });
               fetchTableData({
                 ...pagination,
