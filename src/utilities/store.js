@@ -19,7 +19,7 @@ export const RegistryContext = createContext({
   getRegistry: () => {},
 });
 
-const registry = new ReducerRegistry({}, [
+const middlewares = [
   thunk,
   promiseMiddleware,
   notificationsMiddleware({
@@ -27,7 +27,9 @@ const registry = new ReducerRegistry({}, [
     errorDescriptionKey: ['errors[0].detail', 'errors', 'stack'],
   }),
   reduxLogger,
-]);
+].filter((middleware) => typeof middleware === 'function');
+
+const registry = new ReducerRegistry({}, middlewares);
 
 registry.register({
   userReducer: applyReducerHash(userReducer, usersInitialState),
