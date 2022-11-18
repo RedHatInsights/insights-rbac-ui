@@ -1,9 +1,9 @@
-import React, { useEffect, Fragment, useState } from 'react';
+import React, { useEffect, Fragment, useState, useContext, useRef } from 'react';
 import { connect, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
@@ -12,6 +12,7 @@ import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
   defaultCompactSettings,
   defaultSettings,
+  defaultAdminSettings,
   syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
   isPaginationPresentInUrl,
@@ -20,6 +21,7 @@ import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } 
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
+import PermissionsContext from '../../../utilities/permissions-context';
 const createRows =
   (userLinks) =>
   (data, _expanded, checkedRows = []) => {
@@ -68,9 +70,12 @@ const createRows =
   };
 
 const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+  const { orgAdmin } = useContext(PermissionsContext);
+  // user for text filter to focus
+  const innerRef = useRef(null);
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
-    limit: inModal ? users.meta.limit : users.pagination.limit || defaultSettings.limit,
-    offset: inModal ? users.meta.offset : users.pagination.offset || defaultSettings.offset,
+    limit: inModal ? users.meta.limit : users.pagination.limit || (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+    offset: inModal ? users.meta.offset : users.pagination.offset || (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
     count: inModal ? users.meta.count : users.pagination.count,
     redirected: !inModal && users.pagination.redirected,
   }));
@@ -136,7 +141,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   };
 
   return (
-    <TableToolbarView
+    <TableToolbarViewOld
       columns={columns}
       isSelectable
       isCompact={true}
@@ -147,7 +152,9 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       fetchData={(config) => {
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
-        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal });
+        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal }).then(() => {
+          innerRef?.current?.focus();
+        });
         inModal || applyPaginationToUrl(history, limit, offset);
         inModal || applyFiltersToUrl(history, { username, email, status });
       }}
@@ -180,11 +187,13 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
           key: 'username',
           value: filters.username,
           placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+          innerRef,
         },
         {
           key: 'email',
           value: filters.email,
           placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+          innerRef,
         },
         {
           key: 'status',
@@ -214,7 +223,7 @@ const mapStateToProps = ({ userReducer: { users, isUserDataLoading } }) => {
 const mapDispatchToProps = (dispatch) => {
   return {
     fetchUsers: (apiProps = defaultSettings) => {
-      dispatch(fetchUsers(apiProps));
+      return dispatch(fetchUsers(apiProps));
     },
     updateUsersFilters: (filters) => {
       dispatch(updateUsersFilters(filters));

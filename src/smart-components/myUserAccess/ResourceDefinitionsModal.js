@@ -1,7 +1,7 @@
 import { Button, Modal } from '@patternfly/react-core';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -57,7 +57,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         />
       }
     >
-      <TableToolbarView
+      <TableToolbarViewOld
         columns={columns}
         data={rows}
         filterValue={filterValue}

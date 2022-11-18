@@ -1,4 +1,4 @@
-import React, { Fragment, Suspense, useState, useEffect, lazy, useContext } from 'react';
+import React, { Fragment, Suspense, useState, useEffect, lazy, useContext, useRef } from 'react';
 import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
@@ -17,11 +17,18 @@ import EditRole from './edit-role-modal';
 import PageActionRoute from '../common/page-action-route';
 import ResourceDefinitions from './role-resource-definitions';
 import PermissionsContext from '../../utilities/permissions-context';
-import { syncDefaultPaginationWithUrl, applyPaginationToUrl, isPaginationPresentInUrl } from '../../helpers/shared/pagination';
+import {
+  syncDefaultPaginationWithUrl,
+  applyPaginationToUrl,
+  isPaginationPresentInUrl,
+  defaultAdminSettings,
+  defaultSettings,
+} from '../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import messages from '../../Messages';
 import './roles.scss';
+import RoleRowWrapper from './role-row-wrapper';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -33,17 +40,15 @@ const selector = ({ roleReducer: { roles, isLoading } }) => ({
 });
 
 const Roles = () => {
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const [selectedRows, setSelectedRows] = useState([]);
   const intl = useIntl();
   const dispatch = useDispatch();
-  const { push } = useHistory();
-  const { roles, isLoading, filters, meta } = useSelector(selector, shallowEqual);
-  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
+  const textFilterRef = useRef(null);
   const history = useHistory();
-  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
-
-  const [pagination, setPagination] = useState(meta);
-  const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const screenSize = useScreenSize();
+
+  const { roles, filters, meta, isLoading } = useSelector(selector, shallowEqual);
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
@@ -52,6 +57,15 @@ const Roles = () => {
     { title: intl.formatMessage(messages.groups), transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
+  const fetchData = (options) => {
+    return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
+  };
+
+  const isSelectable = orgAdmin || userAccessAdministrator;
+  const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
+  const [filterValue, setFilterValue] = useState(filters.display_name || '');
+  const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -59,7 +73,7 @@ const Roles = () => {
     const { display_name } = syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
     insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    fetchData({ ...syncedPagination, filters: { display_name } });
+    fetchData({ ...syncedPagination, orderBy, filters: { display_name } });
   }, []);
 
   useEffect(() => {
@@ -81,13 +95,16 @@ const Roles = () => {
   const routes = () => (
     <Suspense fallback={<Fragment />}>
       <Route exact path={paths['add-role'].path}>
-        <AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />
+        <AddRoleWizard pagination={pagination} orderBy={orderBy} filters={{ display_name: filterValue }} />
       </Route>
       <Route exact path={paths['remove-role'].path}>
         {!isLoading && (
           <RemoveRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['remove-role'].path}
+            afterSubmit={() => {
+              setSelectedRows([]);
+              fetchData({ ...pagination, offset: 0, orderBy, filters: { display_name: filterValue } }, true);
+            }}
             cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
             submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
           />
@@ -96,7 +113,7 @@ const Roles = () => {
       <Route exact path={paths['edit-role'].path}>
         {!isLoading && (
           <EditRole
-            afterSubmit={() => fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true)}
+            afterSubmit={() => fetchData({ ...pagination, offset: 0, orderBy, filters: { display_name: filterValue } }, true)}
             routeMatch={paths['edit-role'].path}
             cancelRoute={getBackRoute(paths.roles.path, pagination, filters)}
             submitRoute={getBackRoute(paths.roles.path, { ...pagination, offset: 0 }, filters)}
@@ -106,19 +123,17 @@ const Roles = () => {
     </Suspense>
   );
 
-  const actionResolver = ({ system }) => {
-    return system
-      ? []
-      : [
-          {
-            title: intl.formatMessage(messages.edit),
-            onClick: (_event, _rowId, role) => push(`/roles/edit/${role.uuid}`),
-          },
-          {
-            title: intl.formatMessage(messages.delete),
-            onClick: (_event, _rowId, role) => push(`/roles/remove/${role.uuid}`),
-          },
-        ];
+  const actionResolver = () => {
+    return [
+      {
+        title: intl.formatMessage(messages.edit),
+        onClick: (_event, _rowId, role) => history.push(`/roles/edit/${role.uuid}`),
+      },
+      {
+        title: intl.formatMessage(messages.delete),
+        onClick: (_event, _rowId, role) => history.push(`/roles/remove/${role.uuid}`),
+      },
+    ];
   };
 
   const toolbarButtons = () =>
@@ -139,9 +154,40 @@ const Roles = () => {
                 },
               ]
             : []),
+          {
+            label: intl.formatMessage(messages.edit),
+            props: {
+              isDisabled: !(selectedRows.length === 1),
+            },
+            onClick: () => history.push(`/roles/edit/${selectedRows[0].uuid}`),
+          },
+          {
+            label: intl.formatMessage(messages.delete),
+            props: {
+              isDisabled: !selectedRows.length > 0,
+            },
+            onClick: () => {
+              history.push(`/roles/remove/${selectedRows.map(({ uuid }) => uuid)}`);
+            },
+          },
         ]
       : [];
+  const fetchTableData = (config) => {
+    const { name, count, limit, offset, orderBy } = config;
+    applyPaginationToUrl(history, limit, offset);
+    applyFiltersToUrl(history, { display_name: name });
+    return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
+  };
 
+  const setCheckedItems = (newSelection) => {
+    setSelectedRows((rows) =>
+      newSelection(rows)
+        .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault, system }) => !(isPlatformDefault || isAdminDefault || system))
+        .map(({ uuid, name }) => ({ uuid, label: name }))
+    );
+  };
+
+  const rows = createRows(roles, selectedRows);
   const renderRolesList = () => (
     <Stack className="rbac-c-roles">
       <StackItem>
@@ -152,10 +198,16 @@ const Roles = () => {
       <StackItem>
         <Section type="content" id={'tab-roles'}>
           <TableToolbarView
+            isSelectable={isSelectable}
+            checkedRows={selectedRows}
+            textFilterRef={textFilterRef}
+            setCheckedItems={setCheckedItems}
             actionResolver={actionResolver}
-            sortBy={{ index: 0, direction: 'asc' }}
+            sortBy={sortByState}
             columns={columns}
-            createRows={createRows}
+            areActionsDisabled={({ system }) => !!system}
+            rowWrapper={RoleRowWrapper}
+            rows={rows}
             data={roles}
             filterValue={filterValue}
             fetchData={(config) => {
@@ -174,6 +226,27 @@ const Roles = () => {
             toolbarButtons={toolbarButtons}
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             tableId="roles"
+            testRoles={true}
+            onSort={(e, index, direction) => {
+              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isSelectable)].key}`;
+              setSortByState({ index, direction });
+              fetchTableData({
+                ...pagination,
+                offset: 0,
+                orderBy,
+                ...(filters?.length > 0
+                  ? {
+                      ...filters.reduce(
+                        (acc, curr) => ({
+                          ...acc,
+                          [curr.key]: curr.value,
+                        }),
+                        {}
+                      ),
+                    }
+                  : { name: filterValue }),
+              });
+            }}
           />
         </Section>
       </StackItem>

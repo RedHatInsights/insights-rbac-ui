@@ -16,9 +16,9 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 export const groupsInitialState = {
   groups: {
     data: [],
-    meta: defaultSettings,
+    meta: {},
     filters: {},
-    pagination: { ...defaultSettings, count: 0 },
+    pagination: { count: 0 },
   },
   selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, pagination: defaultSettings },
   isLoading: false,
