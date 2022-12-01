@@ -114,7 +114,7 @@
     "translations:extract": "npx formatjs extract ./src/*.js --out-file ./locales/translation-template.json",
     "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/translations.json",
     "translations:datafile": "node scripts/createDataJson.js",
-    "deploy": "npm-run-all build lint test",
+    "deploy": "npm-run-all build",
     "verify": "npm-run-all build lint test",
     "nightly": "npm run deploy",
     "postinstall": "rm -rf .cache"
