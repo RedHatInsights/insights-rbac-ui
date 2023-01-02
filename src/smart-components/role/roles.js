@@ -77,7 +77,7 @@ const Roles = () => {
   }, []);
 
   useEffect(() => {
-    setFilterValue(filters.display_name);
+    setFilterValue(filters?.display_name || '');
     setPagination(meta);
   }, [filters, meta]);
 

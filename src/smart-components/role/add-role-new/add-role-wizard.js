@@ -139,11 +139,11 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     return dispatch(createRole(roleData))
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, filters, inModal: false }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, inModal: false }));
       })
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, filters, inModal: false }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, inModal: false }));
         onClose();
       });
   };

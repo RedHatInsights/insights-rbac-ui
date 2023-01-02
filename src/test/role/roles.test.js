@@ -147,7 +147,7 @@ describe('<Roles />', () => {
       limit: 20,
       orderBy: '-display_name',
       filters: {
-        display_name: undefined,
+        display_name: '',
       },
       inModal: false,
     });
