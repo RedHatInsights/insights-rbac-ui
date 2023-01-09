@@ -134,15 +134,15 @@ export const TableToolbarView = ({
             variant={isCompact ? TableVariant.compact : null}
             borders={borders}
             {...(isSelectable &&
-              rows.length > 0 && {
+              rows?.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
                   setCheckedItems(selectedRows([{ uuid, name, requires }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
-            rows={rows.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
+            rows={rows?.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
             cells={columns}
-            {...(rows.length > 0 && { actionResolver })}
-            className={rows.length == 0 ? 'ins-c-table-empty-state' : ''}
+            {...(rows?.length > 0 && { actionResolver })}
+            className={rows?.length == 0 ? 'ins-c-table-empty-state' : ''}
             areActionsDisabled={areActionsDisabled}
             rowWrapper={rowWrapper}
             sortBy={sortBy}
@@ -165,7 +165,7 @@ export const TableToolbarView = ({
   return (
     <Fragment>
       {routes()}
-      {!isLoading && rows.length === 0 && filterValue.length === 0 && filters.every(({ value }) => !value) ? (
+      {!isLoading && rows?.length === 0 && filterValue?.length === 0 && filters.every(({ value }) => !value) ? (
         <EmptyWithAction
           title={intl.formatMessage(messages.configureItems, { items: titlePlural })}
           icon={PlusCircleIcon}

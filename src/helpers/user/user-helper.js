@@ -6,11 +6,17 @@ const principalApi = getPrincipalApi();
 const principalStatusApiMap = {
   Active: 'enabled',
   Inactive: 'disabled',
+  All: 'all',
 };
 export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inModal, matchCriteria = 'partial' }) {
   const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
-  const mappedStatus = status.length === 2 ? 'all' : principalStatusApiMap[status[0]] || 'all';
+  const mappedStatus =
+    typeof status === 'string'
+      ? principalStatusApiMap[status]
+      : status.length === 2
+      ? principalStatusApiMap.All
+      : principalStatusApiMap[status[0]] || principalStatusApiMap.All;
   const response = await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
   const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
   offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);
