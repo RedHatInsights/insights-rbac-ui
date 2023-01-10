@@ -21,9 +21,8 @@ import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
 
-const createRows = (userLinks, data, _expanded, checkedRows = []) => {
-  const intl = useIntl();
-  return data?.reduce?.(
+const createRows = (userLinks, data, checkedRows = [], intl) =>
+  data?.reduce?.(
     (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
       ...acc,
       {
@@ -60,7 +59,6 @@ const createRows = (userLinks, data, _expanded, checkedRows = []) => {
     ],
     []
   );
-};
 
 const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const intl = useIntl();
@@ -108,7 +106,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
     [dispatch]
   );
 
-  const rows = createRows(userLinks, users, selectedUsers);
+  const rows = createRows(userLinks, users, selectedUsers, intl);
   const columns = [
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
     { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
@@ -162,7 +160,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
 
   return (
     <TableToolbarView
-      isCompact={true}
+      isCompact
+      isSelectable
       borders={false}
       columns={columns}
       rows={rows}
