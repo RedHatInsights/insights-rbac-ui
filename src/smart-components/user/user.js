@@ -1,8 +1,9 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import PropTypes from 'prop-types';
-import { connect, useSelector } from 'react-redux';
-import { Link, useHistory, withRouter } from 'react-router-dom';
+import { useSelector, connect } from 'react-redux';
+import { Link, useHistory, withRouter, Route, Switch } from 'react-router-dom';
 import debounce from 'lodash/debounce';
+import AddUserToAGroupWizard from './add-user-to-group/add-user-to-group-wizard';
 import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
@@ -12,7 +13,6 @@ import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { defaultSettings } from '../../helpers/shared/pagination';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
 import { Fragment } from 'react';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
@@ -20,6 +20,9 @@ import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs'
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
+import PermissionsContext from '../../utilities/permissions-context';
+import { defaultSettings } from '../../helpers/shared/pagination';
 import './user.scss';
 
 let debouncedFetch;
@@ -32,7 +35,6 @@ const User = ({
   fetchRoleForUser,
   fetchUsers,
   roles,
-  isLoading,
   rolesWithAccess,
   user,
 }) => {
@@ -46,6 +48,8 @@ const User = ({
     } = state;
     return error !== BAD_UUID;
   });
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const isAdmin = orgAdmin || userAccessAdministrator;
 
   useEffect(() => {
     fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true });
@@ -147,11 +151,9 @@ const User = ({
       500
     );
   }, []);
-
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
     if (!isOpen) {
       setExpanded({ ...expanded, [rowData.uuid]: colIndex });
-      // Permissions
       if (colIndex === 2) {
         fetchRoleForUser(rowData.uuid);
       }
@@ -165,50 +167,82 @@ const User = ({
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
+  const routes = () => (
+    <Switch>
+      <Route path={pathnames['add-user-to-group'].path.replace(':username', username)}>
+        <AddUserToAGroupWizard user={username} filters={{}} />
+      </Route>
+    </Switch>
+  );
+
+  const toolbarButtons = () => [
+    ...(isAdmin
+      ? [
+          <Link to={pathnames['add-user-to-group'].path.replace(':username', username)} key="add-user-to-group" className="rbac-m-hide-on-sm">
+            <Button ouiaId="add-user-to-group-button" variant="primary" aria-label="Add user to a group">
+              {intl.formatMessage(messages.addUserToAGroup)}
+            </Button>
+          </Link>,
+          {
+            label: intl.formatMessage(messages.addUserToAGroup),
+            props: {
+              className: 'rbac-m-hide-on-md',
+            },
+            onClick: () => {
+              history.push(pathnames['add-user-to-group'].path);
+            },
+          },
+        ]
+      : []),
+  ];
+
   return (
     <Fragment>
       {userExists ? (
-        <Stack>
-          <StackItem>
-            <TopToolbar paddingBottm={false} breadcrumbs={breadcrumbsList()}>
-              <TopToolbarTitle
-                title={username}
-                renderTitleTag={() =>
-                  user && !isLoading ? (
-                    <Label color={user?.is_active && 'green'}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
-                  ) : (
-                    <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
-                  )
-                }
-                description={intl.formatMessage(messages.userDescription, { username })}
-              />
-            </TopToolbar>
-          </StackItem>
-          <StackItem>
-            <Section type="content" id={'user-detail'}>
-              <TableToolbarViewOld
-                columns={columns}
-                isCompact={false}
-                isExpandable={true}
-                onExpand={onExpand}
-                createRows={createRows}
-                data={roles.data}
-                filterValue={filter}
-                ouiaId="user-details-table"
-                fetchData={({ limit, offset, name }) => {
-                  debouncedFetch(limit, offset, name, ['groups_in'], username);
-                }}
-                setFilterValue={({ name }) => setFilter(name)}
-                isLoading={isLoading}
-                pagination={roles.meta}
-                filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
-                titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
-                titleSingular={intl.formatMessage(messages.role).toLowerCase()}
-                tableId="user"
-              />
-            </Section>
-          </StackItem>
-        </Stack>
+        <Fragment>
+          <Stack>
+            <StackItem>
+              <TopToolbar paddingBottm={false} breadcrumbs={breadcrumbsList()}>
+                <TopToolbarTitle
+                  title={username}
+                  renderTitleTag={() =>
+                    user ? (
+                      <Label color={user?.is_active && 'green'}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
+                    ) : (
+                      <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
+                    )
+                  }
+                  description={intl.formatMessage(messages.userDescription, { username })}
+                />
+              </TopToolbar>
+            </StackItem>
+            <StackItem>
+              <Section type="content" id={'user-detail'}>
+                <TableToolbarViewOld
+                  columns={columns}
+                  isCompact={false}
+                  isExpandable={true}
+                  onExpand={onExpand}
+                  createRows={createRows}
+                  data={roles.data}
+                  routes={routes}
+                  filterValue={filter}
+                  ouiaId="user-details-table"
+                  fetchData={({ limit, offset, name }) => {
+                    debouncedFetch(limit, offset, name, ['groups_in'], username);
+                  }}
+                  setFilterValue={({ name }) => setFilter(name)}
+                  toolbarButtons={toolbarButtons}
+                  pagination={roles.meta}
+                  filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
+                  titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
+                  titleSingular={intl.formatMessage(messages.role).toLowerCase()}
+                  tableId="user"
+                />
+              </Section>
+            </StackItem>
+          </Stack>
+        </Fragment>
       ) : (
         <Fragment>
           <section className="pf-c-page__main-breadcrumb pf-u-pb-md">

@@ -11,6 +11,10 @@ const pathnames = {
     path: '/groups/add-group',
     title: 'Create group',
   },
+  'add-user-to-group': {
+    path: '/users/detail/:username/add-to-group',
+    title: 'Add user to a group',
+  },
   'remove-group': {
     path: '/groups/removegroups',
     title: 'Delete group',

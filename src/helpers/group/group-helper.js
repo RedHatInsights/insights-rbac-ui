@@ -139,3 +139,7 @@ export async function addRolesToGroup(groupId, roles) {
 export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
   return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
 }
+
+export async function getUserGroups(userName) {
+  return await groupApi.listGroups(undefined, undefined, userName, undefined, 'principal', undefined, undefined);
+}

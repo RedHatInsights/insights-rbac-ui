@@ -1,6 +1,6 @@
 /* eslint-disable */
 import React, { useEffect, useContext } from 'react';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import { Switch } from 'react-router-dom';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { Section } from '@redhat-cloud-services/frontend-components';
@@ -51,7 +51,7 @@ const Users = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="user-detail" exact path={ paths['user-detail'].path } render={ props => <User {...props}/> } />
+      <PageActionRoute pageAction="user-detail"  path={ paths['user-detail'].path } render={ props => <User {...props}/> } />
       <PageActionRoute pageAction="users-list" path={ [ paths.users.path, paths.rbac.path] } render={ () => renderUsers() } />
     </Switch>
 

@@ -607,6 +607,16 @@ export default defineMessages({
     description: 'Create group wizard title',
     defaultMessage: 'Create group',
   },
+  addUserToAGroup: {
+    id: 'addUserToAGroup',
+    description: 'Add user to a group wizard title',
+    defaultMessage: 'Add user to a group',
+  },
+  addSpecificUserToAGroup: {
+    id: 'addUserToAGroup',
+    description: 'Add user to a group wizard title',
+    defaultMessage: 'Add {user} to a group',
+  },
   nameAndDescription: {
     id: 'nameAndDescription',
     description: 'Name and description wizard step title',
@@ -751,6 +761,11 @@ export default defineMessages({
     id: 'addRolesToGroup',
     description: 'Add roles to group label',
     defaultMessage: 'Add roles to group',
+  },
+  onlyNonUserGroupsVisible: {
+    id: 'onlyNonUserGroupsVisible',
+    description: 'Message warning that only groups that the user is not a member of has been filtered',
+    defaultMessage: 'This group list has been filtered to only show groups that the user is not currently a member of.',
   },
   onlyGroupRolesVisible: {
     id: 'onlyGroupRolesVisible',

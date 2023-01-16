@@ -28,6 +28,7 @@
   "addToDefinitions": "Add to definitions",
   "addToGroup": "Add to group",
   "addUserToConfigure": "Add a user to configure user access.",
+  "addUserToAGroup": "Add user to a group",
   "addedPermissions": "Added permissions",
   "addingGroupCanceledDescription": "Adding group was canceled by the user.",
   "addingGroupMemberCancelled": "Adding member to group was canceled by the user.",
