@@ -10,6 +10,8 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import { Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -23,6 +25,57 @@ import messages from '../../Messages';
 import './user.scss';
 
 let debouncedFetch;
+
+const UserDescription = ({ user }) => {
+  const intl = useIntl();
+
+  return (
+    <Fragment>
+      {user?.orgAdmin ? (
+        <Fragment>
+          <span key="yes">
+            {intl.formatMessage(messages.orgAdministrator) + ': '}
+            <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+            {intl.formatMessage(messages.yes)}
+          </span>
+        </Fragment>
+      ) : (
+        <Fragment>
+          <span key="no">
+            {intl.formatMessage(messages.orgAdministrator) + ': '}
+            <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+            {intl.formatMessage(messages.no)}
+          </span>
+        </Fragment>
+      )}
+      {user?.email && (
+        <TextContent className="rbac-page-header__description">
+          {typeof user?.email === 'string' ? (
+            <Text component={TextVariants.p}>
+              {intl.formatMessage(messages.email)}: {user?.email}
+            </Text>
+          ) : (
+            user?.email
+          )}
+        </TextContent>
+      )}
+      {user?.username && (
+        <TextContent className="rbac-page-header__description">
+          {typeof user?.username === 'string' ? (
+            <Text component={TextVariants.p}>
+              {intl.formatMessage(messages.username)}: {user?.username}
+            </Text>
+          ) : (
+            user?.username
+          )}
+        </TextContent>
+      )}
+    </Fragment>
+  );
+};
+UserDescription.propTypes = {
+  user: PropTypes.object,
+};
 
 const User = ({
   match: {
@@ -180,8 +233,9 @@ const User = ({
                     <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
                   )
                 }
-                description={intl.formatMessage(messages.userDescription, { username })}
-              />
+              >
+                <UserDescription user={user} />
+              </TopToolbarTitle>
             </TopToolbar>
           </StackItem>
           <StackItem>
