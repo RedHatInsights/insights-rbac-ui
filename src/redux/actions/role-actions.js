@@ -37,6 +37,19 @@ export const fetchRole = (apiProps) => ({
   }),
 });
 
+export const fetchRoleDetails = (uuid) => ({
+  type: ActionTypes.FETCH_ROLE_DETAILS,
+  meta: { uuid },
+  payload: RoleHelper.fetchRole(uuid).catch((err) => {
+    const error = err?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'role uuid validation') {
+      return { error: BAD_UUID };
+    }
+
+    throw err;
+  }),
+});
+
 export const fetchRoles = (options = {}) => ({
   type: ActionTypes.FETCH_ROLES,
   payload: RoleHelper.fetchRoles(options).catch((err) => {

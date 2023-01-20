@@ -1386,4 +1386,14 @@ export default defineMessages({
     defaultMessage:
       'Restoring <b>Default access</b> group will remove <b>Custom default access</b> group. <b>Custom default access</b> configurations cannot be recovered. Are you sure?',
   },
+  noGroups: {
+    id: 'noGroups',
+    description: 'No groups label',
+    defaultMessage: 'No groups',
+  },
+  noPermissions: {
+    id: 'noPermissions',
+    description: 'No permissions label',
+    defaultMessage: 'No permissions',
+  },
 });

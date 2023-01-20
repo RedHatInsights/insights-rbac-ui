@@ -2,11 +2,11 @@ import React, { Fragment, Suspense, useState, useEffect, lazy, useContext, useRe
 import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Link, Route, Switch, useHistory } from 'react-router-dom';
-import { cellWidth, nowrap, sortable } from '@patternfly/react-table';
+import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
 import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
-import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
+import { fetchRoleDetails, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import RemoveRole from './remove-role-modal';
@@ -27,8 +27,8 @@ import {
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import messages from '../../Messages';
-import './roles.scss';
 import RoleRowWrapper from './role-row-wrapper';
+import './roles.scss';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
 
@@ -53,8 +53,8 @@ const Roles = () => {
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
     { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.permissions), transforms: [nowrap] },
-    { title: intl.formatMessage(messages.groups), transforms: [nowrap] },
+    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
   const fetchData = (options) => {
@@ -66,6 +66,7 @@ const Roles = () => {
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
+  const [expanded, setExpanded] = useState({});
 
   useEffect(() => {
     const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
@@ -91,6 +92,8 @@ const Roles = () => {
       !areFiltersPresentInUrl(history, ['display_name']) &&
       syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
   });
+
+  const fetchPermissionsForRole = (uuid) => dispatch(fetchRoleDetails(uuid));
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
@@ -123,18 +126,19 @@ const Roles = () => {
     </Suspense>
   );
 
-  const actionResolver = () => {
-    return [
-      {
-        title: intl.formatMessage(messages.edit),
-        onClick: (_event, _rowId, role) => history.push(`/roles/edit/${role.uuid}`),
-      },
-      {
-        title: intl.formatMessage(messages.delete),
-        onClick: (_event, _rowId, role) => history.push(`/roles/remove/${role.uuid}`),
-      },
-    ];
-  };
+  const actionResolver = (row) =>
+    row.compoundParent
+      ? []
+      : [
+          {
+            title: intl.formatMessage(messages.edit),
+            onClick: (_event, _rowId, role) => history.push(`/roles/edit/${role.uuid}`),
+          },
+          {
+            title: intl.formatMessage(messages.delete),
+            onClick: (_event, _rowId, role) => history.push(`/roles/remove/${role.uuid}`),
+          },
+        ];
 
   const toolbarButtons = () =>
     orgAdmin || userAccessAdministrator
@@ -187,7 +191,16 @@ const Roles = () => {
     );
   };
 
-  const rows = createRows(roles, selectedRows);
+  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
+    if (!isOpen) {
+      setExpanded({ ...expanded, [rowData.uuid]: colIndex + Number(!isSelectable) });
+      colIndex + Number(!isSelectable) === 3 && fetchPermissionsForRole(rowData.uuid);
+    } else {
+      setExpanded({ ...expanded, [rowData.uuid]: -1 });
+    }
+  };
+
+  const rows = createRows(roles, selectedRows, intl, expanded);
   const renderRolesList = () => (
     <Stack className="rbac-c-roles">
       <StackItem>
@@ -217,6 +230,8 @@ const Roles = () => {
               return fetchData(mappedProps({ count, limit, offset, orderBy, filters: { display_name: name } }));
             }}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
+            isExpandable
+            onExpand={onExpand}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
             routes={routes}

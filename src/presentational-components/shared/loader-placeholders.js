@@ -4,9 +4,9 @@ import { DataList, DataListCell, DataListItem, DataListItemRow, DataListItemCell
 import ContentLoader from 'react-content-loader';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 
-export const ListLoader = ({ items, ...props }) => (
+export const ListLoader = ({ items, isCompact, ...props }) => (
   <Fragment>
-    <DataList aria-label="datalist-placeholder">
+    <DataList aria-label="datalist-placeholder" isCompact={isCompact}>
       {[...Array(items)].map((_item, index) => (
         <DataListItem key={index} aria-labelledby="datalist-item-placeholder">
           <DataListItemRow aria-label="datalist-item-placeholder-row">
@@ -26,6 +26,7 @@ export const ListLoader = ({ items, ...props }) => (
 
 ListLoader.propTypes = {
   items: PropTypes.number,
+  isCompact: PropTypes.bool,
 };
 
 ListLoader.defaultProps = {
