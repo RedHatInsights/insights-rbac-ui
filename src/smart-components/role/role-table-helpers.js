@@ -50,7 +50,7 @@ export const createRows = (data, selectedRows, intl, expanded) =>
           {
             props: { colSpan: 7, className: 'pf-m-no-padding' },
             title:
-              accessCount > 0 ? (
+              access.length > 0 ? (
                 <Table
                   ouiaId="groups-in-role-nested-table"
                   aria-label="Simple Table"
