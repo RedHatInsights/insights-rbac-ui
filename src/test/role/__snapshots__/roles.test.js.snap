@@ -20,12 +20,18 @@ exports[`<Roles /> should render correctly 1`] = `
         "title": "Description",
       },
       Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
         "title": "Permissions",
         "transforms": Array [
           [Function],
         ],
       },
       Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
         "title": "Groups",
         "transforms": Array [
           [Function],
@@ -44,9 +50,22 @@ exports[`<Roles /> should render correctly 1`] = `
   data={
     Array [
       Object {
-        "accessCount": "test",
+        "access": Array [
+          Object {
+            "permission": "advisor:*:*",
+            "resourceDefinitions": Array [],
+          },
+        ],
+        "accessCount": 1,
         "description": "test",
-        "groups_in_count": 5,
+        "groups_in": Array [
+          Object {
+            "description": null,
+            "name": "Test Redirect",
+            "uuid": "abc",
+          },
+        ],
+        "groups_in_count": 1,
         "modified": 1970-01-01T00:00:00.000Z,
         "name": "Test name",
         "system": "test",
@@ -64,9 +83,11 @@ exports[`<Roles /> should render correctly 1`] = `
   hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isExpandable={true}
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  onExpand={[Function]}
   onSort={[Function]}
   ouiaId="roles-table"
   pagination={
@@ -82,33 +103,461 @@ exports[`<Roles /> should render correctly 1`] = `
     Array [
       Object {
         "cells": Array [
-          <React.Fragment>
-            <Link
+          Object {
+            "title": <Link
               to="/roles/detail/test"
             >
               Test name
-            </Link>
-          </React.Fragment>,
-          "test",
-          <React.Fragment>
-            <Link
-              to="/roles/detail/test"
-            >
-              test
-            </Link>
-          </React.Fragment>,
-          5,
-          <React.Fragment>
-            <DateFormat
+            </Link>,
+          },
+          Object {
+            "title": "test",
+          },
+          Object {
+            "props": Object {
+              "isOpen": false,
+            },
+            "title": 1,
+          },
+          Object {
+            "props": Object {
+              "isOpen": false,
+            },
+            "title": 1,
+          },
+          Object {
+            "title": <DateFormat
               date={1970-01-01T00:00:00.000Z}
               type="onlyDate"
-            />
-          </React.Fragment>,
+            />,
+          },
         ],
         "disableSelection": true,
         "selected": false,
         "system": "test",
         "uuid": "test",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Application",
+                  "Resource type",
+                  "Operation",
+                  "Last commit",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="groups-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "advisor",
+                      "*",
+                      "*",
+                      <React.Fragment>
+                        <DateFormat
+                          date={1970-01-01T00:00:00.000Z}
+                          type="onlyDate"
+                        />
+                      </React.Fragment>,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 2,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-permissions",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Group name",
+                  "Description",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="permissions-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "Test Redirect",
+                      null,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 3,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-groups",
+      },
+    ]
+  }
+  setCheckedItems={[Function]}
+  setFilterValue={[Function]}
+  sortBy={
+    Object {
+      "direction": "asc",
+      "index": 0,
+    }
+  }
+  tableId="roles"
+  testRoles={true}
+  textFilterRef={
+    Object {
+      "current": <input
+        aria-invalid="false"
+        aria-label="text input"
+        class="pf-c-form-control ins-c-conditional-filter "
+        data-ouia-component-id="ConditionalFilter"
+        data-ouia-component-type="PF4/TextInput"
+        data-ouia-safe="true"
+        id="filter-by-string"
+        placeholder="Filter by {key}"
+        type="text"
+        value=""
+        widget-type="InsightsInput"
+      />,
+    }
+  }
+  titlePlural="roles"
+  titleSingular="role"
+  toolbarButtons={[Function]}
+/>
+`;
+
+exports[`<Roles /> should render correctly expanded 1`] = `
+<TableToolbarView
+  actionResolver={[Function]}
+  areActionsDisabled={[Function]}
+  borders={true}
+  checkedRows={Array []}
+  columns={
+    Array [
+      Object {
+        "key": "display_name",
+        "title": "Name",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+      Object {
+        "title": "Description",
+      },
+      Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
+        "title": "Permissions",
+        "transforms": Array [
+          [Function],
+        ],
+      },
+      Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
+        "title": "Groups",
+        "transforms": Array [
+          [Function],
+        ],
+      },
+      Object {
+        "key": "modified",
+        "title": "Last modified",
+        "transforms": Array [
+          [Function],
+          [Function],
+        ],
+      },
+    ]
+  }
+  data={
+    Array [
+      Object {
+        "access": Array [
+          Object {
+            "permission": "advisor:*:*",
+            "resourceDefinitions": Array [],
+          },
+        ],
+        "accessCount": 1,
+        "description": "test",
+        "groups_in": Array [
+          Object {
+            "description": null,
+            "name": "Test Redirect",
+            "uuid": "abc",
+          },
+        ],
+        "groups_in_count": 1,
+        "modified": 1970-01-01T00:00:00.000Z,
+        "name": "Test name",
+        "system": "test",
+        "uuid": "test",
+      },
+    ]
+  }
+  emptyFilters={Object {}}
+  fetchData={[Function]}
+  filterItems={Array []}
+  filterPlaceholder="name"
+  filterValue=""
+  filters={Array []}
+  hideFilterChips={false}
+  hideHeader={false}
+  isCollapsible={false}
+  isCompact={false}
+  isExpandable={true}
+  isFilterable={false}
+  isLoading={false}
+  isSelectable={false}
+  onExpand={[Function]}
+  onSort={[Function]}
+  ouiaId="roles-table"
+  pagination={
+    Object {
+      "itemCount": 0,
+      "limit": 20,
+      "offset": 0,
+    }
+  }
+  routes={[Function]}
+  rowWrapper={[Function]}
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          Object {
+            "title": <Link
+              to="/roles/detail/test"
+            >
+              Test name
+            </Link>,
+          },
+          Object {
+            "title": "test",
+          },
+          Object {
+            "props": Object {
+              "isOpen": true,
+            },
+            "title": 1,
+          },
+          Object {
+            "props": Object {
+              "isOpen": false,
+            },
+            "title": 1,
+          },
+          Object {
+            "title": <DateFormat
+              date={1970-01-01T00:00:00.000Z}
+              type="onlyDate"
+            />,
+          },
+        ],
+        "disableSelection": true,
+        "selected": false,
+        "system": "test",
+        "uuid": "test",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Application",
+                  "Resource type",
+                  "Operation",
+                  "Last commit",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="groups-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "advisor",
+                      "*",
+                      "*",
+                      <React.Fragment>
+                        <DateFormat
+                          date={1970-01-01T00:00:00.000Z}
+                          type="onlyDate"
+                        />
+                      </React.Fragment>,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 2,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-permissions",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Group name",
+                  "Description",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="permissions-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "Test Redirect",
+                      null,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 3,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-groups",
       },
     ]
   }
@@ -171,12 +620,18 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
         "title": "Description",
       },
       Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
         "title": "Permissions",
         "transforms": Array [
           [Function],
         ],
       },
       Object {
+        "cellTransforms": Array [
+          [Function],
+        ],
         "title": "Groups",
         "transforms": Array [
           [Function],
@@ -195,9 +650,22 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   data={
     Array [
       Object {
-        "accessCount": "test",
+        "access": Array [
+          Object {
+            "permission": "advisor:*:*",
+            "resourceDefinitions": Array [],
+          },
+        ],
+        "accessCount": 1,
         "description": "test",
-        "groups_in_count": 5,
+        "groups_in": Array [
+          Object {
+            "description": null,
+            "name": "Test Redirect",
+            "uuid": "abc",
+          },
+        ],
+        "groups_in_count": 1,
         "modified": 1970-01-01T00:00:00.000Z,
         "name": "Test name",
         "system": "test",
@@ -215,9 +683,11 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   hideHeader={false}
   isCollapsible={false}
   isCompact={false}
+  isExpandable={true}
   isFilterable={false}
   isLoading={false}
   isSelectable={false}
+  onExpand={[Function]}
   onSort={[Function]}
   ouiaId="roles-table"
   pagination={
@@ -233,33 +703,164 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     Array [
       Object {
         "cells": Array [
-          <React.Fragment>
-            <Link
+          Object {
+            "title": <Link
               to="/roles/detail/test"
             >
               Test name
-            </Link>
-          </React.Fragment>,
-          "test",
-          <React.Fragment>
-            <Link
-              to="/roles/detail/test"
-            >
-              test
-            </Link>
-          </React.Fragment>,
-          5,
-          <React.Fragment>
-            <DateFormat
+            </Link>,
+          },
+          Object {
+            "title": "test",
+          },
+          Object {
+            "props": Object {
+              "isOpen": false,
+            },
+            "title": 1,
+          },
+          Object {
+            "props": Object {
+              "isOpen": false,
+            },
+            "title": 1,
+          },
+          Object {
+            "title": <DateFormat
               date={1970-01-01T00:00:00.000Z}
               type="onlyDate"
-            />
-          </React.Fragment>,
+            />,
+          },
         ],
         "disableSelection": true,
         "selected": false,
         "system": "test",
         "uuid": "test",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Application",
+                  "Resource type",
+                  "Operation",
+                  "Last commit",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="groups-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "advisor",
+                      "*",
+                      "*",
+                      <React.Fragment>
+                        <DateFormat
+                          date={1970-01-01T00:00:00.000Z}
+                          type="onlyDate"
+                        />
+                      </React.Fragment>,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 2,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-permissions",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "className": "pf-m-no-padding",
+              "colSpan": 7,
+            },
+            "title": <Table
+              aria-label="Simple Table"
+              borders={true}
+              canCollapseAll={false}
+              canSelectAll={true}
+              canSortFavorites={true}
+              cells={
+                Array [
+                  "Group name",
+                  "Description",
+                ]
+              }
+              className=""
+              collapseAllAriaLabel=""
+              contentId="expanded-content"
+              dropdownDirection="down"
+              dropdownPosition="right"
+              expandId="expandable-toggle"
+              gridBreakPoint="grid-md"
+              isHeaderSelectDisabled={false}
+              isNested={false}
+              isStickyHeader={false}
+              isTreeTable={false}
+              ouiaId="permissions-in-role-nested-table"
+              ouiaSafe={true}
+              role="grid"
+              rowLabeledBy="simple-node"
+              rows={
+                Array [
+                  Object {
+                    "cells": Array [
+                      "Test Redirect",
+                      null,
+                    ],
+                  },
+                ]
+              }
+              selectVariant="checkbox"
+              variant="compact"
+            >
+              <TableHeader />
+              <TableBody />
+            </Table>,
+          },
+        ],
+        "compoundParent": 3,
+        "fullWidth": true,
+        "noPadding": true,
+        "parent": 0,
+        "uuid": "test-groups",
       },
     ]
   }

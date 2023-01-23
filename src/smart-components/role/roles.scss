@@ -1,12 +1,12 @@
 .rbac-c-roles {
   .pf-c-dropdown button { // make button emulate link styling in kebab
-     --pf-c-button--disabled--BackgroundColor: transparent;
-     --pf-c-button--m-primary--BackgroundColor: transparent;
-     --pf-c-button--after--BorderColor: transparent;
-     --pf-c-button--hover--after--BorderWidth: 0;
-   }
+    --pf-c-button--disabled--BackgroundColor: transparent;
+    --pf-c-button--m-primary--BackgroundColor: transparent;
+    --pf-c-button--after--BorderColor: transparent;
+    --pf-c-button--hover--after--BorderWidth: 0;
+  }
 
-   .pf-c-table tbody tr.rbac-c-role-default .pf-c-table__check label input:hover {
+  .pf-c-table tbody tr.rbac-c-role-default .pf-c-table__check label input:hover {
     cursor: not-allowed;
-   }
+  }
  }

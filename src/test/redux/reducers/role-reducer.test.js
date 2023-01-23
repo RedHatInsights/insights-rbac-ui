@@ -1,7 +1,7 @@
 import roleReducer, { rolesInitialState } from '../../../redux/reducers/role-reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_ROLES, FETCH_ROLE, FETCH_ROLE_FOR_USER, FETCH_ROLES_FOR_WIZARD } from '../../../redux/action-types';
+import { FETCH_ROLES, FETCH_ROLE, FETCH_ROLE_FOR_USER, FETCH_ROLES_FOR_WIZARD, FETCH_ROLE_DETAILS } from '../../../redux/action-types';
 
 describe('Role reducer', () => {
   let initialState;
@@ -56,5 +56,18 @@ describe('Role reducer', () => {
     const payload = { data: 'Foo' };
     const expectedState = { ...initialState, isWizardLoading: false, rolesForWizard: payload };
     expect(reducer(initialState, { type: `${FETCH_ROLES_FOR_WIZARD}_FULFILLED`, payload })).toEqual(expectedState);
+  });
+
+  it('should set loading state when loading role details', () => {
+    const initialModified = { ...initialState, roles: { ...initialState.roles, data: [{ uuid: '123', isLoading: true }] } };
+    const expectedState = { ...initialState, roles: { ...initialState.roles, data: [{ uuid: '123', isLoading: true }] } };
+    expect(reducer(initialModified, { type: `${FETCH_ROLE_DETAILS}_PENDING`, meta: { uuid: '123' } })).toEqual(expectedState);
+  });
+
+  it('should set role details data and set loading state to false', () => {
+    const initialModified = { ...initialState, roles: { ...initialState.roles, data: [{ uuid: '123' }] } };
+    const payload = { uuid: '123', access: [] };
+    const expectedState = { ...initialState, roles: { ...initialState.roles, data: [{ uuid: '123', isLoading: false, access: [] }] } };
+    expect(reducer(initialModified, { type: `${FETCH_ROLE_DETAILS}_FULFILLED`, payload })).toEqual(expectedState);
   });
 });
