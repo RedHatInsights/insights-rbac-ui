@@ -10,7 +10,7 @@
     "@babel/compat-data": "^7.17.7",
     "@babel/runtime": "^7.17.7",
     "@babel/types": "^7.17.0",
-    "@data-driven-forms/pf4-component-mapper": "^3.16.9",
+    "@data-driven-forms/pf4-component-mapper": "^3.19.3",
     "@data-driven-forms/react-form-renderer": "^3.16.9",
     "@formatjs/cli": "5.0.6",
     "@patternfly/quickstarts": "^2.3.1",
