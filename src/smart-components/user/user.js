@@ -31,7 +31,7 @@ const UserDescription = ({ user }) => {
 
   return (
     <Fragment>
-      {user?.orgAdmin ? (
+      {user?.is_org_admin ? (
         <Fragment>
           <span key="yes">
             {intl.formatMessage(messages.orgAdministrator) + ': '}
