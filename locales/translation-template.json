@@ -599,9 +599,17 @@
     "defaultMessage": "There are no roles in this group",
     "description": "No roles in a group message"
   },
+  "noGroups": {
+    "defaultMessage": "No groups",
+    "description": "No groups label"
+  },
   "noMatchingItemsFound": {
     "defaultMessage": "No matching {items} found",
     "description": "No matching items found message"
+  },
+  "noPermissions": {
+    "defaultMessage": "No permissions",
+    "description": "No permissions label"
   },
   "noPermissionsForInsights": {
     "defaultMessage": "You do not have individual permissions for Insights.",
@@ -940,7 +948,7 @@
     "description": "Role name taken error title"
   },
   "roleWilBeRemovedWithPermissions": {
-    "defaultMessage": "The <strong>{name}</strong> role will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
+    "defaultMessage": "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
     "description": "Role will be removed with permissions message"
   },
   "roleWithNameExists": {

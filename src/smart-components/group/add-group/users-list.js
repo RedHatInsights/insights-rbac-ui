@@ -1,16 +1,14 @@
-import React, { useEffect, Fragment, useState, useContext, useRef } from 'react';
-import { connect, useSelector } from 'react-redux';
+import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
+import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { Link, useHistory } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
-  defaultCompactSettings,
   defaultSettings,
   defaultAdminSettings,
   syncDefaultPaginationWithUrl,
@@ -22,56 +20,52 @@ import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
-const createRows =
-  (userLinks) =>
-  (data, _expanded, checkedRows = []) => {
-    const intl = useIntl();
-    return data
-      ? data.reduce(
-          (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
-            ...acc,
-            {
-              uuid: username,
-              cells: [
-                isOrgAdmin ? (
-                  <Fragment>
-                    <span>
-                      <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                      <span key="yes">{intl.formatMessage(messages.yes)}</span>
-                    </span>
-                  </Fragment>
-                ) : (
-                  <Fragment>
-                    <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                    <span key="no">{intl.formatMessage(messages.no)}</span>
-                  </Fragment>
-                ),
-                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
-                email.toString(),
-                firstName.toString(),
-                lastName.toString(),
-                {
-                  title: (
-                    <Label key="status" color={isActive && 'green'}>
-                      {intl.formatMessage(isActive ? messages.active : messages.inactive)}
-                    </Label>
-                  ),
-                  props: {
-                    'data-is-active': isActive,
-                  },
-                },
-              ],
-              selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === username)),
-            },
-          ],
-          []
-        )
-      : [];
-  };
 
-const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, pagination, selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+const createRows = (userLinks, data, checkedRows = [], intl) =>
+  data?.reduce?.(
+    (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+      ...acc,
+      {
+        uuid: username,
+        cells: [
+          isOrgAdmin ? (
+            <Fragment>
+              <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+              <span key="yes">{intl.formatMessage(messages.yes)}</span>
+            </Fragment>
+          ) : (
+            <Fragment>
+              <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+              <span key="no">{intl.formatMessage(messages.no)}</span>
+            </Fragment>
+          ),
+          { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
+          email,
+          firstName,
+          lastName,
+          {
+            title: (
+              <Label key="status" color={isActive ? 'green' : 'grey'}>
+                {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+              </Label>
+            ),
+            props: {
+              'data-is-active': isActive,
+            },
+          },
+        ],
+        selected: Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)),
+      },
+    ],
+    []
+  );
+
+const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+  const intl = useIntl();
+  const history = useHistory();
+  const dispatch = useDispatch();
   const { orgAdmin } = useContext(PermissionsContext);
-  // user for text filter to focus
+  // use for text filter to focus
   const innerRef = useRef(null);
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
     limit: inModal ? users.meta.limit : users.pagination.limit || (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
@@ -79,9 +73,40 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     count: inModal ? users.meta.count : users.pagination.count,
     redirected: !inModal && users.pagination.redirected,
   }));
-  const intl = useIntl();
-  const history = useHistory();
 
+  const users = useSelector(({ userReducer: { users } }) => users?.data?.map?.((data) => ({ ...data, uuid: data.username })));
+  const pagination = useSelector(
+    ({
+      userReducer: {
+        users: { meta },
+      },
+    }) => meta
+  );
+  const isLoading = useSelector(({ userReducer: { isUserDataLoading } }) => isUserDataLoading);
+
+  const stateFilters = useSelector(
+    ({
+      userReducer: {
+        users: { filters },
+      },
+    }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
+  );
+
+  const fetchData = useCallback(
+    (apiProps) => {
+      return dispatch(fetchUsers(apiProps));
+    },
+    [dispatch]
+  );
+
+  const fetchUsersFilters = useCallback(
+    (filters) => {
+      return dispatch(updateUsersFilters(filters));
+    },
+    [dispatch]
+  );
+
+  const rows = createRows(userLinks, users, selectedUsers, intl);
   const columns = [
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
     { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
@@ -90,14 +115,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     { title: intl.formatMessage(messages.lastName), transforms: [nowrap] },
     { title: intl.formatMessage(messages.status), transforms: [nowrap] },
   ];
-
-  let stateFilters = useSelector(
-    ({
-      userReducer: {
-        users: { filters },
-      },
-    }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
-  );
+  const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
 
   const [filters, setFilters] = useState(
     inModal
@@ -117,7 +135,7 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
     const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
     const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
     setFilters(newFilters);
-    fetchUsers({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
+    fetchData({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
   }, []);
 
   useEffect(() => {
@@ -136,23 +154,30 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   };
 
   const updateFilters = (payload) => {
-    inModal || updateUsersFilters(payload);
+    inModal || fetchUsersFilters(payload);
     setFilters({ username: '', ...payload });
   };
 
   return (
-    <TableToolbarViewOld
-      columns={columns}
+    <TableToolbarView
+      isCompact
       isSelectable
-      isCompact={true}
       borders={false}
-      createRows={createRows(userLinks)}
+      columns={columns}
+      rows={rows}
+      sortBy={sortByState}
+      onSort={(e, index, direction) => {
+        const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+        setSortByState({ index, direction });
+        fetchData({ ...pagination, filters, inModal, orderBy });
+      }}
       data={users}
       ouiaId="users-table"
       fetchData={(config) => {
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
-        fetchUsers({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal }).then(() => {
+
+        fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal }).then(() => {
           innerRef?.current?.focus();
         });
         inModal || applyPaginationToUrl(history, limit, offset);
@@ -170,18 +195,9 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
       pagination={pagination}
       checkedRows={selectedUsers}
       setCheckedItems={setCheckedItems}
-      sortBy={{
-        index: 1,
-        direction: 'asc',
-      }}
       rowWrapper={UsersRow}
       titlePlural={intl.formatMessage(messages.users).toLowerCase()}
       titleSingular={intl.formatMessage(messages.user)}
-      noDataDescription={[
-        intl.formatMessage(messages.filterMatchesNoItems, { items: intl.formatMessage(messages.users).toLowerCase() }),
-        intl.formatMessage(messages.checkFilterBeginning),
-      ]}
-      noData={users.length === 0 && !filters.username && !filters.email}
       filters={[
         {
           key: 'username',
@@ -212,54 +228,15 @@ const UsersList = ({ users, fetchUsers, updateUsersFilters, isLoading, paginatio
   );
 };
 
-const mapStateToProps = ({ userReducer: { users, isUserDataLoading } }) => {
-  return {
-    users: users.data && users.data.map((data) => ({ ...data, uuid: data.username })),
-    pagination: users.meta,
-    isLoading: isUserDataLoading,
-  };
-};
-
-const mapDispatchToProps = (dispatch) => {
-  return {
-    fetchUsers: (apiProps = defaultSettings) => {
-      return dispatch(fetchUsers(apiProps));
-    },
-    updateUsersFilters: (filters) => {
-      dispatch(updateUsersFilters(filters));
-    },
-    addNotification: (...props) => dispatch(addNotification(...props)),
-  };
-};
-
-const mergeProps = (propsFromState, propsFromDispatch, ownProps) => {
-  return {
-    ...ownProps,
-    ...propsFromState,
-    ...propsFromDispatch,
-    fetchUsers: (apiProps) => {
-      return propsFromDispatch.fetchUsers(apiProps ? apiProps : defaultCompactSettings);
-    },
-  };
-};
-
 UsersList.propTypes = {
   history: PropTypes.shape({
     goBack: PropTypes.func.isRequired,
     push: PropTypes.func.isRequired,
   }),
   users: PropTypes.array,
-  isLoading: PropTypes.bool,
   searchFilter: PropTypes.string,
-  fetchUsers: PropTypes.func.isRequired,
-  updateUsersFilters: PropTypes.func.isRequired,
   setSelectedUsers: PropTypes.func.isRequired,
   selectedUsers: PropTypes.array,
-  pagination: PropTypes.shape({
-    limit: PropTypes.number,
-    offset: PropTypes.number,
-    count: PropTypes.number,
-  }),
   userLinks: PropTypes.bool,
   props: PropTypes.object,
   inModal: PropTypes.bool,
@@ -273,5 +250,4 @@ UsersList.defaultProps = {
   inModal: false,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(UsersList);
-export const CompactUsersList = connect(mapStateToProps, mapDispatchToProps, mergeProps)(UsersList);
+export default UsersList;

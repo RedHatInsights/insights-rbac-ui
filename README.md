@@ -24,3 +24,4 @@ In order to test current Quickstarts tutorials iteration, you must enable the te
 You'll be able to see the buttons for testing both the quickstart tutorial and the catalog page.
 Once the flag is enabled, you can access the catalog directly via its route:
 ```.../settings/rbac/quickstarts-test```
+

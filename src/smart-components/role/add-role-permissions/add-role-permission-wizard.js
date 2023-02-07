@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext } from 'react';
+import React, { useState, useEffect, useRef, createContext, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
 import AddRolePermissionSuccess from './add-role-permission-success';
@@ -34,7 +34,6 @@ const AddRolePermissionWizard = ({ role }) => {
   const intl = useIntl();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
-  const [schema, setSchema] = useState({});
   const history = useHistory();
   const dispatch = useDispatch();
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -47,10 +46,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-
-  useEffect(() => {
-    setSchema(schemaBuilder(container.current));
-  }, []);
+  const schema = useMemo(() => schemaBuilder(container.current), []);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
