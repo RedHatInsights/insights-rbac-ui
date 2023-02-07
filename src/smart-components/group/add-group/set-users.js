@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { Card, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { CompactUsersList } from './users-list';
+import UsersList from './users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -36,7 +36,7 @@ const SetUsers = (props) => {
           <StackItem>
             <FormGroup fieldId="select-user">
               <Card>
-                <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
+                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
               </Card>
             </FormGroup>
           </StackItem>

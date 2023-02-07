@@ -8,7 +8,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../smart-components/user/users';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
-import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 import * as UserHelper from '../../../helpers/user/user-helper';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -56,7 +56,7 @@ describe('<Users />', () => {
         </Provider>
       );
     });
-    expect(wrapper.find(TableToolbarViewOld)).toHaveLength(1);
+    expect(wrapper.find(TableToolbarView)).toHaveLength(1);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
       filters: {

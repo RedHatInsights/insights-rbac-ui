@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
-import { CompactUsersList } from '../add-group/users-list';
+import UsersList from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -74,7 +74,7 @@ const AddGroupMembers = ({
           </TextContent>
         </StackItem>
         <StackItem>
-          <CompactUsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
+          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
         </StackItem>
       </Stack>
     </Modal>
@@ -95,7 +95,7 @@ AddGroupMembers.propTypes = {
   }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
-  fetchData: PropTypes.func.isRequired,
+  fetchData: PropTypes.func,
   fetchMembersForGroup: PropTypes.func.isRequired,
   inputValue: PropTypes.string,
   users: PropTypes.array,
