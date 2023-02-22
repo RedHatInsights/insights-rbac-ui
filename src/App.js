@@ -2,10 +2,10 @@ import React, { useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
-import Main from '@redhat-cloud-services/frontend-components/Main';
-import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 import PermissionsContext from './utilities/permissions-context';
+import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
 import { updateGroupsFilters } from './redux/actions/group-actions';
 import { updateRolesFilters } from './redux/actions/role-actions';
 import { updateUsersFilters } from './redux/actions/user-actions';
@@ -17,13 +17,13 @@ import useUserData from './hooks/useUserData';
 import './App.scss';
 
 const App = () => {
+  const chrome = useChrome();
   const dispatch = useDispatch();
   const userData = useUserData();
   const history = useHistory();
 
   useEffect(() => {
-    insights.chrome.init();
-    const unregister = insights.chrome.on('APP_NAVIGATION', (event) => {
+    const unregister = chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
         history.push(`/${event.navId}`);
       }
@@ -47,9 +47,9 @@ const App = () => {
   return (
     <PermissionsContext.Provider value={{ ...userData }}>
       <ErroReducerCatcher>
-        <Main style={{ marginLeft: 0, padding: 0 }}>
+        <section style={{ marginLeft: 0, padding: 0 }}>
           <Routes />
-        </Main>
+        </section>
       </ErroReducerCatcher>
     </PermissionsContext.Provider>
   );
