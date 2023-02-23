@@ -9,6 +9,7 @@ export async function fetchGroups({
   nameMatch,
   scope,
   username,
+  excludeUsername,
   filters = {},
   uuid,
   roleNames,
@@ -28,6 +29,7 @@ export async function fetchGroups({
       nameMatch,
       scope,
       username,
+      excludeUsername,
       uuid,
       roleNames,
       roleDiscriminator,
@@ -138,4 +140,8 @@ export async function addRolesToGroup(groupId, roles) {
 
 export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
   return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
+}
+
+export async function fetchPrincipalGroups(username) {
+  return await groupApi.listGroups(undefined, undefined, undefined, undefined, 'principal', username, undefined);
 }
