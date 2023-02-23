@@ -237,20 +237,40 @@ export default defineMessages({
     description: 'Add group members success notification title',
     defaultMessage: 'Success adding members to group',
   },
+  addGroupMemberSuccessTitle: {
+    id: 'addGroupMemberSuccessTitle',
+    description: 'Add group member success notification title',
+    defaultMessage: 'Success adding member to group',
+  },
   addGroupMembersSuccessDescription: {
     id: 'addGroupMembersSuccessDescription',
     description: 'Add group members success notification description',
     defaultMessage: 'The members were successfully added to the group.',
+  },
+  addGroupMemberSuccessDescription: {
+    id: 'addGroupMemberSuccessDescription',
+    description: 'Add group member success notification description',
+    defaultMessage: 'The member was successfully added to the group.',
   },
   addGroupMembersErrorTitle: {
     id: 'addGroupMembersErrorTitle',
     description: 'Add group members error notification title',
     defaultMessage: 'Failed adding members to group',
   },
+  addGroupMemberErrorTitle: {
+    id: 'addGroupMemberErrorTitle',
+    description: 'Add group member error notification title',
+    defaultMessage: 'Failed adding member to group',
+  },
   addGroupMembersErrorDescription: {
     id: 'addGroupMembersErrorDescription',
     description: 'Add group members error notification description',
     defaultMessage: 'The members were not added successfully.',
+  },
+  addGroupMemberErrorDescription: {
+    id: 'addGroupMemberErrorDescription',
+    description: 'Add group member error notification description',
+    defaultMessage: 'The member was not added successfully.',
   },
   removeGroupMembersSuccessTitle: {
     id: 'removeGroupMembersSuccessTitle',
@@ -607,6 +627,16 @@ export default defineMessages({
     description: 'Create group wizard title',
     defaultMessage: 'Create group',
   },
+  addUserToGroup: {
+    id: 'addUserToGroup',
+    description: 'Add user to a group wizard title',
+    defaultMessage: 'Add user to a group',
+  },
+  addSpecificUserToGroup: {
+    id: 'addSpecificUserToGroup',
+    description: 'Add user to a group wizard title',
+    defaultMessage: 'Add {user} to a group',
+  },
   nameAndDescription: {
     id: 'nameAndDescription',
     description: 'Name and description wizard step title',
@@ -747,15 +777,25 @@ export default defineMessages({
     description: 'Add role to group label',
     defaultMessage: 'Add role to group',
   },
+  addRoleToThisGroup: {
+    id: 'addRoleToThisGroup',
+    description: 'Add role to this group label',
+    defaultMessage: 'Add role to this group',
+  },
   addRolesToGroup: {
     id: 'addRolesToGroup',
     description: 'Add roles to group label',
-    defaultMessage: 'Add roles to group',
+    defaultMessage: 'Add roles to the {name} group',
+  },
+  onlyNonUserGroupsVisible: {
+    id: 'onlyNonUserGroupsVisible',
+    description: 'Message warning that only groups that the user is not a member of has been filtered',
+    defaultMessage: 'This group list has been filtered to only show groups that the user is not currently a member of.',
   },
   onlyGroupRolesVisible: {
     id: 'onlyGroupRolesVisible',
     description: 'Message warning that only roles in given role has been filtered',
-    defaultMessage: 'This role list has been filtered to only show roles that are not currently in <b>{name}</b>',
+    defaultMessage: 'This role list has been filtered to only show roles that are not currently in your group.',
   },
   defaultAccessGroupEditWarning: {
     id: 'defaultAccessGroupEditWarning',
