@@ -596,7 +596,8 @@ exports[`<Roles /> should render correctly expanded 1`] = `
 
 exports[`<Roles /> should render correctly in loading state 1`] = `
 <ListLoader
-  items={5}
+  isCompact={false}
+  items={20}
 />
 `;
 

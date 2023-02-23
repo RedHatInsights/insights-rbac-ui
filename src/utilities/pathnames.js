@@ -45,7 +45,7 @@ const pathnames = {
     title: 'Group roles',
   },
   'group-add-roles': {
-    path: '/groups/detail/:uuid/roles/add_roles',
+    path: '/groups/detail/:uuid/roles/add-roles',
     title: 'Add group roles',
   },
   'group-detail-members': {
