@@ -205,7 +205,7 @@ const Groups = () => {
         </TopToolbar>
       </StackItem>
       <StackItem>
-        <Section type="content" id={'tab-groups'}>
+        <Section type="content" id="tab-groups">
           <TableToolbarViewOld
             data={groups.map((group) =>
               group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group

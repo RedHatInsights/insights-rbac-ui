@@ -45,7 +45,7 @@ const pathnames = {
     title: 'Group roles',
   },
   'group-add-roles': {
-    path: '/groups/detail/:uuid/roles/add_roles',
+    path: '/groups/detail/:uuid/roles/add-roles',
     title: 'Add group roles',
   },
   'group-detail-members': {
@@ -53,7 +53,7 @@ const pathnames = {
     title: 'Group members',
   },
   'group-add-members': {
-    path: '/groups/detail/:uuid/members/add_members',
+    path: '/groups/detail/:uuid/members/add-members',
     title: 'Add group members',
   },
   'group-detail-role-detail': {
@@ -107,6 +107,14 @@ const pathnames = {
   'user-detail': {
     path: '/users/detail/:username',
     title: 'User',
+  },
+  'add-user-to-group': {
+    path: '/users/detail/:username/add-to-group',
+    title: 'Add user to a group',
+  },
+  'user-add-group-roles': {
+    path: '/users/detail/:username/add-group-roles/:uuid',
+    title: 'Add group roles',
   },
   'my-user-access': {
     path: '/my-user-access',

@@ -1,5 +1,11 @@
-.rbac__user-label-skeleton {
+.rbac-c-user__label-skeleton {
   width: 50px;
+}
+
+.rbac-c-user-roles {
+  .pf-c-dropdown {
+    display: block;
+  }
 }
 
 // fix for cropped placeholder: https://github.com/patternfly/patternfly/issues/3449
@@ -7,4 +13,10 @@
   input#filter-by-username.ins-c-conditional-filter[type="text"] {
     width: 230px;
   }
-} 
+
+  .rbac-c-user-roles {
+    .pf-c-dropdown {
+      display: none;
+    }
+  }
+}

@@ -121,6 +121,7 @@ export const resetSelectedGroup = () => ({
 export const addMembersToGroup = (groupId, members) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
+  const singleMember = members.length > 1;
   return {
     type: ActionTypes.ADD_MEMBERS_TO_GROUP,
     payload: GroupHelper.addPrincipalsToGroup(groupId, members),
@@ -128,15 +129,15 @@ export const addMembersToGroup = (groupId, members) => {
       notifications: {
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.addGroupMembersSuccessTitle),
+          title: intl.formatMessage(singleMember ? messages.addGroupMembersSuccessTitle : messages.addGroupMemberSuccessTitle),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.addGroupMembersSuccessDescription),
+          description: intl.formatMessage(singleMember ? messages.addGroupMembersSuccessDescription : messages.addGroupMemberSuccessDescription),
         },
         rejected: {
           variant: 'danger',
-          title: intl.formatMessage(messages.addGroupMembersErrorTitle),
+          title: intl.formatMessage(singleMember ? messages.addGroupMemberErrorTitle : messages.addGroupMembersErrorTitle),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.addGroupMembersErrorDescription),
+          description: intl.formatMessage(singleMember ? messages.addGroupMemberErrorDescription : messages.addGroupMembersErrorDescription),
         },
       },
     },

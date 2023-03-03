@@ -126,7 +126,7 @@ export const TableToolbarView = ({
           textFilterRef={textFilterRef}
         />
         {isLoading ? (
-          <ListLoader />
+          <ListLoader isCompact={isCompact} items={pagination?.limit} />
         ) : (
           <Table
             canSelectAll={false}

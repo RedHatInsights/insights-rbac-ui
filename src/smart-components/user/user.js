@@ -1,112 +1,78 @@
-import React, { useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
-import { connect, useSelector } from 'react-redux';
-import { Link, useHistory, withRouter } from 'react-router-dom';
+import React, { useEffect, useState, useContext, Fragment } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useHistory, Route, Switch, useParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
+import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import debounce from 'lodash/debounce';
-import { Button, Label, Stack, StackItem } from '@patternfly/react-core';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
-import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { fetchUsers } from '../../redux/actions/user-actions';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { defaultSettings } from '../../helpers/shared/pagination';
-import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
-import { Fragment } from 'react';
+import AddGroupRoles from '../group/role/add-group-roles';
+import AddUserToGroup from './add-user-to-group/add-user-to-group';
+import Breadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
-import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
-import { useIntl } from 'react-intl';
+import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
+import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
+import { fetchUsers } from '../../redux/actions/user-actions';
+import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
+import { addRolesToGroup } from '../../redux/actions/group-actions';
+import { defaultSettings } from '../../helpers/shared/pagination';
 import './user.scss';
 
 let debouncedFetch;
 
-const UserDescription = ({ user }) => {
-  const intl = useIntl();
-
-  return (
-    <Fragment>
-      {user?.is_org_admin ? (
-        <Fragment>
-          <span key="yes">
-            {intl.formatMessage(messages.orgAdministrator) + ': '}
-            <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
-            {intl.formatMessage(messages.yes)}
-          </span>
-        </Fragment>
-      ) : (
-        <Fragment>
-          <span key="no">
-            {intl.formatMessage(messages.orgAdministrator) + ': '}
-            <CloseIcon key="no-icon" className="pf-u-mx-sm" />
-            {intl.formatMessage(messages.no)}
-          </span>
-        </Fragment>
-      )}
-      {user?.email && (
-        <TextContent className="rbac-page-header__description">
-          {typeof user?.email === 'string' ? (
-            <Text component={TextVariants.p}>
-              {intl.formatMessage(messages.email)}: {user?.email}
-            </Text>
-          ) : (
-            user?.email
-          )}
-        </TextContent>
-      )}
-      {user?.username && (
-        <TextContent className="rbac-page-header__description">
-          {typeof user?.username === 'string' ? (
-            <Text component={TextVariants.p}>
-              {intl.formatMessage(messages.username)}: {user?.username}
-            </Text>
-          ) : (
-            user?.username
-          )}
-        </TextContent>
-      )}
-    </Fragment>
-  );
-};
-UserDescription.propTypes = {
-  user: PropTypes.object,
-};
-
-const User = ({
-  match: {
-    params: { username },
+const selector = ({
+  roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
+  userReducer: {
+    users: { data },
+    isUserDataLoading: isLoadingUsers,
   },
-  fetchRoles,
-  fetchRoleForUser,
-  fetchUsers,
+}) => ({
   roles,
-  isLoading,
+  isLoadingRoles,
   rolesWithAccess,
-  user,
-}) => {
-  const intl = useIntl();
-  const [filter, setFilter] = useState('');
-  const [expanded, setExpanded] = useState({});
+  users: data,
+  isLoadingUsers,
+  userExists: error !== BAD_UUID,
+});
 
-  const userExists = useSelector((state) => {
-    const {
-      roleReducer: { error },
-    } = state;
-    return error !== BAD_UUID;
-  });
+const User = () => {
+  const intl = useIntl();
+  const history = useHistory();
+  const dispatch = useDispatch();
+  const [filter, setFilter] = useState('');
+  const [user, setUser] = useState();
+  const [expanded, setExpanded] = useState({});
+  const [selectedAddRoles, setSelectedAddRoles] = useState([]);
+
+  const { roles, isLoadingRoles, rolesWithAccess, users, isLoadingUsers, userExists } = useSelector(selector);
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const { username } = useParams();
+  const isAdmin = orgAdmin || userAccessAdministrator;
+
+  const fetchRolesData = (apiProps) => dispatch(fetchRoles(apiProps));
 
   useEffect(() => {
-    fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true });
     insights.chrome.appObjectId(username);
+    dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true }));
+    fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username });
+    debouncedFetch = debounce(
+      (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
+      500
+    );
     return () => insights.chrome.appObjectId(undefined);
   }, []);
 
-  const history = useHistory();
+  useEffect(() => {
+    setUser(users?.find((user) => user.username === username));
+  }, [users]);
 
   const columns = [
     intl.formatMessage(messages.roles),
@@ -123,7 +89,7 @@ const User = ({
     },
   ];
 
-  const createRows = (data) =>
+  const createRows = (data, username) =>
     data
       ? data.reduce(
           (acc, { uuid, display_name, groups_in = [], modified, accessCount }, i) => [
@@ -144,18 +110,37 @@ const User = ({
               cells: [
                 {
                   props: { colSpan: 4, className: 'pf-m-no-padding' },
-                  title: (
-                    <Table
-                      ouiaId="groups-in-role-nested-table"
-                      aria-label="Simple Table"
-                      variant={TableVariant.compact}
-                      cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description)]}
-                      rows={groups_in.map((g) => ({ cells: [{ title: <Link to={`/groups/detail/${g.uuid}`}>{g.name}</Link> }, g.description] }))}
-                    >
-                      <TableHeader />
-                      <TableBody />
-                    </Table>
-                  ),
+                  title:
+                    groups_in?.length > 0 ? (
+                      <Table
+                        ouiaId="groups-in-role-nested-table"
+                        aria-label="Simple Table"
+                        variant={TableVariant.compact}
+                        cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description), ' ']}
+                        rows={groups_in.map((g) => ({
+                          cells: [
+                            { title: <Link to={`/groups/detail/${g.uuid}`}>{g.name}</Link> },
+                            g.description,
+                            {
+                              title: (
+                                <Link
+                                  to={pathnames['user-add-group-roles'].path.replace(':username', username).replace(':uuid', g.uuid)}
+                                  state={{ name: g.name }}
+                                >
+                                  {intl.formatMessage(messages.addRoleToThisGroup)}
+                                </Link>
+                              ),
+                              props: { className: 'pf-u-text-align-right' },
+                            },
+                          ],
+                        }))}
+                      >
+                        <TableHeader />
+                        <TableBody />
+                      </Table>
+                    ) : (
+                      <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+                    ),
                 },
               ],
             },
@@ -168,22 +153,26 @@ const User = ({
                   props: { colSpan: 4, className: 'pf-m-no-padding' },
                   title:
                     rolesWithAccess && rolesWithAccess[uuid] ? (
-                      <Table
-                        aria-label="Simple Table"
-                        ouiaId="permissions-in-role-nested-table"
-                        variant={TableVariant.compact}
-                        cells={[
-                          intl.formatMessage(messages.application),
-                          intl.formatMessage(messages.resourceType),
-                          intl.formatMessage(messages.operation),
-                        ]}
-                        rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
-                      >
-                        <TableHeader />
-                        <TableBody />
-                      </Table>
+                      rolesWithAccess[uuid].access?.length > 0 ? (
+                        <Table
+                          aria-label="Simple Table"
+                          ouiaId="permissions-in-role-nested-table"
+                          variant={TableVariant.compact}
+                          cells={[
+                            intl.formatMessage(messages.application),
+                            intl.formatMessage(messages.resourceType),
+                            intl.formatMessage(messages.operation),
+                          ]}
+                          rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
+                        >
+                          <TableHeader />
+                          <TableBody />
+                        </Table>
+                      ) : (
+                        <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+                      )
                     ) : (
-                      <ListLoader />
+                      <ListLoader items={3} isCompact />
                     ),
                 },
               ],
@@ -193,29 +182,59 @@ const User = ({
         )
       : [];
 
-  useEffect(() => {
-    fetchRoles({ limit: 20, offset: 0, addFields: ['groups_in'], username });
-    debouncedFetch = debounce(
-      (limit, offset, name, addFields, username) => fetchRoles({ limit, offset, displayName: name, addFields, username }),
-      500
-    );
-  }, []);
-
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
     if (!isOpen) {
       setExpanded({ ...expanded, [rowData.uuid]: colIndex });
       // Permissions
       if (colIndex === 2) {
-        fetchRoleForUser(rowData.uuid);
+        dispatch(fetchRoleForUser(rowData.uuid));
       }
     } else {
       setExpanded({ ...expanded, [rowData.uuid]: -1 });
     }
   };
 
-  const breadcrumbsList = () => [
+  const breadcrumbsList = [
     { title: intl.formatMessage(messages.users), to: '/users' },
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
+  ];
+
+  const routes = () => (
+    <Switch>
+      <Route path={pathnames['add-user-to-group'].path.replace(':username', username)}>
+        <AddUserToGroup username={username} />
+      </Route>
+      <Route
+        path={pathnames['user-add-group-roles'].path.replace(':username', username)}
+        render={(args) => (
+          <AddGroupRoles
+            selectedRoles={selectedAddRoles}
+            setSelectedRoles={setSelectedAddRoles}
+            closeUrl={`/users/detail/${username}`}
+            addRolesToGroup={(groupId, roles) => dispatch(addRolesToGroup(groupId, roles))}
+            {...args}
+          />
+        )}
+      />
+    </Switch>
+  );
+
+  const toolbarButtons = () => [
+    ...(isAdmin
+      ? [
+          <Link to={pathnames['add-user-to-group'].path.replace(':username', username)} key="add-user-to-group" className="rbac-m-hide-on-sm">
+            <Button ouiaId="add-user-to-group-button" variant="primary" aria-label="Add user to a group">
+              {intl.formatMessage(messages.addUserToGroup)}
+            </Button>
+          </Link>,
+          {
+            label: intl.formatMessage(messages.addUserToGroup),
+            onClick: () => {
+              history.push(pathnames['add-user-to-group'].path);
+            },
+          },
+        ]
+      : []),
   ];
 
   return (
@@ -223,29 +242,43 @@ const User = ({
       {userExists ? (
         <Stack>
           <StackItem>
-            <TopToolbar paddingBottm={false} breadcrumbs={breadcrumbsList()}>
+            <TopToolbar breadcrumbs={breadcrumbsList}>
               <TopToolbarTitle
                 title={username}
                 renderTitleTag={() =>
-                  user && !isLoading ? (
-                    <Label color={user?.is_active && 'green'}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
+                  isLoadingUsers ? (
+                    <Skeleton size="xs" className="rbac-c-user__label-skeleton"></Skeleton>
                   ) : (
-                    <Skeleton size="xs" className="rbac__user-label-skeleton"></Skeleton>
+                    <Label color={user?.is_active && 'green'}>{intl.formatMessage(user?.is_active ? messages.active : messages.inactive)}</Label>
                   )
                 }
               >
-                <UserDescription user={user} />
+                {!isLoadingUsers && user ? (
+                  <Fragment>
+                    <TextContent>
+                      {`${intl.formatMessage(messages.orgAdministrator)}: `}
+                      {user?.is_org_admin ? <CheckIcon key="yes-icon" className="pf-u-mx-sm" /> : <CloseIcon key="no-icon" className="pf-u-mx-sm" />}
+                      {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
+                    </TextContent>
+                    {user?.email && <Text component={TextVariants.p}>{`${intl.formatMessage(messages.email)}: ${user.email}`}</Text>}
+                    {user?.username && (
+                      <TextContent>
+                        <Text component={TextVariants.p}>{`${intl.formatMessage(messages.username)}: ${user.username}`}</Text>
+                      </TextContent>
+                    )}
+                  </Fragment>
+                ) : null}
               </TopToolbarTitle>
             </TopToolbar>
           </StackItem>
           <StackItem>
-            <Section type="content" id={'user-detail'}>
-              <TableToolbarViewOld
+            <Section type="content" className="rbac-c-user-roles">
+              <TableToolbarView
                 columns={columns}
-                isCompact={false}
-                isExpandable={true}
+                isExpandable
                 onExpand={onExpand}
-                createRows={createRows}
+                rows={createRows(roles.data, username)}
+                routes={routes}
                 data={roles.data}
                 filterValue={filter}
                 ouiaId="user-details-table"
@@ -253,7 +286,8 @@ const User = ({
                   debouncedFetch(limit, offset, name, ['groups_in'], username);
                 }}
                 setFilterValue={({ name }) => setFilter(name)}
-                isLoading={isLoading}
+                isLoading={isLoadingRoles}
+                toolbarButtons={toolbarButtons}
                 pagination={roles.meta}
                 filterPlaceholder={intl.formatMessage(messages.roleName).toLowerCase()}
                 titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
@@ -266,7 +300,7 @@ const User = ({
       ) : (
         <Fragment>
           <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
-            <RbacBreadcrumbs {...breadcrumbsList()} />
+            <Breadcrumbs {...breadcrumbsList} />
           </section>
           <EmptyWithAction
             title={intl.formatMessage(messages.userNotFound)}
@@ -290,39 +324,4 @@ const User = ({
   );
 };
 
-User.propTypes = {
-  match: PropTypes.object,
-  fetchRoles: PropTypes.func,
-  fetchRoleForUser: PropTypes.func,
-  fetchUsers: PropTypes.func,
-  roles: PropTypes.object,
-  isLoading: PropTypes.bool,
-  rolesWithAccess: PropTypes.object,
-  user: PropTypes.object,
-};
-
-const mapStateToProps = (
-  {
-    roleReducer: { roles, isLoading, rolesWithAccess },
-    userReducer: {
-      users: { data },
-    },
-  },
-  {
-    match: {
-      params: { username },
-    },
-  }
-) => ({
-  roles,
-  isLoading,
-  rolesWithAccess,
-  user: data && data.filter((user) => user.username === username)[0],
-});
-const mapDispatchToProps = (dispatch) => ({
-  fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
-  fetchRoleForUser: (uuid) => dispatch(fetchRoleForUser(uuid)),
-  fetchUsers: (apiProps) => dispatch(fetchUsers(apiProps)),
-});
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(User));
+export default User;

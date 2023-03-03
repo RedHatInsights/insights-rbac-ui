@@ -1,7 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render empty correctly 1`] = `
-<TableToolbarViewOld
+exports[`<GroupRoles /> should render empty correctly 1`] = `
+<TableToolbarView
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}
@@ -19,7 +19,6 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       },
     ]
   }
-  createRows={[Function]}
   data={Array []}
   emptyFilters={
     Object {
@@ -67,6 +66,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
   }
   routes={[Function]}
+  rows={Array []}
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   tableId="group-roles"
@@ -75,7 +75,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
   toolbarButtons={[Function]}
 >
   <Route
-    path="/groups/detail/:uuid/roles/add_roles"
+    path="/groups/detail/:uuid/roles/add-roles"
     render={[Function]}
   />
   <Toolbar
@@ -110,6 +110,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     }
     setCheckedItems={[Function]}
     setFilterValue={[Function]}
+    sortBy="undefined"
     tableId="group-roles"
     titleSingular="role"
     toolbarButtons={[Function]}
@@ -394,7 +395,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                     data-ouia-component-id="ConditionalFilter"
                                                     data-ouia-component-type="PF4/DropdownToggle"
                                                     data-ouia-safe="true"
-                                                    id="pf-dropdown-toggle-id-1"
+                                                    id="pf-dropdown-toggle-id-0"
                                                     type="button"
                                                   >
                                                     <span
@@ -476,7 +477,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                                                       data-ouia-component-id="ConditionalFilter"
                                                       data-ouia-component-type="PF4/DropdownToggle"
                                                       data-ouia-safe="true"
-                                                      id="pf-dropdown-toggle-id-1"
+                                                      id="pf-dropdown-toggle-id-0"
                                                       type="button"
                                                     >
                                                       <span
@@ -725,7 +726,7 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
                   Object {
                     "current": <div
                       class="pf-c-toolbar__expandable-content"
-                      id="ins-primary-data-toolbar-expandable-content-1"
+                      id="ins-primary-data-toolbar-expandable-content-0"
                     >
                       <div
                         class="pf-c-toolbar__group"
@@ -796,7 +797,8 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
     </PrimaryToolbar>
   </Toolbar>
   <ListLoader
-    items={5}
+    isCompact={false}
+    items={20}
   >
     <DataList
       aria-label="datalist-placeholder"
@@ -1140,6 +1142,996 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
             </DataListItemRow>
           </li>
         </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="5"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="6"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="7"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="8"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="9"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="10"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="11"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="12"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="13"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="14"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="15"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="16"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="17"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="18"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
+        <DataListItem
+          aria-labelledby="datalist-item-placeholder"
+          className=""
+          id=""
+          isExpanded={false}
+          key="19"
+        >
+          <li
+            aria-labelledby="datalist-item-placeholder"
+            className="pf-c-data-list__item"
+            id=""
+          >
+            <DataListItemRow
+              aria-label="datalist-item-placeholder-row"
+              key=".0"
+              rowid="datalist-item-placeholder"
+            >
+              <div
+                aria-label="datalist-item-placeholder-row"
+                className="pf-c-data-list__item-row"
+              >
+                <DataListItemCells
+                  dataListCells={
+                    Array [
+                      <DataListCell>
+                        <Skeleton
+                          size="lg"
+                        />
+                      </DataListCell>,
+                    ]
+                  }
+                  key=".0"
+                  rowid="datalist-item-placeholder"
+                >
+                  <div
+                    className="pf-c-data-list__item-content"
+                  >
+                    <DataListCell
+                      key="1"
+                    >
+                      <div
+                        className="pf-c-data-list__cell"
+                      >
+                        <Skeleton
+                          size="lg"
+                        >
+                          <Skeleton
+                            className="ins-c-skeleton ins-c-skeleton__lg"
+                          >
+                            <div
+                              className="pf-c-skeleton ins-c-skeleton ins-c-skeleton__lg"
+                            >
+                              <span
+                                className="pf-u-screen-reader"
+                              />
+                            </div>
+                          </Skeleton>
+                        </Skeleton>
+                      </div>
+                    </DataListCell>
+                  </div>
+                </DataListItemCells>
+              </div>
+            </DataListItemRow>
+          </li>
+        </DataListItem>
       </ul>
     </DataList>
   </ListLoader>
@@ -1202,5 +2194,5 @@ exports[`<GroupPrincipals /> should render empty correctly 1`] = `
       </GenerateId>
     </Toolbar>
   </TableToolbar>
-</TableToolbarViewOld>
+</TableToolbarView>
 `;

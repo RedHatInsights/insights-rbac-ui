@@ -1,23 +1,24 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
+import { mount } from 'enzyme';
 import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import { mount } from 'enzyme';
+import * as ReactRedux from 'react-redux';
 import { Provider } from 'react-redux';
+import * as GroupActions from '../../../redux/actions/group-actions';
 import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
 import DefaultGroupChange from '../../../smart-components/group/role/default-group-change-modal';
-
-import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS } from '../../../redux/action-types';
 
 describe('<AddGroupRoles />', () => {
-  const addRolesToGroup = jest.fn();
-  const addNotification = jest.fn();
+  const setSelectedRoles = jest.fn();
   const onDefaultGroupChanged = jest.fn();
+  const dispatch = jest.fn();
   let mockStore;
   let initialState;
   let initialProps;
 
+  const addRolesToGroupSpy = jest.spyOn(GroupActions, 'addRolesToGroup');
   const fetchAddRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchAddRolesForGroup');
   beforeEach(() => {
     initialState = {
@@ -39,13 +40,15 @@ describe('<AddGroupRoles />', () => {
     };
     initialProps = {
       selectedRoles: [{ uuid: 'dd1408bd-662a-49b7-b483-e3871bb6030b' }],
-      addRolesToGroup,
+      setSelectedRoles: setSelectedRoles,
+      addRolesToGroup: addRolesToGroupSpy,
     };
     mockStore = configureStore();
   });
 
   afterEach(() => {
     fetchAddRolesForGroupSpy.mockReset();
+    addRolesToGroupSpy.mockReset();
   });
 
   it('should render AddGroupRoles modal', async () => {
@@ -67,12 +70,12 @@ describe('<AddGroupRoles />', () => {
   });
 
   it('should cancel adding roles', async () => {
+    jest.spyOn(ReactRedux, 'useDispatch').mockImplementationOnce(() => dispatch);
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let initialProps = {
       selectedRoles: [],
-      addNotification,
     };
     await act(async () => {
       wrapper = mount(
@@ -85,16 +88,26 @@ describe('<AddGroupRoles />', () => {
     });
     wrapper.update();
     wrapper.find('button.pf-m-link').simulate('click');
-    expect(addNotification).toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          description: 'Adding roles to group was canceled by the user.',
+          dismissDelay: 8000,
+          title: 'Adding roles to group',
+          variant: 'warning',
+        }),
+        type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
+      })
+    );
   });
 
   it('should close AddGroupRoles modal', async () => {
+    jest.spyOn(ReactRedux, 'useDispatch').mockImplementationOnce(() => dispatch);
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
     let initialProps = {
       selectedRoles: [],
-      addNotification,
     };
     await act(async () => {
       wrapper = mount(
@@ -107,10 +120,21 @@ describe('<AddGroupRoles />', () => {
     });
     wrapper.update();
     wrapper.find('button.pf-m-plain').first().simulate('click');
-    expect(addNotification).toHaveBeenCalled();
+    expect(dispatch).toHaveBeenCalledWith(
+      expect.objectContaining({
+        payload: expect.objectContaining({
+          description: 'Adding roles to group was canceled by the user.',
+          dismissDelay: 8000,
+          title: 'Adding roles to group',
+          variant: 'warning',
+        }),
+        type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
+      })
+    );
   });
 
   it('should submit AddGroupRoles modal', async () => {
+    addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
@@ -125,10 +149,12 @@ describe('<AddGroupRoles />', () => {
     });
     wrapper.update();
     wrapper.find('button.pf-m-primary').simulate('click');
-    expect(addRolesToGroup).toHaveBeenCalled();
+    expect(addRolesToGroupSpy).toHaveBeenCalled();
+    expect(setSelectedRoles).toHaveBeenCalled();
   });
 
   it('should submit AddGroupRoles modal with a default group', async () => {
+    addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     let wrapper;
     const store = mockStore(initialState);
@@ -136,7 +162,7 @@ describe('<AddGroupRoles />', () => {
       ...initialProps,
       isDefault: true,
       isChanged: false,
-      addRolesToGroup,
+      addRolesToGroup: addRolesToGroupSpy,
       onDefaultGroupChanged,
       title: 'test',
     };
@@ -158,5 +184,7 @@ describe('<AddGroupRoles />', () => {
     wrapper.find('input#remove-modal-check').simulate('change');
     wrapper.find('button.pf-m-danger').simulate('click');
     expect(onDefaultGroupChanged).toHaveBeenCalled();
+    expect(addRolesToGroupSpy).toHaveBeenCalled();
+    expect(setSelectedRoles).toHaveBeenCalled();
   });
 });
