@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
+import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
@@ -16,41 +15,48 @@ const AddGroupMembers = ({
   match: {
     params: { uuid },
   },
-  addNotification,
   closeUrl,
-  addMembersToGroup,
-  fetchMembersForGroup,
-  fetchGroups,
 }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const intl = useIntl();
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
-      addNotification({
-        variant: 'info',
-        title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-        dismissDelay: 8000,
-        description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
-      });
-      addMembersToGroup(uuid, userList).then(() => {
-        fetchMembersForGroup(uuid);
-        fetchGroups({ inModal: false });
-      });
+      dispatch(
+        addNotification({
+          variant: 'info',
+          title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
+        })
+      );
+      dispatch(
+        addMembersToGroup(uuid, userList).then(() => {
+          dispatch(fetchMembersForGroup(uuid));
+          dispatch(fetchGroups({ inModal: false }));
+        })
+      );
     }
-
     push(closeUrl);
   };
 
   const onCancel = () => {
-    addNotification({
-      variant: 'warning',
-      title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-      dismissDelay: 8000,
-      description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
-    });
+    dispatch(
+      addNotification({
+        variant: 'warning',
+        title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+        dismissDelay: 8000,
+        description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
+      })
+    );
     push(closeUrl);
   };
+
+  useSelector(({ groupReducer: { isLoading } }) => ({
+    isLoading,
+  }));
+
+  const dispatch = useDispatch();
 
   return (
     <Modal
@@ -106,20 +112,4 @@ AddGroupMembers.propTypes = {
   fetchGroups: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ groupReducer: { isLoading } }) => ({
-  isLoading,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      addNotification,
-      addGroup,
-      addMembersToGroup,
-      fetchMembersForGroup,
-      fetchGroups,
-    },
-    dispatch
-  );
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));
+export default withRouter(AddGroupMembers);

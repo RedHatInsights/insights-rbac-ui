@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useHistory, useRouteMatch } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
@@ -15,18 +13,9 @@ import { debouncedAsyncValidator } from './validators';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
+import { useDispatch, useSelector } from 'react-redux';
 
-const EditGroupModal = ({
-  addNotification,
-  updateGroup,
-  postMethod,
-  pagination,
-  filters,
-  cancelRoute,
-  submitRoute = cancelRoute,
-  group,
-  onClose,
-}) => {
+const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
   const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
@@ -44,6 +33,12 @@ const EditGroupModal = ({
         .catch(() => setGroupData(undefined));
   };
 
+  useSelector(({ groupReducer: { isLoading } }) => ({
+    isLoading,
+  }));
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
     fetchData();
   }, []);
@@ -59,19 +54,21 @@ const EditGroupModal = ({
       name: data.name,
     };
     postMethod
-      ? updateGroup(user_data)
+      ? dispatch(updateGroup(user_data))
           .then(() => postMethod({ limit: pagination?.limit, filters }))
           .then(push(submitRoute))
-      : updateGroup(user_data).then(() => push(submitRoute));
+      : dispatch(updateGroup(user_data)).then(() => push(submitRoute));
   };
 
   const onCancel = () => {
-    addNotification({
-      variant: 'warning',
-      dismissDelay: 8000,
-      title: intl.formatMessage(selectedGroup ? messages.editingGroupTitle : messages.addingGroupTitle),
-      description: intl.formatMessage(selectedGroup ? messages.editGroupCanceledDescription : messages.addingGroupCanceledDescription),
-    });
+    dispatch(
+      addNotification({
+        variant: 'warning',
+        dismissDelay: 8000,
+        title: intl.formatMessage(selectedGroup ? messages.editingGroupTitle : messages.addingGroupTitle),
+        description: intl.formatMessage(selectedGroup ? messages.editGroupCanceledDescription : messages.addingGroupCanceledDescription),
+      })
+    );
     onClose();
     push(cancelRoute);
   };
@@ -168,18 +165,4 @@ EditGroupModal.propTypes = {
   onClose: PropTypes.func,
 };
 
-const mapStateToProps = ({ groupReducer: { isLoading } }) => ({
-  isLoading,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      addNotification,
-      updateGroup,
-      fetchGroup,
-    },
-    dispatch
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(EditGroupModal);
+export default EditGroupModal;
