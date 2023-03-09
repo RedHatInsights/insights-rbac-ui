@@ -148,28 +148,14 @@ describe('<GroupRoles />', () => {
     });
     const expectedPayload = [
       {
-        type: 'FETCH_SYSTEM_GROUP_PENDING',
-      },
-      {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
       },
       {
-        type: 'FETCH_SYSTEM_GROUP_PENDING',
-      },
-      {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
-      },
-      {
-        payload: {},
-        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
       },
       {
         payload: {},
         type: 'FETCH_ROLES_FOR_GROUP_FULFILLED',
-      },
-      {
-        payload: {},
-        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
       },
       {
         payload: {},

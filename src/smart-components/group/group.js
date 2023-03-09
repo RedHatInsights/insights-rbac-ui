@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
 import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { bindActionCreators } from 'redux';
@@ -48,6 +49,7 @@ const Group = ({
   const dispatch = useDispatch();
   const history = useHistory();
   const location = useLocation();
+  const chrome = useChrome();
   const isPlatformDefault = uuid === 'default-access';
   const tabItems = [
     { eventKey: 0, title: intl.formatMessage(messages.roles), name: `/groups/detail/${uuid}/roles` },
@@ -73,9 +75,9 @@ const Group = ({
     const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
     if (currUuid) {
       fetchGroup(currUuid);
-      insights.chrome.appObjectId(currUuid);
+      chrome.appObjectId(currUuid);
     }
-    return () => insights.chrome.appObjectId(undefined);
+    return () => chrome.appObjectId(undefined);
   }, [uuid, systemGroupUuid]);
 
   const breadcrumbsList = () => [

@@ -112,7 +112,6 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   ];
 
   useEffect(() => {
-    fetchSystGroup();
     if (uuid !== 'default-access') {
       fetchGroupRoles(pagination)(uuid);
     } else {
@@ -125,7 +124,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
       if (uuid !== 'default-access') {
         fetchAddGroupRoles(uuid);
       } else {
-        (systemGroupUuid && fetchAddGroupRoles(systemGroupUuid)) || fetchSystGroup();
+        systemGroupUuid && fetchAddGroupRoles(systemGroupUuid);
       }
     }
   }, [roles]);
@@ -264,7 +263,6 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
         ]
       : []),
   ];
-  console.log(isLoading);
   return (
     <React.Fragment>
       <RemoveRole
