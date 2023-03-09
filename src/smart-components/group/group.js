@@ -71,8 +71,10 @@ const Group = ({
   useEffect(() => {
     fetchSystemGroup();
     const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
-    fetchGroup(currUuid);
-    insights.chrome.appObjectId(currUuid);
+    if (currUuid) {
+      fetchGroup(currUuid);
+      insights.chrome.appObjectId(currUuid);
+    }
     return () => insights.chrome.appObjectId(undefined);
   }, [uuid, systemGroupUuid]);
 
