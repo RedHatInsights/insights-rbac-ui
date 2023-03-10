@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useHistory, useRouteMatch } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -10,15 +10,11 @@ import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const AddGroupMembers = ({
-  history: { push },
-  match: {
-    params: { uuid },
-  },
-  closeUrl,
-}) => {
+const AddGroupMembers = ({ closeUrl }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const intl = useIntl();
+  const { push } = useHistory();
+  const uuid = useRouteMatch('/groups/detail/:uuid') ? useRouteMatch('/groups/detail/:uuid').params.uuid : null;
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
@@ -51,10 +47,6 @@ const AddGroupMembers = ({
     );
     push(closeUrl);
   };
-
-  useSelector(({ groupReducer: { isLoading } }) => ({
-    isLoading,
-  }));
 
   const dispatch = useDispatch();
 
@@ -95,10 +87,6 @@ AddGroupMembers.defaultProps = {
 };
 
 AddGroupMembers.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func,
-  }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchData: PropTypes.func,
@@ -106,10 +94,9 @@ AddGroupMembers.propTypes = {
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
-  match: PropTypes.object,
   closeUrl: PropTypes.string,
   addMembersToGroup: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
 };
 
-export default withRouter(AddGroupMembers);
+export default AddGroupMembers;

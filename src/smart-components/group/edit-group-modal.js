@@ -13,7 +13,7 @@ import { debouncedAsyncValidator } from './validators';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
   const intl = useIntl();
@@ -32,10 +32,6 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
         .payload.then((data) => setGroupData(data))
         .catch(() => setGroupData(undefined));
   };
-
-  useSelector(({ groupReducer: { isLoading } }) => ({
-    isLoading,
-  }));
 
   const dispatch = useDispatch();
 

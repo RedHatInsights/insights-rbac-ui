@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useHistory } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Wizard } from '@patternfly/react-core';
-import { withRouter } from 'react-router-dom';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { createRole, fetchRoles } from '../../../redux/actions/role-actions';
 import SummaryContent from './summary-content';
@@ -14,12 +14,13 @@ import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import '../../common/hideWizard.scss';
 
-const AddRoleWizard = ({ history: { push } }) => {
+const AddRoleWizard = () => {
   const intl = useIntl();
   const [formData, setFormData] = useState({});
   const [isRoleFormValid, setIsRoleFormValid] = useState(false);
   const [isPermissionFormValid, setIsPermissionFormValid] = useState(false);
   const [stepIdReached, setStepIdReached] = useState(1);
+  const { push } = useHistory();
 
   const { pagination } = useSelector(
     ({ roleReducer: { roles, filterValue, isLoading } }) => ({
@@ -148,10 +149,6 @@ AddRoleWizard.defaultProps = {
 };
 
 AddRoleWizard.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
-  }).isRequired,
   addNotification: PropTypes.func.isRequired,
   createRole: PropTypes.func.isRequired,
   fetchRoles: PropTypes.func.isRequired,
@@ -163,4 +160,4 @@ AddRoleWizard.propTypes = {
   }),
 };
 
-export default withRouter(AddRoleWizard);
+export default AddRoleWizard;
