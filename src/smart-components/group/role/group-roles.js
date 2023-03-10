@@ -112,26 +112,22 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   ];
 
   useEffect(() => {
-    fetchSystGroup();
     if (uuid !== 'default-access') {
       fetchGroupRoles(pagination)(uuid);
     } else {
-      if (systemGroupUuid) {
-        fetchGroupRoles(pagination)(systemGroupUuid);
-      }
+      systemGroupUuid && fetchGroupRoles(pagination)(systemGroupUuid);
     }
   }, [systemGroupUuid]);
 
   useEffect(() => {
-    fetchSystGroup();
-    if (uuid !== 'default-access') {
-      fetchAddGroupRoles(uuid);
-    } else {
-      if (systemGroupUuid) {
-        fetchAddGroupRoles(systemGroupUuid);
+    if (roles?.length > 0) {
+      if (uuid !== 'default-access') {
+        fetchAddGroupRoles(uuid);
+      } else {
+        systemGroupUuid && fetchAddGroupRoles(systemGroupUuid);
       }
     }
-  }, [roles, systemGroupUuid]);
+  }, [roles]);
 
   useEffect(() => {
     hasPermissions.current = orgAdmin || userAccessAdministrator;
@@ -267,7 +263,6 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
         ]
       : []),
   ];
-
   return (
     <React.Fragment>
       <RemoveRole

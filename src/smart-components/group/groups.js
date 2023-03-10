@@ -96,7 +96,7 @@ const Groups = () => {
 
   useEffect(() => {
     setFilterValue(filters.name);
-    setPagination(meta);
+    setPagination({ ...pagination, ...meta });
   }, [filters, meta]);
 
   const routes = () => (
