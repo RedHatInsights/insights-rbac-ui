@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useHistory, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -14,7 +14,7 @@ const AddGroupMembers = ({ closeUrl }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const intl = useIntl();
   const { push } = useHistory();
-  const uuid = useRouteMatch('/groups/detail/:uuid') ? useRouteMatch('/groups/detail/:uuid').params.uuid : null;
+  const { uuid } = useParams();
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
