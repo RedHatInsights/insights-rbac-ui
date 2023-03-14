@@ -2,8 +2,7 @@ import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
-import { connect, shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -38,11 +37,6 @@ const Group = ({
   match: {
     params: { uuid },
   },
-  group,
-  fetchGroup,
-  fetchSystemGroup,
-  removeGroups,
-  isFetching,
   onDelete,
 }) => {
   const intl = useIntl();
@@ -66,15 +60,23 @@ const Group = ({
     shallowEqual
   );
 
+  const { group, isFetching } = useSelector(
+    ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading } }) => ({
+      group: selectedGroup,
+      isFetching: isRecordLoading || isRecordRolesLoading,
+    }),
+    shallowEqual
+  );
+
   const [isResetWarningVisible, setResetWarningVisible] = useState(false);
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
   useEffect(() => {
-    fetchSystemGroup();
+    dispatch(fetchSystemGroup());
     const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
     if (currUuid) {
-      fetchGroup(currUuid);
+      dispatch(fetchGroup(currUuid));
       chrome.appObjectId(currUuid);
     }
     return () => chrome.appObjectId(undefined);
@@ -188,8 +190,8 @@ const Group = ({
           customSecondaryButtonTitle={intl.formatMessage(messages.cancel)}
           onModalCancel={() => setResetWarningVisible(false)}
           onConfirmCancel={() => {
-            removeGroups([systemGroupUuid]).then(() =>
-              fetchSystemGroup().then(() => {
+            dispatch(removeGroups([systemGroupUuid])).then(() =>
+              dispatch(fetchSystemGroup()).then(() => {
                 setShowDefaultGroupChangedInfo(false);
               })
             );
@@ -298,21 +300,6 @@ const Group = ({
   );
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading } }) => ({
-  group: selectedGroup,
-  isFetching: isRecordLoading || isRecordRolesLoading,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      fetchGroup,
-      fetchSystemGroup,
-      removeGroups,
-    },
-    dispatch
-  );
-
 Group.propTypes = {
   location: PropTypes.shape({
     pathname: PropTypes.string.isRequired,
@@ -341,4 +328,4 @@ Group.defaultProps = {
   isFetching: false,
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Group);
+export default Group;

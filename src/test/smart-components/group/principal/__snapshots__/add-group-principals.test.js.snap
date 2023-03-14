@@ -32,7 +32,12 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
       ]
     }
   >
-    <withRouter(Connect(AddGroupMembers)) />
+    <AddGroupMembers
+      closeUrl="/groups"
+      inputValue=""
+      selectedUsers={Array []}
+      users={Array []}
+    />
   </MemoryRouter>
 </ContextProvider>
 `;

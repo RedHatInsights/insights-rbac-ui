@@ -1,56 +1,54 @@
 import React, { useState } from 'react';
-import { withRouter } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { useDispatch } from 'react-redux';
+import { useHistory, useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addGroup, addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
+import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const AddGroupMembers = ({
-  history: { push },
-  match: {
-    params: { uuid },
-  },
-  addNotification,
-  closeUrl,
-  addMembersToGroup,
-  fetchMembersForGroup,
-  fetchGroups,
-}) => {
+const AddGroupMembers = ({ closeUrl }) => {
   const [selectedUsers, setSelectedUsers] = useState([]);
   const intl = useIntl();
+  const { push } = useHistory();
+  const { uuid } = useParams();
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
-      addNotification({
-        variant: 'info',
-        title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-        dismissDelay: 8000,
-        description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
-      });
-      addMembersToGroup(uuid, userList).then(() => {
-        fetchMembersForGroup(uuid);
-        fetchGroups({ inModal: false });
-      });
+      dispatch(
+        addNotification({
+          variant: 'info',
+          title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
+        })
+      );
+      dispatch(
+        addMembersToGroup(uuid, userList).then(() => {
+          dispatch(fetchMembersForGroup(uuid));
+          dispatch(fetchGroups({ inModal: false }));
+        })
+      );
     }
-
     push(closeUrl);
   };
 
   const onCancel = () => {
-    addNotification({
-      variant: 'warning',
-      title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
-      dismissDelay: 8000,
-      description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
-    });
+    dispatch(
+      addNotification({
+        variant: 'warning',
+        title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
+        dismissDelay: 8000,
+        description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
+      })
+    );
     push(closeUrl);
   };
+
+  const dispatch = useDispatch();
 
   return (
     <Modal
@@ -89,10 +87,6 @@ AddGroupMembers.defaultProps = {
 };
 
 AddGroupMembers.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func,
-  }).isRequired,
   addGroup: PropTypes.func.isRequired,
   addNotification: PropTypes.func.isRequired,
   fetchData: PropTypes.func,
@@ -100,26 +94,9 @@ AddGroupMembers.propTypes = {
   inputValue: PropTypes.string,
   users: PropTypes.array,
   selectedUsers: PropTypes.array,
-  match: PropTypes.object,
   closeUrl: PropTypes.string,
   addMembersToGroup: PropTypes.func.isRequired,
   fetchGroups: PropTypes.func.isRequired,
 };
 
-const mapStateToProps = ({ groupReducer: { isLoading } }) => ({
-  isLoading,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      addNotification,
-      addGroup,
-      addMembersToGroup,
-      fetchMembersForGroup,
-      fetchGroups,
-    },
-    dispatch
-  );
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(AddGroupMembers));
+export default AddGroupMembers;

@@ -32,7 +32,12 @@ exports[`<AddRoleWizard /> should render correctly 1`] = `
       ]
     }
   >
-    <withRouter(Connect(AddRoleWizard)) />
+    <AddRoleWizard
+      inputValue=""
+      selectedRoles={Array []}
+      selectedUsers={Array []}
+      users={Array []}
+    />
   </MemoryRouter>
 </ContextProvider>
 `;
