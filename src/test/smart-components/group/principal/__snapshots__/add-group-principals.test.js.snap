@@ -28,7 +28,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
   <MemoryRouter
     initialEntries={
       Array [
-        "/groups/detail/test-group/members/add_members",
+        "/groups/detail/test-group/members/add-members",
       ]
     }
   >
