@@ -71,7 +71,7 @@ describe('<AddGroupMembers />', () => {
     const store = mockStore(initialState);
     const wrapper = shallow(
       <Provider store={store}>
-        <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
+        <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers></AddGroupMembers>
         </MemoryRouter>
       </Provider>
@@ -86,7 +86,7 @@ describe('<AddGroupMembers />', () => {
     await act(async () => {
       wrapper = mount(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
+          <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
             <AddGroupMembers></AddGroupMembers>
           </MemoryRouter>
         </Provider>
@@ -115,7 +115,7 @@ describe('<AddGroupMembers />', () => {
     await act(async () => {
       wrapper = mount(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/groups/detail/test-group/members/add_members']}>
+          <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
             <AddGroupMembers></AddGroupMembers>
           </MemoryRouter>
         </Provider>

@@ -114,7 +114,7 @@ const GroupPrincipals = () => {
   const toolbarButtons = () => [
     ...(hasPermissions.current
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add_members`} key="remove-from-group" className="rbac-m-hide-on-sm">
+          <Link to={`/groups/detail/${uuid}/members/add-members`} key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               {intl.formatMessage(messages.addMember)}
             </Button>
@@ -125,7 +125,7 @@ const GroupPrincipals = () => {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(`/groups/detail/${uuid}/members/add_members`);
+              history.push(`/groups/detail/${uuid}/members/add-members`);
             },
           },
           {
