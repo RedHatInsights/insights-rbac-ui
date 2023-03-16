@@ -1,4 +1,4 @@
-import { asyncValidator } from '../../../smart-components/role/add-role-new/validators';
+import { asyncValidator } from '../../../smart-components/role/add-role/validators';
 
 jest.mock('../../../helpers/role/role-helper', () => {
   const actions = jest.requireActual('../../../helpers/role/role-helper');
