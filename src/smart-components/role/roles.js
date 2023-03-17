@@ -30,7 +30,7 @@ import messages from '../../Messages';
 import RoleRowWrapper from './role-row-wrapper';
 import './roles.scss';
 
-const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
+const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role/add-role-wizard'));
 
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
