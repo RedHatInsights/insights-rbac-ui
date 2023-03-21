@@ -34,7 +34,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
             return isEntitled ? (
               <StackItem key={key} className="rbac-c-mua-cardWrapper">
                 <NavLink
-                  aria-label='card-link'
+                  aria-label="card-link"
                   className={classNames('rbac-c-mua-bundles__cardlink', { 'rbac-c-mua-bundles__cardlink--disabled': isDisabled })}
                   to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${key}` }}
                 >

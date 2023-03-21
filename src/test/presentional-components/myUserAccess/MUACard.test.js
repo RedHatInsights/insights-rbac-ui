@@ -12,29 +12,29 @@ const entitlementsMock = [
   ['entitled', { is_entitled: true, is_trial: false }],
   ['not-entitled', { is_entitled: false, is_trial: false }],
 ];
-const mockHeader = "TestHeader"
+const mockHeader = 'TestHeader';
 
 describe('<MUACard />', () => {
   test('Should render correctly if entitled', () => {
     render(
       <RouterWrapper>
-        <MUACard header={mockHeader} entitlements={entitlementsMock}/>
+        <MUACard header={mockHeader} entitlements={entitlementsMock} />
       </RouterWrapper>
     );
 
-    expect(screen.getByText(mockHeader)).toBeInTheDocument()
-  }); 
+    expect(screen.getByText(mockHeader)).toBeInTheDocument();
+  });
 
   test('Should render, but being disabled', () => {
     render(
       <RouterWrapper>
-        <MUACard header={mockHeader} entitlements={entitlementsMock} isDisabled/>
+        <MUACard header={mockHeader} entitlements={entitlementsMock} isDisabled />
       </RouterWrapper>
     );
 
-    const cardLinks = screen.getAllByLabelText('card-link')
-    expect(cardLinks[0]).toHaveClass('rbac-c-mua-bundles__cardlink rbac-c-mua-bundles__cardlink--disabled')
-   });
+    const cardLinks = screen.getAllByLabelText('card-link');
+    expect(cardLinks[0]).toHaveClass('rbac-c-mua-bundles__cardlink rbac-c-mua-bundles__cardlink--disabled');
+  });
 
   test('Should not render when unentitled', () => {
     render(
@@ -43,7 +43,7 @@ describe('<MUACard />', () => {
       </RouterWrapper>
     );
 
-    const cardLinks = screen.queryAllByRole('link', { name: /cardlink/i })
-    expect(cardLinks).toHaveLength(0)
-  })
-})
+    const cardLinks = screen.queryAllByRole('link', { name: /cardlink/i });
+    expect(cardLinks).toHaveLength(0);
+  });
+});
