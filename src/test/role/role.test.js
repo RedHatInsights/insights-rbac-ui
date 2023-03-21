@@ -368,9 +368,9 @@ describe('role', () => {
       wrapper.update();
     });
 
-    wrapper.find('input[type="checkbox"]').at(0).simulate('click');
-    wrapper.find('button[aria-label="Actions"]').at(1).simulate('click');
+    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');
     });
