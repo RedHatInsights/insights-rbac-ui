@@ -94,7 +94,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: (application === 'cost-management' && (getResourceType(uuid) || { count: 0 }).count === 0) || !hasAccess,
+      disableSelection: application === 'cost-management' && ((getResourceType(uuid) || { count: 0 }).count === 0 || !hasAccess),
       disabledContent: (
         <div>
           {intl.formatMessage(hasAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
