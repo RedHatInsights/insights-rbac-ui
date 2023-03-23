@@ -21,7 +21,7 @@ describe('<MUACard />', () => {
         <MUACard header={mockHeader} entitlements={entitlementsMock} />
       </RouterWrapper>
     );
-    
+
     expect(container.firstChild).toMatchSnapshot();
     expect(screen.getByText(mockHeader)).toBeInTheDocument();
   });
