@@ -45,7 +45,7 @@ export async function fetchRolesWithPolicies({
   nameMatch,
   scope = 'account',
   orderBy = 'display_name',
-  addFields = ['groups_in_count', 'groups_in'],
+  addFields = ['groups_in_count', 'groups_in', 'access'],
   username,
   options,
   permission,

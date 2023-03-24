@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import PropTypes from 'prop-types';
-import { defaultSettings, defaultCompactSettings } from '../../../helpers/shared/pagination';
+import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
@@ -26,7 +26,7 @@ const createRows = (data, checkedRows = []) => {
     : [];
 };
 
-const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
+const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded, groupId: groupUuid }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const textFilterRef = useRef(null);
@@ -38,13 +38,16 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
   });
   const selectorRolesExluded = ({
     groupReducer: {
-      selectedGroup: { addRoles, uuid },
+      selectedGroup: {
+        addRoles: { roles, pagination, loaded },
+        uuid,
+      },
     },
   }) => ({
-    roles: addRoles.roles,
-    pagination: addRoles.pagination || { ...defaultSettings, count: roles && roles.length },
-    isLoading: !addRoles.loaded,
-    groupId: uuid,
+    roles,
+    pagination: pagination || { ...defaultCompactSettings, count: roles?.length },
+    isLoading: !loaded,
+    groupId: groupUuid || uuid,
   });
   const { roles, pagination, isLoading, groupId, filters } = useSelector(rolesExcluded ? selectorRolesExluded : selector, shallowEqual);
 
@@ -57,9 +60,7 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded }) => {
   const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
 
   const setCheckedItems = (newSelection) => {
-    setSelectedRoles((roles) => {
-      return newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name }));
-    });
+    setSelectedRoles((roles) => newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name })));
   };
 
   const fetchRoles = useCallback(
@@ -128,6 +129,7 @@ RolesList.propTypes = {
   setSelectedRoles: PropTypes.func.isRequired,
   selectedRoles: PropTypes.array,
   rolesExcluded: PropTypes.bool.isRequired,
+  groupId: PropTypes.string,
 };
 
 RolesList.defaultProps = {

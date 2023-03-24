@@ -6,7 +6,7 @@ import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-t
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { createRows } from './role-table-helpers';
 import { getBackRoute, mappedProps } from '../../helpers/shared/helpers';
-import { fetchRoleDetails, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
+import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import RemoveRole from './remove-role-modal';
@@ -30,7 +30,7 @@ import messages from '../../Messages';
 import RoleRowWrapper from './role-row-wrapper';
 import './roles.scss';
 
-const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role-new/add-role-wizard'));
+const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role/add-role-wizard'));
 
 const selector = ({ roleReducer: { roles, isLoading } }) => ({
   roles: roles.data,
@@ -92,8 +92,6 @@ const Roles = () => {
       !areFiltersPresentInUrl(history, ['display_name']) &&
       syncDefaultFiltersWithUrl(history, ['display_name'], { display_name: filterValue });
   });
-
-  const fetchPermissionsForRole = (uuid) => dispatch(fetchRoleDetails(uuid));
 
   const routes = () => (
     <Suspense fallback={<Fragment />}>
@@ -191,14 +189,8 @@ const Roles = () => {
     );
   };
 
-  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
-    if (!isOpen) {
-      setExpanded({ ...expanded, [rowData.uuid]: colIndex + Number(!isSelectable) });
-      colIndex + Number(!isSelectable) === 3 && fetchPermissionsForRole(rowData.uuid);
-    } else {
-      setExpanded({ ...expanded, [rowData.uuid]: -1 });
-    }
-  };
+  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) =>
+    setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isSelectable) });
 
   const rows = createRows(roles, selectedRows, intl, expanded);
   const renderRolesList = () => (

@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useHistory } from 'react-router-dom';
-import { connect } from 'react-redux';
-import { bindActionCreators } from 'redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
@@ -12,23 +11,19 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({
-  removeGroups,
-  group,
-  isLoading,
-  fetchGroup,
-  groupsUuid,
-  isModalOpen,
-  postMethod,
-  pagination,
-  filters,
-  cancelRoute,
-  submitRoute = cancelRoute,
-}) => {
+const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute }) => {
   const intl = useIntl();
+  const { group, isLoading } = useSelector(
+    ({ groupReducer: { selectedGroup } }) => ({
+      group: selectedGroup,
+      isLoading: !selectedGroup.loaded,
+    }),
+    shallowEqual
+  );
+  const dispatch = useDispatch();
   useEffect(() => {
     if (groupsUuid.length === 1) {
-      fetchGroup(groupsUuid[0].uuid);
+      dispatch(fetchGroup(groupsUuid[0].uuid));
     }
   }, []);
 
@@ -40,7 +35,7 @@ const RemoveGroupModal = ({
 
   const onSubmit = () => {
     const uuids = groupsUuid.map((group) => group.uuid);
-    removeGroups(uuids)
+    dispatch(removeGroups(uuids))
       .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
       .then(push(submitRoute));
   };
@@ -142,18 +137,4 @@ RemoveGroupModal.propTypes = {
   ]),
 };
 
-const mapStateToProps = ({ groupReducer: { selectedGroup } }) => ({
-  group: selectedGroup,
-  isLoading: !selectedGroup.loaded,
-});
-
-const mapDispatchToProps = (dispatch) =>
-  bindActionCreators(
-    {
-      fetchGroup,
-      removeGroups,
-    },
-    dispatch
-  );
-
-export default connect(mapStateToProps, mapDispatchToProps)(RemoveGroupModal);
+export default RemoveGroupModal;

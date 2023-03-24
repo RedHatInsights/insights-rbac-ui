@@ -4,26 +4,13 @@ import { Link } from 'react-router-dom';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import { Text } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import messages from '../../Messages';
 
 export const createRows = (data, selectedRows, intl, expanded) =>
   data.reduce(
     (
       acc,
-      {
-        uuid,
-        access = [],
-        display_name,
-        name,
-        description,
-        system,
-        accessCount,
-        groups_in_count: groupsCount,
-        groups_in: groups,
-        isLoading,
-        modified,
-      },
+      { uuid, access = [], display_name, name, description, system, accessCount, groups_in_count: groupsCount, groups_in: groups, modified },
       i
     ) => [
       ...acc,
@@ -78,8 +65,6 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                   <TableHeader />
                   <TableBody />
                 </Table>
-              ) : isLoading ? (
-                <ListLoader items={3} isCompact />
               ) : (
                 <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
               ),

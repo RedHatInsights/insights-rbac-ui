@@ -1,6 +1,5 @@
 import {
   FETCH_ROLE,
-  FETCH_ROLE_DETAILS,
   FETCH_ROLES,
   FETCH_ROLE_FOR_USER,
   FETCH_ROLE_FOR_PRINCIPAL,
@@ -38,22 +37,6 @@ const setRoles = (state, { payload }) => ({
   ...(!payload.error ? { roles: { ...state.roles, ...payload } } : payload),
   isLoading: false,
 });
-const setRoleDetailLoading = (state, { meta }) => ({
-  ...state,
-  roles: {
-    ...state.roles,
-    data: (state?.roles?.data || []).map((role) => (role.uuid === meta.uuid ? { ...role, isLoading: true } : role)),
-  },
-});
-const setRoleDetails = (state, { payload }) => ({
-  ...state,
-  roles: {
-    ...state.roles,
-    data: !payload.error
-      ? (state?.roles?.data || []).map((role) => (role.uuid === payload.uuid ? { ...role, ...payload, isLoading: false } : role))
-      : state?.roles?.data || [],
-  },
-});
 const setRolesWithAccess = (state, { payload }) => ({
   ...state,
   rolesWithAccess: { ...state.rolesWithAccess, [payload.uuid]: payload },
@@ -69,8 +52,6 @@ export default {
   [`${FETCH_ROLE}_FULFILLED`]: setRole,
   [`${FETCH_ROLE}_PENDING`]: setRecordLoadingState,
   [`${FETCH_ROLE}_FULFILLED`]: setRole,
-  [`${FETCH_ROLE_DETAILS}_PENDING`]: setRoleDetailLoading,
-  [`${FETCH_ROLE_DETAILS}_FULFILLED`]: setRoleDetails,
   [`${FETCH_ROLES}_FULFILLED`]: setRoles,
   [`${FETCH_ROLES}_PENDING`]: setLoadingState,
   [`${FETCH_ROLE_FOR_USER}_FULFILLED`]: setRolesWithAccess,

@@ -1,61 +1,63 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button, Card, Modal, ModalVariant, Stack, StackItem, Text, TextContent, TextVariants, Title } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import { Alert, Button, Modal, ModalVariant, Stack, StackItem, Title } from '@patternfly/react-core';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
+import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { fetchGroup } from '../../../redux/actions/group-actions';
 import RolesList from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
-import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import '../../../App.scss';
+import './add-group-roles.scss';
 
 const AddGroupRoles = ({
-  history: { push },
+  afterSubmit,
   selectedRoles,
   setSelectedRoles,
   title,
   closeUrl,
   addRolesToGroup,
-  name,
+  groupName: name,
   isDefault,
   isChanged,
-  addNotification,
   onDefaultGroupChanged,
-  fetchRolesForGroup,
-  fetchSystemGroup,
-  fetchGroup,
-  fetchUuid,
 }) => {
   const intl = useIntl();
+  const dispatch = useDispatch();
+  let { state } = useLocation();
+  const { uuid: groupId } = useParams();
+  const { push } = useHistory();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const { groupName, isRecordLoading } = useSelector(({ groupReducer: { selectedGroup, isRecordLoading } }) => ({
+    groupName: name || state?.name || selectedGroup.name,
+    isRecordLoading,
+  }));
+
+  useEffect(() => {
+    groupName || dispatch(fetchGroup(groupId));
+  }, []);
 
   const onCancel = () => {
     setSelectedRoles && setSelectedRoles([]);
-    addNotification({
-      variant: 'warning',
-      title: intl.formatMessage(messages.addingGroupRolesTitle),
-      dismissDelay: 8000,
-      description: intl.formatMessage(messages.addingGroupRolesCancelled),
-    });
+    dispatch(
+      addNotification({
+        variant: 'warning',
+        title: intl.formatMessage(messages.addingGroupRolesTitle),
+        dismissDelay: 8000,
+        description: intl.formatMessage(messages.addingGroupRolesCancelled),
+      })
+    );
     push(closeUrl);
   };
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
-    addRolesToGroup(fetchUuid, rolesList, () => {
-      if (isDefault) {
-        fetchSystemGroup().then(({ value: { data } }) => {
-          fetchRolesForGroup(data[0].uuid);
-          fetchGroup(data[0].uuid);
-        });
-      } else {
-        fetchRolesForGroup();
-        fetchGroup();
-      }
-      setSelectedRoles([]);
-    });
-    if (isDefault && !isChanged) {
-      onDefaultGroupChanged(true);
-    }
-
+    addRolesToGroup(groupId, rolesList).then(afterSubmit);
+    setSelectedRoles([]);
+    isDefault && !isChanged && onDefaultGroupChanged(true);
     return push(closeUrl);
   };
 
@@ -63,7 +65,10 @@ const AddGroupRoles = ({
     <DefaultGroupChange isOpen={showConfirmModal} onClose={onCancel} onSubmit={onSubmit} />
   ) : (
     <Modal
-      title={intl.formatMessage(messages.addRolesToGroup)}
+      className="rbac"
+      title={intl.formatMessage(messages.addRolesToGroup, {
+        name: isRecordLoading ? <Skeleton size={SkeletonSize.xs} className="rbac-c-skeleton__add-role-to-group" /> : groupName,
+      })}
       variant={ModalVariant.medium}
       isOpen
       onClose={() => {
@@ -98,22 +103,10 @@ const AddGroupRoles = ({
           </StackItem>
         )}
         <StackItem>
-          <TextContent>
-            <Text component={TextVariants.p}>
-              <FormattedMessage
-                {...messages.onlyGroupRolesVisible}
-                values={{
-                  b: (text) => <b>{text}</b>,
-                  name: name,
-                }}
-              />
-            </Text>
-          </TextContent>
+          <Alert variant="info" isInline isPlain title={intl.formatMessage(messages.onlyGroupRolesVisible)} />
         </StackItem>
         <StackItem>
-          <Card>
-            <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} rolesExcluded={true} />
-          </Card>
+          <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} rolesExcluded={true} groupId={groupId} />
         </StackItem>
       </Stack>
     </Modal>
@@ -121,27 +114,16 @@ const AddGroupRoles = ({
 };
 
 AddGroupRoles.propTypes = {
-  history: PropTypes.shape({
-    push: PropTypes.any,
-    goBack: PropTypes.func.isRequired,
-  }).isRequired,
-  match: PropTypes.shape({
-    params: PropTypes.object.isRequired,
-  }).isRequired,
+  afterSubmit: PropTypes.func,
   selectedRoles: PropTypes.array,
   setSelectedRoles: PropTypes.func,
   addRolesToGroup: PropTypes.func,
   closeUrl: PropTypes.string,
   title: PropTypes.string,
-  name: PropTypes.string,
+  groupName: PropTypes.string,
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
-  addNotification: PropTypes.func,
   onDefaultGroupChanged: PropTypes.func,
-  fetchRolesForGroup: PropTypes.func,
-  fetchGroup: PropTypes.func,
-  fetchSystemGroup: PropTypes.func,
-  fetchUuid: PropTypes.string,
 };
 
 export default AddGroupRoles;

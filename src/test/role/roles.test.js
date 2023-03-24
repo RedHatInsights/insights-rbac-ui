@@ -11,7 +11,7 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { rolesInitialState } from '../../redux/reducers/role-reducer';
 
 import * as RoleActions from '../../redux/actions/role-actions';
-import { FETCH_ROLES, FETCH_ROLE_DETAILS } from '../../redux/action-types';
+import { FETCH_ROLES } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 describe('<Roles />', () => {
@@ -20,7 +20,6 @@ describe('<Roles />', () => {
   let initialState;
 
   const fetchRolesWithPoliciesSpy = jest.spyOn(RoleActions, 'fetchRolesWithPolicies');
-  const fetchRoleDetailsSpy = jest.spyOn(RoleActions, 'fetchRoleDetails');
   beforeEach(() => {
     mockStore = configureStore(middlewares);
     initialState = {
@@ -64,7 +63,6 @@ describe('<Roles />', () => {
   });
 
   afterEach(() => {
-    fetchRoleDetailsSpy.mockReset();
     fetchRolesWithPoliciesSpy.mockReset();
   });
 
@@ -172,7 +170,6 @@ describe('<Roles />', () => {
   it('should render correctly expanded', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
-    fetchRoleDetailsSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE_DETAILS, payload: Promise.resolve({}) }));
     let wrapper;
     await act(async () => {
       wrapper = mount(
@@ -184,11 +181,8 @@ describe('<Roles />', () => {
       );
     });
 
-    expect(fetchRoleDetailsSpy).not.toHaveBeenCalled();
     wrapper.find('#expandable-toggle-0-3').simulate('click');
-    expect(fetchRoleDetailsSpy).not.toHaveBeenCalled();
     wrapper.find('#expandable-toggle-0-2').simulate('click');
-    expect(fetchRoleDetailsSpy).toHaveBeenCalledTimes(1);
     expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 });

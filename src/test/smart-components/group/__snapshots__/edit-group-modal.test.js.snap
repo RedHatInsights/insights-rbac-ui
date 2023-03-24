@@ -25,7 +25,7 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
     }
   }
 >
-  <Connect(EditGroupModal)
+  <EditGroupModal
     cancelRoute="/groups"
     filters={Object {}}
     group={
@@ -34,6 +34,8 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
         "name": "Foo",
       }
     }
+    onClose={[Function]}
+    onSubmit={[Function]}
     pagination={
       Object {
         "itemCount": 0,

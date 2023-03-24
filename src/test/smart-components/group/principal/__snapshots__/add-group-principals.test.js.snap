@@ -28,11 +28,16 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
   <MemoryRouter
     initialEntries={
       Array [
-        "/groups/detail/test-group/members/add_members",
+        "/groups/detail/test-group/members/add-members",
       ]
     }
   >
-    <withRouter(Connect(AddGroupMembers)) />
+    <AddGroupMembers
+      closeUrl="/groups"
+      inputValue=""
+      selectedUsers={Array []}
+      users={Array []}
+    />
   </MemoryRouter>
 </ContextProvider>
 `;

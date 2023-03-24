@@ -1,7 +1,6 @@
 import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { connect } from 'react-redux';
-import { withRouter } from 'react-router-dom';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
@@ -14,17 +13,7 @@ const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal')
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
 import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
-const MUARolesTable = ({
-  fetchRoles,
-  fetchRoleForPrincipal,
-  roles,
-  isLoading,
-  rolesWithAccess,
-  filters,
-  setFilters,
-  apps,
-  showResourceDefinitions,
-}) => {
+const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) => {
   const intl = useIntl();
   const [expanded, setExpanded] = useState({});
   const [{ rdOpen, rdPermission, resourceDefinitions }, setRdConfig] = useState({ rdOpen: false });
@@ -42,8 +31,19 @@ const MUARolesTable = ({
     },
   ];
 
+  const { roles, isLoading, rolesWithAccess } = useSelector(
+    ({ roleReducer: { roles, isLoading, rolesWithAccess } }) => ({
+      roles,
+      isLoading,
+      rolesWithAccess,
+    }),
+    shallowEqual
+  );
+
+  const dispatch = useDispatch();
+
   useEffect(() => {
-    fetchRoles({ limit: 20, offset: 0, orderBy: 'display_name', scope: 'principal', application: apps.join(',') });
+    dispatch(fetchRoles({ limit: 20, offset: 0, orderBy: 'display_name', scope: 'principal', application: apps.join(',') }));
   }, []);
 
   const createRows = (data) => {
@@ -116,7 +116,7 @@ const MUARolesTable = ({
   let debouncedFetch = useCallback(
     debounce((limit, offset, name, application, permission, orderBy) => {
       const applicationParam = application?.length > 0 ? application : apps;
-      return fetchRoles({ limit, offset, scope: 'principal', orderBy, name, application: applicationParam.join(','), permission });
+      return dispatch(fetchRoles({ limit, offset, scope: 'principal', orderBy, name, application: applicationParam.join(','), permission }));
     }, 800),
     []
   );
@@ -126,7 +126,7 @@ const MUARolesTable = ({
       setExpanded((expanded) => ({ ...expanded, [rowData.uuid]: colIndex }));
       // Permissions
       if (colIndex === 2) {
-        fetchRoleForPrincipal(rowData.uuid);
+        dispatch(fetchRoleForPrincipal(rowData.uuid));
       }
     } else {
       setExpanded((expanded) => ({ ...expanded, [rowData.uuid]: -1 }));
@@ -184,14 +184,4 @@ MUARolesTable.propTypes = {
   showResourceDefinitions: PropTypes.bool,
 };
 
-const mapStateToProps = ({ roleReducer: { roles, isLoading, rolesWithAccess } }) => ({
-  roles,
-  isLoading,
-  rolesWithAccess,
-});
-const mapDispatchToProps = (dispatch) => ({
-  fetchRoles: (apiProps) => dispatch(fetchRoles(apiProps)),
-  fetchRoleForPrincipal: (uuid) => dispatch(fetchRoleForPrincipal(uuid)),
-});
-
-export default withRouter(connect(mapStateToProps, mapDispatchToProps)(MUARolesTable));
+export default MUARolesTable;

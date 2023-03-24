@@ -1,5 +1,5 @@
 import React from 'react';
-import AddPermissionTemplate from '../add-role-new/add-permissions-template';
+import AddPermissionTemplate from '../add-role/add-permissions-template';
 import ReviewTemplate from './review-template';
 import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';

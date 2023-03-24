@@ -22,7 +22,7 @@ jest.mock('../../../../redux/actions/group-actions', () => {
   };
 });
 
-describe('<GroupPrincipals />', () => {
+describe('<GroupRoles />', () => {
   let initialProps;
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   let mockStore;
@@ -132,7 +132,7 @@ describe('<GroupPrincipals />', () => {
       );
     });
     expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
-    expect(mountToJson(wrapper.find('TableToolbarViewOld'), { mode: 'mount' })).toMatchSnapshot();
+    expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
   });
 
   it('should fetch group roles on mount', async () => {
@@ -148,28 +148,14 @@ describe('<GroupPrincipals />', () => {
     });
     const expectedPayload = [
       {
-        type: 'FETCH_SYSTEM_GROUP_PENDING',
-      },
-      {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
       },
       {
-        type: 'FETCH_SYSTEM_GROUP_PENDING',
-      },
-      {
         type: 'FETCH_ROLES_FOR_GROUP_PENDING',
-      },
-      {
-        payload: {},
-        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
       },
       {
         payload: {},
         type: 'FETCH_ROLES_FOR_GROUP_FULFILLED',
-      },
-      {
-        payload: {},
-        type: 'FETCH_SYSTEM_GROUP_FULFILLED',
       },
       {
         payload: {},

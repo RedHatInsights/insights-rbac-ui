@@ -7,6 +7,22 @@
     "defaultMessage": "Active",
     "description": "Active label"
   },
+  "addGroupMemberErrorDescription": {
+    "defaultMessage": "The member was not added successfully.",
+    "description": "Add group member error notification description"
+  },
+  "addGroupMemberErrorTitle": {
+    "defaultMessage": "Failed adding member to group",
+    "description": "Add group member error notification title"
+  },
+  "addGroupMemberSuccessDescription": {
+    "defaultMessage": "The member was successfully added to the group.",
+    "description": "Add group member success notification description"
+  },
+  "addGroupMemberSuccessTitle": {
+    "defaultMessage": "Success adding member to group",
+    "description": "Add group member success notification title"
+  },
   "addGroupMembersErrorDescription": {
     "defaultMessage": "The members were not added successfully.",
     "description": "Add group members error notification description"
@@ -95,13 +111,21 @@
     "defaultMessage": "Add role to group",
     "description": "Add role to group label"
   },
+  "addRoleToThisGroup": {
+    "defaultMessage": "Add role to this group",
+    "description": "Add role to this group label"
+  },
   "addRoles": {
     "defaultMessage": "Add roles",
     "description": "Add roles wizard step title"
   },
   "addRolesToGroup": {
-    "defaultMessage": "Add roles to group",
+    "defaultMessage": "Add roles to the {name} group",
     "description": "Add roles to group label"
+  },
+  "addSpecificUserToGroup": {
+    "defaultMessage": "Add {user} to a group",
+    "description": "Add user to a group wizard title"
   },
   "addToDefinitions": {
     "defaultMessage": "Add to definitions",
@@ -114,6 +138,10 @@
   "addUserToConfigure": {
     "defaultMessage": "Add a user to configure user access.",
     "description": "Add a user to configure user access message"
+  },
+  "addUserToGroup": {
+    "defaultMessage": "Add user to a group",
+    "description": "Add user to a group wizard title"
   },
   "addedPermissions": {
     "defaultMessage": "Added permissions",
@@ -648,8 +676,12 @@
     "description": "Only granular permissions message"
   },
   "onlyGroupRolesVisible": {
-    "defaultMessage": "This role list has been filtered to only show roles that are not currently in <b>{name}</b>",
+    "defaultMessage": "This role list has been filtered to only show roles that are not currently in your group.",
     "description": "Message warning that only roles in given role has been filtered"
+  },
+  "onlyNonUserGroupsVisible": {
+    "defaultMessage": "This group list has been filtered to only show groups that the user is not currently a member of.",
+    "description": "Message warning that only groups that the user is not a member of has been filtered"
   },
   "openshiftPermissions": {
     "defaultMessage": "All users in the organization may view everything, but only Org. Administrators and cluster owners can perform actions on clusters. The table below displays roles for other OpenShift applications and services.",
