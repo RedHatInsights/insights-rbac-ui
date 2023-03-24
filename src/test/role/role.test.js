@@ -370,6 +370,7 @@ describe('role', () => {
 
     wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
     wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+
     await act(async () => {
       wrapper.find('button.pf-m-danger').simulate('click');
     });

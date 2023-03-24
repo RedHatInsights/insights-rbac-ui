@@ -1,9 +1,7 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import toJson from 'enzyme-to-json';
 import MUACard from '../../../presentational-components/myUserAccess/MUACard';
 import { MemoryRouter } from 'react-router-dom';
-import { Card } from '@patternfly/react-core';
+import { render, screen } from '@testing-library/react';
 /**
  * Mock bundle data
  */
@@ -14,37 +12,43 @@ const entitlementsMock = [
   ['entitled', { is_entitled: true, is_trial: false }],
   ['not-entitled', { is_entitled: false, is_trial: false }],
 ];
+const mockHeader = 'TestHeader';
+
 describe('<MUACard />', () => {
-  it('should render correctly', () => {
-    expect(
-      toJson(
-        mount(
-          <RouterWrapper>
-            <MUACard header="Test" entitlements={entitlementsMock} />
-          </RouterWrapper>
-        ).find(MUACard)
-      )
-    ).toMatchSnapshot();
-  });
-
-  it('should render correctly disabled', () => {
-    expect(
-      toJson(
-        mount(
-          <RouterWrapper>
-            <MUACard header="Test" isDisabled entitlements={entitlementsMock} />
-          </RouterWrapper>
-        ).find(MUACard)
-      )
-    ).toMatchSnapshot();
-  });
-
-  it('should not render a MUACard if not listed in entitlemends', () => {
-    const wrapper = mount(
+  test('Should render correctly if entitled', () => {
+    const { container } = render(
       <RouterWrapper>
-        <MUACard header="Test" isDisabled entitlements={[]} />
+        <MUACard header={mockHeader} entitlements={entitlementsMock} />
       </RouterWrapper>
     );
-    expect(wrapper.find(Card)).toHaveLength(0);
+
+    expect(container.firstChild).toMatchSnapshot();
+    expect(screen.getByText(mockHeader)).toBeInTheDocument();
+  });
+
+  test('Should render, but being disabled', () => {
+    const { container } = render(
+      <RouterWrapper>
+        <MUACard header={mockHeader} entitlements={entitlementsMock} isDisabled />
+      </RouterWrapper>
+    );
+
+    expect(container.firstChild).toMatchSnapshot();
+
+    const cardLinks = screen.getAllByLabelText('card-link');
+    expect(cardLinks[0]).toHaveClass('rbac-c-mua-bundles__cardlink rbac-c-mua-bundles__cardlink--disabled');
+  });
+
+  test('Should not render when unentitled', () => {
+    const { container } = render(
+      <RouterWrapper>
+        <MUACard header={mockHeader} entitlements={[]} />
+      </RouterWrapper>
+    );
+
+    expect(container.firstChild).toMatchSnapshot();
+
+    const cardLinks = screen.queryAllByRole('link', { name: /cardlink/i });
+    expect(cardLinks).toHaveLength(0);
   });
 });

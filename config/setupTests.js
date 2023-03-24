@@ -1,6 +1,7 @@
 import { configure, mount, render, shallow } from 'enzyme';
 import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
 import React from 'react';
+import '@testing-library/jest-dom';
 
 configure({ adapter: new Adapter() });
 
