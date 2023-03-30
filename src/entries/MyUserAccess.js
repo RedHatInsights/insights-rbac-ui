@@ -23,7 +23,7 @@ const Routes = () => {
   const history = useHistory();
   useEffect(() => {
     // redirect to MUA if url is "/settings"
-    if (window?.location?.pathname?.match(/\/settings$/)) {
+    if (window?.location?.pathname?.match(/\/(iam|settings)$/)) {
       history.push('/my-user-access');
     }
     // set correct title
