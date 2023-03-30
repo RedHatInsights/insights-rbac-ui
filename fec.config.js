@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  appUrl: ['/settings', '/settings/my-user-access', '/settings/rbac', '/iam', '/iam/user-access'],
+  appUrl: ['/iam/my-user-access', '/settings/rbac', '/iam', '/iam/user-access'],
   debug: true,
   useProxy: true,
   proxyVerbose: true,
