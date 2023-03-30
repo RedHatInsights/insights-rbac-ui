@@ -3,7 +3,7 @@ import { Label } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-export const createRows = (data, _opened, checkedRows = []) => {
+export const createRows = (data, checkedRows = []) => {
   const intl = useIntl();
   return data.reduce(
     (acc, { is_active: isActive, username, email, first_name: firstName, last_name: lastName }) => [

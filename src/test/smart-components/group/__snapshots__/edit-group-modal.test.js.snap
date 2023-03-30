@@ -35,7 +35,6 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
       }
     }
     onClose={[Function]}
-    onSubmit={[Function]}
     pagination={
       Object {
         "itemCount": 0,

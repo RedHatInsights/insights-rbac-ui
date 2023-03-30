@@ -195,6 +195,7 @@ TableToolbarView.propTypes = {
   emptyFilters: propTypes.object,
   checkedRows: propTypes.array,
   columns: propTypes.array.isRequired,
+  rows: propTypes.array.isRequired,
   titlePlural: propTypes.string,
   routes: propTypes.func,
   actionResolver: propTypes.func,

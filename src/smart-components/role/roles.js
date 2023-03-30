@@ -57,9 +57,7 @@ const Roles = () => {
     { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
-  const fetchData = (options) => {
-    return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
-  };
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
 
   const isSelectable = orgAdmin || userAccessAdministrator;
   const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
