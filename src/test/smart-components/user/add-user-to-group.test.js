@@ -2,14 +2,15 @@ import React from 'react';
 import { Provider } from 'react-redux';
 import { render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import AddUserToGroup from '../../../smart-components/user/add-user-to-group/add-user-to-group';
-import * as groupActions from '../../../redux/actions/group-actions';
 import userEvent from '@testing-library/user-event';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import * as groupActions from '../../../redux/actions/group-actions';
+import AddUserToGroup from '../../../smart-components/user/add-user-to-group/add-user-to-group';
 import { FETCH_GROUPS, ADD_MEMBERS_TO_GROUP } from '../../../redux/action-types.js';
 import PermissionsContext from '../../../utilities/permissions-context';
 import messages from '../../../Messages';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 
 const mockStore = configureMockStore([thunk]);
 const initialState = {
@@ -37,6 +38,11 @@ const renderComponent = (userName = 'testuser', store, isAdmin = true) => {
     </Provider>
   );
 };
+
+jest.mock('@redhat-cloud-services/frontend-components-notifications/', () => ({
+  ...jest.requireActual('@redhat-cloud-services/frontend-components-notifications/'),
+  addNotification: jest.fn(),
+}));
 
 const testGroups = [
   {
@@ -69,6 +75,8 @@ describe('Add User to Group Wizard', () => {
         },
       },
     });
+
+    store.dispatch = jest.fn();
 
     fetchGroups.mockImplementationOnce(() => ({
       type: FETCH_GROUPS,
@@ -104,7 +112,6 @@ describe('Add User to Group Wizard', () => {
     expect(fetchGroups).toHaveBeenCalled();
     await waitFor(() => expect(screen.getByLabelText('groups table')));
     await waitFor(() => expect(screen.getByText(`${messages.onlyNonUserGroupsVisible.defaultMessage}`)));
-    screen.debug();
   });
 
   test('Cannot add to group if the user is non-admin', () => {
@@ -131,6 +138,30 @@ describe('Add User to Group Wizard', () => {
     userEvent.click(screen.getByLabelText(`Save`));
 
     await waitFor(() => expect(addMembersToGroup).toHaveBeenCalled());
-    screen.debug();
+  });
+
+  test('Displays cancel warning notification when clicking cancel button', async () => {
+    renderComponent('testUser', store);
+
+    await waitFor(() => expect(screen.getByLabelText(`group-name-${testGroups[0].uuid}`)));
+
+    userEvent.click(screen.getByLabelText('Cancel'));
+
+    await waitFor(() => expect(addNotification).toHaveBeenCalledWith({
+      variant: 'warning',
+      title: messages.addingGroupMemberTitle.defaultMessage,
+      dismissDelay: 8000,
+      description: messages.addingGroupMemberCancelled.defaultMessage,
+    }));
+  });
+
+  test('Filtering groups by name works correctly', async () => {
+    renderComponent('testUser', store);
+
+    await waitFor(() => expect(screen.getByLabelText('groups table')));
+
+    const filterInput = screen.getByLabelText(/text input/i);
+    userEvent.type(filterInput, 'Group 2');
+    await waitFor(() => expect(screen.getByText('Group 2')).toBeInTheDocument());
   });
 });
