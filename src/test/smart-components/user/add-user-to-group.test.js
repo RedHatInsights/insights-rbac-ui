@@ -147,12 +147,14 @@ describe('Add User to Group Wizard', () => {
 
     userEvent.click(screen.getByLabelText('Cancel'));
 
-    await waitFor(() => expect(addNotification).toHaveBeenCalledWith({
-      variant: 'warning',
-      title: messages.addingGroupMemberTitle.defaultMessage,
-      dismissDelay: 8000,
-      description: messages.addingGroupMemberCancelled.defaultMessage,
-    }));
+    await waitFor(() =>
+      expect(addNotification).toHaveBeenCalledWith({
+        variant: 'warning',
+        title: messages.addingGroupMemberTitle.defaultMessage,
+        dismissDelay: 8000,
+        description: messages.addingGroupMemberCancelled.defaultMessage,
+      })
+    );
   });
 
   test('Filtering groups by name works correctly', async () => {
