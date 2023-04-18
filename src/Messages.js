@@ -979,12 +979,6 @@ export default defineMessages({
     description: 'Actions on clusters permissions message',
     defaultMessage: 'Only Org. Administrators and cluster owners can perform actions on clusters.',
   },
-  openshiftPermissions: {
-    id: 'openshiftPermissions',
-    description: 'Openshift permissions message',
-    defaultMessage:
-      'All users in the organization may view everything, but only Org. Administrators and cluster owners can perform actions on clusters. The table below displays roles for other OpenShift applications and services.',
-  },
   application: {
     id: 'application',
     description: 'Application label',
