@@ -24,7 +24,6 @@ const BaseRoleTable = (props) => {
   const { roles, pagination, isWizardLoading } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-
   const columns = [
     '',
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [sortable] },

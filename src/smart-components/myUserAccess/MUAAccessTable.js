@@ -2,6 +2,7 @@ import React, { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
+import { defaultSettings } from '../../helpers/shared/pagination';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
@@ -41,7 +42,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
     });
 
   useEffect(() => {
-    fetchData({ limit: 20, offset: 0, itemCount: 0, orderBy });
+    fetchData({ ...defaultSettings, orderBy });
   }, []);
 
   const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
