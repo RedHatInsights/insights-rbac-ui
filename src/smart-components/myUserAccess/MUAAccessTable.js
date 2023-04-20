@@ -2,8 +2,7 @@ import React, { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useSelector, useDispatch, shallowEqual } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
-import { defaultSettings } from '../../helpers/shared/pagination';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
 import { sortable } from '@patternfly/react-table';
@@ -42,18 +41,41 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
     });
 
   useEffect(() => {
-    fetchData(defaultSettings);
+    fetchData({ limit: 20, offset: 0, itemCount: 0, orderBy });
   }, []);
 
+  const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
   const filteredRows = permissions?.data || [];
 
   return (
     <Fragment>
-      <TableToolbarViewOld
+      <TableToolbarView
         columns={columns}
-        createRows={(data) => createRows(data, showResourceDefinitions, handleRdClick)}
+        rows={createRows(filteredRows, showResourceDefinitions, handleRdClick)}
         data={filteredRows}
         fetchData={fetchData}
+        sortBy={sortByState}
+        onSort={(e, index, direction) => {
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          setSortByState({ index, direction });
+          fetchData({
+            ...permissions?.meta,
+            offset: 0,
+            orderBy,
+            ...(filters?.length > 0
+              ? {
+                  ...filters.reduce(
+                    (acc, curr) => ({
+                      ...acc,
+                      [curr.key]: curr.value,
+                    }),
+                    {}
+                  ),
+                }
+              : { name: '', application: [] }),
+          });
+        }}
         filters={filters}
         setFilterValue={setFilters}
         isLoading={isLoading}

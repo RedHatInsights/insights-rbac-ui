@@ -273,7 +273,6 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input
@@ -570,7 +569,6 @@ exports[`<Roles /> should render correctly expanded 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input
@@ -874,7 +872,6 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input

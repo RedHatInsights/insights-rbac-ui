@@ -206,7 +206,6 @@ const Roles = () => {
             textFilterRef={textFilterRef}
             setCheckedItems={setCheckedItems}
             actionResolver={actionResolver}
-            sortBy={sortByState}
             columns={columns}
             areActionsDisabled={({ system }) => !!system}
             rowWrapper={RoleRowWrapper}
@@ -231,7 +230,7 @@ const Roles = () => {
             toolbarButtons={toolbarButtons}
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             tableId="roles"
-            testRoles={true}
+            sortBy={sortByState}
             onSort={(e, index, direction) => {
               const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isSelectable)].key}`;
               setSortByState({ index, direction });

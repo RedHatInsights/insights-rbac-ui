@@ -1,6 +1,6 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
   createRows,
   INITIALIZE_ROLE,
@@ -223,6 +223,7 @@ const Permissions = ({ cantAddPermissions }) => {
   const filterItemOverflow = Object.values({ applications: sanitizedRole.applications, operations, resources }).find(
     (value) => value.length > maxFilterItems
   );
+  const data = filteredRows.slice(pagination.offset, pagination.offset + pagination.limit);
 
   return (
     <section className="pf-c-page__main-section rbac-c-role__permissions">
@@ -239,11 +240,11 @@ const Permissions = ({ cantAddPermissions }) => {
           }}
         />
       )}
-      <TableToolbarViewOld
+      <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
-        createRows={createRows(showResourceDefinitions, role?.uuid)}
+        rows={createRows(showResourceDefinitions, role?.uuid, data, intl)}
         actionResolver={role.system ? undefined : actionResolver}
-        data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
+        data={data}
         filterValue=""
         ouiaId="role-permissions-table"
         fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}

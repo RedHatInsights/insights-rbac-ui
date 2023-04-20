@@ -44,6 +44,7 @@ export const TableToolbarView = ({
   onChange,
   value,
   sortBy,
+  onSort,
   isExpandable,
   onExpand,
   hideFilterChips,
@@ -53,7 +54,6 @@ export const TableToolbarView = ({
   ouiaId,
   tableId,
   containerRef,
-  onSort,
   textFilterRef,
 }) => {
   const intl = useIntl();
