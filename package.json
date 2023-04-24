@@ -80,7 +80,7 @@
     "@babel/preset-flow": "^7.16.7",
     "@babel/preset-react": "^7.16.7",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^1.2.2",
-    "@redhat-cloud-services/frontend-components-config": "^4.7.0",
+    "@redhat-cloud-services/frontend-components-config": "^4.7.3",
     "@testing-library/dom": "^9.0.1",
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/react": "^12.1.5",
