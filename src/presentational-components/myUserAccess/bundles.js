@@ -17,7 +17,7 @@ export const bundleData = [
       subscriptions: '/subscriptions',
       'cost management': '/cost-management',
     },
-    appsIds: ['cost-management', 'subscriptions', 'ocp-advisor'],
+    appsIds: ['cost-management', 'subscriptions', 'ocp-advisor', 'ocm'],
   },
   {
     entitlement: 'rhel',
