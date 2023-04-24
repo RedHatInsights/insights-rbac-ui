@@ -10,10 +10,10 @@ import { sortable } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
+const selector = ({ roleReducer: { rolesForWizard, isWizardLoading } }) => ({
   roles: rolesForWizard.data,
   pagination: rolesForWizard.meta,
-  isLoading,
+  isWizardLoading,
 });
 
 const BaseRoleTable = (props) => {
@@ -21,7 +21,7 @@ const BaseRoleTable = (props) => {
   const dispatch = useDispatch();
   const fetchData = (options) => dispatch(fetchRolesForWizard(options));
   const [filterValue, setFilterValue] = useState('');
-  const { roles, pagination } = useSelector(selector, shallowEqual);
+  const { roles, pagination, isWizardLoading } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
 
@@ -80,7 +80,7 @@ const BaseRoleTable = (props) => {
         fetchData={(config) => fetchData(mappedProps(config))}
         filterValue={filterValue}
         setFilterValue={({ name }) => setFilterValue(name)}
-        isLoading={false}
+        isLoading={isWizardLoading}
         pagination={pagination}
         titlePlural={intl.formatMessage(messages.roles)}
         titleSingular={intl.formatMessage(messages.role)}
