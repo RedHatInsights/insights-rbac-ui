@@ -10,10 +10,10 @@ import { sortable } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const selector = ({ roleReducer: { rolesForWizard, isLoading } }) => ({
+const selector = ({ roleReducer: { rolesForWizard, isWizardLoading } }) => ({
   roles: rolesForWizard.data,
   pagination: rolesForWizard.meta,
-  isLoading,
+  isWizardLoading,
 });
 
 const BaseRoleTable = (props) => {
@@ -21,7 +21,7 @@ const BaseRoleTable = (props) => {
   const dispatch = useDispatch();
   const fetchData = (options) => dispatch(fetchRolesForWizard(options));
   const [filterValue, setFilterValue] = useState('');
-  const { roles, pagination, isLoading } = useSelector(selector, shallowEqual);
+  const { roles, pagination, isWizardLoading } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
 
@@ -85,7 +85,7 @@ const BaseRoleTable = (props) => {
         }}
         filterValue={filterValue}
         setFilterValue={({ name }) => setFilterValue(name)}
-        isLoading={isLoading}
+        isLoading={isWizardLoading}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
           const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
