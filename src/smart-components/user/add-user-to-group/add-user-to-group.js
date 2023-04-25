@@ -47,7 +47,12 @@ const AddUserToGroup = ({ username }) => {
           uuid,
           isAdminDefault,
           isPlatformDefault,
-          cells: [<Fragment key={uuid}>{name}</Fragment>, <Fragment key={`${uuid}-description`}>{description}</Fragment>],
+          cells: [
+            <Fragment key={uuid}>
+              <span aria-label={`group-name-${uuid}`}>{name}</span>
+            </Fragment>,
+            <Fragment key={`${uuid}-description`}>{description}</Fragment>,
+          ],
           selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         },
       ],
@@ -133,6 +138,7 @@ const AddUserToGroup = ({ username }) => {
           textFilterRef={textFilterRef}
           tableId="available-user-groups"
           ouiaId="available-user-groups-table"
+          data-testid="group-table"
         />
       </Modal>
     </Fragment>
