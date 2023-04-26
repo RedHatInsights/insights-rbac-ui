@@ -57,7 +57,7 @@ const SettingsMua = () => (
       }}
     >
       <Provider store={registry.getStore()}>
-        <Router basename={getBaseName(location.pathname, 1)}>
+        <Router basename={getBaseName(location.pathname)}>
           <MuaApp />
         </Router>
       </Provider>
