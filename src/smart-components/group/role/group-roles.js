@@ -190,11 +190,11 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
             afterSubmit={() => {
               if (isPlatformDefault || isAdminDefault) {
                 fetchSystGroup().then(({ value: { data } }) => {
-                  fetchRolesForGroup(data[0].uuid);
+                  fetchGroupRoles(pagination)(data[0].uuid);
                   fetchGroupData(data[0].uuid);
                 });
               } else {
-                fetchRolesForGroup();
+                fetchGroupRoles(pagination)(uuid);
                 fetchGroupData();
               }
             }}
