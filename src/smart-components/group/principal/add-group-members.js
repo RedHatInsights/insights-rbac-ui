@@ -11,10 +11,13 @@ import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
 const AddGroupMembers = ({ closeUrl }) => {
-  const [selectedUsers, setSelectedUsers] = useState([]);
-  const intl = useIntl();
-  const { push } = useHistory();
   const { uuid } = useParams();
+  const { push } = useHistory();
+  const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const [selectedUsers, setSelectedUsers] = useState([]);
+
   const onSubmit = () => {
     const userList = selectedUsers.map((user) => ({ username: user.label }));
     if (userList.length > 0) {
@@ -26,12 +29,10 @@ const AddGroupMembers = ({ closeUrl }) => {
           description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
         })
       );
-      dispatch(
-        addMembersToGroup(uuid, userList).then(() => {
-          dispatch(fetchMembersForGroup(uuid));
-          dispatch(fetchGroups({ inModal: false }));
-        })
-      );
+      dispatch(addMembersToGroup(uuid, userList)).then(() => {
+        dispatch(fetchMembersForGroup(uuid));
+        dispatch(fetchGroups({ inModal: false }));
+      });
     }
     push(closeUrl);
   };
@@ -47,8 +48,6 @@ const AddGroupMembers = ({ closeUrl }) => {
     );
     push(closeUrl);
   };
-
-  const dispatch = useDispatch();
 
   return (
     <Modal
