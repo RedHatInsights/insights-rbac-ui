@@ -23,7 +23,9 @@ export const Routes = () => {
           strict: false,
         })
     );
-    updateDocumentTitle(`${currPath.title} - User Access`);
+    if (currPath?.title) {
+      updateDocumentTitle(`${currPath.title} - User Access`);
+    }
   }, [location.pathname, updateDocumentTitle]);
 
   return (
