@@ -4,6 +4,7 @@ import { AppPlaceholder } from './presentational-components/shared/loader-placeh
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
 import { matchPath, useLocation } from 'react-router-dom';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Roles = lazy(() => import('./smart-components/role/roles'));
@@ -12,18 +13,20 @@ const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quicks
 
 export const Routes = () => {
   const location = useLocation();
+  const { updateDocumentTitle } = useChrome();
   useEffect(() => {
-    insights.chrome.updateDocumentTitle(
-      Object.values(pathnames).find(
-        (item) =>
-          !!matchPath(location.pathname, {
-            path: item.path,
-            exact: true,
-            strict: false,
-          })
-      )?.title || 'User Access'
+    const currPath = Object.values(pathnames).find(
+      (item) =>
+        !!matchPath(location.pathname, {
+          path: item.path,
+          exact: true,
+          strict: false,
+        })
     );
-  }, [location.pathname]);
+    if (currPath?.title) {
+      updateDocumentTitle(`${currPath.title} - User Access`);
+    }
+  }, [location.pathname, updateDocumentTitle]);
 
   return (
     <Suspense fallback={<AppPlaceholder />}>
