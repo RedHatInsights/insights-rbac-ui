@@ -34,7 +34,7 @@ describe('<Roles />', () => {
               name: 'Test name',
               uuid: 'test',
               description: 'test',
-              system: 'test',
+              system: false,
               accessCount: 1,
               groups_in_count: 1,
               groups_in: [

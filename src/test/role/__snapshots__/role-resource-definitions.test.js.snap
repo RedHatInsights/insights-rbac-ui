@@ -49,7 +49,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
               "onSort": [Function],
               "rowLabeledBy": "simple-node",
               "selectVariant": "checkbox",
-              "sortBy": Object {},
+              "sortBy": undefined,
             },
             "header": Object {
               "formatters": Array [],
@@ -989,7 +989,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                   "onSort": [Function],
                   "rowLabeledBy": "simple-node",
                   "selectVariant": "checkbox",
-                  "sortBy": Object {},
+                  "sortBy": undefined,
                 },
                 "header": Object {
                   "formatters": Array [],
@@ -2240,7 +2240,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -2420,7 +2420,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -2600,7 +2600,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -2780,7 +2780,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -2960,7 +2960,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -3140,7 +3140,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -3320,7 +3320,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -3500,7 +3500,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -3680,7 +3680,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -3860,7 +3860,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4040,7 +4040,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4220,7 +4220,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4400,7 +4400,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4580,7 +4580,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4760,7 +4760,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -4940,7 +4940,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -5120,7 +5120,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -5300,7 +5300,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -5480,7 +5480,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],
@@ -5660,7 +5660,7 @@ exports[`RoleResourceDefinitions should render resource definitions table 1`] = 
                             "onSort": [Function],
                             "rowLabeledBy": "simple-node",
                             "selectVariant": "checkbox",
-                            "sortBy": Object {},
+                            "sortBy": undefined,
                           },
                           "header": Object {
                             "formatters": Array [],

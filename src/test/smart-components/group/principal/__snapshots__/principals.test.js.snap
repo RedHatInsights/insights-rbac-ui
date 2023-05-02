@@ -3,7 +3,7 @@
 exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
 
 exports[`<GroupPrincipals /> should render correctly with data 1`] = `
-<TableToolbarViewOld
+<TableToolbarView
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}
@@ -29,7 +29,6 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
       },
     ]
   }
-  createRows={[Function]}
   data={
     Array [
       Object {
@@ -82,6 +81,56 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
   }
   routes={[Function]}
   rowWrapper={[Function]}
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "data": Object {
+                "isActive": true,
+              },
+            },
+            "title": <Label
+              color="green"
+            >
+              Active
+            </Label>,
+          },
+          "test",
+          "test",
+          "test",
+          "test",
+        ],
+        "selected": undefined,
+        "username": "test",
+        "uuid": "test",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "data": Object {
+                "isActive": false,
+              },
+            },
+            "title": <Label
+              color={false}
+            >
+              Inactive
+            </Label>,
+          },
+          "test2",
+          "test2",
+          "test2",
+          "test2",
+        ],
+        "selected": undefined,
+        "username": "test2",
+        "uuid": "test2",
+      },
+    ]
+  }
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   tableId="group-members"
@@ -211,7 +260,7 @@ exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
 `;
 
 exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] = `
-<TableToolbarViewOld
+<TableToolbarView
   actionResolver={[Function]}
   borders={true}
   checkedRows={Array []}
@@ -237,7 +286,6 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
       },
     ]
   }
-  createRows={[Function]}
   data={
     Array [
       Object {
@@ -290,6 +338,56 @@ exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] =
   }
   routes={[Function]}
   rowWrapper={[Function]}
+  rows={
+    Array [
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "data": Object {
+                "isActive": true,
+              },
+            },
+            "title": <Label
+              color="green"
+            >
+              Active
+            </Label>,
+          },
+          "test",
+          "test",
+          "test",
+          "test",
+        ],
+        "selected": undefined,
+        "username": "test",
+        "uuid": "test",
+      },
+      Object {
+        "cells": Array [
+          Object {
+            "props": Object {
+              "data": Object {
+                "isActive": false,
+              },
+            },
+            "title": <Label
+              color={false}
+            >
+              Inactive
+            </Label>,
+          },
+          "test2",
+          "test2",
+          "test2",
+          "test2",
+        ],
+        "selected": undefined,
+        "username": "test2",
+        "uuid": "test2",
+      },
+    ]
+  }
   setCheckedItems={[Function]}
   setFilterValue={[Function]}
   tableId="group-members"

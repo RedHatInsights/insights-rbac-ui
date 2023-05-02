@@ -57,9 +57,7 @@ const Roles = () => {
     { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
-  const fetchData = (options) => {
-    return dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
-  };
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, inModal: false }));
 
   const isSelectable = orgAdmin || userAccessAdministrator;
   const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
@@ -208,7 +206,6 @@ const Roles = () => {
             textFilterRef={textFilterRef}
             setCheckedItems={setCheckedItems}
             actionResolver={actionResolver}
-            sortBy={sortByState}
             columns={columns}
             areActionsDisabled={({ system }) => !!system}
             rowWrapper={RoleRowWrapper}
@@ -233,7 +230,7 @@ const Roles = () => {
             toolbarButtons={toolbarButtons}
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             tableId="roles"
-            testRoles={true}
+            sortBy={sortByState}
             onSort={(e, index, direction) => {
               const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isSelectable)].key}`;
               setSortByState({ index, direction });

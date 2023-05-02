@@ -128,14 +128,9 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
 EditGroupModal.defaultProps = {
   cancelRoute: pathnames.groups.path,
   onClose: () => null,
-  onSubmit: () => null,
 };
 
 EditGroupModal.propTypes = {
-  addNotification: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
-  inputValue: PropTypes.string,
-  updateGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,

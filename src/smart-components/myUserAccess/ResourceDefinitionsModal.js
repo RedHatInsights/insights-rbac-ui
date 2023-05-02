@@ -1,7 +1,7 @@
 import { Button, Modal } from '@patternfly/react-core';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -57,7 +57,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         />
       }
     >
-      <TableToolbarViewOld
+      <TableToolbarView
         columns={columns}
         data={rows}
         filterValue={filterValue}
@@ -65,7 +65,7 @@ const ResourceDefinitionsModal = ({ isOpen, handleClose, permission, resourceDef
         pagination={pagination}
         ouiaId="resource-definition-table"
         noData={resourceDefinitions.length === 0}
-        createRows={(data) => data.map((value) => ({ cells: [value] }))}
+        rows={rows.map((value) => ({ cells: [value] }))}
         titlePlural={intl.formatMessage(messages.resourceDefinitions)}
         titleSingular={intl.formatMessage(messages.resourceDefinition)}
         noDataDescription={[intl.formatMessage(messages.resourceDefinition, { permission: permission })]}

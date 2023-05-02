@@ -2,7 +2,6 @@ import React, { lazy, Suspense, useEffect } from 'react';
 import { BrowserRouter as Router, Route, useHistory } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { getBaseName } from '@redhat-cloud-services/frontend-components-utilities/helpers';
-import Main from '@redhat-cloud-services/frontend-components/Main';
 import { IntlProvider } from 'react-intl';
 
 import registry, { RegistryContext } from '../utilities/store';
@@ -42,9 +41,9 @@ const MuaApp = () => {
   return (
     <PermissionsContext.Provider value={{ ...userData }}>
       <ErroReducerCatcher>
-        <Main style={{ marginLeft: 0, padding: 0 }}>
+        <section style={{ marginLeft: 0, padding: 0 }}>
           <Routes />
-        </Main>
+        </section>
       </ErroReducerCatcher>
     </PermissionsContext.Provider>
   );

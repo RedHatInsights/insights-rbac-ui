@@ -2,7 +2,7 @@ import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } fro
 import PropTypes from 'prop-types';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { useIntl } from 'react-intl';
@@ -40,10 +40,12 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
     shallowEqual
   );
 
+  const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchRoles({ limit: 20, offset: 0, orderBy: 'display_name', scope: 'principal', application: apps.join(',') }));
+    dispatch(fetchRoles({ limit: 20, offset: 0, orderBy, scope: 'principal', application: apps.join(',') }));
   }, []);
 
   const createRows = (data) => {
@@ -135,19 +137,40 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
 
   return (
     <Fragment>
-      <TableToolbarViewOld
+      <TableToolbarView
         filters={filters}
         columns={columns}
+        rows={createRows(roles.data)}
+        data={roles.data}
         isCompact={false}
         isExpandable={true}
         onExpand={onExpand}
-        createRows={createRows}
         ouiaId="roles-table"
-        data={roles.data}
-        fetchData={({ limit, offset, name, application, permission, orderBy = 'display_name' }) => {
+        fetchData={({ limit, offset, name, application, permission, orderBy }) => {
           debouncedFetch(limit, offset, name, application, permission, orderBy);
         }}
-        sortBy={{ index: 0, direction: 'asc' }}
+        sortBy={sortByState}
+        onSort={(e, index, direction) => {
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          setSortByState({ index, direction });
+          dispatch(
+            fetchRoles({
+              offset: 0,
+              orderBy,
+              ...(filters?.length > 0
+                ? {
+                    ...filters.reduce(
+                      (acc, curr) => ({
+                        ...acc,
+                        [curr.key]: curr.value,
+                      }),
+                      {}
+                    ),
+                  }
+                : { name: '', application: [] }),
+            })
+          );
+        }}
         emptyFilters={{ name: '', application: [] }}
         setFilterValue={setFilters}
         isLoading={isLoading}

@@ -1,7 +1,7 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { TextContent, Text, TextVariants, Level, LevelItem, Button } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './role-resource-definitions-table-helpers';
 import { useParams, Link, Route } from 'react-router-dom';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
@@ -93,6 +93,7 @@ const ResourceDefinitions = () => {
           </Fragment>,
         ]
       : [];
+  const data = filteredRows.slice(pagination.offset, pagination.offset + pagination.limit);
 
   return (
     <Fragment>
@@ -113,10 +114,10 @@ const ResourceDefinitions = () => {
         <TextContent>
           <Text component={TextVariants.h1}>{intl.formatMessage(messages.definedResources)}</Text>
         </TextContent>
-        <TableToolbarViewOld
+        <TableToolbarView
           columns={[{}]}
-          createRows={createRows}
-          data={filteredRows.slice(pagination.offset, pagination.offset + pagination.limit)}
+          rows={createRows(data)}
+          data={data}
           filterValue={filter}
           fetchData={({ limit, offset, name }) =>
             setConfig({

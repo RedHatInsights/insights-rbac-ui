@@ -100,26 +100,20 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
 };
 
 RemoveGroupModal.defaultProps = {
-  isModalOpen: false,
-  group: {},
   groupsUuid: [],
-  isLoading: true,
+  isModalOpen: false,
   cancelUrl: pathnames.groups.path,
 };
 
 RemoveGroupModal.propTypes = {
+  groupsUuid: PropTypes.array.isRequired,
   isModalOpen: PropTypes.bool,
-  removeGroups: PropTypes.func.isRequired,
-  fetchGroup: PropTypes.func.isRequired,
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
   }).isRequired,
   filters: PropTypes.object.isRequired,
-  isLoading: PropTypes.bool,
-  group: PropTypes.object,
-  groupsUuid: PropTypes.array,
-  submitRoute: PropTypes.oneOfType([
+  cancelRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({
       pathname: PropTypes.string.isRequired,
@@ -127,7 +121,7 @@ RemoveGroupModal.propTypes = {
       hash: PropTypes.string,
     }),
   ]),
-  cancelRoute: PropTypes.oneOfType([
+  submitRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({
       pathname: PropTypes.string.isRequired,

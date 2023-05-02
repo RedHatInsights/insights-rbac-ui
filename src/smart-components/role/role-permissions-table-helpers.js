@@ -4,44 +4,40 @@ import { getDateFormat } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { Link } from 'react-router-dom';
 import flatten from 'lodash/flatten';
-import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 
-export const createRows = (showResDefinitions, uuid) => {
-  const intl = useIntl();
-  return (data, opened, selectedRows = []) =>
-    data.reduce((acc, { resourceDefinitions, permission, modified }) => {
-      const [appName, type, operation] = permission.split(':');
-      return [
-        ...acc,
-        {
-          uuid: permission,
-          cells: [
-            appName,
-            type,
-            operation,
-            ...(showResDefinitions
-              ? [
-                  permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
-                    <Fragment key="resource-definitions">
-                      <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
-                        {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
-                      </Link>
-                    </Fragment>
-                  ) : (
-                    <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>
-                  ),
-                ]
-              : []),
-            <Fragment key={`${appName}-modified`}>
-              <DateFormat date={modified} type={getDateFormat(modified)} />
-            </Fragment>,
-          ],
-          selected: Boolean(selectedRows?.find(({ uuid }) => uuid === permission)),
-        },
-      ];
-    }, []);
-};
+export const createRows = (showResDefinitions, uuid, data, intl, selectedRows = []) =>
+  data.reduce((acc, { resourceDefinitions, permission, modified }) => {
+    const [appName, type, operation] = permission.split(':');
+    return [
+      ...acc,
+      {
+        uuid: permission,
+        cells: [
+          appName,
+          type,
+          operation,
+          ...(showResDefinitions
+            ? [
+                permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
+                  <Fragment key="resource-definitions">
+                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
+                      {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
+                    </Link>
+                  </Fragment>
+                ) : (
+                  <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>
+                ),
+              ]
+            : []),
+          <Fragment key={`${appName}-modified`}>
+            <DateFormat date={modified} type={getDateFormat(modified)} />
+          </Fragment>,
+        ],
+        selected: Boolean(selectedRows?.find(({ uuid }) => uuid === permission)),
+      },
+    ];
+  }, []);
 
 export const rolePermissionsReducerInitialState = {
   pagination: defaultSettings,
