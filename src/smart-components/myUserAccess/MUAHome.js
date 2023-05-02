@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 import PermissionsContext from '../../utilities/permissions-context';
@@ -16,12 +17,13 @@ import messages from '../../Messages';
 
 const MyUserAccess = () => {
   const intl = useIntl();
+  const chrome = useChrome();
   const [user, setUser] = useState({});
   let { bundle } = useSearchParams('bundle');
   const [bundleParam, setBundleParam] = useState(bundle);
   const { userAccessAdministrator } = useContext(PermissionsContext);
   useEffect(() => {
-    insights.chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
+    chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
   }, []);
   const enhancedEntitlements = {
     ...user.entitlements,
