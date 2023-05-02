@@ -8,7 +8,7 @@ import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import debounce from 'lodash/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import Skeleton from '@redhat-cloud-services/frontend-components/Skeleton';
+import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import AddGroupRoles from '../group/role/add-group-roles';
 import AddUserToGroup from './add-user-to-group/add-user-to-group';
 import Breadcrumbs from '../../presentational-components/shared/breadcrumbs';
@@ -50,6 +50,7 @@ const User = () => {
   const [filter, setFilter] = useState('');
   const [user, setUser] = useState();
   const [expanded, setExpanded] = useState({});
+  const [loadingRolesTemp, setLoadingRolesTemp] = useState(false);
   const [selectedAddRoles, setSelectedAddRoles] = useState([]);
 
   const { roles, isLoadingRoles, rolesWithAccess, users, isLoadingUsers, userExists } = useSelector(selector);
@@ -62,7 +63,9 @@ const User = () => {
   useEffect(() => {
     insights.chrome.appObjectId(username);
     dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true }));
-    fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username });
+    fetchRolesData({ limit: 20, offset: 0, username });
+    setLoadingRolesTemp(true);
+    fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(() => setLoadingRolesTemp(false));
     debouncedFetch = debounce(
       (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
       500
@@ -98,7 +101,7 @@ const User = () => {
               uuid,
               cells: [
                 { title: display_name, props: { component: 'th', isOpen: false } },
-                { title: `${groups_in.length}`, props: { isOpen: expanded[uuid] === 1 } },
+                { title: loadingRolesTemp ? <Skeleton size={SkeletonSize.xs} /> : groups_in.length, props: { isOpen: expanded[uuid] === 1 } },
                 { title: accessCount, props: { isOpen: expanded[uuid] === 2 } },
                 { title: <DateFormat type={getDateFormat(modified)} date={modified} /> },
               ],
@@ -139,7 +142,9 @@ const User = () => {
                         <TableBody />
                       </Table>
                     ) : (
-                      <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+                      <Text className="pf-u-mx-lg pf-u-my-sm">
+                        {loadingRolesTemp ? intl.formatMessage(messages.loading) : intl.formatMessage(messages.noGroups)}
+                      </Text>
                     ),
                 },
               ],
