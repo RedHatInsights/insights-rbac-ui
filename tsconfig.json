@@ -13,7 +13,8 @@
     "allowSyntheticDefaultImports": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
+    "types": ["src/redux/store.d.ts"]
   },
   "include": [
     "src/**/*.ts",

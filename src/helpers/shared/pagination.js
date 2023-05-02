@@ -18,7 +18,10 @@ export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math
 
 export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (page - 1) * limit;
 
-export const syncDefaultPaginationWithUrl = (location, navigate, defaultPagination = defaultSettings) => {
+export const syncDefaultPaginationWithUrl = (location, navigate, defaultPagination) => {
+  if (!defaultPagination) {
+    defaultPagination = defaultSettings;
+  }
   let searchParams = new URLSearchParams(location.search);
 
   let limit = parseInt(searchParams.get('per_page'));
@@ -53,8 +56,10 @@ export const isPaginationPresentInUrl = (location) => {
 export const isOffsetValid = (offset = 0, count = 0) => offset === 0 || count > offset;
 
 export const getLastPageOffset = (count, limit) => Math.floor((count % limit === 0 ? count - 1 : count) / limit) * limit;
-
-export const applyPaginationToUrl = (location, navigate, limit, offset = 0) => {
+export const applyPaginationToUrl = (location, navigate, limit, offset) => {
+  if (!offset) {
+    offset = 0;
+  }
   const searchParams = new URLSearchParams(location.search);
   searchParams.set('per_page', limit);
   searchParams.set('page', calculatePage(limit, offset));

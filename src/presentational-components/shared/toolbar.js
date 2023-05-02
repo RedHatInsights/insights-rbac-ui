@@ -7,7 +7,7 @@ import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
 
-export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '', sortBy = '') => ({
+export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '') => ({
   ...pagination,
   itemCount: pagination.count,
   perPage: pagination.limit,
