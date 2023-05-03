@@ -68,7 +68,7 @@ exports[`<Roles /> should render correctly 1`] = `
         "groups_in_count": 1,
         "modified": 1970-01-01T00:00:00.000Z,
         "name": "Test name",
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
     ]
@@ -132,9 +132,9 @@ exports[`<Roles /> should render correctly 1`] = `
             />,
           },
         ],
-        "disableSelection": true,
+        "disableSelection": false,
         "selected": false,
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
       Object {
@@ -273,7 +273,6 @@ exports[`<Roles /> should render correctly 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input
@@ -365,7 +364,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
         "groups_in_count": 1,
         "modified": 1970-01-01T00:00:00.000Z,
         "name": "Test name",
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
     ]
@@ -429,9 +428,9 @@ exports[`<Roles /> should render correctly expanded 1`] = `
             />,
           },
         ],
-        "disableSelection": true,
+        "disableSelection": false,
         "selected": false,
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
       Object {
@@ -570,7 +569,6 @@ exports[`<Roles /> should render correctly expanded 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input
@@ -669,7 +667,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
         "groups_in_count": 1,
         "modified": 1970-01-01T00:00:00.000Z,
         "name": "Test name",
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
     ]
@@ -733,9 +731,9 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
             />,
           },
         ],
-        "disableSelection": true,
+        "disableSelection": false,
         "selected": false,
-        "system": "test",
+        "system": false,
         "uuid": "test",
       },
       Object {
@@ -874,7 +872,6 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
     }
   }
   tableId="roles"
-  testRoles={true}
   textFilterRef={
     Object {
       "current": <input

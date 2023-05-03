@@ -132,7 +132,7 @@ describe('<GroupPrincipals />', () => {
         </Provider>
       );
     });
-    expect(toJson(wrapper.find('TableToolbarViewOld'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 
   it('should render correctly with default group', async () => {
@@ -175,6 +175,6 @@ describe('<GroupPrincipals />', () => {
         </Provider>
       );
     });
-    expect(toJson(wrapper.find('TableToolbarViewOld'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
   });
 });

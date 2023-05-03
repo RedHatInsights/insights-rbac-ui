@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Radio, Alert } from '@patternfly/react-core';
-import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesForWizard } from '../../../redux/actions/role-actions';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
@@ -24,19 +24,21 @@ const BaseRoleTable = (props) => {
   const { roles, pagination, isWizardLoading } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-
   const columns = [
     '',
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [sortable] },
     intl.formatMessage(messages.description),
   ];
 
+  const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index].key}`;
+
   useEffect(() => {
     fetchData({
       limit: 50,
       offset: 0,
       itemCount: 0,
-      orderBy: 'display_name',
+      orderBy,
     });
   }, []);
 
@@ -73,14 +75,26 @@ const BaseRoleTable = (props) => {
   return (
     <div>
       <Alert variant="info" isInline title={intl.formatMessage(messages.granularPermissionsWillBeCopied)} />
-      <TableToolbarViewOld
+      <TableToolbarView
         columns={columns}
-        createRows={createRows}
+        rows={createRows(roles)}
         data={roles}
-        fetchData={(config) => fetchData(mappedProps(config))}
+        fetchData={(config) => {
+          fetchData(mappedProps(config));
+        }}
         filterValue={filterValue}
         setFilterValue={({ name }) => setFilterValue(name)}
         isLoading={isWizardLoading}
+        sortBy={sortByState}
+        onSort={(e, index, direction) => {
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          setSortByState({ index, direction });
+          fetchData({
+            ...pagination,
+            offset: 0,
+            orderBy,
+          });
+        }}
         pagination={pagination}
         titlePlural={intl.formatMessage(messages.roles)}
         titleSingular={intl.formatMessage(messages.role)}

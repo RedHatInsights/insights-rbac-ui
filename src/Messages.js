@@ -1425,6 +1425,11 @@ export default defineMessages({
     description: 'No groups label',
     defaultMessage: 'No groups',
   },
+  loading: {
+    id: 'loading',
+    description: 'Loading temporary label',
+    defaultMessage: 'Loading...',
+  },
   noPermissions: {
     id: 'noPermissions',
     description: 'No permissions label',

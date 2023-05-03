@@ -6,7 +6,7 @@ import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { TableToolbarViewOld } from '../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import Group from './group';
@@ -46,6 +46,10 @@ const Groups = () => {
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
   ];
 
+  // using 'isAdmin' (0 or 1) determines correct index for columns due to 'isSelectable' property on Table component
+  const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
+  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
+
   const { groups, meta, filters, isLoading, systemGroup } = useSelector(
     ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
       groups: [
@@ -72,7 +76,7 @@ const Groups = () => {
     const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
-    fetchData({ ...syncedPagination, filters: { name } });
+    fetchData({ ...syncedPagination, orderBy, filters: { name } });
     dispatch(fetchAdminGroup(name));
     dispatch(fetchSystemGroup(name));
   }, []);
@@ -81,14 +85,6 @@ const Groups = () => {
     isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
     filterValue?.length > 0 && !areFiltersPresentInUrl(history, ['name']) && syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
   });
-
-  const setCheckedItems = (newSelection) => {
-    setSelectedRows((rows) =>
-      newSelection(rows)
-        .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault }) => !(isPlatformDefault || isAdminDefault))
-        .map(({ uuid, name }) => ({ uuid, label: name }))
-    );
-  };
 
   useEffect(() => {
     pagination.redirected && applyPaginationToUrl(history, pagination.limit, pagination.offset);
@@ -99,12 +95,28 @@ const Groups = () => {
     setPagination({ ...pagination, ...meta });
   }, [filters, meta]);
 
+  const setCheckedItems = (newSelection) => {
+    setSelectedRows((rows) =>
+      newSelection(rows)
+        .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault }) => !(isPlatformDefault || isAdminDefault))
+        .map(({ uuid, name }) => ({ uuid, label: name }))
+    );
+  };
+
+  const fetchTableData = (config) => {
+    const { name, count, limit, offset, orderBy } = config;
+    applyPaginationToUrl(history, limit, offset);
+    applyFiltersToUrl(history, { name });
+    return fetchData({ count, limit, offset, orderBy, filters: { name } });
+  };
+
   const routes = () => (
     <Fragment>
       <Route exact path={pathnames['add-group'].path}>
         <AddGroupWizard
           pagination={pagination}
           filters={filters}
+          orderBy={orderBy}
           postMethod={(config) => {
             fetchData(config);
             setFilterValue('');
@@ -116,7 +128,7 @@ const Groups = () => {
           pagination={pagination}
           filters={filters}
           postMethod={(config) => {
-            fetchData(config);
+            fetchData({ ...config, orderBy });
           }}
           cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
           submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
@@ -127,7 +139,7 @@ const Groups = () => {
           pagination={pagination}
           filters={filters}
           postMethod={(ids, config) => {
-            fetchData(config);
+            fetchData({ ...config, orderBy });
             setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
           }}
           cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
@@ -196,7 +208,10 @@ const Groups = () => {
         ]
       : []),
   ];
-
+  const data = groups.map((group) =>
+    group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
+  );
+  const rows = createRows(isAdmin, data, selectedRows);
   const renderGroupsList = () => (
     <Stack className="rbac-c-groups">
       <StackItem>
@@ -206,11 +221,30 @@ const Groups = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id="tab-groups">
-          <TableToolbarViewOld
-            data={groups.map((group) =>
-              group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
-            )}
-            createRows={(...args) => createRows(isAdmin, ...args)}
+          <TableToolbarView
+            data={groups}
+            rows={rows}
+            sortBy={sortByState}
+            onSort={(e, index, direction) => {
+              const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isAdmin)].key}`;
+              setSortByState({ index, direction });
+              fetchTableData({
+                ...pagination,
+                offset: 0,
+                orderBy,
+                ...(filters?.length > 0
+                  ? {
+                      ...filters.reduce(
+                        (acc, curr) => ({
+                          ...acc,
+                          [curr.key]: curr.value,
+                        }),
+                        {}
+                      ),
+                    }
+                  : { name: filterValue }),
+              });
+            }}
             columns={columns}
             isSelectable={isAdmin}
             checkedRows={selectedRows}

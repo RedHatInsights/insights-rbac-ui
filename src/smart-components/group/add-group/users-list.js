@@ -22,43 +22,45 @@ import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
 
 const createRows = (userLinks, data, checkedRows = [], intl) =>
-  data?.reduce?.(
-    (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
-      ...acc,
-      {
-        uuid: username,
-        cells: [
-          isOrgAdmin ? (
-            <Fragment>
-              <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-              <span key="yes">{intl.formatMessage(messages.yes)}</span>
-            </Fragment>
-          ) : (
-            <Fragment>
-              <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-              <span key="no">{intl.formatMessage(messages.no)}</span>
-            </Fragment>
-          ),
-          { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
-          email,
-          firstName,
-          lastName,
+  data
+    ? data.reduce(
+        (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+          ...acc,
           {
-            title: (
-              <Label key="status" color={isActive ? 'green' : 'grey'}>
-                {intl.formatMessage(isActive ? messages.active : messages.inactive)}
-              </Label>
-            ),
-            props: {
-              'data-is-active': isActive,
-            },
+            uuid: username,
+            cells: [
+              isOrgAdmin ? (
+                <Fragment>
+                  <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+                  <span key="yes">{intl.formatMessage(messages.yes)}</span>
+                </Fragment>
+              ) : (
+                <Fragment>
+                  <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+                  <span key="no">{intl.formatMessage(messages.no)}</span>
+                </Fragment>
+              ),
+              { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
+              email,
+              firstName,
+              lastName,
+              {
+                title: (
+                  <Label key="status" color={isActive ? 'green' : 'grey'}>
+                    {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+                  </Label>
+                ),
+                props: {
+                  'data-is-active': isActive,
+                },
+              },
+            ],
+            selected: Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)),
           },
         ],
-        selected: Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)),
-      },
-    ],
-    []
-  );
+        []
+      )
+    : [];
 
 const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const intl = useIntl();

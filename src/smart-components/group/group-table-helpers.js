@@ -39,7 +39,7 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, _opened, selectedRows = []) => {
+export const createRows = (isAdmin, data, selectedRows = []) => {
   const intl = useIntl();
   return data.reduce(
     (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [

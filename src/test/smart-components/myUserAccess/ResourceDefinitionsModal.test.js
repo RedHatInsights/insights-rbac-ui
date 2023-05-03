@@ -3,7 +3,7 @@ import { act } from 'react-dom/test-utils';
 import { Modal } from '@patternfly/react-core';
 import { RowWrapper, Table } from '@patternfly/react-table';
 import ResourceDefinitionsModal from '../../../smart-components/myUserAccess/ResourceDefinitionsModal';
-import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 describe('<ResourceDefinitionsModal />', () => {
   const initialProps = {
@@ -43,7 +43,7 @@ describe('<ResourceDefinitionsModal />', () => {
 
   it('should change pagination configuration', () => {
     const wrapper = mount(<ResourceDefinitionsModal {...initialProps} />);
-    expect(wrapper.find(TableToolbarViewOld).prop('pagination')).toEqual(expect.objectContaining({ limit: 20 }));
+    expect(wrapper.find(TableToolbarView).prop('pagination')).toEqual(expect.objectContaining({ limit: 20 }));
     wrapper.find('DropdownToggle').first().find('button').first().simulate('click');
     wrapper.update();
 
@@ -51,6 +51,6 @@ describe('<ResourceDefinitionsModal />', () => {
       wrapper.find('InternalDropdownItem').last().prop('onClick')();
     });
     wrapper.update();
-    expect(wrapper.find(TableToolbarViewOld).prop('pagination')).toEqual(expect.objectContaining({ limit: 100 }));
+    expect(wrapper.find(TableToolbarView).prop('pagination')).toEqual(expect.objectContaining({ limit: 100 }));
   });
 });

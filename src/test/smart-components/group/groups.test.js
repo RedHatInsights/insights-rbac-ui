@@ -9,7 +9,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { TableToolbarViewOld } from '../../../presentational-components/shared/table-toolbar-view-old';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -71,7 +71,7 @@ describe('<Groups />', () => {
         </Provider>
       );
     });
-    expect(wrapper.find(TableToolbarViewOld)).toHaveLength(1);
+    expect(wrapper.find(TableToolbarView)).toHaveLength(1);
   });
 
   it('should fetch groups on mount', async () => {
@@ -128,6 +128,7 @@ describe('<Groups />', () => {
         name: undefined,
       },
       inModal: false,
+      orderBy: 'name',
     });
   });
 
@@ -169,12 +170,21 @@ describe('<Groups />', () => {
       filters: { name: filterValue },
       offset: 0,
       inModal: false,
-      orderBy: undefined,
+      orderBy: 'name',
     });
     await act(async () => {
       wrapper.find('#ins-primary-data-toolbar .pf-c-button.pf-m-link').simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 0, limit: 20, filters: { name: '' }, offset: 0, inModal: false, orderBy: undefined });
+
+    // 'expect(fetchGroupsSpy.mock.calls[2][0]).toEqual({})' for better output visualization'
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
+      count: 0,
+      limit: 20,
+      filters: { name: '' },
+      offset: 0,
+      inModal: false,
+      orderBy: 'name',
+    });
     expect(fetchGroupsSpy).toHaveBeenCalledTimes(3);
   });
 
@@ -199,6 +209,13 @@ describe('<Groups />', () => {
     await act(async () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({ count: 0, limit: 20, offset: 0, inModal: false, filters: { name: [] }, orderBy: 'name' });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
+      count: 0,
+      limit: 20,
+      offset: 0,
+      inModal: false,
+      filters: { name: undefined },
+      orderBy: '-name',
+    });
   });
 });

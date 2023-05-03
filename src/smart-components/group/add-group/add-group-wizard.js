@@ -48,7 +48,7 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod, pagination, filters }) => {
+const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const schema = useRef(schemaBuilder());
@@ -93,7 +93,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters }) => {
       search: createQueryParams({ page: 1, per_page: pagination.limit }),
     });
     dispatch(addGroup(groupData))
-      .then(() => postMethod({ limit: pagination.limit, offset: 0, filters: {} }))
+      .then(() => postMethod({ limit: pagination.limit, offset: 0, orderBy, filters: {} }))
       .then(() => {
         dispatch(
           addNotification({
@@ -134,6 +134,7 @@ AddGroupWizard.propTypes = {
     limit: PropTypes.number.isRequired,
   }).isRequired,
   filters: PropTypes.object.isRequired,
+  orderBy: PropTypes.string,
 };
 
 export default AddGroupWizard;
