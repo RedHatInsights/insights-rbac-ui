@@ -15,6 +15,7 @@ import './add-group-roles.scss';
 
 const AddGroupRoles = ({
   afterSubmit,
+  fetchUuid,
   selectedRoles,
   setSelectedRoles,
   title,
@@ -28,7 +29,8 @@ const AddGroupRoles = ({
   const intl = useIntl();
   const dispatch = useDispatch();
   let { state } = useLocation();
-  const { uuid: groupId } = useParams();
+  const { uuid } = useParams();
+  const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
   const { push } = useHistory();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { groupName, isRecordLoading } = useSelector(({ groupReducer: { selectedGroup, isRecordLoading } }) => ({
@@ -121,6 +123,7 @@ AddGroupRoles.propTypes = {
   closeUrl: PropTypes.string,
   title: PropTypes.string,
   groupName: PropTypes.string,
+  fetchUuid: PropTypes.string,
   isDefault: PropTypes.bool,
   isChanged: PropTypes.bool,
   onDefaultGroupChanged: PropTypes.func,
