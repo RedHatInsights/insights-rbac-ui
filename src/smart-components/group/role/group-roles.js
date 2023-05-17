@@ -198,6 +198,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
                 fetchGroupData();
               }
             }}
+            fetchUuid={systemGroupUuid}
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
             closeUrl={`/groups/detail/${isPlatformDefault ? 'default-access' : uuid}/roles`}
