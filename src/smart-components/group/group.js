@@ -301,31 +301,8 @@ const Group = ({
 };
 
 Group.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
-  }),
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }),
   match: PropTypes.object,
-  group: PropTypes.shape({
-    uuid: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    admin_default: PropTypes.bool,
-    platform_default: PropTypes.bool,
-    system: PropTypes.bool,
-  }),
-  isFetching: PropTypes.bool,
-  fetchGroup: PropTypes.func,
-  fetchSystemGroup: PropTypes.func,
-  removeGroups: PropTypes.func,
   onDelete: PropTypes.func,
-  defaultUuid: PropTypes.string,
-};
-
-Group.defaultProps = {
-  isFetching: false,
 };
 
 export default Group;
