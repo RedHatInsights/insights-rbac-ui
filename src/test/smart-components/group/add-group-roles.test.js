@@ -2,7 +2,7 @@ import React from 'react';
 import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
-import { fireEvent, prettyDOM, render, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
 import { FETCH_GROUPS } from '../../../redux/action-types';

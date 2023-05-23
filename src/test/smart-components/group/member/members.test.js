@@ -5,7 +5,7 @@ import { MemoryRouter, Route } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import toJson from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
-import GroupPrincipals from '../../../../smart-components/group/principal/principals';
+import GroupMembers from '../../../../smart-components/group/member/members';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import * as GroupActions from '../../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_MEMBERS_FOR_GROUP } from '../../../../redux/action-types';
@@ -18,7 +18,7 @@ jest.mock('../../../../redux/actions/group-actions', () => {
   };
 });
 
-describe('<GroupPrincipals />', () => {
+describe('<GroupMembers />', () => {
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
@@ -70,7 +70,7 @@ describe('<GroupPrincipals />', () => {
       wrapper = shallow(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
-            <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+            <Route path="/groups/detail/:uuid/members" component={GroupMembers} />
           </MemoryRouter>
         </Provider>
       );
@@ -99,7 +99,7 @@ describe('<GroupPrincipals />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
-            <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+            <Route path="/groups/detail/:uuid/members" component={GroupMembers} />
           </MemoryRouter>
         </Provider>
       );
@@ -127,7 +127,7 @@ describe('<GroupPrincipals />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
-            <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+            <Route path="/groups/detail/:uuid/members" component={GroupMembers} />
           </MemoryRouter>
         </Provider>
       );
@@ -153,7 +153,7 @@ describe('<GroupPrincipals />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
-            <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+            <Route path="/groups/detail/:uuid/members" component={GroupMembers} />
           </MemoryRouter>
         </Provider>
       );
@@ -170,7 +170,7 @@ describe('<GroupPrincipals />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
-            <Route path="/groups/detail/:uuid/members" component={GroupPrincipals} />
+            <Route path="/groups/detail/:uuid/members" component={GroupMembers} />
           </MemoryRouter>
         </Provider>
       );

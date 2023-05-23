@@ -4,7 +4,7 @@ import React, { Fragment, useState, useEffect, useContext, useRef } from 'react'
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Link, Route, useHistory, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { createRows } from './principal-table-helpers';
+import { createRows } from './member-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
@@ -17,7 +17,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
 const selector = ({ groupReducer: { selectedGroup } }) => ({
-  principals: selectedGroup.members.data,
+  members: selectedGroup.members.data,
   pagination: selectedGroup.members.meta,
   groupName: selectedGroup.name,
   admin_default: selectedGroup.admin_default,
@@ -35,16 +35,16 @@ const removeModalText = (name, group, plural) => (
     }}
   />
 );
-const GroupPrincipals = () => {
+const GroupMembers = () => {
   const intl = useIntl();
   const [filterValue, setFilterValue] = useState('');
-  const [selectedPrincipals, setSelectedPrincipals] = useState([]);
+  const [selectedMembers, setSelectedMembers] = useState([]);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
 
   const { uuid } = useParams();
-  const { principals, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
+  const { members, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
@@ -70,13 +70,13 @@ const GroupPrincipals = () => {
     hasPermissions.current = orgAdmin || userAccessAdministrator;
   }, [orgAdmin, userAccessAdministrator]);
 
-  const setCheckedPrincipals = (newSelection) => {
-    setSelectedPrincipals((principals) => newSelection(principals));
+  const setCheckedMembers = (newSelection) => {
+    setSelectedMembers((members) => newSelection(members));
   };
 
   const removeMembers = (userNames) => {
     return dispatch(removeMembersFromGroup(uuid, userNames)).then(() => {
-      setSelectedPrincipals([]);
+      setSelectedMembers([]);
       fetchData(undefined, { ...pagination, offset: 0 });
       dispatch(fetchGroups({ inModal: false }));
     });
@@ -88,11 +88,11 @@ const GroupPrincipals = () => {
       : [
           {
             title: intl.formatMessage(messages.remove),
-            onClick: (_event, _rowId, principal) => {
-              setConfirmDelete(() => () => removeMembers([principal.username.title]));
+            onClick: (_event, _rowId, member) => {
+              setConfirmDelete(() => () => removeMembers([member.username.title]));
               setDeleteInfo({
                 title: intl.formatMessage(messages.removeMemberQuestion),
-                text: removeModalText(principal.username.title, groupName, false),
+                text: removeModalText(member.username.title, groupName, false),
                 confirmButtonLabel: intl.formatMessage(messages.removeMember),
               });
               setShowRemoveModal(true);
@@ -131,21 +131,17 @@ const GroupPrincipals = () => {
           {
             label: intl.formatMessage(messages.remove),
             props: {
-              isDisabled: !selectedPrincipals || !selectedPrincipals.length > 0,
+              isDisabled: !selectedMembers || !selectedMembers.length > 0,
               variant: 'danger',
             },
             onClick: () => {
-              const multipleMembersSelected = selectedPrincipals.length > 1;
+              const multipleMembersSelected = selectedMembers.length > 1;
               const removeText = intl.formatMessage(multipleMembersSelected ? messages.removeMembersQuestion : messages.removeMemberQuestion);
-              setConfirmDelete(() => () => removeMembers(selectedPrincipals.map((user) => user.uuid)));
+              setConfirmDelete(() => () => removeMembers(selectedMembers.map((user) => user.uuid)));
               setDeleteInfo({
                 title: removeText,
                 confirmButtonLabel: removeText,
-                text: removeModalText(
-                  multipleMembersSelected ? selectedPrincipals.length : selectedPrincipals[0].uuid,
-                  groupName,
-                  multipleMembersSelected
-                ),
+                text: removeModalText(multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid, groupName, multipleMembersSelected),
               });
               setShowRemoveModal(true);
             },
@@ -153,8 +149,8 @@ const GroupPrincipals = () => {
         ]
       : []),
   ];
-  const data = (principals || []).map((user) => ({ ...user, uuid: user.username }));
-  const rows = createRows(data, selectedPrincipals);
+  const data = (members || []).map((user) => ({ ...user, uuid: user.username }));
+  const rows = createRows(data, selectedMembers);
 
   return (
     <Fragment>
@@ -198,10 +194,10 @@ const GroupPrincipals = () => {
             filterValue={filterValue}
             fetchData={({ limit, offset, name }) => fetchData(name, { limit, offset })}
             setFilterValue={({ name }) => setFilterValue(name)}
-            checkedRows={selectedPrincipals}
+            checkedRows={selectedMembers}
             isLoading={isLoading}
             rowWrapper={UsersRow}
-            setCheckedItems={setCheckedPrincipals}
+            setCheckedItems={setCheckedMembers}
             toolbarButtons={toolbarButtons}
             emptyProps={{ title: intl.formatMessage(messages.noGroupMembers), description: [intl.formatMessage(messages.addUserToConfigure), ''] }}
             tableId="group-members"
@@ -212,4 +208,4 @@ const GroupPrincipals = () => {
   );
 };
 
-export default GroupPrincipals;
+export default GroupMembers;

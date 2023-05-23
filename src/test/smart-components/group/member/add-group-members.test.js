@@ -5,8 +5,8 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import AddGroupMembers from '../../../../smart-components/group/principal/add-group-members';
-import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import AddGroupMembers from '../../../../smart-components/group/member/add-group-members';
+import { fireEvent, render, screen } from '@testing-library/react';
 import * as UserHelper from '../../../../helpers/user/user-helper';
 import * as GroupHelper from '../../../../helpers/group/group-helper';
 import { FETCH_USERS } from '../../../../redux/action-types';
@@ -26,8 +26,8 @@ describe('<AddGroupMembers />', () => {
 
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
   const fetchUsersSpy = jest.spyOn(UserHelper, 'fetchUsers');
-  const addMembersToGroupSpy = jest.spyOn(GroupHelper, 'addPrincipalsToGroup');
-  const fetchMembersForGroup = jest.spyOn(GroupHelper, 'fetchPrincipalsForGroup');
+  const addMembersToGroupSpy = jest.spyOn(GroupHelper, 'addMembersToGroup');
+  const fetchMembersForGroup = jest.spyOn(GroupHelper, 'fetchMembersForGroup');
   const fetchGroups = jest.spyOn(GroupHelper, 'fetchGroups');
 
   beforeEach(() => {

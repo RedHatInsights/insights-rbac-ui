@@ -124,7 +124,7 @@ export const addMembersToGroup = (groupId, members) => {
   const singleMember = members.length > 1;
   return {
     type: ActionTypes.ADD_MEMBERS_TO_GROUP,
-    payload: GroupHelper.addPrincipalsToGroup(groupId, members),
+    payload: GroupHelper.addMembersToGroup(groupId, members),
     meta: {
       notifications: {
         fulfilled: {
@@ -149,7 +149,7 @@ export const removeMembersFromGroup = (groupId, members) => {
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_MEMBERS_FROM_GROUP,
-    payload: GroupHelper.deletePrincipalsFromGroup(groupId, members),
+    payload: GroupHelper.deleteMembersFromGroup(groupId, members),
     meta: {
       notifications: {
         fulfilled: {
@@ -176,7 +176,7 @@ export const fetchRolesForGroup = (groupId, pagination, options) => ({
 
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
-  payload: GroupHelper.fetchPrincipalsForGroup(groupId, usernames, options).catch(handleUuidError),
+  payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
 });
 
 export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
