@@ -79,23 +79,11 @@ const AddGroupMembers = ({ closeUrl }) => {
 };
 
 AddGroupMembers.defaultProps = {
-  users: [],
-  inputValue: '',
   closeUrl: '/groups',
-  selectedUsers: [],
 };
 
 AddGroupMembers.propTypes = {
-  addGroup: PropTypes.func.isRequired,
-  addNotification: PropTypes.func.isRequired,
-  fetchData: PropTypes.func,
-  fetchMembersForGroup: PropTypes.func.isRequired,
-  inputValue: PropTypes.string,
-  users: PropTypes.array,
-  selectedUsers: PropTypes.array,
   closeUrl: PropTypes.string,
-  addMembersToGroup: PropTypes.func.isRequired,
-  fetchGroups: PropTypes.func.isRequired,
 };
 
 export default AddGroupMembers;

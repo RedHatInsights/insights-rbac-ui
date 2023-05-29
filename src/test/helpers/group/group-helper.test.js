@@ -21,12 +21,12 @@ describe('group helper', () => {
   const pagination = { limit: 10, offset: 0, redirected: false };
 
   const groupApi = UserLogin.getGroupApi();
-  const addPrincipalToGroupSpy = jest.spyOn(groupApi, 'addPrincipalToGroup');
+  const addMemberToGroupSpy = jest.spyOn(groupApi, 'addPrincipalToGroup');
   const addRoleToGroupSpy = jest.spyOn(groupApi, 'addRoleToGroup');
   const deleteGroupSpy = jest.spyOn(groupApi, 'deleteGroup');
 
   afterEach(() => {
-    addPrincipalToGroupSpy.mockReset();
+    addMemberToGroupSpy.mockReset();
     addRoleToGroupSpy.mockReset();
     deleteGroupSpy.mockReset();
   });
@@ -45,7 +45,7 @@ describe('group helper', () => {
     expect(data).toEqual({ ...mockedData, filters: {}, pagination });
   });
 
-  it('should call addGroup, addPrincipalToGroup and addRoleToGroup', async () => {
+  it('should call addGroup, addMemberToGroup and addRoleToGroup', async () => {
     expect.assertions(2);
     const newGroup = {
       uuid: '123',
@@ -58,11 +58,11 @@ describe('group helper', () => {
     const createGroupSpy = jest.spyOn(groupApi, 'createGroup');
 
     createGroupSpy.mockResolvedValueOnce(newGroup);
-    addPrincipalToGroupSpy.mockResolvedValueOnce('group-with-principals');
+    addMemberToGroupSpy.mockResolvedValueOnce('group-with-principals');
     addRoleToGroupSpy.mockResolvedValueOnce('group-with-roles');
     await GroupsHelper.addGroup(newGroup);
 
-    expect(addPrincipalToGroupSpy).toHaveBeenCalledWith('123', newPrincipalsResponse);
+    expect(addMemberToGroupSpy).toHaveBeenCalledWith('123', newPrincipalsResponse);
     expect(addRoleToGroupSpy).toHaveBeenCalledWith('123', { roles: ['role-1', 'role-2'] });
   });
 

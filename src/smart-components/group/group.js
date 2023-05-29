@@ -6,7 +6,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import AppTabs from '../app-tabs/app-tabs';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import GroupPrincipals from './principal/principals';
+import GroupMembers from './member/members';
 import GroupRoles from './role/group-roles';
 import { WarningModal } from '../common/warningModal';
 import { fetchGroup, fetchGroups, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
@@ -269,7 +269,7 @@ const Group = ({
             path={pathnames['group-detail-roles'].path}
             render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
           />
-          <Route path={pathnames['group-detail-members'].path} component={GroupPrincipals} />
+          <Route path={pathnames['group-detail-members'].path} component={GroupMembers} />
           <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
           {!group && <ListLoader />}
         </Fragment>
@@ -301,31 +301,8 @@ const Group = ({
 };
 
 Group.propTypes = {
-  location: PropTypes.shape({
-    pathname: PropTypes.string.isRequired,
-  }),
-  history: PropTypes.shape({
-    push: PropTypes.func.isRequired,
-  }),
   match: PropTypes.object,
-  group: PropTypes.shape({
-    uuid: PropTypes.string,
-    name: PropTypes.string,
-    description: PropTypes.string,
-    admin_default: PropTypes.bool,
-    platform_default: PropTypes.bool,
-    system: PropTypes.bool,
-  }),
-  isFetching: PropTypes.bool,
-  fetchGroup: PropTypes.func,
-  fetchSystemGroup: PropTypes.func,
-  removeGroups: PropTypes.func,
   onDelete: PropTypes.func,
-  defaultUuid: PropTypes.string,
-};
-
-Group.defaultProps = {
-  isFetching: false,
 };
 
 export default Group;

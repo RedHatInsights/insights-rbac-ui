@@ -1,8 +1,8 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<GroupPrincipals /> should render correctly loader 1`] = `null`;
+exports[`<GroupMembers /> should render correctly loader 1`] = `null`;
 
-exports[`<GroupPrincipals /> should render correctly with data 1`] = `
+exports[`<GroupMembers /> should render correctly with data 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
   borders={true}
@@ -140,7 +140,7 @@ exports[`<GroupPrincipals /> should render correctly with data 1`] = `
 />
 `;
 
-exports[`<GroupPrincipals /> should render correctly with default group 1`] = `
+exports[`<GroupMembers /> should render correctly with default group 1`] = `
 Array [
   <Section
     id="tab-principals"
@@ -246,7 +246,7 @@ Array [
 ]
 `;
 
-exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
+exports[`<GroupMembers /> should render correctly with empty members 1`] = `
 <EmptyWithAction
   description={
     Array [
@@ -259,7 +259,7 @@ exports[`<GroupPrincipals /> should render correctly with empty members 1`] = `
 />
 `;
 
-exports[`<GroupPrincipals /> should render correctly with org admin rights 1`] = `
+exports[`<GroupMembers /> should render correctly with org admin rights 1`] = `
 <TableToolbarView
   actionResolver={[Function]}
   borders={true}

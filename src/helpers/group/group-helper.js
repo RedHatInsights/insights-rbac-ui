@@ -106,11 +106,11 @@ export async function removeGroups(uuids) {
   return await Promise.all(uuids.map((uuid) => groupApi.deleteGroup(uuid)));
 }
 
-export async function deletePrincipalsFromGroup(groupId, users) {
+export async function deleteMembersFromGroup(groupId, users) {
   return await groupApi.deletePrincipalFromGroup(groupId, users.join(','));
 }
 
-export async function addPrincipalsToGroup(groupId, users) {
+export async function addMembersToGroup(groupId, users) {
   return await groupApi.addPrincipalToGroup(groupId, { principals: users });
 }
 
@@ -138,10 +138,10 @@ export async function addRolesToGroup(groupId, roles) {
   return await groupApi.addRoleToGroup(groupId, { roles });
 }
 
-export async function fetchPrincipalsForGroup(groupId, usernames, options = {}) {
+export async function fetchMembersForGroup(groupId, usernames, options = {}) {
   return await groupApi.getPrincipalsFromGroup(groupId, usernames, options.limit, options.offset, options.orderBy);
 }
 
-export async function fetchPrincipalGroups(username) {
+export async function fetchMemberGroups(username) {
   return await groupApi.listGroups(undefined, undefined, undefined, undefined, 'principal', username, undefined);
 }
