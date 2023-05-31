@@ -124,7 +124,7 @@ export const schemaBuilder = (container) => {
           {
             title: intl.formatMessage(messages.nameAndDescription),
             name: 'name-and-description',
-            nextStep: 'add-permissions', // commenting for now to test the groups component rendering
+            nextStep: 'add-permissions',
             fields: [
               {
                 component: 'text-field',

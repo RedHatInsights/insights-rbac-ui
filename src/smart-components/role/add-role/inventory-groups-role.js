@@ -5,7 +5,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
-
+import './cost-resources.scss';
 import messages from '../../../Messages';
 
 const selector = ({ inventoryReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({

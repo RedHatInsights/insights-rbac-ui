@@ -13,7 +13,6 @@ export const inventoryGroupsInitialState = {
 
 const setLoadingState = (state) => ({ ...state, isLoading: true });
 
-// Saving the inventory-groups
 const setResourceTypes = (state, { payload }) => ({
   ...state,
   resourceTypes: {
@@ -23,11 +22,9 @@ const setResourceTypes = (state, { payload }) => ({
   isLoading: false,
 });
 
-// Need to figure out what we do with this
 const setResource = (state, { payload }) => ({
   ...state,
-  // resources: { ...state.resources, [payload.links.first.split('/')[5]]:payload.data.filter(({ value }) => value !== null) }, // This might be related to the hosts in inventory (resource types)
-  resources: { ...state.resources, [payload.links.first.split('/')[5]]: payload.data.filter(({ value }) => value !== null) }, // This might be related to the hosts in inventory (resource types)
+  resources: { ...state.resources, [payload.links.first.split('/')[5]]: payload.data.filter(({ value }) => value !== null) },
   loadingResources: state.loadingResources - 1,
 });
 
@@ -36,6 +33,6 @@ const setResourceLoading = (state) => ({ ...state, loadingResources: state.loadi
 export default {
   [`${FETCH_INVENTORY_GROUP}_PENDING`]: setLoadingState,
   [`${FETCH_INVENTORY_GROUP}_FULFILLED`]: setResourceTypes,
-  [`${FETCH_INVENTORY_GROUP_RESOURCES}_PENDING`]: setResourceLoading, // TODO: Rename to group_hosts instead of resources
-  [`${FETCH_INVENTORY_GROUP_RESOURCES}_FULFILLED`]: setResource, //       once the granularity is confirmed.
+  [`${FETCH_INVENTORY_GROUP_RESOURCES}_PENDING`]: setResourceLoading,
+  [`${FETCH_INVENTORY_GROUP_RESOURCES}_FULFILLED`]: setResource,
 };
