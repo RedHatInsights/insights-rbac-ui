@@ -11,6 +11,7 @@ const AddRolePermissionSummaryContent = () => {
     'role-name': name,
     'role-description': description,
     'add-permissions-table': selectedPermissions,
+    'inventory-groups-role': inventoryGroupsPermissions,
     'resource-definitions': resourceDefinitions,
     'has-cost-resources': hasCostResources,
   } = formOptions.getState().values;

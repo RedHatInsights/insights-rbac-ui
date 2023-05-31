@@ -51,9 +51,35 @@ export const schemaBuilder = (container) => {
               {
                 component: 'cost-resources',
                 name: 'cost-resources',
+                // validate: [
+                //   (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
+                // ],
                 validate: [
-                  (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
+                  (value = []) =>
+                    value.every((p) => p.resources && p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource),
                 ],
+              },
+            ],
+          },
+          {
+            name: 'inventory-groups-role',
+            title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
+            nextStep: 'review',
+            fields: [
+              {
+                component: 'plain-text',
+                name: 'text-description',
+                label: <p>{intl.formatMessage(messages.inventoryGroupsAccessDescription)}</p>,
+              },
+              {
+                component: 'inventory-groups-role', // todo: Set up the component for this
+                name: 'inventory-groups-role',
+                // validate: [
+                //   (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneInventoryGroup)),
+                // ]
+                // validate: [
+                //     (value = []) => (value.every((p) => p.resources && p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneInventoryGroup)),
+                // ],
               },
             ],
           },

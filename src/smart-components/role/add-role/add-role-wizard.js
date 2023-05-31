@@ -13,6 +13,7 @@ import AddRoleSuccess from './add-role-success';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
 import ReviewStep from './review';
+import InventoryGroupsRole from './inventory-groups-role';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
 import { useHistory } from 'react-router-dom';
@@ -41,6 +42,7 @@ export const mapperExtension = {
   'base-role-table': BaseRoleTable,
   'add-permissions-table': AddPermissionsTable,
   'cost-resources': CostResources,
+  'inventory-groups-role': InventoryGroupsRole,
   review: ReviewStep,
   description: Description,
   'type-selector': TypeSelector,
@@ -105,12 +107,22 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       'role-copy-name': copyName,
       'role-copy-description': copyDescription,
       'add-permissions-table': permissions,
+      'inventory-groups-role': invGroupsRole,
       'cost-resources': resourceDefinitions,
       'role-type': type,
     } = formData;
-    setWizardContextValue((prev) => ({ ...prev, submitting: true }));
-
     const selectedPermissionIds = permissions.map((record) => record.uuid);
+
+    const resourceDefinitionsMap = {};
+    resourceDefinitions?.forEach((r) => {
+      resourceDefinitionsMap[r.permission] = r.resources;
+    });
+
+    const invGroupsRoleMap = {};
+    invGroupsRole?.forEach((r) => {
+      invGroupsRoleMap[r.permission] = r.groups;
+    });
+
     const roleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || null,
@@ -118,24 +130,35 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       access: permissions.reduce(
         (acc, { uuid: permission, requires = [] }) => [
           ...acc,
-          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
-            permission,
-            resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-              ? [
-                  {
-                    attributeFilter: {
-                      key: `cost-management.${permission.split(':')[1]}`,
-                      operation: 'in',
-                      value: resourceDefinitions?.find((r) => r.permission === permission).resources,
-                    },
-                  },
-                ]
-              : [],
-          })),
+          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => {
+            let attributeFilter = {};
+
+            if (permission.includes('cost-management')) {
+              attributeFilter = {
+                key: `cost-management.${permission.split(':')[1]}`,
+                operation: 'in',
+                value: resourceDefinitions?.find((r) => r.permission === permission)?.resources,
+              };
+            } else if (permission.includes('inventory')) {
+              attributeFilter = {
+                key: 'groups.id',
+                operation: 'in',
+                value: invGroupsRole?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
+              };
+            }
+
+            return {
+              permission,
+              resourceDefinitions: attributeFilter ? [{ attributeFilter }] : [],
+            };
+          }),
         ],
         []
       ),
     };
+
+    console.log('Role Data: ', roleData);
+
     return dispatch(createRole(roleData))
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));

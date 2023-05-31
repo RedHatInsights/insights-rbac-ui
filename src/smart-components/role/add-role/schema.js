@@ -124,7 +124,7 @@ export const schemaBuilder = (container) => {
           {
             title: intl.formatMessage(messages.nameAndDescription),
             name: 'name-and-description',
-            nextStep: 'add-permissions',
+            nextStep: 'add-permissions', // commenting for now to test the groups component rendering
             fields: [
               {
                 component: 'text-field',
@@ -161,16 +161,59 @@ export const schemaBuilder = (container) => {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
-            nextStep: ({ values }) =>
-              values &&
-              values['add-permissions-table'] &&
-              values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
-                ? 'cost-resources-definition'
-                : 'review',
+            nextStep: ({ values }) => {
+              if (
+                values &&
+                values['add-permissions-table'] &&
+                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('inventory'))
+              ) {
+                return 'inventory-groups-role';
+              }
+              if (
+                values &&
+                values['add-permissions-table'] &&
+                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
+              ) {
+                return 'cost-resources-definition';
+              }
+
+              return 'review';
+            },
             fields: [
               {
                 component: 'add-permissions-table',
                 name: 'add-permissions-table',
+              },
+            ],
+          },
+          {
+            title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
+            name: 'inventory-groups-role',
+            nextStep: ({ values }) => {
+              if (
+                values &&
+                values['add-permissions-table'] &&
+                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
+              ) {
+                return 'cost-resources-definition';
+              }
+              return 'review';
+            },
+            fields: [
+              {
+                component: 'plain-text',
+                name: 'cost-resources',
+                label: <p className="pf-u-mb-md">{intl.formatMessage(messages.applyInventoryGroupsRolePermission)}</p>,
+              },
+              {
+                component: 'inventory-groups-role',
+                name: 'inventory-groups-role',
+                validate: [
+                  (value = []) =>
+                    value.every((p) => p.groups && p.groups.length > 0 && p.permission)
+                      ? undefined
+                      : intl.formatMessage(messages.assignAtLeastOneInventoryGroup),
+                ],
               },
             ],
           },
