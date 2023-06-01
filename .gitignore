@@ -11,6 +11,7 @@ node_modules
 
 # production
 dist
+build
 
 #test coverage statistics
 coverage
@@ -30,3 +31,6 @@ yarn.lock
 coverage
 # webpack cache
 .cache
+
+local-build.sh
+frontend-build-history.sh

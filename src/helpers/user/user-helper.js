@@ -45,7 +45,7 @@ export async function updateUser(user) {
   };
   
   try {
-    const response = await fetch(`${baseUrl}/user/${user.id}/activate/${user.enabled}`, requestOpts)
+    const response = await fetch(`${baseUrl}/user/${user.id}/activate/${user.is_active}`, requestOpts)
   } catch(err) {
     alert(err);
   }

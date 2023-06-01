@@ -39,7 +39,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
     //TODO: Call api to toggle user activation status
     const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
     const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
-    const newUserData = { ...user, enabled: checked };
+    const newUserData = { ...user, is_active: checked };
     dispatch(updateUser(newUserData)).then((res) => {
       if (res?.action?.type === 'UPDATE_USER_FULFILLED') {
         setFilters(newFilters);
@@ -51,7 +51,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
   const createRows = (userLinks, data, checkedRows = []) =>
     data
       ? data.reduce(
-          (acc, { id, username, enabled: enabled, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
+          (acc, { id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
             ...acc,
             {
               uuid: username,
@@ -77,12 +77,12 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
                       key="status"
                       label={intl.formatMessage(messages.active)}
                       labelOff={intl.formatMessage(messages.inactive)}
-                      isChecked={enabled}
+                      isChecked={is_active}
                       onChange={(checked, _event) => {
                         toggleUserActivationStatus(checked, _event, {
                           id,
                           username,
-                          enabled: enabled,
+                          is_active: is_active,
                           email,
                           first_name: firstName,
                           last_name: lastName,
@@ -92,7 +92,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
                     />
                   ),
                   props: {
-                    'data-is-active': enabled,
+                    'data-is-active': is_active,
                   },
                 },
               ],
