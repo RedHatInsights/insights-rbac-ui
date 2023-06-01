@@ -212,6 +212,26 @@ export default defineMessages({
     description: 'Edit group error notification description',
     defaultMessage: 'The group was not updated successfuly.',
   },
+  editUserSuccessTitle: {
+    id: 'editUserSuccessTitle',
+    description: 'Edit user success notification title',
+    defaultMessage: 'Success updating user',
+  },
+  editUserSuccessDescription: {
+    id: 'editUserSuccessDescription',
+    description: 'Edit user success notification description',
+    defaultMessage: 'The user was updated successfully.',
+  },
+  editUserErrorTitle: {
+    id: 'editUserErrorTitle',
+    description: 'Edit user error notification title',
+    defaultMessage: 'Failed updating user',
+  },
+  editUserErrorDescription: {
+    id: 'editUserErrorDescription',
+    description: 'Edit user error notification description',
+    defaultMessage: 'The user was not updated successfuly.',
+  },
   removeGroupSuccess: {
     id: 'removeGroupSuccess',
     description: 'Remove group success notification title',
