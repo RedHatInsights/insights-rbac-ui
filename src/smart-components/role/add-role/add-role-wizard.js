@@ -113,16 +113,6 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     } = formData;
     const selectedPermissionIds = permissions.map((record) => record.uuid);
 
-    const resourceDefinitionsMap = {};
-    resourceDefinitions?.forEach((r) => {
-      resourceDefinitionsMap[r.permission] = r.resources;
-    });
-
-    const invGroupsRoleMap = {};
-    invGroupsRole?.forEach((r) => {
-      invGroupsRoleMap[r.permission] = r.groups;
-    });
-
     const roleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || null,

@@ -163,16 +163,12 @@ export const schemaBuilder = (container) => {
             StepTemplate: AddPermissionTemplate,
             nextStep: ({ values }) => {
               if (
-                values &&
-                values['add-permissions-table'] &&
-                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('inventory'))
+                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('inventory'))
               ) {
                 return 'inventory-groups-role';
               }
               if (
-                values &&
-                values['add-permissions-table'] &&
-                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
+                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
               ) {
                 return 'cost-resources-definition';
               }
@@ -191,9 +187,7 @@ export const schemaBuilder = (container) => {
             name: 'inventory-groups-role',
             nextStep: ({ values }) => {
               if (
-                values &&
-                values['add-permissions-table'] &&
-                values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
+                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
               ) {
                 return 'cost-resources-definition';
               }
@@ -210,7 +204,7 @@ export const schemaBuilder = (container) => {
                 name: 'inventory-groups-role',
                 validate: [
                   (value = []) =>
-                    value.every((p) => p.groups && p.groups.length > 0 && p.permission)
+                    value?.every(({ groups, permission }) => groups?.length > 0 && permission)
                       ? undefined
                       : intl.formatMessage(messages.assignAtLeastOneInventoryGroup),
                 ],
@@ -232,7 +226,7 @@ export const schemaBuilder = (container) => {
                 component: 'cost-resources',
                 name: 'cost-resources',
                 validate: [
-                  (value = []) => (value.every((p) => p.resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
+                  (value = []) => (value?.every(({ resources }) => resources?.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
                 ],
               },
             ],

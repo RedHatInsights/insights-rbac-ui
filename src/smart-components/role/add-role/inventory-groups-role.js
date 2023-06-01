@@ -8,11 +8,8 @@ import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
 import './cost-resources.scss';
 import messages from '../../../Messages';
 
-const selector = ({ inventoryReducer: { resourceTypes, isLoading, loadingResources, resources } }) => ({
+const selector = ({ inventoryReducer: { resourceTypes } }) => ({
   resourceTypes: resourceTypes.data,
-  resources,
-  isLoading,
-  isLoadingResources: loadingResources > 0,
 });
 
 const reducer = (state, action) => {
@@ -82,17 +79,12 @@ const InventoryGroupsRole = (props) => {
   const formOptions = useFormApi();
   const [optionMap, setOptionMap] = useState({});
   const fetchData = (apiProps) => dispatch(fetchInventoryGroups(apiProps));
-  const { resourceTypes, isLoading, loadingResources, resources } = useSelector(selector, shallowEqual);
+  const { resourceTypes } = useSelector(selector, shallowEqual);
   const permissions = formOptions.getState().values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('inventory'));
 
-  // State Management --
   const onToggle = (key, isOpen) => dispatchLocally({ type: 'toggle', key, isOpen });
   const onSelect = (event, selection, selectAll, key) => {
     const processedSelection = { name: selection, id: optionMap[selection] };
-
-    // selectAll
-    //   ? dispatchLocally({ type: 'selectAll', selection, key })
-    //   : dispatchLocally({ type: 'select', processedSelection, key });
 
     if (selectAll) {
       for (const option of resourceTypes) {
@@ -112,8 +104,8 @@ const InventoryGroupsRole = (props) => {
         ...acc,
         [permission.uuid]: {
           selected: [],
-          options: [], // Groups to be added to the roles permissions
-          filteredOptions: [], // Groups that might need to get filtered depending on the selected permissions
+          options: [],
+          filteredOptions: [],
           isOpen: false,
         },
       }),
