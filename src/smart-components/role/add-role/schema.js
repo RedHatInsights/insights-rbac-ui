@@ -211,7 +211,8 @@ export const schemaBuilder = (container) => {
                 component: 'cost-resources',
                 name: 'cost-resources',
                 validate: [
-                  (value = []) => (value?.every(({ resources }) => resources?.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource)),
+                  (value = []) =>
+                    value?.every(({ resources }) => resources?.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource),
                 ],
               },
             ],

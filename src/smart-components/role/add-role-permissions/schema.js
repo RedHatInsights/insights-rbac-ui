@@ -69,7 +69,9 @@ export const schemaBuilder = (container) => {
                 name: 'cost-resources',
                 validate: [
                   (value = []) =>
-                    value.every(({ resources }) => resources && resources.length > 0) ? undefined : intl.formatMessage(messages.assignAtLeastOneResource),
+                    value.every(({ resources }) => resources && resources.length > 0)
+                      ? undefined
+                      : intl.formatMessage(messages.assignAtLeastOneResource),
                 ],
               },
             ],
