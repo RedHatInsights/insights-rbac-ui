@@ -12,6 +12,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
+import InventoryGroupsRoleTemplate from './inventory-groups-role-template';
 
 export const schemaBuilder = (container) => {
   const cache = createIntlCache();
@@ -175,6 +176,7 @@ export const schemaBuilder = (container) => {
           {
             title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
             name: 'inventory-groups-role',
+            StepTemplate: InventoryGroupsRoleTemplate,
             nextStep: ({ values }) => {
               return validateNextAddRolePermissionStep('inventory-groups-role', values);
             },
