@@ -5,6 +5,7 @@ import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
+import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 
 export const schemaBuilder = (container) => {
   const cache = createIntlCache();
@@ -25,16 +26,31 @@ export const schemaBuilder = (container) => {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
-            nextStep: ({ values }) =>
-              values &&
-              values['add-permissions-table'] &&
-              values['add-permissions-table'].some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
-                ? 'cost-resources-definition'
-                : 'review',
+            nextStep: ({ values }) => {
+              return validateNextAddRolePermissionStep('add-permissions', values);
+            },
             fields: [
               {
                 component: 'add-permissions-table',
                 name: 'add-permissions-table',
+              },
+            ],
+          },
+          {
+            name: 'inventory-groups-role',
+            title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
+            nextStep: ({ values }) => {
+              return validateNextAddRolePermissionStep('inventory-groups-role', values);
+            },
+            fields: [
+              {
+                component: 'plain-text',
+                name: 'text-description',
+                label: <p>{intl.formatMessage(messages.inventoryGroupsAccessDescription)}</p>,
+              },
+              {
+                component: 'inventory-groups-role',
+                name: 'inventory-groups-role',
               },
             ],
           },
@@ -61,7 +77,9 @@ export const schemaBuilder = (container) => {
           {
             name: 'inventory-groups-role',
             title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
-            nextStep: 'review',
+            nextStep: ({ values }) => {
+              return validateNextAddRolePermissionStep('inventory-groups-role', values);
+            },
             fields: [
               {
                 component: 'plain-text',

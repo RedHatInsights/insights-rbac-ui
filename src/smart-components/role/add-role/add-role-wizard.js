@@ -147,8 +147,6 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       ),
     };
 
-    console.log('Role Data: ', roleData);
-
     return dispatch(createRole(roleData))
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));

@@ -11,6 +11,7 @@ import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
+import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 
 export const schemaBuilder = (container) => {
   const cache = createIntlCache();
@@ -162,18 +163,7 @@ export const schemaBuilder = (container) => {
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
             nextStep: ({ values }) => {
-              if (
-                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('inventory'))
-              ) {
-                return 'inventory-groups-role';
-              }
-              if (
-                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
-              ) {
-                return 'cost-resources-definition';
-              }
-
-              return 'review';
+              return validateNextAddRolePermissionStep('add-permissions', values);
             },
             fields: [
               {
@@ -186,12 +176,7 @@ export const schemaBuilder = (container) => {
             title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
             name: 'inventory-groups-role',
             nextStep: ({ values }) => {
-              if (
-                values['add-permissions-table']?.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'))
-              ) {
-                return 'cost-resources-definition';
-              }
-              return 'review';
+              return validateNextAddRolePermissionStep('inventory-groups-role', values);
             },
             fields: [
               {
