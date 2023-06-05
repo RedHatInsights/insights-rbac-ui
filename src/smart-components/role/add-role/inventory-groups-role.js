@@ -135,20 +135,19 @@ const InventoryGroupsRole = (props) => {
   }, [state]);
 
   const makeRow = ({ uuid: permission }) => {
-    const tooltipString = 'Add permission to these groups.';
     const options = resourceTypes && resourceTypes.length ? resourceTypes : [];
 
     return (
-      <React.Fragment>
+      <React.Fragment key={`${permission}`}>
         <GridItem md={4} sm={12}>
           <FormGroup label={permission} isRequired />
         </GridItem>
         <GridItem md={8} sm={12}>
-          <Tooltip content={<div>{tooltipString}</div>}>
+          <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
             <Select
               className="rbac-m-cost-resource-select"
               variant={SelectVariant.checkbox}
-              typeAheadAriaLabel="Select a group to add permissions for"
+              typeAheadAriaLabel={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
               aria-labelledby={permission}
               selections={state[permission].selected.map(({ name }) => name)}
               placeholderText={'Select groups'}
@@ -165,8 +164,8 @@ const InventoryGroupsRole = (props) => {
               hasInlineFilter
             >
               {[
-                <SelectOption key={0} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />,
-                ...(options || []).map((option, index) => <SelectOption key={index + 1} value={option?.name} />),
+                <SelectOption key={`${permission}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />,
+                ...(options || []).map((option, index) => <SelectOption key={`${permission}-${index + 1}`} value={option?.name} />),
               ]}
             </Select>
           </Tooltip>
@@ -178,12 +177,12 @@ const InventoryGroupsRole = (props) => {
   return (
     <Grid hasGutter>
       <GridItem md={4} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text">
+        <Text component={TextVariants.h4} className="rbac-bold-text pf-u-mt-sm">
           {intl.formatMessage(messages.permissions)}
         </Text>
       </GridItem>
       <GridItem md={8} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text">
+        <Text component={TextVariants.h4} className="rbac-bold-text pf-u-mt-sm">
           {intl.formatMessage(messages.groupDefinition)}
         </Text>
       </GridItem>
