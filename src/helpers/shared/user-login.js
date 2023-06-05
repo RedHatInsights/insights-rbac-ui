@@ -79,7 +79,7 @@ export function getCostApi() {
   };
 }
 
-export const getInventoryGroupsApi = (apiProps) => {
+export const getInventoryGroupsApi = () => {
   return {
     getInventoryGroups: () => inventoryApi.axios.get(`${INVENTORY_API_BASE}/groups`),
   };

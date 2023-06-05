@@ -11,7 +11,9 @@ export const validateNextAddRolePermissionStep = (currentStep, values) => {
 
   if (currentStep === 'add-permissions' && hasCostPermissions) {
     return 'cost-resources-definition';
-  } else return 'review';
+  }
+
+  return 'review';
 };
 
 // TODO: add step dictionary to replace literal strings across both add-role and add-role-permission

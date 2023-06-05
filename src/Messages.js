@@ -1217,6 +1217,16 @@ export default defineMessages({
     description: 'Review role details text',
     defaultMessage: 'Review and confirm the details for your role, or click Back to revise.',
   },
+  inventoryGroupsTypeAheadLabel: {
+    id: 'invGroupsLabel',
+    description: 'Type ahead label for inventory groups role permissions',
+    defaultMessage: 'Select a group to add permissions for',
+  },
+  inventoryGroupsTooltip: {
+    id: 'inventoryGroupsTooltip',
+    description: 'Tooltip for inventory group role permissions',
+    defaultMessage: 'Add permission to these groups.',
+  },
   inventoryGroupsAccessTitle: {
     id: 'inventoryGroupsAccessTitle',
     description: 'Step for adding correct group permissions to role.',
@@ -1225,7 +1235,7 @@ export default defineMessages({
   inventoryGroupsAccessDescription: {
     id: 'inventoryGroupsAccessDescription',
     descriptioin: 'Description for adding correct group permissions to role.',
-    defaultMessage: 'Specify which inventory group(s) youd like to apply your selected permissions to, using the dropdowns below.',
+    defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   createRole: {
     id: 'createRole',
