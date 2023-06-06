@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
@@ -20,12 +20,12 @@ const App = () => {
   const chrome = useChrome();
   const dispatch = useDispatch();
   const userData = useUserData();
-  const history = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const unregister = chrome.on('APP_NAVIGATION', (event) => {
       if (event.domEvent) {
-        history.push(`/${event.navId}`);
+        navigate(`/${event.navId}`);
       }
     });
 

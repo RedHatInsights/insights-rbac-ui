@@ -1,8 +1,8 @@
 import React, { lazy, Suspense, useEffect } from 'react';
-import { BrowserRouter as Router, Route, useHistory } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { getBaseName } from '@redhat-cloud-services/frontend-components-utilities/helpers';
 import { IntlProvider } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 import registry, { RegistryContext } from '../utilities/store';
 import messages from '../locales/data.json';
@@ -10,6 +10,7 @@ import ErroReducerCatcher from '../presentational-components/shared/ErrorReducer
 import PermissionsContext from '../utilities/permissions-context';
 import pathnames from '../utilities/pathnames';
 import { AppPlaceholder } from '../presentational-components/shared/loader-placeholders';
+import useAppNavigate from '../hooks/useAppNavigate';
 import useUserData from '../hooks/useUserData';
 
 const MyUserAccess = lazy(() => import('../smart-components/myUserAccess/MUAHome'));
@@ -18,31 +19,29 @@ import '../App.scss';
 
 export const locale = 'en';
 
-const Routes = () => {
-  const history = useHistory();
+const MuaApp = () => {
+  const chrome = useChrome();
+  const navigate = useAppNavigate('/iam');
+  const userData = useUserData();
+
   useEffect(() => {
-    // redirect to MUA if url is "/settings"
-    if (window?.location?.pathname?.match(/\/(iam|settings)$/)) {
-      history.push('/my-user-access');
+    if (window?.location?.pathname?.match(/\/(iam)$/)) {
+      navigate(pathnames['my-user-access'].link);
     }
     // set correct title
-    document.title = 'My User Access';
+
+    chrome.updateDocumentTitle('My User Access');
   }, []);
 
-  return (
-    <Suspense fallback={<AppPlaceholder />}>
-      <Route path={pathnames['my-user-access'].path} component={MyUserAccess} />
-    </Suspense>
-  );
-};
-
-const MuaApp = () => {
-  const userData = useUserData();
   return (
     <PermissionsContext.Provider value={{ ...userData }}>
       <ErroReducerCatcher>
         <section style={{ marginLeft: 0, padding: 0 }}>
-          <Routes />
+          <Suspense fallback={<AppPlaceholder />}>
+            <Routes>
+              <Route path={'/'} element={<MyUserAccess />} />
+            </Routes>
+          </Suspense>
         </section>
       </ErroReducerCatcher>
     </PermissionsContext.Provider>
@@ -57,9 +56,7 @@ const SettingsMua = () => (
       }}
     >
       <Provider store={registry.getStore()}>
-        <Router basename={getBaseName(location.pathname, 1)}>
-          <MuaApp />
-        </Router>
+        <MuaApp />
       </Provider>
     </RegistryContext.Provider>
   </IntlProvider>
