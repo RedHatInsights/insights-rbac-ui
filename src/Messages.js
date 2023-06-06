@@ -1217,6 +1217,11 @@ export default defineMessages({
     description: 'Review role details text',
     defaultMessage: 'Review and confirm the details for your role, or click Back to revise.',
   },
+  selectGroups: {
+    id: 'selectGroups',
+    description: 'Select groups label',
+    defaultMessage: 'Select groups',
+  },
   inventoryGroupsTypeAheadLabel: {
     id: 'invGroupsLabel',
     description: 'Type ahead label for inventory groups role permissions',

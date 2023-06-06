@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { cellWidth, info } from '@patternfly/react-table';
 import { Button } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Route, Routes, useSearchParams } from 'react-router-dom';
+import { Route, Routes } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';

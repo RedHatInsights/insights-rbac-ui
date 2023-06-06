@@ -51,10 +51,10 @@ const QuickstartsTestButtons = () => {
     <>
       {isQuickstartEnabled && (
         <>
-          <Button onClick={handleActivateQuickstart} variant={'primary'} style={btnStyle} isDisabled={openQuickstart}>
+          <Button onClick={handleActivateQuickstart} variant="primary" style={btnStyle} isDisabled={openQuickstart}>
             {intl.formatMessage(messages.triggerMyQuickstart)}
           </Button>
-          <Button onClick={handleOpenCatalog} variant={'primary'} style={btnStyle}>
+          <Button onClick={handleOpenCatalog} variant="primary" style={btnStyle}>
             {intl.formatMessage(messages.triggerMyCatalog)}
           </Button>
         </>

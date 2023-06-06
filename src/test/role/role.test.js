@@ -14,7 +14,6 @@ import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import pathnames from '../../utilities/pathnames';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];

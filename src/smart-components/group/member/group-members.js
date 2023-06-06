@@ -164,7 +164,7 @@ const GroupMembers = () => {
           confirmDelete();
         }}
       />
-      <Section type="content" id={'tab-principals'}>
+      <Section type="content" id="tab-principals">
         {platform_default || admin_default ? (
           <Card>
             <CardBody>

@@ -20,14 +20,6 @@ module.exports = {
       './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
     },
     exclude: ['react-router-dom'],
-    shared: [
-      {
-        'react-router-dom': {
-          singleton: true,
-          import: false,
-          requiredVersion: '^6.9.0',
-        },
-      },
-    ],
+    shared: [{ 'react-router-dom': { singleton: true } }],
   },
 };

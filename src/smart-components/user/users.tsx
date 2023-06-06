@@ -39,6 +39,7 @@ const Users = () => {
               isSelectable: false,
               isCompact: false,
             }}
+            usesMetaInURL
           />
         </Section>
       </StackItem>

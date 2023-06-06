@@ -49,7 +49,9 @@ describe('<Users />', () => {
     render(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
-          <Users />
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
         </Router>
       </Provider>
     );

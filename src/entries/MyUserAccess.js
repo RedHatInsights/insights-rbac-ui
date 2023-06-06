@@ -1,5 +1,5 @@
 import React, { lazy, Suspense, useEffect } from 'react';
-import { Route, Routes } from 'react-router-dom';
+import { Route, Routes, useLocation } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -21,11 +21,12 @@ export const locale = 'en';
 
 const MuaApp = () => {
   const chrome = useChrome();
+  const location = useLocation();
   const navigate = useAppNavigate('/iam');
   const userData = useUserData();
 
   useEffect(() => {
-    if (window?.location?.pathname?.match(/\/(iam)$/)) {
+    if (location?.pathname?.match(/\/(iam)$/)) {
       navigate(pathnames['my-user-access'].link);
     }
     // set correct title
@@ -39,7 +40,7 @@ const MuaApp = () => {
         <section style={{ marginLeft: 0, padding: 0 }}>
           <Suspense fallback={<AppPlaceholder />}>
             <Routes>
-              <Route path={'/'} element={<MyUserAccess />} />
+              <Route path="/" element={<MyUserAccess />} />
             </Routes>
           </Suspense>
         </section>
