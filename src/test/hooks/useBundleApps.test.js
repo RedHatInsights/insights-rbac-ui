@@ -3,6 +3,13 @@ import { MemoryRouter } from 'react-router-dom';
 import useBundleApps from '../../hooks/useBundleApps';
 import { bundleData } from '../../presentational-components/myUserAccess/bundles';
 
+const mockedNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 const SpyComponent = () => <div></div>;
 const HookedComponent = ({ bundle }) => {
   const result = useBundleApps(bundle);
@@ -35,6 +42,6 @@ describe('useBundleApps', () => {
      * Update to trigger router change
      */
     wrapper.update();
-    expect(wrapper.find(MemoryRouter).instance().history.location.search).toEqual('?bundle=rhel');
+    expect(mockedNavigate).toHaveBeenCalledWith({ search: 'bundle=rhel', to: '/foo' }, { replace: true });
   });
 });
