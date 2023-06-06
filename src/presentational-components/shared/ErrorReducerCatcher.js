@@ -14,7 +14,7 @@ const errorStates = {
 
 const ErroReducerCatcher = ({ children }) => {
   const errorCode = useSelector(({ errorReducer: { errorCode } }) => errorCode);
-  const { pathname } = useLocation();
+  const location = useLocation();
   const dispatch = useDispatch();
   const intl = useIntl();
 
@@ -27,11 +27,11 @@ const ErroReducerCatcher = ({ children }) => {
     if (errorCode) {
       dispatch({ type: API_ERROR, payload: undefined });
     }
-  }, [pathname]);
+  }, [location?.pathname]);
 
   if (errorCode) {
     const State = errorStates[errorCode];
-    const name = sectionTitles[Object.keys(sectionTitles).find((key) => pathname.includes(key))] || 'RBAC';
+    const name = sectionTitles[Object.keys(sectionTitles).find((key) => location?.pathname.includes(key))] || 'RBAC';
 
     return <State serviceName={name} />;
   }

@@ -19,7 +19,7 @@ export async function fetchGroups({
   adminDefault,
   system,
   options,
-  inModal = true,
+  usesMetaInURL = false,
 }) {
   const [groups, auth] = await Promise.all([
     groupApi.listGroups(
@@ -63,9 +63,8 @@ export async function fetchGroups({
       );
   return {
     ...response,
-    ...(inModal
-      ? {}
-      : {
+    ...(usesMetaInURL
+      ? {
           filters,
           pagination: {
             ...response?.meta,
@@ -73,7 +72,8 @@ export async function fetchGroups({
             limit,
             redirected: !isPaginationValid,
           },
-        }),
+        }
+      : {}),
     ...auth,
   };
 }
