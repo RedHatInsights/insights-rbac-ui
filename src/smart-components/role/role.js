@@ -1,10 +1,12 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { Link, Route, useHistory, useParams } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import { useIntl } from 'react-intl';
 import pathnames from '../../utilities/pathnames';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
@@ -17,21 +19,21 @@ import EmptyWithAction from '../../presentational-components/shared/empty-state'
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import { useIntl } from 'react-intl';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import messages from '../../Messages';
 import './role.scss';
 
 const Role = ({ onDelete }) => {
   const intl = useIntl();
-  const history = useHistory();
+  const navigate = useAppNavigate();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
-  const { uuid, groupUuid } = useParams();
+  const { roleId, groupId } = useParams();
   const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
       isRecordLoading: state.roleReducer.isRecordLoading,
-      ...(groupUuid && { group: state.groupReducer.selectedGroup }),
+      ...(groupId && { group: state.groupReducer.selectedGroup }),
       systemGroupUuid: state.groupReducer.systemGroup?.uuid,
       rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
       rolesFilters: state.roleReducer?.roles?.filters || {},
@@ -57,10 +59,10 @@ const Role = ({ onDelete }) => {
 
   const dispatch = useDispatch();
   const fetchData = () => {
-    dispatch(fetchRole(uuid));
-    if (groupUuid) {
-      if (groupUuid !== 'default-access') {
-        dispatch(fetchGroup(groupUuid));
+    dispatch(fetchRole(roleId));
+    if (groupId) {
+      if (groupId !== 'default-access') {
+        dispatch(fetchGroup(groupId));
       } else {
         if (systemGroupUuid) {
           dispatch(fetchRolesForGroup(systemGroupUuid, {}));
@@ -75,9 +77,9 @@ const Role = ({ onDelete }) => {
 
   useEffect(() => {
     fetchData();
-    insights.chrome.appObjectId(uuid);
+    insights.chrome.appObjectId(roleId);
     return () => insights.chrome.appObjectId(undefined);
-  }, [uuid, groupUuid, systemGroupUuid]);
+  }, [roleId, groupId, systemGroupUuid]);
 
   useEffect(() => {
     if (role?.accessCount === 0 && role?.external_tenant !== '' && role?.external_role_id !== '' && role?.system) {
@@ -86,31 +88,31 @@ const Role = ({ onDelete }) => {
   }, [role]);
 
   const breadcrumbsList = () => [
-    groupUuid
+    groupId
       ? {
           title: intl.formatMessage(messages.groups),
-          to: getBackRoute(pathnames.groups.path, groupsPagination, groupsFilters),
+          to: getBackRoute(mergeToBasename(pathnames.groups.link), groupsPagination, groupsFilters),
         }
       : {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(pathnames.roles.path, rolesPagination, rolesFilters),
+          to: getBackRoute(mergeToBasename(pathnames.roles.link), rolesPagination, rolesFilters),
         },
 
-    ...(groupExists && groupUuid && (groupUuid === 'default-access' ? systemGroupUuid : groupExists)
+    ...(groupExists && groupId && (groupId === 'default-access' ? systemGroupUuid : groupExists)
       ? group
         ? [
             {
               title: group && group.name,
-              to: `/groups/detail/${groupUuid}/roles`,
+              to: pathnames['group-detail-roles'].link.replace('groupId', groupId),
               isLoading: group && group.loaded,
             },
           ]
         : [undefined]
-      : groupExists || !groupUuid
+      : groupExists || !groupId
       ? []
       : [{ title: intl.formatMessage(messages.invalidGroup), isActive: true }]),
 
-    ...(groupExists || !groupUuid
+    ...(groupExists || !groupId
       ? [
           {
             title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : intl.formatMessage(messages.invalidRole),
@@ -125,17 +127,17 @@ const Role = ({ onDelete }) => {
   const dropdownItems = [
     <DropdownItem
       component={
-        <Link onClick={() => setDropdownOpen(false)} to={pathnames['role-detail-edit'].path.replace(':id', uuid)}>
+        <AppLink onClick={() => setDropdownOpen(false)} to={pathnames['role-detail-edit'].link.replace(':roleId', roleId)}>
           {intl.formatMessage(messages.edit)}
-        </Link>
+        </AppLink>
       }
       key="edit-role"
     />,
     <DropdownItem
       component={
-        <Link onClick={onDelete} to={pathnames['role-detail-remove'].path.replace(':id', uuid)}>
+        <AppLink onClick={onDelete} to={pathnames['role-detail-remove'].path.replace(':roleId', roleId)}>
           {intl.formatMessage(messages.delete)}
-        </Link>
+        </AppLink>
       }
       className="rbac-c-role__action"
       key="delete-role"
@@ -144,7 +146,7 @@ const Role = ({ onDelete }) => {
 
   return (
     <Fragment>
-      {(groupExists || !groupUuid) && roleExists ? (
+      {(groupExists || !groupId) && roleExists ? (
         <Fragment>
           <TopToolbar breadcrumbs={breadcrumbsList()}>
             <Level>
@@ -171,27 +173,39 @@ const Role = ({ onDelete }) => {
             )}
           </TopToolbar>
           {isRecordLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
-          <Route path={pathnames['role-detail-remove'].path}>
-            {!isRecordLoading && (
-              <RemoveRoleModal
-                afterSubmit={() => {
-                  dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, inModal: false }));
-                }}
-                cancelRoute={pathnames['role-detail'].path.replace(':uuid', uuid)}
-                submitRoute={getBackRoute(pathnames.roles.path, { ...rolesPagination, offset: 0 }, rolesFilters)}
-                routeMatch={pathnames['role-detail-remove'].path}
-              />
-            )}
-          </Route>
-          <Route path={pathnames['role-detail-edit'].path}>
-            {!isRecordLoading && (
-              <EditRoleModal
-                afterSubmit={fetchData}
-                cancelRoute={pathnames['role-detail'].path.replace(':uuid', uuid)}
-                routeMatch={pathnames['role-detail-edit'].path}
-              />
-            )}
-          </Route>
+          <Routes>
+            <Route
+              path={pathnames['role-detail-remove'].path}
+              element={
+                <>
+                  {!isRecordLoading && (
+                    <RemoveRoleModal
+                      afterSubmit={() => {
+                        dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true }));
+                      }}
+                      cancelRoute={pathnames['role-detail'].link.replace(':roleId', roleId)}
+                      submitRoute={getBackRoute(pathnames.roles.link, { ...rolesPagination, offset: 0 }, rolesFilters)}
+                      routeMatch={pathnames['role-detail-remove'].path}
+                    />
+                  )}
+                </>
+              }
+            />
+            <Route
+              path={pathnames['role-detail-edit'].path}
+              element={
+                <>
+                  {!isRecordLoading && (
+                    <EditRoleModal
+                      afterSubmit={fetchData}
+                      cancelRoute={pathnames['role-detail'].link.replace(':roleId', roleId)}
+                      routeMatch={pathnames['role-detail-edit'].path}
+                    />
+                  )}
+                </>
+              }
+            />
+          </Routes>
         </Fragment>
       ) : (
         <Fragment>
@@ -200,7 +214,7 @@ const Role = ({ onDelete }) => {
           </section>
           <EmptyWithAction
             title={`${groupExists ? 'Role' : 'Group'} not found`}
-            description={[`${groupExists ? 'Role' : 'Group'} with ID ${groupExists ? uuid : groupUuid} does not exist.`]}
+            description={[`${groupExists ? 'Role' : 'Group'} with ID ${groupExists ? roleId : groupId} does not exist.`]}
             actions={[
               <Button
                 key="back-button"
@@ -208,7 +222,7 @@ const Role = ({ onDelete }) => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => history.goBack()}
+                onClick={() => navigate(-1)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,

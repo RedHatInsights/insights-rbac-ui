@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import toJson from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -74,7 +74,7 @@ describe('<Roles />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
-            <Route path="/roles" component={Roles} />
+            <Roles />
           </MemoryRouter>
         </Provider>
       );
@@ -98,7 +98,7 @@ describe('<Roles />', () => {
     const wrapper = mount(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/roles']}>
-          <Route path="/roles" component={Roles} />
+          <Roles />
         </MemoryRouter>
       </Provider>
     );
@@ -122,7 +122,7 @@ describe('<Roles />', () => {
     const wrapper = mount(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/roles']}>
-          <Route path="/roles" component={Roles} />
+          <Roles />
         </MemoryRouter>
       </Provider>
     );
@@ -139,7 +139,7 @@ describe('<Roles />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
-            <Route path="/roles" component={Roles} />
+            <Roles />
           </MemoryRouter>
         </Provider>
       );
@@ -154,16 +154,17 @@ describe('<Roles />', () => {
         display_name: undefined,
       },
       orderBy: 'display_name',
-      inModal: false,
-      ...defaultSettings,
+      usesMetaInURL: true,
+      limit: 20,
+      offset: 0,
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(2, {
-      limit: 20,
-      orderBy: '-display_name',
       filters: {
-        display_name: '',
+        display_name: undefined,
       },
-      inModal: false,
+      orderBy: '-display_name',
+      usesMetaInURL: true,
+      limit: 20,
     });
   });
 
@@ -175,7 +176,7 @@ describe('<Roles />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
-            <Route path="/roles" component={Roles} />
+            <Roles />
           </MemoryRouter>
         </Provider>
       );

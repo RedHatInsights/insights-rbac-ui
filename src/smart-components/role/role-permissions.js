@@ -1,5 +1,12 @@
 import React, { useEffect, useReducer, useState } from 'react';
+import PropTypes from 'prop-types';
+import { cellWidth, info } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { Route, Routes, useSearchParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import AppLink from '../../presentational-components/shared/AppLink';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
   createRows,
@@ -14,18 +21,13 @@ import {
   SHOW_REMOVE_MODAL,
   SUBMIT_REMOVE_MODAL,
 } from './role-permissions-table-helpers';
-import { cellWidth } from '@patternfly/react-table';
-import './role-permissions.scss';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
-import { Link, Route, useHistory } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
-import { info } from '@patternfly/react-table';
 import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
 import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
-import { FormattedMessage, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
+import './role-permissions.scss';
 
 const maxFilterItems = 10;
 
@@ -58,7 +60,7 @@ const Permissions = ({ cantAddPermissions }) => {
     shallowEqual
   );
 
-  const history = useHistory();
+  const navigate = useAppNavigate();
   const [
     { pagination, selectedPermissions, showRemoveModal, confirmDelete, deleteInfo, filters, isToggled, resources, operations },
     internalDispatch,
@@ -154,18 +156,18 @@ const Permissions = ({ cantAddPermissions }) => {
     cantAddPermissions
       ? []
       : [
-          <Link to={`/roles/detail/${role.uuid}/role-add-permission`} key="role-add-permission" className="rbac-m-hide-on-sm">
+          <AppLink to={pathnames['role-add-permission'].link.replace(':roleId', role.uuid)} key="role-add-permission" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add Permission">
               {intl.formatMessage(messages.addPermissions)}
             </Button>
-          </Link>,
+          </AppLink>,
           {
             label: intl.formatMessage(messages.addPermission),
             props: {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(`/roles/detail/${role.uuid}/role-add-permission`);
+              navigate(pathnames['role-add-permission'].link.replace(':roleId', role.uuid));
             },
           },
           {
@@ -191,12 +193,6 @@ const Permissions = ({ cantAddPermissions }) => {
             },
           },
         ];
-
-  const routes = () => (
-    <Route exact path={paths['role-add-permission'].path}>
-      <AddRolePermissionWizard isOpen={true} role={role} />
-    </Route>
-  );
 
   const calculateSelected = (filter) =>
     filter.reduce(
@@ -240,6 +236,9 @@ const Permissions = ({ cantAddPermissions }) => {
           }}
         />
       )}
+      <Routes>
+        <Route path={paths['role-add-permission'].path} element={<AddRolePermissionWizard isOpen={true} role={role} />} />
+      </Routes>
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
         rows={createRows(showResourceDefinitions, role?.uuid, data, intl)}
@@ -274,7 +273,6 @@ const Permissions = ({ cantAddPermissions }) => {
         }}
         titlePlural={intl.formatMessage(messages.permissions)}
         titleSingular={intl.formatMessage(messages.permission)}
-        routes={routes}
         emptyProps={{
           title: intl.formatMessage(messages.noRolePermissions),
           description: emptyPropsDescription,

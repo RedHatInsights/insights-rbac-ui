@@ -4,7 +4,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
@@ -31,7 +31,7 @@ jest.mock('../../redux/actions/role-actions', () => {
 describe('<RemoveRoleModal />', () => {
   const ROLE_ID = 'foo';
   const initialProps = {
-    routeMatch: '/role/:id',
+    routeMatch: '/role/:roleId',
     cancelRoute: '/cancel',
     afterSubmit: jest.fn(),
   };
@@ -47,11 +47,13 @@ describe('<RemoveRoleModal />', () => {
   });
 
   const ComponentWrapper = ({ store, children }) => (
-    <MemoryRouter initialEntries={[`/role/${ROLE_ID}`]}>
-      <Route path="/role/:id">
-        <Provider store={store}>{children}</Provider>
-      </Route>
-    </MemoryRouter>
+    <Provider store={store}>
+      <MemoryRouter initialEntries={[`/role/${ROLE_ID}`]}>
+        <Routes>
+          <Route path="/role/:roleId" element={children} />
+        </Routes>
+      </MemoryRouter>
+    </Provider>
   );
 
   it('should mount and call remove role action witouth fethichg data from API', () => {
