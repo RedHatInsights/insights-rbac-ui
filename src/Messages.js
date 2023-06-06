@@ -1,6 +1,51 @@
 import { defineMessages } from 'react-intl';
 
 export default defineMessages({
+  inviteUsers: {
+    id: 'inviteUsers',
+    description: 'Invite users',
+    defaultMessage: 'Invite users',
+  },
+  inviteUsersTitle: {
+    id: 'inviteUsersTitle',
+    description: 'Invite users modal title',
+    defaultMessage: 'Invite New Users',
+  },
+  inviteUsersDescription: {
+    id: 'inviteUsersDescription',
+    description: 'Invite users modal description',
+    defaultMessage: 'Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.',
+  },
+  inviteUsersFormIsAdminFieldTitle: {
+    id: 'inviteUsersFormIsAdminFieldTitle',
+    description: 'Invite users form is admin field title',
+    defaultMessage: 'Organization Administrators',
+  },
+  inviteUsersFormIsAdminFieldDescription: {
+    id: 'inviteUsersFormIsAdminFieldDescription',
+    description: 'Invite users form is admin field description',
+    defaultMessage: 'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+  },
+  inviteUsersFormEmailsFieldTitle: {
+    id: 'inviteUsersFormEmailsFieldTitle',
+    description: 'Invite users form emails field title',
+    defaultMessage: 'Enter the e-mail addresses of the users you would like to invite',
+  },
+  inviteUsersFormEmailsFieldDescription: {
+    id: 'inviteUsersFormEmailsFieldDescription',
+    description: 'Invite users form emails field description',
+    defaultMessage: 'Enter up to 50 email addresses separated by commans or returns.',
+  },
+  inviteUsersCancelled: {
+    id: 'inviteUsersCancelled',
+    description: 'Invite users cancelled notification description',
+    defaultMessage: 'Invite users process was canceled by the user.',
+  },
+  inviteUsersButton: {
+    id: 'inviteUsersButton',
+    description: 'Invite users button text',
+    defaultMessage: 'Invite new users',
+  },
   notApplicable: {
     id: 'notApplicable',
     description: 'Not applicable text for resource definitions',

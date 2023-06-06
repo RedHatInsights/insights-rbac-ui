@@ -1,11 +1,11 @@
 import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link, useHistory } from 'react-router-dom';
+import { Link, useHistory, Route, Switch } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers, updateUsersFilters, updateUser } from '../../../redux/actions/user-actions';
-import { Label, Switch } from '@patternfly/react-core';
+import { Button, Label, Switch as PF4Switch } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
@@ -20,12 +20,17 @@ import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
+import InviteUsers from '../../user/invite-users/invite-users';
+import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import paths from '../../../utilities/pathnames';
 
 const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
   const intl = useIntl();
   const history = useHistory();
   const dispatch = useDispatch();
-  const { orgAdmin } = useContext(PermissionsContext);
+  const [selectedRows, setSelectedRows] = useState([]);
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const screenSize = useScreenSize();
   // use for text filter to focus
   const innerRef = useRef(null);
   const defaultPagination = useSelector(({ userReducer: { users } }) => ({
@@ -34,6 +39,35 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
     count: inModal ? users.meta.count : users.pagination.count,
     redirected: !inModal && users.pagination.redirected,
   }));
+
+  const routes = () => (
+    <Switch>
+      <Route path={paths['invite-users'].path}>
+        <InviteUsers />
+      </Route>
+    </Switch>
+  );
+
+  const toolbarButtons = () =>
+    orgAdmin || userAccessAdministrator
+      ? [
+          <Link to={paths['invite-users'].path} key="invite-users" className="rbac-m-hide-on-sm">
+            <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+              {intl.formatMessage(messages.inviteUsers)}
+            </Button>
+          </Link>,
+          ...(isSmallScreen(screenSize)
+            ? [
+                {
+                  label: intl.formatMessage(messages.inviteUsers),
+                  onClick: () => {
+                    history.push(paths['invite-users'].path);
+                  },
+                },
+              ]
+            : []),
+        ]
+      : [];
 
   const toggleUserActivationStatus = (checked, _event, user) => {
     //TODO: Call api to toggle user activation status
@@ -73,8 +107,9 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
                 lastName,
                 {
                   title: (
-                    <Switch
+                    <PF4Switch
                       key="status"
+                      isDisabled={!(orgAdmin || userAccessAdministrator)}
                       label={intl.formatMessage(messages.active)}
                       labelOff={intl.formatMessage(messages.inactive)}
                       isChecked={is_active}
@@ -190,11 +225,13 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
 
   return (
     <TableToolbarView
+      toolbarButtons={toolbarButtons}
       isCompact
       isSelectable
       borders={false}
       columns={columns}
       rows={rows}
+      routes={routes}
       sortBy={sortByState}
       onSort={(e, index, direction) => {
         const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;

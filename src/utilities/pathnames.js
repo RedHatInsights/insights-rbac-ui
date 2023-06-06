@@ -104,6 +104,10 @@ const pathnames = {
     path: '/users',
     title: 'Users',
   },
+  'invite-users': {
+    path: '/users/invite-users',
+    title: 'Invite users',
+  },
   'user-detail': {
     path: '/users/detail/:username',
     title: 'User',
