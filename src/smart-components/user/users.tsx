@@ -11,15 +11,17 @@ import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Users = () => {
   const intl = useIntl();
   const activeUserPermissions = useContext(PermissionsContext);
+  const { appNavClick } = useChrome();
 
   const description = <ActiveUser linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 
   useEffect(() => {
-    insights.chrome.appNavClick({ id: 'users', secondaryNav: true });
+    appNavClick({ id: 'users', secondaryNav: true });
   }, []);
 
   const renderUsers = () => (
@@ -45,7 +47,7 @@ const Users = () => {
 
   return (
     <Switch>
-      <PageActionRoute pageAction="user-detail" path={paths['user-detail'].path} render={(props) => <User {...props} />} />
+      <PageActionRoute pageAction="user-detail" path={paths['user-detail'].path} render={() => <User />} />
       <PageActionRoute pageAction="users-list" path={[paths.users.path, paths.rbac.path]} render={() => renderUsers()} />
     </Switch>
   );
