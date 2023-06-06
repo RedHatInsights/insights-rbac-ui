@@ -602,6 +602,11 @@ export default defineMessages({
     description: 'Group description label',
     defaultMessage: 'Group description',
   },
+  groupDefinition: {
+    id: 'groupDefinition',
+    description: 'Group definition label',
+    defaultMessage: 'Group definition',
+  },
   required: {
     id: 'required',
     description: 'Required input label',
@@ -1212,6 +1217,26 @@ export default defineMessages({
     description: 'Review role details text',
     defaultMessage: 'Review and confirm the details for your role, or click Back to revise.',
   },
+  inventoryGroupsTypeAheadLabel: {
+    id: 'invGroupsLabel',
+    description: 'Type ahead label for inventory groups role permissions',
+    defaultMessage: 'Select a group to add permissions for',
+  },
+  inventoryGroupsTooltip: {
+    id: 'inventoryGroupsTooltip',
+    description: 'Tooltip for inventory group role permissions',
+    defaultMessage: 'Add permission to these groups.',
+  },
+  inventoryGroupsAccessTitle: {
+    id: 'inventoryGroupsAccessTitle',
+    description: 'Step for adding correct group permissions to role.',
+    defaultMessage: 'Define Inventory group access',
+  },
+  inventoryGroupsAccessDescription: {
+    id: 'inventoryGroupsAccessDescription',
+    descriptioin: 'Description for adding correct group permissions to role.',
+    defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
+  },
   createRole: {
     id: 'createRole',
     description: 'Create role label',
@@ -1226,6 +1251,11 @@ export default defineMessages({
     id: 'applyCostPermissionText',
     description: 'Apply Cost permission text',
     defaultMessage: 'Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.',
+  },
+  applyInventoryGroupsRolePermission: {
+    id: 'applyInventoryGroupsRolePermission',
+    description: 'Permissions for Groups',
+    defaultMessage: 'Specify which inventory groups youd like to give access for these permissions',
   },
   createRoleFromScratch: {
     id: 'createRoleFromScratch',
@@ -1251,6 +1281,11 @@ export default defineMessages({
     id: 'assignAtLeastOneResource',
     description: 'Assign at least one resource message',
     defaultMessage: 'You need to assign at least one resource to each permission.',
+  },
+  assignAtLeastOneInventoryGroup: {
+    id: 'assignAtLeastOneGroup',
+    description: 'Assign at least one inventory group message',
+    defaultMessage: 'You need to assign at least one inventory group to each permission.',
   },
   resourcesAvailable: {
     id: 'resourcesAvailable',
