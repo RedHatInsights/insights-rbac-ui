@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Link, useHistory, Route, Switch, useParams } from 'react-router-dom';
+import { Route, Routes, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
@@ -9,6 +9,8 @@ import debounce from 'lodash/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import AddGroupRoles from '../group/role/add-group-roles';
 import AddUserToGroup from './add-user-to-group/add-user-to-group';
 import Breadcrumbs from '../../presentational-components/shared/breadcrumbs';
@@ -28,41 +30,40 @@ import './user.scss';
 
 let debouncedFetch;
 
-const selector = ({
-  roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
-  userReducer: {
-    users: { data },
-    isUserDataLoading: isLoadingUsers,
-  },
-}) => ({
-  roles,
-  isLoadingRoles,
-  rolesWithAccess,
-  users: data,
-  isLoadingUsers,
-  userExists: error !== BAD_UUID,
-});
-
 const User = () => {
   const intl = useIntl();
-  const history = useHistory();
+  const navigate = useAppNavigate();
   const dispatch = useDispatch();
+  const { username } = useParams();
   const [filter, setFilter] = useState('');
-  const [user, setUser] = useState();
   const [expanded, setExpanded] = useState({});
   const [loadingRolesTemp, setLoadingRolesTemp] = useState(false);
   const [selectedAddRoles, setSelectedAddRoles] = useState([]);
 
-  const { roles, isLoadingRoles, rolesWithAccess, users, isLoadingUsers, userExists } = useSelector(selector);
+  const selector = ({
+    roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
+    userReducer: {
+      users: { data },
+      isUserDataLoading: isLoadingUsers,
+    },
+  }) => ({
+    roles,
+    isLoadingRoles,
+    rolesWithAccess,
+    user: data && data.filter((user) => user.username === username)[0],
+    isLoadingUsers,
+    userExists: error !== BAD_UUID,
+  });
+
+  const { roles, isLoadingRoles, rolesWithAccess, user, isLoadingUsers, userExists } = useSelector(selector);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
-  const { username } = useParams();
   const isAdmin = orgAdmin || userAccessAdministrator;
 
   const fetchRolesData = (apiProps) => dispatch(fetchRoles(apiProps));
 
   useEffect(() => {
     insights.chrome.appObjectId(username);
-    dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username }, inModal: true }));
+    dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username } }));
     fetchRolesData({ limit: 20, offset: 0, username });
     setLoadingRolesTemp(true);
     fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(() => setLoadingRolesTemp(false));
@@ -72,10 +73,6 @@ const User = () => {
     );
     return () => insights.chrome.appObjectId(undefined);
   }, []);
-
-  useEffect(() => {
-    setUser(users?.find((user) => user.username === username));
-  }, [users]);
 
   const columns = [
     intl.formatMessage(messages.roles),
@@ -122,16 +119,16 @@ const User = () => {
                         cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description), ' ']}
                         rows={groups_in.map((g) => ({
                           cells: [
-                            { title: <Link to={`/groups/detail/${g.uuid}`}>{g.name}</Link> },
+                            { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', g.uuid)}>{g.name}</AppLink> },
                             g.description,
                             {
                               title: (
-                                <Link
-                                  to={pathnames['user-add-group-roles'].path.replace(':username', username).replace(':uuid', g.uuid)}
+                                <AppLink
+                                  to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', g.uuid)}
                                   state={{ name: g.name }}
                                 >
                                   {intl.formatMessage(messages.addRoleToThisGroup)}
-                                </Link>
+                                </AppLink>
                               ),
                               props: { className: 'pf-u-text-align-right' },
                             },
@@ -200,42 +197,39 @@ const User = () => {
   };
 
   const breadcrumbsList = [
-    { title: intl.formatMessage(messages.users), to: '/users' },
+    { title: intl.formatMessage(messages.users), to: mergeToBasename(pathnames.users.link) },
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
   const routes = () => (
-    <Switch>
-      <Route path={pathnames['add-user-to-group'].path.replace(':username', username)}>
-        <AddUserToGroup username={username} />
-      </Route>
+    <Routes>
+      <Route path={pathnames['add-user-to-group'].path} element={<AddUserToGroup username={username} />} />
       <Route
-        path={pathnames['user-add-group-roles'].path.replace(':username', username)}
-        render={(args) => (
+        path={pathnames['user-add-group-roles'].path}
+        element={
           <AddGroupRoles
             selectedRoles={selectedAddRoles}
             setSelectedRoles={setSelectedAddRoles}
-            closeUrl={`/users/detail/${username}`}
+            closeUrl={pathnames['user-detail'].link.replace(':username', username)}
             addRolesToGroup={(groupId, roles) => dispatch(addRolesToGroup(groupId, roles))}
-            {...args}
           />
-        )}
+        }
       />
-    </Switch>
+    </Routes>
   );
 
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
-          <Link to={pathnames['add-user-to-group'].path.replace(':username', username)} key="add-user-to-group" className="rbac-m-hide-on-sm">
+          <AppLink to={pathnames['add-user-to-group'].link.replace(':username', username)} key="add-user-to-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="add-user-to-group-button" variant="primary" aria-label="Add user to a group">
               {intl.formatMessage(messages.addUserToGroup)}
             </Button>
-          </Link>,
+          </AppLink>,
           {
             label: intl.formatMessage(messages.addUserToGroup),
             onClick: () => {
-              history.push(pathnames['add-user-to-group'].path);
+              navigate(pathnames['add-user-to-group'].link.replace(':username', username));
             },
           },
         ]
@@ -317,7 +311,7 @@ const User = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => history.goBack()}
+                onClick={() => navigate(-1)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,

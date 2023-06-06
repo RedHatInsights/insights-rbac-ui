@@ -1,13 +1,13 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { rolesInitialState } from '../../../redux/reducers/role-reducer';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
-import user from '../../../smart-components/user/user';
+import User from '../../../smart-components/user/user';
 import { FETCH_USERS } from '../../../redux/action-types';
 import * as UserActions from '../../../redux/actions/user-actions';
 import * as RoleActions from '../../../redux/actions/role-actions';
@@ -63,12 +63,14 @@ describe('<User />', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/users/detail/epacific-insights']}>
-            <Route path="/users/detail/:username" component={user} />
+            <Routes>
+              <Route path="/users/detail/:username/*" element={<User />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
     });
     wrapper.update();
-    expect(wrapper.find(user)).toHaveLength(1);
+    expect(wrapper.find(User)).toHaveLength(1);
   });
 });

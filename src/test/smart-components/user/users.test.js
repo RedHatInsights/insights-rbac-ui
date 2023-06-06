@@ -1,10 +1,10 @@
 import React from 'react';
+import { Route, MemoryRouter as Router, Routes } from 'react-router-dom';
+import { Provider } from 'react-redux';
 import { act } from 'react-dom/test-utils';
 import { render, screen, fireEvent } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { MemoryRouter as Router } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../smart-components/user/users';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
@@ -61,7 +61,7 @@ describe('<Users />', () => {
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
@@ -71,7 +71,9 @@ describe('<Users />', () => {
     render(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
-          <Users />
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
         </Router>
         ,
       </Provider>
@@ -85,7 +87,7 @@ describe('<Users />', () => {
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
@@ -100,7 +102,9 @@ describe('<Users />', () => {
       render(
         <Provider store={store}>
           <Router initialEntries={['/users']}>
-            <Users />
+            <Routes>
+              <Route path="/users/*" element={<Users />} />
+            </Routes>
           </Router>
         </Provider>
       );
@@ -111,15 +115,17 @@ describe('<Users />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: 39,
-      limit: 10,
+      count: undefined,
+      limit: 20,
+      offset: 0,
+      redirected: undefined,
       orderBy: '-username',
       filters: {
         status: ['Active'],
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
@@ -131,7 +137,9 @@ describe('<Users />', () => {
     await render(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
-          <Users />
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
         </Router>
       </Provider>
     );
@@ -146,11 +154,10 @@ describe('<Users />', () => {
 
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: 39,
-      limit: 10,
+      limit: 20,
       orderBy: 'username',
       filters: { status: ['Active'], username: 'something', email: undefined },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 });
