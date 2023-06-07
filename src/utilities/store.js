@@ -14,6 +14,7 @@ import accessReducer, { accessInitialState } from '../redux/reducers/access-redu
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
 import errorReducer from '../redux/reducers/errorReducer';
+import inventoryReducer, { inventoryGroupsInitialState } from '../redux/reducers/inventory-reducer';
 
 export const RegistryContext = createContext({
   getRegistry: () => {},
@@ -38,6 +39,7 @@ registry.register({
   roleReducer: applyReducerHash(roleReducer, rolesInitialState),
   accessReducer: applyReducerHash(accessReducer, accessInitialState),
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
+  inventoryReducer: applyReducerHash(inventoryReducer, inventoryGroupsInitialState),
   costReducer: applyReducerHash(costReducer, costInitialState),
   errorReducer: applyReducerHash(errorReducer),
   notifications: notificationsReducer,

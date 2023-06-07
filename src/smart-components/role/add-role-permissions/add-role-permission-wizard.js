@@ -12,6 +12,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import AddPermissionsTable from '../add-role/add-permissions';
 import CostResources from '../add-role/cost-resources';
+import InventoryGroupsRole from '../add-role/inventory-groups-role';
 import { schemaBuilder } from './schema';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -20,6 +21,7 @@ const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={fa
 
 export const mapperExtension = {
   'add-permissions-table': AddPermissionsTable,
+  'inventory-groups-role': InventoryGroupsRole,
   'cost-resources': CostResources,
   review: AddRolePermissionSummaryContent,
 };
