@@ -73,7 +73,7 @@ const AddGroupMembers = ({ closeUrl }) => {
           </TextContent>
         </StackItem>
         <StackItem>
-          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
+          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
         </StackItem>
       </Stack>
     </Modal>
