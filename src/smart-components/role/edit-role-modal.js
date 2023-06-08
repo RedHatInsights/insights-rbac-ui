@@ -4,12 +4,11 @@ import componentTypes from '@data-driven-forms/react-form-renderer/component-typ
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useIntl } from 'react-intl';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import useIsMounted from '../../hooks/useIsMounted';
-import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { roleSelector } from './role-selectors';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
@@ -19,7 +18,7 @@ import messages from '../../Messages';
 const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
   const isMounted = useIsMounted();
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const { roleId } = useParams();

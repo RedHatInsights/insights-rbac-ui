@@ -4,10 +4,10 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { useNavigate } from 'react-router-dom';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import pathnames from '../../utilities/pathnames';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
@@ -27,7 +27,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
     }
   }, []);
 
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
 
   const [checked, setChecked] = useState(false);
 

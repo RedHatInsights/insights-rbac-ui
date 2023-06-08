@@ -95,6 +95,6 @@ describe('<EditGroupModal />', () => {
     });
     wrapper.update();
     wrapper.find('button').first().simulate('click');
-    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
+    expect(mockedNavigate).toHaveBeenCalledWith('/groups');
   });
 });

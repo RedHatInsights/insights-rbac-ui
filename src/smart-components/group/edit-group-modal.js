@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Skeleton } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -10,7 +10,6 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { debouncedAsyncValidator } from './validators';
 import messages from '../../Messages';
@@ -20,7 +19,7 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
   const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
   const { groupId } = useParams();
 
   const setGroupData = (groupData) => {

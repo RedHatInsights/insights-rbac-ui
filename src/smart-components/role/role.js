@@ -10,9 +10,9 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import Permissions from './role-permissions';
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
+import Permissions from './role-permissions';
 import RemoveRoleModal from './remove-role-modal';
 import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
@@ -135,7 +135,7 @@ const Role = ({ onDelete }) => {
     />,
     <DropdownItem
       component={
-        <AppLink onClick={onDelete} to={pathnames['role-detail-remove'].path.replace(':roleId', roleId)}>
+        <AppLink onClick={onDelete} to={pathnames['role-detail-remove'].link.replace(':roleId', roleId)}>
           {intl.formatMessage(messages.delete)}
         </AppLink>
       }
@@ -183,8 +183,8 @@ const Role = ({ onDelete }) => {
                       afterSubmit={() => {
                         dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true }));
                       }}
-                      cancelRoute={pathnames['role-detail'].link.replace(':roleId', roleId)}
-                      submitRoute={getBackRoute(pathnames.roles.link, { ...rolesPagination, offset: 0 }, rolesFilters)}
+                      cancelRoute={pathnames['role-detail'].path.replace(':roleId', roleId)}
+                      submitRoute={getBackRoute(mergeToBasename(pathnames['roles'].link), { ...rolesPagination, offset: 0 }, rolesFilters)}
                       routeMatch={pathnames['role-detail-remove'].path}
                     />
                   )}
@@ -198,7 +198,7 @@ const Role = ({ onDelete }) => {
                   {!isRecordLoading && (
                     <EditRoleModal
                       afterSubmit={fetchData}
-                      cancelRoute={pathnames['role-detail'].link.replace(':roleId', roleId)}
+                      cancelRoute={pathnames['role-detail'].path.replace(':roleId', roleId)}
                       routeMatch={pathnames['role-detail-edit'].path}
                     />
                   )}

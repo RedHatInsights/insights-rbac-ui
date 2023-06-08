@@ -1,11 +1,10 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
 import { roleNameSelector } from './role-selectors';
@@ -26,7 +25,7 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }
   const [isDisabled, setIsDisabled] = useState(true);
   const [internalRoleName, setInternalRoleName] = useState(roleName);
   const dispatch = useDispatch();
-  const navigate = useAppNavigate();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (roles && roleName) {
