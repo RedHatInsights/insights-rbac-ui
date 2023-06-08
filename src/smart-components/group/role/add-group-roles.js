@@ -2,11 +2,12 @@ import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Alert, Button, Modal, ModalVariant, Stack, StackItem, Title } from '@patternfly/react-core';
-import { useHistory, useLocation, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fetchGroup } from '../../../redux/actions/group-actions';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 import RolesList from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
 import messages from '../../../Messages';
@@ -29,9 +30,10 @@ const AddGroupRoles = ({
   const intl = useIntl();
   const dispatch = useDispatch();
   let { state } = useLocation();
-  const { uuid } = useParams();
+
+  const { groupId: uuid } = useParams();
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
-  const { push } = useHistory();
+  const navigate = useAppNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const { groupName, isRecordLoading } = useSelector(({ groupReducer: { selectedGroup, isRecordLoading } }) => ({
     groupName: name || state?.name || selectedGroup.name,
@@ -52,7 +54,7 @@ const AddGroupRoles = ({
         description: intl.formatMessage(messages.addingGroupRolesCancelled),
       })
     );
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   const onSubmit = () => {
@@ -60,7 +62,7 @@ const AddGroupRoles = ({
     addRolesToGroup(groupId, rolesList).then(afterSubmit);
     setSelectedRoles([]);
     isDefault && !isChanged && onDefaultGroupChanged(true);
-    return push(closeUrl);
+    return navigate(closeUrl);
   };
 
   return isDefault && !isChanged && showConfirmModal ? (

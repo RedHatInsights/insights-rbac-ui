@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
@@ -49,7 +49,9 @@ describe('RoleResourceDefinitions', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId" component={ResourceDefinitions} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -67,7 +69,9 @@ describe('RoleResourceDefinitions', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId" component={ResourceDefinitions} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -91,7 +95,9 @@ describe('RoleResourceDefinitions', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId" component={ResourceDefinitions} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );

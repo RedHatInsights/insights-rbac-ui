@@ -1,13 +1,12 @@
-import React, { useEffect } from 'react';
+import { useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Route } from 'react-router-dom';
 
-const PageActionRoute = ({ pageAction, ...props }) => {
+const PageActionRoute = ({ pageAction, children }) => {
   useEffect(() => {
     insights.chrome.appAction(pageAction);
     return () => insights.chrome.appAction(undefined);
   }, [pageAction]);
-  return <Route {...props} />;
+  return children;
 };
 
 PageActionRoute.propTypes = {

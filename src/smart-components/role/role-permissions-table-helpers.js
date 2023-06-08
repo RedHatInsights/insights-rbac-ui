@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+import AppLink from '../../presentational-components/shared/AppLink';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import { Link } from 'react-router-dom';
 import flatten from 'lodash/flatten';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
 
 export const createRows = (showResDefinitions, uuid, data, intl, selectedRows = []) =>
   data.reduce((acc, { resourceDefinitions, permission, modified }) => {
@@ -21,9 +22,9 @@ export const createRows = (showResDefinitions, uuid, data, intl, selectedRows = 
             ? [
                 permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
                   <Fragment key="resource-definitions">
-                    <Link to={`/roles/detail/${uuid}/permission/${permission}`}>
+                    <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', uuid).replace(':permissionId', permission)}>
                       {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}
-                    </Link>
+                    </AppLink>
                   </Fragment>
                 ) : (
                   <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>

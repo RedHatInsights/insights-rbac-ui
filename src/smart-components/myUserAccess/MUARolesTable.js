@@ -1,11 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import debounce from 'lodash/debounce';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useIntl } from 'react-intl';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
-import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));

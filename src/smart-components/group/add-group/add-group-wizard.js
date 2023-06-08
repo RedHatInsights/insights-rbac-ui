@@ -1,21 +1,21 @@
 import React, { useState, createContext, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { useHistory } from 'react-router-dom';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { useIntl } from 'react-intl';
 import { WarningModal } from '../../common/warningModal';
 import { schemaBuilder } from './schema';
 import { addGroup } from '../../../redux/actions/group-actions';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 import SetName from './set-name';
 import SetRoles from './set-roles';
 import SetUsers from './set-users';
 import SummaryContent from './summary-content';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import paths from '../../../utilities/pathnames';
-import { useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import messages from '../../../Messages';
 
 export const AddGroupWizardContext = createContext({
@@ -52,7 +52,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const schema = useRef(schemaBuilder());
-  const { push } = useHistory();
+  const navigate = useAppNavigate();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -71,8 +71,8 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
         description: intl.formatMessage(messages.addingGroupCanceledDescription),
       })
     );
-    push({
-      pathname: paths.groups.path,
+    navigate({
+      pathname: paths.groups.link,
       search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
   };
@@ -88,8 +88,8 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
       user_list: formData['users-list'].map((user) => ({ username: user.label })),
       roles_list: formData['roles-list'].map((role) => role.uuid),
     };
-    push({
-      pathname: paths.groups.path,
+    navigate({
+      pathname: paths.groups.link,
       search: createQueryParams({ page: 1, per_page: pagination.limit }),
     });
     dispatch(addGroup(groupData))

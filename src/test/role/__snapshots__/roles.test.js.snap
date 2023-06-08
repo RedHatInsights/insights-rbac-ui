@@ -77,7 +77,7 @@ exports[`<Roles /> should render correctly 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
-  filterValue=""
+  filterValue={Array []}
   filters={Array []}
   hideFilterChips={false}
   hideHeader={false}
@@ -92,9 +92,10 @@ exports[`<Roles /> should render correctly 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "itemCount": 0,
+      "count": undefined,
       "limit": 20,
       "offset": 0,
+      "redirected": undefined,
     }
   }
   routes={[Function]}
@@ -104,11 +105,11 @@ exports[`<Roles /> should render correctly 1`] = `
       Object {
         "cells": Array [
           Object {
-            "title": <Link
+            "title": <AppLink
               to="/roles/detail/test"
             >
               Test name
-            </Link>,
+            </AppLink>,
           },
           Object {
             "title": "test",
@@ -373,7 +374,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
-  filterValue=""
+  filterValue={Array []}
   filters={Array []}
   hideFilterChips={false}
   hideHeader={false}
@@ -388,9 +389,10 @@ exports[`<Roles /> should render correctly expanded 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "itemCount": 0,
+      "count": undefined,
       "limit": 20,
       "offset": 0,
+      "redirected": undefined,
     }
   }
   routes={[Function]}
@@ -400,11 +402,11 @@ exports[`<Roles /> should render correctly expanded 1`] = `
       Object {
         "cells": Array [
           Object {
-            "title": <Link
+            "title": <AppLink
               to="/roles/detail/test"
             >
               Test name
-            </Link>,
+            </AppLink>,
           },
           Object {
             "title": "test",
@@ -676,7 +678,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   fetchData={[Function]}
   filterItems={Array []}
   filterPlaceholder="name"
-  filterValue=""
+  filterValue={Array []}
   filters={Array []}
   hideFilterChips={false}
   hideHeader={false}
@@ -691,9 +693,10 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "itemCount": 0,
+      "count": undefined,
       "limit": 20,
       "offset": 0,
+      "redirected": undefined,
     }
   }
   routes={[Function]}
@@ -703,11 +706,11 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
       Object {
         "cells": Array [
           Object {
-            "title": <Link
+            "title": <AppLink
               to="/roles/detail/test"
             >
               Test name
-            </Link>,
+            </AppLink>,
           },
           Object {
             "title": "test",

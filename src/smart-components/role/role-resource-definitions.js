@@ -3,13 +3,14 @@ import { TextContent, Text, TextVariants, Level, LevelItem, Button } from '@patt
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './role-resource-definitions-table-helpers';
-import { useParams, Link, Route } from 'react-router-dom';
+import { useParams, Route, Routes } from 'react-router-dom';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
 import paths from '../../utilities/pathnames';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import flatten from 'lodash/flatten';
@@ -72,24 +73,27 @@ const ResourceDefinitions = () => {
     : [];
 
   const routes = () => (
-    <Fragment>
-      <Route exact path={paths['role-detail-permission-edit'].path}>
-        <EditResourceDefinitionsModal
-          cancelRoute={paths['role-detail-permission'].path.replace(':roleId', roleId).replace(':permissionId', permissionId)}
-        />
-      </Route>
-    </Fragment>
+    <Routes>
+      <Route
+        path={paths['role-detail-permission-edit'].path}
+        element={
+          <EditResourceDefinitionsModal
+            cancelRoute={paths['role-detail-permission'].link.replace(':roleId', roleId).replace(':permissionId', permissionId)}
+          />
+        }
+      />
+    </Routes>
   );
 
   const toolbarButtons = () =>
     !role.system
       ? [
           <Fragment key="edit-resource-definitions">
-            <Link to={`/roles/detail/${roleId}/permission/${permissionId}/edit`}>
+            <AppLink to={paths['role-detail-permission-edit'].link.replace(':roleId', roleId).replace(':permissionId', permissionId)}>
               <Button variant="primary" aria-label="Edit">
                 {intl.formatMessage(messages.edit)}
               </Button>
-            </Link>
+            </AppLink>
           </Fragment>,
         ]
       : [];
@@ -99,8 +103,11 @@ const ResourceDefinitions = () => {
     <Fragment>
       <TopToolbar
         breadcrumbs={[
-          { title: intl.formatMessage(messages.roles), to: getBackRoute(routes.roles, rolesPagination, rolesFilters) },
-          { title: isRecordLoading ? undefined : role && (role.display_name || role.name), to: `/roles/detail/${roleId}` },
+          { title: intl.formatMessage(messages.roles), to: getBackRoute(mergeToBasename(paths['roles'].link), rolesPagination, rolesFilters) },
+          {
+            title: isRecordLoading ? undefined : role && (role.display_name || role.name),
+            to: mergeToBasename(paths['role-detail'].link.replace(':groupId', roleId)),
+          },
           { title: permissionId, isActive: true },
         ]}
       >

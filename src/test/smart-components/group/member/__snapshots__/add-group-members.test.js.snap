@@ -277,6 +277,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="pagination-options-menu-6"
+                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -745,6 +746,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="pagination-options-menu-7"
+                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div
@@ -1267,6 +1269,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="pagination-options-menu-2"
+                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -1712,6 +1715,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="pagination-options-menu-3"
+                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div

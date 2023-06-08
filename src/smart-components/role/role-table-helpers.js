@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { Link } from 'react-router-dom';
-import { getDateFormat } from '../../helpers/shared/helpers';
 import { Text } from '@patternfly/react-core';
 import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
+import AppLink from '../../presentational-components/shared/AppLink';
+import { getDateFormat } from '../../helpers/shared/helpers';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
 
 export const createRows = (data, selectedRows, intl, expanded) =>
   data.reduce(
@@ -20,7 +21,7 @@ export const createRows = (data, selectedRows, intl, expanded) =>
         disableSelection: !!system,
         selected: Boolean(selectedRows?.find?.((row) => row.uuid === uuid)),
         cells: [
-          { title: <Link to={`/roles/detail/${uuid}`}>{display_name || name}</Link> },
+          { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', uuid)}>{display_name || name}</AppLink> },
           { title: description },
           { title: accessCount, props: { isOpen: expanded[uuid] === 3 } },
           { title: groupsCount, props: { isOpen: expanded[uuid] === 4 } },

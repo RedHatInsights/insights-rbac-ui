@@ -14,6 +14,11 @@ import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => jest.fn(),
+}));
+
 describe('<Groups />', () => {
   let enhanceState;
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -122,13 +127,13 @@ describe('<Groups />', () => {
       wrapper.find('.pf-c-pagination__nav .pf-c-button').at(1).simulate('click');
     });
     expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
-      ...defaultSettings,
-      count: 0,
       filters: {
         name: undefined,
       },
-      inModal: false,
+      limit: 20,
+      offset: 0,
       orderBy: 'name',
+      usesMetaInURL: true,
     });
   });
 
@@ -169,7 +174,7 @@ describe('<Groups />', () => {
       limit: 20,
       filters: { name: filterValue },
       offset: 0,
-      inModal: false,
+      usesMetaInURL: true,
       orderBy: 'name',
     });
     await act(async () => {
@@ -182,7 +187,7 @@ describe('<Groups />', () => {
       limit: 20,
       filters: { name: '' },
       offset: 0,
-      inModal: false,
+      usesMetaInURL: true,
       orderBy: 'name',
     });
     expect(fetchGroupsSpy).toHaveBeenCalledTimes(3);
@@ -213,7 +218,7 @@ describe('<Groups />', () => {
       count: 0,
       limit: 20,
       offset: 0,
-      inModal: false,
+      usesMetaInURL: true,
       filters: { name: undefined },
       orderBy: '-name',
     });

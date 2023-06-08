@@ -150,10 +150,10 @@ const InventoryGroupsRole = (props) => {
               typeAheadAriaLabel={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
               aria-labelledby={permission}
               selections={state[permission].selected.map(({ name }) => name)}
-              placeholderText={'Select groups'}
-              onSelect={(event, selection) => {
-                onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permission);
-              }}
+              placeholderText={intl.formatMessage(messages.selectGroups)}
+              onSelect={(event, selection) =>
+                onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permission)
+              }
               onToggle={(isOpen) => {
                 dispatchLocally({ type: 'setFilter', key: permission, filterValue: '' });
                 onToggle(permission, isOpen);

@@ -1,20 +1,22 @@
 import React, { useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useHistory, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
-import { useIntl } from 'react-intl';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
+import pathnames from '../../../utilities/pathnames';
 
 const AddGroupMembers = ({ closeUrl }) => {
-  const { uuid } = useParams();
-  const { push } = useHistory();
-  const dispatch = useDispatch();
   const intl = useIntl();
+  const navigate = useAppNavigate();
+  const { groupId } = useParams();
+  const dispatch = useDispatch();
 
   const [selectedUsers, setSelectedUsers] = useState([]);
 
@@ -29,12 +31,12 @@ const AddGroupMembers = ({ closeUrl }) => {
           description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
         })
       );
-      dispatch(addMembersToGroup(uuid, userList)).then(() => {
-        dispatch(fetchMembersForGroup(uuid));
-        dispatch(fetchGroups({ inModal: false }));
+      dispatch(addMembersToGroup(groupId, userList)).then(() => {
+        dispatch(fetchMembersForGroup(groupId));
+        dispatch(fetchGroups({ usesMetaInURL: true }));
       });
     }
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   const onCancel = () => {
@@ -46,7 +48,7 @@ const AddGroupMembers = ({ closeUrl }) => {
         description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
       })
     );
-    push(closeUrl);
+    navigate(closeUrl);
   };
 
   return (
@@ -71,7 +73,7 @@ const AddGroupMembers = ({ closeUrl }) => {
           </TextContent>
         </StackItem>
         <StackItem>
-          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
+          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} />
         </StackItem>
       </Stack>
     </Modal>
@@ -79,7 +81,7 @@ const AddGroupMembers = ({ closeUrl }) => {
 };
 
 AddGroupMembers.defaultProps = {
-  closeUrl: '/groups',
+  closeUrl: pathnames.groups.link,
 };
 
 AddGroupMembers.propTypes = {

@@ -261,7 +261,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         borders={false}
         rows={createRows(permissions)}
         data={permissions}
-        filterValue={''}
+        filterValue=""
         noData={permissions?.length === 0}
         noDataDescription={[intl.formatMessage(messages.permissionNotDisplayedDescription)]}
         fetchData={({ limit, offset, applications, resources, operations }) => {

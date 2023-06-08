@@ -35,7 +35,7 @@ exports[`role should render top toolbar 1`] = `
       Object {
         "title": "Roles",
         "to": Object {
-          "pathname": "/roles",
+          "pathname": "/iam/user-access/roles",
           "search": "per_page=20&page=1",
         },
       },

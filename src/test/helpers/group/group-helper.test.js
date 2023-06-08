@@ -41,7 +41,7 @@ describe('group helper', () => {
   it('should call list groups helper in Table', async () => {
     const listGroupsGroupSpy = jest.spyOn(groupApi, 'listGroups');
     listGroupsGroupSpy.mockResolvedValueOnce(mockedData);
-    const data = await GroupsHelper.fetchGroups({ ...pagination, inModal: false });
+    const data = await GroupsHelper.fetchGroups({ ...pagination, usesMetaInURL: true });
     expect(data).toEqual({ ...mockedData, filters: {}, pagination });
   });
 

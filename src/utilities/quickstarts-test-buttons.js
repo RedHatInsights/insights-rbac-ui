@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from '../utilities/pathnames';
@@ -12,7 +12,7 @@ const QuickstartsTestButtons = () => {
   const intl = useIntl();
   const [openQuickstart, setOpenQuickstart] = useState(false);
   const chromeHook = useChrome();
-  const history = useHistory();
+  const navigate = useNavigate();
   const quickstartsContext = React.useContext(QuickStartContext);
   const { quickStarts } = chromeHook;
   const [isQuickstartEnabled, setIsQuickstartEnabled] = useState(false);
@@ -40,7 +40,7 @@ const QuickstartsTestButtons = () => {
   };
 
   const handleOpenCatalog = () => {
-    history.push(pathnames['quickstarts-test'].path);
+    navigate(pathnames['quickstarts-test'].link);
   };
 
   const btnStyle = {
@@ -51,10 +51,10 @@ const QuickstartsTestButtons = () => {
     <>
       {isQuickstartEnabled && (
         <>
-          <Button onClick={handleActivateQuickstart} variant={'primary'} style={btnStyle} isDisabled={openQuickstart}>
+          <Button onClick={handleActivateQuickstart} variant="primary" style={btnStyle} isDisabled={openQuickstart}>
             {intl.formatMessage(messages.triggerMyQuickstart)}
           </Button>
-          <Button onClick={handleOpenCatalog} variant={'primary'} style={btnStyle}>
+          <Button onClick={handleOpenCatalog} variant="primary" style={btnStyle}>
             {intl.formatMessage(messages.triggerMyCatalog)}
           </Button>
         </>

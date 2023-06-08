@@ -1,34 +1,35 @@
 import React, { useEffect, useState } from 'react';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
+import { useIntl } from 'react-intl';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
+import { Skeleton } from '@patternfly/react-core';
+import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import ModalFormTemplate from '../common/ModalFormTemplate';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '../common/form-renderer';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
-import { Skeleton } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
-import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { useDispatch } from 'react-redux';
 
 const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
   const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const { push } = useHistory();
-  const match = useRouteMatch('/groups/edit/:id');
+  const navigate = useAppNavigate();
+  const { groupId } = useParams();
 
   const setGroupData = (groupData) => {
     setSelectedGroup(groupData);
   };
 
   const fetchData = () => {
-    match &&
-      fetchGroup(match.params.id)
+    groupId &&
+      fetchGroup(groupId)
         .payload.then((data) => setGroupData(data))
         .catch(() => setGroupData(undefined));
   };
@@ -52,8 +53,10 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
     postMethod
       ? dispatch(updateGroup(user_data))
           .then(() => postMethod({ limit: pagination?.limit, filters }))
-          .then(push(submitRoute))
-      : dispatch(updateGroup(user_data)).then(() => push(submitRoute));
+          .then(navigate(submitRoute))
+      : dispatch(updateGroup(user_data)).then(() => {
+          navigate(submitRoute);
+        });
   };
 
   const onCancel = () => {
@@ -66,7 +69,7 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
       })
     );
     onClose();
-    push(cancelRoute);
+    navigate(cancelRoute);
   };
 
   const schema = {
@@ -77,7 +80,7 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
         component: selectedGroup ? componentTypes.TEXT_FIELD : 'skeleton',
         ...(selectedGroup ? { validateOnMount: true } : {}),
         validate: [
-          { type: 'validate-group-name', id: match ? match.params.id : group.uuid, idKey: 'uuid' },
+          { type: 'validate-group-name', id: groupId ?? group.uuid, idKey: 'uuid' },
           {
             type: validatorTypes.REQUIRED,
           },
