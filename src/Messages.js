@@ -11,6 +11,11 @@ export default defineMessages({
     description: 'Org. Administrator name',
     defaultMessage: 'Org. Administrator',
   },
+  orgAdmin: {
+    id: 'orgAdmin',
+    description: 'Org. Admin name',
+    defaultMessage: 'Org. Admin',
+  },
   userAccessAdmin: {
     id: 'userAccessAdmin',
     description: 'User Access Admin name',
