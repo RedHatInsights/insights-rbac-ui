@@ -1,20 +1,22 @@
 /* eslint-disable camelcase */
 import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Link, Route, useHistory, useParams } from 'react-router-dom';
+import { Outlet, Route, Routes, useParams } from 'react-router-dom';
+import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './member-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
-import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import AddGroupMembers from './add-group-members';
-import Section from '@redhat-cloud-services/frontend-components/Section';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import paths from '../../../utilities/pathnames';
 import PermissionsContext from '../../../utilities/permissions-context';
-import { FormattedMessage, useIntl } from 'react-intl';
+import AppLink from '../../../presentational-components/shared/AppLink';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
+import pathnames from '../../../utilities/pathnames';
 
 const selector = ({ groupReducer: { selectedGroup } }) => ({
   members: selectedGroup.members.data,
@@ -43,7 +45,7 @@ const GroupMembers = () => {
   const [confirmDelete, setConfirmDelete] = useState(() => null);
   const [deleteInfo, setDeleteInfo] = useState({});
 
-  const { uuid } = useParams();
+  const { groupId } = useParams();
   const { members, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -59,7 +61,7 @@ const GroupMembers = () => {
   const dispatch = useDispatch();
 
   const fetchData = (usernames, options = pagination) => {
-    dispatch(fetchMembersForGroup(uuid, usernames, options));
+    dispatch(fetchMembersForGroup(groupId, usernames, options));
   };
 
   useEffect(() => {
@@ -75,10 +77,10 @@ const GroupMembers = () => {
   };
 
   const removeMembers = (userNames) => {
-    return dispatch(removeMembersFromGroup(uuid, userNames)).then(() => {
+    return dispatch(removeMembersFromGroup(groupId, userNames)).then(() => {
       setSelectedMembers([]);
       fetchData(undefined, { ...pagination, offset: 0 });
-      dispatch(fetchGroups({ inModal: false }));
+      dispatch(fetchGroups({ usesMetaInURL: true }));
     });
   };
 
@@ -101,31 +103,28 @@ const GroupMembers = () => {
         ];
 
   const routes = () => (
-    <Fragment>
-      <Route
-        path={paths['group-add-members'].path}
-        render={(args) => <AddGroupMembers fetchData={fetchData} closeUrl={`/groups/detail/${uuid}/members`} {...args} />}
-      />
-    </Fragment>
+    <Routes>
+      <Route path={pathnames['group-add-members'].path} element={<AddGroupMembers fetchData={fetchData} closeUrl="../" />} />
+    </Routes>
   );
 
-  const history = useHistory();
+  const navigate = useAppNavigate();
 
   const toolbarButtons = () => [
     ...(hasPermissions.current
       ? [
-          <Link to={`/groups/detail/${uuid}/members/add-members`} key="remove-from-group" className="rbac-m-hide-on-sm">
+          <AppLink to={pathnames['group-add-members'].link} key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               {intl.formatMessage(messages.addMember)}
             </Button>
-          </Link>,
+          </AppLink>,
           {
             label: intl.formatMessage(messages.addMember),
             props: {
               className: 'rbac-m-hide-on-md',
             },
             onClick: () => {
-              history.push(`/groups/detail/${uuid}/members/add-members`);
+              () => navigate(pathnames['group-add-members'].link.replace(':groupId', groupId));
             },
           },
           {
@@ -165,7 +164,7 @@ const GroupMembers = () => {
           confirmDelete();
         }}
       />
-      <Section type="content" id={'tab-principals'}>
+      <Section type="content" id="tab-principals">
         {platform_default || admin_default ? (
           <Card>
             <CardBody>
@@ -204,6 +203,7 @@ const GroupMembers = () => {
           />
         )}
       </Section>
+      <Outlet />
     </Fragment>
   );
 };

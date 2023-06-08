@@ -2,14 +2,14 @@ import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import FormRenderer from '../common/form-renderer';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
-import paths from '../../utilities/pathnames';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { WarningModal } from '../common/warningModal';
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import flatten from 'lodash/flattenDeep';
 import { useIntl } from 'react-intl';
@@ -80,11 +80,8 @@ const validatorMapper = {
 
 const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const intl = useIntl();
-  const routeMatch = useRouteMatch(paths['role-detail-permission-edit'].path);
-  const {
-    params: { permissionId, roleId },
-  } = useRouteMatch(routeMatch);
-  const { replace, push } = useHistory();
+  const { roleId, permissionId } = useParams();
+  const navigate = useAppNavigate();
 
   const dispatch = useDispatch();
   const fetchResourceDefinitions = () => dispatch(getResourceDefinitions());
@@ -122,7 +119,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     }
   }, [resourceTypes]);
 
-  const onCancel = () => replace(cancelRoute);
+  const onCancel = () => navigate(cancelRoute, { replace: true });
 
   const handleCancel = (data) => {
     if (data['dual-list-select'] === definedResources) {
@@ -155,7 +152,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     dispatch(updateRole(roleId, { ...role, access: [...role.access.filter((item) => item.permission !== permissionId), newAccess] }), true).then(
       () => {
         dispatch(fetchRole(roleId));
-        push(cancelRoute);
+        navigate(cancelRoute);
       }
     );
   };

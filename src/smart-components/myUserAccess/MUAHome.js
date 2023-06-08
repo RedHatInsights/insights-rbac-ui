@@ -7,13 +7,12 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import { Text, Spinner } from '@patternfly/react-core';
 import StatusLabel from '../../presentational-components/myUserAccess/StatusLabel';
 import PermissionsContext from '../../utilities/permissions-context';
-import pathnames from '../../utilities/pathnames';
 import { bundleData } from '../../presentational-components/myUserAccess/bundles';
-import './MUAHome.scss';
 import MUAContent from './MUAContent';
 import useSearchParams from '../../hooks/useSearchParams';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
+import './MUAHome.scss';
 
 const MyUserAccess = () => {
   const intl = useIntl();
@@ -61,7 +60,7 @@ const MyUserAccess = () => {
                   </DropdownToggle>
                 }
                 dropdownItems={bundleData.map((data) => (
-                  <NavLink key={data.entitlement} to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${data.entitlement}` }}>
+                  <NavLink key={data.entitlement} to={{ pathname: '', search: `bundle=${data.entitlement}` }}>
                     <DropdownItem
                       onClick={() => {
                         setBundleParam(data.title), setDropdownOpen(false);

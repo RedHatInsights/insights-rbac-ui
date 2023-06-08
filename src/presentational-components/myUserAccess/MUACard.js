@@ -2,9 +2,6 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-
-import pathnames from '../../utilities/pathnames';
-
 import { Stack, StackItem, Title, Card, CardTitle, CardBody } from '@patternfly/react-core';
 
 import { bundleData } from './bundles';
@@ -36,7 +33,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
                 <NavLink
                   aria-label="card-link"
                   className={classNames('rbac-c-mua-bundles__cardlink', { 'rbac-c-mua-bundles__cardlink--disabled': isDisabled })}
-                  to={{ pathname: pathnames['my-user-access'].path, search: `bundle=${key}` }}
+                  to={{ pathname: '', search: `bundle=${key}` }}
                 >
                   <Card
                     key={data.title}

@@ -52,6 +52,18 @@ export const createQueryParams = (params) => {
   return searchParams.toString();
 };
 
+export const removeQueryParams = (location, navigate) => {
+  navigate(
+    {
+      pathname: location.pathname,
+      search: '',
+    },
+    {
+      replace: true,
+    }
+  );
+};
+
 export const getBackRoute = (pathname, pagination, filters) => ({
   pathname,
   search: createQueryParams({

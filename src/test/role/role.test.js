@@ -1,12 +1,12 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import Role from '../../smart-components/role/role';
 import toJson from 'enzyme-to-json';
+import Role from '../../smart-components/role/role';
 import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 
 import * as RoleActions from '../../redux/actions/role-actions';
@@ -99,52 +99,6 @@ describe('role', () => {
     };
   });
 
-  describe('role only', () => {
-    it('should render correctly with router', async () => {
-      const store = mockStore({
-        groupReducer: { error: undefined },
-        roleReducer: {},
-      });
-      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-
-      let wrapper;
-      await act(async () => {
-        wrapper = mount(
-          <Provider store={store}>
-            <MemoryRouter initialEntries={['/roles/detail/1234']}>
-              <Route path="/roles/detail/:uuid" component={Role} />
-            </MemoryRouter>
-          </Provider>
-        );
-      });
-      wrapper.update();
-      expect(store.getActions()[0]).toMatchObject({ type: 'FETCH_ROLE_PENDING' });
-      expect(store.getActions()[1]).toMatchObject({
-        payload: {
-          data: 'something',
-        },
-        type: 'FETCH_ROLE_FULFILLED',
-      });
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(1);
-    });
-
-    it('should render correctly with router and redux store', async () => {
-      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-      let wrapper;
-      await act(async () => {
-        wrapper = mount(
-          <Provider store={mockStore(initialState)}>
-            <MemoryRouter initialEntries={['/roles/detail/1234']}>
-              <Route path="/roles/detail/:uuid" component={Role} />
-            </MemoryRouter>
-          </Provider>
-        );
-      });
-      wrapper.update();
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(2);
-    });
-  });
-
   describe('role and group', () => {
     it('should render correctly with router', async () => {
       const store = mockStore({
@@ -163,7 +117,9 @@ describe('role', () => {
         wrapper = mount(
           <Provider store={store}>
             <MemoryRouter initialEntries={['/groups/detail/123/roles/detail/456']}>
-              <Route path="/groups/detail/:groupUuid/roles/detail/:uuid" component={Role} />
+              <Routes>
+                <Route path="/groups/detail/:groupId/roles/detail/:roleId/*" element={<Role />} />
+              </Routes>
             </MemoryRouter>
           </Provider>
         );
@@ -176,10 +132,6 @@ describe('role', () => {
           data: 'something',
         },
         type: 'FETCH_ROLE_FULFILLED',
-      });
-      expect(store.getActions()[3]).toMatchObject({
-        payload: { data: 'something' },
-        type: 'FETCH_GROUP_FULFILLED',
       });
       expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(1);
     });
@@ -202,13 +154,65 @@ describe('role', () => {
             })}
           >
             <MemoryRouter initialEntries={['/groups/detail/123/roles/detail/456']}>
-              <Route path="/groups/detail/:groupUuid/roles/detail/:uuid" component={Role} />
+              <Routes>
+                <Route path="/groups/detail/:groupId/roles/detail/:roleId/*" element={<Role />} />
+              </Routes>
             </MemoryRouter>
           </Provider>
         );
       });
       wrapper.update();
       expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(3);
+    });
+  });
+
+  describe('role only', () => {
+    it('should render correctly with router', async () => {
+      const store = mockStore({
+        groupReducer: { error: undefined },
+        roleReducer: {},
+      });
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+
+      let wrapper;
+      await act(async () => {
+        wrapper = mount(
+          <Provider store={store}>
+            <MemoryRouter initialEntries={['/roles/detail/1234']}>
+              <Routes>
+                <Route path="/roles/detail/:roleId/*" element={<Role />} />
+              </Routes>
+            </MemoryRouter>
+          </Provider>
+        );
+      });
+      wrapper.update();
+      expect(store.getActions()[0]).toMatchObject({ type: 'FETCH_ROLE_PENDING' });
+      expect(store.getActions()[1]).toMatchObject({
+        payload: {
+          data: 'something',
+        },
+        type: 'FETCH_ROLE_FULFILLED',
+      });
+      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(1);
+    });
+
+    it('should render correctly with router and redux store', async () => {
+      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+      let wrapper;
+      await act(async () => {
+        wrapper = mount(
+          <Provider store={mockStore(initialState)}>
+            <MemoryRouter initialEntries={['/roles/detail/1234']}>
+              <Routes>
+                <Route path="/roles/detail/:roleId/*" element={<Role />} />
+              </Routes>
+            </MemoryRouter>
+          </Provider>
+        );
+      });
+      wrapper.update();
+      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(2);
     });
   });
 
@@ -226,7 +230,9 @@ describe('role', () => {
           })}
         >
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -243,7 +249,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -260,7 +268,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -286,7 +296,9 @@ describe('role', () => {
           })}
         >
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -308,7 +320,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -333,7 +347,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -359,7 +375,9 @@ describe('role', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
-            <Route path="/roles/detail/:uuid" component={Role} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );

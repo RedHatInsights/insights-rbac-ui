@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
@@ -13,6 +13,7 @@ import * as CostManagementActions from '../../redux/actions/cost-management-acti
 describe('EditResourceDefinitionsModal', () => {
   let mockStore;
   let initialState;
+  let initialProps;
 
   const getResourceDefinitionsSpy = jest.spyOn(CostManagementActions, 'getResourceDefinitions');
   const getResourceSpy = jest.spyOn(CostManagementActions, 'getResource');
@@ -70,6 +71,9 @@ describe('EditResourceDefinitionsModal', () => {
         isLoadingResources: false,
       },
     };
+    initialProps = {
+      cancelRoute: '/roles',
+    };
   });
 
   it('should render edit resource definitions modal', async () => {
@@ -80,7 +84,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -97,7 +103,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:aws.account:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -120,7 +128,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:aws.account:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -140,7 +150,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:aws.account:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -160,7 +172,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:aws.account:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -179,7 +193,9 @@ describe('EditResourceDefinitionsModal', () => {
       wrapper = mount(
         <Provider store={mockStore({ ...initialState, costReducer: { ...initialState.costReducer, isLoading: true, isLoadingResources: true } })}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:aws.account:read/edit']}>
-            <Route path="/roles/detail/:roleId/permission/:permissionId/edit" component={EditResourceDefinitionsModal} />
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );

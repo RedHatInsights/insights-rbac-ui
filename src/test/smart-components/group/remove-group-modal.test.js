@@ -4,7 +4,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import RemoveGroupModal from '../../../smart-components/group/remove-group-modal';
@@ -22,6 +22,13 @@ jest.mock('../../../redux/actions/group-actions', () => {
   };
 });
 
+const mockedNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
+
 describe('<RemoveGroupModal />', () => {
   let initialProps;
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -34,21 +41,22 @@ describe('<RemoveGroupModal />', () => {
 
   const GroupWrapper = ({ store }) => (
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/groups/', '/groups/removegroups']} initialIndex={2}>
-        <Route
-          path="/groups/removegroups"
-          render={(args) => (
-            <RemoveGroupModal
-              {...args}
-              {...initialProps}
-              isModalOpen
-              groupsUuid={[{ uuid: '123' }]}
-              pagination={{ limit: 0 }}
-              filters={{}}
-              cancelRoute={pathnames.groups.path}
-            />
-          )}
-        />
+      <MemoryRouter initialEntries={['/groups/', '/groups/remove-group']} initialIndex={2}>
+        <Routes>
+          <Route
+            path="/groups/remove-group"
+            element={
+              <RemoveGroupModal
+                {...initialProps}
+                isModalOpen
+                groupsUuid={[{ uuid: '123' }]}
+                pagination={{ limit: 0 }}
+                filters={{}}
+                cancelRoute={pathnames.groups.link}
+              />
+            }
+          />
+        </Routes>
       </MemoryRouter>
     </Provider>
   );
@@ -72,6 +80,7 @@ describe('<RemoveGroupModal />', () => {
   afterEach(() => {
     removeGroupsSpy.mockReset();
     fetchGroupSpy.mockReset();
+    mockedNavigate.mockReset();
   });
 
   it('should call cancel action', () => {
@@ -81,7 +90,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(wrapper.find(MemoryRouter).children().props().history.location.pathname).toEqual(pathnames.groups.path);
+    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 
   it('should call the remove action', async () => {

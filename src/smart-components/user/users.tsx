@@ -1,17 +1,17 @@
 import React, { useEffect, useContext } from 'react';
-import { Switch } from 'react-router-dom';
+import { Routes, Route } from 'react-router-dom';
 import { Stack, StackItem } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { useIntl } from 'react-intl';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersList from '../group/add-group/users-list';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
-import paths from '../../utilities/pathnames';
 import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
-import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import pathnames from '../../utilities/pathnames';
 
 const Users = () => {
   const intl = useIntl();
@@ -39,6 +39,7 @@ const Users = () => {
               isSelectable: false,
               isCompact: false,
             }}
+            usesMetaInURL
           />
         </Section>
       </StackItem>
@@ -46,11 +47,17 @@ const Users = () => {
   );
 
   return (
-    <Switch>
-      <PageActionRoute pageAction="user-detail" path={paths['user-detail'].path} render={() => <User />} />
-      <PageActionRoute pageAction="users-list" path={[paths.users.path, paths.rbac.path]} render={() => renderUsers()} />
-    </Switch>
+    <Routes>
+      <Route
+        path={pathnames['user-detail'].path}
+        element={
+          <PageActionRoute pageAction="user-detail">
+            <User />
+          </PageActionRoute>
+        }
+      />
+      <Route path="" element={<PageActionRoute pageAction="users-list">{renderUsers()}</PageActionRoute>} />
+    </Routes>
   );
 };
-
 export default Users;

@@ -1,16 +1,10 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { Route, Redirect, Link, useLocation, useHistory } from 'react-router-dom';
+import { Route, useLocation, useParams, Routes } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import AppTabs from '../app-tabs/app-tabs';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import GroupMembers from './member/members';
-import GroupRoles from './role/group-roles';
-import { WarningModal } from '../common/warningModal';
-import { fetchGroup, fetchGroups, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import {
   Alert,
   AlertActionCloseButton,
@@ -23,31 +17,35 @@ import {
   KebabToggle,
   Button,
 } from '@patternfly/react-core';
-import pathnames from '../../utilities/pathnames';
+import AppTabs from '../app-tabs/app-tabs';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import GroupMembers from './member/group-members';
+import GroupRoles from './role/group-roles';
+import { WarningModal } from '../common/warningModal';
+import { fetchGroup, fetchGroups, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
+import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
-import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
 import './group.scss';
 
-const Group = ({
-  match: {
-    params: { uuid },
-  },
-  onDelete,
-}) => {
+const Group = ({ onDelete }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const history = useHistory();
+  const navigate = useAppNavigate();
   const location = useLocation();
   const chrome = useChrome();
-  const isPlatformDefault = uuid === 'default-access';
+  const { groupId } = useParams();
+  const isPlatformDefault = groupId === 'default-access';
   const tabItems = [
-    { eventKey: 0, title: intl.formatMessage(messages.roles), name: `/groups/detail/${uuid}/roles` },
-    { eventKey: 1, title: intl.formatMessage(messages.members), name: `/groups/detail/${uuid}/members` },
+    { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId), to: 'roles' },
+    { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link.replace(':groupId', groupId), to: 'members' },
   ];
 
   const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
@@ -74,18 +72,18 @@ const Group = ({
 
   useEffect(() => {
     dispatch(fetchSystemGroup());
-    const currUuid = !isPlatformDefault ? uuid : systemGroupUuid;
-    if (currUuid) {
-      dispatch(fetchGroup(currUuid));
-      chrome.appObjectId(currUuid);
+    const currId = !isPlatformDefault ? groupId : systemGroupUuid;
+    if (currId) {
+      dispatch(fetchGroup(currId));
+      chrome.appObjectId(currId);
     }
     return () => chrome.appObjectId(undefined);
-  }, [uuid, systemGroupUuid]);
+  }, [groupId, systemGroupUuid]);
 
   const breadcrumbsList = () => [
     {
       title: intl.formatMessage(messages.groups),
-      to: getBackRoute(pathnames.groups.path, pagination, filters),
+      to: getBackRoute(mergeToBasename(pathnames.groups.link), pagination, filters),
     },
     groupExists
       ? { title: isFetching ? undefined : group.name, isActive: true }
@@ -138,38 +136,36 @@ const Group = ({
   const dropdownItems = [
     <DropdownItem
       component={
-        <Link
+        <AppLink
           onClick={() => setDropdownOpen(false)}
-          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).path.replace(
-            ':uuid',
-            isPlatformDefault ? 'default-access' : uuid
+          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).link.replace(
+            ':groupId',
+            isPlatformDefault ? 'default-access' : groupId
           )}
         >
           {intl.formatMessage(messages.edit)}
-        </Link>
+        </AppLink>
       }
       key="edit-group"
     />,
     <DropdownItem
       component={
-        <Link
-          onClick={() => onDelete(uuid)}
-          to={() =>
-            (location.pathname.includes('members') ? pathnames['group-detail-members-remove'] : pathnames['group-detail-roles-remove']).path.replace(
-              ':uuid',
-              uuid
-            )
-          }
+        <AppLink
+          onClick={() => onDelete(groupId)}
+          to={(location.pathname.includes('members')
+            ? pathnames['group-detail-members-remove']
+            : pathnames['group-detail-roles-remove']
+          ).link.replace(':groupId', groupId)}
         >
           {intl.formatMessage(messages.delete)}
-        </Link>
+        </AppLink>
       }
       className="rbac-c-group__action"
       key="delete-group"
     />,
   ];
 
-  const fetchUuid = isPlatformDefault ? systemGroupUuid : uuid;
+  const fetchId = isPlatformDefault ? systemGroupUuid : groupId;
 
   return (
     <Fragment>
@@ -196,7 +192,7 @@ const Group = ({
               })
             );
             setResetWarningVisible(false);
-            history.push('/groups/detail/default-access/roles');
+            navigate(pathnames['group-detail-roles'].link).replace(':groupId', 'default-access');
           }}
         />
       )}
@@ -246,31 +242,57 @@ const Group = ({
             ) : null}
           </TopToolbar>
           <AppTabs isHeader tabItems={tabItems} />
-          <Route
-            path={[pathnames['group-detail-roles-remove'].path, pathnames['group-detail-members-remove'].path]}
-            render={(props) => (
-              <RemoveGroup
-                {...props}
-                postMethod={() => {
-                  dispatch(fetchGroups({ ...pagination, offset: 0, filters, inModal: false }));
-                }}
-                cancelRoute={`group/detail/${uuid}`}
-                submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-                isModalOpen
-                groupsUuid={[group]}
+          <Routes>
+            <Route path={pathnames['group-detail-roles'].path} element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}>
+              <Route
+                path={pathnames['group-detail-roles-remove'].path}
+                element={
+                  <RemoveGroup
+                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
+                    cancelRoute={pathnames['group-detail-roles'].link.replace(':groupId', groupId)}
+                    submitRoute={getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, filters)}
+                    isModalOpen
+                    groupsUuid={[group]}
+                  />
+                }
               />
-            )}
-          />
-          <Route
-            path={[pathnames['group-detail-roles-edit'].path, pathnames['group-detail-members-edit'].path]}
-            render={(props) => <EditGroup {...props} group={group} cancelRoute={`group/detail/${uuid}`} postMethod={() => fetchGroup(fetchUuid)} />}
-          />
-          <Route
-            path={pathnames['group-detail-roles'].path}
-            render={(props) => <GroupRoles {...props} onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}
-          />
-          <Route path={pathnames['group-detail-members'].path} component={GroupMembers} />
-          <Route render={() => <Redirect to={`/groups/detail/${uuid}/roles`} />} />
+              <Route
+                path={pathnames['group-detail-roles-edit'].path}
+                element={
+                  <EditGroup
+                    group={group}
+                    cancelRoute={pathnames['group-detail-roles'].link.replace(':groupId', groupId)}
+                    postMethod={() => dispatch(fetchGroup(fetchId))}
+                  />
+                }
+              />
+            </Route>
+            <Route path={pathnames['group-detail-members'].path} element={<GroupMembers />}>
+              <Route
+                path={pathnames['group-detail-members-remove'].path}
+                element={
+                  <RemoveGroup
+                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
+                    cancelRoute={pathnames['group-detail-members'].link.replace(':groupId', groupId)}
+                    submitRoute={getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, filters)}
+                    isModalOpen
+                    groupsUuid={[group]}
+                  />
+                }
+              />
+              <Route
+                path={pathnames['group-detail-members-edit'].path}
+                element={
+                  <EditGroup
+                    group={group}
+                    cancelRoute={pathnames['group-detail-members'].link.replace(':groupId', groupId)}
+                    postMethod={() => dispatch(fetchGroup(fetchId))}
+                  />
+                }
+              />
+            </Route>
+            <Route path="/*" element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />} />
+          </Routes>
           {!group && <ListLoader />}
         </Fragment>
       ) : (
@@ -280,7 +302,7 @@ const Group = ({
           </section>
           <EmptyWithAction
             title={intl.formatMessage(messages.groupNotFound)}
-            description={[intl.formatMessage(messages.groupDoesNotExist, { id: uuid })]}
+            description={[intl.formatMessage(messages.groupDoesNotExist, { id: groupId })]}
             actions={[
               <Button
                 key="back-button"
@@ -288,7 +310,7 @@ const Group = ({
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => history.goBack()}
+                onClick={() => navigate(-1)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
@@ -301,7 +323,6 @@ const Group = ({
 };
 
 Group.propTypes = {
-  match: PropTypes.object,
   onDelete: PropTypes.func,
 };
 

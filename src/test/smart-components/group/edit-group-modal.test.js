@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { shallow, mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
 import { shallowToJson } from 'enzyme-to-json';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import EditGroupModal from '../../../smart-components/group/edit-group-modal';
@@ -21,6 +21,13 @@ jest.mock('../../../redux/actions/group-actions', () => {
     ...actual,
   };
 });
+
+const mockedNavigate = jest.fn();
+
+jest.mock('react-router-dom', () => ({
+  ...jest.requireActual('react-router-dom'),
+  useNavigate: () => mockedNavigate,
+}));
 
 describe('<EditGroupModal />', () => {
   let initialProps;
@@ -79,14 +86,15 @@ describe('<EditGroupModal />', () => {
     let wrapper;
     await act(async () => {
       wrapper = mount(
-        <GroupWrapper store={store} initialEntries={['/groups/edit/:id']}>
-          <Route to="/groups/edit/:id" render={(args) => <EditGroupModal {...initialProps} {...args} />} />
+        <GroupWrapper store={store} initialEntries={['/groups/edit/:groupId']}>
+          <Provider store={store}>
+            <EditGroupModal {...initialProps} />
+          </Provider>
         </GroupWrapper>
       );
     });
     wrapper.update();
-
     wrapper.find('button').first().simulate('click');
-    expect(wrapper.find(MemoryRouter).instance().history.location.pathname).toEqual('/groups');
+    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 });
