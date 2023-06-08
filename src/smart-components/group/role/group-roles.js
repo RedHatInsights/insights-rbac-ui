@@ -78,7 +78,14 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup } }) => ({
   isPlatformDefault: selectedGroup.platform_default,
   isAdminDefault: selectedGroup.admin_default,
   isChanged: !selectedGroup.system,
-  disableAddRoles: !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default,
+  disableAddRoles:
+    /**
+     * First validate if the pagination object exists and is not empty.
+     * If empty or undefined, the disable condition will be always true
+     */
+    Object.keys(selectedGroup.addRoles.pagination || {}).length > 0
+      ? !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default
+      : !!selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
 });
 
