@@ -1,5 +1,6 @@
 import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import truncate from 'lodash/truncate';
 import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
@@ -23,8 +24,9 @@ import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } 
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
 
-const createRows = (userLinks, data, checkedRows = [], intl) =>
-  data
+const createRows = (userLinks, data, checkedRows = [], intl, displayNarrow) => {
+  const maxLength = 25;
+  return data
     ? data.reduce(
         (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => [
           ...acc,
@@ -45,11 +47,15 @@ const createRows = (userLinks, data, checkedRows = [], intl) =>
               {
                 title: userLinks ? (
                   <AppLink to={pathnames['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
+                ) : displayNarrow ? (
+                  <span title={username}>{truncate(username, { length: maxLength })}</span>
                 ) : (
-                  username.toString()
+                  username
                 ),
               },
-              email,
+              {
+                title: displayNarrow ? <span title={email}>{truncate(email, { length: maxLength })}</span> : email,
+              },
               firstName,
               lastName,
               {
@@ -69,8 +75,9 @@ const createRows = (userLinks, data, checkedRows = [], intl) =>
         []
       )
     : [];
+};
 
-const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, props }) => {
+const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, displayNarrow, props }) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const location = useLocation();
@@ -103,9 +110,9 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const fetchData = useCallback((apiProps) => dispatch(fetchUsers(apiProps)), [dispatch]);
   const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
 
-  const rows = createRows(userLinks, users, selectedUsers, intl);
+  const rows = createRows(userLinks, users, selectedUsers, intl, displayNarrow);
   const columns = [
-    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
+    { title: intl.formatMessage(displayNarrow ? messages.orgAdmin : messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
     { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
     { title: intl.formatMessage(messages.email) },
     { title: intl.formatMessage(messages.firstName), transforms: [nowrap] },
@@ -227,6 +234,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 };
 
 UsersList.propTypes = {
+  displayNarrow: PropTypes.bool,
   users: PropTypes.array,
   searchFilter: PropTypes.string,
   setSelectedUsers: PropTypes.func.isRequired,
@@ -237,6 +245,7 @@ UsersList.propTypes = {
 };
 
 UsersList.defaultProps = {
+  displayNarrow: false,
   users: [],
   selectedUsers: [],
   setSelectedUsers: () => undefined,
