@@ -22,7 +22,8 @@ objects:
       navItems:
         - appId: 'rbac'
           title: 'My User Access'
-          href: '/settings/my-user-access'
+          href: '/iam/my-user-access'
+          description: 'View your account permissions for Red Hat Hybrid Cloud Console services.'
         - title: 'User Access'
           expandable: true
           permissions:
@@ -30,29 +31,31 @@ objects:
           routes:
             - appId: 'rbac'
               title: 'Users'
-              href: '/settings/rbac/users'
+              href: '/iam/user-access/users'
             - appId: 'rbac'
               title: 'Roles'
-              href: '/settings/rbac/roles'
+              href: '/iam/user-access/roles'
             - appId: 'rbac'
               title: 'Groups'
-              href: '/settings/rbac/groups'
+              href: '/iam/user-access/groups'
             - appId: 'accessRequests'
               title: 'Red Hat Access Requests'
-              href: '/settings/rbac/access-requests'
+              href: '//iam/user-access/access-requests'
               notifier: 'chrome.accessRequests.hasUnseen'
       module:
-        manifestLocation: '/apps/rbac/fed-mods.json'
+        'manifestLocation': '/apps/rbac/fed-mods.json'
+        'isFedramp': true
+        'defaultDocumentTitle': 'User Access | Identity & Access Management'
         modules:
           - id: 'my-user-access'
-            module: './RootApp'
+            module: './MyUserAccess'
             routes:
-              - pathname: /settings
-              - pathname: /settings/my-user-access
-          - id: 'user-access'
-            module: './RootApp'
+              - pathname: /iam
+              - pathname: /iam/my-user-access
+          - id: 'iam-user-access'
+            module: './IamUserAccess'
             routes:
-              - pathname: /settings/rbac
+              - pathname: /iam/user-acces
 
 parameters:
   - name: ENV_NAME
