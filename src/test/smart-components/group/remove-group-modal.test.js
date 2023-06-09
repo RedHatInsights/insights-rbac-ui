@@ -90,7 +90,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
+    expect(mockedNavigate).toHaveBeenCalledWith('/groups');
   });
 
   it('should call the remove action', async () => {

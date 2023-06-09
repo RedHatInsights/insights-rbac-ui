@@ -249,8 +249,8 @@ const Group = ({ onDelete }) => {
                 element={
                   <RemoveGroup
                     postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
-                    cancelRoute={pathnames['group-detail-roles'].link.replace(':groupId', groupId)}
-                    submitRoute={getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, filters)}
+                    cancelRoute={mergeToBasename(pathnames['group-detail-roles'].link.replace(':groupId', groupId))}
+                    submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
                     isModalOpen
                     groupsUuid={[group]}
                   />
@@ -261,7 +261,7 @@ const Group = ({ onDelete }) => {
                 element={
                   <EditGroup
                     group={group}
-                    cancelRoute={pathnames['group-detail-roles'].link.replace(':groupId', groupId)}
+                    cancelRoute={mergeToBasename(pathnames['group-detail-roles'].link.replace(':groupId', groupId))}
                     postMethod={() => dispatch(fetchGroup(fetchId))}
                   />
                 }
@@ -273,8 +273,8 @@ const Group = ({ onDelete }) => {
                 element={
                   <RemoveGroup
                     postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
-                    cancelRoute={pathnames['group-detail-members'].link.replace(':groupId', groupId)}
-                    submitRoute={getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, filters)}
+                    cancelRoute={mergeToBasename(pathnames['group-detail-members'].link.replace(':groupId', groupId))}
+                    submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
                     isModalOpen
                     groupsUuid={[group]}
                   />
@@ -285,7 +285,7 @@ const Group = ({ onDelete }) => {
                 element={
                   <EditGroup
                     group={group}
-                    cancelRoute={pathnames['group-detail-members'].link.replace(':groupId', groupId)}
+                    cancelRoute={mergeToBasename(pathnames['group-detail-members'].link.replace(':groupId', groupId))}
                     postMethod={() => dispatch(fetchGroup(fetchId))}
                   />
                 }

@@ -206,7 +206,7 @@ const Groups = () => {
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
-            onClick: () => navigate(mergeToBasename(pathnames['edit-group'].link)).replace(':groupId', selectedRows[0].uuid),
+            onClick: () => navigate(mergeToBasename(pathnames['edit-group'].link.replace(':groupId', selectedRows[0].uuid))),
           },
           {
             label: intl.formatMessage(messages.delete),
