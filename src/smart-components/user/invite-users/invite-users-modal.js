@@ -1,14 +1,14 @@
-import React, { useContext, useState, Fragment, useEffect } from 'react';
+import React, { useState, Fragment, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useHistory } from 'react-router-dom';
 import { Modal, Button, ModalVariant, ExpandableSection, Form, FormGroup, TextArea, Checkbox } from '@patternfly/react-core';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import PermissionsContext from '../../../utilities/permissions-context';
 import { WarningModal } from '../../common/warningModal';
 import messages from '../../../Messages';
+import { addUsers } from '../../../redux/actions/user-actions';
 
-const InviteUsers = () => {
+const InviteUsersModal = () => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { push } = useHistory();
@@ -18,13 +18,16 @@ const InviteUsers = () => {
   const [rawEmails, setRawEmails] = useState('');
   const [userEmailList, setUserEmailList] = useState([]);
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
-  const isAdmin = orgAdmin || userAccessAdministrator;
 
   const onSubmit = () => {
-    //TODO: call api to invite users.
-    // push({ pathname: `/users` });
-    console.log(userEmailList);
+    const newUsersData = { emails: userEmailList, isAdmin: areNewUsersAdmins };
+    dispatch(addUsers(newUsersData))
+      .then((res) => {
+        push({ pathname: `/users` });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
   };
 
   const onCancel = () => (userEmailList?.length > 0 && setCancelWarningVisible(true)) || redirectToUsers();
@@ -102,7 +105,7 @@ const InviteUsers = () => {
               onChange={handleRawEmailsChange}
             />
           </FormGroup>
-          
+
           <div id="invite-users-is-admin-field" style={{ display: 'flex', alignItems: 'baseline' }}>
             <Checkbox isChecked={areNewUsersAdmins} onChange={() => setAreNewUsersAdmins(!areNewUsersAdmins)} label="" id="invite-users-is-admin" />
             <ExpandableSection
@@ -119,4 +122,4 @@ const InviteUsers = () => {
   );
 };
 
-export default InviteUsers;
+export default InviteUsersModal;
