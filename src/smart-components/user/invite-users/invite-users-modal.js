@@ -7,8 +7,9 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { WarningModal } from '../../common/warningModal';
 import messages from '../../../Messages';
 import { addUsers } from '../../../redux/actions/user-actions';
+import PropTypes from 'prop-types';
 
-const InviteUsersModal = () => {
+const InviteUsersModal = ({fetchData}) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const { push } = useHistory();
@@ -23,6 +24,7 @@ const InviteUsersModal = () => {
     const newUsersData = { emails: userEmailList, isAdmin: areNewUsersAdmins };
     dispatch(addUsers(newUsersData))
       .then((res) => {
+        fetchData();
         push({ pathname: `/users` });
       })
       .catch((err) => {
@@ -120,6 +122,10 @@ const InviteUsersModal = () => {
       </Modal>
     </Fragment>
   );
+};
+
+InviteUsersModal.propTypes = {
+  fetchData: PropTypes.func.isRequired
 };
 
 export default InviteUsersModal;

@@ -42,10 +42,23 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
     redirected: !inModal && users.pagination.redirected,
   }));
 
+  const fetchData = useCallback(
+    (apiProps) => {
+      return dispatch(fetchUsers(apiProps));
+    },
+    [dispatch]
+  );
+
   const routes = () => (
     <Switch>
       <Route path={paths['invite-users'].path}>
-        <InviteUsersModal />
+        <InviteUsersModal
+          fetchData={() => {
+            const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
+            const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+            fetchData({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
+          }}
+        />
       </Route>
     </Switch>
   );
@@ -137,7 +150,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
       ? data.reduce(
           (
             acc,
-            {external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
+            { external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
           ) => [
             ...acc,
             {
@@ -205,13 +218,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
         users: { filters },
       },
     }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
-  );
-
-  const fetchData = useCallback(
-    (apiProps) => {
-      return dispatch(fetchUsers(apiProps));
-    },
-    [dispatch]
   );
 
   const fetchUsersFilters = useCallback(
