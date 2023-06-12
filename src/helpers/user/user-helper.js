@@ -38,7 +38,6 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
 
 export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
   const token = await insights.chrome.auth.getToken();
-  const user = await insights.chrome.auth.getUser();
   const requestOpts = {
     method: 'PUT',
     referrerPolicy: 'no-referrer',
@@ -50,7 +49,6 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
     body: JSON.stringify({
       emails: usersData.emails,
       isAdmin: usersData.isAdmin,
-      orgId: user?.identity?.org_id ? parseInt(user?.identity?.org_id) : undefined,
     }),
   };
 
