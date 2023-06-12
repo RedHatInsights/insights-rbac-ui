@@ -1,6 +1,5 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import lodash from 'lodash';
 
 const principalApi = getPrincipalApi();
 
