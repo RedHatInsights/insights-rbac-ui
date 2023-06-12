@@ -129,18 +129,12 @@ describe('<AddGroupMembers />', () => {
         </MemoryRouter>
       </Provider>
     );
-    const expectedPayload = [
-      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
-      // expect.objectContaining({
-      //   type: 'FETCH_USERS_FULFILLED',
-      //   payload: responseBody,
-      // }),
-    ];
+    const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' })];
     expect(store.getActions()).toEqual(expectedPayload);
     expect(screen.getByText('Add members')).toBeInTheDocument();
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      inModal: true,
+      usesMetaInURL: false,
       filters: { status: ['Active'] },
     });
   });
@@ -164,7 +158,7 @@ describe('<AddGroupMembers />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      inModal: true,
+      usesMetaInURL: false,
       filters: { status: ['Active'] },
     });
   });
@@ -199,7 +193,7 @@ describe('<AddGroupMembers />', () => {
     fireEvent.click(screen.getByText('Add to group'));
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
-      inModal: true,
+      usesMetaInURL: false,
       filters: { status: ['Active'] },
     });
     expect(addMembersToGroupSpy).toHaveBeenCalled();

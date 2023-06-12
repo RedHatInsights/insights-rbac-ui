@@ -3,38 +3,36 @@ import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useIntl } from 'react-intl';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useDispatch, useSelector } from 'react-redux';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
 import useIsMounted from '../../hooks/useIsMounted';
-import { useHistory, useRouteMatch } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
 import { roleSelector } from './role-selectors';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';
 import asyncDebounce from '../../utilities/async-debounce';
 import { patchRole } from '../../redux/actions/role-actions';
-import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 
-const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
+const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
   const isMounted = useIsMounted();
-  const { replace, push } = useHistory();
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
-  const {
-    params: { id },
-  } = useRouteMatch(routeMatch);
-  const role = useSelector((state) => roleSelector(state, id));
+  const { roleId } = useParams();
+  const role = useSelector((state) => roleSelector(state, roleId));
   const [initialValues, setInitialValues] = useState(role);
 
   useEffect(() => {
     !initialValues &&
-      fetchRole(id).then((role) => {
+      fetchRole(roleId).then((role) => {
         if (isMounted.current) {
           setInitialValues(role);
         }
       });
-  }, [id]);
+  }, [roleId]);
 
   const validationPromise = (name, idKey, id) => {
     return name.length < 150
@@ -96,18 +94,18 @@ const EditRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, aft
         description: intl.formatMessage(messages.editingRoleCanceledDescription),
       })
     );
-    replace(cancelRoute);
+    navigate(cancelRoute, { replace: true });
   };
 
   const handleSubmit = (data) =>
-    dispatch(patchRole(id, { name: data.name, display_name: data.name, description: data.description })).then(() => {
+    dispatch(patchRole(roleId, { name: data.name, display_name: data.name, description: data.description })).then(() => {
       afterSubmit();
-      push(submitRoute);
+      navigate(submitRoute);
     });
 
   return initialValues ? (
     <FormRenderer
-      schema={createEditRoleSchema(id)}
+      schema={createEditRoleSchema(roleId)}
       initialValues={initialValues}
       onSubmit={handleSubmit}
       onCancel={onCancel}

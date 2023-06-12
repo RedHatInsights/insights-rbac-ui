@@ -11,7 +11,7 @@ const RbacBreadcrumbs = (breadcrumbs) => {
         item.title ? (
           <BreadcrumbItem key={item.title} isActive={item.isActive}>
             {(item.to && (
-              <NavLink exact to={item.to}>
+              <NavLink end to={item.to}>
                 {item.title}
               </NavLink>
             )) ||

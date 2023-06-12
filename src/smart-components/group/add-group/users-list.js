@@ -1,14 +1,19 @@
 import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
-import { Link, useHistory, Route, Switch } from 'react-router-dom';
+import { Link, Route, Switch, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchUsers, updateUsersFilters, updateUsers } from '../../../redux/actions/user-actions';
 import { Button, MenuToggle, Switch as PF4Switch } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/next';
 import { sortable, nowrap } from '@patternfly/react-table';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import { mappedProps } from '../../../helpers/shared/helpers';
+import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
+import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
+import PermissionsContext from '../../../utilities/permissions-context';
 import {
   defaultSettings,
   defaultAdminSettings,
@@ -17,17 +22,16 @@ import {
   isPaginationPresentInUrl,
 } from '../../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
 import InviteUsersModal from '../../user/invite-users/invite-users-modal';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
 
-const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props }) => {
+const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, displayNarrow, props }) => {
   const intl = useIntl();
-  const history = useHistory();
+  const navigate = useNavigate();
+  const location = useLocation();
   const dispatch = useDispatch();
   const [selectedRows, setSelectedRows] = useState(selectedUsers);
   const [isToolbarDropdownOpen, setIsToolbarDropdownOpen] = useState(false);
@@ -35,12 +39,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
   const screenSize = useScreenSize();
   // use for text filter to focus
   const innerRef = useRef(null);
-  const defaultPagination = useSelector(({ userReducer: { users } }) => ({
-    limit: inModal ? users.meta.limit : users.pagination.limit || (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-    offset: inModal ? users.meta.offset : users.pagination.offset || (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-    count: inModal ? users.meta.count : users.pagination.count,
-    redirected: !inModal && users.pagination.redirected,
-  }));
 
   const fetchData = useCallback(
     (apiProps) => {
@@ -138,7 +136,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
     setIsToolbarDropdownOpen(!isToolbarDropdownOpen);
   };
   const onToolbarDropdownSelect = async (_event, itemId) => {
-    console.log('selected', itemId);
     const userActivationStatusMap = { activate: true, deactivate: false };
 
     toggleUserActivationStatus(userActivationStatusMap[itemId], null, selectedRows);
@@ -201,35 +198,31 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
         )
       : [];
 
-  const users = useSelector(({ userReducer: { users } }) => users?.data?.map?.((data) => ({ ...data, uuid: data.external_source_id })));
+  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
+  let pagination = useSelector(({ userReducer: { users } }) => ({
+    limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+    offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+    count: usesMetaInURL ? users.pagination.count : users.meta.count,
+    redirected: usesMetaInURL && users.pagination.redirected,
+  }));
 
-  const pagination = useSelector(
+  const { users, isLoading, stateFilters } = useSelector(
     ({
       userReducer: {
-        users: { meta },
+        users: { data, filters = {} },
+        isUserDataLoading,
       },
-    }) => meta
-  );
-  const isLoading = useSelector(({ userReducer: { isUserDataLoading } }) => isUserDataLoading);
-
-  const stateFilters = useSelector(
-    ({
-      userReducer: {
-        users: { filters },
-      },
-    }) => (history.location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] })
-  );
-
-  const fetchUsersFilters = useCallback(
-    (filters) => {
-      return dispatch(updateUsersFilters(filters));
-    },
-    [dispatch]
+    }) => ({
+      users: data?.map?.((data) => ({ ...data, uuid: data.username })),
+      isLoading: isUserDataLoading,
+      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
+    })
   );
 
   const rows = createRows(userLinks, users, selectedRows);
+  const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
   const columns = [
-    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
+    { title: intl.formatMessage(displayNarrow ? messages.orgAdmin : messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
     { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
     { title: intl.formatMessage(messages.email) },
     { title: intl.formatMessage(messages.firstName), transforms: [nowrap] },
@@ -239,32 +232,34 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
   const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });
 
   const [filters, setFilters] = useState(
-    inModal
-      ? {
+    usesMetaInURL
+      ? stateFilters
+      : {
           username: '',
           email: '',
           status: [intl.formatMessage(messages.active)],
         }
-      : stateFilters
   );
 
   useEffect(() => {
-    inModal || (defaultPagination.redirected && applyPaginationToUrl(history, defaultPagination.limit, defaultPagination.offset));
-  }, [defaultPagination.redirected]);
+    usesMetaInURL && applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
+  }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
 
   useEffect(() => {
-    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
-    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const newFilters = usesMetaInURL
+      ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
+      : { status: filters.status };
     setFilters(newFilters);
-    fetchData({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
+    fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
   }, []);
 
   useEffect(() => {
-    if (!inModal) {
-      isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
+    if (usesMetaInURL) {
+      isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
       Object.values(filters).some((filter) => filter?.length > 0) &&
-        !areFiltersPresentInUrl(history, Object.keys(filters)) &&
-        syncDefaultFiltersWithUrl(history, Object.keys(filters), filters);
+        !areFiltersPresentInUrl(location, Object.keys(filters)) &&
+        syncDefaultFiltersWithUrl(location, navigate, Object.keys(filters), filters);
     }
   });
 
@@ -281,7 +276,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
   };
 
   const updateFilters = (payload) => {
-    inModal || fetchUsersFilters(payload);
+    usesMetaInURL && updateStateFilters(payload);
     setFilters({ username: '', ...payload });
   };
 
@@ -299,7 +294,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
       onSort={(e, index, direction) => {
         const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
         setSortByState({ index, direction });
-        fetchData({ ...pagination, filters, inModal, orderBy });
+        fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
       }}
       data={users}
       ouiaId="users-table"
@@ -307,11 +302,10 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
         const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
         const { username, email, count, limit, offset, orderBy } = config;
 
-        fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), inModal }).then(() => {
+        fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL }).then(() => {
           innerRef?.current?.focus();
         });
-        inModal || applyPaginationToUrl(history, limit, offset);
-        inModal || applyFiltersToUrl(history, { username, email, status });
+        usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
       }}
       emptyFilters={{ username: '', email: '', status: '' }}
       setFilterValue={({ username, email, status }) => {
@@ -359,25 +353,23 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, inModal, props 
 };
 
 UsersList.propTypes = {
-  history: PropTypes.shape({
-    goBack: PropTypes.func.isRequired,
-    push: PropTypes.func.isRequired,
-  }),
+  displayNarrow: PropTypes.bool,
   users: PropTypes.array,
   searchFilter: PropTypes.string,
   setSelectedUsers: PropTypes.func.isRequired,
   selectedUsers: PropTypes.array,
   userLinks: PropTypes.bool,
   props: PropTypes.object,
-  inModal: PropTypes.bool,
+  usesMetaInURL: PropTypes.bool,
 };
 
 UsersList.defaultProps = {
+  displayNarrow: false,
   users: [],
   selectedUsers: [],
   setSelectedUsers: () => undefined,
   userLinks: false,
-  inModal: false,
+  usesMetaInURL: false,
 };
 
 export default UsersList;

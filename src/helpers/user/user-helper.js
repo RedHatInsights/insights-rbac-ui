@@ -110,7 +110,7 @@ export async function updateUsers(users) {
   return promise;
 }
 
-export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inModal, matchCriteria = 'partial' }) {
+export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, usesMetaInURL, matchCriteria = 'partial' }) {
   const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
   const mappedStatus =
@@ -134,9 +134,8 @@ export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inM
       offset,
       limit,
     },
-    ...(inModal
-      ? {}
-      : {
+    ...(usesMetaInURL
+      ? {
           filters,
           pagination: {
             ...meta,
@@ -144,6 +143,7 @@ export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, inM
             limit,
             redirected: !isPaginationValid,
           },
-        }),
+        }
+      : {}),
   };
 }

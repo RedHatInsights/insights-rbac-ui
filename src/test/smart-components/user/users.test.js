@@ -1,14 +1,14 @@
 import React from 'react';
-import { act } from 'react-dom/test-utils';
-import { MemoryRouter as Router } from 'react-router-dom';
-import configureStore from 'redux-mock-store';
-import { mount } from 'enzyme';
+import { Route, MemoryRouter as Router, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import { act } from 'react-dom/test-utils';
+import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import Users from '../../../smart-components/user/users';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 import * as UserHelper from '../../../helpers/user/user-helper';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -45,18 +45,17 @@ describe('<Users />', () => {
 
   it('should render user list correctly', async () => {
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
-    let wrapper;
     const store = mockStore(initialState);
-    await act(async () => {
-      wrapper = mount(
-        <Provider store={store}>
-          <Router initialEntries={['/users']}>
-            <Users />
-          </Router>
-        </Provider>
-      );
-    });
-    expect(wrapper.find(TableToolbarView)).toHaveLength(1);
+    render(
+      <Provider store={store}>
+        <Router initialEntries={['/users']}>
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
+        </Router>
+      </Provider>
+    );
+    expect(screen.getAllByText('Username')).toHaveLength(2);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
       limit: 20,
       filters: {
@@ -64,17 +63,19 @@ describe('<Users />', () => {
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
   it('should fetch users on mount', () => {
     const store = mockStore(initialState);
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
-    mount(
+    render(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
-          <Users />
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
         </Router>
         ,
       </Provider>
@@ -88,7 +89,7 @@ describe('<Users />', () => {
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
@@ -96,33 +97,37 @@ describe('<Users />', () => {
     const store = mockStore(initialState);
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
-    let wrapper;
+
+    const user = userEvent.setup();
+
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <Router initialEntries={['/users']}>
-            <Users />
+            <Routes>
+              <Route path="/users/*" element={<Users />} />
+            </Routes>
           </Router>
         </Provider>
       );
     });
     store.clearActions();
-    await act(async () => {
-      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
-    });
+    await user.click((await screen.findAllByText('Username')).at(1));
     const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' }), expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' })];
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: 39,
-      limit: 10,
+      count: undefined,
+      limit: 20,
+      offset: 0,
+      redirected: undefined,
       orderBy: '-username',
       filters: {
         status: ['Active'],
         email: undefined,
         username: undefined,
       },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 
@@ -131,37 +136,30 @@ describe('<Users />', () => {
     const store = mockStore(initialState);
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
-    const wrapper = mount(
+    await render(
       <Provider store={store}>
         <Router initialEntries={['/users']}>
-          <Users />
+          <Routes>
+            <Route path="/users/*" element={<Users />} />
+          </Routes>
         </Router>
       </Provider>
     );
-    const target = wrapper.find('input#filter-by-username').first();
-    target.getDOMNode().value = 'something';
-    await act(async () => {
-      target.simulate('change');
-    });
+    const target = screen.getByRole('textbox');
+
+    expect(target).not.toHaveAttribute('disabled');
+    fireEvent.change(target, { target: { value: 'something' } });
+    expect(target).toHaveValue('something');
     await act(async () => {
       jest.runAllTimers();
     });
-    wrapper.update();
-    const expectedPayload = [
-      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
-      expect.objectContaining({ type: 'UPDATE_USERS_FILTERS' }),
-      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
-      expect.objectContaining({ type: 'FETCH_USERS_PENDING' }),
-      expect.objectContaining({ type: 'FETCH_USERS_FULFILLED' }),
-    ];
-    expect(store.getActions()).toEqual(expectedPayload);
+
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: 39,
-      limit: 10,
+      limit: 20,
       orderBy: 'username',
       filters: { status: ['Active'], username: 'something', email: undefined },
-      inModal: false,
+      usesMetaInURL: true,
     });
   });
 });

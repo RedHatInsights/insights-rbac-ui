@@ -277,6 +277,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="pagination-options-menu-6"
+                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -561,10 +562,10 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                       <th
                         class="pf-m-nowrap"
                         data-key="1"
-                        data-label="Org. Administrator"
+                        data-label="Org. Admin"
                         scope="col"
                       >
-                        Org. Administrator
+                        Org. Admin
                       </th>
                       <th
                         aria-sort="none"
@@ -664,7 +665,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                       <td
                         class=""
                         data-key="1"
-                        data-label="Org. Administrator"
+                        data-label="Org. Admin"
                       >
                         <svg
                           aria-hidden="true"
@@ -689,14 +690,22 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                         data-key="2"
                         data-label="Username"
                       >
-                        test_name
+                        <span
+                          title="test_name"
+                        >
+                          test_name
+                        </span>
                       </td>
                       <td
                         class=""
                         data-key="3"
                         data-label="Email"
                       >
-                        testmail@redhat.com
+                        <span
+                          title="testmail@redhat.com"
+                        >
+                          testmail@redhat.com
+                        </span>
                       </td>
                       <td
                         class=""
@@ -745,6 +754,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="pagination-options-menu-7"
+                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div
@@ -1267,6 +1277,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="pagination-options-menu-2"
+                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -1546,10 +1557,10 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                       <th
                         class="pf-m-nowrap"
                         data-key="0"
-                        data-label="Org. Administrator"
+                        data-label="Org. Admin"
                         scope="col"
                       >
-                        Org. Administrator
+                        Org. Admin
                       </th>
                       <th
                         aria-sort="ascending"
@@ -1638,7 +1649,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                         class=""
                         colspan="6"
                         data-key="0"
-                        data-label="Org. Administrator"
+                        data-label="Org. Admin"
                       >
                         <div
                           class="pf-c-empty-state pf-m-sm"
@@ -1712,6 +1723,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="pagination-options-menu-3"
+                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div

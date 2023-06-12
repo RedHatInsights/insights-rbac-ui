@@ -1,12 +1,13 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { Link } from 'react-router-dom';
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Popover } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+import AppLink from '../../presentational-components/shared/AppLink';
 import { getDateFormat } from '../../helpers/shared/helpers';
-import { useIntl } from 'react-intl';
+import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 
 const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
@@ -52,9 +53,13 @@ export const createRows = (isAdmin, data, selectedRows = []) => {
           <Fragment key={uuid}>
             <div className="pf-m-inline-flex">
               {isAdmin ? (
-                <Link key={`${uuid}-link`} state={{ uuid }} to={{ pathname: `/groups/detail/${isPlatformDefault ? 'default-access' : uuid}` }}>
+                <AppLink
+                  key={`${uuid}-link`}
+                  state={{ uuid }}
+                  to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : uuid)}
+                >
                   {name}
-                </Link>
+                </AppLink>
               ) : (
                 name
               )}

@@ -1,11 +1,12 @@
 import React, { useContext } from 'react';
 import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, EmptyStateSecondaryActions } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
-import { Link } from 'react-router-dom';
 import { AddRoleWizardContext } from './add-role-wizard';
-import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
+import PropTypes from 'prop-types';
 import messages from '../../../Messages';
+import AppLink from '../../../presentational-components/shared/AppLink';
+import pathnames from '../../../utilities/pathnames';
 
 const AddRoleSuccess = ({ onClose }) => {
   const { setHideForm, setWizardSuccess } = useContext(AddRoleWizardContext);
@@ -30,7 +31,7 @@ const AddRoleSuccess = ({ onClose }) => {
         >
           {intl.formatMessage(messages.createAnotherRole)}
         </Button>
-        <Button component={(props) => <Link to="/groups" {...props} />} variant="link">
+        <Button component={(props) => <AppLink to={pathnames.groups.link} {...props} />} variant="link">
           {intl.formatMessage(messages.addRoleToGroup)}
         </Button>
       </EmptyStateSecondaryActions>

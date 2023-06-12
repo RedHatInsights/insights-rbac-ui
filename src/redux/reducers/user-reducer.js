@@ -1,12 +1,11 @@
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../../redux/action-types';
-import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
 export const usersInitialState = {
   selectedUser: {},
   isUserDataLoading: false,
   users: {
-    meta: defaultSettings,
+    meta: {},
     filters: {},
     pagination: { redirected: false },
   },

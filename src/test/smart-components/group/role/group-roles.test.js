@@ -3,7 +3,7 @@ import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { mountToJson } from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupRoles from '../../../../smart-components/group/role/group-roles';
@@ -126,7 +126,9 @@ describe('<GroupRoles />', () => {
       wrapper = mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
-            <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
+            <Routes>
+              <Route path="/groups/detail/:uuid/roles" element={<GroupRoles />} {...initialProps} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );
@@ -141,7 +143,9 @@ describe('<GroupRoles />', () => {
       mount(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
-            <Route path="/groups/detail/:uuid/roles" component={GroupRoles} {...initialProps} />
+            <Routes>
+              <Route path="/groups/detail/:uuid/roles" element={<GroupRoles />} {...initialProps} />
+            </Routes>
           </MemoryRouter>
         </Provider>
       );

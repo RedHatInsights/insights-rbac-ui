@@ -37,6 +37,7 @@ const ReviewStep = () => {
     'add-permissions-table': permissions,
     'resource-definitions': resourceDefinitions,
     'has-cost-resources': hasCostResources,
+    'inventory-group-permissions': inventoryGroupPermissions,
     'role-type': type,
   } = formOptions.getState().values;
   const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
@@ -46,6 +47,10 @@ const ReviewStep = () => {
 
   const resourceDefinitionsRows = (resourceDefinitions || []).map(({ permission, resources }) => ({
     cells: [permission, resources.join(', ')],
+  }));
+
+  const groupPermissionsRows = (inventoryGroupPermissions || []).map(({ permission, groups }) => ({
+    cells: [permission, groups?.map((group) => group?.name).join(', ')],
   }));
 
   return (
@@ -82,6 +87,18 @@ const ReviewStep = () => {
               {stickyTable(columns, rows)}
             </GridItem>
           </Grid>
+          {inventoryGroupPermissions && (
+            <Grid>
+              <GridItem sm={12} md={2}>
+                <Text component={TextVariants.h4} className="rbac-bold-text">
+                  {intl.formatMessage(messages.resourceDefinitions)}
+                </Text>
+              </GridItem>
+              <GridItem sm={12} md={10}>
+                {stickyTable([intl.formatMessage(messages.permission), intl.formatMessage(messages.groupDefinition)], groupPermissionsRows)}
+              </GridItem>
+            </Grid>
+          )}
           {hasCostResources && (
             <Grid>
               <GridItem sm={12} md={2}>

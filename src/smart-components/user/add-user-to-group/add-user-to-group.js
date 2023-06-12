@@ -1,21 +1,22 @@
 import React, { useRef, useContext, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router-dom';
 import { Modal, Button, ModalVariant, Alert } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 import PermissionsContext from '../../../utilities/permissions-context';
 import GroupRowWrapper from '../../group/group-row-wrapper';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { WarningModal } from '../../common/warningModal';
 import { addMembersToGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
+import pathnames from '../../../utilities/pathnames';
 
 const AddUserToGroup = ({ username }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const { push } = useHistory();
+  const navigate = useAppNavigate();
 
   const { groups, pagination, filters, isLoading } = useSelector(
     ({ groupReducer: { groups, isLoading } }) => ({
@@ -70,7 +71,7 @@ const AddUserToGroup = ({ username }) => {
     selectedRows.forEach((group) => {
       dispatch(addMembersToGroup(group.uuid, [{ username }]));
     });
-    push({ state: { username }, pathname: `/users/detail/${username}` });
+    navigate({ state: { username }, pathname: pathnames['user-detail'].link.replace(':username', username) });
   };
 
   const onCancel = () => (selectedRows?.length > 0 && setCancelWarningVisible(true)) || redirectToUserDetail();
@@ -84,7 +85,7 @@ const AddUserToGroup = ({ username }) => {
         description: intl.formatMessage(messages.addingGroupMemberCancelled),
       })
     );
-    push({ pathname: `/users/detail/${username}` });
+    navigate({ pathname: pathnames['user-detail'].link.replace(':username', username) });
   };
 
   return (

@@ -4,7 +4,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import { mount } from 'enzyme';
 import configureStore from 'redux-mock-store';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
@@ -32,7 +32,7 @@ jest.mock('../../redux/actions/role-actions', () => {
 describe('<EditRoleModal />', () => {
   const ROLE_ID = 'foo';
   const initialProps = {
-    routeMatch: '/role/:id',
+    routeMatch: '/role/:roleId',
     cancelRoute: '/cancel',
     afterSubmit: jest.fn(),
   };
@@ -51,9 +51,7 @@ describe('<EditRoleModal />', () => {
 
   const ComponentWrapper = ({ store, children }) => (
     <MemoryRouter initialEntries={[`/role/${ROLE_ID}`]}>
-      <Route path="/role/:id">
-        <Provider store={store}>{children}</Provider>
-      </Route>
+      <Provider store={store}>{children}</Provider>
     </MemoryRouter>
   );
 
@@ -81,7 +79,9 @@ describe('<EditRoleModal />', () => {
     await act(async () => {
       wrapper = mount(
         <ComponentWrapper store={store}>
-          <EditRoleModal {...initialProps} afterSubmit={afterSubmit} />
+          <Routes>
+            <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
+          </Routes>
         </ComponentWrapper>
       );
     });
@@ -127,7 +127,9 @@ describe('<EditRoleModal />', () => {
     await act(async () => {
       mount(
         <ComponentWrapper store={store}>
-          <EditRoleModal {...initialProps} />
+          <Routes>
+            <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} />} />
+          </Routes>
         </ComponentWrapper>
       );
     });
@@ -159,7 +161,9 @@ describe('<EditRoleModal />', () => {
     await act(async () => {
       wrapper = mount(
         <ComponentWrapper store={store}>
-          <EditRoleModal {...initialProps} afterSubmit={afterSubmit} />
+          <Routes>
+            <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
+          </Routes>
         </ComponentWrapper>
       );
     });

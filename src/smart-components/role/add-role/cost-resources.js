@@ -83,6 +83,7 @@ const CostResources = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const permissions = formOptions.getState().values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('cost-management'));
+
   const [state, dispatchLocaly] = useReducer(
     reducer,
     permissions.reduce(

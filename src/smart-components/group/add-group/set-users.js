@@ -36,7 +36,7 @@ const SetUsers = (props) => {
           <StackItem>
             <FormGroup fieldId="select-user">
               <Card>
-                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} inModal />
+                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
               </Card>
             </FormGroup>
           </StackItem>

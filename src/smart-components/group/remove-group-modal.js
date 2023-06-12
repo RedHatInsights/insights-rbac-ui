@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useHistory } from 'react-router-dom';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { useNavigate } from 'react-router-dom';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import pathnames from '../../utilities/pathnames';
-import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
@@ -27,7 +27,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
     }
   }, []);
 
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const [checked, setChecked] = useState(false);
 
@@ -37,10 +37,10 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
     const uuids = groupsUuid.map((group) => group.uuid);
     dispatch(removeGroups(uuids))
       .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
-      .then(push(submitRoute));
+      .then(navigate(submitRoute));
   };
 
-  const onCancel = () => push(cancelRoute);
+  const onCancel = () => navigate(cancelRoute);
 
   return (
     <Modal

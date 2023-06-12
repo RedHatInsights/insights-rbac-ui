@@ -1,5 +1,5 @@
 import React from 'react';
-import { MemoryRouter, Route } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -35,6 +35,7 @@ describe('<AddGroupRoles />', () => {
       },
     };
     initialProps = {
+      closeUrl: '/roles',
       selectedRoles: [{ uuid: 'dd1408bd-662a-49b7-b483-e3871bb6030b' }],
       setSelectedRoles: setSelectedRoles,
       addRolesToGroup: addRolesToGroupSpy,
@@ -54,7 +55,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...initialProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );
@@ -71,6 +74,7 @@ describe('<AddGroupRoles />', () => {
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
+      closeUrl: '/roles',
       selectedRoles: [],
       setSelectedRoles: jest.fn(),
     };
@@ -93,7 +97,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...initialProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );
@@ -106,6 +112,7 @@ describe('<AddGroupRoles />', () => {
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
+      closeUrl: '/roles',
       selectedRoles: [],
       setSelectedRoles: jest.fn(),
     };
@@ -128,7 +135,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...initialProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );
@@ -151,7 +160,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...initialProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );
@@ -179,7 +190,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...enhancedProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...enhancedProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );
@@ -241,7 +254,9 @@ describe('<AddGroupRoles />', () => {
     render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
-          <Route path="/groups/detail/:uuid" render={(props) => <AddGroupRoles {...props} {...enhancedProps} />} />
+          <Routes>
+            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...enhancedProps} />} />
+          </Routes>
         </MemoryRouter>
       </Provider>
     );

@@ -1,7 +1,9 @@
-import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
-import { Link, Route, Switch, useHistory } from 'react-router-dom';
+import React, { useContext, useEffect, useRef, useState } from 'react';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
+import { useIntl } from 'react-intl';
+import Section from '@redhat-cloud-services/frontend-components/Section';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
 import RemoveGroup from './remove-group-modal';
@@ -9,13 +11,11 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
-import Group from './group';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import Section from '@redhat-cloud-services/frontend-components/Section';
+import Group from './group';
 import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
-import pathnames from '../../utilities/pathnames';
-import './groups.scss';
 import PageActionRoute from '../common/page-action-route';
 import {
   applyPaginationToUrl,
@@ -25,16 +25,18 @@ import {
   syncDefaultPaginationWithUrl,
 } from '../../helpers/shared/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
-import { getBackRoute } from '../../helpers/shared/helpers';
-import { useIntl } from 'react-intl';
-import messages from '../../Messages';
+import { getBackRoute, removeQueryParams } from '../../helpers/shared/helpers';
 import PermissionsContext from '../../utilities/permissions-context';
+import messages from '../../Messages';
+import pathnames from '../../utilities/pathnames';
+import './groups.scss';
 
 const Groups = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const history = useHistory();
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, inModal: false }));
+  const navigate = useNavigate();
+  const location = useLocation();
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
   const textFilterRef = useRef(null);
@@ -50,50 +52,61 @@ const Groups = () => {
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
-  const { groups, meta, filters, isLoading, systemGroup } = useSelector(
-    ({ groupReducer: { groups, isLoading, adminGroup, systemGroup } }) => ({
+  const { groups, pagination, filters, isLoading, systemGroup } = useSelector(
+    ({
+      groupReducer: {
+        groups: { data, filters, pagination },
+        isLoading,
+        adminGroup,
+        systemGroup,
+      },
+    }) => ({
       groups: [
-        ...(adminGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [adminGroup] : []),
-        ...(systemGroup?.name?.match(new RegExp(groups.filters.name, 'i')) ? [systemGroup] : []),
-        ...(groups?.data?.filter(({ platform_default, admin_default } = {}) => !(platform_default || admin_default)) || []),
+        ...(adminGroup?.name?.match(new RegExp(filters.name, 'i')) ? [adminGroup] : []),
+        ...(systemGroup?.name?.match(new RegExp(filters.name, 'i')) ? [systemGroup] : []),
+        ...(data?.filter(({ platform_default, admin_default } = {}) => !(platform_default || admin_default)) || []),
       ],
-      meta: groups?.pagination || groups?.meta,
-      filters: groups?.filters,
+      pagination: {
+        limit: pagination?.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+        offset: pagination?.offset ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+        count: pagination?.count,
+        redirected: pagination?.redirected,
+      },
+      filters: filters,
       isLoading,
       systemGroup,
     }),
     shallowEqual
   );
 
-  const [pagination, setPagination] = useState({ ...(orgAdmin ? defaultAdminSettings : defaultSettings), ...meta });
-  const [filterValue, setFilterValue] = useState(filters.name || '');
+  const [filterValue, setFilterValue] = useState(filters?.name || '');
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
 
   useEffect(() => {
-    const syncedPagination = syncDefaultPaginationWithUrl(history, pagination);
-    setPagination(syncedPagination);
-    const { name } = syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
+    applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
+  }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
+
+  useEffect(() => {
+    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const { name } = syncDefaultFiltersWithUrl(location, navigate, ['name'], { name: filterValue });
     setFilterValue(name);
     insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
-    fetchData({ ...syncedPagination, orderBy, filters: { name } });
+    fetchData({ limit, offset, orderBy, filters: { name } });
     dispatch(fetchAdminGroup(name));
     dispatch(fetchSystemGroup(name));
   }, []);
 
   useEffect(() => {
-    isPaginationPresentInUrl(history) || applyPaginationToUrl(history, pagination.limit, pagination.offset);
-    filterValue?.length > 0 && !areFiltersPresentInUrl(history, ['name']) && syncDefaultFiltersWithUrl(history, ['name'], { name: filterValue });
-  });
-
-  useEffect(() => {
-    pagination.redirected && applyPaginationToUrl(history, pagination.limit, pagination.offset);
-  }, [pagination.redirected]);
-
-  useEffect(() => {
-    setFilterValue(filters.name);
-    setPagination({ ...pagination, ...meta });
-  }, [filters, meta]);
+    if (!location.pathname.includes('detail')) {
+      isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
+      filterValue?.length > 0 &&
+        !areFiltersPresentInUrl(location, ['name']) &&
+        syncDefaultFiltersWithUrl(location, navigate, ['name'], { name: filterValue });
+    } else {
+      removeQueryParams(location, navigate);
+    }
+  }, [location.pathname]);
 
   const setCheckedItems = (newSelection) => {
     setSelectedRows((rows) =>
@@ -103,52 +116,56 @@ const Groups = () => {
     );
   };
 
-  const fetchTableData = (config) => {
-    const { name, count, limit, offset, orderBy } = config;
-    applyPaginationToUrl(history, limit, offset);
-    applyFiltersToUrl(history, { name });
-    return fetchData({ count, limit, offset, orderBy, filters: { name } });
-  };
-
   const routes = () => (
-    <Fragment>
-      <Route exact path={pathnames['add-group'].path}>
-        <AddGroupWizard
-          pagination={pagination}
-          filters={filters}
-          orderBy={orderBy}
-          postMethod={(config) => {
-            fetchData(config);
-            setFilterValue('');
-          }}
-        />
-      </Route>
-      <Route exact path={pathnames['group-edit'].path}>
-        <EditGroup
-          pagination={pagination}
-          filters={filters}
-          postMethod={(config) => {
-            fetchData({ ...config, orderBy });
-          }}
-          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-        />
-      </Route>
-      <Route exact path={pathnames['remove-group'].path}>
-        <RemoveGroup
-          pagination={pagination}
-          filters={filters}
-          postMethod={(ids, config) => {
-            fetchData({ ...config, orderBy });
-            setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
-          }}
-          cancelRoute={getBackRoute(pathnames.groups.path, pagination, filters)}
-          submitRoute={getBackRoute(pathnames.groups.path, { ...pagination, offset: 0 }, filters)}
-          isModalOpen
-          groupsUuid={removeGroupsList}
-        />
-      </Route>
-    </Fragment>
+    <Routes>
+      <Route
+        path={pathnames['add-group'].path}
+        element={
+          <AddGroupWizard
+            pagination={pagination}
+            filters={filters}
+            orderBy={orderBy}
+            postMethod={(config) => {
+              setFilterValue('');
+              fetchData(config);
+            }}
+          />
+        }
+      />
+      <Route
+        path={pathnames['edit-group'].path}
+        element={
+          <EditGroup
+            pagination={pagination}
+            filters={filters}
+            postMethod={(config) => {
+              setFilterValue('');
+              fetchData({ ...config, orderBy });
+            }}
+            cancelRoute={getBackRoute('../', pagination, filters)}
+            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
+          />
+        }
+      />
+      <Route
+        path={pathnames['remove-group'].path}
+        element={
+          <RemoveGroup
+            pagination={pagination}
+            filters={filters}
+            postMethod={(ids, config) => {
+              fetchData({ ...config, orderBy });
+              setFilterValue('');
+              setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
+            }}
+            cancelRoute={getBackRoute('../', pagination, filters)}
+            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
+            isModalOpen
+            groupsUuid={removeGroupsList}
+          />
+        }
+      />
+    </Routes>
   );
 
   const actionResolver = ({ isPlatformDefault, isAdminDefault }) =>
@@ -157,15 +174,13 @@ const Groups = () => {
       : [
           {
             title: intl.formatMessage(messages.edit),
-            onClick: (_event, _rowId, group) => {
-              history.push(`/groups/edit/${group.uuid}`);
-            },
+            onClick: (_event, _rowId, group) => navigate(mergeToBasename(pathnames['edit-group'].link).replace(':groupId', group.uuid)),
           },
           {
             title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              history.push(pathnames['remove-group'].path);
+              navigate(mergeToBasename(pathnames['remove-group'].link));
             },
           },
         ];
@@ -174,26 +189,24 @@ const Groups = () => {
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
-          <Link to={pathnames['add-group'].path} key="add-group" className="rbac-m-hide-on-sm">
+          <AppLink to={pathnames['add-group'].link} key="add-group" className="rbac-m-hide-on-sm">
             <Button ouiaId="create-group-button" variant="primary" aria-label="Create group">
               {intl.formatMessage(messages.createGroup)}
             </Button>
-          </Link>,
+          </AppLink>,
           {
             label: intl.formatMessage(messages.createGroup),
             props: {
               className: 'rbac-m-hide-on-md',
             },
-            onClick: () => {
-              history.push(pathnames['add-group'].path);
-            },
+            onClick: () => navigate(mergeToBasename(pathnames['add-group'].link)),
           },
           {
             label: intl.formatMessage(messages.edit),
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
-            onClick: () => history.push(`/groups/edit/${selectedRows[0].uuid}`),
+            onClick: () => navigate(mergeToBasename(pathnames['edit-group'].link.replace(':groupId', selectedRows[0].uuid))),
           },
           {
             label: intl.formatMessage(messages.delete),
@@ -202,7 +215,7 @@ const Groups = () => {
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              history.push(pathnames['remove-group'].path);
+              navigate(mergeToBasename(pathnames['remove-group'].link));
             },
           },
         ]
@@ -228,22 +241,8 @@ const Groups = () => {
             onSort={(e, index, direction) => {
               const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isAdmin)].key}`;
               setSortByState({ index, direction });
-              fetchTableData({
-                ...pagination,
-                offset: 0,
-                orderBy,
-                ...(filters?.length > 0
-                  ? {
-                      ...filters.reduce(
-                        (acc, curr) => ({
-                          ...acc,
-                          [curr.key]: curr.value,
-                        }),
-                        {}
-                      ),
-                    }
-                  : { name: filterValue }),
-              });
+              applyFiltersToUrl(location, navigate, { name: filterValue });
+              fetchData({ ...pagination, orderBy, filters: { name: filterValue } });
             }}
             columns={columns}
             isSelectable={isAdmin}
@@ -256,10 +255,8 @@ const Groups = () => {
             ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
-            fetchData={(config) => {
-              const { name, count, limit, offset, orderBy } = config;
-              applyPaginationToUrl(history, limit, offset);
-              applyFiltersToUrl(history, { name });
+            fetchData={({ name, count, limit, offset, orderBy }) => {
+              applyFiltersToUrl(location, navigate, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
@@ -275,24 +272,31 @@ const Groups = () => {
     </Stack>
   );
   return (
-    <Switch>
-      <PageActionRoute pageAction="role-detail" path={pathnames['group-detail-role-detail'].path} render={(props) => <Role {...props} />} />
-      <PageActionRoute
-        pageAction="group-detail"
-        path={pathnames['group-detail'].path}
-        render={(props) => (
-          <Group
-            {...props}
-            defaultUuid={systemGroup?.uuid}
-            onDelete={(uuid) => {
-              setFilterValue('');
-              setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
-            }}
-          />
-        )}
+    <Routes>
+      <Route
+        path={pathnames['group-detail-role-detail'].path}
+        element={
+          <PageActionRoute pageAction="role-detail">
+            <Role />
+          </PageActionRoute>
+        }
       />
-      <PageActionRoute pageAction="group-list" path={pathnames.groups.path} render={() => renderGroupsList()} />
-    </Switch>
+      <Route
+        path={pathnames['group-detail'].path}
+        element={
+          <PageActionRoute pageAction="group-detail">
+            <Group
+              defaultUuid={systemGroup?.uuid}
+              onDelete={(uuid) => {
+                setFilterValue('');
+                setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
+              }}
+            />
+          </PageActionRoute>
+        }
+      />
+      <Route path="/*" element={<PageActionRoute pageAction="group-list">{renderGroupsList()}</PageActionRoute>} />
+    </Routes>
   );
 };
 

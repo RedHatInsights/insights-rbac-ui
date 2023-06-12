@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
-import { useHistory, useRouteMatch } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
@@ -11,12 +11,10 @@ import { roleNameSelector } from './role-selectors';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 
-const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
+const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
-  const {
-    params: { id },
-  } = useRouteMatch(routeMatch);
-  const roles = id.split(',');
+  const { roleId } = useParams();
+  const roles = roleId.split(',');
   const roleName = useSelector((state) => {
     if (roles.length === 1) {
       return roleNameSelector(state, roles[0]);
@@ -27,7 +25,7 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
   const [isDisabled, setIsDisabled] = useState(true);
   const [internalRoleName, setInternalRoleName] = useState(roleName);
   const dispatch = useDispatch();
-  const { push, replace } = useHistory();
+  const navigate = useNavigate();
 
   useEffect(() => {
     if (roles && roleName) {
@@ -41,10 +39,10 @@ const RemoveRoleModal = ({ routeMatch, cancelRoute, submitRoute = cancelRoute, a
 
   const onSubmit = () => {
     Promise.all(roles.map((id) => dispatch(removeRole(id)))).then(() => afterSubmit());
-    push(submitRoute);
+    navigate(submitRoute);
   };
 
-  const onCancel = () => replace(cancelRoute);
+  const onCancel = () => navigate(cancelRoute, { replace: true });
   if (!internalRoleName) {
     return null;
   }

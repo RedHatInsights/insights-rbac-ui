@@ -50,7 +50,7 @@ export async function fetchRolesWithPolicies({
   options,
   permission,
   application,
-  inModal = true,
+  usesMetaInURL = false,
 }) {
   const roles = await roleApi.listRoles(
     limit,
@@ -91,9 +91,8 @@ export async function fetchRolesWithPolicies({
   return {
     data,
     meta,
-    ...(inModal
-      ? {}
-      : {
+    ...(usesMetaInURL
+      ? {
           filters,
           pagination: {
             ...meta,
@@ -101,7 +100,8 @@ export async function fetchRolesWithPolicies({
             limit,
             redirected: !isPaginationValid,
           },
-        }),
+        }
+      : {}),
     ...(await insights.chrome.auth.getUser()),
   };
 }
