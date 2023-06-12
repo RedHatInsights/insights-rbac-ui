@@ -46,6 +46,26 @@ export default defineMessages({
     description: 'Invite users button text',
     defaultMessage: 'Invite new users',
   },
+  inviteUsersErrorTitle: {
+    id: 'inviteUsersErrorTitle',
+    description: 'Invite users error notification title',
+    defaultMessage: 'Failed inviting users',
+  },
+  inviteUsersErrorDescription: {
+    id: 'inviteUsersErrorDescription',
+    description: 'Invite users error notification description',
+    defaultMessage: 'Failed inviting users.',
+  },
+  activateUsersButton: {
+    id: 'activateUsersButton',
+    description: 'activate users button text',
+    defaultMessage: 'Activate users',
+  },
+  deactivateUsersButton: {
+    id: 'deactivateUsersButton',
+    description: 'deactivate users button text',
+    defaultMessage: 'Deactivate users',
+  },
   notApplicable: {
     id: 'notApplicable',
     description: 'Not applicable text for resource definitions',

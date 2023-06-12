@@ -5,12 +5,36 @@ import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
 
-export const updateUser = (userData) => {
+export const addUsers = (usersData) => ({
+  type: ActionTypes.ADD_USERS,
+  payload: UserHelper.addUsers(usersData).catch((err) => {
+    const cache = createIntlCache();
+    const intl = createIntl({ locale, messages: providerMessages }, cache);
+    const error = err?.errors?.[0] || err;
+    if (error.status === '400') {
+      return {
+        error: true,
+      };
+    }
+
+    /**
+     * Convert any other API error response to not crash notifications.
+     * It has different format than other API requests.
+     */
+    throw {
+      title: intl.formatMessage(messages.inviteUsersErrorTitle),
+      message: intl.formatMessage(messages.inviteUsersErrorDescription),
+      description: intl.formatMessage(messages.inviteUsersErrorDescription),
+    };
+  }),
+});
+
+export const updateUsers = (userList) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
-    type: ActionTypes.UPDATE_USER,
-    payload: UserHelper.updateUser(userData),
+    type: ActionTypes.UPDATE_USERS,
+    payload: UserHelper.updateUsers(userList),
     meta: {
       notifications: {
         fulfilled: {

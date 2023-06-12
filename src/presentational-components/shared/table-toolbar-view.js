@@ -55,6 +55,7 @@ export const TableToolbarView = ({
   tableId,
   containerRef,
   textFilterRef,
+  toolbarChildren,
 }) => {
   const intl = useIntl();
   const renderEmpty = () => ({
@@ -124,6 +125,7 @@ export const TableToolbarView = ({
           tableId={tableId}
           containerRef={containerRef}
           textFilterRef={textFilterRef}
+          toolbarChildren={toolbarChildren}
         />
         {isLoading ? (
           <ListLoader isCompact={isCompact} items={pagination?.limit} />
@@ -210,6 +212,7 @@ TableToolbarView.propTypes = {
   noDataDescription: propTypes.arrayOf(propTypes.node),
   filters: propTypes.array,
   tableId: propTypes.string.isRequired,
+  toolbarChildren: propTypes.func
 };
 
 TableToolbarView.defaultProps = {
