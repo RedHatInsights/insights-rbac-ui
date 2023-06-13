@@ -120,7 +120,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
         (acc, { uuid: permission, requires = [] }) => [
           ...acc,
           ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => {
-            let attributeFilter = {};
+            let attributeFilter;
 
             if (permission.includes('cost-management')) {
               attributeFilter = {
