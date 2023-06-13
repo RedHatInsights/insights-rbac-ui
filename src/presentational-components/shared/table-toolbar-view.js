@@ -224,4 +224,5 @@ TableToolbarView.defaultProps = {
   hideFilterChips: false,
   checkedRows: [],
   hideHeader: false,
+  toolbarChildren: () => null
 };

@@ -1,19 +1,17 @@
 import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import truncate from 'lodash/truncate';
+import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Link, Route, Switch, useLocation, useNavigate } from 'react-router-dom';
-import { mappedProps } from '../../../helpers/shared/helpers';
+import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import AppLink from '../../../presentational-components/shared/AppLink';
 import { fetchUsers, updateUsersFilters, updateUsers } from '../../../redux/actions/user-actions';
-import { Button, MenuToggle, Switch as PF4Switch } from '@patternfly/react-core';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/next';
+import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
-import PermissionsContext from '../../../utilities/permissions-context';
 import {
   defaultSettings,
   defaultAdminSettings,
@@ -39,6 +37,28 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const screenSize = useScreenSize();
   // use for text filter to focus
   const innerRef = useRef(null);
+  const isAdmin = orgAdmin || userAccessAdministrator;
+
+  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
+  let pagination = useSelector(({ userReducer: { users } }) => ({
+    limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+    offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+    count: usesMetaInURL ? users.pagination.count : users.meta.count,
+    redirected: usesMetaInURL && users.pagination.redirected,
+  }));
+
+  const { users, isLoading, stateFilters } = useSelector(
+    ({
+      userReducer: {
+        users: { data, filters = {} },
+        isUserDataLoading,
+      },
+    }) => ({
+      users: data?.map?.((data) => ({ ...data, uuid: data.external_source_id })),
+      isLoading: isUserDataLoading,
+      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
+    })
+  );
 
   const fetchData = useCallback(
     (apiProps) => {
@@ -48,62 +68,71 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   );
 
   const routes = () => (
-    <Switch>
-      <Route path={paths['invite-users'].path}>
-        <InviteUsersModal
-          fetchData={() => {
-            const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
-            const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
-            fetchData({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
-          }}
-        />
-      </Route>
-    </Switch>
+    <Routes>
+      <Route
+        path={paths['invite-users'].path}
+        element={
+          <InviteUsersModal
+            fetchData={() => {
+              const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+              const newFilters = usesMetaInURL
+                ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
+                : { status: filters.status };
+              setFilters(newFilters);
+              fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+            }}
+          />
+        }
+      />
+    </Routes>
   );
 
-  const toolbarDropdowns = () =>
-    orgAdmin || userAccessAdministrator ? (
+  const toolbarDropdowns = () => {
+    const onToggle = (isOpen) => {
+      setIsToolbarDropdownOpen(isOpen);
+    };
+    const onToolbarDropdownSelect = async (_event) => {
+      const userActivationStatusMap = { activate: true, deactivate: false };
+
+      toggleUserActivationStatus(userActivationStatusMap[_event?.target?.id], null, selectedRows);
+      setIsToolbarDropdownOpen(false);
+    };
+    const dropdownItems = [
+      <DropdownItem key="activate-users-dropdown-item" componentID="activate">
+        {intl.formatMessage(messages.activateUsersButton)}
+      </DropdownItem>,
+      <DropdownItem key="deactivate-users-dropdown-item" componentID="deactivate">
+        {intl.formatMessage(messages.deactivateUsersButton)}
+      </DropdownItem>,
+    ];
+    return (
       <Dropdown
-        isOpen={isToolbarDropdownOpen}
         onSelect={onToolbarDropdownSelect}
-        onOpenChange={(isToolbarDropdownOpen) => setIsToolbarDropdownOpen(isToolbarDropdownOpen)}
-        toggle={(toggleRef) => (
-          <MenuToggle
-            ref={toggleRef}
-            onClick={onToolbarDropdownToggleClick}
-            isExpanded={isToolbarDropdownOpen}
-            id="toolbar-dropdown-toggle"
-            isDisabled={selectedRows.length === 0}
-          >
+        toggle={
+          <DropdownToggle id="toolbar-dropdown-toggle" isDisabled={selectedRows.length === 0} onToggle={onToggle}>
             {intl.formatMessage(messages.activateUsersButton)}
-          </MenuToggle>
-        )}
-      >
-        <DropdownList>
-          <DropdownItem itemId="activate" key="activate-users-dropdown-item">
-            {intl.formatMessage(messages.activateUsersButton)}
-          </DropdownItem>
-          <DropdownItem itemId="deactivate" key="deactivate-users-dropdown-item">
-            {intl.formatMessage(messages.deactivateUsersButton)}
-          </DropdownItem>
-        </DropdownList>
-      </Dropdown>
-    ) : null;
+          </DropdownToggle>
+        }
+        isOpen={isToolbarDropdownOpen}
+        dropdownItems={dropdownItems}
+      />
+    );
+  };
 
   const toolbarButtons = () =>
-    orgAdmin || userAccessAdministrator
+    isAdmin
       ? [
-          <Link to={paths['invite-users'].path} key="invite-users" className="rbac-m-hide-on-sm">
+          <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
             <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
               {intl.formatMessage(messages.inviteUsers)}
             </Button>
-          </Link>,
+          </AppLink>,
           ...(isSmallScreen(screenSize)
             ? [
                 {
                   label: intl.formatMessage(messages.inviteUsers),
                   onClick: () => {
-                    history.push(paths['invite-users'].path);
+                    navigate(paths['invite-users'].link);
                   },
                 },
               ]
@@ -112,8 +141,10 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       : [];
 
   const toggleUserActivationStatus = (isActivated, _event, users = []) => {
-    const pagination = inModal ? defaultSettings : syncDefaultPaginationWithUrl(history, defaultPagination);
-    const newFilters = inModal ? { status: filters.status } : syncDefaultFiltersWithUrl(history, ['username', 'email', 'status'], filters);
+    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const newFilters = usesMetaInURL
+      ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
+      : { status: filters.status };
     const newUserList = users.map((user) => {
       return { id: user?.uuid || user?.external_source_id, is_active: isActivated };
     });
@@ -125,21 +156,11 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         } else {
           setSelectedRows([]);
         }
-        fetchData({ ...mappedProps({ ...pagination, filters: newFilters }), inModal });
+        fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
       })
       .catch((err) => {
         console.error(err);
       });
-  };
-
-  const onToolbarDropdownToggleClick = () => {
-    setIsToolbarDropdownOpen(!isToolbarDropdownOpen);
-  };
-  const onToolbarDropdownSelect = async (_event, itemId) => {
-    const userActivationStatusMap = { activate: true, deactivate: false };
-
-    toggleUserActivationStatus(userActivationStatusMap[itemId], null, selectedRows);
-    setIsToolbarDropdownOpen(false);
   };
 
   const createRows = (userLinks, data, checkedRows = []) =>
@@ -164,15 +185,25 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                     <span key="no">{intl.formatMessage(messages.no)}</span>
                   </Fragment>
                 ),
-                { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
-                email,
+                {
+                  title: userLinks ? (
+                    <AppLink to={paths['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
+                  ) : displayNarrow ? (
+                    <span title={username}>{truncate(username, { length: maxLength })}</span>
+                  ) : (
+                    username
+                  ),
+                },
+                {
+                  title: displayNarrow ? <span title={email}>{truncate(email, { length: maxLength })}</span> : email,
+                },
                 firstName,
                 lastName,
                 {
                   title: (
                     <PF4Switch
                       key="status"
-                      isDisabled={!(orgAdmin || userAccessAdministrator)}
+                      isDisabled={!isAdmin}
                       label={intl.formatMessage(messages.active)}
                       labelOff={intl.formatMessage(messages.inactive)}
                       isChecked={is_active}
@@ -197,27 +228,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
           []
         )
       : [];
-
-  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
-  let pagination = useSelector(({ userReducer: { users } }) => ({
-    limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-    offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-    count: usesMetaInURL ? users.pagination.count : users.meta.count,
-    redirected: usesMetaInURL && users.pagination.redirected,
-  }));
-
-  const { users, isLoading, stateFilters } = useSelector(
-    ({
-      userReducer: {
-        users: { data, filters = {} },
-        isUserDataLoading,
-      },
-    }) => ({
-      users: data?.map?.((data) => ({ ...data, uuid: data.username })),
-      isLoading: isUserDataLoading,
-      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
-    })
-  );
 
   const rows = createRows(userLinks, users, selectedRows);
   const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
@@ -282,7 +292,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   return (
     <TableToolbarView
-      toolbarChildren={toolbarDropdowns}
+      toolbarChildren={isAdmin ? toolbarDropdowns : null}
       toolbarButtons={toolbarButtons}
       isCompact
       isSelectable

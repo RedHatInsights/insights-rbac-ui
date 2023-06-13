@@ -36,7 +36,7 @@ const Users = () => {
           <UsersList
             userLinks={activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin}
             props={{
-              isSelectable: false,
+              isSelectable: activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
               isCompact: false,
             }}
             usesMetaInURL

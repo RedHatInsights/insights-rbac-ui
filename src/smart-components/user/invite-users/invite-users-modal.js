@@ -1,6 +1,6 @@
 import React, { useState, Fragment, useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { useHistory } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Modal, Button, ModalVariant, ExpandableSection, Form, FormGroup, TextArea, Checkbox } from '@patternfly/react-core';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -9,10 +9,10 @@ import messages from '../../../Messages';
 import { addUsers } from '../../../redux/actions/user-actions';
 import PropTypes from 'prop-types';
 
-const InviteUsersModal = ({fetchData}) => {
+const InviteUsersModal = ({ fetchData }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const { push } = useHistory();
+  const navigate = useNavigate();
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
@@ -25,7 +25,7 @@ const InviteUsersModal = ({fetchData}) => {
     dispatch(addUsers(newUsersData))
       .then((res) => {
         fetchData();
-        push({ pathname: `/users` });
+        navigate('/users');
       })
       .catch((err) => {
         console.error(err);
@@ -57,7 +57,7 @@ const InviteUsersModal = ({fetchData}) => {
         description: intl.formatMessage(messages.inviteUsersCancelled),
       })
     );
-    push({ pathname: `/users` });
+    navigate('/users');
   };
 
   useEffect(() => {
@@ -125,7 +125,7 @@ const InviteUsersModal = ({fetchData}) => {
 };
 
 InviteUsersModal.propTypes = {
-  fetchData: PropTypes.func.isRequired
+  fetchData: PropTypes.func.isRequired,
 };
 
 export default InviteUsersModal;
