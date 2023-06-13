@@ -8,6 +8,9 @@ import { WarningModal } from '../../common/warningModal';
 import messages from '../../../Messages';
 import { addUsers } from '../../../redux/actions/user-actions';
 import PropTypes from 'prop-types';
+import paths from '../../../utilities/pathnames';
+import { createQueryParams } from '../../../helpers/shared/helpers';
+import { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 
 const InviteUsersModal = ({ fetchData }) => {
   const dispatch = useDispatch();
@@ -25,7 +28,7 @@ const InviteUsersModal = ({ fetchData }) => {
     dispatch(addUsers(newUsersData))
       .then((res) => {
         fetchData();
-        navigate('/users');
+        navigate(mergeToBasename(paths.users.link));
       })
       .catch((err) => {
         console.error(err);
@@ -57,7 +60,7 @@ const InviteUsersModal = ({ fetchData }) => {
         description: intl.formatMessage(messages.inviteUsersCancelled),
       })
     );
-    navigate('/users');
+    navigate(mergeToBasename(paths.users.link));
   };
 
   useEffect(() => {

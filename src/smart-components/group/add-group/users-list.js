@@ -5,7 +5,7 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import AppLink from '../../../presentational-components/shared/AppLink';
+import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import { fetchUsers, updateUsersFilters, updateUsers } from '../../../redux/actions/user-actions';
 import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
@@ -67,26 +67,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     [dispatch]
   );
 
-  const routes = () => (
-    <Routes>
-      <Route
-        path={paths['invite-users'].path}
-        element={
-          <InviteUsersModal
-            fetchData={() => {
-              const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
-              const newFilters = usesMetaInURL
-                ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
-                : { status: filters.status };
-              setFilters(newFilters);
-              fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
-            }}
-          />
-        }
-      />
-    </Routes>
-  );
-
   const toolbarDropdowns = () => {
     const onToggle = (isOpen) => {
       setIsToolbarDropdownOpen(isOpen);
@@ -132,7 +112,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                 {
                   label: intl.formatMessage(messages.inviteUsers),
                   onClick: () => {
-                    navigate(paths['invite-users'].link);
+                    navigate(mergeToBasename(paths['invite-users'].link));
                   },
                 },
               ]
@@ -299,7 +279,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       borders={false}
       columns={columns}
       rows={rows}
-      routes={routes}
       sortBy={sortByState}
       onSort={(e, index, direction) => {
         const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;

@@ -12,6 +12,7 @@ import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
+import InviteUsersModal from './invite-users/invite-users-modal';
 
 const Users = () => {
   const intl = useIntl();
@@ -57,6 +58,14 @@ const Users = () => {
         }
       />
       <Route path="" element={<PageActionRoute pageAction="users-list">{renderUsers()}</PageActionRoute>} />
+      <Route
+        path={pathnames['invite-users'].path}
+        element={
+          <InviteUsersModal
+            fetchData={() => {}}
+          />
+        }
+      />
     </Routes>
   );
 };
