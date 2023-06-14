@@ -12,7 +12,7 @@ const principalStatusApiMap = {
 export const baseUrl = 'https://keycloak-user-service-fips-test.apps.fips-key.2vn8.p1.openshiftapps.com';
 
 const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, email, mappedStatus) => {
-  const token = await window.insights.chrome.auth.getToken();
+  const token = await insights.chrome.auth.getToken();
   const requestOpts = {
     method: 'GET',
     headers: {
@@ -34,10 +34,9 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
 };
 
 export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
-  const token = await window.insights.chrome.auth.getToken();
+  const token = await insights.chrome.auth.getToken();
   const requestOpts = {
     method: 'PUT',
-    referrerPolicy: 'no-referrer',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -74,10 +73,9 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
 export async function updateUsers(users) {
   //TODO: this need to be replace with our api
   // await principalApi.updateUser(user.uuid, user);
-  const token = await window.insights.chrome.auth.getToken();
+  const token = await insights.chrome.auth.getToken();
   let requestOpts = {
     method: 'PUT',
-    referrerPolicy: 'no-referrer',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -124,7 +122,7 @@ export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, use
   const { data, meta } = isPaginationValid
     ? response
     : await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
-  // : await fetchUsersApi(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
+  // await fetchUsersApi(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
   return {
     data,
     meta: {
