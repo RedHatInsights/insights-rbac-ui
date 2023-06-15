@@ -18,7 +18,7 @@
     "@patternfly/react-icons": "^4.86.7",
     "@patternfly/react-table": "^4.67.19",
     "@patternfly/react-tokens": "^4.94.6",
-    "@patternfly/react-component-groups": "^1.0.4",
+    "@patternfly/react-component-groups": "^1.0.6",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
     "@redhat-cloud-services/cost-management-client": "^1.0.104",
     "@redhat-cloud-services/frontend-components": "^3.9.30",
