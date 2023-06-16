@@ -6,7 +6,6 @@ import { useIntl } from 'react-intl';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersList from '../group/add-group/users-list';
-import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
 import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
@@ -19,8 +18,6 @@ const Users = () => {
   const activeUserPermissions = useContext(PermissionsContext);
   const { appNavClick } = useChrome();
 
-  const description = <ActiveUser linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
-
   useEffect(() => {
     appNavClick({ id: 'users', secondaryNav: true });
   }, []);
@@ -29,7 +26,7 @@ const Users = () => {
     <Stack>
       <StackItem>
         <TopToolbar>
-          <TopToolbarTitle title={intl.formatMessage(messages.users)} description={description} />
+          <TopToolbarTitle title={intl.formatMessage(messages.users)} />
         </TopToolbar>
       </StackItem>
       <StackItem>
