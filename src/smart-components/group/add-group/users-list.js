@@ -3,10 +3,10 @@ import { useSelector, useDispatch } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
-import { fetchUsers, updateUsersFilters, updateUsers } from '../../../redux/actions/user-actions';
+import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
 import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
@@ -22,9 +22,9 @@ import {
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
-import InviteUsersModal from '../../user/invite-users/invite-users-modal';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, displayNarrow, props }) => {
   const intl = useIntl();
@@ -38,6 +38,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   // use for text filter to focus
   const innerRef = useRef(null);
   const isAdmin = orgAdmin || userAccessAdministrator;
+  const chrome = useChrome();
+  const [currentUser, setCurrentUser] = useState({});
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   let pagination = useSelector(({ userReducer: { users } }) => ({
@@ -66,6 +68,53 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     },
     [dispatch]
   );
+
+  const toggleUserIsOrgAdminStatus = (isOrgAdmin, _event, user = {}) => {
+    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const newFilters = usesMetaInURL
+      ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
+      : { status: filters.status };
+    const newUserObj = { id: user?.uuid || user?.external_source_id, is_org_admin: isOrgAdmin };
+    dispatch(updateUserIsOrgAdminStatus(newUserObj))
+      .then((res) => {
+        setFilters(newFilters);
+        if (props.setSelectedUsers) {
+          setSelectedUsers([]);
+        } else {
+          setSelectedRows([]);
+        }
+        fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
+
+  const isAdminCellSwitchContent = (isOrgAdmin, user = {}) => (
+    <PF4Switch
+      key="status"
+      isDisabled={!isAdmin}
+      label={intl.formatMessage(messages.yes)}
+      labelOff={intl.formatMessage(messages.no)}
+      isChecked={isOrgAdmin}
+      onChange={(checked, _event) => {
+        toggleUserIsOrgAdminStatus(checked, _event, user);
+      }}
+    />
+  );
+
+  const isAdminCellTextContent = (isOrgAdmin) =>
+    isOrgAdmin ? (
+      <Fragment>
+        <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+        <span key="yes">{intl.formatMessage(messages.yes)}</span>
+      </Fragment>
+    ) : (
+      <Fragment>
+        <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+        <span key="no">{intl.formatMessage(messages.no)}</span>
+      </Fragment>
+    );
 
   const toolbarDropdowns = () => {
     const onToggle = (isOpen) => {
@@ -143,6 +192,10 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       });
   };
 
+  useEffect(() => {
+    chrome.auth.getUser().then((user) => setCurrentUser(user));
+  }, []);
+
   const createRows = (userLinks, data, checkedRows = []) =>
     data
       ? data.reduce(
@@ -154,17 +207,15 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
             {
               uuid: external_source_id,
               cells: [
-                isOrgAdmin ? (
-                  <Fragment>
-                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                    <span key="yes">{intl.formatMessage(messages.yes)}</span>
-                  </Fragment>
-                ) : (
-                  <Fragment>
-                    <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                    <span key="no">{intl.formatMessage(messages.no)}</span>
-                  </Fragment>
-                ),
+                {
+                  title:
+                    currentUser?.identity?.internal?.account_id === external_source_id
+                      ? isAdminCellSwitchContent(isOrgAdmin, {external_source_id})
+                      : isAdminCellTextContent(isOrgAdmin),
+                  props: {
+                    'data-is-active': isOrgAdmin,
+                  },
+                },
                 {
                   title: userLinks ? (
                     <AppLink to={paths['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>

@@ -29,6 +29,33 @@ export const addUsers = (usersData) => ({
   }),
 });
 
+export const updateUserIsOrgAdminStatus = (user) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
+  return {
+    type: ActionTypes.UPDATE_USER_IS_ORG_ADMIN_STATUS,
+    payload: UserHelper.updateUserIsOrgAdminStatus(user),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.editUserSuccessTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.editUserErrorTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editUserErrorDescription),
+        },
+      },
+    },
+  };
+};
+
 export const updateUsers = (userList) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);

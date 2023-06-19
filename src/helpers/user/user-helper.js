@@ -21,7 +21,7 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
       Authorization: `Bearer ${token}`,
     },
   };
-  const result = await fetch(`${baseUrl}/users?offset=${offset}&limit=${limit}`, requestOpts)
+  const result = await fetch(`${baseUrl}/users?offset=${offset}&limit=${limit}&org_id=1010101`, requestOpts)
     .then((res) => res.json())
     .then((res) => {
       return { data: res?.users, meta: res?.meta };
@@ -70,8 +70,40 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
   return promise;
 }
 
+export async function updateUserIsOrgAdminStatus(user) {
+  const token = await insights.chrome.auth.getToken();
+  let requestOpts = {
+    method: 'PUT',
+    headers: {
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
+    },
+  };
+
+  let promise = new Promise((resolve, reject) => {
+    return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
+      .then(
+        (response) => {
+          if (response.ok) {
+            resolve(response);
+          } else {
+            reject(response);
+          }
+        },
+        (error) => {
+          reject(new Error(error.message));
+        }
+      )
+      .catch((err) => {
+        reject(new Error(err.message));
+      });
+  });
+
+  return promise;
+}
+
 export async function updateUsers(users) {
-  //TODO: this need to be replace with our api
   // await principalApi.updateUser(user.uuid, user);
   const token = await insights.chrome.auth.getToken();
   let requestOpts = {
