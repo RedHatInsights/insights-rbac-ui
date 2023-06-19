@@ -210,8 +210,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                 {
                   title:
                     currentUser?.identity?.internal?.account_id === external_source_id
-                      ? isAdminCellSwitchContent(isOrgAdmin, {external_source_id})
-                      : isAdminCellTextContent(isOrgAdmin),
+                      ? isAdminCellTextContent(isOrgAdmin)
+                      : isAdminCellSwitchContent(isOrgAdmin, { external_source_id }),
                   props: {
                     'data-is-active': isOrgAdmin,
                   },
