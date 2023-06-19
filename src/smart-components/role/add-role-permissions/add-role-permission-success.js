@@ -19,8 +19,8 @@ const AddRolePermissionSuccess = ({ currentRoleID }) => {
         <Title headingLevel="h4" size="lg">
           {intl.formatMessage(messages.permissionsAddedSuccessfully)}
         </Title>
-        <EmptyStateBody></EmptyStateBody>
-        <AppLink to={pathnames['role-detail'].link.replace(':groupId', currentRoleID)}>
+        <EmptyStateBody />
+        <AppLink to={pathnames['role-detail'].link.replace(':roleId', currentRoleID)}>
           <Button onClick={() => dispatch(fetchRole(currentRoleID))}>{intl.formatMessage(messages.exit)}</Button>
         </AppLink>
       </EmptyState>
