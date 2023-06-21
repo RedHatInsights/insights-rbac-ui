@@ -218,14 +218,14 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       ? data.reduce(
           (
             acc,
-            { id, external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
+            { external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
           ) => [
             ...acc,
             {
               uuid: external_source_id,
               cells: [
                 {
-                  title: <IsAdminCellDropdownContent isOrgAdmin={isOrgAdmin} userId={id} isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == id} toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}/>,
+                  title: <IsAdminCellDropdownContent isOrgAdmin={isOrgAdmin} userId={external_source_id} isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id} toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}/>,
                   props: {
                     'data-is-active': isOrgAdmin,
                   },
