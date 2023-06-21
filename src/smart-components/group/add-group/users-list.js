@@ -3,13 +3,12 @@ import { useSelector, useDispatch } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
-import { fetchUsers, updateUsersFilters, updateUsers } from '../../../redux/actions/user-actions';
+import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
 import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
@@ -22,9 +21,53 @@ import {
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
-import InviteUsersModal from '../../user/invite-users/invite-users-modal';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+
+const IsAdminCellDropdownContent = ({isOrgAdmin, userId, isDisabled, toggleUserIsOrgAdminStatus}) => {
+  const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
+  const intl = useIntl();
+
+  const onIsAdminDropdownToggle = (isOpen) => {
+    setIsAdminDropdownOpen(isOpen);
+  };
+
+  const onIsAdminDropdownSelect = (_event) => {
+    const isAdminStatusMap = { yes: true, no: false };
+
+    toggleUserIsOrgAdminStatus(isAdminStatusMap[_event?.target?.id], null, { userId });
+    setIsAdminDropdownOpen(false);
+  };
+
+  const dropdownItems = [
+    <DropdownItem key={`is-admin-dropdown-item-${userId}`} componentID="yes">
+      {intl.formatMessage(messages.yes)}
+    </DropdownItem>,
+    <DropdownItem key={`is-not-admin-dropdown-item-${userId}`} componentID="no">
+      {intl.formatMessage(messages.no)}
+    </DropdownItem>,
+  ];
+  return (
+    <Dropdown
+      id={`is-admin-dropdown-${userId}`}
+      key={`is-admin-dropdown-${userId}`}
+      onSelect={onIsAdminDropdownSelect}
+      toggle={
+        <DropdownToggle
+          id={`is-admin-dropdown-toggle-${userId}`}
+          key={`is-admin-dropdown-toggle-${userId}`}
+          isDisabled={isDisabled}
+          onToggle={onIsAdminDropdownToggle}
+        >
+          {isOrgAdmin ? intl.formatMessage(messages.yes) : intl.formatMessage(messages.no)}
+        </DropdownToggle>
+      }
+      isOpen={isAdminDropdownOpen}
+      dropdownItems={dropdownItems}
+    />
+  );
+};
 
 const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, displayNarrow, props }) => {
   const intl = useIntl();
@@ -38,6 +81,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   // use for text filter to focus
   const innerRef = useRef(null);
   const isAdmin = orgAdmin || userAccessAdministrator;
+  const chrome = useChrome();
+  const [currentUser, setCurrentUser] = useState({});
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   let pagination = useSelector(({ userReducer: { users } }) => ({
@@ -66,6 +111,27 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     },
     [dispatch]
   );
+
+  const toggleUserIsOrgAdminStatus = (isOrgAdmin, _event, user = {}) => {
+    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const newFilters = usesMetaInURL
+      ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
+      : { status: filters.status };
+    const newUserObj = { id: user.userId, is_org_admin: isOrgAdmin };
+    dispatch(updateUserIsOrgAdminStatus(newUserObj))
+      .then((res) => {
+        setFilters(newFilters);
+        if (props.setSelectedUsers) {
+          setSelectedUsers([]);
+        } else {
+          setSelectedRows([]);
+        }
+        fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  };
 
   const toolbarDropdowns = () => {
     const onToggle = (isOpen) => {
@@ -143,28 +209,27 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       });
   };
 
+  useEffect(() => {
+    chrome.auth.getUser().then((user) => setCurrentUser(user));
+  }, []);
+
   const createRows = (userLinks, data, checkedRows = []) =>
     data
       ? data.reduce(
           (
             acc,
-            { external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
+            { id, external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
           ) => [
             ...acc,
             {
               uuid: external_source_id,
               cells: [
-                isOrgAdmin ? (
-                  <Fragment>
-                    <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
-                    <span key="yes">{intl.formatMessage(messages.yes)}</span>
-                  </Fragment>
-                ) : (
-                  <Fragment>
-                    <CloseIcon key="no-icon" className="pf-u-mr-sm" />
-                    <span key="no">{intl.formatMessage(messages.no)}</span>
-                  </Fragment>
-                ),
+                {
+                  title: <IsAdminCellDropdownContent isOrgAdmin={isOrgAdmin} userId={id} isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == id} toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}/>,
+                  props: {
+                    'data-is-active': isOrgAdmin,
+                  },
+                },
                 {
                   title: userLinks ? (
                     <AppLink to={paths['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
