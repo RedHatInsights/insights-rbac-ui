@@ -337,7 +337,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   return (
     <TableToolbarView
-      toolbarChildren={isAdmin ? toolbarDropdowns : null}
+      toolbarChildren={isAdmin ? toolbarDropdowns : () => null}
       toolbarButtons={toolbarButtons}
       isCompact
       isSelectable
