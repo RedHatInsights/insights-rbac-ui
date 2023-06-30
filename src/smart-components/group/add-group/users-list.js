@@ -213,6 +213,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     chrome.auth.getUser().then((user) => setCurrentUser(user));
   }, []);
 
+  const isUserSelectable = external_source_id => external_source_id != currentUser?.identity?.internal?.account_id;
+
   const createRows = (userLinks, data, checkedRows = []) => {
     const maxLength = 25;
     return data
@@ -276,6 +278,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                 },
               ],
               selected: Boolean(checkedRows?.find?.(({ uuid }) => uuid === external_source_id)),
+              disableSelection: !isUserSelectable(external_source_id)
             },
           ],
           []
