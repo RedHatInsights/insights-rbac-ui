@@ -25,7 +25,7 @@ import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-co
 import paths from '../../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-const IsAdminCellDropdownContent = ({isOrgAdmin, userId, isDisabled, toggleUserIsOrgAdminStatus}) => {
+const IsAdminCellDropdownContent = ({ isOrgAdmin, userId, isDisabled, toggleUserIsOrgAdminStatus }) => {
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
   const intl = useIntl();
 
@@ -197,7 +197,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     dispatch(updateUsers(newUserList))
       .then((res) => {
         setFilters(newFilters);
-        if (props.setSelectedUsers) {
+        if (props?.setSelectedUsers) {
           setSelectedUsers([]);
         } else {
           setSelectedRows([]);
@@ -213,8 +213,9 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     chrome.auth.getUser().then((user) => setCurrentUser(user));
   }, []);
 
-  const createRows = (userLinks, data, checkedRows = []) =>
-    data
+  const createRows = (userLinks, data, checkedRows = []) => {
+    const maxLength = 25;
+    return data
       ? data.reduce(
           (
             acc,
@@ -225,7 +226,14 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
               uuid: external_source_id,
               cells: [
                 {
-                  title: <IsAdminCellDropdownContent isOrgAdmin={isOrgAdmin} userId={external_source_id} isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id} toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}/>,
+                  title: (
+                    <IsAdminCellDropdownContent
+                      isOrgAdmin={isOrgAdmin}
+                      userId={external_source_id}
+                      isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
+                      toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}
+                    />
+                  ),
                   props: {
                     'data-is-active': isOrgAdmin,
                   },
@@ -273,6 +281,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
           []
         )
       : [];
+  };
 
   const rows = createRows(userLinks, users, selectedRows);
   const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
@@ -319,7 +328,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   });
 
   const setCheckedItems = (newSelection) => {
-    if (props.setSelectedUsers) {
+    if (props?.setSelectedUsers) {
       setSelectedUsers((users) => {
         return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
       });
