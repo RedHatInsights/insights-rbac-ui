@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
@@ -9,7 +9,7 @@ import AppLink, { mergeToBasename } from '../../../presentational-components/sha
 import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
 import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
-import { mappedProps } from '../../../helpers/shared/helpers';
+import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
   defaultSettings,
@@ -83,6 +83,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const isAdmin = orgAdmin || userAccessAdministrator;
   const chrome = useChrome();
   const [currentUser, setCurrentUser] = useState({});
+  const [userToken, setUserToken] = useState('');
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   let pagination = useSelector(({ userReducer: { users } }) => ({
@@ -166,7 +167,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   };
 
   const toolbarButtons = () =>
-    isAdmin
+    isAdmin && !isExternalIdp(userToken)
       ? [
           <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
             <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
@@ -211,6 +212,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   useEffect(() => {
     chrome.auth.getUser().then((user) => setCurrentUser(user));
+    chrome.auth.getToken().then((token) => setUserToken(token));
   }, []);
 
   const createRows = (userLinks, data, checkedRows = []) => {

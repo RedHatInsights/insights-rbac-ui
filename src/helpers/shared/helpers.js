@@ -77,3 +77,17 @@ export const getDateFormat = (date) => {
   const monthAgo = new Date(Date.now());
   return Date.parse(date) < monthAgo.setMonth(monthAgo.getMonth() - 1) ? 'onlyDate' : 'relative';
 };
+
+export const isExternalIdp = (token = '') => {
+  let roles = ['']
+  let tokenArray = token.split('.')
+  if (tokenArray.length > 1 ) {
+    let token1 = window.atob(tokenArray[1])
+    if (token1) {
+      roles = JSON.parse(token1)?.realm_access?.roles
+      if (roles.includes('external-idp')) {return true}
+    }
+  }
+
+  return false
+}
