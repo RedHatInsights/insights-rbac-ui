@@ -248,7 +248,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                   title: (
                     <PF4Switch
                       key="status"
-                      isDisabled={!isAdmin}
+                      isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
                       label={intl.formatMessage(messages.active)}
                       labelOff={intl.formatMessage(messages.inactive)}
                       isChecked={is_active}
