@@ -5,11 +5,13 @@ import { Text, TextVariants } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const ActiveUser = ({ linkDescription, linkTitle }) => {
   const intl = useIntl();
-  const env = insights.chrome.getEnvironment();
-  const prefix = insights.chrome.isProd() ? '' : `${env}.`;
+  const chrome = useChrome();
+  const env = chrome.getEnvironment();
+  const prefix = chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext);
   return orgAdmin ? (
     <Text className="pf-u-mt-0" component={TextVariants.h7}>

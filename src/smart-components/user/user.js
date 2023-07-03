@@ -26,6 +26,7 @@ import { fetchUsers } from '../../redux/actions/user-actions';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
 import { addRolesToGroup } from '../../redux/actions/group-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import './user.scss';
 
 let debouncedFetch;
@@ -39,6 +40,7 @@ const User = () => {
   const [expanded, setExpanded] = useState({});
   const [loadingRolesTemp, setLoadingRolesTemp] = useState(false);
   const [selectedAddRoles, setSelectedAddRoles] = useState([]);
+  const chrome = useChrome();
 
   const selector = ({
     roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
@@ -62,7 +64,7 @@ const User = () => {
   const fetchRolesData = (apiProps) => dispatch(fetchRoles(apiProps));
 
   useEffect(() => {
-    insights.chrome.appObjectId(username);
+    chrome.appObjectId(username);
     dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username } }));
     fetchRolesData({ limit: 20, offset: 0, username });
     setLoadingRolesTemp(true);
@@ -71,7 +73,7 @@ const User = () => {
       (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
       500
     );
-    return () => insights.chrome.appObjectId(undefined);
+    return () => chrome.appObjectId(undefined);
   }, []);
 
   const columns = [

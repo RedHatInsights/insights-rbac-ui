@@ -30,6 +30,7 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role/add-role-wizard'));
 
@@ -42,6 +43,7 @@ const Roles = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const screenSize = useScreenSize();
+  const chrome = useChrome();
 
   const { roles, filters, pagination, isLoading } = useSelector(
     ({
@@ -86,7 +88,7 @@ const Roles = () => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
     const { display_name } = syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
-    insights.chrome.appNavClick({ id: 'roles', secondaryNav: true });
+    chrome.appNavClick({ id: 'roles', secondaryNav: true });
     fetchData({ limit, offset, orderBy, filters: { display_name } });
   }, []);
 
