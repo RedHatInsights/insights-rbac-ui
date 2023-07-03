@@ -60,6 +60,7 @@ exports[`<GroupRoles /> should render empty correctly 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
+      "count": 0,
       "itemCount": 0,
       "limit": 20,
       "offset": 0,
@@ -100,6 +101,7 @@ exports[`<GroupRoles /> should render empty correctly 1`] = `
     isSelectable={false}
     pagination={
       Object {
+        "count": 0,
         "itemCount": 0,
         "limit": 20,
         "offset": 0,

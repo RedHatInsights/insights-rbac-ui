@@ -92,7 +92,7 @@ exports[`<Roles /> should render correctly 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "count": undefined,
+      "count": 0,
       "limit": 20,
       "offset": 0,
       "redirected": undefined,
@@ -389,7 +389,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "count": undefined,
+      "count": 0,
       "limit": 20,
       "offset": 0,
       "redirected": undefined,
@@ -693,7 +693,7 @@ exports[`<Roles /> should render correctly in org admin 1`] = `
   ouiaId="roles-table"
   pagination={
     Object {
-      "count": undefined,
+      "count": 0,
       "limit": 20,
       "offset": 0,
       "redirected": undefined,

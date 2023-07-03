@@ -1,11 +1,5 @@
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../action-types';
-import { defaultSettings } from '../../helpers/shared/pagination';
-
-interface PaginationDefaultI {
-  limit?: number;
-  offset?: number;
-  count?: number;
-}
+import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
 export interface UserStore {
   selectedUser: Record<string, unknown>;
@@ -25,7 +19,7 @@ export const usersInitialState: UserStore = {
   users: {
     meta: defaultSettings,
     filters: {},
-    pagination: { redirected: false },
+    pagination: { ...defaultSettings, redirected: false },
   },
 };
 

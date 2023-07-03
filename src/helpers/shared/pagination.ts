@@ -1,7 +1,17 @@
-export const defaultSettings = {
+import { NavigateFunction, Location } from 'react-router-dom';
+
+export interface PaginationDefaultI {
+  limit?: number;
+  offset?: number;
+  count?: number; // from API
+  itemCount?: number; // for PF pagination
+}
+
+export const defaultSettings: Required<PaginationDefaultI> = {
   limit: 20,
   offset: 0,
   itemCount: 0,
+  count: 0,
 };
 
 export const defaultAdminSettings = {
@@ -18,22 +28,22 @@ export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math
 
 export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (page - 1) * limit;
 
-export const syncDefaultPaginationWithUrl = (location, navigate, defaultPagination) => {
+export const syncDefaultPaginationWithUrl = (location: Location, navigate: NavigateFunction, defaultPagination: PaginationDefaultI) => {
   if (!defaultPagination) {
     defaultPagination = defaultSettings;
   }
-  let searchParams = new URLSearchParams(location.search);
+  const searchParams = new URLSearchParams(location.search);
 
-  let limit = parseInt(searchParams.get('per_page'));
-  let page = parseInt(searchParams.get('page'));
+  let limit = parseInt(searchParams.get('per_page') as string);
+  let page = parseInt(searchParams.get('page') as string);
 
   if (isNaN(limit) || limit <= 0) {
-    limit = defaultPagination.limit;
-    searchParams.set('per_page', limit);
+    limit = defaultPagination.limit as number;
+    searchParams.set('per_page', String(limit));
   }
   if (isNaN(page) || page <= 0) {
     page = 1;
-    searchParams.set('page', page);
+    searchParams.set('page', String(page));
   }
 
   const offset = calculateOffset(page, limit);
@@ -48,21 +58,21 @@ export const syncDefaultPaginationWithUrl = (location, navigate, defaultPaginati
   return { ...defaultPagination, limit, offset };
 };
 
-export const isPaginationPresentInUrl = (location) => {
+export const isPaginationPresentInUrl = (location: Location) => {
   const searchParams = new URLSearchParams(location.search);
   return searchParams.get('per_page') && searchParams.get('per_page');
 };
 
 export const isOffsetValid = (offset = 0, count = 0) => offset === 0 || count > offset;
 
-export const getLastPageOffset = (count, limit) => Math.floor((count % limit === 0 ? count - 1 : count) / limit) * limit;
-export const applyPaginationToUrl = (location, navigate, limit, offset) => {
+export const getLastPageOffset = (count: number, limit: number) => Math.floor((count % limit === 0 ? count - 1 : count) / limit) * limit;
+export const applyPaginationToUrl = (location: Location, navigate: NavigateFunction, limit: number, offset: number) => {
   if (!offset) {
     offset = 0;
   }
   const searchParams = new URLSearchParams(location.search);
-  searchParams.set('per_page', limit);
-  searchParams.set('page', calculatePage(limit, offset));
+  searchParams.set('per_page', String(limit));
+  searchParams.set('page', String(calculatePage(limit, offset)));
   navigate(
     {
       pathname: location.pathname,

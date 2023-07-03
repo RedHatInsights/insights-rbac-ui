@@ -48,7 +48,8 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -128,7 +129,8 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -297,7 +299,8 @@ exports[`<Toolbar> filters should render with placeholder 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -371,7 +374,8 @@ exports[`<Toolbar> filters should render with text filters 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -451,7 +455,8 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -570,7 +575,8 @@ exports[`<Toolbar> should render buttons 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -635,7 +641,8 @@ exports[`<Toolbar> should render correctly - NO DATA 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],
@@ -776,7 +783,8 @@ exports[`<Toolbar> should render with filterValue 1`] = `
   }
   pagination={
     Object {
-      "itemCount": undefined,
+      "count": 0,
+      "itemCount": 0,
       "limit": 20,
       "offset": 0,
       "onPerPageSelect": [Function],

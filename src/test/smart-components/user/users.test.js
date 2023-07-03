@@ -116,7 +116,7 @@ describe('<Users />', () => {
     expect(store.getActions()).toEqual(expectedPayload);
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
-      count: undefined,
+      count: 0,
       limit: 20,
       offset: 0,
       redirected: undefined,

@@ -25,12 +25,6 @@ interface UsersListNotSelectableI {
   props: Record<string, unknown>;
 }
 
-// interface FilterI {
-//   value: any;
-//   index: number;
-//   array: any[];
-// }
-
 const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNotSelectableI) => {
   const intl = useIntl();
   const navigate = useNavigate();
@@ -135,7 +129,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
             }
           }
         );
-        applyPaginationToUrl(location, navigate, limit, offset);
+        applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
         usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
       }}
       emptyFilters={{ username: '', email: '', status: '' }}
