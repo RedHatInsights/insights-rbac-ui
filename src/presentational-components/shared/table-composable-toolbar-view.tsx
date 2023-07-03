@@ -139,7 +139,6 @@ export const TableComposableToolbarView = ({
           ? noDataDescription
           : [intl.formatMessage(messages.filterMatchesNoItems, { items: title.plural }), intl.formatMessage(messages.tryChangingFilters)]
       }
-      icon={false}
       actions={
         noData && noDataDescription
           ? undefined

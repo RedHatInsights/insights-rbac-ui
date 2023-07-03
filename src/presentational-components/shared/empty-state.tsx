@@ -1,16 +1,23 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, Title } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
+import { SVGIconProps } from '@patternfly/react-icons/dist/esm/createIcon';
 
-const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
+interface EmptyWithActionProps {
+  title: string;
+  icon?: React.ComponentClass<SVGIconProps, any>;
+  description: any;
+  actions: any;
+}
+
+const EmptyWithAction = ({ title, icon, description, actions, ...props }: EmptyWithActionProps) => (
   <EmptyState variant={EmptyStateVariant.small} {...props}>
     <EmptyStateIcon icon={icon || SearchIcon} />
     <Title headingLevel="h4" size="lg">
       {title}
     </Title>
     <EmptyStateBody className="pf-u-mb-md">
-      {description.map((text, key) => (
+      {description.map((text: any, key: number) => (
         <React.Fragment key={key}>
           {text} <br />
         </React.Fragment>
@@ -19,13 +26,5 @@ const EmptyWithAction = ({ title, icon, description, actions, ...props }) => (
     {actions}
   </EmptyState>
 );
-
-EmptyWithAction.propTypes = {
-  icon: PropTypes.func,
-  title: PropTypes.node,
-  description: PropTypes.node,
-  actions: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
-  className: PropTypes.string,
-};
 
 export default EmptyWithAction;
