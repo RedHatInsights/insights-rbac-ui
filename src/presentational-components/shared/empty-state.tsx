@@ -17,7 +17,7 @@ const EmptyWithAction = ({ title, icon, description, actions, ...props }: EmptyW
       {title}
     </Title>
     <EmptyStateBody className="pf-u-mb-md">
-      {description.map((text: any, key: number) => (
+      {description.map((text: React.ReactNode, key: number) => (
         <React.Fragment key={key}>
           {text} <br />
         </React.Fragment>

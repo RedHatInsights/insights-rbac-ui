@@ -117,6 +117,7 @@ describe('<Users />', () => {
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
       count: 0,
+      itemCount: 0,
       limit: 20,
       offset: 0,
       redirected: undefined,

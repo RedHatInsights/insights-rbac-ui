@@ -38,8 +38,9 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const pagination = useSelector(({ userReducer: { users } }) => ({
     limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
     offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-    count: usesMetaInURL ? users.pagination.count : users.meta.count,
+    count: (usesMetaInURL ? users.pagination.count : users.meta.count) ?? 0,
     redirected: usesMetaInURL && users.pagination.redirected,
+    itemCount: 0,
   }));
 
   const { users, isLoading, stateFilters } = useSelector(

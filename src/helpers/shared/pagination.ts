@@ -28,7 +28,7 @@ export const calculatePage = (limit = defaultSettings.limit, offset = 0) => Math
 
 export const calculateOffset = (page = 1, limit = defaultSettings.limit) => (page - 1) * limit;
 
-export const syncDefaultPaginationWithUrl = (location: Location, navigate: NavigateFunction, defaultPagination: PaginationDefaultI) => {
+export const syncDefaultPaginationWithUrl = (location: Location, navigate: NavigateFunction, defaultPagination: Required<PaginationDefaultI>) => {
   if (!defaultPagination) {
     defaultPagination = defaultSettings;
   }
@@ -38,7 +38,7 @@ export const syncDefaultPaginationWithUrl = (location: Location, navigate: Navig
   let page = parseInt(searchParams.get('page') as string);
 
   if (isNaN(limit) || limit <= 0) {
-    limit = defaultPagination.limit as number;
+    limit = defaultPagination.limit;
     searchParams.set('per_page', String(limit));
   }
   if (isNaN(page) || page <= 0) {
