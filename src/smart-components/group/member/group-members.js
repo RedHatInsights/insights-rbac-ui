@@ -104,7 +104,10 @@ const GroupMembers = () => {
 
   const routes = () => (
     <Routes>
-      <Route path={pathnames['group-add-members'].path} element={<AddGroupMembers fetchData={fetchData} closeUrl="../" />} />
+      <Route
+        path={pathnames['group-add-members'].path}
+        element={<AddGroupMembers fetchData={fetchData} closeUrl={pathnames['group-detail-members'].link.replace(':groupId', groupId)} />}
+      />
     </Routes>
   );
 
@@ -113,7 +116,7 @@ const GroupMembers = () => {
   const toolbarButtons = () => [
     ...(hasPermissions.current
       ? [
-          <AppLink to={pathnames['group-add-members'].link} key="remove-from-group" className="rbac-m-hide-on-sm">
+          <AppLink to={pathnames['group-add-members'].link.replace(':groupId', groupId)} key="remove-from-group" className="rbac-m-hide-on-sm">
             <Button variant="primary" aria-label="Add member">
               {intl.formatMessage(messages.addMember)}
             </Button>
