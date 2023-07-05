@@ -30,7 +30,7 @@ const SetUsers = (props) => {
         <Stack hasGutter>
           <StackItem>
             <TextContent>
-              <ActiveUser linkDescription={intl.formatMessage(messages.toManageUsersText)} />
+              <ActiveUser />
             </TextContent>
           </StackItem>
           <StackItem>
