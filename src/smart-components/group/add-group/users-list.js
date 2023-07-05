@@ -7,8 +7,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
-import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
+import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle, Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
@@ -24,6 +25,22 @@ import PermissionsContext from '../../../utilities/permissions-context';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+
+const IsAdminCellTextContent = ({ isOrgAdmin }) => {
+  const intl = useIntl();
+
+  return isOrgAdmin ? (
+    <Fragment>
+      <CheckIcon key="yes-icon" className="pf-u-mr-sm" />
+      <span key="yes">{intl.formatMessage(messages.yes)}</span>
+    </Fragment>
+  ) : (
+    <Fragment>
+      <CloseIcon key="no-icon" className="pf-u-mr-sm" />
+      <span key="no">{intl.formatMessage(messages.no)}</span>
+    </Fragment>
+  );
+};
 
 const IsAdminCellDropdownContent = ({ isOrgAdmin, userId, isDisabled, toggleUserIsOrgAdminStatus }) => {
   const [isAdminDropdownOpen, setIsAdminDropdownOpen] = useState(false);
@@ -165,28 +182,23 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       />
     );
   };
-
-  const toolbarButtons = () =>
-    isAdmin && !isExternalIdp(userToken)
+  const toolbarButtons = () => [
+    <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+      <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+        {intl.formatMessage(messages.inviteUsers)}
+      </Button>
+    </AppLink>,
+    ...(isSmallScreen(screenSize)
       ? [
-          <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
-            <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
-              {intl.formatMessage(messages.inviteUsers)}
-            </Button>
-          </AppLink>,
-          ...(isSmallScreen(screenSize)
-            ? [
-                {
-                  label: intl.formatMessage(messages.inviteUsers),
-                  onClick: () => {
-                    navigate(mergeToBasename(paths['invite-users'].link));
-                  },
-                },
-              ]
-            : []),
+          {
+            label: intl.formatMessage(messages.inviteUsers),
+            onClick: () => {
+              navigate(mergeToBasename(paths['invite-users'].link));
+            },
+          },
         ]
-      : [];
-
+      : []),
+  ];
   const toggleUserActivationStatus = (isActivated, _event, users = []) => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
     const newFilters = usesMetaInURL
@@ -215,6 +227,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     chrome.auth.getToken().then((token) => setUserToken(token));
   }, []);
 
+  const isUserSelectable = (external_source_id) => external_source_id != currentUser?.identity?.internal?.account_id;
+
   const createRows = (userLinks, data, checkedRows = []) => {
     const maxLength = 25;
     return data
@@ -228,14 +242,17 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
               uuid: external_source_id,
               cells: [
                 {
-                  title: (
-                    <IsAdminCellDropdownContent
-                      isOrgAdmin={isOrgAdmin}
-                      userId={external_source_id}
-                      isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
-                      toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}
-                    />
-                  ),
+                  title:
+                    isAdmin && !displayNarrow ? (
+                      <IsAdminCellDropdownContent
+                        isOrgAdmin={isOrgAdmin}
+                        userId={external_source_id}
+                        isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
+                        toggleUserIsOrgAdminStatus={toggleUserIsOrgAdminStatus}
+                      />
+                    ) : (
+                      <IsAdminCellTextContent isOrgAdmin={isOrgAdmin} />
+                    ),
                   props: {
                     'data-is-active': isOrgAdmin,
                   },
@@ -255,29 +272,35 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
                 firstName,
                 lastName,
                 {
-                  title: (
-                    <PF4Switch
-                      key="status"
-                      isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
-                      label={intl.formatMessage(messages.active)}
-                      labelOff={intl.formatMessage(messages.inactive)}
-                      isChecked={is_active}
-                      onChange={(checked, _event) => {
-                        toggleUserActivationStatus(checked, _event, [
-                          {
-                            external_source_id,
-                            is_active: is_active,
-                          },
-                        ]);
-                      }}
-                    />
-                  ),
+                  title:
+                    isAdmin && !displayNarrow ? (
+                      <PF4Switch
+                        key="status"
+                        isDisabled={!isAdmin || currentUser?.identity?.internal?.account_id == external_source_id}
+                        label={intl.formatMessage(messages.active)}
+                        labelOff={intl.formatMessage(messages.inactive)}
+                        isChecked={is_active}
+                        onChange={(checked, _event) => {
+                          toggleUserActivationStatus(checked, _event, [
+                            {
+                              external_source_id,
+                              is_active: is_active,
+                            },
+                          ]);
+                        }}
+                      />
+                    ) : (
+                      <Label key="status" color={is_active ? 'green' : 'grey'}>
+                        {intl.formatMessage(is_active ? messages.active : messages.inactive)}
+                      </Label>
+                    ),
                   props: {
                     'data-is-active': is_active,
                   },
                 },
               ],
               selected: Boolean(checkedRows?.find?.(({ uuid }) => uuid === external_source_id)),
+              disableSelection: displayNarrow ? undefined : !isUserSelectable(external_source_id),
             },
           ],
           []
@@ -332,11 +355,15 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const setCheckedItems = (newSelection) => {
     if (props?.setSelectedUsers) {
       setSelectedUsers((users) => {
-        return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
+        return newSelection(users)
+          .filter((user) => (displayNarrow ? user : user?.uuid != currentUser?.identity?.internal?.account_id))
+          .map(({ uuid, username }) => ({ uuid, label: username || uuid }));
       });
     } else {
       setSelectedRows((users) => {
-        return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
+        return newSelection(users)
+          .filter((user) => (displayNarrow ? user : user?.uuid != currentUser?.identity?.internal?.account_id))
+          .map(({ uuid, username }) => ({ uuid, label: username || uuid }));
       });
     }
   };
@@ -348,8 +375,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   return (
     <TableToolbarView
-      toolbarChildren={isAdmin ? toolbarDropdowns : () => null}
-      toolbarButtons={toolbarButtons}
+      toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
+      toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
       isCompact
       isSelectable
       borders={false}

@@ -34,7 +34,7 @@ export default defineMessages({
   inviteUsersFormEmailsFieldDescription: {
     id: 'inviteUsersFormEmailsFieldDescription',
     description: 'Invite users form emails field description',
-    defaultMessage: 'Enter up to 50 email addresses separated by commans or returns.',
+    defaultMessage: 'Enter up to 50 email addresses separated by commas or returns.',
   },
   inviteUsersCancelled: {
     id: 'inviteUsersCancelled',
