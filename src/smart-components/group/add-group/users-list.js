@@ -1,4 +1,4 @@
-import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
@@ -10,7 +10,7 @@ import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus
 import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle, Label } from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { mappedProps } from '../../../helpers/shared/helpers';
+import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
   defaultSettings,
@@ -100,6 +100,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const isAdmin = orgAdmin || userAccessAdministrator;
   const chrome = useChrome();
   const [currentUser, setCurrentUser] = useState({});
+  const [userToken, setUserToken] = useState('');
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   let pagination = useSelector(({ userReducer: { users } }) => ({
@@ -181,7 +182,6 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       />
     );
   };
-
   const toolbarButtons = () => [
     <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
       <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
@@ -224,6 +224,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   useEffect(() => {
     chrome.auth.getUser().then((user) => setCurrentUser(user));
+    chrome.auth.getToken().then((token) => setUserToken(token));
   }, []);
 
   const isUserSelectable = (external_source_id) => external_source_id != currentUser?.identity?.internal?.account_id;
@@ -375,7 +376,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   return (
     <TableToolbarView
       toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
-      toolbarButtons={isAdmin && !displayNarrow ? toolbarButtons : () => []}
+      toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
       isCompact
       isSelectable
       borders={false}
