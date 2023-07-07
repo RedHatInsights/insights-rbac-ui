@@ -22,9 +22,11 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import messages from '../../Messages';
 import './role.scss';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Role = ({ onDelete }) => {
   const intl = useIntl();
+  const chrome = useChrome();
   const navigate = useAppNavigate();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
@@ -66,8 +68,8 @@ const Role = ({ onDelete }) => {
       } else {
         if (systemGroupUuid) {
           dispatch(fetchRolesForGroup(systemGroupUuid, {}));
-          insights.chrome.appObjectId(systemGroupUuid);
-          return () => insights.chrome.appObjectId(undefined);
+          chrome.appObjectId(systemGroupUuid);
+          return () => chrome.appObjectId(undefined);
         } else {
           dispatch(fetchSystemGroup());
         }
@@ -77,8 +79,8 @@ const Role = ({ onDelete }) => {
 
   useEffect(() => {
     fetchData();
-    insights.chrome.appObjectId(roleId);
-    return () => insights.chrome.appObjectId(undefined);
+    chrome.appObjectId(roleId);
+    return () => chrome.appObjectId(undefined);
   }, [roleId, groupId, systemGroupUuid]);
 
   useEffect(() => {

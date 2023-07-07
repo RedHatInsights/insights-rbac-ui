@@ -30,12 +30,14 @@ import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Groups = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const chrome = useChrome();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
@@ -91,7 +93,7 @@ const Groups = () => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
     const { name } = syncDefaultFiltersWithUrl(location, navigate, ['name'], { name: filterValue });
     setFilterValue(name);
-    insights.chrome.appNavClick({ id: 'groups', secondaryNav: true });
+    chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ limit, offset, orderBy, filters: { name } });
     dispatch(fetchAdminGroup(name));
     dispatch(fetchSystemGroup(name));
