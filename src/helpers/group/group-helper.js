@@ -1,6 +1,5 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getGroupApi } from '../shared/user-login';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const groupApi = getGroupApi();
 
@@ -22,7 +21,6 @@ export async function fetchGroups({
   options,
   usesMetaInURL = false,
 }) {
-  const chrome = useChrome();
   const [groups, auth] = await Promise.all([
     groupApi.listGroups(
       limit,
@@ -41,7 +39,7 @@ export async function fetchGroups({
       system,
       options
     ),
-    chrome.auth.getUser(),
+    insights.chrome.auth.getUser(),
   ]);
   const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
   offset = isPaginationValid ? offset : getLastPageOffset(groups.meta.count, limit);

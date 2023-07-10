@@ -1,6 +1,5 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getRoleApi } from '../shared/user-login';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const roleApi = getRoleApi();
 
@@ -53,7 +52,6 @@ export async function fetchRolesWithPolicies({
   application,
   usesMetaInURL = false,
 }) {
-  const chrome = useChrome();
   const roles = await roleApi.listRoles(
     limit,
     offset,
@@ -104,7 +102,7 @@ export async function fetchRolesWithPolicies({
           },
         }
       : {}),
-    ...(await chrome.auth.getUser()),
+    ...(await insights.chrome.auth.getUser()),
   };
 }
 

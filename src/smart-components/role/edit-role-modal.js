@@ -118,7 +118,6 @@ const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) 
 };
 
 EditRoleModal.propTypes = {
-  routeMatch: PropTypes.string.isRequired,
   cancelRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({
