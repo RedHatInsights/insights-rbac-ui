@@ -66,7 +66,7 @@ export const isPaginationPresentInUrl = (location: Location) => {
 export const isOffsetValid = (offset = 0, count = 0) => offset === 0 || count > offset;
 
 export const getLastPageOffset = (count: number, limit: number) => Math.floor((count % limit === 0 ? count - 1 : count) / limit) * limit;
-export const applyPaginationToUrl = (location: Location, navigate: NavigateFunction, limit: number, offset: number) => {
+export const applyPaginationToUrl = (location: Location, navigate: NavigateFunction, limit: number, offset = 0) => {
   if (!offset) {
     offset = 0;
   }

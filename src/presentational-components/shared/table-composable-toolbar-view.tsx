@@ -10,27 +10,12 @@ import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 import { ISortBy, OnSort } from '@patternfly/react-table';
-import { CellObject, RowProps } from '../../smart-components/user/user-table-helpers';
+import { CellObject } from '../../smart-components/user/user-table-helpers';
 
 interface FilterProps {
   username?: string;
   email?: string;
   status?: string;
-}
-
-interface PaginationProps {
-  limit?: number;
-  offset?: number;
-  count?: number;
-  noBottom?: boolean;
-}
-
-// TODO: make it clear later and remove FetchDataProps from below
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-interface FetchDataPropsNew {
-  pagination?: PaginationProps;
-  filters?: FilterProps;
-  orderBy?: string;
 }
 
 interface FetchDataProps {
@@ -51,49 +36,11 @@ function isCellObject(cell: any): cell is CellObject {
   return typeof cell === 'object' && typeof cell.title !== 'undefined';
 }
 
-interface TableProps {
-  isCompact?: boolean;
-  borders: boolean;
-  columns: Array<{ title: string; key?: string; sortable?: boolean }>;
-  rows: Array<RowProps>;
-  data?: Array<unknown>; // used only in toolbar for selectable items
-  toolbarButtons?: () => Array<unknown>;
-  title: { singular: string; plural: string };
-  pagination: { limit?: number; offset?: number; count?: number; noBottom?: boolean };
-  filterValue?: string;
-  emptyFilters: FilterProps;
-  setFilterValue: (value: FilterProps) => void;
-  isLoading: boolean;
-  isSelectable?: boolean;
-  fetchData: (config: FetchDataProps) => void;
+interface TableProps extends MainTableProps {
   emptyProps?: unknown;
   rowWrapper?: any;
-  filterPlaceholder?: string;
-  filters: Array<{
-    value: string | number | Array<unknown>;
-    key: string;
-    placeholder?: string;
-    innerRef?: React.RefObject<HTMLInputElement | HTMLTextAreaElement>;
-    label?: string;
-    type?: any;
-    items?: any;
-  }>;
-  isFilterable?: boolean;
-  onShowMore?: () => void;
-  showMoreTitle?: string;
-  onFilter?: () => void;
-  onChange?: () => void;
-  value?: unknown;
-  sortBy: ISortBy; // { index: number; direction: 'asc' | 'desc'; defaultDirection?: 'asc' | 'desc'; }
-  onSort: OnSort;
   isExpandable?: boolean;
-  hideFilterChips?: boolean;
   hideHeader?: boolean;
-  noData?: boolean;
-  noDataDescription?: Array<React.ReactNode>;
-  ouiaId: string;
-  tableId?: string;
-  textFilterRef?: undefined; // TODO: check the usage
 }
 
 interface MainTableProps {
@@ -126,8 +73,8 @@ interface MainTableProps {
   value?: unknown;
   hideFilterChips?: boolean;
   tableId?: string;
-  textFilterRef?: undefined;
-  rows: Array<RowProps>;
+  textFilterRef?: undefined; // TODO: check the usage
+  rows: Array<any>;
   sortBy: ISortBy;
   onSort: OnSort;
   isCompact: boolean;
@@ -220,7 +167,7 @@ const MainTable = ({
             {rows?.length > 0 ? (
               rows?.map((row, i) => (
                 <Tr key={i}>
-                  {row.cells.map((cell, j) => (
+                  {row.cells.map((cell: CellObject, j: number) => (
                     <Td key={j} dataLabel={columns[j].title}>
                       {/* TODO: make more general */}
                       {isCellObject(cell) ? cell.title : cell}

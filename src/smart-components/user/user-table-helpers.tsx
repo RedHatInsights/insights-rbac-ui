@@ -18,14 +18,14 @@ interface UserProps {
 export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement>; props?: { 'data-is-active': boolean } };
 
 export interface RowProps {
-  uuid: string; //username
+  uuid: string; // username
   cells: [
-    React.ReactNode, //yes or no for isOrgAdmin
-    CellObject, //link to user or just username
-    string, //email
-    string, //firstName
-    string, //lastName
-    CellObject //status
+    React.ReactNode, // yes or no for isOrgAdmin
+    CellObject, // link to user or just username
+    string, // email
+    string, // firstName
+    string, // lastName
+    CellObject // status
   ];
   selected: boolean;
 }

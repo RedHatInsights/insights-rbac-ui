@@ -109,6 +109,8 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
 
   return (
     <TableComposableToolbarView
+      isSelectable={false}
+      isCompact={false}
       borders={false}
       columns={columns}
       rows={createRows(userLinks, users, intl)}
