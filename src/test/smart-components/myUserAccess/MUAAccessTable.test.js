@@ -153,7 +153,7 @@ describe('<MUAAccessTable />', () => {
     wrapper.update();
     expect(getPrincipalAccessSpy).toHaveBeenCalledTimes(2);
     expect(getPrincipalAccessSpy.mock.calls).toEqual([
-      [{ application: 'app1,app2', itemCount: 0, limit: 20, offset: 0, orderBy: 'application' }],
+      [{ application: 'app1,app2', itemCount: 0, count: 0, limit: 20, offset: 0, orderBy: 'application' }],
       [{ application: 'app2', count: 2, limit: 20, offset: 0, orderBy: 'application' }],
     ]);
   });

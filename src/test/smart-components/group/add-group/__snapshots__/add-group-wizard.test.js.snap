@@ -39,6 +39,7 @@ exports[`<AddGroupWizard /> should render correctly 1`] = `
       filters={Object {}}
       pagination={
         Object {
+          "count": 0,
           "itemCount": 0,
           "limit": 20,
           "offset": 0,

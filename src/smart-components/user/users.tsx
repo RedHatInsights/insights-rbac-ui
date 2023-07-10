@@ -5,7 +5,7 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import { useIntl } from 'react-intl';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import UsersList from '../group/add-group/users-list';
+import UsersListNotSelectable from './users-list-not-selectable';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import User from './user';
 import PageActionRoute from '../common/page-action-route';
@@ -33,7 +33,7 @@ const Users = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id="users">
-          <UsersList
+          <UsersListNotSelectable
             userLinks={activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin}
             props={{
               isSelectable: false,

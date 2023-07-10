@@ -690,22 +690,14 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                         data-key="2"
                         data-label="Username"
                       >
-                        <span
-                          title="test_name"
-                        >
-                          test_name
-                        </span>
+                        test_name
                       </td>
                       <td
                         class=""
                         data-key="3"
                         data-label="Email"
                       >
-                        <span
-                          title="testmail@redhat.com"
-                        >
-                          testmail@redhat.com
-                        </span>
+                        testmail@redhat.com
                       </td>
                       <td
                         class=""

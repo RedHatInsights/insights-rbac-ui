@@ -7,7 +7,7 @@ import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
 
-export const paginationBuilder = (pagination = {}, fetchData = () => undefined, filterValue = '', sortBy = '') => ({
+export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '') => ({
   ...pagination,
   itemCount: pagination.count,
   perPage: pagination.limit,
@@ -330,7 +330,7 @@ Toolbar.propTypes = {
   filterItems: PropTypes.arrayOf(PropTypes.object),
   filterPlaceholder: PropTypes.string,
   isCollapsible: PropTypes.bool,
-  fetchData: PropTypes.func,
+  fetchData: PropTypes.func.isRequired,
   toolbarButtons: PropTypes.func,
   hideFilterChips: PropTypes.bool,
   tableId: PropTypes.string,
@@ -348,7 +348,6 @@ Toolbar.defaultProps = {
   setCheckedItems: () => undefined,
   setFilterValue: () => undefined,
   sortBy: undefined,
-  fetchData: () => undefined,
   toolbarButtons: () => [],
   filterItems: [],
   filters: [],
