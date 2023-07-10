@@ -71,7 +71,7 @@ const Role = ({ onDelete }) => {
           chrome.appObjectId(systemGroupUuid);
           return () => chrome.appObjectId(undefined);
         } else {
-          dispatch(fetchSystemGroup());
+          dispatch(fetchSystemGroup({ chrome }));
         }
       }
     }

@@ -1,4 +1,3 @@
-/* eslint-disable camelcase */
 import { nowrap } from '@patternfly/react-table';
 import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -17,6 +16,7 @@ import AppLink from '../../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const selector = ({ groupReducer: { selectedGroup } }) => ({
   members: selectedGroup.members.data,
@@ -39,6 +39,7 @@ const removeModalText = (name, group, plural) => (
 );
 const GroupMembers = () => {
   const intl = useIntl();
+  const chrome = useChrome();
   const [filterValue, setFilterValue] = useState('');
   const [selectedMembers, setSelectedMembers] = useState([]);
   const [showRemoveModal, setShowRemoveModal] = useState(false);
@@ -80,7 +81,7 @@ const GroupMembers = () => {
     return dispatch(removeMembersFromGroup(groupId, userNames)).then(() => {
       setSelectedMembers([]);
       fetchData(undefined, { ...pagination, offset: 0 });
-      dispatch(fetchGroups({ usesMetaInURL: true }));
+      dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
     });
   };
 

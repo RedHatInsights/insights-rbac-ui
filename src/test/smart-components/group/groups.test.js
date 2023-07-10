@@ -126,15 +126,17 @@ describe('<Groups />', () => {
     await act(async () => {
       wrapper.find('.pf-c-pagination__nav .pf-c-button').at(1).simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
-      filters: {
-        name: undefined,
-      },
-      limit: 20,
-      offset: 0,
-      orderBy: 'name',
-      usesMetaInURL: true,
-    });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        filters: {
+          name: undefined,
+        },
+        limit: 20,
+        offset: 0,
+        orderBy: 'name',
+        usesMetaInURL: true,
+      })
+    );
   });
 
   it('should fetch groups on filter and cancel filter', async () => {
@@ -169,27 +171,29 @@ describe('<Groups />', () => {
     expect(store.getActions()).toEqual(expectedFilterPayload);
     store.clearActions();
     wrapper.update();
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
-      count: 0,
-      limit: 20,
-      filters: { name: filterValue },
-      offset: 0,
-      usesMetaInURL: true,
-      orderBy: 'name',
-    });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        count: 0,
+        limit: 20,
+        filters: { name: filterValue },
+        offset: 0,
+        usesMetaInURL: true,
+        orderBy: 'name',
+      })
+    );
     await act(async () => {
       wrapper.find('#ins-primary-data-toolbar .pf-c-button.pf-m-link').simulate('click');
     });
-
-    // 'expect(fetchGroupsSpy.mock.calls[2][0]).toEqual({})' for better output visualization'
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
-      count: 0,
-      limit: 20,
-      filters: { name: '' },
-      offset: 0,
-      usesMetaInURL: true,
-      orderBy: 'name',
-    });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        count: 0,
+        limit: 20,
+        filters: { name: '' },
+        offset: 0,
+        usesMetaInURL: true,
+        orderBy: 'name',
+      })
+    );
     expect(fetchGroupsSpy).toHaveBeenCalledTimes(3);
   });
 
@@ -214,13 +218,15 @@ describe('<Groups />', () => {
     await act(async () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
-    expect(fetchGroupsSpy).toHaveBeenLastCalledWith({
-      count: 0,
-      limit: 20,
-      offset: 0,
-      usesMetaInURL: true,
-      filters: { name: undefined },
-      orderBy: '-name',
-    });
+    expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
+      expect.objectContaining({
+        count: 0,
+        limit: 20,
+        offset: 0,
+        usesMetaInURL: true,
+        filters: { name: undefined },
+        orderBy: '-name',
+      })
+    );
   });
 });

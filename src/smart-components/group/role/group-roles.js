@@ -25,6 +25,7 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-roles.scss';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const createRows = (groupId, data, checkedRows = []) =>
   data?.reduce(
@@ -91,6 +92,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup } }) => ({
 
 const GroupRoles = ({ onDefaultGroupChanged }) => {
   const intl = useIntl();
+  const chrome = useChrome();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
@@ -112,7 +114,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
 
   const fetchAddGroupRoles = (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {}));
   const fetchGroupData = (customId) => dispatch(fetchGroup(customId ?? groupId));
-  const fetchSystGroup = () => dispatch(fetchSystemGroup());
+  const fetchSystGroup = () => dispatch(fetchSystemGroup({ chrome }));
   const removeRoles = (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback));
   const fetchGroupRoles = (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options));
 

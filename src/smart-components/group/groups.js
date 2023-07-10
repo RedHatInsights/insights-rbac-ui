@@ -38,7 +38,7 @@ const Groups = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const chrome = useChrome();
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true }));
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true, chrome }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
   const textFilterRef = useRef(null);
@@ -95,8 +95,8 @@ const Groups = () => {
     setFilterValue(name);
     chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ limit, offset, orderBy, filters: { name } });
-    dispatch(fetchAdminGroup(name));
-    dispatch(fetchSystemGroup(name));
+    dispatch(fetchAdminGroup({ filterValue: name, chrome }));
+    dispatch(fetchSystemGroup({ filterValue: name, chrome }));
   }, []);
 
   useEffect(() => {

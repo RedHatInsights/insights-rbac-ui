@@ -1,8 +1,9 @@
 import React, { useRef, useContext, useState, useEffect, Fragment } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Modal, Button, ModalVariant, Alert } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { Modal, Button, ModalVariant, Alert } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import PermissionsContext from '../../../utilities/permissions-context';
@@ -14,6 +15,7 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 
 const AddUserToGroup = ({ username }) => {
+  const chrome = useChrome();
   const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
@@ -60,7 +62,7 @@ const AddUserToGroup = ({ username }) => {
       []
     );
 
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, excludeUsername: username, nModal: true }));
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, excludeUsername: username, chrome }));
   const setCheckedItems = (newSelection) => setSelectedRows(newSelection(selectedRows).map(({ uuid, name }) => ({ uuid, label: name })));
 
   useEffect(() => {
