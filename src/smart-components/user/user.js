@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import debounce from 'lodash/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
@@ -26,7 +27,6 @@ import { fetchUsers } from '../../redux/actions/user-actions';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
 import { addRolesToGroup } from '../../redux/actions/group-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import './user.scss';
 
 let debouncedFetch;

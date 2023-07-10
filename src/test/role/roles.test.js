@@ -149,23 +149,29 @@ describe('<Roles />', () => {
       wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenCalledTimes(2);
-    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(1, {
-      filters: {
-        display_name: undefined,
-      },
-      orderBy: 'display_name',
-      usesMetaInURL: true,
-      limit: 20,
-      offset: 0,
-    });
-    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(2, {
-      filters: {
-        display_name: undefined,
-      },
-      orderBy: '-display_name',
-      usesMetaInURL: true,
-      limit: 20,
-    });
+    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(
+      1,
+      expect.objectContaining({
+        filters: {
+          display_name: undefined,
+        },
+        orderBy: 'display_name',
+        usesMetaInURL: true,
+        limit: 20,
+        offset: 0,
+      })
+    );
+    expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(
+      2,
+      expect.objectContaining({
+        filters: {
+          display_name: undefined,
+        },
+        orderBy: '-display_name',
+        usesMetaInURL: true,
+        limit: 20,
+      })
+    );
   });
 
   it('should render correctly expanded', async () => {

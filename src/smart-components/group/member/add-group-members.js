@@ -5,6 +5,7 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
@@ -13,6 +14,7 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 
 const AddGroupMembers = ({ closeUrl }) => {
+  const chrome = useChrome();
   const intl = useIntl();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
@@ -33,7 +35,7 @@ const AddGroupMembers = ({ closeUrl }) => {
       );
       dispatch(addMembersToGroup(groupId, userList)).then(() => {
         dispatch(fetchMembersForGroup(groupId));
-        dispatch(fetchGroups({ usesMetaInURL: true }));
+        dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
       });
     }
     navigate(closeUrl);

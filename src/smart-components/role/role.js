@@ -1,10 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { Route, Routes, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
-import { useIntl } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
@@ -22,7 +23,6 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import messages from '../../Messages';
 import './role.scss';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Role = ({ onDelete }) => {
   const intl = useIntl();
@@ -71,7 +71,7 @@ const Role = ({ onDelete }) => {
           chrome.appObjectId(systemGroupUuid);
           return () => chrome.appObjectId(undefined);
         } else {
-          dispatch(fetchSystemGroup());
+          dispatch(fetchSystemGroup({ chrome }));
         }
       }
     }
@@ -183,7 +183,7 @@ const Role = ({ onDelete }) => {
                   {!isRecordLoading && (
                     <RemoveRoleModal
                       afterSubmit={() => {
-                        dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true }));
+                        dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true, chrome }));
                       }}
                       cancelRoute={pathnames['role-detail'].path.replace(':roleId', roleId)}
                       submitRoute={getBackRoute(mergeToBasename(pathnames['roles'].link), { ...rolesPagination, offset: 0 }, rolesFilters)}

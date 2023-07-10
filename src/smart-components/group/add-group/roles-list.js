@@ -1,13 +1,14 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import PropTypes from 'prop-types';
-import { defaultCompactSettings } from '../../../helpers/shared/pagination';
+import { useIntl } from 'react-intl';
+import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { sortable } from '@patternfly/react-table';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
-import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
 const createRows = (data, checkedRows = []) => {
@@ -28,6 +29,7 @@ const createRows = (data, checkedRows = []) => {
 
 const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded, groupId: groupUuid }) => {
   const intl = useIntl();
+  const chrome = useChrome();
   const dispatch = useDispatch();
   const textFilterRef = useRef(null);
   const selector = ({ roleReducer: { roles, isLoading } }) => ({
@@ -64,7 +66,8 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded, groupId: gr
   };
 
   const fetchRoles = useCallback(
-    (groupId, config) => (rolesExcluded ? dispatch(fetchAddRolesForGroup(groupId, config)) : dispatch(fetchRolesWithPolicies(mappedProps(config)))),
+    (groupId, config) =>
+      rolesExcluded ? dispatch(fetchAddRolesForGroup(groupId, config)) : dispatch(fetchRolesWithPolicies(mappedProps({ ...config, chrome }))),
     [rolesExcluded]
   );
   const fetchTableData = (groupId, config) => {

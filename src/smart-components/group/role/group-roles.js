@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import { Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { Button, Tooltip } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
@@ -91,6 +92,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup } }) => ({
 
 const GroupRoles = ({ onDefaultGroupChanged }) => {
   const intl = useIntl();
+  const chrome = useChrome();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
@@ -112,7 +114,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
 
   const fetchAddGroupRoles = (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {}));
   const fetchGroupData = (customId) => dispatch(fetchGroup(customId ?? groupId));
-  const fetchSystGroup = () => dispatch(fetchSystemGroup());
+  const fetchSystGroup = () => dispatch(fetchSystemGroup({ chrome }));
   const removeRoles = (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback));
   const fetchGroupRoles = (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options));
 
