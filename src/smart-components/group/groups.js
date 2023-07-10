@@ -3,6 +3,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
@@ -30,7 +31,6 @@ import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Groups = () => {
   const intl = useIntl();

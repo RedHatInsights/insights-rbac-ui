@@ -5,6 +5,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { createRows } from './role-table-helpers';
 import { getBackRoute, mappedProps, removeQueryParams } from '../../helpers/shared/helpers';
@@ -30,7 +31,6 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role/add-role-wizard'));
 
@@ -72,7 +72,7 @@ const Roles = () => {
     { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
-  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true }));
+  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true, chrome }));
 
   const isSelectable = orgAdmin || userAccessAdministrator;
   const [filterValue, setFilterValue] = useState(filters.display_name || '');

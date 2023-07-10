@@ -1,9 +1,10 @@
 import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
+import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import { Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { Button, Tooltip } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
@@ -25,7 +26,6 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-roles.scss';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const createRows = (groupId, data, checkedRows = []) =>
   data?.reduce(

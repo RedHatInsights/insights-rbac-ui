@@ -4,6 +4,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Outlet, Route, Routes, useParams } from 'react-router-dom';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './member-table-helpers';
@@ -16,7 +17,6 @@ import AppLink from '../../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const selector = ({ groupReducer: { selectedGroup } }) => ({
   members: selectedGroup.members.data,

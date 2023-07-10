@@ -51,6 +51,7 @@ export async function fetchRolesWithPolicies({
   permission,
   application,
   usesMetaInURL = false,
+  chrome,
 }) {
   const roles = await roleApi.listRoles(
     limit,
@@ -102,7 +103,7 @@ export async function fetchRolesWithPolicies({
           },
         }
       : {}),
-    ...(await insights.chrome.auth.getUser()),
+    ...(await chrome?.auth?.getUser()),
   };
 }
 

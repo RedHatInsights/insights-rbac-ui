@@ -8,6 +8,7 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { Wizard } from '@patternfly/react-core';
 import { createQueryParams } from '../../../helpers/shared/helpers';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { schemaBuilder } from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { WarningModal } from '../../common/warningModal';
@@ -51,6 +52,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const chrome = useChrome();
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -149,11 +151,11 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     return dispatch(createRole(roleData))
       .then(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }));
       })
       .catch(() => {
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: false, hideForm: true }));
-        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true }));
+        dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }));
         onClose();
       });
   };
