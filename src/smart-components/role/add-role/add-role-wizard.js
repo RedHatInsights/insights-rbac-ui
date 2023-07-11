@@ -132,7 +132,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
               };
             } else if (permission.includes('inventory')) {
               attributeFilter = {
-                key: 'groups.id',
+                key: 'group.id',
                 operation: 'in',
                 value: invGroupsRole?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
               };
