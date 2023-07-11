@@ -20,21 +20,23 @@ export const fetchGroups = (options = {}) => ({
   payload: GroupHelper.fetchGroups(options),
 });
 
-export const fetchAdminGroup = (filterValue) => ({
+export const fetchAdminGroup = ({ filterValue, chrome } = {}) => ({
   type: ActionTypes.FETCH_ADMIN_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
     ...(filterValue?.length > 0 ? { filters: { name: filterValue }, nameMatch: 'partial' } : {}),
     adminDefault: true,
+    chrome,
   }),
 });
 
-export const fetchSystemGroup = (filterValue) => ({
+export const fetchSystemGroup = ({ filterValue, chrome } = {}) => ({
   type: ActionTypes.FETCH_SYSTEM_GROUP,
   payload: GroupHelper.fetchGroups({
     limit: 1,
     ...(filterValue?.length > 0 ? { filters: { name: filterValue }, nameMatch: 'partial' } : {}),
     platformDefault: true,
+    chrome,
   }),
 });
 

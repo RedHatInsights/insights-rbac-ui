@@ -71,7 +71,7 @@ const Group = ({ onDelete }) => {
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
   useEffect(() => {
-    dispatch(fetchSystemGroup());
+    dispatch(fetchSystemGroup({ chrome }));
     const currId = !isPlatformDefault ? groupId : systemGroupUuid;
     if (currId) {
       dispatch(fetchGroup(currId));
@@ -187,7 +187,7 @@ const Group = ({ onDelete }) => {
           onModalCancel={() => setResetWarningVisible(false)}
           onConfirmCancel={() => {
             dispatch(removeGroups([systemGroupUuid])).then(() =>
-              dispatch(fetchSystemGroup()).then(() => {
+              dispatch(fetchSystemGroup({ chrome })).then(() => {
                 setShowDefaultGroupChangedInfo(false);
               })
             );
@@ -248,7 +248,7 @@ const Group = ({ onDelete }) => {
                 path={pathnames['group-detail-roles-remove'].path}
                 element={
                   <RemoveGroup
-                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
+                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true, chrome }))}
                     cancelRoute={mergeToBasename(pathnames['group-detail-roles'].link.replace(':groupId', groupId))}
                     submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
                     isModalOpen
@@ -272,7 +272,7 @@ const Group = ({ onDelete }) => {
                 path={pathnames['group-detail-members-remove'].path}
                 element={
                   <RemoveGroup
-                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true }))}
+                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true, chrome }))}
                     cancelRoute={mergeToBasename(pathnames['group-detail-members'].link.replace(':groupId', groupId))}
                     submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
                     isModalOpen

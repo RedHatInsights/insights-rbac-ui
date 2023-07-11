@@ -20,6 +20,7 @@ export async function fetchGroups({
   system,
   options,
   usesMetaInURL = false,
+  chrome,
 }) {
   const [groups, auth] = await Promise.all([
     groupApi.listGroups(
@@ -39,7 +40,7 @@ export async function fetchGroups({
       system,
       options
     ),
-    insights.chrome.auth.getUser(),
+    chrome?.auth?.getUser(),
   ]);
   const isPaginationValid = isOffsetValid(offset, groups?.meta?.count);
   offset = isPaginationValid ? offset : getLastPageOffset(groups.meta.count, limit);

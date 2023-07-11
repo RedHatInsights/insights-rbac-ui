@@ -3,6 +3,7 @@ import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import AddGroupWizard from './add-group/add-group-wizard';
 import EditGroup from './edit-group-modal';
@@ -30,7 +31,6 @@ import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
 const Groups = () => {
   const intl = useIntl();
@@ -38,7 +38,7 @@ const Groups = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const chrome = useChrome();
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true }));
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true, chrome }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
   const textFilterRef = useRef(null);
@@ -95,8 +95,8 @@ const Groups = () => {
     setFilterValue(name);
     chrome.appNavClick({ id: 'groups', secondaryNav: true });
     fetchData({ limit, offset, orderBy, filters: { name } });
-    dispatch(fetchAdminGroup(name));
-    dispatch(fetchSystemGroup(name));
+    dispatch(fetchAdminGroup({ filterValue: name, chrome }));
+    dispatch(fetchSystemGroup({ filterValue: name, chrome }));
   }, []);
 
   useEffect(() => {
