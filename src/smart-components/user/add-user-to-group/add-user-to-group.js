@@ -101,7 +101,7 @@ const AddUserToGroup = ({ username }) => {
       <Modal
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
-        title={intl.formatMessage(messages.addUserToGroup, { username })}
+        title={intl.formatMessage(messages.addSpecificUserToGroup, { username })}
         onClose={onCancel}
         actions={[
           <Button

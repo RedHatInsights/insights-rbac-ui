@@ -1,5 +1,4 @@
 import React, { useEffect } from 'react';
-import { Routes } from './routes';
 import { useDispatch } from 'react-redux';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 import PermissionsContext from './utilities/permissions-context';
@@ -11,6 +10,7 @@ import { groupsInitialState } from './redux/reducers/group-reducer';
 import { rolesInitialState } from './redux/reducers/role-reducer';
 import { usersInitialState } from './redux/reducers/user-reducer';
 import useUserData from './hooks/useUserData';
+import Routing from './Routing';
 
 import './App.scss';
 
@@ -34,7 +34,7 @@ const App = () => {
     <PermissionsContext.Provider value={{ ...userData }}>
       <ErroReducerCatcher>
         <section style={{ marginLeft: 0, padding: 0 }}>
-          <Routes />
+          <Routing />
         </section>
       </ErroReducerCatcher>
     </PermissionsContext.Provider>

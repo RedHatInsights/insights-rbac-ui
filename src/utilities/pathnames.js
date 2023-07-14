@@ -126,12 +126,12 @@ const pathnames = {
   },
   users: {
     link: '/users',
-    path: '/users/*',
+    path: '/users',
     title: 'Users',
   },
   'user-detail': {
     link: '/users/detail/:username',
-    path: 'detail/:username/*',
+    path: '/users/detail/:username/*',
     title: 'User',
   },
   'add-user-to-group': {

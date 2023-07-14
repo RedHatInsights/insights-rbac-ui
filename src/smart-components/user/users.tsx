@@ -1,5 +1,4 @@
 import React, { useEffect, useContext } from 'react';
-import { Routes, Route } from 'react-router-dom';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
@@ -7,11 +6,8 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './users-list-not-selectable';
 import ActiveUser from '../../presentational-components/shared/ActiveUsers';
-import User from './user';
-import PageActionRoute from '../common/page-action-route';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
-import pathnames from '../../utilities/pathnames';
 
 const Users = () => {
   const intl = useIntl();
@@ -24,7 +20,7 @@ const Users = () => {
     appNavClick({ id: 'users', secondaryNav: true });
   }, []);
 
-  const renderUsers = () => (
+  return (
     <Stack>
       <StackItem>
         <TopToolbar>
@@ -44,20 +40,6 @@ const Users = () => {
         </Section>
       </StackItem>
     </Stack>
-  );
-
-  return (
-    <Routes>
-      <Route
-        path={pathnames['user-detail'].path}
-        element={
-          <PageActionRoute pageAction="user-detail">
-            <User />
-          </PageActionRoute>
-        }
-      />
-      <Route path="" element={<PageActionRoute pageAction="users-list">{renderUsers()}</PageActionRoute>} />
-    </Routes>
   );
 };
 export default Users;
