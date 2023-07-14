@@ -320,7 +320,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
               postMethod: () => dispatch(fetchGroup(fetchUuid)),
             },
             [pathnames['group-roles-remove-group'].path]: {
-              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true, chrome })),
               cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
               submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
               groupsUuid: [group],

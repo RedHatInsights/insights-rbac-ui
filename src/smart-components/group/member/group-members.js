@@ -215,7 +215,7 @@ const GroupMembers = () => {
               postMethod: () => dispatch(fetchGroup(group.uuid)),
             },
             [pathnames['group-members-remove-group'].path]: {
-              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true, chrome })),
               cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
               submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
               groupsUuid: [group],
