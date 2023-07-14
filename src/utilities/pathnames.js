@@ -21,33 +21,12 @@ const pathnames = {
   'edit-group': {
     link: '/groups/edit/:groupId',
     path: 'edit/:groupId',
-    description: 'Edit single group',
     title: 'Edit group',
   },
   'group-detail': {
     link: '/groups/detail/:groupId',
     path: '/groups/detail/:groupId/*',
     title: 'Group',
-  },
-  'group-detail-members-edit': {
-    link: '/groups/detail/:groupId/members/edit',
-    path: 'edit',
-    title: 'Edit group members',
-  },
-  'group-detail-roles-edit': {
-    link: '/groups/detail/:groupId/roles/edit',
-    path: 'edit',
-    title: 'Edit group roles',
-  },
-  'group-detail-members-remove': {
-    link: '/groups/detail/:groupId/members/remove',
-    path: 'remove',
-    title: 'Remove group members',
-  },
-  'group-detail-roles-remove': {
-    link: '/groups/detail/:groupId/roles/remove',
-    path: 'remove',
-    title: 'Remove group roles',
   },
   'group-detail-roles': {
     link: '/groups/detail/:groupId/roles',
@@ -116,7 +95,7 @@ const pathnames = {
   },
   'role-detail': {
     link: '/roles/detail/:roleId',
-    path: 'detail/:roleId/*',
+    path: '/roles/detail/:roleId/*',
     title: 'Role',
   },
   'role-add-permission': {
@@ -136,7 +115,7 @@ const pathnames = {
   },
   'role-detail-permission': {
     link: '/roles/detail/:roleId/permission/:permissionId',
-    path: 'detail/:roleId/permission/:permissionId/*',
+    path: '/roles/detail/:roleId/permission/:permissionId/*',
     title: 'Role permission',
   },
   'role-detail-permission-edit': {

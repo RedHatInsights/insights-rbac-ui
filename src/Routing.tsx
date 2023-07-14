@@ -11,6 +11,14 @@ const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
 
+const Roles = lazy(() => import('./smart-components/role/roles'));
+const Role = lazy(() => import('./smart-components/role/role'));
+const AddRoleWizard = lazy(() => import('./smart-components/role/add-role/add-role-wizard'));
+const EditRole = lazy(() => import('./smart-components/role/edit-role-modal'));
+const RemoveRole = lazy(() => import('./smart-components/role/remove-role-modal'));
+const AddRolePermissionWizard = lazy(() => import('./smart-components/role/add-role-permissions/add-role-permission-wizard'));
+const ResourceDefinitions = lazy(() => import('./smart-components/role/role-resource-definitions'));
+const EditResourceDefinitionsModal = lazy(() => import('./smart-components/role/edit-resource-definitions-modal'));
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Group = lazy(() => import('./smart-components/group/group'));
@@ -62,6 +70,63 @@ const routes = [
       },
     ],
   },
+  {
+    path: pathnames['role-detail-permission'].path,
+    element: ResourceDefinitions,
+    childRoutes: [
+      {
+        path: pathnames['role-detail-permission-edit'].path,
+        element: EditResourceDefinitionsModal,
+      },
+    ],
+  },
+  {
+    path: pathnames.roles.path,
+    element: Roles,
+    childRoutes: [
+      {
+        path: pathnames['add-role'].path,
+        element: AddRoleWizard,
+      },
+      {
+        path: pathnames['remove-role'].path,
+        element: RemoveRole,
+      },
+      {
+        path: pathnames['edit-role'].path,
+        element: EditRole,
+      },
+    ],
+  },
+
+  {
+    path: pathnames['group-detail'].path,
+    element: Group,
+    childRoutes: [
+      {
+        path: pathnames['group-detail'].path,
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        element: (({ groupId }) => <Navigate to={mergeToBasename(pathnames['group-detail-roles'].link).replace(':groupId', groupId)} />) as React.FC,
+      },
+      {
+        path: pathnames['group-detail-roles'].path,
+        element: GroupRoles,
+        childRoutes: [
+          {
+            path: pathnames['group-roles-edit-group'].path,
+            element: EditGroup,
+          },
+          {
+            path: pathnames['group-roles-remove-group'].path,
+            element: RemoveGroup,
+          },
+          {
+            path: pathnames['group-add-roles'].path,
+            element: AddGroupRoles,
+          },
+        ],
+      },
 
       {
         path: pathnames['group-detail-members'].path,

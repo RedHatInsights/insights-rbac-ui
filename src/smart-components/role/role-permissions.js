@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { cellWidth, info } from '@patternfly/react-table';
 import { Button } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Route, Routes } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -22,8 +21,6 @@ import {
   SUBMIT_REMOVE_MODAL,
 } from './role-permissions-table-helpers';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
-import AddRolePermissionWizard from './add-role-permissions/add-role-permission-wizard';
-import paths from '../../utilities/pathnames';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
@@ -236,9 +233,6 @@ const Permissions = ({ cantAddPermissions }) => {
           }}
         />
       )}
-      <Routes>
-        <Route path={paths['role-add-permission'].path} element={<AddRolePermissionWizard isOpen={true} role={role} />} />
-      </Routes>
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
         rows={createRows(showResourceDefinitions, role?.uuid, data, intl)}

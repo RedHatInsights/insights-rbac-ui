@@ -4,8 +4,9 @@ import componentTypes from '@data-driven-forms/react-form-renderer/component-typ
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useIntl } from 'react-intl';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
 import useIsMounted from '../../hooks/useIsMounted';
@@ -18,7 +19,7 @@ import messages from '../../Messages';
 const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) => {
   const intl = useIntl();
   const isMounted = useIsMounted();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const dispatch = useDispatch();
 
   const { roleId } = useParams();
@@ -135,6 +136,7 @@ EditRoleModal.propTypes = {
     }),
   ]),
   afterSubmit: PropTypes.func.isRequired,
+  isLoading: PropTypes.bool.isRequired,
 };
 
 export default EditRoleModal;

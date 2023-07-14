@@ -1,7 +1,7 @@
-import React, { Fragment, Suspense, useState, useEffect, lazy, useContext, useRef } from 'react';
+import React, { useState, useEffect, useContext, useRef, Suspense } from 'react';
 import { useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
@@ -12,11 +12,6 @@ import { getBackRoute, mappedProps, removeQueryParams } from '../../helpers/shar
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import RemoveRole from './remove-role-modal';
-import Role from './role';
-import EditRole from './edit-role-modal';
-import PageActionRoute from '../common/page-action-route';
-import ResourceDefinitions from './role-resource-definitions';
 import PermissionsContext from '../../utilities/permissions-context';
 import {
   syncDefaultPaginationWithUrl,
@@ -31,8 +26,6 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
-
-const AddRoleWizard = lazy(() => import(/* webpackChunkname: "AddRoleWizard" */ './add-role/add-role-wizard'));
 
 const Roles = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -103,51 +96,6 @@ const Roles = () => {
     }
   }, [location.pathname]);
 
-  const routes = () => (
-    <Suspense fallback={<Fragment />}>
-      <Routes>
-        <Route exact path={paths['add-role'].path} element={<AddRoleWizard pagination={pagination} filters={{ display_name: filterValue }} />} />
-        <Route
-          exact
-          path={paths['remove-role'].path}
-          element={
-            <>
-              {!isLoading && (
-                <RemoveRole
-                  afterSubmit={() => {
-                    fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
-                    setSelectedRows([]);
-                  }}
-                  routeMatch={paths['remove-role'].path}
-                  cancelRoute={mergeToBasename(getBackRoute(paths.roles.link, pagination, filters))}
-                  submitRoute={mergeToBasename(getBackRoute(paths.roles.link, { ...pagination, offset: 0 }, filters))}
-                />
-              )}
-            </>
-          }
-        />
-        <Route
-          exact
-          path={paths['edit-role'].path}
-          element={
-            <>
-              {!isLoading && (
-                <EditRole
-                  afterSubmit={() => {
-                    fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
-                    setSelectedRows([]);
-                  }}
-                  cancelRoute={mergeToBasename(getBackRoute(paths.roles.link, pagination, filters))}
-                  submitRoute={mergeToBasename(getBackRoute(paths.roles.link, { ...pagination, offset: 0 }, filters))}
-                />
-              )}
-            </>
-          }
-        />
-      </Routes>
-    </Suspense>
-  );
-
   const actionResolver = (row) =>
     row.compoundParent
       ? []
@@ -215,7 +163,8 @@ const Roles = () => {
     setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isSelectable) });
 
   const rows = createRows(roles, selectedRows, intl, expanded);
-  const renderRolesList = () => (
+
+  return (
     <Stack className="rbac-c-roles">
       <StackItem>
         <TopToolbar>
@@ -245,7 +194,6 @@ const Roles = () => {
             onExpand={onExpand}
             isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
             pagination={pagination}
-            routes={routes}
             ouiaId="roles-table"
             titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
             titleSingular={intl.formatMessage(messages.role).toLowerCase()}
@@ -266,31 +214,25 @@ const Roles = () => {
               );
             }}
           />
+          <Suspense>
+            <Outlet
+              context={{
+                // edit & remove role:
+                cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
+                afterSubmit: () => {
+                  fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
+                  setSelectedRows([]);
+                },
+                isLoading,
+                // add role:
+                pagination,
+                filters: { display_name: filterValue },
+              }}
+            />
+          </Suspense>
         </Section>
       </StackItem>
     </Stack>
-  );
-
-  return (
-    <Routes>
-      <Route
-        path={paths['role-detail-permission'].path}
-        element={
-          <PageActionRoute pageAction="role-detail-permission">
-            <ResourceDefinitions />
-          </PageActionRoute>
-        }
-      />
-      <Route
-        path={paths['role-detail'].path}
-        element={
-          <PageActionRoute pageAction="role-detail">
-            <Role onDelete={() => setFilterValue('')} />
-          </PageActionRoute>
-        }
-      />
-      <Route path="/*" element={<PageActionRoute pageAction="roles-list">{renderRolesList()}</PageActionRoute>} />
-    </Routes>
   );
 };
 
