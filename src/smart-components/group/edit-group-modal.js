@@ -1,13 +1,14 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import { Skeleton } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import ModalFormTemplate from '../common/ModalFormTemplate';
 import FormRenderer from '../common/form-renderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
@@ -19,7 +20,7 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
   const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const { groupId } = useParams();
 
   const setGroupData = (groupData) => {
@@ -135,9 +136,9 @@ EditGroupModal.defaultProps = {
 EditGroupModal.propTypes = {
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-  }).isRequired,
-  filters: PropTypes.object.isRequired,
+    limit: PropTypes.number,
+  }),
+  filters: PropTypes.object,
   cancelRoute: PropTypes.oneOfType([
     PropTypes.string,
     PropTypes.shape({

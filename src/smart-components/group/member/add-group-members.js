@@ -13,7 +13,7 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 
-const AddGroupMembers = ({ closeUrl }) => {
+const AddGroupMembers = ({ cancelRoute }) => {
   const chrome = useChrome();
   const intl = useIntl();
   const navigate = useAppNavigate();
@@ -38,7 +38,7 @@ const AddGroupMembers = ({ closeUrl }) => {
         dispatch(fetchGroups({ usesMetaInURL: true, chrome }));
       });
     }
-    navigate(closeUrl);
+    navigate(cancelRoute);
   };
 
   const onCancel = () => {
@@ -50,7 +50,7 @@ const AddGroupMembers = ({ closeUrl }) => {
         description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
       })
     );
-    navigate(closeUrl);
+    navigate(cancelRoute);
   };
 
   return (
@@ -83,11 +83,11 @@ const AddGroupMembers = ({ closeUrl }) => {
 };
 
 AddGroupMembers.defaultProps = {
-  closeUrl: pathnames.groups.link,
+  cancelRoute: pathnames.groups.link,
 };
 
 AddGroupMembers.propTypes = {
-  closeUrl: PropTypes.string,
+  cancelRoute: PropTypes.string,
 };
 
 export default AddGroupMembers;

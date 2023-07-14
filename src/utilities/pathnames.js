@@ -26,7 +26,7 @@ const pathnames = {
   },
   'group-detail': {
     link: '/groups/detail/:groupId',
-    path: 'detail/:groupId/*',
+    path: '/groups/detail/:groupId/*',
     title: 'Group',
   },
   'group-detail-members-edit': {
@@ -54,10 +54,25 @@ const pathnames = {
     path: 'roles/*',
     title: 'Group roles',
   },
+  'group-roles-edit-group': {
+    link: '/groups/detail/:groupId/roles/edit-group',
+    path: 'edit-group',
+    title: 'Group roles - edit group',
+  },
+  'group-roles-remove-group': {
+    link: '/groups/detail/:groupId/roles/remove-group',
+    path: 'remove-group',
+    title: 'Group roles - remove group',
+  },
   'group-add-roles': {
     link: '/groups/detail/:groupId/roles/add-roles',
     path: 'add-roles',
     title: 'Add group roles',
+  },
+  'group-detail-role-detail': {
+    link: '/groups/detail/:groupId/roles/detail/:roleId',
+    path: 'detail/:groupId/roles/detail/:roleId',
+    title: 'Group role',
   },
   'group-detail-members': {
     link: '/groups/detail/:groupId/members',
@@ -69,10 +84,15 @@ const pathnames = {
     path: 'add-members',
     title: 'Add group members',
   },
-  'group-detail-role-detail': {
-    link: '/groups/detail/:groupId/roles/detail/:roleId',
-    path: 'detail/:groupId/roles/detail/:roleId',
-    title: 'Group role',
+  'group-members-edit-group': {
+    link: '/groups/detail/:groupId/members/edit-group',
+    path: 'edit-group',
+    title: 'Group members - edit group',
+  },
+  'group-members-remove-group': {
+    link: '/groups/detail/:groupId/members/remove-group',
+    path: 'remove-group',
+    title: 'Group members - remove group',
   },
   roles: {
     link: '/roles',

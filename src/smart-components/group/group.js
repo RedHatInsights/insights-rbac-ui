@@ -1,7 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
-import PropTypes from 'prop-types';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { Route, useLocation, useParams, Routes } from 'react-router-dom';
+import { useLocation, useParams, Outlet } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
@@ -20,14 +19,10 @@ import {
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import GroupMembers from './member/group-members';
-import GroupRoles from './role/group-roles';
 import { WarningModal } from '../common/warningModal';
-import { fetchGroup, fetchGroups, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
+import { fetchGroup, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import EditGroup from './edit-group-modal';
-import RemoveGroup from './remove-group-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
@@ -35,7 +30,7 @@ import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './group.scss';
 
-const Group = ({ onDelete }) => {
+const Group = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
@@ -138,7 +133,7 @@ const Group = ({ onDelete }) => {
       component={
         <AppLink
           onClick={() => setDropdownOpen(false)}
-          to={(location.pathname.includes('members') ? pathnames['group-detail-members-edit'] : pathnames['group-detail-roles-edit']).link.replace(
+          to={(location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group']).link.replace(
             ':groupId',
             isPlatformDefault ? 'default-access' : groupId
           )}
@@ -151,11 +146,10 @@ const Group = ({ onDelete }) => {
     <DropdownItem
       component={
         <AppLink
-          onClick={() => onDelete(groupId)}
-          to={(location.pathname.includes('members')
-            ? pathnames['group-detail-members-remove']
-            : pathnames['group-detail-roles-remove']
-          ).link.replace(':groupId', groupId)}
+          to={(location.pathname.includes('members') ? pathnames['group-members-remove-group'] : pathnames['group-roles-remove-group']).link.replace(
+            ':groupId',
+            groupId
+          )}
         >
           {intl.formatMessage(messages.delete)}
         </AppLink>
@@ -164,8 +158,6 @@ const Group = ({ onDelete }) => {
       key="delete-group"
     />,
   ];
-
-  const fetchId = isPlatformDefault ? systemGroupUuid : groupId;
 
   return (
     <Fragment>
@@ -242,57 +234,14 @@ const Group = ({ onDelete }) => {
             ) : null}
           </TopToolbar>
           <AppTabs isHeader tabItems={tabItems} />
-          <Routes>
-            <Route path={pathnames['group-detail-roles'].path} element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />}>
-              <Route
-                path={pathnames['group-detail-roles-remove'].path}
-                element={
-                  <RemoveGroup
-                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true, chrome }))}
-                    cancelRoute={mergeToBasename(pathnames['group-detail-roles'].link.replace(':groupId', groupId))}
-                    submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
-                    isModalOpen
-                    groupsUuid={[group]}
-                  />
-                }
-              />
-              <Route
-                path={pathnames['group-detail-roles-edit'].path}
-                element={
-                  <EditGroup
-                    group={group}
-                    cancelRoute={mergeToBasename(pathnames['group-detail-roles'].link.replace(':groupId', groupId))}
-                    postMethod={() => dispatch(fetchGroup(fetchId))}
-                  />
-                }
-              />
-            </Route>
-            <Route path={pathnames['group-detail-members'].path} element={<GroupMembers />}>
-              <Route
-                path={pathnames['group-detail-members-remove'].path}
-                element={
-                  <RemoveGroup
-                    postMethod={() => dispatch(fetchGroups({ ...pagination, offset: 0, filters, usesMetaInURL: true, chrome }))}
-                    cancelRoute={mergeToBasename(pathnames['group-detail-members'].link.replace(':groupId', groupId))}
-                    submitRoute={getBackRoute(mergeToBasename(pathnames.groups.link), { ...pagination, offset: 0 }, filters)}
-                    isModalOpen
-                    groupsUuid={[group]}
-                  />
-                }
-              />
-              <Route
-                path={pathnames['group-detail-members-edit'].path}
-                element={
-                  <EditGroup
-                    group={group}
-                    cancelRoute={mergeToBasename(pathnames['group-detail-members'].link.replace(':groupId', groupId))}
-                    postMethod={() => dispatch(fetchGroup(fetchId))}
-                  />
-                }
-              />
-            </Route>
-            <Route path="/*" element={<GroupRoles onDefaultGroupChanged={setShowDefaultGroupChangedInfo} />} />
-          </Routes>
+          <Outlet
+            context={{
+              [pathnames['group-detail-roles'].path]: {
+                onDefaultGroupChanged: setShowDefaultGroupChangedInfo,
+              },
+              groupId, // used for redirect from /:groupId to /:groupId/roles
+            }}
+          />
           {!group && <ListLoader />}
         </Fragment>
       ) : (
@@ -320,10 +269,6 @@ const Group = ({ onDelete }) => {
       )}
     </Fragment>
   );
-};
-
-Group.propTypes = {
-  onDelete: PropTypes.func,
 };
 
 export default Group;

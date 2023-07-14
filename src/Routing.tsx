@@ -11,6 +11,17 @@ const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
 
+
+const Groups = lazy(() => import('./smart-components/group/groups'));
+const Group = lazy(() => import('./smart-components/group/group'));
+const AddGroupWizard = lazy(() => import('./smart-components/group/add-group/add-group-wizard'));
+const EditGroup = lazy(() => import('./smart-components/group/edit-group-modal'));
+const RemoveGroup = lazy(() => import('./smart-components/group/remove-group-modal'));
+const GroupMembers = lazy(() => import('./smart-components/group/member/group-members'));
+const GroupRoles = lazy(() => import('./smart-components/group/role/group-roles'));
+const AddGroupRoles = lazy(() => import('./smart-components/group/role/add-group-roles'));
+const AddGroupMembers = lazy(() => import('./smart-components/group/member/add-group-members'));
+
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 const routes = [
@@ -51,6 +62,46 @@ const routes = [
       },
     ],
   },
+
+      {
+        path: pathnames['group-detail-members'].path,
+        element: GroupMembers,
+        childRoutes: [
+          {
+            path: pathnames['group-members-edit-group'].path,
+            element: EditGroup,
+          },
+          {
+            path: pathnames['group-members-remove-group'].path,
+            element: RemoveGroup,
+          },
+          {
+            path: pathnames['group-add-members'].path,
+            element: AddGroupMembers,
+          },
+        ],
+      },
+    ],
+  },
+  {
+    path: pathnames.groups.path,
+    element: Groups,
+    childRoutes: [
+      {
+        path: pathnames['add-group'].path,
+        element: AddGroupWizard,
+      },
+      {
+        path: pathnames['edit-group'].path,
+        element: EditGroup,
+      },
+      {
+        path: pathnames['remove-group'].path,
+        element: RemoveGroup,
+      },
+    ],
+  },
+
   ...(localStorage.getItem('quickstarts:enabled') === 'true' ? [{ path: pathnames['quickstarts-test'].path, element: QuickstartsTest }] : []),
 ];
 

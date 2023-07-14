@@ -1,8 +1,8 @@
-import React, { useState, useEffect, Fragment, useContext, useRef } from 'react';
-import PropTypes from 'prop-types';
+import React, { useState, useEffect, Fragment, useContext, useRef, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Outlet, Route, Routes, useParams } from 'react-router-dom';
+import PropTypes from 'prop-types';
+import { Outlet, useParams } from 'react-router-dom';
 import { Button, Tooltip } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -16,10 +16,10 @@ import {
   fetchAddRolesForGroup,
   fetchSystemGroup,
   fetchGroup,
+  fetchGroups,
 } from '../../../redux/actions/group-actions';
-import AddGroupRoles from './add-group-roles';
 import RemoveRole from './remove-role-modal';
-import { getDateFormat } from '../../../helpers/shared/helpers';
+import { getBackRoute, getDateFormat } from '../../../helpers/shared/helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
@@ -71,11 +71,12 @@ const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
   );
 };
 
-const reducer = ({ groupReducer: { selectedGroup, systemGroup } }) => ({
+const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   roles: selectedGroup.roles,
   pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.roles && selectedGroup.roles.length },
+  groupsPagination: groups.pagination || groups.meta,
+  groupsFilters: groups.filters,
   isLoading: !selectedGroup.loaded,
-  name: selectedGroup.name,
   isPlatformDefault: selectedGroup.platform_default,
   isAdminDefault: selectedGroup.admin_default,
   isChanged: !selectedGroup.system,
@@ -88,6 +89,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup } }) => ({
       ? !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default
       : !!selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
+  group: selectedGroup,
 });
 
 const GroupRoles = ({ onDefaultGroupChanged }) => {
@@ -105,7 +107,19 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   const [deleteInfo, setDeleteInfo] = useState({});
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const { roles, pagination, isLoading, name, isPlatformDefault, isAdminDefault, isChanged, disableAddRoles, systemGroupUuid } = useSelector(reducer);
+  const {
+    roles,
+    pagination,
+    groupsPagination,
+    groupsFilters,
+    isLoading,
+    group,
+    isPlatformDefault,
+    isAdminDefault,
+    isChanged,
+    disableAddRoles,
+    systemGroupUuid,
+  } = useSelector(reducer);
 
   const reloadWrapper = (event, callback) => {
     event.payload.then(callback);
@@ -193,38 +207,6 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
         ]
       : []),
   ];
-
-  const routes = () => (
-    <Routes>
-      <Route
-        path={pathnames['group-add-roles'].path}
-        element={
-          <AddGroupRoles
-            afterSubmit={() => {
-              if (isPlatformDefault || isAdminDefault) {
-                fetchSystGroup().then(({ value: { data } }) => {
-                  fetchGroupRoles(pagination)(data[0].uuid);
-                  fetchGroupData(data[0].uuid);
-                });
-              } else {
-                fetchGroupRoles(pagination)(groupId);
-                fetchGroupData();
-              }
-            }}
-            fetchUuid={systemGroupUuid}
-            selectedRoles={selectedAddRoles}
-            setSelectedRoles={setSelectedAddRoles}
-            closeUrl={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : groupId)}
-            addRolesToGroup={(groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback))}
-            groupName={name}
-            isDefault={isPlatformDefault || isAdminDefault}
-            isChanged={isChanged}
-            onDefaultGroupChanged={onDefaultGroupChanged}
-          />
-        }
-      />
-    </Routes>
-  );
 
   const toolbarButtons = () => [
     ...(hasPermissions.current && !isAdminDefault
@@ -317,7 +299,6 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
           titleSingular={intl.formatMessage(messages.role)}
           toolbarButtons={toolbarButtons}
           actionResolver={actionResolver}
-          routes={routes}
           ouiaId="roles-table"
           emptyProps={{
             title: intl.formatMessage(messages.noGroupRoles),
@@ -330,7 +311,45 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
           tableId="group-roles"
         />
       </Section>
-      <Outlet />
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['group-roles-edit-group'].path]: {
+              group,
+              cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+              postMethod: () => dispatch(fetchGroup(fetchUuid)),
+            },
+            [pathnames['group-roles-remove-group'].path]: {
+              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+              cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+              submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
+              groupsUuid: [group],
+            },
+            [pathnames['group-add-roles'].path]: {
+              afterSubmit: () => {
+                if (isPlatformDefault || isAdminDefault) {
+                  fetchSystGroup().then(({ value: { data } }) => {
+                    fetchGroupRoles(pagination)(data[0].uuid);
+                    fetchGroupData(data[0].uuid);
+                  });
+                } else {
+                  fetchGroupRoles(pagination)(groupId);
+                  fetchGroupData();
+                }
+              },
+              fetchUuid: systemGroupUuid,
+              selectedRoles: selectedAddRoles,
+              setSelectedRoles: setSelectedAddRoles,
+              closeUrl: pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : groupId),
+              addRolesToGroup: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
+              groupName: group.name,
+              isDefault: isPlatformDefault || isAdminDefault,
+              isChanged,
+              onDefaultGroupChanged,
+            },
+          }}
+        />
+      </Suspense>
     </React.Fragment>
   );
 };

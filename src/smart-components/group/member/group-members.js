@@ -1,15 +1,15 @@
 import { nowrap } from '@patternfly/react-table';
-import React, { Fragment, useState, useEffect, useContext, useRef } from 'react';
+import React, { Fragment, useState, useEffect, useContext, useRef, Suspense } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { Outlet, Route, Routes, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './member-table-helpers';
-import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups } from '../../../redux/actions/group-actions';
-import AddGroupMembers from './add-group-members';
+import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
+import { getBackRoute } from '../../../helpers/shared/helpers';
 import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import PermissionsContext from '../../../utilities/permissions-context';
@@ -18,12 +18,14 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 
-const selector = ({ groupReducer: { selectedGroup } }) => ({
+const selector = ({ groupReducer: { selectedGroup, groups } }) => ({
   members: selectedGroup.members.data,
   pagination: selectedGroup.members.meta,
-  groupName: selectedGroup.name,
-  admin_default: selectedGroup.admin_default,
-  platform_default: selectedGroup.platform_default,
+  groupsPagination: groups.pagination || groups.meta,
+  groupsFilters: groups.filters,
+  group: selectedGroup,
+  adminDefault: selectedGroup.admin_default,
+  platformDefault: selectedGroup.platform_default,
   isLoading: selectedGroup.members.isLoading,
 });
 
@@ -47,7 +49,10 @@ const GroupMembers = () => {
   const [deleteInfo, setDeleteInfo] = useState({});
 
   const { groupId } = useParams();
-  const { members, pagination, groupName, isLoading, admin_default, platform_default } = useSelector(selector, shallowEqual);
+  const { members, pagination, groupsPagination, groupsFilters, isLoading, adminDefault, platformDefault, group } = useSelector(
+    selector,
+    shallowEqual
+  );
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
 
@@ -95,22 +100,13 @@ const GroupMembers = () => {
               setConfirmDelete(() => () => removeMembers([member.username.title]));
               setDeleteInfo({
                 title: intl.formatMessage(messages.removeMemberQuestion),
-                text: removeModalText(member.username.title, groupName, false),
+                text: removeModalText(member.username.title, group.name, false),
                 confirmButtonLabel: intl.formatMessage(messages.removeMember),
               });
               setShowRemoveModal(true);
             },
           },
         ];
-
-  const routes = () => (
-    <Routes>
-      <Route
-        path={pathnames['group-add-members'].path}
-        element={<AddGroupMembers fetchData={fetchData} closeUrl={pathnames['group-detail-members'].link.replace(':groupId', groupId)} />}
-      />
-    </Routes>
-  );
 
   const navigate = useAppNavigate();
 
@@ -144,7 +140,11 @@ const GroupMembers = () => {
               setDeleteInfo({
                 title: removeText,
                 confirmButtonLabel: removeText,
-                text: removeModalText(multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid, groupName, multipleMembersSelected),
+                text: removeModalText(
+                  multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid,
+                  group.name,
+                  multipleMembersSelected
+                ),
               });
               setShowRemoveModal(true);
             },
@@ -169,13 +169,13 @@ const GroupMembers = () => {
         }}
       />
       <Section type="content" id="tab-principals">
-        {platform_default || admin_default ? (
+        {platformDefault || adminDefault ? (
           <Card>
             <CardBody>
               <Bullseye>
                 <TextContent>
                   <Text component={TextVariants.h1}>
-                    {intl.formatMessage(admin_default ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}
+                    {intl.formatMessage(adminDefault ? messages.allOrgAdminsAreMembers : messages.allUsersAreMembers)}
                   </Text>
                 </TextContent>
               </Bullseye>
@@ -187,7 +187,6 @@ const GroupMembers = () => {
             isSelectable={hasPermissions.current}
             rows={rows}
             columns={columns}
-            routes={routes}
             actionResolver={actionResolver}
             filterPlaceholder={intl.formatMessage(messages.username).toLowerCase()}
             titlePlural={intl.formatMessage(messages.members).toLowerCase()}
@@ -207,7 +206,27 @@ const GroupMembers = () => {
           />
         )}
       </Section>
-      <Outlet />
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['group-members-edit-group'].path]: {
+              group,
+              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+              postMethod: () => dispatch(fetchGroup(group.uuid)),
+            },
+            [pathnames['group-members-remove-group'].path]: {
+              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+              submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
+              groupsUuid: [group],
+            },
+            [pathnames['group-add-members'].path]: {
+              fetchData,
+              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+            },
+          }}
+        />
+      </Suspense>
     </Fragment>
   );
 };
