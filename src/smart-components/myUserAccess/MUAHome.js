@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useContext } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useSearchParams } from 'react-router-dom';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core';
 
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
@@ -9,7 +9,7 @@ import StatusLabel from '../../presentational-components/myUserAccess/StatusLabe
 import PermissionsContext from '../../utilities/permissions-context';
 import { bundleData } from '../../presentational-components/myUserAccess/bundles';
 import MUAContent from './MUAContent';
-import useSearchParams from '../../hooks/useSearchParams';
+import { DEFAULT_MUA_BUNDLE } from '../../utilities/constants';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import './MUAHome.scss';
@@ -18,11 +18,12 @@ const MyUserAccess = () => {
   const intl = useIntl();
   const chrome = useChrome();
   const [user, setUser] = useState({});
-  let { bundle } = useSearchParams('bundle');
+  const [{ bundle }, setSearchParams] = useSearchParams();
   const [bundleParam, setBundleParam] = useState(bundle);
   const { userAccessAdministrator } = useContext(PermissionsContext);
   useEffect(() => {
     chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
+    !bundle && setSearchParams({ bundle: DEFAULT_MUA_BUNDLE });
   }, []);
   const enhancedEntitlements = {
     ...user.entitlements,

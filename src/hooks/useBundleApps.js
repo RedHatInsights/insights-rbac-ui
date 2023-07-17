@@ -1,11 +1,12 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { bundleData } from '../presentational-components/myUserAccess/bundles';
+import { DEFAULT_MUA_BUNDLE } from '../utilities/constants';
 
 const useBundleApps = (bundle) => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   if (typeof bundle !== 'string' || bundle.length === 0 || !['application_services', 'openshift', 'rhel', 'ansible'].includes(bundle)) {
-    bundle = 'rhel';
+    bundle = DEFAULT_MUA_BUNDLE;
     navigate({ to: pathname, search: `bundle=${bundle}` }, { replace: true });
     return [];
   }
