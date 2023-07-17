@@ -36,7 +36,7 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
 export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
   const token = await insights.chrome.auth.getToken();
   const requestOpts = {
-    method: 'PUT',
+    method: 'POST',
     headers: {
       'Content-Type': 'application/json',
       Accept: 'application/json',
@@ -52,7 +52,7 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
         (response) => {
-          if (response.ok) {
+          if (response.ok && response.status !== 206) {
             resolve(response);
           } else {
             reject(response);
