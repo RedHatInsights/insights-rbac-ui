@@ -54,6 +54,10 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
         (response) => {
           if (response.ok && response.status !== 206) {
             resolve(response);
+          } else if (response.ok && response.status === 206) {
+            response.json().then((body) => {
+              reject(body);
+            });
           } else {
             reject(response);
           }

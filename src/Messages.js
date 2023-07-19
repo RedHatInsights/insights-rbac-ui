@@ -49,7 +49,7 @@ export default defineMessages({
   inviteUsersErrorTitle: {
     id: 'inviteUsersErrorTitle',
     description: 'Invite users error notification title',
-    defaultMessage: 'Failed inviting users',
+    defaultMessage: 'Failed inviting all users',
   },
   inviteUsersErrorDescription: {
     id: 'inviteUsersErrorDescription',
