@@ -4,6 +4,7 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
+import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
@@ -12,7 +13,7 @@ import { DisabledRowWrapper } from './DisabledRowWrapper';
 import { isEqual } from 'lodash';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
+import '../role-permissions.scss';
 
 const selector = ({
   permissionReducer: {
