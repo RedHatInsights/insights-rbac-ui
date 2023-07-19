@@ -1,9 +1,10 @@
 import React, { Fragment } from 'react';
-import { Link } from 'react-router-dom';
 import { Label } from '@patternfly/react-core';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import messages from '../../Messages';
 import { IntlShape } from 'react-intl';
+import AppLink from '../../presentational-components/shared/AppLink';
+import pathnames from '../../utilities/pathnames';
 
 interface UserProps {
   email: string;
@@ -46,7 +47,13 @@ export const createRows = (userLinks: boolean, data: UserProps[] = [], intl: Int
             <span key="no">{intl.formatMessage(messages.no)}</span>
           </Fragment>
         ),
-        { title: userLinks ? <Link to={`/users/detail/${username}`}>{username.toString()}</Link> : username.toString() },
+        {
+          title: userLinks ? (
+            <AppLink to={pathnames['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
+          ) : (
+            username.toString()
+          ),
+        },
         email,
         firstName,
         lastName,
