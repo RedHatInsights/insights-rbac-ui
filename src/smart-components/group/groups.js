@@ -108,7 +108,7 @@ const Groups = () => {
     setSelectedRows((rows) =>
       newSelection(rows)
         .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault }) => !(isPlatformDefault || isAdminDefault))
-        .map(({ uuid, name }) => ({ uuid, label: name }))
+        .map(({ uuid, name }) => ({ uuid, name }))
     );
   };
 
@@ -205,7 +205,7 @@ const Groups = () => {
             }}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
             toolbarButtons={toolbarButtons}
-            isLoading={!isLoading && groups?.length === 0 && filterValue?.length === 0 ? true : isLoading}
+            isLoading={isLoading}
             filterPlaceholder={intl.formatMessage(messages.name).toLowerCase()}
             rowWrapper={GroupRowWrapper}
             tableId="groups"
@@ -239,7 +239,7 @@ const Groups = () => {
                   },
                   cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
                   submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
-                  groupsUuid: removeGroupsList,
+                  groupsToRemove: removeGroupsList,
                 },
               }}
             />
