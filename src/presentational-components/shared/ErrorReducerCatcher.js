@@ -1,32 +1,16 @@
 import React, { useEffect, Fragment } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { NotAuthorized } from '@patternfly/react-component-groups';
-
 import { useLocation } from 'react-router-dom';
-import { API_ERROR } from '../../redux/action-types';
+import NotAuthorized from '@redhat-cloud-services/frontend-components/NotAuthorized/NotAuthorized';
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
+
+import { API_ERROR } from '../../redux/action-types';
 import messages from '../../Messages';
 
 const errorStates = {
-  403: (props) => (
-    <NotAuthorized
-      {...props}
-      description={
-        <FormattedMessage
-          {...messages.notAuthorized}
-          values={{
-            page: (
-              <>
-                &nbsp;<a href={`./iam/my-user-access`}>My User Access</a>&nbsp;
-              </>
-            ),
-          }}
-        />
-      }
-    />
-  ),
+  403: NotAuthorized,
 };
 
 const ErroReducerCatcher = ({ children }) => {

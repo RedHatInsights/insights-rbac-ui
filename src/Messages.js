@@ -6,11 +6,6 @@ export default defineMessages({
     description: 'Not applicable text for resource definitions',
     defaultMessage: 'N/A',
   },
-  notAuthorized: {
-    id: 'notAuthorized',
-    description: 'Not authorized text',
-    defaultMessage: 'Contact your organization administrator(s) for more information or visit{page}to learn more about your permissions.',
-  },
   orgAdministrator: {
     id: 'orgAdministrator',
     description: 'Org. Administrator name',
@@ -650,7 +645,7 @@ export default defineMessages({
   addSpecificUserToGroup: {
     id: 'addSpecificUserToGroup',
     description: 'Add user to a group wizard title',
-    defaultMessage: 'Add {user} to a group',
+    defaultMessage: 'Add {username} to a group',
   },
   nameAndDescription: {
     id: 'nameAndDescription',

@@ -48,7 +48,6 @@ describe('<RemoveGroupModal />', () => {
             element={
               <RemoveGroupModal
                 {...initialProps}
-                isModalOpen
                 groupsUuid={[{ uuid: '123' }]}
                 pagination={{ limit: 0 }}
                 filters={{}}
@@ -90,7 +89,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(mockedNavigate).toHaveBeenCalledWith('/groups');
+    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 
   it('should call the remove action', async () => {

@@ -1,9 +1,9 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useEffect, useState } from 'react';
 import { TextContent, Text, TextVariants, Level, LevelItem, Button } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { useParams, Outlet } from 'react-router-dom';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './role-resource-definitions-table-helpers';
-import { useParams, Route, Routes } from 'react-router-dom';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
@@ -11,7 +11,6 @@ import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
 import paths from '../../utilities/pathnames';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import EditResourceDefinitionsModal from './edit-resource-definitions-modal';
 import { getBackRoute } from '../../helpers/shared/helpers';
 import flatten from 'lodash/flatten';
 import { useIntl } from 'react-intl';
@@ -72,19 +71,6 @@ const ResourceDefinitions = () => {
       )
     : [];
 
-  const routes = () => (
-    <Routes>
-      <Route
-        path={paths['role-detail-permission-edit'].path}
-        element={
-          <EditResourceDefinitionsModal
-            cancelRoute={paths['role-detail-permission'].link.replace(':roleId', roleId).replace(':permissionId', permissionId)}
-          />
-        }
-      />
-    </Routes>
-  );
-
   const toolbarButtons = () =>
     !role.system
       ? [
@@ -106,7 +92,7 @@ const ResourceDefinitions = () => {
           { title: intl.formatMessage(messages.roles), to: getBackRoute(mergeToBasename(paths['roles'].link), rolesPagination, rolesFilters) },
           {
             title: isRecordLoading ? undefined : role && (role.display_name || role.name),
-            to: mergeToBasename(paths['role-detail'].link.replace(':groupId', roleId)),
+            to: mergeToBasename(paths['role-detail'].link.replace(':roleId', roleId)),
           },
           { title: permissionId, isActive: true },
         ]}
@@ -138,7 +124,6 @@ const ResourceDefinitions = () => {
             })
           }
           isCompact
-          routes={routes}
           setFilterValue={({ name }) =>
             setConfig({
               ...config,
@@ -156,6 +141,13 @@ const ResourceDefinitions = () => {
           hideHeader
           tableId="role-resource-definitions"
         />
+        <Suspense>
+          <Outlet
+            context={{
+              cancelRoute: paths['role-detail-permission'].link.replace(':roleId', roleId).replace(':permissionId', permissionId),
+            }}
+          />
+        </Suspense>
       </section>
     </Fragment>
   );

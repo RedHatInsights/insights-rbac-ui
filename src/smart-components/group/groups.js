@@ -1,23 +1,17 @@
-import React, { useContext, useEffect, useRef, useState } from 'react';
-import { Route, Routes, useLocation, useNavigate } from 'react-router-dom';
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import AddGroupWizard from './add-group/add-group-wizard';
-import EditGroup from './edit-group-modal';
-import RemoveGroup from './remove-group-modal';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import Group from './group';
-import Role from '../role/role';
 import GroupRowWrapper from './group-row-wrapper';
-import PageActionRoute from '../common/page-action-route';
 import {
   applyPaginationToUrl,
   defaultAdminSettings,
@@ -54,7 +48,7 @@ const Groups = () => {
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
-  const { groups, pagination, filters, isLoading, systemGroup } = useSelector(
+  const { groups, pagination, filters, isLoading } = useSelector(
     ({
       groupReducer: {
         groups: { data, filters, pagination },
@@ -118,58 +112,6 @@ const Groups = () => {
     );
   };
 
-  const routes = () => (
-    <Routes>
-      <Route
-        path={pathnames['add-group'].path}
-        element={
-          <AddGroupWizard
-            pagination={pagination}
-            filters={filters}
-            orderBy={orderBy}
-            postMethod={(config) => {
-              setFilterValue('');
-              fetchData(config);
-            }}
-          />
-        }
-      />
-      <Route
-        path={pathnames['edit-group'].path}
-        element={
-          <EditGroup
-            pagination={pagination}
-            filters={filters}
-            postMethod={(config) => {
-              setFilterValue('');
-              fetchData({ ...config, orderBy });
-            }}
-            cancelRoute={getBackRoute('../', pagination, filters)}
-            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
-          />
-        }
-      />
-      <Route
-        path={pathnames['remove-group'].path}
-        element={
-          <RemoveGroup
-            pagination={pagination}
-            filters={filters}
-            postMethod={(ids, config) => {
-              fetchData({ ...config, orderBy });
-              setFilterValue('');
-              setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
-            }}
-            cancelRoute={getBackRoute('../', pagination, filters)}
-            submitRoute={getBackRoute('../', { ...pagination, offset: 0 }, filters)}
-            isModalOpen
-            groupsUuid={removeGroupsList}
-          />
-        }
-      />
-    </Routes>
-  );
-
   const actionResolver = ({ isPlatformDefault, isAdminDefault }) =>
     isPlatformDefault || isAdminDefault || !isAdmin
       ? null
@@ -227,7 +169,8 @@ const Groups = () => {
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
   const rows = createRows(isAdmin, data, selectedRows);
-  const renderGroupsList = () => (
+
+  return (
     <Stack className="rbac-c-groups">
       <StackItem>
         <TopToolbar paddingBottom>
@@ -250,7 +193,6 @@ const Groups = () => {
             isSelectable={isAdmin}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
-            routes={routes}
             actionResolver={actionResolver}
             titlePlural={intl.formatMessage(messages.groups).toLowerCase()}
             titleSingular={intl.formatMessage(messages.group).toLowerCase()}
@@ -269,36 +211,42 @@ const Groups = () => {
             tableId="groups"
             textFilterRef={textFilterRef}
           />
+          <Suspense>
+            <Outlet
+              context={{
+                pagination,
+                filters,
+                [pathnames['add-group'].path]: {
+                  orderBy,
+                  postMethod: (config) => {
+                    setFilterValue('');
+                    fetchData(config);
+                  },
+                },
+                [pathnames['edit-group'].path]: {
+                  postMethod: (config) => {
+                    setFilterValue('');
+                    fetchData({ ...config, orderBy });
+                  },
+                  cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
+                  submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
+                },
+                [pathnames['remove-group'].path]: {
+                  postMethod: (ids, config) => {
+                    fetchData({ ...config, orderBy });
+                    setFilterValue('');
+                    setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
+                  },
+                  cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
+                  submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
+                  groupsUuid: removeGroupsList,
+                },
+              }}
+            />
+          </Suspense>
         </Section>
       </StackItem>
     </Stack>
-  );
-  return (
-    <Routes>
-      <Route
-        path={pathnames['group-detail-role-detail'].path}
-        element={
-          <PageActionRoute pageAction="role-detail">
-            <Role />
-          </PageActionRoute>
-        }
-      />
-      <Route
-        path={pathnames['group-detail'].path}
-        element={
-          <PageActionRoute pageAction="group-detail">
-            <Group
-              defaultUuid={systemGroup?.uuid}
-              onDelete={(uuid) => {
-                setFilterValue('');
-                setSelectedRows(selectedRows.filter((row) => row.uuid != uuid));
-              }}
-            />
-          </PageActionRoute>
-        }
-      />
-      <Route path="/*" element={<PageActionRoute pageAction="group-list">{renderGroupsList()}</PageActionRoute>} />
-    </Routes>
   );
 };
 

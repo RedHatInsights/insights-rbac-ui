@@ -1,17 +1,17 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import PropTypes from 'prop-types';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { useNavigate } from 'react-router-dom';
-import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
+import { removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute }) => {
+const RemoveGroupModal = ({ groupsUuid, postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute }) => {
   const intl = useIntl();
   const { group, isLoading } = useSelector(
     ({ groupReducer: { selectedGroup } }) => ({
@@ -21,13 +21,8 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
     shallowEqual
   );
   const dispatch = useDispatch();
-  useEffect(() => {
-    if (groupsUuid.length === 1) {
-      dispatch(fetchGroup(groupsUuid[0].uuid));
-    }
-  }, []);
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const [checked, setChecked] = useState(false);
 
@@ -45,7 +40,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
   return (
     <Modal
       className="rbac"
-      isOpen={isModalOpen}
+      isOpen
       variant={ModalVariant.small}
       title={
         <Text>
@@ -101,13 +96,11 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
 
 RemoveGroupModal.defaultProps = {
   groupsUuid: [],
-  isModalOpen: false,
   cancelUrl: pathnames.groups.path,
 };
 
 RemoveGroupModal.propTypes = {
   groupsUuid: PropTypes.array.isRequired,
-  isModalOpen: PropTypes.bool,
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,

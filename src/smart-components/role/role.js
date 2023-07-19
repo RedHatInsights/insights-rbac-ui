@@ -1,7 +1,7 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Route, Routes, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
@@ -14,8 +14,6 @@ import { ListLoader } from '../../presentational-components/shared/loader-placeh
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import Permissions from './role-permissions';
-import RemoveRoleModal from './remove-role-modal';
-import EditRoleModal from './edit-role-modal';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
@@ -31,10 +29,10 @@ const Role = ({ onDelete }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { roleId, groupId } = useParams();
-  const { role, group, isRecordLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
+  const { role, group, isLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
-      isRecordLoading: state.roleReducer.isRecordLoading,
+      isLoading: state.roleReducer.isRecordLoading,
       ...(groupId && { group: state.groupReducer.selectedGroup }),
       systemGroupUuid: state.groupReducer.systemGroup?.uuid,
       rolesPagination: state.roleReducer?.roles?.pagination || defaultSettings,
@@ -117,15 +115,15 @@ const Role = ({ onDelete }) => {
     ...(groupExists || !groupId
       ? [
           {
-            title: isRecordLoading ? undefined : roleExists ? role?.display_name || role?.name : intl.formatMessage(messages.invalidRole),
+            title: isLoading ? undefined : roleExists ? role?.display_name || role?.name : intl.formatMessage(messages.invalidRole),
             isActive: true,
           },
         ]
       : []),
   ];
 
-  const title = !isRecordLoading && role ? role.display_name || role.name : undefined;
-  const description = !isRecordLoading && role ? role.description : undefined;
+  const title = !isLoading && role ? role.display_name || role.name : undefined;
+  const description = !isLoading && role ? role.description : undefined;
   const dropdownItems = [
     <DropdownItem
       component={
@@ -155,7 +153,7 @@ const Role = ({ onDelete }) => {
               <LevelItem>
                 <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
               </LevelItem>
-              {!isRecordLoading && role && !role.system && (
+              {!isLoading && role && !role.system && (
                 <LevelItem>
                   <Dropdown
                     ouiaId="role-title-actions-dropdown"
@@ -174,40 +172,30 @@ const Role = ({ onDelete }) => {
               </TextContent>
             )}
           </TopToolbar>
-          {isRecordLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
-          <Routes>
-            <Route
-              path={pathnames['role-detail-remove'].path}
-              element={
-                <>
-                  {!isRecordLoading && (
-                    <RemoveRoleModal
-                      afterSubmit={() => {
-                        dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true, chrome }));
-                      }}
-                      cancelRoute={pathnames['role-detail'].path.replace(':roleId', roleId)}
-                      submitRoute={getBackRoute(mergeToBasename(pathnames['roles'].link), { ...rolesPagination, offset: 0 }, rolesFilters)}
-                      routeMatch={pathnames['role-detail-remove'].path}
-                    />
-                  )}
-                </>
-              }
+          {isLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
+          <Suspense>
+            <Outlet
+              context={{
+                [pathnames['role-detail-remove'].path]: {
+                  afterSubmit: () => {
+                    dispatch(fetchRolesWithPolicies({ ...rolesPagination, offset: 0, filters: rolesFilters, usesMetaInURL: true, chrome }));
+                  },
+                  cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId),
+                  submitRoute: getBackRoute(pathnames['roles'].link, { ...rolesPagination, offset: 0 }, rolesFilters),
+                  isLoading,
+                },
+                [pathnames['role-detail-edit'].path]: {
+                  afterSubmit: fetchData,
+                  cancelRoute: pathnames['role-detail'].link.replace(':roleId', roleId),
+                  isLoading,
+                },
+                [pathnames['role-add-permission'].path]: {
+                  isOpen: true,
+                  role,
+                },
+              }}
             />
-            <Route
-              path={pathnames['role-detail-edit'].path}
-              element={
-                <>
-                  {!isRecordLoading && (
-                    <EditRoleModal
-                      afterSubmit={fetchData}
-                      cancelRoute={pathnames['role-detail'].path.replace(':roleId', roleId)}
-                      routeMatch={pathnames['role-detail-edit'].path}
-                    />
-                  )}
-                </>
-              }
-            />
-          </Routes>
+          </Suspense>
         </Fragment>
       ) : (
         <Fragment>
