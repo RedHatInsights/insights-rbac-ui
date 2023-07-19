@@ -158,7 +158,7 @@ describe('<Users />', () => {
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
       limit: 20,
       orderBy: 'username',
-      filters: { status: ['Active'], username: 'something', email: undefined },
+      filters: { status: ['Active'], username: 'something', email: '' },
       usesMetaInURL: true,
     });
   });
