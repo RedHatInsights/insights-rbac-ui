@@ -48,7 +48,7 @@ describe('<RemoveGroupModal />', () => {
             element={
               <RemoveGroupModal
                 {...initialProps}
-                groupsUuid={[{ uuid: '123' }]}
+                groupsToRemove={[{ uuid: '123' }]}
                 pagination={{ limit: 0 }}
                 filters={{}}
                 cancelRoute={pathnames.groups.link}
