@@ -1,5 +1,6 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
+import { isInt } from '../../itLessConfig';
 
 const principalApi = getPrincipalApi();
 
@@ -9,7 +10,15 @@ const principalStatusApiMap = {
   All: 'all',
 };
 
-export const baseUrl = 'https://keycloak-user-service-fips-test.apps.fips-key.2vn8.p1.openshiftapps.com';
+async function fetchBaseUrl() {
+  try {
+    const response = await fetch(`${insights.chrome.isBeta() ? '/beta' : ''}/apps/rbac/env.json`);
+    const jsonData = await response.json();
+    return jsonData;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
 const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, email, mappedStatus) => {
   const token = await insights.chrome.auth.getToken();
@@ -21,6 +30,8 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
       Authorization: `Bearer ${token}`,
     },
   };
+  const url = await fetchBaseUrl();
+  const baseUrl = isInt ? url.int : url.ephem;
   const result = await fetch(`${baseUrl}/users?offset=${offset}&limit=${limit}&org_id=1010101`, requestOpts)
     .then((res) => res.json())
     .then((res) => {
@@ -47,7 +58,8 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
       isAdmin: usersData.isAdmin,
     }),
   };
-
+  const url = await fetchBaseUrl();
+  const baseUrl = isInt ? url.int : url.ephem;
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
@@ -85,6 +97,9 @@ export async function updateUserIsOrgAdminStatus(user) {
     },
   };
 
+  const url = await fetchBaseUrl();
+  const baseUrl = isInt ? url.int : url.ephem;
+
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
       .then(
@@ -119,6 +134,9 @@ export async function updateUsers(users) {
     },
     body: JSON.stringify({ users: users }),
   };
+
+  const url = await fetchBaseUrl();
+  const baseUrl = isInt ? url.int : url.ephem;
 
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/change-users-status`, requestOpts)
