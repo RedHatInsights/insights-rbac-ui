@@ -14,7 +14,7 @@ const Users = () => {
   const activeUserPermissions = useContext(PermissionsContext);
   const { appNavClick } = useChrome();
 
-  console.log('test deploy log');
+  console.log('test deploy log 2');
 
   const description = <ActiveUser linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 
