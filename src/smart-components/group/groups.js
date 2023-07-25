@@ -238,7 +238,7 @@ const Groups = () => {
                     setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
                   },
                   cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
-                  submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
+                  submitRoute: pathnames['groups'].link,
                   groupsToRemove: removeGroupsList,
                 },
               }}
