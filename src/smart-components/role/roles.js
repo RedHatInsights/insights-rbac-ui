@@ -26,6 +26,7 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
+import pathnames from '../../utilities/pathnames';
 
 const Roles = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -217,16 +218,28 @@ const Roles = () => {
           <Suspense>
             <Outlet
               context={{
-                // edit & remove role:
-                cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
-                afterSubmit: () => {
-                  fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
-                  setSelectedRows([]);
+                [pathnames['add-role'].path]: {
+                  pagination,
+                  filters: { display_name: filterValue },
                 },
-                isLoading,
-                // add role:
-                pagination,
-                filters: { display_name: filterValue },
+                [pathnames['remove-role'].path]: {
+                  isLoading,
+                  cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
+                  submitRoute: paths.roles.link,
+                  afterSubmit: () => {
+                    fetchData({ ...pagination, offset: 0 }, true);
+                    setSelectedRows([]);
+                  },
+                  setFilterValue,
+                },
+                [pathnames['edit-role'].path]: {
+                  isLoading,
+                  cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
+                  afterSubmit: () => {
+                    fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
+                    setSelectedRows([]);
+                  },
+                },
               }}
             />
           </Suspense>

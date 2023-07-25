@@ -12,7 +12,7 @@ import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute }) => {
+const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
   const intl = useIntl();
   const { groupId } = useParams();
   const { group, isLoading } = useSelector(
@@ -38,7 +38,7 @@ const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, filters, can
   const onSubmit = () => {
     const uuids = groupsToRemove.map((group) => group.uuid);
     dispatch(removeGroups(uuids))
-      .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
+      .then(() => postMethod(uuids, { limit: pagination?.limit }))
       .then(navigate(submitRoute));
   };
 
