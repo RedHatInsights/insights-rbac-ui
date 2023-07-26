@@ -44,17 +44,16 @@ DefaultPlatformPopover.propTypes = {
 
 export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
-  return (
-    data.reduce((acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
+  return data.reduce(
+    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
       ...acc,
       {
         uuid,
         isAdminDefault,
         isPlatformDefault,
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         cells: [
           {
-            title: (
+            title: isAdmin ? (
               <AppLink
                 key={`${uuid}-link`}
                 state={{ uuid }}
@@ -62,6 +61,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               >
                 {name}
               </AppLink>
+            ) : (
+              name
             ),
           },
           { title: roleCount, props: { isOpen: expanded[uuid] === 2 } },
@@ -148,11 +149,13 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               ),
           },
         ],
+        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
       },
-    ]),
+    ],
     []
   );
 };
+console.log(createRows);
 // cells: [
 //   <Fragment key={uuid}>
 //     <div className="pf-m-inline-flex">

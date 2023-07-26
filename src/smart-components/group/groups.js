@@ -3,6 +3,7 @@ import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
+import { compoundExpand, nowrap } from '@patternfly/react-table';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
@@ -39,13 +40,14 @@ const Groups = () => {
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
-    { title: intl.formatMessage(messages.roles) },
-    { title: intl.formatMessage(messages.members) },
+    { title: intl.formatMessage(messages.roles), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.members), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
   ];
 
   // using 'isAdmin' (0 or 1) determines correct index for columns due to 'isSelectable' property on Table component
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
+  const [expanded, setExpanded] = useState({});
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
   const { groups, pagination, filters, isLoading } = useSelector(
@@ -165,10 +167,15 @@ const Groups = () => {
         ]
       : []),
   ];
+
   const data = groups.map((group) =>
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
-  const rows = createRows(isAdmin, data, selectedRows);
+
+  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) =>
+    setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isAdmin) });
+
+  const rows = createRows(isAdmin, data, selectedRows, expanded);
 
   return (
     <Stack className="rbac-c-groups">
@@ -190,6 +197,8 @@ const Groups = () => {
               fetchData({ ...pagination, orderBy, filters: { name: filterValue } });
             }}
             columns={columns}
+            isExpandable
+            onExpand={onExpand}
             isSelectable={isAdmin}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
