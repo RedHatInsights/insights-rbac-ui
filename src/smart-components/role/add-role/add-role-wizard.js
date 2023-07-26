@@ -19,6 +19,7 @@ import ReviewStep from './review';
 import InventoryGroupsRole from './inventory-groups-role';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
+import SetName from './set-name';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import SilentErrorBoundary from '../../common/silent-error-boundary';
 import messages from '../../../Messages';
@@ -39,6 +40,7 @@ Description.propTypes = {
 };
 
 export const mapperExtension = {
+  'set-name': SetName,
   'base-role-table': BaseRoleTable,
   'add-permissions-table': AddPermissionsTable,
   'cost-resources': CostResources,
