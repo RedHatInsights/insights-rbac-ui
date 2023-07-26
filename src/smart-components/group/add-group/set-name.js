@@ -10,7 +10,8 @@ import { debouncedAsyncValidator } from '../validators';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-const groupNameValidated = (groupName, groupNameError) => (groupName === undefined || groupNameError ? 'error' : 'default');
+const groupNameValidated = (groupName, groupNameError) =>
+  groupName === undefined || groupNameError || groupName?.length > 150 ? 'error' : 'default';
 const groupDescriptionValidated = (groupDescription) => (groupDescription?.length > 150 ? 'error' : 'default');
 
 const SetName = (props) => {
@@ -31,6 +32,7 @@ const SetName = (props) => {
       })
       .catch((error) => {
         setGroupNameError(error);
+        input.onChange(undefined);
       });
     setGroupName(value);
   };
