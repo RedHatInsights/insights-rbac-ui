@@ -1,6 +1,6 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import { isInt } from '../../itLessConfig';
+import { isInt, isScr } from '../../itLessConfig';
 
 const principalApi = getPrincipalApi();
 
@@ -31,7 +31,7 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
     },
   };
   const url = await fetchBaseUrl();
-  const baseUrl = isInt ? url.int : url.ephem;
+  const baseUrl = isScr ? url.scr : isInt ? url.int : url.ephem;
   const result = await fetch(`${baseUrl}/users?offset=${offset}&limit=${limit}&org_id=1010101`, requestOpts)
     .then((res) => res.json())
     .then((res) => {
@@ -59,7 +59,7 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
     }),
   };
   const url = await fetchBaseUrl();
-  const baseUrl = isInt ? url.int : url.ephem;
+  const baseUrl = isScr ? url.scr : isInt ? url.int : url.ephem;
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
@@ -98,7 +98,7 @@ export async function updateUserIsOrgAdminStatus(user) {
   };
 
   const url = await fetchBaseUrl();
-  const baseUrl = isInt ? url.int : url.ephem;
+  const baseUrl = isScr ? url.scr : isInt ? url.int : url.ephem;
 
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
@@ -136,7 +136,7 @@ export async function updateUsers(users) {
   };
 
   const url = await fetchBaseUrl();
-  const baseUrl = isInt ? url.int : url.ephem;
+  const baseUrl = isScr ? url.scr : isInt ? url.int : url.ephem;
 
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/change-users-status`, requestOpts)
