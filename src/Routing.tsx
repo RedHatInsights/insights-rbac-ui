@@ -100,6 +100,10 @@ const routes = [
   },
 
   {
+    path: pathnames['group-detail-role-detail'].path,
+    element: Role,
+  },
+  {
     path: pathnames['group-detail'].path,
     element: Group,
     childRoutes: [

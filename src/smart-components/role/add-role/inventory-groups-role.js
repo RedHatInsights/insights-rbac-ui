@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useReducer } from 'react';
+import React, { useEffect, useReducer } from 'react';
 import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
@@ -9,7 +9,7 @@ import './cost-resources.scss';
 import messages from '../../../Messages';
 
 const selector = ({ inventoryReducer: { resourceTypes } }) => ({
-  resourceTypes: resourceTypes.data,
+  resourceTypes: resourceTypes.data?.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
 });
 
 const reducer = (state, action) => {
@@ -48,7 +48,7 @@ const reducer = (state, action) => {
         ...state,
         [action.key]: {
           ...prevState,
-          selected: [...prevState.options],
+          selected: action.selectionArray,
         },
       };
     case 'setFilter':
@@ -56,7 +56,7 @@ const reducer = (state, action) => {
         ...state,
         [action.key]: {
           ...prevState,
-          filteredOptions: prevState.options.filter(({ value }) => value.includes(action.filterValue)),
+          filterValue: action.filterValue,
         },
       };
     case 'clear':
@@ -77,22 +77,17 @@ const InventoryGroupsRole = (props) => {
   const dispatch = useDispatch();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-  const [optionMap, setOptionMap] = useState({});
+
   const fetchData = (apiProps) => dispatch(fetchInventoryGroups(apiProps));
   const { resourceTypes } = useSelector(selector, shallowEqual);
   const permissions = formOptions.getState().values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('inventory'));
 
   const onToggle = (key, isOpen) => dispatchLocally({ type: 'toggle', key, isOpen });
   const onSelect = (event, selection, selectAll, key) => {
-    const processedSelection = { name: selection, id: optionMap[selection] };
-
     if (selectAll) {
-      for (const option of resourceTypes) {
-        const processedOption = { name: option.name, id: option.id };
-        dispatchLocally({ type: 'select', processedSelection: processedOption, key });
-      }
+      dispatchLocally({ type: 'selectAll', selectionArray: Object.values(resourceTypes), key });
     } else {
-      dispatchLocally({ type: 'select', processedSelection, key });
+      dispatchLocally({ type: 'select', processedSelection: resourceTypes[selection], key });
     }
   };
   const clearSelection = (key) => dispatchLocally({ type: 'clear', key });
@@ -104,8 +99,7 @@ const InventoryGroupsRole = (props) => {
         ...acc,
         [permission.uuid]: {
           selected: [],
-          options: [],
-          filteredOptions: [],
+          filterValue: '',
           isOpen: false,
         },
       }),
@@ -119,24 +113,13 @@ const InventoryGroupsRole = (props) => {
   }, []);
 
   useEffect(() => {
-    const options = resourceTypes && resourceTypes.length ? resourceTypes : [];
-    const newOptionMap = options.reduce((acc, option) => {
-      acc[option.name] = option.id;
-      return acc;
-    }, {});
-
-    setOptionMap(newOptionMap);
-  }, [resourceTypes]);
-
-  useEffect(() => {
     const groupsPermissionsDefinition = Object.entries(state).map(([permission, { selected }]) => ({ permission, groups: selected }));
     input.onChange(groupsPermissionsDefinition);
     formOptions.change('inventory-group-permissions', groupsPermissionsDefinition);
   }, [state]);
 
   const makeRow = ({ uuid: permission }) => {
-    const options = resourceTypes && resourceTypes.length ? resourceTypes : [];
-
+    const options = Object.values(resourceTypes).filter((item) => item.name.includes(state[permission].filterValue));
     return (
       <React.Fragment key={`${permission}`}>
         <GridItem md={4} sm={12}>
@@ -159,13 +142,15 @@ const InventoryGroupsRole = (props) => {
                 onToggle(permission, isOpen);
               }}
               onClear={() => clearSelection(permission)}
-              onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permission, filtervalue: e.target.value })}
+              onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permission, filterValue: e.target.value })}
               isOpen={state[permission].isOpen}
               hasInlineFilter
             >
               {[
-                <SelectOption key={`${permission}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />,
-                ...(options || []).map((option, index) => <SelectOption key={`${permission}-${index + 1}`} value={option?.name} />),
+                ...(options?.length > 0
+                  ? [<SelectOption key={`${permission}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
+                  : []),
+                ...(options?.map((option, index) => <SelectOption key={`${permission}-${index + 1}`} value={option?.name} />) || []),
               ]}
             </Select>
           </Tooltip>
