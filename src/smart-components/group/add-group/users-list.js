@@ -7,7 +7,21 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
-import { Button, Switch as PF4Switch, Dropdown, DropdownItem, DropdownToggle, Label } from '@patternfly/react-core';
+import {
+  Button,
+  Switch as PF4Switch,
+  Dropdown,
+  DropdownItem,
+  DropdownToggle,
+  Label,
+  Modal,
+  ModalVariant,
+  List,
+  ListItem,
+  Checkbox,
+  Stack,
+  StackItem,
+} from '@patternfly/react-core';
 import { sortable, nowrap } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
@@ -92,6 +106,8 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const location = useLocation();
   const dispatch = useDispatch();
   const [selectedRows, setSelectedRows] = useState(selectedUsers);
+  const [isDeactivateConfirmationModalOpen, setIsDeactivateConfirmationModalOpen] = useState(false);
+  const [isDeactivateConfirmationChecked, setIsDeactivateConfirmationChecked] = useState(false);
   const [isToolbarDropdownOpen, setIsToolbarDropdownOpen] = useState(false);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const screenSize = useScreenSize();
@@ -117,7 +133,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         isUserDataLoading,
       },
     }) => ({
-      users: data?.map?.((data) => ({ ...data, uuid: data.external_source_id })),
+      users: data?.map?.((data) => ({ ...data, uuid: data.id })),
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
     })
@@ -129,6 +145,12 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     },
     [dispatch]
   );
+
+  const confirmDeactivateUsers = () => {
+    toggleUserActivationStatus(false, null, selectedRows);
+    setIsDeactivateConfirmationModalOpen(false);
+    setIsDeactivateConfirmationChecked(false);
+  };
 
   const toggleUserIsOrgAdminStatus = (isOrgAdmin, _event, user = {}) => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
@@ -158,7 +180,11 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     const onToolbarDropdownSelect = async (_event) => {
       const userActivationStatusMap = { activate: true, deactivate: false };
 
-      toggleUserActivationStatus(userActivationStatusMap[_event?.target?.id], null, selectedRows);
+      if (_event?.target?.id === 'deactivate') {
+        setIsDeactivateConfirmationModalOpen(true);
+      } else {
+        toggleUserActivationStatus(userActivationStatusMap[_event?.target?.id], null, selectedRows);
+      }
       setIsToolbarDropdownOpen(false);
     };
     const dropdownItems = [
@@ -374,73 +400,130 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   };
 
   return (
-    <TableToolbarView
-      toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
-      toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
-      isCompact
-      isSelectable
-      borders={false}
-      columns={columns}
-      rows={rows}
-      sortBy={sortByState}
-      onSort={(e, index, direction) => {
-        const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
-        setSortByState({ index, direction });
-        fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
-      }}
-      data={users}
-      ouiaId="users-table"
-      fetchData={(config) => {
-        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
-        const { username, email, count, limit, offset, orderBy } = config;
+    <>
+      <Modal
+        title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
+        titleIconVariant="warning"
+        description={intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
+        variant={ModalVariant.medium}
+        isOpen={isDeactivateConfirmationModalOpen}
+        footer={
+          <Stack hasGutter>
+            <StackItem>
+              <Checkbox
+                label={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
+                isChecked={isDeactivateConfirmationChecked}
+                onChange={(checked) => {
+                  setIsDeactivateConfirmationChecked(checked);
+                }}
+                id="deactivateUsersConfirmationCheckbox"
+                name="deactivate-users-confirmation-checkbox"
+              />
+            </StackItem>
+            <StackItem>
+              <Button
+                key="confirm-deactivate-users"
+                ouiaId="danger-confirm-deactivate-users-button"
+                isDisabled={selectedRows.length === 0 || !isDeactivateConfirmationChecked}
+                variant="danger"
+                onClick={() => {
+                  confirmDeactivateUsers();
+                }}
+              >
+                {intl.formatMessage(messages.deactivateUsersConfirmationButton)}
+              </Button>
+              <Button
+                id="deactivate-users-confirmation-cancel"
+                ouiaId="secondary-cancel-button"
+                key="cancel"
+                variant="link"
+                onClick={() => {
+                  setIsDeactivateConfirmationModalOpen(false);
+                }}
+              >
+                {intl.formatMessage(messages.cancel)}
+              </Button>
+            </StackItem>
+          </Stack>
+        }
+        onClose={() => {
+          setIsDeactivateConfirmationModalOpen(false);
+        }}
+      >
+        <List isPlain isBordered>
+          {selectedRows.map((user) => (
+            <ListItem key={user.uuid}>{user.label}</ListItem>
+          ))}
+        </List>
+      </Modal>
+      <TableToolbarView
+        toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
+        toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
+        isCompact
+        isSelectable
+        borders={false}
+        columns={columns}
+        rows={rows}
+        sortBy={sortByState}
+        onSort={(e, index, direction) => {
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          setSortByState({ index, direction });
+          fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
+        }}
+        data={users}
+        ouiaId="users-table"
+        fetchData={(config) => {
+          const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
+          const { username, email, count, limit, offset, orderBy } = config;
 
-        fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL }).then(() => {
-          innerRef?.current?.focus();
-        });
-        usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
-      }}
-      emptyFilters={{ username: '', email: '', status: '' }}
-      setFilterValue={({ username, email, status }) => {
-        updateFilters({
-          username: typeof username === 'undefined' ? filters.username : username,
-          email: typeof email === 'undefined' ? filters.email : email,
-          status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
-        });
-      }}
-      isLoading={isLoading}
-      pagination={pagination}
-      checkedRows={selectedRows}
-      setCheckedItems={setCheckedItems}
-      rowWrapper={UsersRow}
-      titlePlural={intl.formatMessage(messages.users).toLowerCase()}
-      titleSingular={intl.formatMessage(messages.user)}
-      filters={[
-        {
-          key: 'username',
-          value: filters.username,
-          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
-          innerRef,
-        },
-        {
-          key: 'email',
-          value: filters.email,
-          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
-          innerRef,
-        },
-        {
-          key: 'status',
-          value: filters.status,
-          label: intl.formatMessage(messages.status),
-          type: 'checkbox',
-          items: [
-            { label: intl.formatMessage(messages.active), value: 'Active' },
-            { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
-          ],
-        },
-      ]}
-      tableId="users-list"
-      {...props}
-    />
+          fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL }).then(() => {
+            innerRef?.current?.focus();
+          });
+          usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
+        }}
+        emptyFilters={{ username: '', email: '', status: '' }}
+        setFilterValue={({ username, email, status }) => {
+          updateFilters({
+            username: typeof username === 'undefined' ? filters.username : username,
+            email: typeof email === 'undefined' ? filters.email : email,
+            status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
+          });
+        }}
+        isLoading={isLoading}
+        pagination={pagination}
+        checkedRows={selectedRows}
+        setCheckedItems={setCheckedItems}
+        rowWrapper={UsersRow}
+        titlePlural={intl.formatMessage(messages.users).toLowerCase()}
+        titleSingular={intl.formatMessage(messages.user)}
+        filters={[
+          {
+            key: 'username',
+            value: filters.username,
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+            innerRef,
+          },
+          {
+            key: 'email',
+            value: filters.email,
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+            innerRef,
+          },
+          {
+            key: 'status',
+            value: filters.status,
+            label: intl.formatMessage(messages.status),
+            type: 'checkbox',
+            items: [
+              { label: intl.formatMessage(messages.active), value: 'Active' },
+              { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
+            ],
+          },
+        ]}
+        tableId="users-list"
+        {...props}
+      />
+    </>
   );
 };
 

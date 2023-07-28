@@ -14,7 +14,8 @@ export default defineMessages({
   inviteUsersDescription: {
     id: 'inviteUsersDescription',
     description: 'Invite users modal description',
-    defaultMessage: 'Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.',
+    defaultMessage:
+      'Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.',
   },
   inviteUsersFormIsAdminFieldTitle: {
     id: 'inviteUsersFormIsAdminFieldTitle',
@@ -24,7 +25,8 @@ export default defineMessages({
   inviteUsersFormIsAdminFieldDescription: {
     id: 'inviteUsersFormIsAdminFieldDescription',
     description: 'Invite users form is admin field description',
-    defaultMessage: 'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+    defaultMessage:
+      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
   },
   inviteUsersFormEmailsFieldTitle: {
     id: 'inviteUsersFormEmailsFieldTitle',
@@ -65,6 +67,26 @@ export default defineMessages({
     id: 'deactivateUsersButton',
     description: 'deactivate users button text',
     defaultMessage: 'Deactivate users',
+  },
+  deactivateUsersConfirmationModalTitle: {
+    id: 'deactivateUsersConfirmationModalTitle',
+    description: 'deactivate users confirmation modal title text',
+    defaultMessage: 'Deactivate users',
+  },
+  deactivateUsersConfirmationModalDescription: {
+    id: 'deactivateUsersConfirmationModalDescription',
+    description: 'deactivate users confirmation modal description text',
+    defaultMessage: 'Are you sure you want to deactivate the user(s) below from your Red Hat organization?',
+  },
+  deactivateUsersConfirmationModalCheckboxText: {
+    id: 'deactivateUsersConfirmationModalCheckboxText',
+    description: 'deactivate users confirmation modal checkbox text',
+    defaultMessage: 'Yes, I confirm that I want to remove these users',
+  },
+  deactivateUsersConfirmationButton: {
+    id: 'deactivateUsersConfirmationButton',
+    description: 'deactivate users confirmation button text',
+    defaultMessage: 'Deactivate user(s)',
   },
   notApplicable: {
     id: 'notApplicable',
