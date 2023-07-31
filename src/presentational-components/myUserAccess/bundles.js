@@ -31,6 +31,7 @@ export const bundleData = [
       vulnerability: '/vulnerability',
       policies: '/policies',
       subscriptions: '/subscriptions',
+      repositories: '/content',
     },
     appsIds: [
       'dashboard',
@@ -44,6 +45,7 @@ export const bundleData = [
       'notifications',
       'image-builder',
       'subscriptions',
+      'content-sources',
     ],
   },
   {
