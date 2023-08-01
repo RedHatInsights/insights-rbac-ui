@@ -46,6 +46,10 @@ const Groups = () => {
 
   // using 'isAdmin' (0 or 1) determines correct index for columns due to 'isSelectable' property on Table component
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
+  const [filterValue, setFilterValue] = useState(filters?.name || '');
+  const [selectedRows, setSelectedRows] = useState([]);
+  const [removeGroupsList, setRemoveGroupsList] = useState([]);
+
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
   const { groups, pagination, filters, isLoading } = useSelector(
@@ -75,13 +79,13 @@ const Groups = () => {
     shallowEqual
   );
 
-  const [filterValue, setFilterValue] = useState(filters?.name || '');
-  const [selectedRows, setSelectedRows] = useState([]);
-  const [removeGroupsList, setRemoveGroupsList] = useState([]);
-
   useEffect(() => {
     applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
   }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
+
+  useEffect(() => {
+    applyFiltersToUrl(location, navigate, { name: filterValue });
+  }, [filterValue]);
 
   useEffect(() => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
@@ -124,7 +128,7 @@ const Groups = () => {
             title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, group) => {
               setRemoveGroupsList([group]);
-              navigate(mergeToBasename(pathnames['remove-group'].link));
+              navigate(mergeToBasename(pathnames['remove-group'].link.replace(':groupId', group.uuid)));
             },
           },
         ];
@@ -159,7 +163,14 @@ const Groups = () => {
             },
             onClick: () => {
               setRemoveGroupsList(selectedRows);
-              navigate(mergeToBasename(pathnames['remove-group'].link));
+              navigate(
+                mergeToBasename(
+                  pathnames['remove-group'].link.replace(
+                    ':groupId',
+                    selectedRows.map(({ uuid }) => uuid)
+                  )
+                )
+              );
             },
           },
         ]
@@ -169,6 +180,8 @@ const Groups = () => {
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
   const rows = createRows(isAdmin, data, selectedRows);
+  // used for (not) reseting the filters after submit
+  const removingAllRows = pagination.count === removeGroupsList.length;
 
   return (
     <Stack className="rbac-c-groups">
@@ -233,13 +246,12 @@ const Groups = () => {
                 },
                 [pathnames['remove-group'].path]: {
                   postMethod: (ids, config) => {
-                    fetchData({ ...config, orderBy });
-                    setFilterValue('');
+                    fetchData({ ...config, filters: { name: removingAllRows ? '' : filterValue }, orderBy });
+                    removingAllRows && setFilterValue('');
                     setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));
                   },
                   cancelRoute: getBackRoute(pathnames['groups'].link, pagination, filters),
-                  submitRoute: pathnames['groups'].link,
-                  groupsToRemove: removeGroupsList,
+                  submitRoute: getBackRoute(pathnames['groups'].link, removingAllRows ? {} : filters),
                 },
               }}
             />

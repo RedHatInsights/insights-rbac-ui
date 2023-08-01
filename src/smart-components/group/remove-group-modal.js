@@ -8,13 +8,17 @@ import { ExclamationTriangleIcon } from '@patternfly/react-icons';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
+const RemoveGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
   const intl = useIntl();
+  const dispatch = useDispatch();
+  const navigate = useAppNavigate();
   const { groupId } = useParams();
+  const groupsToRemove = groupId.split(',');
+  const multipleGroups = groupsToRemove.length > 1;
+
   const { group, isLoading } = useSelector(
     ({ groupReducer: { selectedGroup } }) => ({
       group: selectedGroup,
@@ -22,23 +26,16 @@ const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, cancelRoute,
     }),
     shallowEqual
   );
-  const dispatch = useDispatch();
-
-  const navigate = useAppNavigate();
 
   useEffect(() => {
-    groupsToRemove.length === 0 && navigate(pathnames.groups.link);
-    groupsToRemove.length === 1 && dispatch(fetchGroup(groupsToRemove[0].uuid));
+    groupsToRemove.length === 1 && dispatch(fetchGroup(groupsToRemove[0]));
   }, []);
 
   const [checked, setChecked] = useState(false);
 
-  const multipleGroups = groupsToRemove.length > 1;
-
   const onSubmit = () => {
-    const uuids = groupsToRemove.map((group) => group.uuid);
-    dispatch(removeGroups(uuids))
-      .then(() => postMethod(uuids, { limit: pagination?.limit }))
+    dispatch(removeGroups(groupsToRemove))
+      .then(() => postMethod(groupsToRemove, { limit: pagination?.limit }))
       .then(navigate(submitRoute));
   };
 
@@ -84,7 +81,7 @@ const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, cancelRoute,
               {...messages.deletingGroupRemovesRoles}
               values={{
                 b: (text) => <b>{text}</b>,
-                name: group.name || groupsToRemove[0].name,
+                name: group.name,
               }}
             />
           </Text>
@@ -101,13 +98,7 @@ const RemoveGroupModal = ({ groupsToRemove, postMethod, pagination, cancelRoute,
   );
 };
 
-RemoveGroupModal.defaultProps = {
-  groupsToRemove: [],
-  cancelUrl: pathnames.groups.path,
-};
-
 RemoveGroupModal.propTypes = {
-  groupsToRemove: PropTypes.array.isRequired,
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,

@@ -14,8 +14,8 @@ const pathnames = {
     title: 'Create group',
   },
   'remove-group': {
-    link: '/groups/remove-group',
-    path: 'remove-group',
+    link: '/groups/remove-group/:groupId',
+    path: 'remove-group/:groupId',
     title: 'Delete group',
   },
   'edit-group': {
