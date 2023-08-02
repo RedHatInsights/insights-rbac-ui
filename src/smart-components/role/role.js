@@ -103,7 +103,7 @@ const Role = ({ onDelete }) => {
         ? [
             {
               title: group && group.name,
-              to: pathnames['group-detail-roles'].link.replace('groupId', groupId),
+              to: mergeToBasename(pathnames['group-detail-roles'].link).replace(':groupId', groupId),
               isLoading: group && group.loaded,
             },
           ]

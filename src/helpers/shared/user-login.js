@@ -81,6 +81,6 @@ export function getCostApi() {
 
 export const getInventoryGroupsApi = () => {
   return {
-    getInventoryGroups: () => inventoryApi.axios.get(`${INVENTORY_API_BASE}/groups`),
+    getInventoryGroups: () => inventoryApi.axios.get(`${INVENTORY_API_BASE}/groups?per_page=100`),
   };
 };

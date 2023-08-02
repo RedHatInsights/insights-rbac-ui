@@ -26,6 +26,7 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
+import pathnames from '../../utilities/pathnames';
 
 const Roles = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -71,11 +72,17 @@ const Roles = () => {
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
   const [expanded, setExpanded] = useState({});
+  const [removeRolesList, setRemoveRolesList] = useState([]);
+
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
 
   useEffect(() => {
     applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
   }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
+
+  useEffect(() => {
+    applyFiltersToUrl(location, navigate, { display_name: filterValue });
+  }, [filterValue]);
 
   useEffect(() => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
@@ -106,7 +113,10 @@ const Roles = () => {
           },
           {
             title: intl.formatMessage(messages.delete),
-            onClick: (_event, _rowId, role) => navigate(mergeToBasename(paths['remove-role'].link.replace(':roleId', role.uuid))),
+            onClick: (_event, _rowId, role) => {
+              setRemoveRolesList([role]);
+              navigate(mergeToBasename(paths['remove-role'].link.replace(':roleId', role.uuid)));
+            },
           },
         ];
 
@@ -138,7 +148,8 @@ const Roles = () => {
             props: {
               isDisabled: !selectedRows.length > 0,
             },
-            onClick: () =>
+            onClick: () => {
+              setRemoveRolesList(selectedRows);
               navigate(
                 mergeToBasename(
                   paths['remove-role'].link.replace(
@@ -146,7 +157,8 @@ const Roles = () => {
                     selectedRows.map(({ uuid }) => uuid)
                   )
                 )
-              ),
+              );
+            },
           },
         ]
       : [];
@@ -163,6 +175,8 @@ const Roles = () => {
     setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isSelectable) });
 
   const rows = createRows(roles, selectedRows, intl, expanded);
+  // used for (not) reseting the filters after submit
+  const removingAllRows = pagination.count === removeRolesList.length;
 
   return (
     <Stack className="rbac-c-roles">
@@ -217,16 +231,29 @@ const Roles = () => {
           <Suspense>
             <Outlet
               context={{
-                // edit & remove role:
-                cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
-                afterSubmit: () => {
-                  fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
-                  setSelectedRows([]);
+                [pathnames['add-role'].path]: {
+                  pagination,
+                  filters: { display_name: filterValue },
                 },
-                isLoading,
-                // add role:
-                pagination,
-                filters: { display_name: filterValue },
+                [pathnames['remove-role'].path]: {
+                  isLoading,
+                  cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
+                  submitRoute: getBackRoute(paths.roles.link, removingAllRows ? {} : filters),
+                  afterSubmit: () => {
+                    fetchData({ ...pagination, filters: removingAllRows ? {} : { display_name: filterValue }, offset: 0 }, true);
+                    removingAllRows && setFilterValue('');
+                    setSelectedRows([]);
+                  },
+                  setFilterValue,
+                },
+                [pathnames['edit-role'].path]: {
+                  isLoading,
+                  cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
+                  afterSubmit: () => {
+                    fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
+                    setSelectedRows([]);
+                  },
+                },
               }}
             />
           </Suspense>

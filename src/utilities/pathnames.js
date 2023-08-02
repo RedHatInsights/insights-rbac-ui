@@ -14,8 +14,8 @@ const pathnames = {
     title: 'Create group',
   },
   'remove-group': {
-    link: '/groups/remove-group',
-    path: 'remove-group',
+    link: '/groups/remove-group/:groupId',
+    path: 'remove-group/:groupId',
     title: 'Delete group',
   },
   'edit-group': {
@@ -50,7 +50,7 @@ const pathnames = {
   },
   'group-detail-role-detail': {
     link: '/groups/detail/:groupId/roles/detail/:roleId',
-    path: 'detail/:groupId/roles/detail/:roleId',
+    path: '/groups/detail/:groupId/roles/detail/:roleId',
     title: 'Group role',
   },
   'group-detail-members': {
