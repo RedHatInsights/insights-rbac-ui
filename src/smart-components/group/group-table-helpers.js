@@ -45,12 +45,13 @@ DefaultPlatformPopover.propTypes = {
 export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
   return data.reduce(
-    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
+    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }, i) => [
       ...acc,
       {
         uuid,
         isAdminDefault,
         isPlatformDefault,
+        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         cells: [
           {
             title: isAdmin ? (
@@ -72,7 +73,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
       },
       {
         uuid: `${uuid}-roles`,
-        parent: 2 * 1,
+        parent: 2 * i,
         compoundParent: 1,
         fullWidth: true,
         noPadding: true,
@@ -116,7 +117,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
       },
       {
         uuid: `${uuid}-members`,
-        parent: 3 * 1,
+        parent: 3 * i,
         compoundParent: 2,
         fullwidth: true,
         noPadding: true,
@@ -149,7 +150,6 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               ),
           },
         ],
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
       },
     ],
     []
