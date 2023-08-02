@@ -12,7 +12,7 @@ import { roleNameSelector } from './role-selectors';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 
-const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, setFilterValue, isLoading }) => {
+const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, isLoading }) => {
   const intl = useIntl();
   const { roleId } = useParams();
   const roles = roleId.split(',');
@@ -39,7 +39,6 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
   }, [roleName, roles]);
 
   const onSubmit = () => {
-    setFilterValue && setFilterValue('');
     Promise.all(roles.map((id) => dispatch(removeRole(id)))).then(() => afterSubmit());
     navigate(submitRoute);
   };
@@ -117,7 +116,6 @@ RemoveRoleModal.propTypes = {
     }),
   ]),
   afterSubmit: PropTypes.func.isRequired,
-  setFilterValue: PropTypes.func,
   isLoading: PropTypes.bool.isRequired,
 };
 
