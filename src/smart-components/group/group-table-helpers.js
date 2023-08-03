@@ -155,34 +155,3 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
     []
   );
 };
-console.log(createRows);
-// cells: [
-//   <Fragment key={uuid}>
-//     <div className="pf-m-inline-flex">
-//       {isAdmin ? (
-//         <AppLink
-//           key={`${uuid}-link`}
-//           state={{ uuid }}
-//           to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : uuid)}
-//         >
-//           {name}
-//         </AppLink>
-//       ) : (
-//         name
-//       )}
-//       {(isPlatformDefault || isAdminDefault) && (
-//         <DefaultPlatformPopover
-//           id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
-//           uuid={uuid}
-//           key={`${uuid}-popover`}
-//           bodyContent={intl.formatMessage(isAdminDefault ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
-//         />
-//       )}
-//     </div>
-//   </Fragment>,
-//   roleCount,
-//   principalCount,
-//   <Fragment key={`${uuid}-modified`}>
-//     <DateFormat date={modified} type={getDateFormat(modified)} />
-//   </Fragment>,
-// ],
