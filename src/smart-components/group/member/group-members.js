@@ -139,11 +139,11 @@ const GroupMembers = () => {
             onClick: () => {
               const multipleMembersSelected = selectedMembers.length > 1;
               const removeText = intl.formatMessage(multipleMembersSelected ? messages.removeMembersQuestion : messages.removeMemberQuestion);
-              setConfirmDelete(() => () => removeMembers(selectedMembers.map((user) => user.uuid)));
+              setConfirmDelete(() => () => removeMembers(selectedMembers.map((user) => user.label)));
               setDeleteInfo({
                 title: removeText,
                 confirmButtonLabel: removeText,
-                text: removeModalText(multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid, groupName, multipleMembersSelected),
+                text: removeModalText(multipleMembersSelected ? selectedMembers.length : selectedMembers[0].label, groupName, multipleMembersSelected),
               });
               setShowRemoveModal(true);
             },

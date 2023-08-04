@@ -105,7 +105,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
-  const [selectedRows, setSelectedRows] = useState(selectedUsers);
+  const [selectedRows, setSelectedRows] = useState([]);
   const [isDeactivateConfirmationModalOpen, setIsDeactivateConfirmationModalOpen] = useState(false);
   const [isDeactivateConfirmationChecked, setIsDeactivateConfirmationChecked] = useState(false);
   const [isToolbarDropdownOpen, setIsToolbarDropdownOpen] = useState(false);
@@ -133,7 +133,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         isUserDataLoading,
       },
     }) => ({
-      users: data?.map?.((data) => ({ ...data, uuid: data.id })),
+      users: data?.map?.((data) => ({ ...data, uuid: data.external_source_id })),
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
     })
@@ -161,7 +161,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     dispatch(updateUserIsOrgAdminStatus(newUserObj))
       .then((res) => {
         setFilters(newFilters);
-        if (props.setSelectedUsers) {
+        if (setSelectedUsers) {
           setSelectedUsers([]);
         } else {
           setSelectedRows([]);
@@ -236,7 +236,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     dispatch(updateUsers(newUserList))
       .then((res) => {
         setFilters(newFilters);
-        if (props?.setSelectedUsers) {
+        if (setSelectedUsers) {
           setSelectedUsers([]);
         } else {
           setSelectedRows([]);
@@ -334,7 +334,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       : [];
   };
 
-  const rows = createRows(userLinks, users, selectedRows);
+  const rows = createRows(userLinks, users, selectedUsers ? selectedUsers : selectedRows);
   const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
   const columns = [
     { title: intl.formatMessage(displayNarrow ? messages.orgAdmin : messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
@@ -379,7 +379,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   });
 
   const setCheckedItems = (newSelection) => {
-    if (props?.setSelectedUsers) {
+    if (setSelectedUsers) {
       setSelectedUsers((users) => {
         return newSelection(users)
           .filter((user) => (displayNarrow ? user : user?.uuid != currentUser?.identity?.internal?.account_id))
@@ -491,7 +491,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         }}
         isLoading={isLoading}
         pagination={pagination}
-        checkedRows={selectedRows}
+        checkedRows={selectedUsers ? selectedUsers : selectedRows}
         setCheckedItems={setCheckedItems}
         rowWrapper={UsersRow}
         titlePlural={intl.formatMessage(messages.users).toLowerCase()}
@@ -531,7 +531,7 @@ UsersList.propTypes = {
   displayNarrow: PropTypes.bool,
   users: PropTypes.array,
   searchFilter: PropTypes.string,
-  setSelectedUsers: PropTypes.func.isRequired,
+  setSelectedUsers: PropTypes.func,
   selectedUsers: PropTypes.array,
   userLinks: PropTypes.bool,
   props: PropTypes.object,
@@ -541,8 +541,6 @@ UsersList.propTypes = {
 UsersList.defaultProps = {
   displayNarrow: false,
   users: [],
-  selectedUsers: [],
-  setSelectedUsers: () => undefined,
   userLinks: false,
   usesMetaInURL: false,
 };
