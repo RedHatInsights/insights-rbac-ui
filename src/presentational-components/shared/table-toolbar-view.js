@@ -138,7 +138,7 @@ export const TableToolbarView = ({
             {...(isSelectable &&
               rows?.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
-                  setCheckedItems(selectedRows([{ uuid, name, requires }], isSelected)),
+                  setCheckedItems(selectedRows([{ uuid, name, username: data[_idx]?.username, requires }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
             rows={rows?.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
