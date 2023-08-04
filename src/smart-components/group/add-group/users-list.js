@@ -113,7 +113,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const screenSize = useScreenSize();
   // use for text filter to focus
   const innerRef = useRef(null);
-  const isAdmin = orgAdmin || userAccessAdministrator;
+  const isAdmin = orgAdmin;
   const chrome = useChrome();
   const [currentUser, setCurrentUser] = useState({});
   const [userToken, setUserToken] = useState('');
