@@ -50,9 +50,9 @@ const SummaryContent = () => {
                 <GridItem md={9}>
                   <Text component={TextVariants.p}>
                     {selectedRoles.map((role, index) => (
-                      <Text className="pf-u-mb-0" key={index}>
+                      <div className="pf-u-mb-0" key={index}>
                         {role.label}
-                      </Text>
+                      </div>
                     ))}
                   </Text>
                 </GridItem>
