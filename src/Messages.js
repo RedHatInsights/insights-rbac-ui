@@ -1160,6 +1160,11 @@ export default defineMessages({
     description: 'Configure resources for permission message',
     defaultMessage: 'To add this permission to your role and define specific resources for it, at least one data source must be connected.',
   },
+  noRbacPermissions: {
+    id: 'noRbacPermissions',
+    description: 'No Rbac permissions message',
+    defaultMessage: 'You are missing RBAC permissions to add inventory permissions to your role.',
+  },
   noCostManagementPermissions: {
     id: 'noCostManagementPermissions',
     description: 'No Cost management permissions message',
