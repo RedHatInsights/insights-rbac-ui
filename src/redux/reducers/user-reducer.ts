@@ -1,12 +1,17 @@
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../action-types';
 import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
+export interface UserFilters {
+  username?: string;
+  email?: string;
+  status?: string[];
+}
 export interface UserStore {
   selectedUser: Record<string, unknown>;
   isUserDataLoading: boolean;
   users: {
     meta: PaginationDefaultI;
-    filters: Record<string, any>;
+    filters: UserFilters;
     pagination: PaginationDefaultI & { redirected?: boolean };
     data?: any;
   };

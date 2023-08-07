@@ -15,7 +15,7 @@ import { CellObject } from '../../smart-components/user/user-table-helpers';
 interface FilterProps {
   username?: string;
   email?: string;
-  status?: string;
+  status?: string[];
 }
 
 interface FetchDataProps {
@@ -29,7 +29,7 @@ interface FetchDataProps {
 
   username?: string;
   email?: string;
-  status?: string;
+  status?: string[];
 }
 
 function isCellObject(cell: any): cell is CellObject {
