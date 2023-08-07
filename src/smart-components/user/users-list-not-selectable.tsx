@@ -18,6 +18,7 @@ import messages from '../../Messages';
 import PermissionsContext from '../../utilities/permissions-context';
 import { createRows } from './user-table-helpers';
 import { ISortBy } from '@patternfly/react-table';
+import { UserFilters } from '../../redux/reducers/user-reducer';
 
 interface UsersListNotSelectableI {
   userLinks: boolean;
@@ -70,7 +71,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
 
   const [sortByState, setSortByState] = useState<ISortBy>({ index: 1, direction: 'asc' });
 
-  const [filters, setFilters] = useState(
+  const [filters, setFilters] = useState<UserFilters>(
     usesMetaInURL
       ? stateFilters
       : {
@@ -86,9 +87,12 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
 
   useEffect(() => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
-    const newFilters = usesMetaInURL
+    const newFilters: UserFilters = usesMetaInURL
       ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
       : { status: filters.status };
+    if (typeof newFilters.status !== 'undefined' && !Array.isArray(newFilters.status)) {
+      newFilters.status = [newFilters.status];
+    }
     setFilters(newFilters);
     fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
   }, []);
@@ -135,7 +139,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
         usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
       }}
-      emptyFilters={{ username: '', email: '', status: '' }}
+      emptyFilters={{ username: '', email: '', status: [] }}
       setFilterValue={({ username, email, status }) => {
         updateFilters({
           username: typeof username === 'undefined' ? filters.username : username,
@@ -156,13 +160,13 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         },
         {
           key: 'email',
-          value: filters.email,
+          value: filters.email || '',
           placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
           innerRef,
         },
         {
           key: 'status',
-          value: filters.status,
+          value: filters.status || [],
           label: intl.formatMessage(messages.status),
           type: 'checkbox',
           items: [

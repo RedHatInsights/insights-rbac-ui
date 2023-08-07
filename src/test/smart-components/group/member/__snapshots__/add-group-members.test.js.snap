@@ -276,7 +276,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                           data-ouia-component-id="CompactPagination"
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
-                          id="pagination-options-menu-6"
+                          id="options-menu-top-pagination"
                           limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
@@ -330,7 +330,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                                 data-ouia-component-id="OUIA-Generated-DropdownToggle-7"
                                 data-ouia-component-type="PF4/DropdownToggle"
                                 data-ouia-safe="true"
-                                id="pagination-options-menu-toggle-6"
+                                id="options-menu-top-toggle"
                                 type="button"
                               >
                                 <span
@@ -745,7 +745,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                     data-ouia-component-id="OUIA-Generated-Pagination-bottom-2"
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
-                    id="pagination-options-menu-7"
+                    id="options-menu-bottom-pagination"
                     limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
@@ -782,7 +782,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                           data-ouia-component-id="OUIA-Generated-DropdownToggle-8"
                           data-ouia-component-type="PF4/DropdownToggle"
                           data-ouia-safe="true"
-                          id="pagination-options-menu-toggle-7"
+                          id="options-menu-bottom-toggle"
                           type="button"
                         >
                           <span
@@ -1268,7 +1268,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                           data-ouia-component-id="CompactPagination"
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
-                          id="pagination-options-menu-2"
+                          id="options-menu-top-pagination"
                           limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
@@ -1322,7 +1322,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                                 data-ouia-component-id="OUIA-Generated-DropdownToggle-3"
                                 data-ouia-component-type="PF4/DropdownToggle"
                                 data-ouia-safe="true"
-                                id="pagination-options-menu-toggle-2"
+                                id="options-menu-top-toggle"
                                 type="button"
                               >
                                 <span
@@ -1714,7 +1714,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                     data-ouia-component-id="OUIA-Generated-Pagination-bottom-1"
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
-                    id="pagination-options-menu-3"
+                    id="options-menu-bottom-pagination"
                     limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
@@ -1751,7 +1751,7 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                           data-ouia-component-id="OUIA-Generated-DropdownToggle-4"
                           data-ouia-component-type="PF4/DropdownToggle"
                           data-ouia-safe="true"
-                          id="pagination-options-menu-toggle-3"
+                          id="options-menu-bottom-toggle"
                           type="button"
                         >
                           <span
