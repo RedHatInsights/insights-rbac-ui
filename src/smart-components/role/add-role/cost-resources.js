@@ -150,7 +150,7 @@ const CostResources = (props) => {
         </GridItem>
         <GridItem md={8} sm={12}>
           <Select
-            className="rbac-m-cost-resource-select"
+            className="rbac-m-resource-type-select"
             variant={SelectVariant.checkbox}
             typeAheadAriaLabel={intl.formatMessage(messages.selectState)}
             onToggle={(isOpen) => {
