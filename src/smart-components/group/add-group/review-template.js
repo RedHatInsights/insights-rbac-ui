@@ -1,9 +1,9 @@
 import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Bullseye, Spinner, Title } from '@patternfly/react-core';
 import { AddGroupWizardContext } from './add-group-wizard';
-import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { asyncValidator } from '../validators';
 import WizardError from '../../common/wizard-error';
 import messages from '../../../Messages';
@@ -22,22 +22,18 @@ const ReviewTemplate = ({ formFields }) => {
   if (typeof error === 'undefined' || submitting) {
     return (
       <Bullseye>
-        <Spinner size="xl" />
+        <Spinner className="pf-u-mt-xl" size="xl" />
       </Bullseye>
     );
   }
 
-  if (error === true) {
-    return (
-      <WizardError
-        context={AddGroupWizardContext}
-        title={intl.formatMessage(messages.groupNameTakenTitle)}
-        text={intl.formatMessage(messages.groupNameTakenText)}
-      />
-    );
-  }
-
-  return (
+  return error === true ? (
+    <WizardError
+      context={AddGroupWizardContext}
+      title={intl.formatMessage(messages.groupNameTakenTitle)}
+      text={intl.formatMessage(messages.groupNameTakenText)}
+    />
+  ) : (
     <React.Fragment>
       <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
         {intl.formatMessage(messages.reviewDetails)}

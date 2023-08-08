@@ -1201,6 +1201,16 @@ export default defineMessages({
     description: 'Create another role message',
     defaultMessage: 'Create another role',
   },
+  groupCreatedSuccessfully: {
+    id: 'groupCreatedSuccessfully',
+    description: 'Group created successfully message',
+    defaultMessage: 'You have successfully created a new group',
+  },
+  createAnotherGroup: {
+    id: 'createAnotherGroup',
+    description: 'Create another group message',
+    defaultMessage: 'Create another group',
+  },
   granularPermissionsWillBeCopied: {
     id: 'granularPermissionsWillBeCopied',
     description: 'Granular permissions will be copied message',

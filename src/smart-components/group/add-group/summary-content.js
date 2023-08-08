@@ -48,13 +48,11 @@ const SummaryContent = () => {
                   </Text>
                 </GridItem>
                 <GridItem md={9}>
-                  <Text component={TextVariants.p}>
-                    {selectedRoles.map((role, index) => (
-                      <Text className="pf-u-mb-0" key={index}>
-                        {role.label}
-                      </Text>
-                    ))}
-                  </Text>
+                  {selectedRoles.map((role, index) => (
+                    <Text className="pf-u-mb-0" key={index}>
+                      {role.label}
+                    </Text>
+                  ))}
                 </GridItem>
               </Grid>
               <Grid>
@@ -64,13 +62,11 @@ const SummaryContent = () => {
                   </Text>
                 </GridItem>
                 <GridItem md={9}>
-                  <Text component={TextVariants.p}>
-                    {selectedUsers.map((role, index) => (
-                      <Text className="pf-u-mb-0" key={index}>
-                        {role.label}
-                      </Text>
-                    ))}
-                  </Text>
+                  {selectedUsers.map((role, index) => (
+                    <Text className="pf-u-mb-0" key={index}>
+                      {role.label}
+                    </Text>
+                  ))}
                 </GridItem>
               </Grid>
             </StackItem>
