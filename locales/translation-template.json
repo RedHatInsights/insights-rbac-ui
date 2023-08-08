@@ -303,6 +303,10 @@
     "defaultMessage": "Copy an existing role",
     "description": "Copy an existing role option"
   },
+  "createAnotherGroup": {
+    "defaultMessage": "Create another group",
+    "description": "Create another group message"
+  },
   "createAnotherRole": {
     "defaultMessage": "Create another role",
     "description": "Create another role message"
@@ -530,6 +534,10 @@
   "group": {
     "defaultMessage": "Group",
     "description": "Group singular"
+  },
+  "groupCreatedSuccessfully": {
+    "defaultMessage": "You have successfully created a new group",
+    "description": "Group created successfully message"
   },
   "groupDefinition": {
     "defaultMessage": "Group definition",
