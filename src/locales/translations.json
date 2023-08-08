@@ -170,6 +170,7 @@
   "noMatchingItemsFound": "No matching {items} found",
   "noPermissions": "No permissions",
   "noPermissionsForInsights": "You do not have individual permissions for Insights.",
+  "noRbacPermissions": "You are missing RBAC permissions to add inventory permissions to your role.",
   "noResourceDefinitions": "There are no resource definitions for {permission} permission",
   "noResultsFound": "No results found",
   "noRolePermissions": "There are no permissions in this role",

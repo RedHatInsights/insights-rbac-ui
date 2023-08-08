@@ -47,7 +47,8 @@ const selector = ({
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const { hasAccess } = usePermissions('cost-management', ['cost-management:*:*']);
+  const { hasAccess: hasCostAccess } = usePermissions('cost-management', ['cost-management:*:*']);
+  const { hasAccess: hasRbacAccess } = usePermissions('rbac', ['rbac:*:*']);
   const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
 
   const fetchData = (apiProps) =>
@@ -95,13 +96,18 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: application === 'cost-management' && ((getResourceType(uuid) || { count: 0 }).count === 0 || !hasAccess),
-      disabledContent: (
-        <div>
-          {intl.formatMessage(hasAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
-          {hasAccess ? <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a> : null}
-        </div>
-      ),
+      disableSelection:
+        (application === 'cost-management' && ((getResourceType(uuid) || { count: 0 }).count === 0 || !hasCostAccess)) ||
+        (application === 'inventory' && !hasRbacAccess),
+      disabledContent:
+        application === 'cost-management' ? (
+          <div>
+            {intl.formatMessage(hasCostAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
+            {hasCostAccess ? <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a> : null}
+          </div>
+        ) : (
+          <div>{intl.formatMessage(messages.noRbacPermissions)}</div>
+        ),
     }));
 
   const debouncedGetApplicationOptions = useCallback(
@@ -157,8 +163,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, []);
 
   useEffect(() => {
-    hasAccess && dispatch(getResourceDefinitions());
-  }, [hasAccess]);
+    hasCostAccess && dispatch(getResourceDefinitions());
+  }, [hasCostAccess]);
 
   useEffect(() => {
     debouncedGetResourceOptions(filters);
