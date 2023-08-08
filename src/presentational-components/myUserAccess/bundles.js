@@ -32,6 +32,7 @@ export const bundleData = [
       policies: '/policies',
       subscriptions: '/subscriptions',
       repositories: '/content',
+      provisioning: '/provisioning',
     },
     appsIds: [
       'dashboard',
@@ -46,6 +47,7 @@ export const bundleData = [
       'image-builder',
       'subscriptions',
       'content-sources',
+      'provisioning',
     ],
   },
   {
