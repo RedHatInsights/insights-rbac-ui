@@ -109,7 +109,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
   const [isDeactivateConfirmationModalOpen, setIsDeactivateConfirmationModalOpen] = useState(false);
   const [isDeactivateConfirmationChecked, setIsDeactivateConfirmationChecked] = useState(false);
   const [isToolbarDropdownOpen, setIsToolbarDropdownOpen] = useState(false);
-  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const { orgAdmin } = useContext(PermissionsContext);
   const screenSize = useScreenSize();
   // use for text filter to focus
   const innerRef = useRef(null);
@@ -460,7 +460,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
         toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
         isCompact
-        isSelectable
+        isSelectable={isAdmin}
         borders={false}
         columns={columns}
         rows={rows}
