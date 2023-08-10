@@ -460,7 +460,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
         toolbarChildren={isAdmin && !displayNarrow ? toolbarDropdowns : () => null}
         toolbarButtons={isAdmin && !displayNarrow && !isExternalIdp(userToken) ? toolbarButtons : () => []}
         isCompact
-        isSelectable={isAdmin}
+        isSelectable={props?.isSelectable}
         borders={false}
         columns={columns}
         rows={rows}
