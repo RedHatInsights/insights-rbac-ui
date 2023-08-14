@@ -153,6 +153,7 @@ const InventoryGroupsRole = (props) => {
                 onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permissionId)
               }
               onToggle={(isOpen) => {
+                // TODO: persist filter state when https://github.com/patternfly/patternfly-react/issues/9490 is resolved
                 !isOpen && state[permissionId].filterValue?.length > 0 && fetchData([permissionId]);
                 dispatchLocally({ type: 'toggle', key: permissionId, filterValue: '', page: 1, isOpen });
               }}
