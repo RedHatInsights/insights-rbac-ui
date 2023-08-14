@@ -5,11 +5,14 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
-import './cost-resources.scss';
+import { debouncedFetch } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
+import './cost-resources.scss';
 
-const selector = ({ inventoryReducer: { resourceTypes } }) => ({
-  resourceTypes: resourceTypes.data?.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
+const selector = ({ inventoryReducer: { resourceTypes, total, isLoading } }) => ({
+  resourceTypes,
+  totalCount: total,
+  isLoading,
 });
 
 const reducer = (state, action) => {
@@ -20,7 +23,9 @@ const reducer = (state, action) => {
         ...state,
         [action.key]: {
           ...prevState,
-          isOpen: !prevState.isOpen,
+          isOpen: action.isOpen,
+          filterValue: action.filterValue ?? prevState.filterValue,
+          page: action.page ?? prevState.page,
         },
       };
     case 'select':
@@ -57,6 +62,15 @@ const reducer = (state, action) => {
         [action.key]: {
           ...prevState,
           filterValue: action.filterValue,
+          page: 1,
+        },
+      };
+    case 'setPage':
+      return {
+        ...state,
+        [action.key]: {
+          ...prevState,
+          page: action.page,
         },
       };
     case 'clear':
@@ -78,18 +92,18 @@ const InventoryGroupsRole = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
 
-  const fetchData = (apiProps) => dispatch(fetchInventoryGroups(apiProps));
-  const { resourceTypes } = useSelector(selector, shallowEqual);
-  const permissions = formOptions.getState().values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('inventory'));
+  const { resourceTypes, totalCount, isLoading } = useSelector(selector, shallowEqual);
+  const permissions =
+    formOptions
+      .getState()
+      .values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('inventory'))
+      .map(({ uuid }) => uuid) || [];
 
-  const onToggle = (key, isOpen) => dispatchLocally({ type: 'toggle', key, isOpen });
-  const onSelect = (event, selection, selectAll, key) => {
-    if (selectAll) {
-      dispatchLocally({ type: 'selectAll', selectionArray: Object.values(resourceTypes), key });
-    } else {
-      dispatchLocally({ type: 'select', processedSelection: resourceTypes[selection], key });
-    }
-  };
+  const fetchData = (permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps));
+
+  const onSelect = (event, selection, selectAll, key) =>
+    (selectAll && dispatchLocally({ type: 'selectAll', selectionArray: Object.values(resourceTypes[key]), key })) ||
+    dispatchLocally({ type: 'select', processedSelection: resourceTypes[key][selection], key });
   const clearSelection = (key) => dispatchLocally({ type: 'clear', key });
 
   const [state, dispatchLocally] = useReducer(
@@ -97,7 +111,8 @@ const InventoryGroupsRole = (props) => {
     permissions.reduce(
       (acc, permission) => ({
         ...acc,
-        [permission.uuid]: {
+        [permission]: {
+          page: 1,
           selected: [],
           filterValue: '',
           isOpen: false,
@@ -108,7 +123,7 @@ const InventoryGroupsRole = (props) => {
   );
 
   useEffect(() => {
-    fetchData();
+    fetchData(permissions, {});
     formOptions.change('inventory-group-permissions', []);
   }, []);
 
@@ -118,39 +133,56 @@ const InventoryGroupsRole = (props) => {
     formOptions.change('inventory-group-permissions', groupsPermissionsDefinition);
   }, [state]);
 
-  const makeRow = ({ uuid: permission }) => {
-    const options = Object.values(resourceTypes).filter((item) => item.name.includes(state[permission].filterValue));
+  const makeRow = (permissionId) => {
+    const options = Object.values(resourceTypes?.[permissionId] ?? {});
     return (
-      <React.Fragment key={`${permission}`}>
+      <React.Fragment key={`${permissionId}`}>
         <GridItem md={4} sm={12}>
-          <FormGroup label={permission} isRequired />
+          <FormGroup label={permissionId} isRequired />
         </GridItem>
         <GridItem md={8} sm={12}>
           <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
             <Select
-              className="rbac-m-cost-resource-select"
+              className="rbac-m-resource-type-select"
               variant={SelectVariant.checkbox}
               typeAheadAriaLabel={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
-              aria-labelledby={permission}
-              selections={state[permission].selected.map(({ name }) => name)}
+              aria-labelledby={permissionId}
+              selections={state[permissionId].selected.map(({ name }) => name)}
               placeholderText={intl.formatMessage(messages.selectGroups)}
               onSelect={(event, selection) =>
-                onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permission)
+                onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permissionId)
               }
               onToggle={(isOpen) => {
-                dispatchLocally({ type: 'setFilter', key: permission, filterValue: '' });
-                onToggle(permission, isOpen);
+                !isOpen && state[permissionId].filterValue?.length > 0 && fetchData([permissionId]);
+                dispatchLocally({ type: 'toggle', key: permissionId, filterValue: '', page: 1, isOpen });
               }}
-              onClear={() => clearSelection(permission)}
-              onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permission, filterValue: e.target.value })}
-              isOpen={state[permission].isOpen}
+              onClear={() => clearSelection(permissionId)}
+              onFilter={(event) => {
+                if (event) {
+                  dispatchLocally({ type: 'setFilter', key: permissionId, filterValue: event.target.value });
+                  debouncedFetch(() => fetchData([permissionId], { name: state[permissionId].filterValue }), 2000);
+                }
+              }}
+              isOpen={state[permissionId].isOpen}
               hasInlineFilter
+              {...(!isLoading &&
+                resourceTypes[permissionId] &&
+                Object.values(resourceTypes[permissionId]).length < totalCount && {
+                  loadingVariant: {
+                    text: intl.formatMessage(messages.seeMore),
+                    onClick: () => {
+                      fetchData([permissionId], { page: state[permissionId].page + 1, name: state[permissionId].filterValue });
+                      dispatchLocally({ type: 'setPage', key: permissionId, page: state[permissionId].page++ });
+                    },
+                  },
+                })}
+              {...(isLoading && { loadingVariant: 'spinner' })}
             >
               {[
                 ...(options?.length > 0
-                  ? [<SelectOption key={`${permission}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
+                  ? [<SelectOption key={`${permissionId}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
                   : []),
-                ...(options?.map((option, index) => <SelectOption key={`${permission}-${index + 1}`} value={option?.name} />) || []),
+                ...(options?.map((option, index) => <SelectOption key={`${permissionId}-${index + 1}`} value={option?.name} />) || []),
               ]}
             </Select>
           </Tooltip>
@@ -160,7 +192,7 @@ const InventoryGroupsRole = (props) => {
   };
 
   return (
-    <Grid hasGutter>
+    <Grid className="pf-u-mt-md" hasGutter>
       <GridItem md={4} className="rbac-m-hide-on-sm">
         <Text component={TextVariants.h4} className="rbac-bold-text pf-u-mt-sm">
           {intl.formatMessage(messages.permissions)}
@@ -171,7 +203,7 @@ const InventoryGroupsRole = (props) => {
           {intl.formatMessage(messages.groupDefinition)}
         </Text>
       </GridItem>
-      {permissions.map(makeRow)}
+      {permissions?.map(makeRow)}
     </Grid>
   );
 };

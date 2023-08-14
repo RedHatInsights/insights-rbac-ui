@@ -303,6 +303,10 @@
     "defaultMessage": "Copy an existing role",
     "description": "Copy an existing role option"
   },
+  "createAnotherGroup": {
+    "defaultMessage": "Create another group",
+    "description": "Create another group message"
+  },
   "createAnotherRole": {
     "defaultMessage": "Create another role",
     "description": "Create another role message"
@@ -531,6 +535,10 @@
     "defaultMessage": "Group",
     "description": "Group singular"
   },
+  "groupCreatedSuccessfully": {
+    "defaultMessage": "You have successfully created a new group",
+    "description": "Group created successfully message"
+  },
   "groupDefinition": {
     "defaultMessage": "Group definition",
     "description": "Group definition label"
@@ -673,6 +681,10 @@
   "noPermissionsForInsights": {
     "defaultMessage": "You do not have individual permissions for Insights.",
     "description": "No individual permissions for Insights message"
+  },
+  "noRbacPermissions": {
+    "defaultMessage": "You are missing RBAC permissions to add inventory permissions to your role.",
+    "description": "No Rbac permissions message"
   },
   "noResourceDefinitions": {
     "defaultMessage": "There are no resource definitions for {permission} permission",

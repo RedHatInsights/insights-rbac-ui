@@ -1,6 +1,7 @@
-import React, { useCallback, useState, useEffect } from 'react';
+import React, { useCallback, useState, useEffect, useMemo } from 'react';
 import PropTypes from 'prop-types';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
@@ -45,10 +46,25 @@ const selector = ({
 });
 
 const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...props }) => {
+  const [isOrgAdmin, setIsOrgAdmin] = useState(null);
+  const { auth } = useChrome();
   const dispatch = useDispatch();
   const intl = useIntl();
-  const { hasAccess } = usePermissions('cost-management', ['cost-management:*:*']);
+  const { hasAccess: hasCostAccess } = usePermissions('cost-management', ['cost-management:*:*']);
+  const { hasAccess: hasRbacAccess } = usePermissions('rbac', ['rbac:*:*']);
   const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
+
+  useEffect(() => {
+    const setOrgAdmin = async () => {
+      const {
+        identity: { user },
+      } = await auth.getUser();
+      setIsOrgAdmin(user.is_org_admin);
+    };
+    if (auth) {
+      setOrgAdmin();
+    }
+  }, [auth]);
 
   const fetchData = (apiProps) =>
     dispatch(
@@ -82,6 +98,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const [value, setValue] = useState();
   const maxFilterItems = 10;
 
+  const inventoryAccess = useMemo(() => isOrgAdmin || (hasRbacAccess ?? false), [hasRbacAccess, isOrgAdmin]);
+
   const getResourceType = (permission) => resourceTypes.find((r) => r.value === permission.split(':')?.[1]);
   const createRows = (permissions) =>
     permissions.map(({ application, resource, operation, uuid, requires }) => ({
@@ -95,13 +113,18 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         operation,
       ],
       selected: Boolean(selectedPermissions && selectedPermissions.find((row) => row.uuid === uuid)),
-      disableSelection: application === 'cost-management' && ((getResourceType(uuid) || { count: 0 }).count === 0 || !hasAccess),
-      disabledContent: (
-        <div>
-          {intl.formatMessage(hasAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
-          {hasAccess ? <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a> : null}
-        </div>
-      ),
+      disableSelection:
+        (application === 'cost-management' && ((getResourceType(uuid) || { count: 0 }).count === 0 || !hasCostAccess)) ||
+        (application === 'inventory' && !inventoryAccess),
+      disabledContent:
+        application === 'cost-management' ? (
+          <div>
+            {intl.formatMessage(hasCostAccess ? messages.configureResourcesForPermission : messages.noCostManagementPermissions)}{' '}
+            {hasCostAccess ? <a href="./settings/sources">{intl.formatMessage(messages.configureCostSources)}</a> : null}
+          </div>
+        ) : (
+          <div>{intl.formatMessage(messages.noRbacPermissions)}</div>
+        ),
     }));
 
   const debouncedGetApplicationOptions = useCallback(
@@ -157,8 +180,8 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, []);
 
   useEffect(() => {
-    hasAccess && dispatch(getResourceDefinitions());
-  }, [hasAccess]);
+    hasCostAccess && dispatch(getResourceDefinitions());
+  }, [hasCostAccess]);
 
   useEffect(() => {
     debouncedGetResourceOptions(filters);
