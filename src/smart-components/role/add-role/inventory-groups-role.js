@@ -48,12 +48,12 @@ const reducer = (state, action) => {
         return state;
       }
     case 'copyToAll': {
-      const firstPermissionSelection = state[action.permissions[0].uuid].selected;
+      const firstPermissionSelection = state[action.permissions[0]].selected;
       return {
         ...state,
         ...action.permissions.reduce((acc, permission) => {
-          acc[permission.uuid] = {
-            ...state[permission.uuid],
+          acc[permission] = {
+            ...state[permission],
             selected: firstPermissionSelection,
           };
           return acc;
@@ -147,14 +147,16 @@ const InventoryGroupsRole = (props) => {
     formOptions.change('inventory-group-permissions', groupsPermissionsDefinition);
   }, [state]);
 
-  const makeRow = (permissionId, index) => {
-    const options = Object.values(resourceTypes?.[permissionId] ?? {});
+  const makeRow = (permission, index) => {
+    const options = Object.values(resourceTypes?.[permission] ?? {});
+    console.log('Current Permission:', permission);
+    console.log('Current State:', state);
 
     return (
-      <React.Fragment key={`${permissionId}`}>
+      <React.Fragment key={`${permission}`}>
         <Grid hasGutter>
           <GridItem lg={3} md={4} sm={2}>
-            <FormGroup label={permissionId.replace('inventory:', '')} isRequired />
+            <FormGroup label={permission?.replace('inventory:', '')} isRequired />
           </GridItem>
           <GridItem lg={7} md={4} sm={8}>
             <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
@@ -162,26 +164,26 @@ const InventoryGroupsRole = (props) => {
                 className="rbac-m-cost-resource-select"
                 variant={SelectVariant.checkbox}
                 typeAheadAriaLabel={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
-                aria-labelledby={permissionId}
-                selections={state[permissionId].selected.map(({ name }) => name)}
+                aria-labelledby={permission}
+                selections={state[permission].selected.map(({ name }) => name)}
                 placeholderText={intl.formatMessage(messages.selectGroups)}
                 onSelect={(event, selection) =>
-                  onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permissionId)
+                  onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permission)
                 }
                 onToggle={(isOpen) => {
-                  !isOpen && state[permissionId].filterValue?.length > 0 && fetchData([permissionId]);
-                  dispatchLocally({ type: 'toggle', key: permissionId, filterValue: '', page: 1, isOpen });
+                  !isOpen && state[permission].filterValue?.length > 0 && fetchData([permission]);
+                  dispatchLocally({ type: 'toggle', key: permission, filterValue: '', page: 1, isOpen });
                 }}
-                onClear={() => clearSelection(permissionId)}
-                onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permissionId, filterValue: e.target.value })}
-                isOpen={state[permissionId].isOpen}
+                onClear={() => clearSelection(permission)}
+                onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permission, filterValue: e.target.value })}
+                isOpen={state[permission].isOpen}
                 hasInlineFilter
               >
                 {[
                   ...(options?.length > 0
-                    ? [<SelectOption key={`${permissionId}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
+                    ? [<SelectOption key={`${permission}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
                     : []),
-                  ...(options?.map((option, index) => <SelectOption key={`${permissionId}-${index + 1}`} value={option?.name} />) || []),
+                  ...(options?.map((option, index) => <SelectOption key={`${permission}-${index + 1}`} value={option?.name} />) || []),
                 ]}
               </Select>
             </Tooltip>
@@ -197,6 +199,8 @@ const InventoryGroupsRole = (props) => {
       </React.Fragment>
     );
   };
+
+  console.log('Current Permissions:', permissions);
 
   return (
     <Grid hasGutter>
