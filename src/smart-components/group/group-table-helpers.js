@@ -72,7 +72,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
       },
       {
         uuid: `${uuid}-roles`,
-        parent: 2 * i,
+        parent: 3 * i,
         compoundParent: 1,
         fullWidth: true,
         noPadding: true,
@@ -91,7 +91,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.permissions),
                     intl.formatMessage(messages.lastModified),
                   ]}
-                  rows={roleCount.map((roles) => {
+                  rows={roles.map((roles) => {
                     const [roleName, description, permissions] = roles.permission.split(':');
                     return {
                       cells: [
@@ -109,7 +109,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   <TableBody />
                 </Table>
               ) : (
-                <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noRolePermissions)}</Text>
+                <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroupRoles)}</Text>
               ),
           },
         ],
@@ -137,7 +137,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.lastName),
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={principalCount.map((member) => ({
+                  rows={members.map((member) => ({
                     cells: [member.orgAdmin, member.username, member.email, member.firstName, member.lastName, member.status],
                   }))}
                 >
