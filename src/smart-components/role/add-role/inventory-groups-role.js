@@ -5,6 +5,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
+import { debouncedFetch } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
 import './cost-resources.scss';
 
@@ -149,8 +150,6 @@ const InventoryGroupsRole = (props) => {
 
   const makeRow = (permission, index) => {
     const options = Object.values(resourceTypes?.[permission] ?? {});
-    console.log('Current Permission:', permission);
-    console.log('Current State:', state);
 
     return (
       <React.Fragment key={`${permission}`}>
@@ -175,9 +174,26 @@ const InventoryGroupsRole = (props) => {
                   dispatchLocally({ type: 'toggle', key: permission, filterValue: '', page: 1, isOpen });
                 }}
                 onClear={() => clearSelection(permission)}
-                onFilter={(e) => e && dispatchLocally({ type: 'setFilter', key: permission, filterValue: e.target.value })}
+                onFilter={(event) => {
+                  if (event) {
+                    dispatchLocally({ type: 'setFilter', key: permission, filterValue: event.target.value });
+                    debouncedFetch(() => fetchData([permission], { name: state[permission].filterValue }), 2000);
+                  }
+                }}
                 isOpen={state[permission].isOpen}
                 hasInlineFilter
+                {...(!isLoading &&
+                  resourceTypes[permission] &&
+                  Object.values(resourceTypes[permission]).length < totalCount && {
+                    loadingVariant: {
+                      text: intl.formatMessage(messages.seeMore),
+                      onClick: () => {
+                        fetchData([permission], { page: state[permission].page + 1, name: state[permission].filterValue });
+                        dispatchLocally({ type: 'setPage', key: permission, page: state[permission].page++ });
+                      },
+                    },
+                  })}
+                {...(isLoading && { loadingVariant: 'spinner' })}
               >
                 {[
                   ...(options?.length > 0
@@ -199,8 +215,6 @@ const InventoryGroupsRole = (props) => {
       </React.Fragment>
     );
   };
-
-  console.log('Current Permissions:', permissions);
 
   return (
     <Grid hasGutter>
