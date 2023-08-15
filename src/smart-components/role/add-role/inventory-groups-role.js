@@ -148,10 +148,7 @@ const InventoryGroupsRole = (props) => {
   }, [state]);
 
   const makeRow = (permissionId, index) => {
-    // const options = Object.values(resourceTypes).filter((item) => item.name.includes(state[permissionId].filterValue));
-    // const options = Object.values(resourceTypes).filter((item) => item && item.name && item.name.includes(state[permissionId].filterValue));
     const options = Object.values(resourceTypes?.[permissionId] ?? {});
-    console.log('TAKING A LOOK AT PERMISSIONS: ', options);
 
     return (
       <React.Fragment key={`${permissionId}`}>
@@ -213,7 +210,6 @@ const InventoryGroupsRole = (props) => {
           {intl.formatMessage(messages.groupDefinition)}
         </Text>
       </GridItem>
-      {/* {permissions.map((permission, index) => makeRow(permission, index))} */}
       {permissions.map(makeRow)}
     </Grid>
   );
