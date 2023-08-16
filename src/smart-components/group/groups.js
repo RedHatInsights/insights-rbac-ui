@@ -2,6 +2,7 @@ import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
+import { compoundExpand, nowrap } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -39,8 +40,8 @@ const Groups = () => {
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
-    { title: intl.formatMessage(messages.roles) },
-    { title: intl.formatMessage(messages.members) },
+    { title: intl.formatMessage(messages.roles), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.members), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
   ];
 
@@ -48,6 +49,7 @@ const Groups = () => {
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
+  const [expanded, setExpanded] = useState({});
 
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
@@ -180,7 +182,11 @@ const Groups = () => {
   const data = groups.map((group) =>
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
-  const rows = createRows(isAdmin, data, selectedRows);
+
+  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) =>
+    setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isAdmin) });
+
+  const rows = createRows(isAdmin, data, selectedRows, expanded);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeGroupsList.length;
 
@@ -204,6 +210,8 @@ const Groups = () => {
               fetchData({ ...pagination, orderBy, filters: { name: filterValue } });
             }}
             columns={columns}
+            isExpandable
+            onExpand={onExpand}
             isSelectable={isAdmin}
             isRowSelectable={(row) => !(row.platform_default || row.admin_default || row.system)}
             checkedRows={selectedRows}
