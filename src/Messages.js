@@ -1495,4 +1495,9 @@ export default defineMessages({
     description: 'No permissions label',
     defaultMessage: 'No permissions',
   },
+  copyToAll: {
+    id: 'copyToAllPermissions',
+    description: 'Copy to all label',
+    defaultMessage: 'Copy to all',
+  },
 });
