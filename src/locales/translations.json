@@ -75,6 +75,7 @@
   "contactServiceTeamForRoles": "Contact your platform service team to add roles.",
   "continue": "Continue",
   "copyAnExistingRole": "Copy an existing role",
+  "copyToAllPermissions": "Copy to all",
   "createAnotherGroup": "Create another group",
   "createAnotherRole": "Create another role",
   "createAtLeastOneItem": "create at least one {item}",

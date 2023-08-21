@@ -303,6 +303,10 @@
     "defaultMessage": "Copy an existing role",
     "description": "Copy an existing role option"
   },
+  "copyToAllPermissions": {
+    "defaultMessage": "Copy to all",
+    "description": "Copy to all label"
+  },
   "createAnotherGroup": {
     "defaultMessage": "Create another group",
     "description": "Create another group message"
