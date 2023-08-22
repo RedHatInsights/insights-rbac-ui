@@ -50,6 +50,7 @@ const SetName = (props) => {
           validated={roleNameValidated(roleName, roleNameError)}
         >
           <TextInput
+            id="role-name"
             value={roleName}
             type="text"
             validated={roleNameValidated(roleName, roleNameError)}
@@ -66,6 +67,7 @@ const SetName = (props) => {
           validated={roleDescriptionValidated(roleDescription)}
         >
           <TextArea
+            id="role-description"
             value={roleDescription}
             validated={roleDescriptionValidated(roleDescription)}
             onChange={(value) => {
