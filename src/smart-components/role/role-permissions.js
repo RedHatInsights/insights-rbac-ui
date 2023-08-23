@@ -107,7 +107,7 @@ const Permissions = ({ cantAddPermissions }) => {
       internalDispatch({ type: INITIALIZE_ROLE, resources, operations, count: role.access ? role.access.length : 0 });
     }
 
-    setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management')));
+    setShowResourceDefinitions(role?.access?.find((a) => a.permission.includes('cost-management') || a.permission.includes('inventory')));
   }, [role]);
 
   const filteredRows =
