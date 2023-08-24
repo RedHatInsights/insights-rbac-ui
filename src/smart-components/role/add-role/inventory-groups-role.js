@@ -3,7 +3,7 @@ import { Button, Select, SelectOption, SelectVariant, Grid, GridItem, Text, Text
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
 import { debouncedFetch } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
@@ -115,9 +115,13 @@ const InventoryGroupsRole = (props) => {
   const fetchData = (permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps));
 
   // eslint-disable-next-line
-  const onSelect = (event, selection, selectAll, key) =>
-    (selectAll && dispatchLocally({ type: 'selectAll', selectionArray: Object.values(resourceTypes[key]), key })) ||
-    dispatchLocally({ type: 'select', processedSelection: resourceTypes[key][selection], key });
+  const onSelect = (event, selection, selectAll, key) => {
+    const ungroupedSystems = { id: null, name: 'null' };
+    return (
+      (selectAll && dispatchLocally({ type: 'selectAll', selectionArray: [ungroupedSystems, ...Object.values(resourceTypes[key])], key })) ||
+      dispatchLocally({ type: 'select', processedSelection: selection === 'null' ? ungroupedSystems : resourceTypes[key][selection], key })
+    );
+  };
   const clearSelection = (key) => dispatchLocally({ type: 'clear', key });
 
   const [state, dispatchLocally] = useReducer(
@@ -148,7 +152,17 @@ const InventoryGroupsRole = (props) => {
   }, [state]);
 
   const makeRow = (permissionID, index) => {
-    const options = Object.values(resourceTypes?.[permissionID] ?? {});
+    const options = [
+      ...(intl.formatMessage(messages.ungroupedSystems).toLocaleLowerCase().includes(state[permissionID].filterValue.toLocaleLowerCase())
+        ? [
+            {
+              name: 'null',
+              children: <FormattedMessage {...messages.ungroupedSystems} />,
+            },
+          ]
+        : []),
+      ...Object.values(resourceTypes?.[permissionID] ?? {}),
+    ];
 
     return (
       <React.Fragment key={permissionID}>
@@ -165,9 +179,7 @@ const InventoryGroupsRole = (props) => {
                 aria-labelledby={permissionID}
                 selections={state[permissionID].selected.map(({ name }) => name)}
                 placeholderText={intl.formatMessage(messages.selectGroups)}
-                onSelect={(event, selection) =>
-                  onSelect(event, selection, selection === intl.formatMessage(messages.selectAll, { length: options?.length ?? 0 }), permissionID)
-                }
+                onSelect={(event, selection) => onSelect(event, selection, selection === 'select-all', permissionID)}
                 onToggle={(isOpen) => {
                   // TODO: persist filter state when https://github.com/patternfly/patternfly-react/issues/9490 is resolved
                   !isOpen && state[permissionID].filterValue?.length > 0 && fetchData([permissionID]);
@@ -177,7 +189,7 @@ const InventoryGroupsRole = (props) => {
                 onFilter={(event) => {
                   if (event) {
                     dispatchLocally({ type: 'setFilter', key: permissionID, filterValue: event.target.value });
-                    debouncedFetch(() => fetchData([permissionID], { name: state[permissionID].filterValue }), 2000);
+                    debouncedFetch(() => fetchData([permissionID], { name: event.target.value }), 2000);
                   }
                 }}
                 isOpen={state[permissionID].isOpen}
@@ -197,9 +209,22 @@ const InventoryGroupsRole = (props) => {
               >
                 {[
                   ...(options?.length > 0
-                    ? [<SelectOption key={`${permissionID}-all`} value={intl.formatMessage(messages.selectAll, { length: options?.length })} />]
+                    ? [
+                        <SelectOption key={`${permissionID}-all`} value="select-all">
+                          <FormattedMessage
+                            {...messages.selectAll}
+                            values={{
+                              length: options?.length,
+                            }}
+                          />
+                        </SelectOption>,
+                      ]
                     : []),
-                  ...(options?.map((option, index) => <SelectOption key={`${permissionID}-${index + 1}`} value={option?.name} />) || []),
+                  ...(options?.map((option, index) => (
+                    <SelectOption key={`${permissionID}-${index + 1}`} value={option?.name}>
+                      {option.children}
+                    </SelectOption>
+                  )) || []),
                 ]}
               </Select>
             </Tooltip>
