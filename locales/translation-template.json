@@ -1122,6 +1122,10 @@
     "defaultMessage": "I understand that this action cannot be undone.",
     "description": "Understand action cannot be undone message"
   },
+  "ungroupedSystems": {
+    "defaultMessage": "Ungrouped systems",
+    "description": "Ungrouped systems button label"
+  },
   "user": {
     "defaultMessage": "user",
     "description": "User label"

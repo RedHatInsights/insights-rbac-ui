@@ -192,6 +192,11 @@ export default defineMessages({
     description: 'Select all button label',
     defaultMessage: 'Select all ({length})',
   },
+  ungroupedSystems: {
+    id: 'ungroupedSystems',
+    description: 'Ungrouped systems button label',
+    defaultMessage: 'Ungrouped systems',
+  },
   filterByKey: {
     id: 'filterByKey',
     description: 'Filter by data key label',
