@@ -3,8 +3,6 @@ import PropTypes from 'prop-types';
 import { Title, Button, EmptyState, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { useDispatch } from 'react-redux';
-import AppLink from '../../../presentational-components/shared/AppLink';
-import { fetchRole } from '../../../redux/actions/role-actions';
 import { useIntl } from 'react-intl';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import { fetchRole } from '../../../redux/actions/role-actions.js';
