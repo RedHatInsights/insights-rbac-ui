@@ -30,6 +30,7 @@ const AddGroupRoles = ({
   const intl = useIntl();
   const dispatch = useDispatch();
   let { state } = useLocation();
+
   const { groupId: uuid } = useParams();
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
   const navigate = useAppNavigate();
