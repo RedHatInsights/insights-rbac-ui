@@ -1,10 +1,10 @@
 import React, { Fragment } from 'react';
 import { Label } from '@patternfly/react-core';
+import { IntlShape } from 'react-intl';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import messages from '../../Messages';
-import { IntlShape } from 'react-intl';
-import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import AppLink from '../../presentational-components/shared/AppLink';
 
 interface UserProps {
   email: string;

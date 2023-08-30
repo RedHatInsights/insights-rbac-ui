@@ -52,17 +52,10 @@ export const schemaBuilder = (container) => {
                 ],
               },
               {
-                component: 'text-field',
+                component: 'set-name',
                 name: 'role-name',
                 type: 'text',
-                label: intl.formatMessage(messages.roleName),
-                isRequired: true,
-                condition: {
-                  when: 'role-type',
-                  is: 'create',
-                },
                 validate: [
-                  debouncedAsyncValidator,
                   {
                     type: validatorTypes.REQUIRED,
                   },
@@ -71,22 +64,10 @@ export const schemaBuilder = (container) => {
                     threshold: 150,
                   },
                 ],
-              },
-              {
-                component: 'text-field',
-                name: 'role-description',
-                type: 'text',
-                label: intl.formatMessage(messages.roleDescription),
                 condition: {
                   when: 'role-type',
                   is: 'create',
                 },
-                validate: [
-                  {
-                    type: 'max-length',
-                    threshold: 150,
-                  },
-                ],
               },
               {
                 component: 'base-role-table',

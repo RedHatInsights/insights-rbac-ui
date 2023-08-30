@@ -75,7 +75,6 @@ exports[`<GroupRoles /> should render empty correctly 1`] = `
   titleSingular="role"
   toolbarButtons={[Function]}
 >
-  <Routes />
   <Toolbar
     checkedRows={Array []}
     data={Array []}
@@ -328,7 +327,7 @@ exports[`<GroupRoles /> should render empty correctly 1`] = `
                                             </DropdownItem>,
                                           ]
                                         }
-                                        isFlipEnabled={false}
+                                        isFlipEnabled={true}
                                         isGrouped={false}
                                         isOpen={false}
                                         isPlain={false}
@@ -357,6 +356,7 @@ exports[`<GroupRoles /> should render empty correctly 1`] = `
                                             </span>
                                           </DropdownToggle>
                                         }
+                                        zIndex={9999}
                                       >
                                         <div
                                           className="pf-c-dropdown ins-c-conditional-filter__group"

@@ -19,6 +19,7 @@ import ReviewStep from './review';
 import InventoryGroupsRole from './inventory-groups-role';
 import CostResources from './cost-resources';
 import TypeSelector from './type-selector';
+import SetName from './set-name';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import SilentErrorBoundary from '../../common/silent-error-boundary';
 import messages from '../../../Messages';
@@ -39,6 +40,7 @@ Description.propTypes = {
 };
 
 export const mapperExtension = {
+  'set-name': SetName,
   'base-role-table': BaseRoleTable,
   'add-permissions-table': AddPermissionsTable,
   'cost-resources': CostResources,
@@ -108,8 +110,8 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       'role-copy-name': copyName,
       'role-copy-description': copyDescription,
       'add-permissions-table': permissions,
-      'inventory-groups-role': invGroupsRole,
-      'cost-resources': resourceDefinitions,
+      'inventory-groups-role': invResources,
+      'cost-resources': costResources,
       'role-type': type,
     } = formData;
     const selectedPermissionIds = permissions.map((record) => record.uuid);
@@ -128,13 +130,13 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
               attributeFilter = {
                 key: `cost-management.${permission.split(':')[1]}`,
                 operation: 'in',
-                value: resourceDefinitions?.find((r) => r.permission === permission)?.resources,
+                value: costResources?.find((r) => r.permission === permission)?.resources,
               };
             } else if (permission.includes('inventory')) {
               attributeFilter = {
                 key: 'group.id',
                 operation: 'in',
-                value: invGroupsRole?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
+                value: invResources?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
               };
             }
 

@@ -41,20 +41,11 @@ describe('<RemoveGroupModal />', () => {
 
   const GroupWrapper = ({ store }) => (
     <Provider store={store}>
-      <MemoryRouter initialEntries={['/groups/', '/groups/remove-group']} initialIndex={2}>
+      <MemoryRouter initialEntries={['/groups/', '/groups/remove-group/123']} initialIndex={2}>
         <Routes>
           <Route
-            path="/groups/remove-group"
-            element={
-              <RemoveGroupModal
-                {...initialProps}
-                isModalOpen
-                groupsUuid={[{ uuid: '123' }]}
-                pagination={{ limit: 0 }}
-                filters={{}}
-                cancelRoute={pathnames.groups.link}
-              />
-            }
+            path="/groups/remove-group/:groupId"
+            element={<RemoveGroupModal {...initialProps} pagination={{ limit: 0 }} filters={{}} cancelRoute={pathnames.groups.link} />}
           />
         </Routes>
       </MemoryRouter>
@@ -90,7 +81,7 @@ describe('<RemoveGroupModal />', () => {
     const wrapper = mount(<GroupWrapper store={store} />);
 
     wrapper.find(Button).last().simulate('click');
-    expect(mockedNavigate).toHaveBeenCalledWith('/groups');
+    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 
   it('should call the remove action', async () => {
@@ -118,5 +109,6 @@ describe('<RemoveGroupModal />', () => {
     });
     expect(initialProps.postMethod).toHaveBeenCalled();
     expect(removeGroupsSpy).toHaveBeenCalledWith(['123']);
+    expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 });

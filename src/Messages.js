@@ -6,11 +6,6 @@ export default defineMessages({
     description: 'Not applicable text for resource definitions',
     defaultMessage: 'N/A',
   },
-  notAuthorized: {
-    id: 'notAuthorized',
-    description: 'Not authorized text',
-    defaultMessage: 'Contact your organization administrator(s) for more information or visit{page}to learn more about your permissions.',
-  },
   orgAdministrator: {
     id: 'orgAdministrator',
     description: 'Org. Administrator name',
@@ -196,6 +191,11 @@ export default defineMessages({
     id: 'selectAll',
     description: 'Select all button label',
     defaultMessage: 'Select all ({length})',
+  },
+  ungroupedSystems: {
+    id: 'ungroupedSystems',
+    description: 'Ungrouped systems button label',
+    defaultMessage: 'Ungrouped systems',
   },
   filterByKey: {
     id: 'filterByKey',
@@ -650,7 +650,7 @@ export default defineMessages({
   addSpecificUserToGroup: {
     id: 'addSpecificUserToGroup',
     description: 'Add user to a group wizard title',
-    defaultMessage: 'Add {user} to a group',
+    defaultMessage: 'Add {username} to a group',
   },
   nameAndDescription: {
     id: 'nameAndDescription',
@@ -1165,6 +1165,11 @@ export default defineMessages({
     description: 'Configure resources for permission message',
     defaultMessage: 'To add this permission to your role and define specific resources for it, at least one data source must be connected.',
   },
+  noRbacPermissions: {
+    id: 'noRbacPermissions',
+    description: 'No Rbac permissions message',
+    defaultMessage: 'You are missing RBAC permissions to add inventory permissions to your role.',
+  },
   noCostManagementPermissions: {
     id: 'noCostManagementPermissions',
     description: 'No Cost management permissions message',
@@ -1205,6 +1210,16 @@ export default defineMessages({
     id: 'createAnotherRole',
     description: 'Create another role message',
     defaultMessage: 'Create another role',
+  },
+  groupCreatedSuccessfully: {
+    id: 'groupCreatedSuccessfully',
+    description: 'Group created successfully message',
+    defaultMessage: 'You have successfully created a new group',
+  },
+  createAnotherGroup: {
+    id: 'createAnotherGroup',
+    description: 'Create another group message',
+    defaultMessage: 'Create another group',
   },
   granularPermissionsWillBeCopied: {
     id: 'granularPermissionsWillBeCopied',
@@ -1484,5 +1499,10 @@ export default defineMessages({
     id: 'noPermissions',
     description: 'No permissions label',
     defaultMessage: 'No permissions',
+  },
+  copyToAll: {
+    id: 'copyToAllPermissions',
+    description: 'Copy to all label',
+    defaultMessage: 'Copy to all',
   },
 });

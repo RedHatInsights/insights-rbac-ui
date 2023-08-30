@@ -124,7 +124,7 @@
     "description": "Add roles to group label"
   },
   "addSpecificUserToGroup": {
-    "defaultMessage": "Add {user} to a group",
+    "defaultMessage": "Add {username} to a group",
     "description": "Add user to a group wizard title"
   },
   "addToDefinitions": {
@@ -215,6 +215,14 @@
     "defaultMessage": "Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.",
     "description": "Apply Cost permission text"
   },
+  "applyInventoryGroupsRolePermission": {
+    "defaultMessage": "Specify which inventory groups youd like to give access for these permissions",
+    "description": "Permissions for Groups"
+  },
+  "assignAtLeastOneGroup": {
+    "defaultMessage": "You need to assign at least one inventory group to each permission.",
+    "description": "Assign at least one inventory group message"
+  },
   "assignAtLeastOneResource": {
     "defaultMessage": "You need to assign at least one resource to each permission.",
     "description": "Assign at least one resource message"
@@ -294,6 +302,14 @@
   "copyAnExistingRole": {
     "defaultMessage": "Copy an existing role",
     "description": "Copy an existing role option"
+  },
+  "copyToAllPermissions": {
+    "defaultMessage": "Copy to all",
+    "description": "Copy to all label"
+  },
+  "createAnotherGroup": {
+    "defaultMessage": "Create another group",
+    "description": "Create another group message"
   },
   "createAnotherRole": {
     "defaultMessage": "Create another role",
@@ -523,6 +539,14 @@
     "defaultMessage": "Group",
     "description": "Group singular"
   },
+  "groupCreatedSuccessfully": {
+    "defaultMessage": "You have successfully created a new group",
+    "description": "Group created successfully message"
+  },
+  "groupDefinition": {
+    "defaultMessage": "Group definition",
+    "description": "Group definition label"
+  },
   "groupDescription": {
     "defaultMessage": "Group description",
     "description": "Group description label"
@@ -555,6 +579,10 @@
     "defaultMessage": "Inactive",
     "description": "Inactive label"
   },
+  "invGroupsLabel": {
+    "defaultMessage": "Select a group to add permissions for",
+    "description": "Type ahead label for inventory groups role permissions"
+  },
   "invalidGroup": {
     "defaultMessage": "Invalid group",
     "description": "Invalid group message"
@@ -566,6 +594,17 @@
   "invalidUser": {
     "defaultMessage": "Invalid user",
     "description": "Invalid user message"
+  },
+  "inventoryGroupsAccessDescription": {
+    "defaultMessage": "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below."
+  },
+  "inventoryGroupsAccessTitle": {
+    "defaultMessage": "Define Inventory group access",
+    "description": "Step for adding correct group permissions to role."
+  },
+  "inventoryGroupsTooltip": {
+    "defaultMessage": "Add permission to these groups.",
+    "description": "Tooltip for inventory group role permissions"
   },
   "key": {
     "defaultMessage": "Key",
@@ -582,6 +621,10 @@
   "lastName": {
     "defaultMessage": "Last name",
     "description": "Last name label"
+  },
+  "loading": {
+    "defaultMessage": "Loading...",
+    "description": "Loading temporary label"
   },
   "maxCharactersWarning": {
     "defaultMessage": "Can have maximum of {number} characters.",
@@ -643,6 +686,10 @@
     "defaultMessage": "You do not have individual permissions for Insights.",
     "description": "No individual permissions for Insights message"
   },
+  "noRbacPermissions": {
+    "defaultMessage": "You are missing RBAC permissions to add inventory permissions to your role.",
+    "description": "No Rbac permissions message"
+  },
   "noResourceDefinitions": {
     "defaultMessage": "There are no resource definitions for {permission} permission",
     "description": "There are no resource definitions for permission message"
@@ -683,13 +730,13 @@
     "defaultMessage": "This group list has been filtered to only show groups that the user is not currently a member of.",
     "description": "Message warning that only groups that the user is not a member of has been filtered"
   },
-  "openshiftPermissions": {
-    "defaultMessage": "All users in the organization may view everything, but only Org. Administrators and cluster owners can perform actions on clusters. The table below displays roles for other OpenShift applications and services.",
-    "description": "Openshift permissions message"
-  },
   "operation": {
     "defaultMessage": "Operation",
     "description": "Operation label"
+  },
+  "orgAdmin": {
+    "defaultMessage": "Org. Admin",
+    "description": "Org. Admin name"
   },
   "orgAdminHint": {
     "defaultMessage": "You can manage other users' permissions with 'User access'",
@@ -1011,6 +1058,10 @@
     "defaultMessage": "Select applications to view your personal permissions.",
     "description": "Select applications to view your personal permissions message"
   },
+  "selectGroups": {
+    "defaultMessage": "Select groups",
+    "description": "Select groups label"
+  },
   "selectNone": {
     "defaultMessage": "Select none (0)",
     "description": "Select none button label"
@@ -1070,6 +1121,10 @@
   "understandActionIrreversible": {
     "defaultMessage": "I understand that this action cannot be undone.",
     "description": "Understand action cannot be undone message"
+  },
+  "ungroupedSystems": {
+    "defaultMessage": "Ungrouped systems",
+    "description": "Ungrouped systems button label"
   },
   "user": {
     "defaultMessage": "user",

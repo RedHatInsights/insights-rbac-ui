@@ -1,6 +1,6 @@
-import React, { useEffect, useState, useContext, Fragment } from 'react';
+import React, { useEffect, useState, useContext, Fragment, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Route, Routes, useParams } from 'react-router-dom';
+import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
@@ -12,8 +12,6 @@ import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import AddGroupRoles from '../group/role/add-group-roles';
-import AddUserToGroup from './add-user-to-group/add-user-to-group';
 import Breadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import PermissionsContext from '../../utilities/permissions-context';
@@ -203,23 +201,6 @@ const User = () => {
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 
-  const routes = () => (
-    <Routes>
-      <Route path={pathnames['add-user-to-group'].path} element={<AddUserToGroup username={username} />} />
-      <Route
-        path={pathnames['user-add-group-roles'].path}
-        element={
-          <AddGroupRoles
-            selectedRoles={selectedAddRoles}
-            setSelectedRoles={setSelectedAddRoles}
-            closeUrl={pathnames['user-detail'].link.replace(':username', username)}
-            addRolesToGroup={(groupId, roles) => dispatch(addRolesToGroup(groupId, roles))}
-          />
-        }
-      />
-    </Routes>
-  );
-
   const toolbarButtons = () => [
     ...(isAdmin
       ? [
@@ -279,7 +260,6 @@ const User = () => {
                 isExpandable
                 onExpand={onExpand}
                 rows={createRows(roles.data, username)}
-                routes={routes}
                 data={roles.data}
                 filterValue={filter}
                 ouiaId="user-details-table"
@@ -295,6 +275,19 @@ const User = () => {
                 titleSingular={intl.formatMessage(messages.role).toLowerCase()}
                 tableId="user"
               />
+              <Suspense>
+                <Outlet
+                  context={{
+                    // add user to group:
+                    username,
+                    // add group roles:
+                    selectedRoles: selectedAddRoles,
+                    setSelectedRoles: setSelectedAddRoles,
+                    closeUrl: pathnames['user-detail'].link.replace(':username', username),
+                    addRolesToGroup: (groupId, roles) => dispatch(addRolesToGroup(groupId, roles)),
+                  }}
+                />
+              </Suspense>
             </Section>
           </StackItem>
         </Stack>

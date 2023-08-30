@@ -50,7 +50,7 @@ const ReviewStep = () => {
   }));
 
   const groupPermissionsRows = (inventoryGroupPermissions || []).map(({ permission, groups }) => ({
-    cells: [permission, groups?.map((group) => group?.name).join(', ')],
+    cells: [permission, groups?.map((group) => (group?.id === null ? intl.formatMessage(messages.ungroupedSystems) : group?.name)).join(', ')],
   }));
 
   return (

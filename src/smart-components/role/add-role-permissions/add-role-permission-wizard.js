@@ -68,7 +68,11 @@ const AddRolePermissionWizard = ({ role }) => {
   };
 
   const onSubmit = async (formData) => {
-    const { 'add-permissions-table': selectedPermissions, 'cost-resources': resourceDefinitions } = formData;
+    const {
+      'add-permissions-table': selectedPermissions,
+      'cost-resources': costResources = [],
+      'inventory-groups-role': invResources = [],
+    } = formData;
 
     const selectedPermissionIds = [...role.access.map((record) => record.permission), ...selectedPermissions.map((record) => record.uuid)];
     const roleData = {
@@ -79,16 +83,28 @@ const AddRolePermissionWizard = ({ role }) => {
             ...acc,
             ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
               permission,
-              resourceDefinitions: resourceDefinitions?.find((r) => r.permission === permission)
-                ? [
-                    {
-                      attributeFilter: {
-                        key: `cost-management.${permission.split(':')[1]}`,
-                        operation: 'in',
-                        value: resourceDefinitions?.find((r) => r.permission === permission).resources,
+              resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === permission)
+                ? permission.includes('inventory')
+                  ? [
+                      {
+                        attributeFilter: {
+                          key: 'group.id',
+                          operation: 'in',
+                          value: invResources?.find((g) => g.permission === permission)?.groups?.map((group) => group?.id),
+                        },
                       },
-                    },
-                  ]
+                    ]
+                  : permission.includes('cost-management')
+                  ? [
+                      {
+                        attributeFilter: {
+                          key: `cost-management.${permission.split(':')[1]}`,
+                          operation: 'in',
+                          value: costResources?.find((r) => r.permission === permission).resources,
+                        },
+                      },
+                    ]
+                  : []
                 : [],
             })),
           ],

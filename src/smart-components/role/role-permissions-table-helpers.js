@@ -20,7 +20,7 @@ export const createRows = (showResDefinitions, uuid, data, intl, selectedRows = 
           operation,
           ...(showResDefinitions
             ? [
-                permission.includes('cost-management') && resourceDefinitions.length > 0 ? (
+                (permission.includes('cost-management') || permission.includes('inventory')) && resourceDefinitions.length > 0 ? (
                   <Fragment key="resource-definitions">
                     <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', uuid).replace(':permissionId', permission)}>
                       {flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)).length}

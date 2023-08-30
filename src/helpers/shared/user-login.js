@@ -79,8 +79,11 @@ export function getCostApi() {
   };
 }
 
-export const getInventoryGroupsApi = () => {
-  return {
-    getInventoryGroups: () => inventoryApi.axios.get(`${INVENTORY_API_BASE}/groups`),
-  };
-};
+export const getInventoryGroupsApi = () => ({
+  getInventoryGroups: (config) =>
+    inventoryApi.axios.get(
+      `${INVENTORY_API_BASE}/resource-types/inventory-groups?per_page=${config?.limit ?? 50}&page=${config?.page ?? 1}${
+        config?.name ? `&name=${config?.name}` : ''
+      }`
+    ),
+});

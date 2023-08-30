@@ -1,42 +1,41 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
+import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Checkbox, Modal, ModalVariant, Text, TextContent } from '@patternfly/react-core';
 import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { useNavigate } from 'react-router-dom';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
 import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
-import pathnames from '../../utilities/pathnames';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 import './remove-group-modal.scss';
 
-const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute }) => {
+const RemoveGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
   const intl = useIntl();
+  const dispatch = useDispatch();
+  const navigate = useAppNavigate();
+  const { groupId } = useParams();
+  const groupsToRemove = groupId.split(',');
+  const multipleGroups = groupsToRemove.length > 1;
+
   const { group, isLoading } = useSelector(
     ({ groupReducer: { selectedGroup } }) => ({
       group: selectedGroup,
-      isLoading: !selectedGroup.loaded,
+      isLoading: (groupId || groupsToRemove.length === 1) && !selectedGroup.loaded,
     }),
     shallowEqual
   );
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (groupsUuid.length === 1) {
-      dispatch(fetchGroup(groupsUuid[0].uuid));
-    }
-  }, []);
 
-  const navigate = useNavigate();
+  useEffect(() => {
+    groupsToRemove.length === 1 && dispatch(fetchGroup(groupsToRemove[0]));
+  }, []);
 
   const [checked, setChecked] = useState(false);
 
-  const multipleGroups = groupsUuid.length > 1;
-
   const onSubmit = () => {
-    const uuids = groupsUuid.map((group) => group.uuid);
-    dispatch(removeGroups(uuids))
-      .then(() => postMethod(uuids, { limit: pagination?.limit, filters }))
+    dispatch(removeGroups(groupsToRemove))
+      .then(() => postMethod(groupsToRemove, { limit: pagination?.limit }))
       .then(navigate(submitRoute));
   };
 
@@ -45,7 +44,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
   return (
     <Modal
       className="rbac"
-      isOpen={isModalOpen}
+      isOpen
       variant={ModalVariant.small}
       title={
         <Text>
@@ -70,7 +69,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
               {...messages.deletingGroupsRemovesRoles}
               values={{
                 b: (text) => <b>{text}</b>,
-                count: groupsUuid.length,
+                count: groupsToRemove.length,
               }}
             />
           </Text>
@@ -99,15 +98,7 @@ const RemoveGroupModal = ({ groupsUuid, isModalOpen, postMethod, pagination, fil
   );
 };
 
-RemoveGroupModal.defaultProps = {
-  groupsUuid: [],
-  isModalOpen: false,
-  cancelUrl: pathnames.groups.path,
-};
-
 RemoveGroupModal.propTypes = {
-  groupsUuid: PropTypes.array.isRequired,
-  isModalOpen: PropTypes.bool,
   postMethod: PropTypes.func,
   pagination: PropTypes.shape({
     limit: PropTypes.number.isRequired,
