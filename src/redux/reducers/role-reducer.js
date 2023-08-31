@@ -34,7 +34,7 @@ const setRole = (state, { payload }) => ({
 });
 const setRoles = (state, { payload }) => ({
   ...state,
-  ...(!payload.error ? { roles: { ...state.roles, ...payload } } : payload),
+  ...(!payload.error ? { roles: { pagination: state.roles?.pagination, filters: state.roles?.filters, ...payload } } : payload),
   isLoading: false,
 });
 const setRolesWithAccess = (state, { payload }) => ({
