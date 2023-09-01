@@ -6,6 +6,7 @@ import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
 import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
@@ -27,12 +28,14 @@ const EditGroup = lazy(() => import('./smart-components/group/edit-group-modal')
 const RemoveGroup = lazy(() => import('./smart-components/group/remove-group-modal'));
 const GroupMembers = lazy(() => import('./smart-components/group/member/group-members'));
 const GroupRoles = lazy(() => import('./smart-components/group/role/group-roles'));
+const GroupServiceAccounts = lazy(() => import('./smart-components/group/service-account/group-service-accounts'));
 const AddGroupRoles = lazy(() => import('./smart-components/group/role/add-group-roles'));
 const AddGroupMembers = lazy(() => import('./smart-components/group/member/add-group-members'));
+const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/service-account/add-group-service-accounts'));
 
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
-const routes = [
+const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
   {
     path: pathnames['user-detail'].path,
     element: UserDetail,
@@ -131,7 +134,6 @@ const routes = [
           },
         ],
       },
-
       {
         path: pathnames['group-detail-members'].path,
         element: GroupMembers,
@@ -150,6 +152,28 @@ const routes = [
           },
         ],
       },
+      ...(enableServiceAccounts
+        ? [
+            {
+              path: pathnames['group-detail-service-accounts'].path,
+              element: GroupServiceAccounts,
+              childRoutes: [
+                {
+                  path: pathnames['group-service-accounts-edit-group'].path,
+                  element: EditGroup,
+                },
+                {
+                  path: pathnames['group-service-accounts-remove-group'].path,
+                  element: RemoveGroup,
+                },
+                {
+                  path: pathnames['group-add-service-account'].path,
+                  element: AddGroupServiceAccounts,
+                },
+              ],
+            },
+          ]
+        : []),
     ],
   },
   {
@@ -199,6 +223,8 @@ const renderRoutes = (routes: RouteType[] = []) =>
 const Routing = () => {
   const location = useLocation();
   const { updateDocumentTitle } = useChrome();
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts');
+
   useEffect(() => {
     const currPath = Object.values(pathnames).find(
       (item) =>
@@ -215,6 +241,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
+  const routes = getRoutes({ enableServiceAccounts });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
   return (
     <Suspense fallback={<AppPlaceholder />}>

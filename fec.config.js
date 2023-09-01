@@ -20,6 +20,6 @@ module.exports = {
       './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
     },
     exclude: ['react-router-dom'],
-    shared: [{ 'react-router-dom': { singleton: true } }],
+    shared: [{ 'react-router-dom': { singleton: true } }, { '@unleash/proxy-client-react': { singleton: true, requiredVersion: '*' } }],
   },
 };
