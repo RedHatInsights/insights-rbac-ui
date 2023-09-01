@@ -238,7 +238,7 @@ const Roles = () => {
                 [pathnames['remove-role'].path]: {
                   isLoading,
                   cancelRoute: getBackRoute(paths.roles.link, pagination, filters),
-                  submitRoute: getBackRoute(paths.roles.link, removingAllRows ? {} : filters),
+                  submitRoute: getBackRoute(paths.roles.link, { ...pagination, offset: 0 }, removingAllRows ? {} : filters),
                   afterSubmit: () => {
                     fetchData({ ...pagination, filters: removingAllRows ? {} : { display_name: filterValue }, offset: 0 }, true);
                     removingAllRows && setFilterValue('');

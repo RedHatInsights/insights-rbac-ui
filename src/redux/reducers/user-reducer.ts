@@ -40,7 +40,11 @@ const setLoadingState = (state: any) => ({
   },
 });
 
-const setUsers = (state: UserStore, { payload }: any) => ({ ...state, users: { ...state.users, ...payload }, isUserDataLoading: false });
+const setUsers = (state: UserStore, { payload }: any) => ({
+  ...state,
+  users: { pagination: state.users?.pagination, filters: state.users?.filters, ...payload },
+  isUserDataLoading: false,
+});
 
 const setFilters = (state: any, { payload }: any) => ({ ...state, users: { ...state.users, filters: payload } });
 

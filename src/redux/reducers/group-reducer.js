@@ -41,7 +41,11 @@ const setSystemGroupLoadingState = (state) => ({
   isSystemGroupLoading: true,
   error: undefined,
 });
-const setGroups = (state, { payload }) => ({ ...state, groups: payload, isLoading: false });
+const setGroups = (state, { payload }) => ({
+  ...state,
+  groups: { pagination: state.groups?.pagination, filters: state.groups?.filters, ...payload },
+  isLoading: false,
+});
 const setAdminGroup = (state, { payload }) => ({ ...state, adminGroup: payload?.data?.filter((group) => group?.admin_default)?.[0] });
 const setSystemGroup = (state, { payload }) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
 const setGroup = (state, { payload }) => ({
