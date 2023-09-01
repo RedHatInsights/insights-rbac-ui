@@ -18,7 +18,11 @@ describe('Group reducer', () => {
 
   it('should set groups data and set loading state to false', () => {
     const payload = { data: 'Foo' };
-    const expectedState = { ...initialState, isLoading: false, groups: payload };
+    const expectedState = {
+      ...initialState,
+      isLoading: false,
+      groups: { filters: initialState.groups.filters, pagination: initialState.groups.pagination, ...payload },
+    };
     expect(reducer(initialState, { type: `${FETCH_GROUPS}_FULFILLED`, payload })).toEqual(expectedState);
   });
 

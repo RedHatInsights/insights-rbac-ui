@@ -18,7 +18,11 @@ describe('User reducer', () => {
 
   it('should set user data and loading state to false', () => {
     const payload = { data: 'Foo' };
-    const expectedState = { ...initialState, users: { ...initialState.users, ...payload }, isUserDataLoading: false };
+    const expectedState = {
+      ...initialState,
+      users: { filters: initialState.users.filters, pagination: initialState.users.pagination, ...payload },
+      isUserDataLoading: false,
+    };
     expect(reducer(initialState, { type: `${FETCH_USERS}_FULFILLED`, payload })).toEqual(expectedState);
   });
 });
