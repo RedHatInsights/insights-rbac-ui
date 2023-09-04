@@ -123,6 +123,10 @@
     "defaultMessage": "Add roles to the {name} group",
     "description": "Add roles to group label"
   },
+  "addServiceAccount": {
+    "defaultMessage": "Add service account",
+    "description": "Add service account label"
+  },
   "addSpecificUserToGroup": {
     "defaultMessage": "Add {username} to a group",
     "description": "Add user to a group wizard title"
@@ -1089,6 +1093,10 @@
   "selectedPermissions": {
     "defaultMessage": "Selected permissions",
     "description": "Selected permissions label"
+  },
+  "serviceAccountsPage": {
+    "defaultMessage": "Service Accounts admin page",
+    "description": "Service accounts page message"
   },
   "status": {
     "defaultMessage": "Status",

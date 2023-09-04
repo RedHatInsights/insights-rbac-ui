@@ -727,6 +727,16 @@ export default defineMessages({
     description: 'Remove members plural text',
     defaultMessage: 'These <b>{name}</b> members will lose all the roles associated with the <b>{group}</b> group.',
   },
+  serviceAccountsPage: {
+    id: 'serviceAccountsPage',
+    description: 'Service accounts page message',
+    defaultMessage: 'Service Accounts admin page',
+  },
+  addServiceAccount: {
+    id: 'addServiceAccount',
+    description: 'Add service account label',
+    defaultMessage: 'Add service account',
+  },
   remove: {
     id: 'remove',
     description: 'Remove button label',
