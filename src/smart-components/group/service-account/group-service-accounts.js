@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useContext, useRef, Suspense, Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
@@ -25,7 +25,14 @@ const createRows = (data, checkedRows = []) =>
       {
         uuid: description,
         title: description,
-        cells: [description, client_id, owner, getDateFormat(time_created)],
+        cells: [
+          description,
+          client_id,
+          owner,
+          <Fragment key={`${description}-modified`}>
+            <DateFormat date={time_created} type={getDateFormat(time_created)} />
+          </Fragment>,
+        ],
         selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === description)),
       },
     ],
@@ -87,7 +94,7 @@ const GroupServiceAccounts = () => {
       ? [
           {
             title: intl.formatMessage(messages.remove),
-            onClick: () => {},
+            onClick: () => null, // TODO: add service account removal
           },
         ]
       : []),
