@@ -1,22 +1,15 @@
-import React, { useState, useEffect, Fragment, useContext, useRef, Suspense } from 'react';
+import React, { useState, useEffect, useContext, useRef, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
-import PropTypes from 'prop-types';
 import { Outlet, useParams } from 'react-router-dom';
-import { Alert, Button, Tooltip } from '@patternfly/react-core';
+import { Alert, Button } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import {
-  addRolesToGroup,
-  fetchRolesForGroup,
-  fetchAddRolesForGroup,
-  fetchSystemGroup,
-  fetchGroup,
-  fetchGroups,
-} from '../../../redux/actions/group-actions';
+import { fetchGroup, fetchGroups } from '../../../redux/actions/group-actions';
+import { fetchServiceAccountsForGroup } from '../../../redux/actions/group-actions';
 import { getBackRoute, getDateFormat } from '../../../helpers/shared/helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
 import AppLink from '../../../presentational-components/shared/AppLink';
@@ -25,117 +18,68 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-service-accounts.scss';
 
-const createRows = (groupId, data, checkedRows = []) =>
+const createRows = (data, checkedRows = []) =>
   data?.reduce(
-    (acc, { uuid, display_name, name, description, modified }) => [
+    (acc, { description, client_id, owner, time_created }) => [
       ...acc,
       {
-        uuid,
-        title: display_name || name,
-        cells: [
-          <Fragment key={`${uuid}-name`}>
-            <AppLink to={pathnames['group-detail-role-detail'].link.replace(':groupId', groupId).replace(':roleId', uuid)}>
-              {display_name || name}
-            </AppLink>
-          </Fragment>,
-          description,
-          <Fragment key={`${uuid}-modified`}>
-            <DateFormat date={modified} type={getDateFormat(modified)} />
-          </Fragment>,
-        ],
-        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
+        uuid: description,
+        title: description,
+        cells: [description, client_id, owner, getDateFormat(time_created)],
+        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === description)),
       },
     ],
     []
   ) || [];
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
-  roles: selectedGroup.roles,
-  pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.roles && selectedGroup.roles.length },
+  serviceAccounts: selectedGroup.serviceAccounts?.data || [],
+  pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.serviceAccounts && selectedGroup.serviceAccounts.length },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
   isLoading: !selectedGroup.loaded,
-  isPlatformDefault: selectedGroup.platform_default,
   isAdminDefault: selectedGroup.admin_default,
-  isChanged: !selectedGroup.system,
-  disableAddRoles:
-    /**
-     * First validate if the pagination object exists and is not empty.
-     * If empty or undefined, the disable condition will be always true
-     */
-    Object.keys(selectedGroup.addRoles.pagination || {}).length > 0
-      ? !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default
-      : !!selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
   group: selectedGroup,
 });
 
-const GroupServiceAccounts = ({ onDefaultGroupChanged }) => {
+const GroupServiceAccounts = () => {
   const intl = useIntl();
   const chrome = useChrome();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
   const [descriptionValue, setDescriptionValue] = useState('');
-  const [filterValue, setFilterValue] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState([]);
-  const [selectedAddRoles, setSelectedAddRoles] = useState([]);
+  const [ownerValue, setOwnerValue] = useState('');
+  const [timeCreatedValue, setTimeCreatedValue] = useState('');
+  const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const {
-    roles,
-    pagination,
-    groupsPagination,
-    groupsFilters,
-    isLoading,
-    group,
-    isPlatformDefault,
-    isAdminDefault,
-    isChanged,
-    disableAddRoles,
-    systemGroupUuid,
-  } = useSelector(reducer);
+  const { serviceAccounts, pagination, groupsPagination, groupsFilters, isLoading, group, isAdminDefault, systemGroupUuid } = useSelector(reducer);
 
-  const reloadWrapper = (event, callback) => {
-    event.payload.then(callback);
-    return event;
-  };
-
-  const fetchAddGroupRoles = (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {}));
-  const fetchGroupData = (customId) => dispatch(fetchGroup(customId ?? groupId));
-  const fetchSystGroup = () => dispatch(fetchSystemGroup({ chrome }));
-  const fetchGroupRoles = (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options));
+  const fetchGroupAccounts = (config) => (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, config, options));
 
   const columns = [
-    { title: intl.formatMessage(messages.name), orderBy: 'name' },
-    { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.lastModified) },
+    { title: intl.formatMessage(messages.description), orderBy: 'description' },
+    { title: intl.formatMessage(messages.clientId), orderBy: 'clientId' },
+    { title: intl.formatMessage(messages.owner), orderBy: 'owner' },
+    { title: intl.formatMessage(messages.timeCreated), orderBy: 'timeCreated' },
   ];
 
   useEffect(() => {
     if (groupId !== 'default-access') {
-      fetchGroupRoles(pagination)(groupId);
+      fetchGroupAccounts(pagination)(groupId);
     } else {
-      systemGroupUuid && fetchGroupRoles(pagination)(systemGroupUuid);
+      systemGroupUuid && fetchGroupAccounts(pagination)(systemGroupUuid);
     }
   }, [systemGroupUuid]);
-
-  useEffect(() => {
-    if (roles?.length > 0) {
-      if (groupId !== 'default-access') {
-        fetchAddGroupRoles(groupId);
-      } else {
-        systemGroupUuid && fetchAddGroupRoles(systemGroupUuid);
-      }
-    }
-  }, [roles]);
 
   useEffect(() => {
     hasPermissions.current = orgAdmin || userAccessAdministrator;
   }, [orgAdmin, userAccessAdministrator]);
 
   const setCheckedItems = (newSelection) => {
-    setSelectedRoles((roles) => newSelection(roles).map(({ uuid, name, label }) => ({ uuid, label: label || name })));
+    setSelectedAccounts((accounts) => newSelection(accounts).map(({ uuid, name, label }) => ({ uuid, label: label || name })));
   };
 
   const actionResolver = () => [
@@ -187,95 +131,58 @@ const GroupServiceAccounts = ({ onDefaultGroupChanged }) => {
         />
         <TableToolbarView
           columns={columns}
-          isSelectable={hasPermissions.current && !isAdminDefault}
-          rows={createRows(groupId, roles, selectedRoles)}
-          data={roles}
-          filterValue={filterValue}
+          isSelectable
+          rows={createRows(serviceAccounts, selectedAccounts)}
+          data={serviceAccounts}
+          filterValue={descriptionValue}
           fetchData={(config) => {
-            fetchGroupRoles(config)(groupId);
+            fetchGroupAccounts(config)(groupId);
           }}
-          emptyFilters={{ name: '', description: '' }}
+          emptyFilters={{ owner: '', description: '', timeCreated: '' }}
           setFilterValue={({ name, description }) => {
-            typeof name !== 'undefined' && setFilterValue(name);
+            typeof name !== 'undefined' && setOwnerValue(name);
             typeof description !== 'undefined' && setDescriptionValue(description);
+            typeof timeCreatedValue !== 'undefined' && setTimeCreatedValue(description);
           }}
           isLoading={isLoading}
           pagination={pagination}
-          checkedRows={selectedRoles}
+          checkedRows={selectedAccounts}
           setCheckedItems={setCheckedItems}
-          titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
-          titleSingular={intl.formatMessage(messages.role)}
+          titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
+          titleSingular={intl.formatMessage(messages.serviceAccount)}
           toolbarButtons={toolbarButtons}
           actionResolver={actionResolver}
-          ouiaId="roles-table"
+          ouiaId="service-accounts-table"
           emptyProps={{
-            title: intl.formatMessage(messages.noGroupRoles),
-            description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForRoles : messages.addRoleToConfigureAccess), ''],
+            title: intl.formatMessage(messages.noGroupAccounts),
+            description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
           }}
           filters={[
-            { key: 'name', value: filterValue },
             { key: 'description', value: descriptionValue },
+            { key: 'owner', value: ownerValue },
           ]}
-          tableId="group-roles"
+          tableId="group-accounts"
         />
       </Section>
       <Suspense>
         <Outlet
           context={{
-            [pathnames['group-roles-edit-group'].path]: {
+            [pathnames['group-service-accounts-edit-group'].path]: {
               group,
-              cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+              cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
               postMethod: () => dispatch(fetchGroup(groupId)),
             },
-            [pathnames['group-roles-remove-group'].path]: {
+            [pathnames['group-service-accounts-remove-group'].path]: {
               postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true, chrome })),
-              cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId),
+              cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
               submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
               groupsUuid: [group],
-            },
-            [pathnames['group-add-roles'].path]: {
-              afterSubmit: () => {
-                if (isPlatformDefault || isAdminDefault) {
-                  fetchSystGroup().then(({ value: { data } }) => {
-                    fetchGroupRoles(pagination)(data[0].uuid);
-                    fetchGroupData(data[0].uuid);
-                  });
-                } else {
-                  fetchGroupRoles(pagination)(groupId);
-                  fetchGroupData();
-                }
-              },
-              fetchUuid: systemGroupUuid,
-              selectedRoles: selectedAddRoles,
-              setSelectedRoles: setSelectedAddRoles,
-              closeUrl: pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : groupId),
-              addRolesToGroup: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
-              groupName: group.name,
-              isDefault: isPlatformDefault || isAdminDefault,
-              isChanged,
-              onDefaultGroupChanged,
             },
           }}
         />
       </Suspense>
     </React.Fragment>
   );
-};
-
-GroupServiceAccounts.propTypes = {
-  searchFilter: PropTypes.string,
-  selectedRoles: PropTypes.array,
-  pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-    offset: PropTypes.number.isRequired,
-    count: PropTypes.number,
-  }),
-  onDefaultGroupChanged: PropTypes.func,
-};
-
-GroupServiceAccounts.defaultProps = {
-  pagination: defaultCompactSettings,
-  selectedRoles: [],
 };
 
 export default GroupServiceAccounts;

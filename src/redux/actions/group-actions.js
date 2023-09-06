@@ -176,6 +176,11 @@ export const fetchRolesForGroup = (groupId, pagination, options) => ({
   payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
 });
 
+export const fetchServiceAccountsForGroup = (groupId, pagination, options) => ({
+  type: ActionTypes.FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
+  payload: GroupHelper.fetchAccountsForGroup(groupId, false, pagination, options).catch(handleUuidError),
+});
+
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
   payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
