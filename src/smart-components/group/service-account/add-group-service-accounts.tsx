@@ -8,7 +8,7 @@ const AddGroupServiceAccounts: React.FC = () => {
 
   return (
     <Modal className="rbac" variant={ModalVariant.medium} isOpen={false} title={intl.formatMessage(messages.addServiceAccount)}>
-      <></>
+      null
     </Modal>
   );
 };

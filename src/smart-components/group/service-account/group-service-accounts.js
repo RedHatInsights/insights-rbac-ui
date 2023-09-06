@@ -18,7 +18,7 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-service-accounts.scss';
 
-const createRows = (data, checkedRows = []) =>
+const createRows = (data = [], checkedRows = []) =>
   data?.reduce(
     (acc, { description, client_id, owner, time_created }) => [
       ...acc,
@@ -37,7 +37,7 @@ const createRows = (data, checkedRows = []) =>
       },
     ],
     []
-  ) || [];
+  );
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   serviceAccounts: selectedGroup.serviceAccounts?.data || [],
