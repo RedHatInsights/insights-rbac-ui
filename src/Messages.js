@@ -562,6 +562,21 @@ export default defineMessages({
     description: 'Description column label',
     defaultMessage: 'Description',
   },
+  clientId: {
+    id: 'clientId',
+    description: 'Client ID column label',
+    defaultMessage: 'Client ID',
+  },
+  owner: {
+    id: 'owner',
+    description: 'Owner column label',
+    defaultMessage: 'Owner',
+  },
+  timeCreated: {
+    id: 'timeCreated',
+    description: 'Time created column label',
+    defaultMessage: 'Time created',
+  },
   lastModified: {
     id: 'lastModified',
     description: 'Last modified column label',
@@ -601,6 +616,16 @@ export default defineMessages({
     id: 'group',
     description: 'Group singular',
     defaultMessage: 'Group',
+  },
+  serviceAccount: {
+    id: 'serviceAccount',
+    description: 'Service accounts singular',
+    defaultMessage: 'Service account',
+  },
+  serviceAccounts: {
+    id: 'serviceAccounts',
+    description: 'Service accounts plural',
+    defaultMessage: 'Service accounts',
   },
   groupName: {
     id: 'groupName',
@@ -877,6 +902,21 @@ export default defineMessages({
     id: 'defaultGroupNotManually',
     description: 'Message warning that default admin access group cannot be modified manually',
     defaultMessage: 'Default admin access group roles cannot be modified manually',
+  },
+  noGroupAccounts: {
+    id: 'noGroupAccounts',
+    description: 'No service accounts in a group message',
+    defaultMessage: 'There are no service accounts in this group',
+  },
+  addAccountsToThisGroup: {
+    id: 'addAccountsToThisGroup',
+    description: 'Add service accounts message',
+    defaultMessage: 'Add service accounts you wish to associate with this User Access group',
+  },
+  contactServiceTeamForAccounts: {
+    id: 'contactServiceTeamForAccounts',
+    description: 'Contact service team to add accounts message',
+    defaultMessage: 'Contact your platform service team to add service accounts.',
   },
   noGroupRoles: {
     id: 'noGroupRoles',
