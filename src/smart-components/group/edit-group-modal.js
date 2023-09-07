@@ -52,7 +52,7 @@ const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRo
     };
     postMethod
       ? dispatch(updateGroup(user_data))
-          .then(() => postMethod({ limit: pagination?.limit, filters }))
+          .then(() => postMethod({ limit: pagination?.limit }))
           .then(navigate(submitRoute))
       : dispatch(updateGroup(user_data)).then(() => {
           navigate(submitRoute);
