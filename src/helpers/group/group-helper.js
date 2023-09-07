@@ -131,6 +131,16 @@ export async function fetchRolesForGroup(groupId, excluded, { limit, offset, nam
   );
 }
 
+export async function fetchAccountsForGroup() {
+  return {
+    data: [
+      { description: 'This is account 1', client_id: 'abra1234-ca56-da789-fg1011', owner: 'rhn-support1', time_created: 123456456 },
+      { description: 'This is account 2', client_id: 'bbra1234-ca56-da789-fg1012', owner: 'rhn-support2', time_created: 123456478 },
+    ],
+    meta: { count: 0 },
+  };
+}
+
 export async function deleteRolesFromGroup(groupId, roles) {
   return await groupApi.deleteRoleFromGroup(groupId, roles.join(','));
 }

@@ -73,6 +73,26 @@ const pathnames = {
     path: 'remove-group',
     title: 'Group members - remove group',
   },
+  'group-detail-service-accounts': {
+    link: '/groups/detail/:groupId/service-accounts',
+    path: 'service-accounts/*',
+    title: 'Group service accounts',
+  },
+  'group-add-service-account': {
+    link: '/groups/detail/:groupId/service-accounts/add-service-account',
+    path: 'add-service-account',
+    title: 'Add group service account',
+  },
+  'group-service-accounts-edit-group': {
+    link: '/groups/detail/:groupId/service-accounts/edit-group',
+    path: 'edit-group',
+    title: 'Group service-accounts - edit group',
+  },
+  'group-service-accounts-remove-group': {
+    link: '/groups/detail/:groupId/service-accounts/remove-group',
+    path: 'remove-group',
+    title: 'Group service-accounts - remove group',
+  },
   roles: {
     link: '/roles',
     path: '/roles/*',

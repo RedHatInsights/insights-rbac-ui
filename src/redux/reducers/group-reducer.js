@@ -7,6 +7,7 @@ import {
   FETCH_ROLES_FOR_GROUP,
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_MEMBERS_FOR_GROUP,
+  FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
   UPDATE_GROUPS_FILTERS,
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
@@ -20,7 +21,7 @@ export const groupsInitialState = {
     filters: {},
     pagination: { count: 0 },
   },
-  selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, pagination: defaultSettings },
+  selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, serviceAccounts: { meta: defaultSettings }, pagination: defaultSettings },
   isLoading: false,
   isRecordLoading: false,
 };
@@ -80,7 +81,24 @@ const setRolesForGroup = (state, { payload }) => ({
     loaded: true,
   },
 });
-
+const setAccountsForGroupLoading = (state = {}) => ({
+  ...state,
+  selectedGroup: {
+    ...(state.selectedGroup || {}),
+    serviceAccounts: { isLoading: true },
+  },
+});
+const setAccountsForGroup = (state, { payload }) => ({
+  ...state,
+  selectedGroup: {
+    ...(state.selectedGroup || {}),
+    serviceAccounts: {
+      isLoading: false,
+      ...(!payload.error ? payload : {}),
+    },
+    ...(payload.error ? payload : {}),
+  },
+});
 const setMembersForGroupLoading = (state = {}) => ({
   ...state,
   selectedGroup: {
@@ -126,6 +144,8 @@ export default {
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
+  [`${FETCH_SERVICE_ACCOUNTS_FOR_GROUP}_PENDING`]: setAccountsForGroupLoading,
+  [`${FETCH_SERVICE_ACCOUNTS_FOR_GROUP}_FULFILLED`]: setAccountsForGroup,
   [`${FETCH_MEMBERS_FOR_GROUP}_PENDING`]: setMembersForGroupLoading,
   [`${FETCH_MEMBERS_FOR_GROUP}_FULFILLED`]: setMembersForGroup,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
