@@ -16,6 +16,7 @@ import {
   KebabToggle,
   Button,
 } from '@patternfly/react-core';
+import { useFlag } from '@unleash/proxy-client-react';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -38,9 +39,21 @@ const Group = () => {
   const chrome = useChrome();
   const { groupId } = useParams();
   const isPlatformDefault = groupId === 'default-access';
+  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts');
+
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId), to: 'roles' },
     { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link.replace(':groupId', groupId), to: 'members' },
+    ...(enableServiceAccounts
+      ? [
+          {
+            eventKey: 2,
+            title: 'Service accounts',
+            name: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
+            to: 'service-accounts',
+          },
+        ]
+      : []),
   ];
 
   const { pagination, filters, groupExists, systemGroupUuid } = useSelector(

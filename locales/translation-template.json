@@ -7,6 +7,10 @@
     "defaultMessage": "Active",
     "description": "Active label"
   },
+  "addAccountsToThisGroup": {
+    "defaultMessage": "Add service accounts you wish to associate with this User Access group",
+    "description": "Add service accounts message"
+  },
   "addGroupMemberErrorDescription": {
     "defaultMessage": "The member was not added successfully.",
     "description": "Add group member error notification description"
@@ -122,6 +126,10 @@
   "addRolesToGroup": {
     "defaultMessage": "Add roles to the {name} group",
     "description": "Add roles to group label"
+  },
+  "addServiceAccount": {
+    "defaultMessage": "Add service account",
+    "description": "Add service account label"
   },
   "addSpecificUserToGroup": {
     "defaultMessage": "Add {username} to a group",
@@ -255,6 +263,10 @@
     "defaultMessage": "Clear all filters",
     "description": "Clear all filters message"
   },
+  "clientId": {
+    "defaultMessage": "Client ID",
+    "description": "Client ID column label"
+  },
   "close": {
     "defaultMessage": "Close",
     "description": "Close button text"
@@ -290,6 +302,10 @@
   "contactOrgAdministrator": {
     "defaultMessage": "Contact your Org. Administrator for more information.",
     "description": "Contact org. administrator for more info message"
+  },
+  "contactServiceTeamForAccounts": {
+    "defaultMessage": "Contact your platform service team to add service accounts.",
+    "description": "Contact service team to add accounts message"
   },
   "contactServiceTeamForRoles": {
     "defaultMessage": "Contact your platform service team to add roles.",
@@ -662,6 +678,10 @@
     "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
     "description": "No Cost management permissions message"
   },
+  "noGroupAccounts": {
+    "defaultMessage": "There are no service accounts in this group",
+    "description": "No service accounts in a group message"
+  },
   "noGroupMembers": {
     "defaultMessage": "There are no members in this group",
     "description": "No members in a given group title"
@@ -749,6 +769,10 @@
   "orgAdministrator": {
     "defaultMessage": "Org. Administrator",
     "description": "Org. Administrator name"
+  },
+  "owner": {
+    "defaultMessage": "Owner",
+    "description": "Owner column label"
   },
   "pageNotExists": {
     "defaultMessage": "Page you are looking for does not exist.",
@@ -1090,6 +1114,18 @@
     "defaultMessage": "Selected permissions",
     "description": "Selected permissions label"
   },
+  "serviceAccount": {
+    "defaultMessage": "Service account",
+    "description": "Service accounts singular"
+  },
+  "serviceAccounts": {
+    "defaultMessage": "Service accounts",
+    "description": "Service accounts plural"
+  },
+  "serviceAccountsPage": {
+    "defaultMessage": "Service Accounts admin page",
+    "description": "Service accounts page message"
+  },
   "status": {
     "defaultMessage": "Status",
     "description": "Status label"
@@ -1097,6 +1133,10 @@
   "stay": {
     "defaultMessage": "Stay",
     "description": "Stay button text"
+  },
+  "timeCreated": {
+    "defaultMessage": "Time created",
+    "description": "Time created column label"
   },
   "toConfigureUserAccess": {
     "defaultMessage": "To configure user access to applications",
