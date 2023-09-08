@@ -31,6 +31,7 @@ export const TableToolbarView = ({
   setFilterValue,
   checkedRows,
   isSelectable,
+  isRowSelectable,
   fetchData,
   setCheckedItems,
   emptyProps,
@@ -101,6 +102,7 @@ export const TableToolbarView = ({
       <Fragment>
         <Toolbar
           isSelectable={isSelectable}
+          isRowSelectable={isRowSelectable}
           checkedRows={checkedRows}
           setCheckedItems={setCheckedItems}
           isLoading={isLoading || noData}
@@ -191,6 +193,7 @@ TableToolbarView.propTypes = {
   }),
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
+  isRowSelectable: propTypes.func,
   borders: propTypes.bool,
   emptyFilters: propTypes.object,
   checkedRows: propTypes.array,

@@ -38,7 +38,14 @@ export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', 
   },
 });
 
-export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems = () => undefined, data = [], tableId) => {
+export const bulkSelectBuilder = (
+  isLoading,
+  checkedRows = [],
+  setCheckedItems = () => undefined,
+  data = [],
+  tableId,
+  isRowSelectable = () => true
+) => {
   const intl = useIntl();
   return {
     count: checkedRows.length,
@@ -53,7 +60,7 @@ export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems =
         ...(!isLoading && data && data.length > 0
           ? {
               title: intl.formatMessage(messages.selectPage, {
-                length: data.filter((row) => !(row.platform_default || row.admin_default || row.system)).length,
+                length: data.filter(isRowSelectable).length,
               }),
               onClick: () => {
                 setCheckedItems(selectedRows(data, true));
@@ -62,7 +69,7 @@ export const bulkSelectBuilder = (isLoading, checkedRows = [], setCheckedItems =
           : {}),
       },
     ],
-    checked: calculateChecked(data, checkedRows),
+    checked: calculateChecked(data, checkedRows, isRowSelectable),
     onSelect: (value) => {
       !isLoading && setCheckedItems(selectedRows(data, value));
     },
@@ -238,6 +245,7 @@ export const activeFiltersConfigBuilder = (
 
 const Toolbar = ({
   isSelectable,
+  isRowSelectable,
   checkedRows,
   setCheckedItems,
   isLoading,
@@ -264,7 +272,7 @@ const Toolbar = ({
 }) => (
   <PrimaryToolbar
     {...(isSelectable && {
-      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId),
+      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable),
     })}
     filterConfig={filterConfigBuilder(
       isLoading,
@@ -301,6 +309,7 @@ const Toolbar = ({
 
 Toolbar.propTypes = {
   isSelectable: PropTypes.bool,
+  isRowSelectable: PropTypes.func,
   checkedRows: PropTypes.array,
   setCheckedItems: PropTypes.func,
   isLoading: PropTypes.bool,
