@@ -189,6 +189,7 @@ const Roles = () => {
         <Section type="content" id="tab-roles">
           <TableToolbarView
             isSelectable={isSelectable}
+            isRowSelectable={(row) => !(row.platform_default || row.admin_default || row.system)}
             checkedRows={selectedRows}
             textFilterRef={textFilterRef}
             setCheckedItems={setCheckedItems}

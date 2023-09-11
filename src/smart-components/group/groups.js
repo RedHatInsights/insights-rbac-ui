@@ -204,6 +204,7 @@ const Groups = () => {
             }}
             columns={columns}
             isSelectable={isAdmin}
+            isRowSelectable={(row) => !(row.platform_default || row.admin_default || row.system)}
             checkedRows={selectedRows}
             setCheckedItems={setCheckedItems}
             actionResolver={actionResolver}
