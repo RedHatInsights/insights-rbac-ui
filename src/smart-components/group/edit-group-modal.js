@@ -16,7 +16,7 @@ import { debouncedAsyncValidator } from './validators';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 
-const EditGroupModal = ({ postMethod, pagination, filters, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
+const EditGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
   const intl = useIntl();
   const [selectedGroup, setSelectedGroup] = useState(undefined);
 
