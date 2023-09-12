@@ -51,7 +51,6 @@ describe('<EditGroupModal />', () => {
         id: '1',
       },
       pagination: defaultSettings,
-      filters: {},
     };
     mockStore = configureStore(middlewares);
     initialState = {

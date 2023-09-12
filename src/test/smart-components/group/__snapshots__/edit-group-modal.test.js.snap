@@ -27,7 +27,6 @@ exports[`<EditGroupModal /> should render correctly 1`] = `
 >
   <EditGroupModal
     cancelRoute="/groups"
-    filters={Object {}}
     group={
       Object {
         "id": "1",
