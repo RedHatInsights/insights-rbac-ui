@@ -55,7 +55,7 @@ const reducer = (state, action) => {
         ...action.permissions.reduce((acc, permission) => {
           acc[permission] = {
             ...state[permission],
-            selected: firstPermissionSelection,
+            selected: !permission.includes('inventory:hosts') ? firstPermissionSelection.filter(({ id }) => id !== null) : firstPermissionSelection,
           };
           return acc;
         }, {}),
@@ -152,17 +152,18 @@ const InventoryGroupsRole = (props) => {
   }, [state]);
 
   const makeRow = (permissionID, index) => {
-    const options = [
-      ...(intl.formatMessage(messages.ungroupedSystems).toLocaleLowerCase().includes(state[permissionID].filterValue.toLocaleLowerCase())
-        ? [
-            {
-              name: 'null',
-              children: <FormattedMessage {...messages.ungroupedSystems} />,
-            },
-          ]
-        : []),
-      ...Object.values(resourceTypes?.[permissionID] ?? {}),
-    ];
+    const ungroupedSystems = intl
+      .formatMessage(messages.ungroupedSystems)
+      .toLocaleLowerCase()
+      .includes(state[permissionID].filterValue.toLocaleLowerCase())
+      ? [
+          {
+            name: 'null',
+            children: <FormattedMessage {...messages.ungroupedSystems} />,
+          },
+        ]
+      : [];
+    const options = [...(permissionID.includes('hosts:') ? ungroupedSystems : []), ...Object.values(resourceTypes?.[permissionID] ?? {})];
 
     return (
       <React.Fragment key={permissionID}>
