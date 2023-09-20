@@ -32,7 +32,7 @@ const Groups = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const chrome = useChrome();
-  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true, chrome }));
+  const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true, chrome, platformDefault: false, adminDefault: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
   const textFilterRef = useRef(null);
