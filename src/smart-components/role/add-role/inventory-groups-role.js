@@ -1,5 +1,5 @@
 import React, { useEffect, useReducer } from 'react';
-import { Button, Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
+import { Button, Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip, Divider } from '@patternfly/react-core';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -157,13 +157,13 @@ const InventoryGroupsRole = (props) => {
       .toLocaleLowerCase()
       .includes(state[permissionID].filterValue.toLocaleLowerCase())
       ? [
-          {
-            name: 'null',
-            children: <FormattedMessage {...messages.ungroupedSystems} />,
-          },
+          <SelectOption key={`${permissionID}-ungrouped`} value="null">
+            <FormattedMessage {...messages.ungroupedSystems} />
+          </SelectOption>,
+          <Divider component="li" key={`${permissionID}-divider`} />,
         ]
       : [];
-    const options = [...(permissionID.includes('hosts:') ? ungroupedSystems : []), ...Object.values(resourceTypes?.[permissionID] ?? {})];
+    const options = Object.values(resourceTypes?.[permissionID] ?? {});
 
     return (
       <React.Fragment key={permissionID}>
@@ -221,6 +221,7 @@ const InventoryGroupsRole = (props) => {
                         </SelectOption>,
                       ]
                     : []),
+                  ...(permissionID.includes('hosts:') ? ungroupedSystems : []),
                   ...(options?.map((option, index) => (
                     <SelectOption key={`${permissionID}-${index + 1}`} value={option?.name}>
                       {option.children}
