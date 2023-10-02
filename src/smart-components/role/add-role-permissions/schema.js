@@ -8,7 +8,7 @@ import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from '../add-role/inventory-groups-role-template';
 
-export const schemaBuilder = (container) => {
+export const schemaBuilder = (container, enableInventoryGroups) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -27,9 +27,7 @@ export const schemaBuilder = (container) => {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
-            nextStep: ({ values }) => {
-              return validateNextAddRolePermissionStep('add-permissions', values);
-            },
+            nextStep: ({ values }) => validateNextAddRolePermissionStep('add-permissions', values, enableInventoryGroups),
             fields: [
               {
                 component: 'add-permissions-table',
@@ -41,9 +39,7 @@ export const schemaBuilder = (container) => {
             name: 'inventory-groups-role',
             title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
             StepTemplate: InventoryGroupsRoleTemplate,
-            nextStep: ({ values }) => {
-              return validateNextAddRolePermissionStep('inventory-groups-role', values);
-            },
+            nextStep: ({ values }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
             fields: [
               {
                 component: 'plain-text',

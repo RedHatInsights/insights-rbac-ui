@@ -1,11 +1,11 @@
-export const validateNextAddRolePermissionStep = (currentStep, values) => {
+export const validateNextAddRolePermissionStep = (currentStep, values, enableInventoryGroups) => {
   const permissions = (values && values['add-permissions-table']) || [];
   const hasCostPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'));
   const hasInventoryPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes('inventory'));
 
   if (currentStep === 'inventory-groups-role' && hasCostPermissions) return 'cost-resources-definition';
 
-  if (currentStep === 'add-permissions' && hasInventoryPermissions) {
+  if (currentStep === 'add-permissions' && hasInventoryPermissions && enableInventoryGroups) {
     return 'inventory-groups-role';
   }
 

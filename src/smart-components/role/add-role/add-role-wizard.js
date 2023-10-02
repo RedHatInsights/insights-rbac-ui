@@ -3,6 +3,7 @@ import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { useFlag } from '@unleash/proxy-client-react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -51,6 +52,7 @@ export const mapperExtension = {
 };
 
 const AddRoleWizard = ({ pagination, filters, orderBy }) => {
+  const enableInventoryGroups = useFlag('hbi.api.inventory-groups');
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
@@ -66,7 +68,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const [schema, setSchema] = useState();
 
   useEffect(() => {
-    setSchema(schemaBuilder(container.current));
+    setSchema(schemaBuilder(container.current, enableInventoryGroups));
   }, []);
 
   const onClose = () =>
@@ -132,7 +134,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
                 operation: 'in',
                 value: costResources?.find((r) => r.permission === permission)?.resources,
               };
-            } else if (permission.includes('inventory')) {
+            } else if (permission.includes('inventory') && enableInventoryGroups) {
               attributeFilter = {
                 key: 'group.id',
                 operation: 'in',
