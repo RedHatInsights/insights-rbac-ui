@@ -49,6 +49,12 @@ export const schemaBuilder = (container, enableInventoryGroups) => {
               {
                 component: 'inventory-groups-role',
                 name: 'inventory-groups-role',
+                validate: [
+                  (value = []) =>
+                    value?.every(({ groups, permission }) => groups?.length > 0 && permission)
+                      ? undefined
+                      : intl.formatMessage(messages.assignAtLeastOneInventoryGroup),
+                ],
               },
             ],
           },
