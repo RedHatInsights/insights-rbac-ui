@@ -235,7 +235,7 @@ const Permissions = ({ cantAddPermissions }) => {
       )}
       <TableToolbarView
         columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
-        rows={createRows(showResourceDefinitions, role?.uuid, data, intl)}
+        rows={createRows(showResourceDefinitions, role?.uuid, data, intl, selectedPermissions)}
         actionResolver={role.system ? undefined : actionResolver}
         data={data}
         filterValue=""
