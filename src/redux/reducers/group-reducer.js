@@ -74,13 +74,13 @@ const setGroup = (state, { payload }) => ({
     : payload),
 });
 const resetSelectedGroup = (state) => ({ ...state, selectedGroup: undefined });
-const setRolesForGroup = (state, { payload, meta }) => ({
+const setRolesForGroup = (state, { payload, expandTableDetails }) => ({
   ...state,
   groups: {
     ...state.groups,
     data: state.groups.map((group) => ({
       ...group,
-      ...(group.uuid === meta.groupId && { roles: payload.data }),
+      ...(group.uuid === expandTableDetails.groupId && { roles: payload.data }),
       roles: payload.data,
     })),
   },

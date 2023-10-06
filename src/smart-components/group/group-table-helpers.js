@@ -46,7 +46,11 @@ DefaultPlatformPopover.propTypes = {
 export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
   return data.reduce(
-    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }, i) => [
+    (
+      acc,
+      { uuid, name, roleCount, principalCount, modified, expandTableDetails, platform_default: isPlatformDefault, admin_default: isAdminDefault },
+      i
+    ) => [
       ...acc,
       {
         uuid,
@@ -92,8 +96,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.permissions),
                     intl.formatMessage(messages.lastModified),
                   ]}
-                  rows={roleCount.map((role) => {
-                    const [roleName, description, permissions] = role.permission.split(':');
+                  rows={expandTableDetails.map((roles) => {
+                    const [roleName, description, permissions] = roles.permission.split(':');
                     return {
                       cells: [
                         roleName,
@@ -138,8 +142,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.lastName),
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={principalCount.map((member) => ({
-                    cells: [member.orgAdmin, member.username, member.email, member.firstName, member.lastName, member.status],
+                  rows={expandTableDetails.map((members) => ({
+                    cells: [members.orgAdmin, members.username, members.email, members.firstName, members.lastName, members.status],
                   }))}
                 >
                   <TableHeader />
