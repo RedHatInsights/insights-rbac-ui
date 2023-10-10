@@ -175,9 +175,9 @@ export const removeMembersFromGroup = (groupId, members) => {
   };
 };
 
-export const fetchRolesForGroup = (groupId, pagination, options, expandTableDetails) => ({
+export const fetchRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ROLES_FOR_GROUP,
-  payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options, expandTableDetails).catch(handleUuidError),
+  payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
   meta: { groupId },
 });
 

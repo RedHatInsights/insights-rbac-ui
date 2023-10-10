@@ -48,7 +48,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   return data.reduce(
     (
       acc,
-      { uuid, name, roleCount, principalCount, modified, expandTableDetails, platform_default: isPlatformDefault, admin_default: isAdminDefault },
+      { uuid, name, roleCount, principalCount, modified, roles, members, platform_default: isPlatformDefault, admin_default: isAdminDefault },
       i
     ) => [
       ...acc,
@@ -96,13 +96,12 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.permissions),
                     intl.formatMessage(messages.lastModified),
                   ]}
-                  rows={expandTableDetails.map((roles) => {
-                    const [roleName, description, permissions] = roles.permission.split(':');
+                  rows={roles.map((role) => {
                     return {
                       cells: [
-                        roleName,
-                        description,
-                        permissions,
+                        role.roleName,
+                        role.description,
+                        role.permissions,
                         <Fragment key={`${uuid}-modified`}>
                           <DateFormat date={modified} type={getDateFormat(modified)} />
                         </Fragment>,
@@ -142,8 +141,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.lastName),
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={expandTableDetails.map((members) => ({
-                    cells: [members.orgAdmin, members.username, members.email, members.firstName, members.lastName, members.status],
+                  rows={members.map((member) => ({
+                    cells: [member.orgAdmin, member.username, member.email, member.firstName, member.lastName, member.status],
                   }))}
                 >
                   <TableHeader />
