@@ -1,73 +1,106 @@
 import React from 'react';
-import { render, screen } from '@testing-library/react';
+import { render, fireEvent, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
-import configureMockStore, { MockStore } from 'redux-mock-store';
-import userEvent from '@testing-library/user-event';
-import InventoryGroupsRole from '../../../smart-components/role/add-role/inventory-groups-role';
-import * as inventoryActions from '../../../redux/actions/inventory-actions';
-import * as groupActions from '../../../redux/actions/group-actions';
-// import { FETCH_INVENTORY_GROUP } from '../../../redux/action-types'
-// import { fetchGroup } from '../../../helpers/group/group-helper';
+import configureStore from 'redux-mock-store';
 import { BrowserRouter } from 'react-router-dom';
+import InventoryGroupsRole from '../../../smart-components/role/add-role/inventory-groups-role';
 import { testInventoryGroups } from './inventory-groups-test-data';
-
-const mockStore = configureMockStore();
-
-const initialState = {
-  inventoryReducer: {
-      isLoading: false,
-      loadingResources: 0,
-      resourceTypes: {
-          data: [],
-      },
-  },
-  meta: {
-    limit: 20,
-    offset: 0,
-    itemCount: 0,
-  },
-};
+import * as InventoryActions from '../../../redux/actions/inventory-actions';
+import { FETCH_INVENTORY_GROUP } from '../../../redux/action-types';
 
 const initialStateWithPermissions = {
-    inventoryReducer: {
-        isLoading: false,
-        loadingResources: 0,
-        resourceTypes: {
-            data: testInventoryGroups,
-        },
+  inventoryReducer: {
+    isLoading: false,
+    resourceTypes: {
+      // this needs to be cleaned, just your previous setup did not match the desired structure
+      'inventory:hosts:read': testInventoryGroups.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
+      'inventory:hosts:write': testInventoryGroups.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
     },
+    total: testInventoryGroups.length,
+  },
 };
 
+jest.mock('@data-driven-forms/react-form-renderer/use-form-api', () => {
+  return {
+    __esModule: true,
+    default: () => ({
+      getState: jest.fn().mockReturnValue({
+        values: {
+          'add-permissions-table': [
+            {
+              uuid: 'inventory:hosts:read',
+              requires: [],
+            },
+            {
+              uuid: 'inventory:groups:write',
+              requires: [],
+            },
+          ],
+          'role-description': 'Be able to read and edit Account Staleness and Culling data.',
+          'role-name': 'Account Staleness and Culling Administrator',
+          'role-type': 'create',
+          'role-uuid': '218ed86a-08f9-4d5d-aeac-7539eed882cd',
+        },
+      }),
+      change: jest.fn(),
+    }),
+  };
+});
+
+jest.mock('@data-driven-forms/react-form-renderer/use-field-api', () => {
+  return {
+    __esModule: true,
+    default: () => ({
+      input: {
+        value: ['inventory:hosts:read', 'inventory:groups:write'],
+        name: 'inventory-groups-role',
+        onChange: jest.fn(),
+        onBlur: jest.fn(),
+        onFocus: jest.fn(),
+      },
+    }),
+  };
+});
+
 const renderComponent = (store) => {
-    return render(
-        <React.Fragment>
-            <Provider store={store}>
-                <BrowserRouter>
-                    <InventoryGroupsRole />
-                </BrowserRouter>
-            </Provider>
-        </React.Fragment>
-    );
-}
+  return render(
+    <React.Fragment>
+      <Provider store={store}>
+        <BrowserRouter>
+          <InventoryGroupsRole />
+        </BrowserRouter>
+      </Provider>
+    </React.Fragment>
+  );
+};
 
 describe('Inventory groups role', () => {
-    let store = mockStore(initialStateWithPermissions);
-    
-    test('Add permissions to group renders without failing', () => {
-        const renderedResults = renderComponent(store);
-        expect(renderedResults.getByText('Review details').toBeInTheDocument());
-    });
+  let mockStore;
 
-    test('Clicking on the dropdown pulls the groups pulled by fetchGroups', async () => {
-        const store = mockStore(initialStateWithPermissions); 
-        let fetchGroups;
-        
-        const renderedResult = renderComponent(store);
-        const dropdowns = renderedResult.getAllByRole('dropdown');
-        
-        await act(async () => {
-            expect(renderedResult.getByText('fooBar'))
-        })
-    });
+  const fetchInventoryGroupsSpy = jest.spyOn(InventoryActions, 'fetchInventoryGroups');
+
+  beforeEach(() => {
+    mockStore = configureStore();
+  });
+
+  afterEach(() => {
+    fetchInventoryGroupsSpy.mockReset();
+  });
+
+  test('Add permissions to group renders without failing', async () => {
+    fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUP,
+      payload: Promise.resolve({}),
+    }));
+    const store = mockStore(initialStateWithPermissions);
+
+    const renderedResults = renderComponent(store);
+
+    expect(renderedResults.getByText('Permissions')).toBeInTheDocument();
+
+    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+
+    expect(screen.getByText('fooBar')).toBeInTheDocument();
+  });
 });

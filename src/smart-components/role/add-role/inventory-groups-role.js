@@ -100,6 +100,8 @@ const reducer = (state, action) => {
 };
 
 const InventoryGroupsRole = (props) => {
+  console.log('Testing to see my PROPS: ', props);
+  console.log('Testing to see my fieldApi: ', useFieldApi(props));
   const intl = useIntl();
   const dispatch = useDispatch();
   const { input } = useFieldApi(props);
@@ -113,6 +115,7 @@ const InventoryGroupsRole = (props) => {
       .map(({ uuid }) => uuid) || [];
 
   const fetchData = (permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps));
+  console.log('TESTING fetched data: ', fetchData());
 
   // eslint-disable-next-line
   const onSelect = (event, selection, selectAll, key) => {
@@ -143,12 +146,15 @@ const InventoryGroupsRole = (props) => {
   useEffect(() => {
     fetchData(permissions, {});
     formOptions.change('inventory-group-permissions', []);
+    console.log('TESTING initial STATE on formOptions: ', formOptions);
   }, []);
 
   useEffect(() => {
     const groupsPermissionsDefinition = Object.entries(state).map(([permission, { selected }]) => ({ permission, groups: selected }));
     input.onChange(groupsPermissionsDefinition);
     formOptions.change('inventory-group-permissions', groupsPermissionsDefinition);
+    console.log('TESTING STATE CHANGE on formOptions: ', formOptions);
+    console.log('TESTING STATE CHANGE on formOptions.getState: ', formOptions.getState());
   }, [state]);
 
   const makeRow = (permissionID, index) => {
