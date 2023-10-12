@@ -24,7 +24,7 @@
     "@redhat-cloud-services/frontend-components-notifications": "^3.2.10",
     "@redhat-cloud-services/frontend-components-utilities": "^3.5.0",
     "@redhat-cloud-services/host-inventory-client": "^1.2.3",
-    "@redhat-cloud-services/rbac-client": "^1.2.2",
+    "@redhat-cloud-services/rbac-client": "^1.2.10",
     "@unleash/proxy-client-react": "^3.6.0",
     "axios-mock-adapter": "^1.20.0",
     "babel-loader": "^8.2.3",
