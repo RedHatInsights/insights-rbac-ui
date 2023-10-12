@@ -1438,10 +1438,10 @@ export default defineMessages({
     description: 'Last commit label',
     defaultMessage: 'Last commit',
   },
-  resourceDefinitionsApplyToCost: {
-    id: 'resourceDefinitionsApplyToCost',
-    description: 'Resource definitions only apply to Cost Management permissions message',
-    defaultMessage: 'Resource definitions only apply to Cost Management permissions',
+  resourceDefinitionsApplyToCostAndInventory: {
+    id: 'resourceDefinitionsApplyToCostAndInventory',
+    description: 'Resource definitions only apply to Cost Management and Inventory permissions message',
+    defaultMessage: 'Resource definitions only apply to Cost Management and Inventory permissions',
   },
   removePermissionQuestion: {
     id: 'removePermissionQuestion',
