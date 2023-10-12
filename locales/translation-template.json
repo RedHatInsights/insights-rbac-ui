@@ -974,9 +974,9 @@
     "defaultMessage": "Resource definitions",
     "description": "Resource definitions label"
   },
-  "resourceDefinitionsApplyToCost": {
-    "defaultMessage": "Resource definitions only apply to Cost Management permissions",
-    "description": "Resource definitions only apply to Cost Management permissions message"
+  "resourceDefinitionsApplyToCostAndInventory": {
+    "defaultMessage": "Resource definitions only apply to Cost Management and Inventory permissions",
+    "description": "Resource definitions only apply to Cost Management and Inventory permissions message"
   },
   "resourceType": {
     "defaultMessage": "Resource type",
