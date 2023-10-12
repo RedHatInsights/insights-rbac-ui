@@ -75,8 +75,8 @@ const Permissions = ({ cantAddPermissions }) => {
       title: intl.formatMessage(messages.resourceDefinitions),
       transforms: [
         info({
-          popover: intl.formatMessage(messages.resourceDefinitionsApplyToCost),
-          ariaLabel: intl.formatMessage(messages.resourceDefinitionsApplyToCost),
+          popover: intl.formatMessage(messages.resourceDefinitionsApplyToCostAndInventory),
+          ariaLabel: intl.formatMessage(messages.resourceDefinitionsApplyToCostAndInventory),
         }),
       ],
     },
