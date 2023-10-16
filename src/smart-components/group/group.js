@@ -197,7 +197,7 @@ const Group = () => {
               })
             );
             setResetWarningVisible(false);
-            navigate(pathnames['group-detail-roles'].link).replace(':groupId', 'default-access');
+            navigate(pathnames['group-detail-roles'].link.replace(':groupId', 'default-access'));
           }}
         />
       )}
