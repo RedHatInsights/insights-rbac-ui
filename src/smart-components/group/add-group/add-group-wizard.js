@@ -125,7 +125,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
           ]}
         />
       ) : wizardContextValue.canceled ? (
-        <WarningModal isOpen type="group" onModalCancel={() => setWizardCanceled(false)} onConfirmCancel={redirectToGroups} />
+        <WarningModal isOpen type="group" onModalCancel={() => setWizardCanceled(false)} onModalConfirm={redirectToGroups} />
       ) : !wizardContextValue.hideForm ? (
         <FormRenderer
           schema={schema.current}

@@ -166,7 +166,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
         customDescription={intl.formatMessage(messages.changesWillBeLost)}
         isOpen={state.cancelWarningVisible}
         onModalCancel={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
-        onConfirmCancel={onCancel}
+        onModalConfirm={onCancel}
       ></WarningModal>
       {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
         <Modal

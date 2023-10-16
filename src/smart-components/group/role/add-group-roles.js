@@ -6,7 +6,7 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchGroup } from '../../../redux/actions/group-actions';
+import { fetchGroup, invalidateSystemGroup } from '../../../redux/actions/group-actions';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import RolesList from '../add-group/roles-list';
 import DefaultGroupChange from './default-group-change-modal';
@@ -59,9 +59,12 @@ const AddGroupRoles = ({
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
+    if (isDefault && !isChanged) {
+      onDefaultGroupChanged(true);
+      dispatch(invalidateSystemGroup());
+    }
     addRolesToGroup(groupId, rolesList).then(afterSubmit);
     setSelectedRoles([]);
-    isDefault && !isChanged && onDefaultGroupChanged(true);
     return navigate(closeUrl);
   };
 

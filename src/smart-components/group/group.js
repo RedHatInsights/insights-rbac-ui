@@ -190,7 +190,7 @@ const Group = () => {
           customPrimaryButtonTitle={intl.formatMessage(messages.continue)}
           customSecondaryButtonTitle={intl.formatMessage(messages.cancel)}
           onModalCancel={() => setResetWarningVisible(false)}
-          onConfirmCancel={() => {
+          onModalConfirm={() => {
             dispatch(removeGroups([systemGroupUuid])).then(() =>
               dispatch(fetchSystemGroup({ chrome })).then(() => {
                 setShowDefaultGroupChangedInfo(false);

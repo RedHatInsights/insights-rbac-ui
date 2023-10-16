@@ -177,7 +177,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
             container.current.hidden = false;
             setCancelWarningVisible(false);
           }}
-          onConfirmCancel={onCancel}
+          onModalConfirm={onCancel}
         />
       </SilentErrorBoundary>
       {wizardContextValue.hideForm ? (

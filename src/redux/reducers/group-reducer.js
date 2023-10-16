@@ -9,6 +9,7 @@ import {
   FETCH_MEMBERS_FOR_GROUP,
   FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
   UPDATE_GROUPS_FILTERS,
+  INVALIDATE_SYSTEM_GROUP,
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -49,6 +50,7 @@ const setGroups = (state, { payload }) => ({
 });
 const setAdminGroup = (state, { payload }) => ({ ...state, adminGroup: payload?.data?.filter((group) => group?.admin_default)?.[0] });
 const setSystemGroup = (state, { payload }) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
+const invalidateSystemGroup = (state) => ({ ...state, systemGroup: undefined });
 const setGroup = (state, { payload }) => ({
   ...state,
   isRecordLoading: false,
@@ -140,6 +142,7 @@ export default {
   [`${FETCH_ADMIN_GROUP}_FULFILLED`]: setAdminGroup,
   [`${FETCH_SYSTEM_GROUP}_PENDING`]: setSystemGroupLoadingState,
   [`${FETCH_SYSTEM_GROUP}_FULFILLED`]: setSystemGroup,
+  [INVALIDATE_SYSTEM_GROUP]: invalidateSystemGroup,
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
