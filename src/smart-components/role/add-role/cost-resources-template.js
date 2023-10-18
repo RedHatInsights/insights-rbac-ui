@@ -9,7 +9,7 @@ const CostResourcesTemplate = ({ formFields }) => {
   return (
     <div className="rbac">
       <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
-        {intl.formatMessage(messages.reviewDetails)}
+        {intl.formatMessage(messages.defineCostResources)}
       </Title>
       {formFields}
     </div>
