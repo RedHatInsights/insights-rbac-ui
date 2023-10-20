@@ -201,6 +201,9 @@ describe('<AddGroupRoles />', () => {
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
+      expect.objectContaining({
+        type: 'INVALIDATE_SYSTEM_GROUP',
+      }),
     ];
 
     expect(screen.getByText('Add roles to the {name} group')).toBeInTheDocument();
