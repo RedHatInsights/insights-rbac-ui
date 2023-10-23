@@ -133,7 +133,7 @@ const AddRolePermissionWizard = ({ role }) => {
         type={intl.formatMessage(messages.permission).toLocaleLowerCase()}
         isOpen={cancelWarningVisible}
         onModalCancel={() => setCancelWarningVisible(false)}
-        onConfirmCancel={handleConfirmCancel}
+        onModalConfirm={handleConfirmCancel}
       />
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (

@@ -40,6 +40,10 @@ export const fetchSystemGroup = ({ filterValue, chrome } = {}) => ({
   }),
 });
 
+export const invalidateSystemGroup = () => ({
+  type: ActionTypes.INVALIDATE_SYSTEM_GROUP,
+});
+
 export const fetchGroup = (apiProps) => ({
   type: ActionTypes.FETCH_GROUP,
   payload: GroupHelper.fetchGroup(apiProps).catch(handleUuidError),

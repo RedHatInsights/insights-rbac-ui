@@ -96,7 +96,7 @@ const AddUserToGroup = ({ username }) => {
         type="user"
         isOpen={cancelWarningVisible}
         onModalCancel={() => setCancelWarningVisible(false)}
-        onConfirmCancel={redirectToUserDetail}
+        onModalConfirm={redirectToUserDetail}
       />
       <Modal
         variant={ModalVariant.medium}

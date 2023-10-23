@@ -10,7 +10,7 @@ export const WarningModal = ({
   type,
   isOpen,
   onModalCancel,
-  onConfirmCancel,
+  onModalConfirm,
   customTitle,
   customDescription,
   customPrimaryButtonTitle,
@@ -30,7 +30,7 @@ export const WarningModal = ({
       isOpen={isOpen}
       onClose={onModalCancel}
       actions={[
-        <Button ouiaId="primary-exit-button" key="confirm" variant="primary" onClick={onConfirmCancel}>
+        <Button ouiaId="primary-exit-button" key="confirm" variant="primary" onClick={onModalConfirm}>
           {customPrimaryButtonTitle ?? intl.formatMessage(messages.exit)}
         </Button>,
         <Button ouiaId="secondary-cancel-button" key="cancel" variant="link" onClick={onModalCancel}>
@@ -51,5 +51,5 @@ WarningModal.propTypes = {
   customSecondaryButtonTitle: PropTypes.string,
   isOpen: PropTypes.bool,
   onModalCancel: PropTypes.func,
-  onConfirmCancel: PropTypes.func,
+  onModalConfirm: PropTypes.func,
 };
