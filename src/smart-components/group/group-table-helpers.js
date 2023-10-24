@@ -56,6 +56,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         uuid,
         isAdminDefault,
         isPlatformDefault,
+        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         cells: [
           {
             title: isAdmin ? (
@@ -153,7 +154,6 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               ),
           },
         ],
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
       },
     ],
     []
