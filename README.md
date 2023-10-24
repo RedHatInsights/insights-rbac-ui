@@ -19,6 +19,7 @@ This project is available as open source under the terms of the [Apache License 
 ## Quickstarts Test Environment
 
 In order to test current Quickstarts tutorials iteration, you must enable the testing local variable through your browser's console.
+
 ```localStorage.setItem('quickstarts:enabled', true)```
 
 You'll be able to see the buttons for testing both the quickstart tutorial and the catalog page.
