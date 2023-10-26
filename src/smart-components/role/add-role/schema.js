@@ -14,7 +14,7 @@ import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from './inventory-groups-role-template';
 
-export const schemaBuilder = (container, enableInventoryGroups) => {
+export const schemaBuilder = (container) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -144,7 +144,7 @@ export const schemaBuilder = (container, enableInventoryGroups) => {
             name: 'add-permissions',
             title: intl.formatMessage(messages.addPermissions),
             StepTemplate: AddPermissionTemplate,
-            nextStep: ({ values }) => validateNextAddRolePermissionStep('add-permissions', values, enableInventoryGroups),
+            nextStep: ({ values }) => validateNextAddRolePermissionStep('add-permissions', values),
             fields: [
               {
                 component: 'add-permissions-table',
