@@ -56,7 +56,6 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         uuid,
         isAdminDefault,
         isPlatformDefault,
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         cells: [
           {
             title: isAdmin ? (
@@ -86,7 +85,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
           {
             props: { colSpan: 7, className: 'pf-m-no-padding' },
             title:
-              roleCount.length > 0 ? (
+              roleCount > 0 ? (
                 <Table
                   ouiaId="roles-in-group-nested-table"
                   aria-label="Simple Table"
@@ -94,15 +93,16 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   cells={[
                     intl.formatMessage(messages.roleName),
                     intl.formatMessage(messages.description),
-                    intl.formatMessage(messages.permissions),
+                    // permissions does not currently exist, checking with UX to make sure it is wanted
+                    // intl.formatMessage(messages.permissions),
                     intl.formatMessage(messages.lastModified),
                   ]}
-                  rows={roles.map((role) => {
+                  rows={roles?.map((role) => {
                     return {
                       cells: [
-                        role.roleName,
+                        role.name,
                         role.description,
-                        role.permissions,
+                        // role.permissions,
                         <Fragment key={`${uuid}-modified`}>
                           <DateFormat date={modified} type={getDateFormat(modified)} />
                         </Fragment>,
@@ -142,7 +142,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     intl.formatMessage(messages.lastName),
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={members.map((member) => ({
+                  rows={members?.map((member) => ({
                     cells: [member.orgAdmin, member.username, member.email, member.firstName, member.lastName, member.status],
                   }))}
                 >
@@ -154,6 +154,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               ),
           },
         ],
+        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
       },
     ],
     []

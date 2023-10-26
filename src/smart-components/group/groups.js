@@ -9,13 +9,14 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
-import { fetchAdminGroup, fetchGroups, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
+import { fetchAdminGroup, fetchGroups, fetchRolesForGroup, fetchMembersForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupRowWrapper from './group-row-wrapper';
 import {
   applyPaginationToUrl,
   defaultAdminSettings,
+  defaultCompactSettings,
   defaultSettings,
   isPaginationPresentInUrl,
   syncDefaultPaginationWithUrl,
@@ -179,22 +180,24 @@ const Groups = () => {
         ]
       : []),
   ];
+
   const data = groups.map((group) =>
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
 
-  const fetchExpandTableDetailsForGroup = (uuid) => dispatch(fetchRolesForGroup(uuid));
+  const fetchExpandTableRoleDetailsForGroup = (uuid) => dispatch(fetchRolesForGroup(uuid, defaultCompactSettings));
+  const fetchExpandTableMemberDetailsForGroup = (uuid) => dispatch(fetchMembersForGroup(uuid, defaultCompactSettings));
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
     if (!isOpen) {
       setExpanded({ ...expanded, [rowData.uuid]: colIndex + Number(!isAdmin) });
-      colIndex + Number(!isAdmin) === 2 && fetchExpandTableDetailsForGroup(rowData.uuid);
+      colIndex + Number(!isAdmin) === 2 && fetchExpandTableRoleDetailsForGroup(rowData.uuid) && fetchExpandTableMemberDetailsForGroup(rowData.uuid);
     } else {
       setExpanded({ ...expanded, [rowData.uuid]: -1 });
     }
   };
 
-  const rows = createRows(isAdmin, data, selectedRows, pagination, expanded);
+  const rows = createRows(isAdmin, data, selectedRows, expanded);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeGroupsList.length;
 
