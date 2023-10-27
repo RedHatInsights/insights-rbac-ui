@@ -6,7 +6,6 @@ import { Wizard } from '@patternfly/react-core';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { useFlag } from '@unleash/proxy-client-react';
 import { WarningModal } from '../../common/warningModal';
 import { updateRole } from '../../../redux/actions/role-actions.js';
 import AddPermissionsTable from '../add-role/add-permissions';
@@ -35,7 +34,6 @@ export const AddRolePermissionWizardContext = createContext({
 });
 
 const AddRolePermissionWizard = ({ role }) => {
-  const enableInventoryGroups = useFlag('hbi.api.inventory-groups');
   const intl = useIntl();
   const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
   const [currentRoleID, setCurrentRoleID] = useState('');
@@ -51,7 +49,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-  const schema = useMemo(() => schemaBuilder(container.current, enableInventoryGroups), []);
+  const schema = useMemo(() => schemaBuilder(container.current), []);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);
@@ -86,7 +84,7 @@ const AddRolePermissionWizard = ({ role }) => {
             ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => ({
               permission,
               resourceDefinitions: [...costResources, ...invResources]?.find((r) => r.permission === permission)
-                ? permission.includes('inventory') && enableInventoryGroups
+                ? permission.includes('inventory')
                   ? [
                       {
                         attributeFilter: {
