@@ -93,16 +93,15 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   cells={[
                     intl.formatMessage(messages.roleName),
                     intl.formatMessage(messages.description),
-                    // permissions does not currently exist, checking with UX to make sure it is wanted
-                    // intl.formatMessage(messages.permissions),
+                    intl.formatMessage(messages.permissions),
                     intl.formatMessage(messages.lastModified),
                   ]}
                   rows={roles?.map((role) => {
                     return {
                       cells: [
-                        role.name,
+                        { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
                         role.description,
-                        // role.permissions,
+                        role.permissions,
                         <Fragment key={`${uuid}-modified`}>
                           <DateFormat date={modified} type={getDateFormat(modified)} />
                         </Fragment>,
