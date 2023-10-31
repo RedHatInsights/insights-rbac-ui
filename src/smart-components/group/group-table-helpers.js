@@ -59,13 +59,25 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         cells: [
           {
             title: isAdmin ? (
-              <AppLink
-                key={`${uuid}-link`}
-                state={{ uuid }}
-                to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
-              >
-                {name}
-              </AppLink>
+              <>
+                <AppLink
+                  key={`${uuid}-link`}
+                  state={{ uuid }}
+                  to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : uuid)}
+                >
+                  {name}
+                </AppLink>
+                <Fragment>
+                  {(isPlatformDefault || isAdminDefault) && (
+                    <DefaultPlatformPopover
+                      id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
+                      uuid={uuid}
+                      key={`${uuid}-popover`}
+                      bodyContent={intl.formatMessage(isAdminDefault ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
+                    />
+                  )}
+                </Fragment>
+              </>
             ) : (
               name
             ),
