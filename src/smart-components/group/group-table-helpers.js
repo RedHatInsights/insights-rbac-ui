@@ -101,7 +101,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                       cells: [
                         { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
                         role.description,
-                        role.permissions,
+                        role.accessCount,
                         <Fragment key={`${uuid}-modified`}>
                           <DateFormat date={modified} type={getDateFormat(modified)} />
                         </Fragment>,
@@ -135,14 +135,21 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   variant={TableVariant.compact}
                   cells={[
                     intl.formatMessage(messages.orgAdmin),
-                    intl.formatMessage(messages.username),
-                    intl.formatMessage(messages.email),
                     intl.formatMessage(messages.firstName),
                     intl.formatMessage(messages.lastName),
+                    intl.formatMessage(messages.username),
+                    intl.formatMessage(messages.email),
                     intl.formatMessage(messages.status),
                   ]}
                   rows={members?.map((member) => ({
-                    cells: [member.orgAdmin, member.username, member.email, member.firstName, member.lastName, member.status],
+                    cells: [
+                      member.is_org_admin.toString(),
+                      member.first_name,
+                      member.last_name,
+                      member.username,
+                      member.email,
+                      member.is_active.toString(),
+                    ],
                   }))}
                 >
                   <TableHeader />

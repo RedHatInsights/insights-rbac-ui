@@ -80,13 +80,13 @@ const setRolesForGroup = (state, { payload, meta }) => ({
     ...state.groups,
     data: state.groups.data.map((group) => ({
       ...group,
-      ...(group.uuid === meta.groupId && { roles: payload.data, members: payload.data }),
+      ...(group.uuid === meta.groupId && { roles: payload.data }),
     })),
   },
   isRecordRolesLoading: false,
   selectedGroup: {
     ...state.selectedGroup,
-    ...(!payload.error ? { roles: payload.data, pagination: payload.meta, members: payload.data } : payload),
+    ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : payload),
     loaded: true,
   },
 });
@@ -116,15 +116,19 @@ const setMembersForGroupLoading = (state = {}) => ({
     members: { isLoading: true },
   },
 });
-const setMembersForGroup = (state, { payload }) => ({
+const setMembersForGroup = (state, { payload, meta }) => ({
   ...state,
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...(group.uuid === meta.groupId && { members: payload.data }),
+    })),
+  },
   selectedGroup: {
     ...(state.selectedGroup || {}),
-    members: {
-      isLoading: false,
-      ...(!payload.error ? payload : {}),
-    },
-    ...(payload.error ? payload : {}),
+    ...(!payload.error ? { members: payload.data } : payload),
+    loaded: true,
   },
 });
 

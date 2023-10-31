@@ -185,13 +185,14 @@ const Groups = () => {
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
 
-  const fetchExpandTableRoleDetailsForGroup = (uuid) => dispatch(fetchRolesForGroup(uuid, defaultCompactSettings));
-  const fetchExpandTableMemberDetailsForGroup = (uuid) => dispatch(fetchMembersForGroup(uuid, defaultCompactSettings));
+  const fetchExpandedRoles = (uuid) => dispatch(fetchRolesForGroup(uuid, defaultCompactSettings));
+  const fetchExpandedMembers = (uuid) => dispatch(fetchMembersForGroup(uuid, defaultCompactSettings));
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
     if (!isOpen) {
       setExpanded({ ...expanded, [rowData.uuid]: colIndex + Number(!isAdmin) });
-      colIndex + Number(!isAdmin) === 2 && fetchExpandTableRoleDetailsForGroup(rowData.uuid) && fetchExpandTableMemberDetailsForGroup(rowData.uuid);
+      colIndex + Number(!isAdmin) === 2 && fetchExpandedRoles(rowData.uuid);
+      colIndex + Number(!isAdmin) === 3 && fetchExpandedMembers(rowData.uuid);
     } else {
       setExpanded({ ...expanded, [rowData.uuid]: -1 });
     }

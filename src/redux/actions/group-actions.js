@@ -242,6 +242,7 @@ export const removeServiceAccountFromGroup = (groupId, serviceAccounts) => {
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
   payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
+  meta: { groupId },
 });
 
 export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
