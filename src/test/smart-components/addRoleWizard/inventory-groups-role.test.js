@@ -98,9 +98,37 @@ describe('Inventory groups role', () => {
     const renderedResults = renderComponent(store);
 
     expect(renderedResults.getByText('Permissions')).toBeInTheDocument();
+    expect()
+  });
+
+  test('Display available permission groups successfully', async () => {
+    fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUP,
+      payload: Promise.resolve({}),
+    }));
+
+    const store = mockStore(initialStateWithPermissions);
+    renderComponent(store);
 
     fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
 
     expect(screen.getByText('fooBar')).toBeInTheDocument();
+  });
+
+  test('Selecting group for permission and Copy to all to other permissions successfully', async () => {
+     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUP,
+      payload: Promise.resolve({}),
+    }));
+
+    const store = mockStore(initialStateWithPermissions);
+    const renderedResults = renderComponent(store);
+
+    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+    expect(screen.getByText('fooBar')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('fooBar'));
+    
+    fireEvent.click(renderedResults.getByText('Copy to all'));
+    expect(screen.getAllByLabelText('Options menu')[1]);
   });
 });

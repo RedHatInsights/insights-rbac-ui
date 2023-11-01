@@ -13,7 +13,7 @@ export const testInventoryGroups = [
     created: '2023-07-30T13:24:14.687406+00:00',
     host_count: 2,
     id: '6e2f7659-d64f-4bf9-8e51-85971e866ffa',
-    name: 'rhiqe.2f9917d5-8f46-4fc6-8b49-8a23951ad9a9.laptop-08.sellers-hall.biz',
+    name:'barOfFoo',
     org_id: '11789772',
     updated: '2023-08-01T07:10:43.153519+00:00',
   },
