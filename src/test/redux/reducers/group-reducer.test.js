@@ -104,7 +104,7 @@ describe('Group reducer', () => {
     const expectedState = { ...initialState, selectedGroup: { ...initialState.selectedGroup, members: { isLoading: true } } };
     expect(reducer(initialState, { type: `${FETCH_MEMBERS_FOR_GROUP}_PENDING` })).toEqual(expectedState);
   });
-
+  // this test is failing
   it('should set members for selected group and loading state to false', () => {
     const payload = { data: ['bar'], meta: { count: 1 } };
     const expectedState = {
