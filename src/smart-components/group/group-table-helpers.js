@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { Popover } from '@patternfly/react-core';
+import { Popover, TextContent, Label } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -11,6 +11,8 @@ import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 import { Text } from '@patternfly/react-core';
+import { sortable } from '@patternfly/react-table';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
 
 const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
@@ -45,6 +47,7 @@ DefaultPlatformPopover.propTypes = {
 
 export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
+  const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
   return data.reduce(
     (
       acc,
@@ -83,7 +86,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
             ),
           },
           { title: roleCount, props: { isOpen: expanded[uuid] === 2 } },
-          { title: principalCount, props: { isOpen: expanded[uuid] === 3 } },
+          { title: isPlatformDefault || isAdminDefault ? principalCount : principalCount, props: { isOpen: expanded[uuid] === 3 } },
           { title: <DateFormat date={modified} type={getDateFormat(modified)} /> },
         ],
       },
@@ -102,11 +105,15 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   ouiaId="roles-in-group-nested-table"
                   aria-label="Simple Table"
                   variant={TableVariant.compact}
+                  sortBy={sortByState}
+                  onSort={(index, direction) => {
+                    setSortByState({ index, direction });
+                  }}
                   cells={[
-                    intl.formatMessage(messages.roleName),
-                    intl.formatMessage(messages.description),
-                    intl.formatMessage(messages.permissions),
-                    intl.formatMessage(messages.lastModified),
+                    { title: intl.formatMessage(messages.roleName), transforms: [sortable] },
+                    { title: intl.formatMessage(messages.description), transforms: [sortable] },
+                    { title: intl.formatMessage(messages.permissions) },
+                    { title: intl.formatMessage(messages.lastModified), transforms: [sortable] },
                   ]}
                   rows={roles?.map((role) => {
                     return {
@@ -145,22 +152,35 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   aria-label="Simple Table"
                   ouiaId="members-in-group-nested-table"
                   variant={TableVariant.compact}
+                  sortBy={sortByState}
+                  onSort={(index, direction) => {
+                    setSortByState({ index, direction });
+                  }}
                   cells={[
-                    intl.formatMessage(messages.orgAdmin),
-                    intl.formatMessage(messages.firstName),
-                    intl.formatMessage(messages.lastName),
-                    intl.formatMessage(messages.username),
-                    intl.formatMessage(messages.email),
+                    { title: intl.formatMessage(messages.orgAdministrator) },
+                    { title: intl.formatMessage(messages.firstName), transforms: [sortable] },
+                    { title: intl.formatMessage(messages.lastName), transforms: [sortable] },
+                    { title: intl.formatMessage(messages.username), transforms: [sortable] },
+                    { title: intl.formatMessage(messages.email), transforms: [sortable] },
                     intl.formatMessage(messages.status),
                   ]}
                   rows={members?.map((member) => ({
                     cells: [
-                      member.is_org_admin.toString(),
+                      <TextContent key={member.is_org_admin}>
+                        {member?.is_org_admin ? (
+                          <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+                        ) : (
+                          <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+                        )}
+                        {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
+                      </TextContent>,
                       member.first_name,
                       member.last_name,
                       member.username,
                       member.email,
-                      member.is_active.toString(),
+                      <Label key={member?.is_active} color={member?.is_active && 'green'}>
+                        {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
+                      </Label>,
                     ],
                   }))}
                 >

@@ -1,8 +1,8 @@
 import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { sortable } from '@patternfly/react-table';
+import { nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import { compoundExpand, nowrap } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
