@@ -127,8 +127,11 @@ const setMembersForGroup = (state, { payload, meta }) => ({
   },
   selectedGroup: {
     ...(state.selectedGroup || {}),
-    ...(!payload.error ? { members: payload.data } : payload),
-    loaded: true,
+    members: {
+      isLoading: false,
+      ...(!payload.error ? payload : {}),
+    },
+    ...(payload.error ? payload : {}),
   },
 });
 

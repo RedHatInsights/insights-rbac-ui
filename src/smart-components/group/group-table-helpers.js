@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { Popover, TextContent, Label } from '@patternfly/react-core';
+import { Popover, TextContent, Label, Text } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -10,7 +10,6 @@ import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
-import { Text } from '@patternfly/react-core';
 import { sortable } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
@@ -141,7 +140,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         uuid: `${uuid}-members`,
         parent: 3 * i,
         compoundParent: 2,
-        fullwidth: true,
+        fullWidth: true,
         noPadding: true,
         cells: [
           {
@@ -178,7 +177,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                       member.last_name,
                       member.username,
                       member.email,
-                      <Label key={member?.is_active} color={member?.is_active && 'green'}>
+                      <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
                         {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
                       </Label>,
                     ],
