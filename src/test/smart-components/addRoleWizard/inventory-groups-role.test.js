@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen } from '@testing-library/react';
+import { render, fireEvent, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -13,7 +13,6 @@ const initialStateWithPermissions = {
   inventoryReducer: {
     isLoading: false,
     resourceTypes: {
-      // this needs to be cleaned, just your previous setup did not match the desired structure
       'inventory:hosts:read': testInventoryGroups.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
       'inventory:hosts:write': testInventoryGroups.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {}),
     },
@@ -98,7 +97,7 @@ describe('Inventory groups role', () => {
     const renderedResults = renderComponent(store);
 
     expect(renderedResults.getByText('Permissions')).toBeInTheDocument();
-    expect()
+    expect(renderedResults.asFragment()).toMatchSnapshot();
   });
 
   test('Display available permission groups successfully', async () => {
@@ -116,7 +115,7 @@ describe('Inventory groups role', () => {
   });
 
   test('Selecting group for permission and Copy to all to other permissions successfully', async () => {
-     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
+    fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
       type: FETCH_INVENTORY_GROUP,
       payload: Promise.resolve({}),
     }));
@@ -127,8 +126,32 @@ describe('Inventory groups role', () => {
     fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
     expect(screen.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
-    
+
     fireEvent.click(renderedResults.getByText('Copy to all'));
     expect(screen.getAllByLabelText('Options menu')[1]);
+    fireEvent.click(screen.getAllByLabelText('Options menu')[1]);
+
+    expect(screen.getAllByText('1', { selector: '.pf-c-badge' })[1]);
+  });
+
+  test('Cancelling groups selection clears selections successfully', async () => {
+    fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUP,
+      payload: Promise.resolve({}),
+    }));
+
+    const store = mockStore(initialStateWithPermissions);
+    const renderedResults = renderComponent(store);
+
+    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+    expect(renderedResults.getByText('fooBar')).toBeInTheDocument();
+    fireEvent.click(screen.getByText('fooBar'));
+
+    await waitFor(() => {
+      const clearButton = screen.getByLabelText('Clear all');
+      expect(clearButton).toBeInTheDocument();
+    });
+
+    fireEvent.click(screen.getByLabelText('Clear all'));
   });
 });
