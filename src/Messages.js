@@ -322,6 +322,26 @@ export default defineMessages({
     description: 'Add group roles error notification description',
     defaultMessage: 'The roles were not added successfully.',
   },
+  addGroupServiceAccountsSuccessTitle: {
+    id: 'addGroupServiceAccountsSuccessTitle',
+    description: 'Add group service accounts success notification title',
+    defaultMessage: 'Success adding service accounts to group',
+  },
+  addGroupServiceAccountsSuccessDescription: {
+    id: 'addGroupServiceAccountsSuccessDescription',
+    description: 'Add group service accounts success notification description',
+    defaultMessage: 'The service accounts were successfully added to the group.',
+  },
+  addGroupServiceAccountsErrorTitle: {
+    id: 'addGroupServiceAccountsErrorTitle',
+    description: 'Add group service accounts error notification title',
+    defaultMessage: 'Failed adding service accounts to group',
+  },
+  addGroupServiceAccountsErrorDescription: {
+    id: 'addGroupServiceAccountsErrorDescription',
+    description: 'Add group service accounts error notification description',
+    defaultMessage: 'The service accounts were not added successfully.',
+  },
   removeGroupRolesSuccessTitle: {
     id: 'removeGroupRolesSuccessTitle',
     description: 'Remove group roles success notification title',
@@ -626,6 +646,17 @@ export default defineMessages({
     id: 'serviceAccounts',
     description: 'Service accounts plural',
     defaultMessage: 'Service accounts',
+  },
+  visitServiceAccountsPage: {
+    id: 'visitServiceAccountsPage',
+    description: 'Visit service accounts page text',
+    defaultMessage: 'To add, reset credentials, or delete service accounts visit the {link}.',
+  },
+  addServiceAccountsToGroupDescription: {
+    id: 'addServiceAccountsToGroupDescription',
+    description: 'Add service accounts to group description',
+    defaultMessage:
+      'This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.',
   },
   groupName: {
     id: 'groupName',

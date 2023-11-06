@@ -55,6 +55,22 @@
     "defaultMessage": "The roles were successfully added to the group.",
     "description": "Add group roles success notification description"
   },
+  "addGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "The service accounts were not added successfully.",
+    "description": "Add group service accounts error notification description"
+  },
+  "addGroupServiceAccountsErrorTitle": {
+    "defaultMessage": "Failed adding service accounts to group",
+    "description": "Add group service accounts error notification title"
+  },
+  "addGroupServiceAccountsSuccessDescription": {
+    "defaultMessage": "The service accounts were successfully added to the group.",
+    "description": "Add group service accounts success notification description"
+  },
+  "addGroupServiceAccountsSuccessTitle": {
+    "defaultMessage": "Success adding service accounts to group",
+    "description": "Add group service accounts success notification title"
+  },
   "addGroupSuccessDescription": {
     "defaultMessage": "The group was added successfully.",
     "description": "Add group success notification description"
@@ -130,6 +146,10 @@
   "addServiceAccount": {
     "defaultMessage": "Add service account",
     "description": "Add service account label"
+  },
+  "addServiceAccountsToGroupDescription": {
+    "defaultMessage": "This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.",
+    "description": "Add service accounts to group description"
   },
   "addSpecificUserToGroup": {
     "defaultMessage": "Add {username} to a group",
@@ -1213,6 +1233,10 @@
   "viewResourceDefinitions": {
     "defaultMessage": "View resource definitions for the <strong>{permission}</strong> permission",
     "description": "View resource definitions message"
+  },
+  "visitServiceAccountsPage": {
+    "defaultMessage": "To add, reset credentials, or delete service accounts visit the {link}.",
+    "description": "Visit service accounts page text"
   },
   "warning": {
     "defaultMessage": "Warning",
