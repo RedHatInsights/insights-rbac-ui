@@ -19,7 +19,7 @@ const setResourceTypes = (state, { payload, meta }) => {
       }),
       state.resourceTypes
     ),
-    total: payload.meta?.count,
+    total: payload.meta.count,
     isLoading: false,
   };
 };

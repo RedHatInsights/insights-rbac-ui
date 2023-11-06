@@ -127,11 +127,16 @@ describe('Inventory groups role', () => {
     expect(screen.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
+    const badgesAfterSelection = screen.getAllByText('1', { selector: '.pf-c-badge' });
+    expect(badgesAfterSelection).toHaveLength(1);
+
+    // Opening the second groups selection
     fireEvent.click(renderedResults.getByText('Copy to all'));
     expect(screen.getAllByLabelText('Options menu')[1]);
     fireEvent.click(screen.getAllByLabelText('Options menu')[1]);
 
-    expect(screen.getAllByText('1', { selector: '.pf-c-badge' })[1]);
+    const badgesAfterCopyAll = screen.getAllByText('1', { selector: '.pf-c-badge' });
+    expect(badgesAfterCopyAll).toHaveLength(2);
   });
 
   test('Cancelling groups selection clears selections successfully', async () => {
@@ -147,11 +152,17 @@ describe('Inventory groups role', () => {
     expect(renderedResults.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
+    const badgesBeforeClear = screen.getAllByText('1', { selector: '.pf-c-badge' });
+    expect(badgesBeforeClear).toHaveLength(1);
+
     await waitFor(() => {
       const clearButton = screen.getByLabelText('Clear all');
       expect(clearButton).toBeInTheDocument();
     });
 
     fireEvent.click(screen.getByLabelText('Clear all'));
+
+    const badgesAfterClear = screen.queryAllByLabelText('Clear all');
+    expect(badgesAfterClear).toHaveLength(0);
   });
 });
