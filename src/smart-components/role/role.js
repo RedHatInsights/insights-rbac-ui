@@ -6,19 +6,20 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
+import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import { defaultSettings } from '../../helpers/shared/pagination';
 import Permissions from './role-permissions';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
-import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
-import { defaultSettings } from '../../helpers/shared/pagination';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
+import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import './role.scss';
 
@@ -61,7 +62,7 @@ const Role = ({ onDelete }) => {
   const fetchData = () => {
     dispatch(fetchRole(roleId));
     if (groupId) {
-      if (groupId !== 'default-access') {
+      if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
         dispatch(fetchGroup(groupId));
       } else {
         if (systemGroupUuid) {
@@ -98,7 +99,7 @@ const Role = ({ onDelete }) => {
           to: getBackRoute(mergeToBasename(pathnames.roles.link), rolesPagination, rolesFilters),
         },
 
-    ...(groupExists && groupId && (groupId === 'default-access' ? systemGroupUuid : groupExists)
+    ...(groupExists && groupId && (groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupExists)
       ? group
         ? [
             {

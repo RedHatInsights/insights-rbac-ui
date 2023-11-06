@@ -27,6 +27,7 @@ import AppLink, { mergeToBasename } from '../../presentational-components/shared
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './group.scss';
@@ -38,7 +39,7 @@ const Group = () => {
   const location = useLocation();
   const chrome = useChrome();
   const { groupId } = useParams();
-  const isPlatformDefault = groupId === 'default-access';
+  const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
   const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts');
 
   const tabItems = [
@@ -148,7 +149,7 @@ const Group = () => {
           onClick={() => setDropdownOpen(false)}
           to={(location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group']).link.replace(
             ':groupId',
-            isPlatformDefault ? 'default-access' : groupId
+            isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId
           )}
         >
           {intl.formatMessage(messages.edit)}
@@ -197,7 +198,7 @@ const Group = () => {
               })
             );
             setResetWarningVisible(false);
-            navigate(pathnames['group-detail-roles'].link.replace(':groupId', 'default-access'));
+            navigate(pathnames['group-detail-roles'].link.replace(':groupId', DEFAULT_ACCESS_GROUP_ID));
           }}
         />
       )}
@@ -253,6 +254,7 @@ const Group = () => {
                 onDefaultGroupChanged: setShowDefaultGroupChangedInfo,
               },
               groupId, // used for redirect from /:groupId to /:groupId/roles
+              systemGroupUuid,
             }}
           />
           {!group && <ListLoader />}
