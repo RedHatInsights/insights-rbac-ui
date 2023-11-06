@@ -13,6 +13,7 @@ import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
 import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
 import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
+import serviceAccountReducer, { serviceAccountsInitialState } from '../redux/reducers/service-account-reducer';
 import errorReducer from '../redux/reducers/errorReducer';
 import inventoryReducer, { inventoryGroupsInitialState } from '../redux/reducers/inventory-reducer';
 
@@ -41,6 +42,7 @@ registry.register({
   permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
   inventoryReducer: applyReducerHash(inventoryReducer, inventoryGroupsInitialState),
   costReducer: applyReducerHash(costReducer, costInitialState),
+  serviceAccountReducer: applyReducerHash(serviceAccountReducer, serviceAccountsInitialState),
   errorReducer: applyReducerHash(errorReducer),
   notifications: notificationsReducer,
 });
