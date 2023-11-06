@@ -12,14 +12,14 @@ const setResourceTypes = (state, { payload, meta }) => {
   const data = payload.data.reduce((acc, curr) => ({ ...acc, [curr.name]: { ...curr } }), {});
   return {
     ...state,
-    resourceTypes: meta.permissions.reduce(
+    resourceTypes: meta.permissions?.reduce(
       (acc, curr) => ({
         ...acc,
         [curr]: meta?.config?.page > 1 ? { ...(acc?.[curr] || {}), ...data } : data,
       }),
       state.resourceTypes
     ),
-    total: payload.meta?.count,
+    total: payload.meta.count,
     isLoading: false,
   };
 };
