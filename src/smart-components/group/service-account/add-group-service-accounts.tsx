@@ -1,4 +1,4 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
@@ -29,8 +29,13 @@ export interface PaginationProps {
   offset: number;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const reducer = ({ serviceAccountReducer, groupReducer: { systemGroup } }: { serviceAccountReducer: ServiceAccountsState; groupReducer: any }) => ({
+const reducer = ({
+  serviceAccountReducer,
+  groupReducer: { systemGroup },
+}: {
+  serviceAccountReducer: ServiceAccountsState;
+  groupReducer: { systemGroup?: { uuid: string } };
+}) => ({
   serviceAccounts: serviceAccountReducer.serviceAccounts,
   status: serviceAccountReducer.status,
   isLoading: serviceAccountReducer.isLoading,
@@ -72,11 +77,14 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { serviceAccounts, status, limit, offset, isLoading, systemGroupUuid } = useSelector(reducer);
 
-  const fetchAccounts = async (props?: PaginationProps) => {
-    const env = getEnvironmentDetails();
-    const token = await auth.getToken();
-    dispatch(fetchServiceAccounts({ limit: props?.limit ?? limit, offset: props?.offset ?? offset, token, sso: env?.sso }));
-  };
+  const fetchAccounts = useCallback(
+    async (props?: PaginationProps) => {
+      const env = getEnvironmentDetails();
+      const token = await auth.getToken();
+      dispatch(fetchServiceAccounts({ limit: props?.limit ?? limit, offset: props?.offset ?? offset, token, sso: env?.sso }));
+    },
+    [limit, offset]
+  );
 
   useEffect(() => {
     fetchAccounts({ limit, offset: 0 });
