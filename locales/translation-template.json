@@ -742,6 +742,10 @@
     "defaultMessage": "There are no permissions in this role",
     "description": "No role permissions text"
   },
+  "noServiceAccountsFound": {
+    "defaultMessage": "No service accounts found",
+    "description": "No service accounts message"
+  },
   "noWildcardPermissions": {
     "defaultMessage": "Wildcard permissions (for example, approval:*:*) aren’t included in this table and can’t be added to your custom role.",
     "description": "No wildcard permissions message"

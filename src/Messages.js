@@ -944,6 +944,11 @@ export default defineMessages({
     description: 'Add service accounts message',
     defaultMessage: 'Add service accounts you wish to associate with this User Access group',
   },
+  noServiceAccountsFound: {
+    id: 'noServiceAccountsFound',
+    description: 'No service accounts message',
+    defaultMessage: 'No service accounts found',
+  },
   contactServiceTeamForAccounts: {
     id: 'contactServiceTeamForAccounts',
     description: 'Contact service team to add accounts message',

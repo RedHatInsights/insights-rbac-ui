@@ -186,6 +186,7 @@
     "noResourceDefinitions": "There are no resource definitions for {permission} permission",
     "noResultsFound": "No results found",
     "noRolePermissions": "There are no permissions in this role",
+    "noServiceAccountsFound": "No service accounts found",
     "noWildcardPermissions": "Wildcard permissions (for example, approval:*:*) aren’t included in this table and can’t be added to your custom role.",
     "none": "None",
     "notApplicable": "N/A",

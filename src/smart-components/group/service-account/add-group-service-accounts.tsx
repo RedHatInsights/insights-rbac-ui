@@ -158,7 +158,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
             titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
             titleSingular={intl.formatMessage(messages.serviceAccount)}
             emptyProps={{
-              title: intl.formatMessage(messages.noGroupAccounts),
+              title: intl.formatMessage(messages.noServiceAccountsFound),
               description: [intl.formatMessage(messages.contactServiceTeamForAccounts), ''],
             }}
             tableId="group-add-accounts"
