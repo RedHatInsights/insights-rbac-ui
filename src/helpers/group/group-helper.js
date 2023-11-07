@@ -133,7 +133,7 @@ export async function fetchRolesForGroup(groupId, excluded, { limit, offset, nam
 
 export async function addServiceAccountsToGroup(groupId, serviceAccounts) {
   return await groupApi.addPrincipalToGroup(groupId, {
-    principals: serviceAccounts.map((account) => ({ username: account.name, clientID: account.clientId, type: 'service-account' })),
+    principals: serviceAccounts.map((account) => ({ username: account.name, clientID: account.uuid, type: 'service-account' })),
   });
 }
 

@@ -1,7 +1,7 @@
 import { defaultCompactSettings } from '../shared/pagination';
 import { getServiceAccountsApi } from '../shared/user-login';
 
-const serviceAccountsApi = getServiceAccountsApi();
+const serviceAccountsApi = getServiceAccountsApi?.();
 
 export const NO_DATA = 'no-data';
 export const LAST_PAGE = 'last-page';
@@ -34,17 +34,18 @@ export async function getServiceAccounts({ limit = defaultCompactSettings.limit,
   const perPage = limit;
 
   const response = await serviceAccountsApi.getServiceAccounts(page, perPage, token, sso);
-  const data = await response.json();
 
   let status;
-  if (page === 1 && data.length === 0) {
+  if (page === 1 && response.data.length === 0) {
     status = NO_DATA;
   } else {
-    status = data.length < perPage + 1 ? LAST_PAGE : RESULTS;
+    status = response.data.length < perPage + 1 ? LAST_PAGE : RESULTS;
   }
 
   return {
-    data: data.slice(0, perPage).map(({ id, createdAt, ...item }: ServiceAccountPayloadItem) => ({ uuid: id, createdAt: createdAt * 1000, ...item })),
+    data: response.data
+      .slice(0, perPage)
+      .map(({ id, createdAt, ...item }: ServiceAccountPayloadItem) => ({ uuid: id, createdAt: createdAt * 1000, ...item })),
     status,
   };
 }
