@@ -1,16 +1,17 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { OutlinedQuestionCircleIcon, CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { Popover, TextContent, Label, Text } from '@patternfly/react-core';
+import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import AppLink from '../../presentational-components/shared/AppLink';
+import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
-import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
 
 const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
   const [isPopoverVisible, setPopoverVisible] = useState(false);
@@ -42,7 +43,7 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
+export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading) => {
   const intl = useIntl();
   return data.reduce(
     (
@@ -82,7 +83,10 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
             ),
           },
           { title: roleCount, props: { isOpen: expanded[uuid] === 2 } },
-          { title: principalCount, props: { isOpen: expanded[uuid] === 3 } },
+          {
+            title: principalCount,
+            props: isPlatformDefault || isAdminDefault ? {} : { isOpen: expanded[uuid] === 3 },
+          },
           { title: <DateFormat date={modified} type={getDateFormat(modified)} /> },
         ],
       },
@@ -107,18 +111,22 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     { title: intl.formatMessage(messages.permissions) },
                     { title: intl.formatMessage(messages.lastModified) },
                   ]}
-                  rows={roles?.map((role) => {
-                    return {
-                      cells: [
-                        { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
-                        role.description,
-                        role.accessCount,
-                        <Fragment key={`${uuid}-modified`}>
-                          <DateFormat date={modified} type={getDateFormat(modified)} />
-                        </Fragment>,
-                      ],
-                    };
-                  })}
+                  rows={roles?.map((role) =>
+                    isLoading ? (
+                      <ListLoader items={1} isCompact />
+                    ) : (
+                      {
+                        cells: [
+                          { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
+                          role.description,
+                          role.accessCount,
+                          <Fragment key={`${uuid}-modified`}>
+                            <DateFormat date={modified} type={getDateFormat(modified)} />
+                          </Fragment>,
+                        ],
+                      }
+                    )
+                  )}
                 >
                   <TableHeader />
                   <TableBody />
@@ -152,29 +160,37 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     { title: intl.formatMessage(messages.email) },
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={members?.map((member) => ({
-                    cells: [
-                      <TextContent key={member.is_org_admin}>
-                        {member?.is_org_admin ? (
-                          <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
-                        ) : (
-                          <CloseIcon key="no-icon" className="pf-u-mx-sm" />
-                        )}
-                        {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
-                      </TextContent>,
-                      member.first_name,
-                      member.last_name,
-                      member.username,
-                      member.email,
-                      <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
-                        {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
-                      </Label>,
-                    ],
-                  }))}
+                  rows={members?.map((member) =>
+                    isLoading ? (
+                      <ListLoader items={1} isCompact />
+                    ) : (
+                      {
+                        cells: [
+                          <TextContent key={member.is_org_admin}>
+                            {member?.is_org_admin ? (
+                              <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+                            ) : (
+                              <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+                            )}
+                            {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
+                          </TextContent>,
+                          member.first_name,
+                          member.last_name,
+                          member.username,
+                          member.email,
+                          <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
+                            {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
+                          </Label>,
+                        ],
+                      }
+                    )
+                  )}
                 >
                   <TableHeader />
                   <TableBody />
                 </Table>
+              ) : isAdminDefault || isPlatformDefault ? (
+                ''
               ) : (
                 <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroupMembers)}</Text>
               ),

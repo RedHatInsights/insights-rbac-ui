@@ -198,7 +198,7 @@ const Groups = () => {
     }
   };
 
-  const rows = createRows(isAdmin, data, selectedRows, expanded);
+  const rows = createRows(isAdmin, data, selectedRows, expanded, isLoading);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeGroupsList.length;
 
