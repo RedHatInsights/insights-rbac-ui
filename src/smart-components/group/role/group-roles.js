@@ -23,6 +23,7 @@ import { getBackRoute, getDateFormat } from '../../../helpers/shared/helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-roles.scss';
@@ -139,7 +140,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   ];
 
   useEffect(() => {
-    if (groupId !== 'default-access') {
+    if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
       fetchGroupRoles(pagination)(groupId);
     } else {
       systemGroupUuid && fetchGroupRoles(pagination)(systemGroupUuid);
@@ -148,7 +149,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
 
   useEffect(() => {
     if (roles?.length > 0) {
-      if (groupId !== 'default-access') {
+      if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
         fetchAddGroupRoles(groupId);
       } else {
         systemGroupUuid && fetchAddGroupRoles(systemGroupUuid);
@@ -177,7 +178,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
     </p>
   );
 
-  const fetchUuid = groupId !== 'default-access' ? groupId : systemGroupUuid;
+  const fetchUuid = groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId : systemGroupUuid;
 
   const removeRolesCallback = () => {
     if (isPlatformDefault) {
@@ -340,7 +341,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
               fetchUuid: systemGroupUuid,
               selectedRoles: selectedAddRoles,
               setSelectedRoles: setSelectedAddRoles,
-              closeUrl: pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : groupId),
+              closeUrl: pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId),
               addRolesToGroup: (groupId, roles, callback) => dispatch(reloadWrapper(addRolesToGroup(groupId, roles), callback)),
               groupName: group.name,
               isDefault: isPlatformDefault || isAdminDefault,

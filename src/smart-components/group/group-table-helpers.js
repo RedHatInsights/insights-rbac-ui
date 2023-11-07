@@ -8,6 +8,7 @@ import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import AppLink from '../../presentational-components/shared/AppLink';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 
 const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
@@ -56,7 +57,7 @@ export const createRows = (isAdmin, data, selectedRows = []) => {
                 <AppLink
                   key={`${uuid}-link`}
                   state={{ uuid }}
-                  to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? 'default-access' : uuid)}
+                  to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
                 >
                   {name}
                 </AppLink>

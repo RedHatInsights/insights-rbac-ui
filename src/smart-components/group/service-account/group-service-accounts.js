@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useContext, useRef, Suspense, Fragment } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { Alert, Button } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -11,6 +11,7 @@ import { TableToolbarView } from '../../../presentational-components/shared/tabl
 import { fetchGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import { fetchServiceAccountsForGroup } from '../../../redux/actions/group-actions';
 import { getBackRoute, getDateFormat } from '../../../helpers/shared/helpers';
+import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import PermissionsContext from '../../../utilities/permissions-context';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
@@ -74,7 +75,7 @@ const GroupServiceAccounts = () => {
   ];
 
   useEffect(() => {
-    if (groupId !== 'default-access') {
+    if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
       fetchGroupAccounts(pagination)(groupId);
     } else {
       systemGroupUuid && fetchGroupAccounts(pagination)(systemGroupUuid);
@@ -122,19 +123,13 @@ const GroupServiceAccounts = () => {
           variant="info"
           isInline
           isPlain
-          title={
-            <FormattedMessage
-              id="visitServiceAccountsPage"
-              defaultMessage="To add, reset credentials, or delete service accounts visit the {link}."
-              values={{
-                link: (
-                  <AppLink to="/service-accounts" linkBasename="/iam">
-                    {intl.formatMessage(messages.serviceAccountsPage)}
-                  </AppLink>
-                ),
-              }}
-            />
-          }
+          title={intl.formatMessage(messages.visitServiceAccountsPage, {
+            link: (
+              <AppLink to="/service-accounts" linkBasename="/iam">
+                {intl.formatMessage(messages.serviceAccountsPage)}
+              </AppLink>
+            ),
+          })}
         />
         <TableToolbarView
           columns={columns}
@@ -184,6 +179,10 @@ const GroupServiceAccounts = () => {
               cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
               submitRoute: getBackRoute(pathnames.groups.link, { ...groupsPagination, offset: 0 }, groupsFilters),
               groupsUuid: [group],
+            },
+            [pathnames['group-add-service-account'].path]: {
+              cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
+              submitRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
             },
           }}
         />

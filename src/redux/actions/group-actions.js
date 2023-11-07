@@ -185,6 +185,31 @@ export const fetchServiceAccountsForGroup = (groupId, pagination, options) => ({
   payload: GroupHelper.fetchAccountsForGroup(groupId, false, pagination, options).catch(handleUuidError),
 });
 
+export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
+  return {
+    type: ActionTypes.ADD_SERVICE_ACCOUNTS_TO_GROUP,
+    payload: GroupHelper.addServiceAccountsToGroup(groupId, serviceAccounts),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.addGroupServiceAccountsSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupServiceAccountsSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.addGroupServiceAccountsErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.addGroupServiceAccountsErrorDescription),
+        },
+      },
+    },
+  };
+};
+
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
   payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
