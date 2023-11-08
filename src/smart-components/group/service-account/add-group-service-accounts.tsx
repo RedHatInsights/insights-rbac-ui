@@ -153,14 +153,17 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
               offset,
               ...(status === LAST_PAGE ? { count: offset + serviceAccounts.length } : {}),
             }}
-            paginationToggleTemplate={({ firstIndex, lastIndex }) => (
-              <>
-                <b>
-                  {firstIndex} - {lastIndex}
-                </b>{' '}
-                of <b>many</b>
-              </>
-            )}
+            paginationProps={{
+              toggleTemplate: ({ firstIndex, lastIndex }) => (
+                <>
+                  <b>
+                    {firstIndex} - {lastIndex}
+                  </b>{' '}
+                  of <b>{status === LAST_PAGE ? offset + serviceAccounts.length : 'many'}</b>
+                </>
+              ),
+              isCompact: true,
+            }}
             checkedRows={selectedAccounts}
             setCheckedItems={setSelectedAccounts}
             titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}

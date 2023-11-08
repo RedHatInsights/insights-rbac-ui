@@ -7,12 +7,11 @@ import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
 import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
 
-export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '', paginationToggleTemplate) => ({
-  ...pagination,
+export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '', paginationProps) => ({
+  ...paginationProps,
   itemCount: pagination.count,
   perPage: pagination.limit,
   page: calculatePage(pagination.limit, pagination.offset),
-  ...(paginationToggleTemplate ? { toggleTemplate: paginationToggleTemplate } : {}),
   onSetPage: (_event, page) => {
     fetchData({
       ...pagination,
@@ -30,7 +29,6 @@ export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', 
   ],
   onPerPageSelect: (_event, perPage) => {
     fetchData({
-      ...pagination,
       offset: 0,
       limit: perPage,
       name: filterValue,
@@ -255,7 +253,7 @@ const Toolbar = ({
   filterValue,
   setFilterValue,
   pagination,
-  paginationToggleTemplate,
+  paginationProps,
   fetchData,
   sortBy,
   toolbarButtons,
@@ -300,7 +298,7 @@ const Toolbar = ({
       actions: toolbarButtons(),
     }}
     {...(!isLoading && {
-      pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationToggleTemplate),
+      pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps),
     })}
     {...((filterValue.length > 0 || (filters && filters.length > 0)) &&
       !hideFilterChips && {
@@ -337,7 +335,10 @@ Toolbar.propTypes = {
     offset: PropTypes.number,
     count: PropTypes.number,
   }),
-  paginationToggleTemplate: PropTypes.func,
+  paginationProps: PropTypes.shape({
+    toggleTemplate: PropTypes.func,
+    isCompact: PropTypes.bool,
+  }),
   sortBy: PropTypes.string,
   filterItems: PropTypes.arrayOf(PropTypes.object),
   filterPlaceholder: PropTypes.string,
