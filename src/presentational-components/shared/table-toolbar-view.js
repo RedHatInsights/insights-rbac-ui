@@ -25,7 +25,7 @@ export const TableToolbarView = ({
   titlePlural,
   titleSingular,
   pagination,
-  paginationToggleTemplate,
+  paginationProps,
   filterValue,
   isLoading,
   emptyFilters,
@@ -113,7 +113,7 @@ export const TableToolbarView = ({
           setFilterValue={setFilterValue}
           sortBy={orderBy}
           pagination={pagination}
-          paginationToggleTemplate={paginationToggleTemplate}
+          paginationProps={paginationProps}
           fetchData={fetchData}
           toolbarButtons={toolbarButtons}
           filterPlaceholder={filterPlaceholder}
@@ -160,11 +160,7 @@ export const TableToolbarView = ({
         {!pagination.noBottom && (
           <TableToolbar>
             {!isLoading && (
-              <Pagination
-                {...paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationToggleTemplate)}
-                variant="bottom"
-                dropDirection="up"
-              />
+              <Pagination {...paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps)} variant="bottom" dropDirection="up" />
             )}
           </TableToolbar>
         )}
@@ -217,7 +213,10 @@ TableToolbarView.propTypes = {
     offset: propTypes.number,
     count: propTypes.number,
   }),
-  paginationToggleTemplate: propTypes.func,
+  paginationProps: propTypes.shape({
+    toggleTemplate: propTypes.func,
+    isCompact: propTypes.bool,
+  }),
   isExpandable: propTypes.bool,
   onExpand: propTypes.func,
   onSort: propTypes.func,
