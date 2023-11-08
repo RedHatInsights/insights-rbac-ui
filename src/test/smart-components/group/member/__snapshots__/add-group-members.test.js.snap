@@ -272,12 +272,10 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                       >
                         <div
                           class="pf-c-pagination pf-m-compact"
-                          count="1"
                           data-ouia-component-id="CompactPagination"
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="options-menu-top-pagination"
-                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -741,12 +739,10 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                 >
                   <div
                     class="pf-c-pagination pf-m-bottom"
-                    count="1"
                     data-ouia-component-id="OUIA-Generated-Pagination-bottom-2"
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="options-menu-bottom-pagination"
-                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div
@@ -1264,12 +1260,10 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                       >
                         <div
                           class="pf-c-pagination pf-m-compact"
-                          count="0"
                           data-ouia-component-id="CompactPagination"
                           data-ouia-component-type="PF4/Pagination"
                           data-ouia-safe="true"
                           id="options-menu-top-pagination"
-                          limit="20"
                           style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                         >
                           <div
@@ -1710,12 +1704,10 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                 >
                   <div
                     class="pf-c-pagination pf-m-bottom"
-                    count="0"
                     data-ouia-component-id="OUIA-Generated-Pagination-bottom-1"
                     data-ouia-component-type="PF4/Pagination"
                     data-ouia-safe="true"
                     id="options-menu-bottom-pagination"
-                    limit="20"
                     style="--pf-c-pagination__nav-page-select--c-form-control--width-chars: 2;"
                   >
                     <div
