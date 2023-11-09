@@ -137,11 +137,11 @@ export async function addServiceAccountsToGroup(groupId, serviceAccounts) {
   });
 }
 
-export async function fetchAccountsForGroup(groupId, usernames, options = {}) {
+export async function fetchAccountsForGroup(groupId, options = {}) {
   return await groupApi.getPrincipalsFromGroup(
     groupId,
     undefined,
-    usernames,
+    options.username,
     options.limit,
     options.offset,
     options.orderBy,

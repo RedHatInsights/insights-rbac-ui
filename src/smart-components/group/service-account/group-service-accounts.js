@@ -21,20 +21,20 @@ import './group-service-accounts.scss';
 
 const createRows = (data = [], checkedRows = []) =>
   data?.reduce(
-    (acc, { description, client_id, owner, time_created }) => [
+    (acc, { uuid, name, clientID, owner, time_created: timeCreated }) => [
       ...acc,
       {
-        uuid: description,
-        title: description,
+        uuid,
+        title: name,
         cells: [
-          description,
-          client_id,
+          name,
+          clientID,
           owner,
-          <Fragment key={`${description}-modified`}>
-            <DateFormat date={time_created} type={getDateFormat(time_created)} />
+          <Fragment key={`${name}-modified`}>
+            <DateFormat date={timeCreated} type={getDateFormat(timeCreated)} />
           </Fragment>,
         ],
-        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === description)),
+        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
       },
     ],
     []
@@ -42,10 +42,10 @@ const createRows = (data = [], checkedRows = []) =>
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   serviceAccounts: selectedGroup.serviceAccounts?.data || [],
-  pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.serviceAccounts && selectedGroup.serviceAccounts.length },
+  pagination: { ...defaultSettings, ...(selectedGroup?.serviceAccounts?.meta || {}) },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
-  isLoading: !selectedGroup.loaded,
+  isLoading: selectedGroup.serviceAccounts.isLoading,
   isAdminDefault: selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
   group: selectedGroup,
@@ -65,30 +65,26 @@ const GroupServiceAccounts = () => {
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
   const { serviceAccounts, pagination, groupsPagination, groupsFilters, isLoading, group, isAdminDefault, systemGroupUuid } = useSelector(reducer);
 
-  const fetchGroupAccounts = (config) => (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, config, options));
+  const fetchGroupAccounts = (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, options));
 
   const columns = [
     { title: intl.formatMessage(messages.description), orderBy: 'description' },
-    { title: intl.formatMessage(messages.clientId), orderBy: 'clientId' },
+    { title: intl.formatMessage(messages.clientId), orderBy: 'clientID' },
     { title: intl.formatMessage(messages.owner), orderBy: 'owner' },
     { title: intl.formatMessage(messages.timeCreated), orderBy: 'timeCreated' },
   ];
 
   useEffect(() => {
     if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
-      fetchGroupAccounts(pagination)(groupId);
+      fetchGroupAccounts(groupId, pagination);
     } else {
-      systemGroupUuid && fetchGroupAccounts(pagination)(systemGroupUuid);
+      systemGroupUuid && fetchGroupAccounts(systemGroupUuid, pagination);
     }
   }, [systemGroupUuid]);
 
   useEffect(() => {
     hasPermissions.current = orgAdmin || userAccessAdministrator;
   }, [orgAdmin, userAccessAdministrator]);
-
-  const setCheckedItems = (newSelection) => {
-    setSelectedAccounts((accounts) => newSelection(accounts).map(({ uuid, name, label }) => ({ uuid, label: label || name })));
-  };
 
   const actionResolver = () => [
     ...(hasPermissions.current && !isAdminDefault
@@ -138,7 +134,7 @@ const GroupServiceAccounts = () => {
           data={serviceAccounts}
           filterValue={descriptionValue}
           fetchData={(config) => {
-            fetchGroupAccounts(config)(groupId);
+            fetchGroupAccounts(groupId, config);
           }}
           emptyFilters={{ owner: '', description: '', timeCreated: '' }}
           setFilterValue={({ name, description }) => {
@@ -149,12 +145,11 @@ const GroupServiceAccounts = () => {
           isLoading={isLoading}
           pagination={pagination}
           checkedRows={selectedAccounts}
-          setCheckedItems={setCheckedItems}
+          setCheckedItems={setSelectedAccounts}
           titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
           titleSingular={intl.formatMessage(messages.serviceAccount)}
           toolbarButtons={toolbarButtons}
           actionResolver={actionResolver}
-          ouiaId="service-accounts-table"
           emptyProps={{
             title: intl.formatMessage(messages.noGroupAccounts),
             description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
@@ -164,6 +159,7 @@ const GroupServiceAccounts = () => {
             { key: 'owner', value: ownerValue },
           ]}
           tableId="group-accounts"
+          ouiaId="group-accounts"
         />
       </Section>
       <Suspense>

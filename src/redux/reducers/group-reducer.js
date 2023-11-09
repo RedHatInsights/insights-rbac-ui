@@ -96,9 +96,10 @@ const setAccountsForGroup = (state, { payload }) => ({
     ...(state.selectedGroup || {}),
     serviceAccounts: {
       isLoading: false,
-      ...(!payload.error ? payload : {}),
+      ...(!payload.error
+        ? { ...payload, data: payload.data.map((item) => ({ ...item, uuid: item.name, time_created: item.time_created * 1000 })) }
+        : {}),
     },
-    ...(payload.error ? payload : {}),
   },
 });
 const setMembersForGroupLoading = (state = {}) => ({
