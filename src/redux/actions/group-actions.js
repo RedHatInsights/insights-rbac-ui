@@ -180,9 +180,9 @@ export const fetchRolesForGroup = (groupId, pagination, options) => ({
   payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
 });
 
-export const fetchServiceAccountsForGroup = (groupId, pagination, options) => ({
+export const fetchServiceAccountsForGroup = (groupId, options) => ({
   type: ActionTypes.FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
-  payload: GroupHelper.fetchAccountsForGroup(groupId, false, pagination, options).catch(handleUuidError),
+  payload: GroupHelper.fetchAccountsForGroup(groupId, options).catch(handleUuidError),
 });
 
 export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
