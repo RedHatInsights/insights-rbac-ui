@@ -342,6 +342,26 @@ export default defineMessages({
     description: 'Add group service accounts error notification description',
     defaultMessage: 'The service accounts were not added successfully.',
   },
+  removeGroupServiceAccountsSuccessTitle: {
+    id: 'removeGroupServiceAccountsSuccessTitle',
+    description: 'Removal of group service accounts success notification title',
+    defaultMessage: 'Successfull remove of service accounts from group',
+  },
+  removeGroupServiceAccountsSuccessDescription: {
+    id: 'removeGroupServiceAccountsSuccessDescription',
+    description: 'Removal of  group service accounts success notification description',
+    defaultMessage: 'The service accounts were successfully removed from the group.',
+  },
+  removeGroupServiceAccountsErrorTitle: {
+    id: 'removeGroupServiceAccountsErrorTitle',
+    description: 'Removal of  group service accounts error notification title',
+    defaultMessage: 'Failed removing service accounts from group',
+  },
+  removeGroupServiceAccountsErrorDescription: {
+    id: 'removeGroupServiceAccountsErrorDescription',
+    description: 'Removal of  group service accounts error notification description',
+    defaultMessage: 'The service accounts were NOT removed from the group because of error.',
+  },
   removeGroupRolesSuccessTitle: {
     id: 'removeGroupRolesSuccessTitle',
     description: 'Remove group roles success notification title',
@@ -792,6 +812,12 @@ export default defineMessages({
     id: 'addServiceAccount',
     description: 'Add service account label',
     defaultMessage: 'Add service account',
+  },
+  removeServiceAccountsText: {
+    id: 'removeServiceAccountsText',
+    description: 'Remove service accounts description',
+    defaultMessage:
+      '{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.',
   },
   remove: {
     id: 'remove',

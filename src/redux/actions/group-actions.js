@@ -210,6 +210,31 @@ export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
   };
 };
 
+export const removeServiceAccountFromGroup = (groupId, serviceAccounts) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages }, cache);
+  return {
+    type: ActionTypes.REMOVE_SERVICE_ACCOUNTS_FROM_GROUP,
+    payload: GroupHelper.removeServiceAccountsFromGroup(groupId, serviceAccounts),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle),
+          dismissDelay: 8000,
+          description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription),
+        },
+      },
+    },
+  };
+};
+
 export const fetchMembersForGroup = (groupId, usernames, options) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
   payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),

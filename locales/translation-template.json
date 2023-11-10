@@ -147,6 +147,12 @@
     "defaultMessage": "Add service account",
     "description": "Add service account label"
   },
+  "removeServiceAccounts": {
+    "id": "removeMembersText",
+    "description": "Remove service accounts description",
+    "defaultMessage":
+      "{count, plural, one {{name} service account} other {<b>{count} service accounts</b>}} will be removed from <b>{group}</b> group."
+  },
   "addServiceAccountsToGroupDescription": {
     "defaultMessage": "This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.",
     "description": "Add service accounts to group description"

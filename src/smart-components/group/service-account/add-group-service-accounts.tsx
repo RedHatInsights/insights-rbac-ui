@@ -6,7 +6,6 @@ import { useParams } from 'react-router-dom';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import AppLink from '../../../presentational-components/shared/AppLink';
-import useAppNavigate from '../../../hooks/useAppNavigate';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { fetchServiceAccounts } from '../../../redux/actions/service-account-actions';
 import { ServiceAccountsState } from '../../../redux/reducers/service-account-reducer';
@@ -19,8 +18,7 @@ import messages from '../../../Messages';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {
-  submitRoute: string;
-  cancelRoute: string;
+  postMethod: () => void;
 }
 
 export interface PaginationProps {
@@ -65,12 +63,8 @@ const createRows = (data: ServiceAccount[], checkedRows = []) =>
     []
   );
 
-const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsProps> = ({
-  submitRoute,
-  cancelRoute,
-}: AddGroupServiceAccountsProps) => {
+const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsProps> = ({ postMethod }: AddGroupServiceAccountsProps) => {
   const intl = useIntl();
-  const navigate = useAppNavigate();
   const dispatch = useDispatch();
   const { groupId } = useParams();
   const { auth, getEnvironmentDetails } = useChrome();
@@ -90,11 +84,13 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
     fetchAccounts({ limit, offset: 0 });
   }, []);
 
-  const onCancel = () => navigate(submitRoute);
+  const onCancel = () => {
+    postMethod();
+  };
 
   const onSubmit = () => {
     dispatch(addServiceAccountsToGroup(groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId, selectedAccounts));
-    navigate(cancelRoute);
+    postMethod();
   };
 
   const columns = [

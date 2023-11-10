@@ -32,7 +32,7 @@ const GroupServiceAccounts = lazy(() => import('./smart-components/group/service
 const AddGroupRoles = lazy(() => import('./smart-components/group/role/add-group-roles'));
 const AddGroupMembers = lazy(() => import('./smart-components/group/member/add-group-members'));
 const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/service-account/add-group-service-accounts'));
-
+const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
@@ -164,7 +164,7 @@ const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
                 },
                 {
                   path: pathnames['group-service-accounts-remove-group'].path,
-                  element: RemoveGroup,
+                  element: RemoveServiceAccountFromGroup,
                 },
                 {
                   path: pathnames['group-add-service-account'].path,
