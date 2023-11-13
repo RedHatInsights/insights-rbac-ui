@@ -3,10 +3,7 @@
     "@redhat-cloud-services/eslint-config-redhat-cloud-services"
   ],
   "globals": {
-    "insights": "readonly",
-    "shallow": true,
-    "render": true,
-    "mount": true  
+    "insights": "readonly"
   },
   "overrides": [
     {
@@ -16,8 +13,12 @@
       "extends": ["plugin:@typescript-eslint/recommended"],
       "rules": {
         "react/prop-types": "off",
-        "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }]
+        "@typescript-eslint/no-unused-vars": ["error", { "ignoreRestSiblings": true }],
+        "@typescript-eslint/no-explicit-any": "warn"
       }
     }
-  ]   
+  ] ,
+  "rules": {
+    "rulesdir/forbid-pf-relative-imports": "off"
+  }  
 }
