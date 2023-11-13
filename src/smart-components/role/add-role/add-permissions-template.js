@@ -54,7 +54,7 @@ const AddPermissionTemplate = ({ formFields }) => {
       </TextContent>
       {notAllowedBasePermissions?.length > 0 && !alertClosed ? (
         <Alert
-          variant="default"
+          variant="custom"
           isInline
           title={`${intl.formatMessage(messages.followingPermissionsCannotBeAdded)} ${notAllowedBasePermissions.join(', ')}`}
           actionClose={<AlertActionCloseButton onClose={() => setAlertClosed(true)} />}

@@ -28,7 +28,7 @@ const DefaultPlatformPopover = ({ id, uuid, bodyContent }) => {
       >
         <OutlinedQuestionCircleIcon
           onClick={() => setPopoverVisible(!isPopoverVisible)}
-          className={classNames('pf-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
+          className={classNames('pf-v5-c-question-circle-icon', { 'icon-active': isPopoverVisible })}
         />
       </Popover>
     </span>

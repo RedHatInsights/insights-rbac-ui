@@ -1,10 +1,9 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import toJson from 'enzyme-to-json';
 import promiseMiddleware from 'redux-promise-middleware';
 import Roles from '../../smart-components/role/roles';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
@@ -69,21 +68,26 @@ describe('<Roles />', () => {
   it('should render correctly', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
 
-    wrapper.find('#expandable-toggle-0-3').simulate('click');
-    wrapper.update();
-    wrapper.find('#expandable-toggle-0-3').simulate('click');
-    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+    await act(async () => {
+      await fireEvent.click(container.querySelector('#expandable-toggle-0-3'));
+    });
+
+    await act(async () => {
+      await fireEvent.click(container.querySelector('#expandable-toggle-0-3'));
+    });
+    expect(container.querySelector('#tab-roles')).toMatchSnapshot();
   });
 
   it('should render correctly in loading state', () => {
@@ -95,14 +99,14 @@ describe('<Roles />', () => {
         isLoading: true,
       },
     });
-    const wrapper = mount(
+    render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/roles']}>
           <Roles />
         </MemoryRouter>
       </Provider>
     );
-    expect(toJson(wrapper.find('ListLoader'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(screen.getByLabelText('datalist-placeholder')).toMatchSnapshot();
   });
 
   it('should render correctly in org admin', () => {
@@ -119,14 +123,14 @@ describe('<Roles />', () => {
         },
       },
     });
-    const wrapper = mount(
+    const { container } = render(
       <Provider store={store}>
         <MemoryRouter initialEntries={['/roles']}>
           <Roles />
         </MemoryRouter>
       </Provider>
     );
-    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container.querySelector('section')).toMatchSnapshot();
   });
 
   it('should fetch roles on sort click', async () => {
@@ -134,9 +138,8 @@ describe('<Roles />', () => {
     fetchRolesWithPoliciesSpy
       .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }))
       .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
@@ -146,7 +149,7 @@ describe('<Roles />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
+      await fireEvent.click(screen.getByText('Name'));
     });
     expect(fetchRolesWithPoliciesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(
@@ -177,19 +180,31 @@ describe('<Roles />', () => {
   it('should render correctly expanded', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
           </MemoryRouter>
         </Provider>
       );
+
+      container = ci;
     });
 
-    wrapper.find('#expandable-toggle-0-3').simulate('click');
-    wrapper.find('#expandable-toggle-0-2').simulate('click');
-    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+    await act(async () => {
+      await fireEvent.click(container.querySelector('#expandable-toggle-0-3'));
+    });
+
+    await act(async () => {
+      await fireEvent.click(container.querySelector('#expandable-toggle-0-2'));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(container.querySelector('table')).toMatchSnapshot();
   });
 });

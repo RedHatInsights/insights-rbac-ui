@@ -13,7 +13,7 @@ export const mergeToBasename = (to: To, basename = '/iam/user-access') => {
 
   return {
     ...to,
-    pathname: `${basename}/${to.pathname}`.replaceAll('//', '/'),
+    pathname: `${basename}/${to?.pathname}`.replaceAll('//', '/'),
   };
 };
 

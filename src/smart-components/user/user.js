@@ -3,7 +3,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { Table, TableHeader, TableBody, TableVariant, compoundExpand } from '@patternfly/react-table';
+import { TableVariant, compoundExpand } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import debounce from 'lodash/debounce';
@@ -130,7 +131,7 @@ const User = () => {
                                   {intl.formatMessage(messages.addRoleToThisGroup)}
                                 </AppLink>
                               ),
-                              props: { className: 'pf-u-text-align-right' },
+                              props: { className: 'pf-v5-u-text-align-right' },
                             },
                           ],
                         }))}
@@ -139,7 +140,7 @@ const User = () => {
                         <TableBody />
                       </Table>
                     ) : (
-                      <Text className="pf-u-mx-lg pf-u-my-sm">
+                      <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">
                         {loadingRolesTemp ? intl.formatMessage(messages.loading) : intl.formatMessage(messages.noGroups)}
                       </Text>
                     ),
@@ -171,7 +172,7 @@ const User = () => {
                           <TableBody />
                         </Table>
                       ) : (
-                        <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+                        <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
                       )
                     ) : (
                       <ListLoader items={3} isCompact />
@@ -239,7 +240,11 @@ const User = () => {
                   <Fragment>
                     <TextContent>
                       {`${intl.formatMessage(messages.orgAdministrator)}: `}
-                      {user?.is_org_admin ? <CheckIcon key="yes-icon" className="pf-u-mx-sm" /> : <CloseIcon key="no-icon" className="pf-u-mx-sm" />}
+                      {user?.is_org_admin ? (
+                        <CheckIcon key="yes-icon" className="pf-v5-u-mx-sm" />
+                      ) : (
+                        <CloseIcon key="no-icon" className="pf-v5-u-mx-sm" />
+                      )}
                       {intl.formatMessage(user?.is_org_admin ? messages.yes : messages.no)}
                     </TextContent>
                     {user?.email && <Text component={TextVariants.p}>{`${intl.formatMessage(messages.email)}: ${user.email}`}</Text>}
@@ -293,7 +298,7 @@ const User = () => {
         </Stack>
       ) : (
         <Fragment>
-          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+          <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
             <Breadcrumbs {...breadcrumbsList} />
           </section>
           <EmptyWithAction
@@ -302,7 +307,7 @@ const User = () => {
             actions={[
               <Button
                 key="back-button"
-                className="pf-u-mt-xl"
+                className="pf-v5-u-mt-xl"
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"

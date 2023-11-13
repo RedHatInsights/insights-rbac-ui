@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { FormHelperText, HelperText, HelperTextItem, Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/TextInput';
@@ -40,43 +40,50 @@ const SetName = (props) => {
     roleName?.length > 0 && processRoleName(roleName);
   }, []);
 
+  const roleNameValid = roleNameValidated(roleName, roleNameError);
+  const roleDescriptionValid = roleDescriptionValidated(roleDescription);
   return (
     <Stack hasGutter>
       <StackItem className="rbac-l-stack__item-summary">
-        <FormGroup
-          label={intl.formatMessage(messages.roleName)}
-          helperTextInvalid={roleName ? roleNameError : intl.formatMessage(messages.required)}
-          isRequired
-          validated={roleNameValidated(roleName, roleNameError)}
-        >
+        <FormGroup label={intl.formatMessage(messages.roleName)} isRequired>
           <TextInput
             id="role-name"
             value={roleName}
             type="text"
-            validated={roleNameValidated(roleName, roleNameError)}
+            validated={roleNameValid}
             onBlur={() => roleName === '' && setRoleName(undefined)}
-            onChange={processRoleName}
+            onChange={(_event, value) => processRoleName(value)}
             aria-label="Role name"
           />
+          {roleNameValid === 'error' && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant={roleNameValid}>{roleName ? roleNameError : intl.formatMessage(messages.required)}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       </StackItem>
       <StackItem>
-        <FormGroup
-          label={intl.formatMessage(messages.roleDescription)}
-          helperTextInvalid={intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}
-          validated={roleDescriptionValidated(roleDescription)}
-        >
+        <FormGroup label={intl.formatMessage(messages.roleDescription)}>
           <TextArea
             id="role-description"
             value={roleDescription}
-            validated={roleDescriptionValidated(roleDescription)}
-            onChange={(value) => {
+            validated={roleDescriptionValid}
+            onChange={(_event, value) => {
               setRoleDescription(value);
               formOptions.change('role-description', value);
             }}
             aria-label="Role description"
             resizeOrientation="vertical"
           />
+          {roleDescriptionValid === 'error' && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant={roleDescriptionValid}>{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       </StackItem>
     </Stack>

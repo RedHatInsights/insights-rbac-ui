@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState, EmptyStateBody, EmptyStateIcon, Title, List, ListItem } from '@patternfly/react-core';
+import { EmptyState, EmptyStateBody, EmptyStateIcon, List, ListItem, EmptyStateHeader } from '@patternfly/react-core';
 import { CogsIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -11,9 +11,12 @@ import './MUABundles.scss';
 const ApplicationServices = () => {
   const intl = useIntl();
   return (
-    <EmptyState variant="large" className="rbac-m-myUserAccess-bundle-emptyState">
-      <EmptyStateIcon icon={CogsIcon} />
-      <Title headingLevel="h4">{intl.formatMessage(messages.appServicesNotManaged)}</Title>
+    <EmptyState variant="lg" className="rbac-m-myUserAccess-bundle-emptyState">
+      <EmptyStateHeader
+        titleText={<>{intl.formatMessage(messages.appServicesNotManaged)}</>}
+        icon={<EmptyStateIcon icon={CogsIcon} />}
+        headingLevel="h4"
+      />
       <EmptyStateBody>
         <List className="rbac-m-myUserAccess-bundle-emptyState-list">
           <ListItem>{intl.formatMessage(messages.allUsersViewEverything)}</ListItem>

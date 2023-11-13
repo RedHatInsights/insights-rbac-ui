@@ -22,8 +22,8 @@ const CustomButtons = ({ saveLabel, cancelLabel }) => {
   return (
     <FormSpy>
       {({ pristine, invalid, validating, submitting }) => (
-        <div className="pf-c-form">
-          <ActionGroup className="pf-u-mt-0">
+        <div className="pf-v5-c-form">
+          <ActionGroup className="pf-v5-u-mt-0">
             <Button
               ouiaId="primary-save-button"
               variant="primary"
@@ -54,7 +54,7 @@ CustomButtons.defaultProps = {
 };
 
 const ModalFormTemplate = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => (
-  <Modal {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+  <Modal role="dialog" {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
     {alert?.()}
     <FormTemplate {...props} showFormControls={false} FormWrapper={CustomFormWrapper} />
   </Modal>

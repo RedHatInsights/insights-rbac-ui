@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { fireEvent, render, screen } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
@@ -11,10 +12,6 @@ import MUAAccessTable from '../../../smart-components/myUserAccess/MUAAccessTabl
 import * as AccessActions from '../../../redux/actions/access-actions';
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import { GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
-import { RowWrapper } from '@patternfly/react-table';
-import ResourceDefinitionsLink from '../../../presentational-components/myUserAccess/ResourceDefinitionsLink';
-import ResourceDefinitionsModal from '../../../smart-components/myUserAccess/ResourceDefinitionsModal';
-import { Modal } from '@patternfly/react-core';
 
 const ContextWrapper = ({ children, store, initialEntries = ['/foo?bundle="bundle"'] }) => (
   <Provider store={store}>
@@ -80,47 +77,56 @@ describe('<MUAAccessTable />', () => {
   it('should load data and render table', async () => {
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: false });
     getPrincipalAccessSpy.mockImplementationOnce(() => userAccessMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} />
         </ContextWrapper>
       );
     });
-    wrapper.update();
-    expect(wrapper.find(RowWrapper)).toHaveLength(2);
-    expect(wrapper.find(RowWrapper).first().prop('row').cells).toEqual(['first', 'first', 'first']);
-    expect(wrapper.find(RowWrapper).last().prop('row').cells).toEqual(['second', 'second', 'second']);
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // 2 rows + header
+    expect(screen.getAllByText('first')).toHaveLength(3);
+    expect(screen.getAllByText('second')).toHaveLength(3);
   });
 
   it('should load data and render table with resource definitions', async () => {
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: false });
     getPrincipalAccessSpy.mockImplementationOnce(() => userAccessMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} showResourceDefinitions />
         </ContextWrapper>
       );
     });
-    wrapper.update();
-    expect(wrapper.find(RowWrapper)).toHaveLength(2);
-    expect(wrapper.find(RowWrapper).first().prop('row').cells).toEqual(['first', 'first', 'first', expect.any(Object)]);
-    expect(wrapper.find(RowWrapper).last().prop('row').cells).toEqual(['second', 'second', 'second', expect.any(Object)]);
+
+    expect(screen.getAllByText('first')).toHaveLength(3);
+    expect(screen.getAllByText('N/A')).toHaveLength(1);
+    expect(screen.getAllByText('second')).toHaveLength(3);
+    expect(screen.getAllByText(2, { selector: 'a' })).toHaveLength(1);
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText(2, { selector: 'a' }));
+    });
+
+    await act(async () => {
+      // Wait for modal to open
+      await Promise.resolve();
+    });
+    expect(
+      screen.getByText('Resource definitions', {
+        selector: '.pf-v5-c-modal-box__title-text',
+      })
+    ).toBeInTheDocument();
 
     act(() => {
-      wrapper.find(ResourceDefinitionsLink).last().prop('onClick')();
+      fireEvent.click(screen.getByText('Close'));
     });
-    wrapper.update();
-    expect(wrapper.find(ResourceDefinitionsModal).prop('isOpen')).toEqual(true);
-
-    act(() => {
-      wrapper.find(Modal).prop('onClose')();
-    });
-    wrapper.update();
-    expect(wrapper.find(ResourceDefinitionsModal)).toHaveLength(0);
+    expect(() =>
+      screen.getByText('Resource definitions', {
+        selector: '.pf-v5-c-modal-box__title-text',
+      })
+    ).toThrow();
   });
 
   it('should filter applications', async () => {
@@ -130,27 +136,27 @@ describe('<MUAAccessTable />', () => {
      * There will be two API calls
      */
     getPrincipalAccessSpy.mockImplementationOnce(() => userAccessMock).mockImplementationOnce(() => userAccessMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} showResourceDefinitions />
         </ContextWrapper>
       );
     });
-    wrapper.update();
 
-    wrapper.find('button.pf-c-select__toggle').first().prop('onClick')();
-    wrapper.update();
-    /**
-     * Select last option in applications select
-     */
-    wrapper.find('input.pf-c-check__input').last().prop('onChange')();
+    await act(async () => {
+      fireEvent.click(screen.getByText('Filter by {key}'));
+    });
+
+    await act(async () => {
+      fireEvent.click(screen.getByText('app2'));
+    });
     /**
      * Skip debounce
      */
-    jest.runAllTimers();
-    wrapper.update();
+    await act(async () => {
+      jest.runAllTimers();
+    });
     expect(getPrincipalAccessSpy).toHaveBeenCalledTimes(2);
     expect(getPrincipalAccessSpy.mock.calls).toEqual([
       [{ application: 'app1,app2', itemCount: 0, count: 0, limit: 20, offset: 0, orderBy: 'application' }],

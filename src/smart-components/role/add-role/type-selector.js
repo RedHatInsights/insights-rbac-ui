@@ -22,7 +22,7 @@ const TypeSelector = (props) => {
     <div>
       <Radio
         isChecked={checked === 'create'}
-        className="pf-u-mb-sm"
+        className="pf-v5-u-mb-sm"
         name="role-type-create"
         onChange={() => handleChange('create')}
         label={intl.formatMessage(messages.createRoleFromScratch)}

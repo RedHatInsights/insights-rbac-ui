@@ -1,5 +1,14 @@
 import React, { useContext } from 'react';
-import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, EmptyStateSecondaryActions } from '@patternfly/react-core';
+import {
+  Button,
+  EmptyState,
+  EmptyStateVariant,
+  EmptyStateIcon,
+  EmptyStateBody,
+  EmptyStateActions,
+  EmptyStateHeader,
+  EmptyStateFooter,
+} from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { AddRoleWizardContext } from './add-role-wizard';
 import { useIntl } from 'react-intl';
@@ -12,29 +21,32 @@ const AddRoleSuccess = ({ onClose }) => {
   const { setHideForm, setWizardSuccess } = useContext(AddRoleWizardContext);
   const intl = useIntl();
   return (
-    <EmptyState variant={EmptyStateVariant.large}>
-      <EmptyStateIcon color="green" icon={CheckCircleIcon} />
-      <Title headingLevel="h4" size="lg">
-        {intl.formatMessage(messages.roleCreatedSuccessfully)}
-      </Title>
+    <EmptyState variant={EmptyStateVariant.lg}>
+      <EmptyStateHeader
+        titleText={<>{intl.formatMessage(messages.roleCreatedSuccessfully)}</>}
+        icon={<EmptyStateIcon color="green" icon={CheckCircleIcon} />}
+        headingLevel="h4"
+      />
       <EmptyStateBody></EmptyStateBody>
-      <Button onClick={onClose} variant="primary">
-        {intl.formatMessage(messages.exit)}
-      </Button>
-      <EmptyStateSecondaryActions>
-        <Button
-          onClick={() => {
-            setHideForm(false);
-            setWizardSuccess(false);
-          }}
-          variant="link"
-        >
-          {intl.formatMessage(messages.createAnotherRole)}
+      <EmptyStateFooter>
+        <Button onClick={onClose} variant="primary">
+          {intl.formatMessage(messages.exit)}
         </Button>
-        <Button component={(props) => <AppLink to={pathnames.groups.link} {...props} />} variant="link">
-          {intl.formatMessage(messages.addRoleToGroup)}
-        </Button>
-      </EmptyStateSecondaryActions>
+        <EmptyStateActions>
+          <Button
+            onClick={() => {
+              setHideForm(false);
+              setWizardSuccess(false);
+            }}
+            variant="link"
+          >
+            {intl.formatMessage(messages.createAnotherRole)}
+          </Button>
+          <Button component={(props) => <AppLink to={pathnames.groups.link} {...props} />} variant="link">
+            {intl.formatMessage(messages.addRoleToGroup)}
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
     </EmptyState>
   );
 };

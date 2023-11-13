@@ -1,7 +1,8 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { Text } from '@patternfly/react-core';
-import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import AppLink from '../../presentational-components/shared/AppLink';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import messages from '../../Messages';
@@ -67,7 +68,7 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                   <TableBody />
                 </Table>
               ) : (
-                <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
+                <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
               ),
           },
         ],
@@ -94,7 +95,7 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                   <TableBody />
                 </Table>
               ) : (
-                <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+                <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
               ),
           },
         ],

@@ -2,9 +2,8 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { shallow } from 'enzyme';
+import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import { shallowToJson } from 'enzyme-to-json';
 
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -63,16 +62,17 @@ describe('<AddGroupWizard />', () => {
 
   it('should render correctly', async () => {
     const store = mockStore(initialState);
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = shallow(
+      const { container: ci } = render(
         <GroupWrapper store={store}>
           <AddGroupWizard {...initialProps} />
         </GroupWrapper>
-      ).dive();
+      );
+      container = ci;
     });
 
-    expect(shallowToJson(wrapper)).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('onCancel call right callback with empty data', () => {

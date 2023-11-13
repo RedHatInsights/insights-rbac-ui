@@ -2,9 +2,8 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { shallow, mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import { shallowToJson } from 'enzyme-to-json';
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -71,20 +70,19 @@ describe('<EditGroupModal />', () => {
 
   it('should render correctly', () => {
     const store = mockStore(initialState);
-    const wrapper = shallow(
+    const { container } = render(
       <Provider store={store}>
         <EditGroupModal {...initialProps} />
       </Provider>
     );
-    expect(shallowToJson(wrapper)).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should redirect back to close URL', async () => {
     const store = mockStore(initialState);
     fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <GroupWrapper store={store} initialEntries={['/groups/edit/:groupId']}>
           <Provider store={store}>
             <EditGroupModal {...initialProps} />
@@ -92,8 +90,10 @@ describe('<EditGroupModal />', () => {
         </GroupWrapper>
       );
     });
-    wrapper.update();
-    wrapper.find('button').first().simulate('click');
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Cancel'));
+    });
     expect(mockedNavigate).toHaveBeenCalledWith('/iam/user-access/groups', undefined);
   });
 });

@@ -122,7 +122,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
           <TextContent>
             {intl.formatMessage(messages.addServiceAccountsToGroupDescription)}
             <Alert
-              className="pf-u-mt-sm rbac-service-accounts-alert"
+              className="pf-v5-u-mt-sm rbac-service-accounts-alert"
               variant="info"
               component="span"
               isInline

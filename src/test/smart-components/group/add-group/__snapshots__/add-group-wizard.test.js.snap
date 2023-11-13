@@ -1,52 +1,10 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<AddGroupWizard /> should render correctly 1`] = `
-<ContextProvider
-  value={
-    Object {
-      "store": Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      },
-      "subscription": Object {
-        "addNestedSub": [Function],
-        "getListeners": [Function],
-        "handleChangeWrapper": [Function],
-        "isSubscribed": [Function],
-        "notifyNestedSubs": [Function],
-        "onStateChange": [Function],
-        "trySubscribe": [Function],
-        "tryUnsubscribe": [Function],
-      },
-    }
-  }
->
-  <MemoryRouter
-    initialEntries={
-      Array [
-        "/groups/",
-        "/groups/add-group/",
-        "/groups/",
-      ]
-    }
-    initialIndex={1}
-  >
-    <AddGroupWizard
-      filters={Object {}}
-      pagination={
-        Object {
-          "count": 0,
-          "itemCount": 0,
-          "limit": 20,
-          "offset": 0,
-        }
-      }
-      uuid="123"
-    />
-  </MemoryRouter>
-</ContextProvider>
+<div>
+  <form
+    class="pf-v5-c-form"
+    novalidate=""
+  />
+</div>
 `;

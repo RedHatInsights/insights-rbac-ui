@@ -2,9 +2,8 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import toJson from 'enzyme-to-json';
 import { FETCH_ROLE } from '../../redux/action-types';
 import ResourceDefinitions from '../../smart-components/role/role-resource-definitions';
 
@@ -44,9 +43,8 @@ describe('RoleResourceDefinitions', () => {
 
   it('should render resource definitions table', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
             <Routes>
@@ -56,17 +54,14 @@ describe('RoleResourceDefinitions', () => {
         </Provider>
       );
     });
-    wrapper.update();
-    expect(wrapper.find('.pf-c-pagination__nav button').first().props().disabled).toBe(true);
-    expect(toJson(wrapper.find('.pf-c-table'), { mode: 'mount' })).toMatchSnapshot();
+    expect(screen.getByLabelText('resources table')).toMatchSnapshot();
   });
 
   it('should not fetch data on filter', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-    let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
             <Routes>
@@ -78,21 +73,18 @@ describe('RoleResourceDefinitions', () => {
     });
     const expectedActions = [expect.objectContaining({ type: FETCH_ROLE })];
     expect(store.getActions()).toEqual(expectedActions);
-    wrapper.update();
     store.clearActions();
-    wrapper
-      .find('input#filter-by-string')
-      .first()
-      .simulate('change', { target: { value: 'c' } });
+    await act(async () => {
+      fireEvent.change(screen.getByPlaceholderText('Filter by {key}'), { target: { value: 'c' } });
+    });
     expect(store.getActions()).toEqual([]);
   });
 
   it('should not fetch data on page change', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-    let wrapper;
     const store = mockStore(initialState);
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/roles/detail/1234/permission/cost-management:*:read']}>
             <Routes>
@@ -105,7 +97,9 @@ describe('RoleResourceDefinitions', () => {
     const expectedActions = [expect.objectContaining({ type: FETCH_ROLE })];
     expect(store.getActions()).toEqual(expectedActions);
     store.clearActions();
-    wrapper.find('button[data-action="last"]').first().simulate('click');
+    await act(async () => {
+      fireEvent.click(screen.getByLabelText('Go to last page'));
+    });
     expect(store.getActions()).toEqual([]);
   });
 });

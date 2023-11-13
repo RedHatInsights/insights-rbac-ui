@@ -1,10 +1,10 @@
 .rbac-c-sticky {
   .rbac-c-sticky--title {
-    margin-bottom: var(--pf-global--spacer--sm);
-    border-bottom: 1px solid var(--pf-global--palette--black-300);
-    .pf-l-grid__item {
-      font-weight: var(--pf-global--FontWeight--bold);
-      margin-bottom: var(--pf-global--spacer--sm) !important;
+    margin-bottom: var(--pf-v5-global--spacer--sm);
+    border-bottom: 1px solid var(--pf-v5-global--palette--black-300);
+    .pf-v5-l-grid__item {
+      font-weight: var(--pf-v5-global--FontWeight--bold);
+      margin-bottom: var(--pf-v5-global--spacer--sm) !important;
     }
   }
   .rbac-c-sticky--data {

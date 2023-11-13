@@ -1,14 +1,12 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
 import CommonBundleView, { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
-import MUARolesTable from '../../../smart-components/myUserAccess/MUARolesTable';
 import OrgAdminContext from '../../../utilities/org-admin-context';
-import MUAAccessTable from '../../../smart-components/myUserAccess/MUAAccessTable';
 
 import * as RoleActions from '../../../redux/actions/role-actions';
 import * as AccessActions from '../../../redux/actions/access-actions';
@@ -59,49 +57,48 @@ describe('<CommonBundleView />', () => {
     },
   });
   it('should render MUARolesTable for orgAdmins', () => {
-    const wrapper = mount(
+    const { container } = render(
       <ComponentWrapper store={store} isOrgAdmin>
         <CommonBundleView apps={[]} />
       </ComponentWrapper>
     );
-    expect(wrapper.find(MUARolesTable)).toHaveLength(1);
-    expect(wrapper.find(MUAAccessTable)).toHaveLength(0);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render MUAAccessTable for orgAdmins', () => {
-    const wrapper = mount(
+    const { container } = render(
       <ComponentWrapper store={store} isOrgAdmin={false}>
         <CommonBundleView apps={[]} />
       </ComponentWrapper>
     );
-    expect(wrapper.find(MUARolesTable)).toHaveLength(0);
-    expect(wrapper.find(MUAAccessTable)).toHaveLength(1);
+    expect(container).toMatchSnapshot();
   });
 
-  it('handleSetFilters should update filters config', () => {
-    const initialFilters = createFilter({ name: '', isOrgAdmin: true, apps: [] });
-    const expectedFilters = [
-      { items: [], key: 'application', placeholder: 'Filter by {key}', type: 'checkbox', value: ['foo'] },
-      { key: 'name', type: 'text', value: 'foo', label: 'Role name', placeholder: 'Filter by {key}' },
-      // { key: 'permission', value: '', placeholder: 'Filter by permission', type: 'text' },
-    ];
-    const wrapper = mount(
-      <ComponentWrapper store={store} isOrgAdmin>
-        <CommonBundleView apps={[]} />
-      </ComponentWrapper>
-    );
-    expect(wrapper.find(MUARolesTable).prop('filters')).toEqual(initialFilters);
+  it('handleSetFilters should update filters config', async () => {
+    let container;
+    await act(async () => {
+      const { container: ci } = render(
+        <ComponentWrapper store={store} isOrgAdmin>
+          <CommonBundleView apps={[]} />
+        </ComponentWrapper>
+      );
 
-    act(() => {
-      wrapper.find(MUARolesTable).prop('setFilters')({ name: 'foo' });
+      container = ci;
     });
 
-    act(() => {
-      wrapper.find(MUARolesTable).prop('setFilters')({ application: ['foo'] });
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Application'));
     });
-    wrapper.update();
 
-    expect(wrapper.find(MUARolesTable).prop('filters')).toEqual(expectedFilters);
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Role name'));
+    });
+
+    await act(async () => {
+      await fireEvent.change(screen.getByLabelText('text input'), { target: { value: 'foo' } });
+    });
+
+    expect(container.querySelector('.ins-c-chip-filters')).toMatchSnapshot();
   });
 
   it('createFilter should create correct filters structure for org admins', () => {

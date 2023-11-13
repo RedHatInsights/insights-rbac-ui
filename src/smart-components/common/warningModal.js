@@ -1,7 +1,7 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Modal, ModalVariant, Button } from '@patternfly/react-core';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
+import { Modal, ModalVariant, Button, Icon } from '@patternfly/react-core';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-triangle-icon';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import './warningModal.scss';
@@ -19,9 +19,12 @@ export const WarningModal = ({
   const intl = useIntl();
   return (
     <Modal
+      data-testid="warning-modal"
       title={
         <span className="rbac-c-wizard__cancel-warning-header">
-          <ExclamationTriangleIcon size="md" className="rbac-c-wizard__cancel-warning-header--icon" />
+          <Icon size="lg" className="pf-v5-u-mr-md">
+            <ExclamationTriangleIcon className="rbac-c-wizard__cancel-warning-header--icon" />
+          </Icon>
           {customTitle || intl.formatMessage(messages.exitItemCreation, { item: type })}
         </span>
       }

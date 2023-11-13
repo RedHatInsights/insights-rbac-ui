@@ -3,7 +3,8 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Outlet, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Button, Dropdown, DropdownItem, KebabToggle, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
+import { Button, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
+import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -158,7 +159,7 @@ const Role = ({ onDelete }) => {
                 <LevelItem>
                   <Dropdown
                     ouiaId="role-title-actions-dropdown"
-                    toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="role-actions-dropdown" />}
+                    toggle={<KebabToggle onToggle={(_event, isOpen) => setDropdownOpen(isOpen)} id="role-actions-dropdown" />}
                     isOpen={isDropdownOpen}
                     isPlain
                     position="right"
@@ -200,7 +201,7 @@ const Role = ({ onDelete }) => {
         </Fragment>
       ) : (
         <Fragment>
-          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+          <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
             <RbacBreadcrumbs {...breadcrumbsList()} />
           </section>
           <EmptyWithAction
@@ -209,7 +210,7 @@ const Role = ({ onDelete }) => {
             actions={[
               <Button
                 key="back-button"
-                className="pf-u-mt-xl"
+                className="pf-v5-u-mt-xl"
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"

@@ -1,47 +1,7 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
 exports[`<EditGroupModal /> should render correctly 1`] = `
-<ContextProvider
-  value={
-    Object {
-      "store": Object {
-        "clearActions": [Function],
-        "dispatch": [Function],
-        "getActions": [Function],
-        "getState": [Function],
-        "replaceReducer": [Function],
-        "subscribe": [Function],
-      },
-      "subscription": Object {
-        "addNestedSub": [Function],
-        "getListeners": [Function],
-        "handleChangeWrapper": [Function],
-        "isSubscribed": [Function],
-        "notifyNestedSubs": [Function],
-        "onStateChange": [Function],
-        "trySubscribe": [Function],
-        "tryUnsubscribe": [Function],
-      },
-    }
-  }
->
-  <EditGroupModal
-    cancelRoute="/groups"
-    group={
-      Object {
-        "id": "1",
-        "name": "Foo",
-      }
-    }
-    onClose={[Function]}
-    pagination={
-      Object {
-        "count": 0,
-        "itemCount": 0,
-        "limit": 20,
-        "offset": 0,
-      }
-    }
-  />
-</ContextProvider>
+<div
+  aria-hidden="true"
+/>
 `;

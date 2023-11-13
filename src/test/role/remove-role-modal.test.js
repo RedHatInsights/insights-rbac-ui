@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -56,7 +56,7 @@ describe('<RemoveRoleModal />', () => {
     </Provider>
   );
 
-  it('should mount and call remove role action witouth fethichg data from API', () => {
+  it('should mount and call remove role action without fetching data from API', async () => {
     const store = mockStore({
       roleReducer: {
         selectedRole: {
@@ -67,21 +67,26 @@ describe('<RemoveRoleModal />', () => {
     });
     removeRoleSpy.mockImplementationOnce(() => ({ type: 'REMOVE_ROLE', payload: Promise.resolve() }));
 
-    const wrapper = mount(
+    render(
       <ComponentWrapper store={store}>
         <RemoveRoleModal {...initialProps} />
       </ComponentWrapper>
     );
 
-    wrapper.find('input#remove-role-checkbox').simulate('change');
-    wrapper.find('button#confirm-delete-portfolio').prop('onClick')();
+    await act(async () => {
+      await fireEvent.click(screen.getByText('I understand that this action cannot be undone.'));
+    });
+
+    act(() => {
+      screen.getByText(/confirm/i).click();
+    });
 
     expect(removeRoleSpy).toHaveBeenCalledTimes(1);
     expect(removeRoleSpy).toHaveBeenCalledWith(ROLE_ID);
     expect(fetchRoleSpy).not.toHaveBeenCalled();
   });
 
-  it('should mount and fetch data from API when not avaiable in redux store', async () => {
+  it('should mount and fetch data from API when not available in redux store', async () => {
     expect.assertions(2);
     const store = mockStore({
       roleReducer: {
@@ -93,7 +98,7 @@ describe('<RemoveRoleModal />', () => {
     fetchRoleSpy.mockImplementation(() => Promise.resolve({ uuid: ROLE_ID, name: 'name' }));
 
     await act(async () => {
-      mount(
+      render(
         <ComponentWrapper store={store}>
           <RemoveRoleModal {...initialProps} />
         </ComponentWrapper>

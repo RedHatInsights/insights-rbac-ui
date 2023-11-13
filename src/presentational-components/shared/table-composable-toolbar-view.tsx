@@ -1,9 +1,9 @@
 import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { TableVariant, TableComposable, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
+import { TableVariant, Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
-import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
+import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import Toolbar, { paginationBuilder } from './toolbar';
@@ -54,7 +54,7 @@ interface MainTableProps {
   setFilterValue: (value: FilterProps) => void;
   pagination: { limit?: number; offset?: number; count?: number; noBottom?: boolean };
   fetchData: (config: FetchDataProps) => void;
-  toolbarButtons?: () => Array<unknown>;
+  toolbarButtons?: () => React.ReactNode[];
   filterPlaceholder?: string;
   filters: Array<{
     value: string | number | Array<unknown>;
@@ -148,7 +148,7 @@ const MainTable = ({
       {isLoading ? (
         <ListLoader isCompact={isCompact} items={pagination?.limit} />
       ) : (
-        <TableComposable
+        <Table
           aria-label={`${title.plural.toLowerCase()} table`}
           variant={isCompact ? TableVariant.compact : undefined}
           borders={borders}
@@ -170,7 +170,7 @@ const MainTable = ({
                   {row.cells.map((cell: CellObject, j: number) => (
                     <Td key={j} dataLabel={columns[j].title}>
                       {/* TODO: make more general */}
-                      {isCellObject(cell) ? cell.title : cell}
+                      {isCellObject(cell) ? (cell.title as string) : (cell as unknown as React.ReactNode)}
                     </Td>
                   ))}
                 </Tr>
@@ -193,7 +193,7 @@ const MainTable = ({
                       noData && noDataDescription
                         ? undefined
                         : [
-                            <EmptyStatePrimary key="clear-filters">
+                            <EmptyStateActions key="clear-filters">
                               <Button
                                 variant="link"
                                 ouiaId="clear-filters-button"
@@ -208,7 +208,7 @@ const MainTable = ({
                               >
                                 {intl.formatMessage(messages.clearAllFilters)}
                               </Button>
-                            </EmptyStatePrimary>,
+                            </EmptyStateActions>,
                           ]
                     }
                   />
@@ -216,7 +216,7 @@ const MainTable = ({
               </Tr>
             )}
           </Tbody>
-        </TableComposable>
+        </Table>
       )}
       {!pagination.noBottom && (
         <TableToolbar>

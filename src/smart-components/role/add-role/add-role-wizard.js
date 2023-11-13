@@ -6,7 +6,7 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { Wizard } from '@patternfly/react-core';
+import { Wizard } from '@patternfly/react-core/deprecated';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { schemaBuilder } from './schema';

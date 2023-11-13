@@ -4,18 +4,8 @@ import { useLocation, useParams, Outlet } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import {
-  Alert,
-  AlertActionCloseButton,
-  Popover,
-  PopoverPosition,
-  Split,
-  SplitItem,
-  DropdownItem,
-  Dropdown,
-  KebabToggle,
-  Button,
-} from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Popover, PopoverPosition, Split, SplitItem, Button } from '@patternfly/react-core';
+import { DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core/deprecated';
 import { useFlag } from '@unleash/proxy-client-react';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -102,7 +92,7 @@ const Group = () => {
   const defaultGroupChangedIcon = (name) => (
     <div style={{ display: 'inline-flex' }}>
       {name}
-      <div className="pf-u-ml-sm">
+      <div className="pf-v5-u-ml-sm">
         <Popover
           aria-label="default-group-icon"
           bodyContent={
@@ -137,7 +127,7 @@ const Group = () => {
           />
         }
       >
-        <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon pf-u-mt-sm" />
+        <OutlinedQuestionCircleIcon className="rbac-default-group-info-icon pf-v5-u-mt-sm" />
       </Popover>
     </div>
   );
@@ -221,7 +211,7 @@ const Group = () => {
                 {group.platform_default || group.admin_default ? null : (
                   <Dropdown
                     ouiaId="group-title-actions-dropdown"
-                    toggle={<KebabToggle onToggle={(isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
+                    toggle={<KebabToggle onToggle={(_event, isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
                     isOpen={isDropdownOpen}
                     isPlain
                     position="right"
@@ -236,7 +226,7 @@ const Group = () => {
                 isInline
                 title={intl.formatMessage(messages.defaultAccessGroupChanged)}
                 action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
-                className="pf-u-mb-lg pf-u-mt-sm"
+                className="pf-v5-u-mb-lg pf-v5-u-mt-sm"
               >
                 <FormattedMessage
                   {...messages.defaultAccessGroupNameChanged}
@@ -261,7 +251,7 @@ const Group = () => {
         </Fragment>
       ) : (
         <Fragment>
-          <section className="pf-c-page__main-breadcrumb pf-u-pb-md">
+          <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
             <RbacBreadcrumbs {...breadcrumbsList()} />
           </section>
           <EmptyWithAction
@@ -270,7 +260,7 @@ const Group = () => {
             actions={[
               <Button
                 key="back-button"
-                className="pf-u-mt-xl"
+                className="pf-v5-u-mt-xl"
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"

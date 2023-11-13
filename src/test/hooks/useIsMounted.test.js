@@ -1,5 +1,6 @@
 import React, { Fragment, useEffect } from 'react';
 import useIsMounted from '../../hooks/useIsMounted';
+import { render } from '@testing-library/react';
 
 describe('useIsMounted', () => {
   const DummyComponent = ({ mountSpy }) => {
@@ -18,9 +19,9 @@ describe('useIsMounted', () => {
     jest.useFakeTimers();
 
     const spy = jest.fn();
-    const wrapper = mount(<DummyComponent mountSpy={spy} />);
+    const { unmount } = render(<DummyComponent mountSpy={spy} />);
     expect(spy).toHaveBeenLastCalledWith(true);
-    wrapper.unmount();
+    unmount();
 
     jest.advanceTimersByTime(200);
     expect(spy).toHaveBeenLastCalledWith(false);

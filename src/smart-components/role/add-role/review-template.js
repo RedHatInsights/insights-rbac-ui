@@ -40,10 +40,10 @@ const ReviewTemplate = ({ formFields }) => {
 
   return (
     <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
+      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-sm">
         {intl.formatMessage(messages.reviewDetails)}
       </Title>
-      <TextContent className="pf-u-mb-md">
+      <TextContent className="pf-v5-u-mb-md">
         <Text>{intl.formatMessage(messages.reviewRoleDetails)}</Text>
       </TextContent>
       {formFields?.[0]?.[0]}

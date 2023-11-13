@@ -1,5 +1,5 @@
 import React, { useContext } from 'react';
-import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateBody, EmptyStateHeader, EmptyStateFooter } from '@patternfly/react-core';
 import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { ExclamationCircleIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
@@ -11,21 +11,20 @@ const WizardError = ({ context, title, text }) => {
   const { jumpToStep } = useContext(WizardContext);
   const { setWizardError } = useContext(context);
   return (
-    <EmptyState variant={EmptyStateVariant.large}>
-      <EmptyStateIcon color="red" icon={ExclamationCircleIcon} />
-      <Title headingLevel="h4" size="lg">
-        {title}
-      </Title>
+    <EmptyState variant={EmptyStateVariant.lg}>
+      <EmptyStateHeader titleText={<>{title}</>} icon={<EmptyStateIcon color="red" icon={ExclamationCircleIcon} />} headingLevel="h4" />
       <EmptyStateBody>{text}</EmptyStateBody>
-      <Button
-        onClick={() => {
-          setWizardError(undefined);
-          jumpToStep(0);
-        }}
-        variant="primary"
-      >
-        {intl.formatMessage(messages.returnToStepNumber, { number: 1 })}
-      </Button>
+      <EmptyStateFooter>
+        <Button
+          onClick={() => {
+            setWizardError(undefined);
+            jumpToStep(0);
+          }}
+          variant="primary"
+        >
+          {intl.formatMessage(messages.returnToStepNumber, { number: 1 })}
+        </Button>
+      </EmptyStateFooter>
     </EmptyState>
   );
 };

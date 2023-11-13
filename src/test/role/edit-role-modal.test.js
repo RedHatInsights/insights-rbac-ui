@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -11,7 +11,6 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import * as RoleHelper from '../../helpers/role/role-helper';
 import * as RoleActions from '../../redux/actions/role-actions';
 import EditRoleModal from '../../smart-components/role/edit-role-modal';
-import { FormGroup } from '@patternfly/react-core';
 
 jest.mock('../../helpers/role/role-helper', () => {
   const actual = jest.requireActual('../../helpers/role/role-helper');
@@ -75,9 +74,8 @@ describe('<EditRoleModal />', () => {
      */
     fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [] }));
 
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ComponentWrapper store={store}>
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
@@ -86,11 +84,10 @@ describe('<EditRoleModal />', () => {
       );
     });
 
-    wrapper.update();
-
-    const textArea = wrapper.find('textarea[name="description"]');
-    textArea.getDOMNode().value = 'foo';
-    textArea.simulate('change');
+    const textArea = screen.getByRole('textbox', { name: /description/i });
+    await act(async () => {
+      await fireEvent.change(textArea, { target: { value: 'foo' } });
+    });
 
     /**
      * advance async validation debounce timeout and update the DOM to enable submit button
@@ -98,13 +95,12 @@ describe('<EditRoleModal />', () => {
     await act(async () => {
       jest.runAllTimers();
     });
-    wrapper.update();
 
     /**
      * Submit form
      */
     await act(async () => {
-      wrapper.find('form').simulate('submit');
+      await fireEvent.click(screen.getByText('Save'));
     });
 
     expect(patchRoleSpy).toHaveBeenCalledTimes(1);
@@ -125,7 +121,7 @@ describe('<EditRoleModal />', () => {
     fetchRoleSpy.mockImplementation(() => Promise.resolve({ uuid: ROLE_ID, name: 'name' }));
 
     await act(async () => {
-      mount(
+      render(
         <ComponentWrapper store={store}>
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} />} />
@@ -139,7 +135,7 @@ describe('<EditRoleModal />', () => {
   });
 
   it('should display an error when role name is not unique', async () => {
-    expect.assertions(2);
+    expect.assertions(1);
     jest.useFakeTimers();
     const afterSubmit = jest.fn();
     const store = mockStore({
@@ -157,9 +153,8 @@ describe('<EditRoleModal />', () => {
      */
     fetchRolesSpy.mockImplementation(() => Promise.resolve({ data: [{ display_name: 'new-name', uuid: 'bar' }] }));
 
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ComponentWrapper store={store}>
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
@@ -174,11 +169,12 @@ describe('<EditRoleModal />', () => {
     await act(async () => {
       jest.runAllTimers();
     });
-    wrapper.update();
 
-    const input = wrapper.find('input[name="name"]');
-    input.getDOMNode().value = 'new-name';
-    input.simulate('change');
+    const input = screen.getByRole('textbox', { name: /name/i });
+
+    await act(async () => {
+      fireEvent.change(input, { target: { value: 'new-name' } });
+    });
 
     /**
      * advance async validation debounce timeout and update the DOM to enable submit button
@@ -189,11 +185,10 @@ describe('<EditRoleModal />', () => {
     /**
      * Loose focus to trigger error render
      */
-    input.simulate('blur');
-    wrapper.update();
+    act(() => {
+      fireEvent.blur(input);
+    });
 
-    const TextInputGroup = wrapper.find(FormGroup).first();
-    expect(TextInputGroup.prop('validated')).toEqual('error');
-    expect(TextInputGroup.prop('helperTextInvalid')).toEqual('Role with this name already exists.');
+    expect(screen.getByText('Role with this name already exists.')).toBeInTheDocument();
   });
 });

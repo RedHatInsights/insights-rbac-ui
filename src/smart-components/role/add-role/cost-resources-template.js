@@ -8,7 +8,7 @@ const CostResourcesTemplate = ({ formFields }) => {
   const intl = useIntl();
   return (
     <div className="rbac">
-      <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
+      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-lg">
         {intl.formatMessage(messages.defineCostResources)}
       </Title>
       {formFields}

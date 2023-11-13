@@ -25,7 +25,7 @@ const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
       <Grid>
         <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards rbac-m-hide-on-sm">
           <Stack>
-            <StackItem className="rbac-l-myUserAccess-section__cards--entitled">
+            <StackItem data-testid="entitle-section" className="rbac-l-myUserAccess-section__cards--entitled">
               <MUACard entitlements={entitledBundles} />
             </StackItem>
             {unEntitledBundles.length > 0 && (

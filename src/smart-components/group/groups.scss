@@ -1,24 +1,24 @@
 .rbac-c-groups {
-  .pf-c-table tbody tr.rbac-c-group-default {
-    .pf-c-table__check  > * {
+  .pf-v5-c-table tbody tr.rbac-c-group-default {
+    .pf-v5-c-table__check  > * {
       display: none;
     }
   }
 
-  .pf-c-question-circle-icon {
-    color: var(--pf-global--palette--black-600);
-    margin-left: var(--pf-global--spacer--sm);
+  .pf-v5-c-question-circle-icon {
+    color: var(--pf-v5-global--palette--black-600);
+    margin-left: var(--pf-v5-global--spacer--sm);
     cursor: pointer;
     &.icon-active {
-      color: var(--pf-global--palette--blue-400)
+      color: var(--pf-v5-global--palette--blue-400)
     }
   }
 
-  .pf-c-popover {
+  .pf-v5-c-popover {
     min-width: 350px;
   }
 
   @media only screen and (max-width: 768px) {
-     .pf-c-dropdown__menu { right: 0; } // position all dropdown contents left in mobile
+     .pf-v5-c-dropdown__menu { right: 0; } // position all dropdown contents left in mobile
   }
 }

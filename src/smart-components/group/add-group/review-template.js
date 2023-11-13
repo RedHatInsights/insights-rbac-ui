@@ -22,7 +22,7 @@ const ReviewTemplate = ({ formFields }) => {
   if (typeof error === 'undefined' || submitting) {
     return (
       <Bullseye>
-        <Spinner className="pf-u-mt-xl" size="xl" />
+        <Spinner className="pf-v5-u-mt-xl" size="xl" />
       </Bullseye>
     );
   }
@@ -35,7 +35,7 @@ const ReviewTemplate = ({ formFields }) => {
     />
   ) : (
     <React.Fragment>
-      <Title headingLevel="h1" size="xl" className="pf-u-mb-lg">
+      <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-lg">
         {intl.formatMessage(messages.reviewDetails)}
       </Title>
       {[[{ ...formFields?.[0]?.[0] }]]}

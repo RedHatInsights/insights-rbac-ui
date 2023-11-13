@@ -4,7 +4,7 @@ import thunk from 'redux-thunk';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { mountToJson } from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupRoles from '../../../../smart-components/group/role/group-roles';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
@@ -121,9 +121,9 @@ describe('<GroupRoles />', () => {
 
   it('should render empty correctly', async () => {
     const store = mockStore(emptyState);
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
             <Routes>
@@ -132,15 +132,15 @@ describe('<GroupRoles />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(wrapper.find('.pf-c-toolbar button[disabled=false].pf-m-primary')).toHaveLength(0);
-    expect(mountToJson(wrapper.find('TableToolbarView'), { mode: 'mount' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should fetch group roles on mount', async () => {
     const store = mockStore(initialState);
     await act(async () => {
-      mount(
+      render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/123/roles']} initialIndex={0}>
             <Routes>

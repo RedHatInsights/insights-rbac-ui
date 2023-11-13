@@ -66,7 +66,7 @@ const BaseRoleTable = (props) => {
               }}
             />
           ),
-          props: { className: 'pf-c-table__check' },
+          props: { className: 'pf-v5-c-table__check' },
         },
         role.display_name || role.name,
         role.description,

@@ -1,5 +1,6 @@
 import React, { useEffect, useReducer } from 'react';
-import { Button, Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip, Divider } from '@patternfly/react-core';
+import { Button, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip, Divider } from '@patternfly/react-core';
+import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -181,7 +182,7 @@ const InventoryGroupsRole = (props) => {
                 selections={state[permissionID].selected.map(({ name }) => name)}
                 placeholderText={intl.formatMessage(messages.selectGroups)}
                 onSelect={(event, selection) => onSelect(event, selection, selection === 'select-all', permissionID)}
-                onToggle={(isOpen) => {
+                onToggle={(_event, isOpen) => {
                   // TODO: persist filter state when https://github.com/patternfly/patternfly-react/issues/9490 is resolved
                   !isOpen && state[permissionID].filterValue?.length > 0 && fetchData([permissionID]);
                   dispatchLocally({ type: 'toggle', key: permissionID, filterValue: '', page: 1, isOpen });
@@ -246,12 +247,12 @@ const InventoryGroupsRole = (props) => {
   return (
     <Grid hasGutter>
       <GridItem lg={3} md={6} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text pf-u-mt-sm">
+        <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
           {intl.formatMessage(messages.permissions)}
         </Text>
       </GridItem>
       <GridItem lg={9} md={6} className="rbac-m-hide-on-sm">
-        <Text component={TextVariants.h4} className="rbac-bold-text pf-u-mt-sm">
+        <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
           {intl.formatMessage(messages.groupDefinition)}
         </Text>
       </GridItem>

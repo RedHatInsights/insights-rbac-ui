@@ -12,7 +12,7 @@ const FormButtons = ({ dirtyFieldsSinceLastSubmit, submitSucceeded, pristine }) 
   const noChanges = isEmpty(dirtyFieldsSinceLastSubmit) || (!submitSucceeded && pristine);
   const intl = useIntl();
   return (
-    <ActionGroup className="pf-u-mt-0">
+    <ActionGroup className="pf-v5-u-mt-0">
       <Button ouiaId="primary-submit-button" type="submit" isDisabled={noChanges} variant="primary">
         {intl.formatMessage(messages.save)}
       </Button>

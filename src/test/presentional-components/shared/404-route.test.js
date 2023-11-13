@@ -1,10 +1,10 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import toJson from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import NoMatch from '../../../presentational-components/shared/404-route';
 
 describe('<NoMatch />', () => {
   it('should render correctly', () => {
-    expect(toJson(mount(<NoMatch />))).toMatchSnapshot();
+    const { container } = render(<NoMatch />);
+    expect(container).toMatchSnapshot();
   });
 });
