@@ -18,7 +18,7 @@ import messages from '../../../Messages';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {
-  postMethod: () => void;
+  postMethod: (promise?: Promise<unknown>) => void;
 }
 
 export interface PaginationProps {
@@ -89,8 +89,9 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   };
 
   const onSubmit = () => {
-    dispatch(addServiceAccountsToGroup(groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId, selectedAccounts));
-    postMethod();
+    const action = addServiceAccountsToGroup(groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId, selectedAccounts);
+    dispatch(action);
+    postMethod(action.payload);
   };
 
   const columns = [

@@ -9,7 +9,7 @@ import { removeServiceAccountFromGroup } from '../../../redux/actions/group-acti
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
   submitRoute: string;
-  postMethod: () => void;
+  postMethod: (promise?: Promise<unknown>) => void;
 };
 
 type RBACStore = {
@@ -49,8 +49,9 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       withCheckbox
       onClose={() => postMethod()}
       onSubmit={() => {
-        dispatch(removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts));
-        postMethod();
+        const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
+        dispatch(action);
+        postMethod(action.payload);
       }}
       isOpen={true}
     />

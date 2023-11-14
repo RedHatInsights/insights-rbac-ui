@@ -187,15 +187,19 @@ const GroupServiceAccounts = () => {
         <Outlet
           context={{
             [pathnames['group-service-accounts-remove-group'].path]: {
-              postMethod: () => {
+              postMethod: (promise) => {
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
-                fetchData();
+                if (promise) {
+                  promise.then(fetchData);
+                }
               },
             },
             [pathnames['group-add-service-account'].path]: {
-              postMethod: () => {
+              postMethod: (promise) => {
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
-                fetchData();
+                if (promise) {
+                  promise.then(fetchData);
+                }
               },
             },
           }}
