@@ -1,9 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { Modal } from '@patternfly/react-core';
-import { RowWrapper, Table } from '@patternfly/react-table';
+import { fireEvent, render, screen } from '@testing-library/react';
 import ResourceDefinitionsModal from '../../../smart-components/myUserAccess/ResourceDefinitionsModal';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 
 describe('<ResourceDefinitionsModal />', () => {
   const initialProps = {
@@ -24,33 +22,44 @@ describe('<ResourceDefinitionsModal />', () => {
     ],
   };
 
-  it('should render a modal with table and two rows', () => {
-    const wrapper = mount(<ResourceDefinitionsModal {...initialProps} />);
-    expect(wrapper.find(Modal)).toHaveLength(1);
-    expect(wrapper.find(Table)).toHaveLength(1);
-    expect(wrapper.find(RowWrapper)).toHaveLength(2);
+  it('should render a modal with table and two rows', async () => {
+    render(<ResourceDefinitionsModal {...initialProps} />);
+    expect(screen.getByText('Resource definitions')).toBeInTheDocument();
+    expect(screen.getAllByLabelText('Resource definitions')).toHaveLength(1);
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // 2 rows + header
   });
 
   it('should filter rows by resource definition', () => {
-    const wrapper = mount(<ResourceDefinitionsModal {...initialProps} />);
-    const input = wrapper.find('input').first();
-    input.getDOMNode().value = 'first';
-    input.simulate('change');
-    wrapper.update();
-    expect(wrapper.find(RowWrapper)).toHaveLength(1);
-    expect(wrapper.find('td').text()).toEqual('first-rd');
+    render(<ResourceDefinitionsModal {...initialProps} />);
+    fireEvent.change(screen.getByLabelText('text input'), { target: { value: 'first' } });
+    expect(screen.getAllByRole('row')).toHaveLength(1 + 1); // result row + header
+    expect(screen.getByText('first-rd')).toBeInTheDocument();
   });
 
   it('should change pagination configuration', () => {
-    const wrapper = mount(<ResourceDefinitionsModal {...initialProps} />);
-    expect(wrapper.find(TableToolbarView).prop('pagination')).toEqual(expect.objectContaining({ limit: 20 }));
-    wrapper.find('DropdownToggle').first().find('button').first().simulate('click');
-    wrapper.update();
+    // generate 100 resource definitions
+    render(
+      <ResourceDefinitionsModal
+        {...initialProps}
+        resourceDefinitions={[...Array(100)].map((_, i) => ({
+          attributeFilter: { value: `definition-${i}` },
+        }))}
+      />
+    );
+    const preparePaginationTextMatcher = (pageSize) => (_, element) => {
+      if (element.tagName === 'BUTTON' && element.textContent) {
+        return element.textContent.trim() === `1 - ${pageSize} of 100`;
+      }
+
+      return false;
+    };
+    expect(screen.getAllByText(preparePaginationTextMatcher(20))).toHaveLength(2);
+
+    fireEvent.click(screen.getAllByText(preparePaginationTextMatcher(20))[0]);
 
     act(() => {
-      wrapper.find('InternalDropdownItem').last().prop('onClick')();
+      fireEvent.click(screen.getByText('100 per page'));
     });
-    wrapper.update();
-    expect(wrapper.find(TableToolbarView).prop('pagination')).toEqual(expect.objectContaining({ limit: 100 }));
+    expect(screen.getAllByText(preparePaginationTextMatcher(100))).toHaveLength(2);
   });
 });

@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { FormHelperText, HelperText, HelperTextItem, Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/TextInput';
@@ -41,41 +41,48 @@ const SetName = (props) => {
     groupName?.length > 0 && processGroupName(groupName);
   }, []);
 
+  const groupNameValid = groupNameValidated(groupName, groupNameError);
+  const groupDescriptionValid = groupDescriptionValidated(groupDescription);
   return (
     <Stack hasGutter>
       <StackItem className="rbac-l-stack__item-summary">
-        <FormGroup
-          label={intl.formatMessage(messages.groupName)}
-          helperTextInvalid={groupName ? groupNameError : intl.formatMessage(messages.required)}
-          isRequired
-          validated={groupNameValidated(groupName, groupNameError)}
-        >
+        <FormGroup label={intl.formatMessage(messages.groupName)} isRequired>
           <TextInput
             value={groupName}
             type="text"
-            validated={groupNameValidated(groupName, groupNameError)}
+            validated={groupNameValid}
             onBlur={() => groupName === '' && setGroupName(undefined)}
-            onChange={(value) => processGroupName(value)}
+            onChange={(_event, value) => processGroupName(value)}
             aria-label="Group name"
           />
+          {groupNameValid === 'error' && (
+            <FormHelperText>
+              <HelperText>
+                <HelperTextItem variant={groupNameValid}>{groupName ? groupNameError : intl.formatMessage(messages.required)}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       </StackItem>
       <StackItem>
-        <FormGroup
-          label={intl.formatMessage(messages.groupDescription)}
-          helperTextInvalid={intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}
-          validated={groupDescriptionValidated(groupDescription)}
-        >
+        <FormGroup label={intl.formatMessage(messages.groupDescription)}>
           <TextArea
             value={groupDescription}
-            validated={groupDescriptionValidated(groupDescription)}
-            onChange={(value) => {
+            validated={groupDescriptionValid}
+            onChange={(_event, value) => {
               setGroupDescription(value);
               formOptions.change('group-description', value);
             }}
             aria-label="Group description"
             resizeOrientation="vertical"
           />
+          {groupDescriptionValid === 'error' && (
+            <FormHelperText>
+              <HelperText variant={groupDescriptionValid}>
+                <HelperTextItem>{intl.formatMessage(messages.maxCharactersWarning, { number: 150 })}</HelperTextItem>
+              </HelperText>
+            </FormHelperText>
+          )}
         </FormGroup>
       </StackItem>
     </Stack>

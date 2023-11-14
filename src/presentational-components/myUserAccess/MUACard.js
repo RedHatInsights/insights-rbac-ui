@@ -20,7 +20,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
       )}
       <Stack
         className={classNames({
-          'pf-u-mt-lg': !header,
+          'pf-v5-u-mt-lg': !header,
         })}
         hasGutter
       >

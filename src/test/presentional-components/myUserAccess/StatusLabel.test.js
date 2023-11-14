@@ -1,14 +1,15 @@
 import React from 'react';
-import { mount } from 'enzyme';
-import toJson from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import StatusLabel from '../../../presentational-components/myUserAccess/StatusLabel';
 
 describe('<StatusLabel />', () => {
   it('should render correctly', () => {
-    expect(toJson(mount(<StatusLabel />))).toMatchSnapshot();
+    const { container } = render(<StatusLabel />);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly as admin', () => {
-    expect(toJson(mount(<StatusLabel isOrgAdmin />))).toMatchSnapshot();
+    const { container } = render(<StatusLabel isOrgAdmin />);
+    expect(container).toMatchSnapshot();
   });
 });

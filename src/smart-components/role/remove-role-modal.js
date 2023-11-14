@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { ExclamationTriangleIcon } from '@patternfly/react-icons';
-import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem } from '@patternfly/react-core';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-triangle-icon';
+import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem, Icon } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
@@ -56,7 +56,9 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
         <TextContent>
           <Split hasGutter>
             <SplitItem>
-              <ExclamationTriangleIcon size="lg" style={{ fill: '#f0ab00' }} />
+              <Icon size="lg">
+                <ExclamationTriangleIcon style={{ fill: '#f0ab00' }} />
+              </Icon>
             </SplitItem>
             <SplitItem>
               <Text component="h1">{intl.formatMessage(messages.deleteRoleQuestion)}</Text>
@@ -89,6 +91,9 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
         </Text>
         <Checkbox
           id="remove-role-checkbox"
+          role="checkbox"
+          aria-label="Confirm role removal"
+          name="remove-role-checkbox"
           label={intl.formatMessage(messages.understandActionIrreversible)}
           isChecked={!isDisabled}
           onChange={() => setIsDisabled((prev) => !prev)}

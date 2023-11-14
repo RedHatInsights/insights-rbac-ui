@@ -1,6 +1,6 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import MuaBundleRoute from '../../../smart-components/myUserAccess/MUABundleRoute';
 
@@ -12,27 +12,26 @@ describe('<MUABundleRoute />', () => {
     /**
      * This action will log an error to console, that is expected
      */
-    const wrapper = mount(
+    const { container } = render(
       <ComponentWrapper initialEntries={['/foo?bundle=nonsense']}>
         <MuaBundleRoute />
       </ComponentWrapper>
     );
 
-    expect(wrapper.find('Placeholder')).toHaveLength(1);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render rhel bundle mock', async () => {
-    let wrapper;
-
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MuaBundleRoute />
         </ComponentWrapper>
       );
+      container = ci;
     });
-    wrapper.update();
 
-    expect(wrapper.find('div#rhel-mock')).toHaveLength(1);
+    expect(container.querySelector('div#rhel-mock')).toBeInTheDocument();
   });
 });

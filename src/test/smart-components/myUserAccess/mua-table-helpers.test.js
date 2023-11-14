@@ -1,5 +1,5 @@
 import React, { Fragment } from 'react';
-import { mount } from 'enzyme';
+import { fireEvent, render } from '@testing-library/react';
 import { createRows } from '../../../smart-components/myUserAccess/mua-table-helpers';
 
 describe('Mua table helpers', () => {
@@ -50,9 +50,9 @@ describe('Mua table helpers', () => {
       );
       expect(rows).toEqual(expectedResult);
       const child = rows[0].cells[3];
-      const component = mount(<Fragment>{child}</Fragment>);
-      expect(component.find('a')).toHaveLength(1);
-      component.find('a').prop('onClick')();
+      const { container } = render(<Fragment>{child}</Fragment>);
+      expect(container.querySelectorAll('a')).toHaveLength(1);
+      fireEvent.click(container.querySelector('a'));
       expect(clickSpy).toHaveBeenCalledWith(0);
     });
   });

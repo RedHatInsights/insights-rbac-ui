@@ -1,8 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
-import { mount } from 'enzyme';
+import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { Title } from '@patternfly/react-core';
 
 import MUAContent from '../../../smart-components/myUserAccess/MUAContent';
 jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
@@ -20,31 +19,28 @@ describe('<MUAContent />', () => {
       },
     };
 
-    let wrapper;
-
     await act(async () => {
-      wrapper = mount(
+      render(
         <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MUAContent entitlements={entitlements} isOrgAdmin />
         </ComponentWrapper>
       );
     });
 
-    expect(wrapper.find('div.pf-l-stack__item.rbac-l-myUserAccess-section__cards--entitled')).toHaveLength(1);
-    expect(wrapper.find('div.pf-l-stack__item.rbac-l-myUserAccess-section__cards--unentitled')).toHaveLength(1);
+    expect(screen.getByTestId('entitle-section')).toBeInTheDocument();
+    expect(screen.getByText('Not subscribed')).toBeInTheDocument();
   });
   it('should render permissions title for non org admins', async () => {
     const entitlements = {};
-    let wrapper;
 
     await act(async () => {
-      wrapper = mount(
+      render(
         <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MUAContent entitlements={entitlements} isOrgAdmin={false} />
         </ComponentWrapper>
       );
     });
 
-    expect(wrapper.find(Title).last().text()).toEqual('Your {name} permissions');
+    expect(screen.getByText('Your {name} permissions')).toBeInTheDocument();
   });
 });

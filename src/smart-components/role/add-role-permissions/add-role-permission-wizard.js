@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef, createContext, useMemo } from 'reac
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Wizard } from '@patternfly/react-core';
+import { Wizard } from '@patternfly/react-core/deprecated';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';

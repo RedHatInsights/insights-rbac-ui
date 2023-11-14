@@ -24,7 +24,7 @@ const ResourceDefinitionsFormTemplate = ({ ModalProps, ...props }) => {
           ? undefined
           : () => (
               <div className="rbac-m-resource-definitions">
-                <Alert className="pf-c-modal__alert" variant="danger" isInline title={intl.formatMessage(messages.defineAtLeastOneResource)} />
+                <Alert className="pf-v5-c-modal__alert" variant="danger" isInline title={intl.formatMessage(messages.defineAtLeastOneResource)} />
               </div>
             )
       }

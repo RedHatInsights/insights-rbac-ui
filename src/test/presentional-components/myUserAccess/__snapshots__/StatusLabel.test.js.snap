@@ -1,118 +1,27 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`<StatusLabel /> should render correctly 1`] = `<StatusLabel />`;
+exports[`<StatusLabel /> should render correctly 1`] = `<div />`;
 
 exports[`<StatusLabel /> should render correctly as admin 1`] = `
-<StatusLabel
-  isOrgAdmin={true}
->
-  <Tooltip
-    content={
-      <span>
-        You can manage other users' permissions with 'User access'
-      </span>
-    }
-    position="right"
+<div>
+  <div
+    style="display: contents;"
   >
-    <Popper
-      appendTo={[Function]}
-      distance={15}
-      enableFlip={true}
-      flipBehavior={
-        Array [
-          "top",
-          "right",
-          "bottom",
-          "left",
-          "top",
-          "right",
-          "bottom",
-        ]
-      }
-      isVisible={false}
-      onBlur={[Function]}
-      onDocumentClick={false}
-      onDocumentKeyDown={[Function]}
-      onFocus={[Function]}
-      onMouseEnter={[Function]}
-      onMouseLeave={[Function]}
-      onPopperMouseEnter={[Function]}
-      onPopperMouseLeave={[Function]}
-      onTriggerEnter={[Function]}
-      placement="right"
-      popper={
-        <div
-          aria-live="off"
-          className="pf-c-tooltip"
-          id="pf-tooltip-1"
-          role="tooltip"
-          style={
-            Object {
-              "maxWidth": null,
-              "opacity": 0,
-              "transition": "opacity 300ms cubic-bezier(.54, 1.5, .38, 1.11)",
-            }
-          }
-        >
-          <TooltipArrow />
-          <TooltipContent
-            isLeftAligned={false}
-          >
-            <span>
-              You can manage other users' permissions with 'User access'
-            </span>
-          </TooltipContent>
-        </div>
-      }
-      popperMatchesTriggerWidth={false}
-      positionModifiers={
-        Object {
-          "bottom": "pf-m-bottom",
-          "bottom-end": "pf-m-bottom-right",
-          "bottom-start": "pf-m-bottom-left",
-          "left": "pf-m-left",
-          "left-end": "pf-m-left-bottom",
-          "left-start": "pf-m-left-top",
-          "right": "pf-m-right",
-          "right-end": "pf-m-right-bottom",
-          "right-start": "pf-m-right-top",
-          "top": "pf-m-top",
-          "top-end": "pf-m-top-right",
-          "top-start": "pf-m-top-left",
-        }
-      }
-      removeFindDomNode={false}
-      trigger={
-        <Label
-          color="purple"
+    <span
+      class="pf-v5-c-label pf-m-purple"
+    >
+      <span
+        class="pf-v5-c-label__content"
+      >
+        <span
+          class="pf-v5-c-label__text"
         >
            
           Org. Administrator
            
-        </Label>
-      }
-      zIndex={9999}
-    >
-      <FindRefWrapper
-        onFoundRef={[Function]}
-      >
-        <Label
-          color="purple"
-        >
-          <span
-            className="pf-c-label pf-m-purple"
-          >
-            <span
-              className="pf-c-label__content"
-            >
-               
-              Org. Administrator
-               
-            </span>
-          </span>
-        </Label>
-      </FindRefWrapper>
-    </Popper>
-  </Tooltip>
-</StatusLabel>
+        </span>
+      </span>
+    </span>
+  </div>
+</div>
 `;

@@ -49,7 +49,7 @@ const SummaryContent = () => {
                 </GridItem>
                 <GridItem md={9}>
                   {selectedRoles.map((role, index) => (
-                    <Text className="pf-u-mb-0" key={index}>
+                    <Text className="pf-v5-u-mb-0" key={index}>
                       {role.label}
                     </Text>
                   ))}
@@ -63,7 +63,7 @@ const SummaryContent = () => {
                 </GridItem>
                 <GridItem md={9}>
                   {selectedUsers.map((role, index) => (
-                    <Text className="pf-u-mb-0" key={index}>
+                    <Text className="pf-v5-u-mb-0" key={index}>
                       {role.label}
                     </Text>
                   ))}

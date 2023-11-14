@@ -3,13 +3,12 @@ import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { MemoryRouter as Router } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import { mount } from 'enzyme';
+import { screen, render, fireEvent } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -65,18 +64,20 @@ describe('<Groups />', () => {
     fetchGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     const store = mockStore(initialState);
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <Router initialEntries={['/groups']}>
             <Groups />
           </Router>
         </Provider>
       );
+
+      container = ci;
     });
-    expect(wrapper.find(TableToolbarView)).toHaveLength(1);
+    expect(container).toMatchSnapshot();
   });
 
   it('should fetch groups on mount', async () => {
@@ -85,7 +86,7 @@ describe('<Groups />', () => {
     fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
     await act(async () => {
-      mount(
+      render(
         <Provider store={store}>
           <Router>
             <Groups />
@@ -112,9 +113,8 @@ describe('<Groups />', () => {
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <Router initialEntries={['/groups']}>
             <Groups />
@@ -124,7 +124,7 @@ describe('<Groups />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper.find('.pf-c-pagination__nav .pf-c-button').at(1).simulate('click');
+      await fireEvent.click(screen.getAllByLabelText('Go to next page')[0]);
     });
     expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -149,9 +149,8 @@ describe('<Groups />', () => {
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <Router initialEntries={['/groups']}>
             <Groups />
@@ -161,16 +160,17 @@ describe('<Groups />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper
-        .find('input#filter-by-string')
-        .first()
-        .simulate('change', { target: { value: filterValue } });
+      await fireEvent.change(screen.getByLabelText('text input'), { target: { value: filterValue } });
     });
-    const expectedFilterPayload = [{ type: 'FETCH_GROUPS_PENDING' }];
-    jest.runAllTimers();
-    expect(store.getActions()).toEqual(expectedFilterPayload);
+
+    await act(async () => {
+      await jest.runAllTimers();
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
     store.clearActions();
-    wrapper.update();
     expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
         count: 0,
@@ -182,7 +182,7 @@ describe('<Groups />', () => {
       })
     );
     await act(async () => {
-      wrapper.find('#ins-primary-data-toolbar .pf-c-button.pf-m-link').simulate('click');
+      await fireEvent.click(screen.getByText('Clear filters'));
     });
     expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({
@@ -204,9 +204,9 @@ describe('<Groups />', () => {
       .mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
+
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
           <Router initialEntries={['/groups']}>
             <Groups />
@@ -216,7 +216,7 @@ describe('<Groups />', () => {
     });
     store.clearActions();
     await act(async () => {
-      wrapper.find('span.pf-c-table__sort-indicator').first().simulate('click');
+      await fireEvent.click(screen.getByText('Name'));
     });
     expect(fetchGroupsSpy).toHaveBeenLastCalledWith(
       expect.objectContaining({

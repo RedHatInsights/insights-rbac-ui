@@ -1,6 +1,6 @@
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
-import { Title, Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateSecondaryActions } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateActions, EmptyStateHeader, EmptyStateFooter } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { AddGroupWizardContext } from './add-group-wizard';
 import messages from '../../../Messages';
@@ -14,25 +14,28 @@ const AddGroupSuccess = ({ onClose }: AddGroupSuccessProps) => {
   const { setHideForm, setWizardSuccess } = useContext(AddGroupWizardContext);
 
   return (
-    <EmptyState variant={EmptyStateVariant.large}>
-      <EmptyStateIcon className="pf-u-mt-xl" color="green" icon={CheckCircleIcon} />
-      <Title headingLevel="h4" size="lg">
-        {intl.formatMessage(messages.groupCreatedSuccessfully)}
-      </Title>
-      <Button onClick={onClose} variant="primary">
-        {intl.formatMessage(messages.exit)}
-      </Button>
-      <EmptyStateSecondaryActions>
-        <Button
-          onClick={() => {
-            setHideForm(false);
-            setWizardSuccess(false);
-          }}
-          variant="link"
-        >
-          {intl.formatMessage(messages.createAnotherGroup)}
+    <EmptyState variant={EmptyStateVariant.lg}>
+      <EmptyStateHeader
+        titleText={<>{intl.formatMessage(messages.groupCreatedSuccessfully)}</>}
+        icon={<EmptyStateIcon className="pf-v5-u-mt-xl" color="green" icon={CheckCircleIcon} />}
+        headingLevel="h4"
+      />
+      <EmptyStateFooter>
+        <Button onClick={onClose} variant="primary">
+          {intl.formatMessage(messages.exit)}
         </Button>
-      </EmptyStateSecondaryActions>
+        <EmptyStateActions>
+          <Button
+            onClick={() => {
+              setHideForm(false);
+              setWizardSuccess(false);
+            }}
+            variant="link"
+          >
+            {intl.formatMessage(messages.createAnotherGroup)}
+          </Button>
+        </EmptyStateActions>
+      </EmptyStateFooter>
     </EmptyState>
   );
 };

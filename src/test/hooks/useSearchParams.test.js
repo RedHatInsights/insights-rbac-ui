@@ -1,34 +1,27 @@
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
+import { renderHook } from '@testing-library/react';
 import useSearchParams from '../../hooks/useSearchParams';
-
-const SpyComponent = () => <div></div>;
-const HookedComponent = ({ args }) => {
-  const result = useSearchParams(...args);
-  return <SpyComponent result={result} />;
-};
-
-const DummyComponent = ({ args, initialEntries }) => {
-  return (
-    <MemoryRouter initialEntries={initialEntries}>
-      <HookedComponent args={args} />
-    </MemoryRouter>
-  );
-};
 
 describe('useSearchParams', () => {
   it('should retrieve foo and bar params', () => {
-    const wrapper = mount(<DummyComponent args={['foo', 'bar']} initialEntries={['/route?foo=f&bar=b']} />);
-    expect(wrapper.find(SpyComponent).prop('result')).toEqual({ foo: 'f', bar: 'b' });
+    const { result } = renderHook(() => useSearchParams('foo', 'bar'), {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={['/route?foo=f&bar=b']}>{children}</MemoryRouter>,
+    });
+    expect(result.current).toEqual({ foo: 'f', bar: 'b' });
   });
 
   it('should retrieve foo but not bar param', () => {
-    const wrapper = mount(<DummyComponent args={['foo', 'bar']} initialEntries={['/route?foo=f']} />);
-    expect(wrapper.find(SpyComponent).prop('result')).toEqual({ foo: 'f', bar: null });
+    const { result } = renderHook(() => useSearchParams('foo', 'bar'), {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={['/route?foo=f']}>{children}</MemoryRouter>,
+    });
+    expect(result.current).toEqual({ foo: 'f', bar: null });
   });
 
-  it('should retrieve any params', () => {
-    const wrapper = mount(<DummyComponent args={[]} initialEntries={['/route?foo=f']} />);
-    expect(wrapper.find(SpyComponent).prop('result')).toEqual({});
+  it('should not retrieve any params', () => {
+    const { result } = renderHook(() => useSearchParams('foo', 'bar'), {
+      wrapper: ({ children }) => <MemoryRouter initialEntries={['/route']}>{children}</MemoryRouter>,
+    });
+    expect(result.current).toEqual({ foo: null, bar: null });
   });
 });

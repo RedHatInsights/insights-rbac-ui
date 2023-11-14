@@ -10,7 +10,8 @@ import messages from '../../Messages';
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
-import { Table, TableHeader, TableBody, TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
+import { TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
 const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) => {

@@ -1,14 +1,5 @@
-import { configure, mount, render, shallow } from 'enzyme';
-import Adapter from '@wojtekmaj/enzyme-adapter-react-17';
-import React from 'react';
 import '@testing-library/jest-dom';
-
-configure({ adapter: new Adapter() });
-
-global.shallow = shallow;
-global.render = render;
-global.mount = mount;
-global.React = React;
+import { TextEncoder, TextDecoder } from 'util';
 
 /**
  * setup ENV vars
@@ -48,3 +39,15 @@ global.insights = {
 };
 
 Element.prototype.scrollTo = () => {};
+
+global.matchMedia =
+  global.matchMedia ||
+  function () {
+    return {
+      matches: false,
+      addListener: function () {},
+      removeListener: function () {},
+    };
+  };
+
+Object.assign(global, { TextDecoder, TextEncoder });

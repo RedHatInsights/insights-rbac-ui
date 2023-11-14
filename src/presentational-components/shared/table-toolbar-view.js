@@ -2,9 +2,10 @@ import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
 import messages from '../../Messages';
-import { Table, TableHeader, TableBody, TableVariant } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
-import { Button, Pagination, EmptyStatePrimary } from '@patternfly/react-core';
+import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
 import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
@@ -72,7 +73,7 @@ export const TableToolbarView = ({
           noData && noDataDescription
             ? undefined
             : [
-                <EmptyStatePrimary key="clear-filters">
+                <EmptyStateActions key="clear-filters">
                   <Button
                     variant="link"
                     ouiaId="clear-filters-button"
@@ -87,7 +88,7 @@ export const TableToolbarView = ({
                   >
                     {intl.formatMessage(messages.clearAllFilters)}
                   </Button>
-                </EmptyStatePrimary>,
+                </EmptyStateActions>,
               ]
         }
       />

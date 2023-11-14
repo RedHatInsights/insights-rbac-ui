@@ -103,7 +103,7 @@ const ResourceDefinitions = () => {
           </LevelItem>
         </Level>
       </TopToolbar>
-      <section className="pf-c-page__main-section rbac-c-role__permissions">
+      <section className="pf-v5-c-page__main-section rbac-c-role__permissions">
         <TextContent>
           <Text component={TextVariants.h1}>{intl.formatMessage(messages.definedResources)}</Text>
         </TextContent>

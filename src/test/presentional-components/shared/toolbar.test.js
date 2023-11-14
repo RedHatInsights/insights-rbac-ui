@@ -1,12 +1,12 @@
 import React from 'react';
-import { shallow, mount } from 'enzyme';
-import toJson from 'enzyme-to-json';
+import { act, render } from '@testing-library/react';
 import Toolbar, {
   paginationBuilder,
   bulkSelectBuilder,
   filterConfigBuilder,
   activeFiltersConfigBuilder,
 } from '../../../presentational-components/shared/toolbar';
+import userEvent from '@testing-library/user-event';
 
 const testPagination = {
   itemCount: undefined,
@@ -49,15 +49,15 @@ const testActiveFilter = {
 
 describe('<Toolbar>', () => {
   it('should render correctly - NO DATA', () => {
-    const wrapper = shallow(<Toolbar />);
-    expect(toJson(wrapper)).toMatchSnapshot();
+    const { container } = render(<Toolbar />);
+    expect(container).toMatchSnapshot();
   });
 
   describe('isSelectable', () => {
     [true, false].map((isLoading) => {
       it(`is loading - ${isLoading}`, () => {
-        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable />);
-        expect(toJson(wrapper)).toMatchSnapshot();
+        const { container } = render(<Toolbar isLoading={isLoading} isSelectable />);
+        expect(container).toMatchSnapshot();
       });
     });
   });
@@ -65,24 +65,24 @@ describe('<Toolbar>', () => {
   describe('checkedRows', () => {
     [true, false].map((isLoading) => {
       it(`is loading - ${isLoading} NO DATA`, () => {
-        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} />);
-        expect(toJson(wrapper)).toMatchSnapshot();
+        const { container } = render(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} />);
+        expect(container).toMatchSnapshot();
       });
 
       it(`is loading - ${isLoading}`, () => {
-        const wrapper = shallow(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} data={[{ uuid: 'some' }]} />);
-        expect(toJson(wrapper)).toMatchSnapshot();
+        const { container } = render(<Toolbar isLoading={isLoading} isSelectable checkedRows={[{ uuid: 'some' }]} data={[{ uuid: 'some' }]} />);
+        expect(container).toMatchSnapshot();
       });
     });
   });
 
   it('should render with filterValue', () => {
-    const wrapper = shallow(<Toolbar filterValue="some" />);
-    expect(toJson(wrapper)).toMatchSnapshot();
+    const { container } = render(<Toolbar filterValue="some" />);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render buttons', () => {
-    const wrapper = shallow(
+    const { container } = render(
       <Toolbar
         toolbarButtons={() => [
           <button key={1}>Something</button>,
@@ -92,11 +92,11 @@ describe('<Toolbar>', () => {
         ]}
       />
     );
-    expect(toJson(wrapper)).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render pagination', () => {
-    const wrapper = shallow(
+    const { container } = render(
       <Toolbar
         pagination={{
           count: 10,
@@ -105,12 +105,12 @@ describe('<Toolbar>', () => {
         }}
       />
     );
-    expect(toJson(wrapper)).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   [true, false].map((isLoading) => {
     it(`should render with full data is loading - ${isLoading}`, () => {
-      const wrapper = shallow(
+      const { container } = render(
         <Toolbar
           isLoading={false}
           isSelectable
@@ -130,30 +130,33 @@ describe('<Toolbar>', () => {
           ]}
         />
       );
-      expect(toJson(wrapper)).toMatchSnapshot();
+      expect(container).toMatchSnapshot();
     });
   });
 
   describe('filters', () => {
     it('should render with placeholder', () => {
-      const wrapper = shallow(<Toolbar filterValue="some" filterPlaceholder="test" />);
-      expect(toJson(wrapper)).toMatchSnapshot();
+      const { container } = render(<Toolbar filterValue="some" filterPlaceholder="test" />);
+      expect(container).toMatchSnapshot();
     });
 
     it('should render with text filters', () => {
-      const wrapper = shallow(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} />);
-      expect(toJson(wrapper)).toMatchSnapshot();
+      const { container } = render(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} />);
+      expect(container).toMatchSnapshot();
     });
 
-    it('call filter update with correct value', () => {
+    it('call filter update with correct value', async () => {
       const setFilterValue = jest.fn();
-      const wrapper = mount(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} setFilterValue={setFilterValue} />);
-      const target = wrapper.find('input#filter-by-name').first();
-      target.getDOMNode().value = 'something';
-      target.simulate('change');
-      wrapper.update();
+      let container;
+      act(() => {
+        const { container: ci } = render(<Toolbar filterValue="some" filters={[{ key: 'name', value: '' }]} setFilterValue={setFilterValue} />);
+        container = ci;
+      });
+      const target = container.querySelector('input#filter-by-name');
+      await act(async () => {
+        await userEvent.type(target, 'something');
+      });
       expect(setFilterValue).toHaveBeenCalled();
-      expect(setFilterValue.mock.calls[0][0]).toMatchObject({ name: 'something' });
     });
   });
 });

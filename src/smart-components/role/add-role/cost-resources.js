@@ -1,6 +1,7 @@
 import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Select, SelectOption, SelectVariant, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
+import { Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
+import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
@@ -153,7 +154,7 @@ const CostResources = (props) => {
             className="rbac-m-resource-type-select"
             variant={SelectVariant.checkbox}
             typeAheadAriaLabel={intl.formatMessage(messages.selectState)}
-            onToggle={(isOpen) => {
+            onToggle={(_event, isOpen) => {
               dispatchLocaly({ type: 'setFilter', key: permission, filtervalue: '' });
               onToggle(permission, isOpen);
             }}

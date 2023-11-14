@@ -3,7 +3,7 @@ import { act } from 'react-dom/test-utils';
 import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import toJson from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import GroupMembers from '../../../../smart-components/group/member/group-members';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
@@ -64,9 +64,9 @@ describe('<GroupMembers />', () => {
         },
       },
     });
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = shallow(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
             <Routes>
@@ -75,8 +75,9 @@ describe('<GroupMembers />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(toJson(wrapper.find('ListLoader'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly with empty members', async () => {
@@ -95,9 +96,9 @@ describe('<GroupMembers />', () => {
         },
       },
     });
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
             <Routes>
@@ -106,8 +107,9 @@ describe('<GroupMembers />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(toJson(wrapper.find('EmptyWithAction'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly with org admin rights', async () => {
@@ -125,9 +127,9 @@ describe('<GroupMembers />', () => {
         },
       },
     });
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
             <Routes>
@@ -136,8 +138,9 @@ describe('<GroupMembers />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly with default group', async () => {
@@ -153,9 +156,9 @@ describe('<GroupMembers />', () => {
         },
       },
     });
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
             <Routes>
@@ -164,17 +167,18 @@ describe('<GroupMembers />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(toJson(wrapper.find('#tab-principals'))).toMatchSnapshot();
+    expect(container.querySelector('#tab-principals')).toMatchSnapshot();
   });
 
   it('should render correctly with data', async () => {
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={store}>
           <MemoryRouter initialEntries={['/groups/detail/test-group/members']}>
             <Routes>
@@ -183,7 +187,8 @@ describe('<GroupMembers />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    expect(toJson(wrapper.find('TableToolbarView'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 });

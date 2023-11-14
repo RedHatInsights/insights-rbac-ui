@@ -57,8 +57,8 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     })
   );
 
-  const fetchData = useCallback((apiProps) => dispatch(fetchUsers(apiProps)), [dispatch]);
-  const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
+  const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
+  const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
 
   const columns = [
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },

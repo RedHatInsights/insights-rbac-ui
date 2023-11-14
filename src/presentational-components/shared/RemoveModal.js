@@ -43,7 +43,7 @@ const RemoveModal = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
           onChange={() => setChecked(!checked)}
           label={intl.formatMessage(messages.confirmCheckMessage)}
           id="remove-modal-check"
-          className="pf-u-mt-lg"
+          className="pf-v5-u-mt-lg"
         />
       ) : null}
     </Modal>

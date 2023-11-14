@@ -103,7 +103,7 @@ export const filterConfigBuilder = (
       ...(filters && filters.length > 0
         ? filters.map(({ key, label, value, selected, placeholder, type = 'text', groups, items, innerRef }) => ({
             label: label || firstUpperCase(key),
-            type,
+            type: type ?? 'text',
             filterValues: {
               innerRef,
               id: `filter-by-${key}`,
@@ -117,6 +117,7 @@ export const filterConfigBuilder = (
               onChange: (_e, filterBy) => {
                 const newFilter =
                   typeof filterBy !== 'string' && !Array.isArray(filterBy) ? Object.keys(pickBy(filterBy[''], (value) => value)) : filterBy;
+
                 setFilterValue({
                   ...filterValue,
                   ...pagination,
@@ -293,7 +294,6 @@ const Toolbar = ({
       sortBy,
       textFilterRef
     )}
-    useMobileLayout
     actionsConfig={{
       actions: toolbarButtons(),
     }}

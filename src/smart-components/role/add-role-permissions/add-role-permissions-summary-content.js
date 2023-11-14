@@ -19,7 +19,7 @@ const AddRolePermissionSummaryContent = () => {
     <Stack hasGutter>
       <StackItem>
         <TextContent>
-          <Title headingLevel="h1" size="xl" className="pf-u-mb-sm">
+          <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-sm">
             {intl.formatMessage(messages.reviewDetails)}
           </Title>
         </TextContent>
@@ -27,7 +27,7 @@ const AddRolePermissionSummaryContent = () => {
       <StackItem className="rbac-l-stack__item-summary">
         <Grid hasGutter>
           <GridItem span={3}>
-            <Text className="pf-c-title" component={TextVariants.h6}>
+            <Text className="pf-v5-c-title" component={TextVariants.h6}>
               {intl.formatMessage(messages.roleName)}
             </Text>
           </GridItem>
@@ -35,7 +35,7 @@ const AddRolePermissionSummaryContent = () => {
             <Text component={TextVariants.p}>{name}</Text>
           </GridItem>
           <GridItem span={3}>
-            <Text className="pf-c-title" component={TextVariants.h6}>
+            <Text className="pf-v5-c-title" component={TextVariants.h6}>
               {intl.formatMessage(messages.roleDescription)}
             </Text>
           </GridItem>
@@ -43,7 +43,7 @@ const AddRolePermissionSummaryContent = () => {
             <Text component={TextVariants.p}>{description}</Text>
           </GridItem>
           <GridItem span={3}>
-            <Text className="pf-c-title" component={TextVariants.h6}>
+            <Text className="pf-v5-c-title" component={TextVariants.h6}>
               {intl.formatMessage(messages.addedPermissions)}
             </Text>
           </GridItem>
@@ -57,7 +57,7 @@ const AddRolePermissionSummaryContent = () => {
           {hasCostResources && (
             <React.Fragment>
               <GridItem span={3}>
-                <Text className="pf-c-title" component={TextVariants.h6}>
+                <Text className="pf-v5-c-title" component={TextVariants.h6}>
                   {intl.formatMessage(messages.resourceDefinitions)}
                 </Text>
               </GridItem>

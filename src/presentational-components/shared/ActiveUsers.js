@@ -14,7 +14,7 @@ const ActiveUser = ({ linkDescription, linkTitle }) => {
   const prefix = chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext);
   return orgAdmin ? (
-    <Text className="pf-u-mt-0" component={TextVariants.h7}>
+    <Text className="pf-v5-u-mt-0" component={TextVariants.h7}>
       {`${intl.formatMessage(messages.usersDescription)} `}
       {linkDescription}
       <Text
@@ -29,7 +29,7 @@ const ActiveUser = ({ linkDescription, linkTitle }) => {
       .
     </Text>
   ) : (
-    <Text className="pf-u-mt-0" component={TextVariants.h7}>
+    <Text className="pf-v5-u-mt-0" component={TextVariants.h7}>
       {`${intl.formatMessage(messages.usersDescription)} `}
     </Text>
   );

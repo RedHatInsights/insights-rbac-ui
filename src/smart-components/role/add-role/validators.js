@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { fetchRoles } from '../../../helpers/role/role-helper';
 import asyncDebounce from '../../../utilities/async-debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -44,4 +45,8 @@ export const ValidatorReset = ({ name }) => {
   }, []);
 
   return null;
+};
+
+ValidatorReset.propTypes = {
+  name: PropTypes.string.isRequired,
 };

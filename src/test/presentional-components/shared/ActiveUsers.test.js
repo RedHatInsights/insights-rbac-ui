@@ -1,18 +1,20 @@
 import React from 'react';
-import { shallow } from 'enzyme';
-import toJson from 'enzyme-to-json';
+import { render } from '@testing-library/react';
 import ActiveUsers from '../../../presentational-components/shared/ActiveUsers';
 
 describe('<ActiveUsers />', () => {
   it('should render correctly', () => {
-    expect(toJson(shallow(<ActiveUsers />))).toMatchSnapshot();
+    const { container } = render(<ActiveUsers />);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly with link description', () => {
-    expect(toJson(shallow(<ActiveUsers linkDescription="some description" />))).toMatchSnapshot();
+    const { container } = render(<ActiveUsers linkDescription="some description" />);
+    expect(container).toMatchSnapshot();
   });
 
   it('should render correctly with link title', () => {
-    expect(toJson(shallow(<ActiveUsers linkTitle="some title" />))).toMatchSnapshot();
+    const { container } = render(<ActiveUsers linkTitle="some title" />);
+    expect(container).toMatchSnapshot();
   });
 });

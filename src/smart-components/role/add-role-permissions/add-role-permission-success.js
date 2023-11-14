@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Title, Button, EmptyState, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateIcon, EmptyStateBody, EmptyStateHeader, EmptyStateFooter } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
@@ -15,14 +15,17 @@ const AddRolePermissionSuccess = ({ currentRoleID }) => {
   return (
     <>
       <EmptyState>
-        <EmptyStateIcon color="green" icon={CheckCircleIcon} />
-        <Title headingLevel="h4" size="lg">
-          {intl.formatMessage(messages.permissionsAddedSuccessfully)}
-        </Title>
+        <EmptyStateHeader
+          titleText={<>{intl.formatMessage(messages.permissionsAddedSuccessfully)}</>}
+          icon={<EmptyStateIcon color="green" icon={CheckCircleIcon} />}
+          headingLevel="h4"
+        />
         <EmptyStateBody />
-        <AppLink to={pathnames['role-detail'].link.replace(':roleId', currentRoleID)}>
-          <Button onClick={() => dispatch(fetchRole(currentRoleID))}>{intl.formatMessage(messages.exit)}</Button>
-        </AppLink>
+        <EmptyStateFooter>
+          <AppLink to={pathnames['role-detail'].link.replace(':roleId', currentRoleID)}>
+            <Button onClick={() => dispatch(fetchRole(currentRoleID))}>{intl.formatMessage(messages.exit)}</Button>
+          </AppLink>
+        </EmptyStateFooter>
       </EmptyState>
     </>
   );

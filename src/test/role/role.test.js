@@ -2,10 +2,9 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import toJson from 'enzyme-to-json';
 import Role from '../../smart-components/role/role';
 import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
 
@@ -14,6 +13,7 @@ import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
 import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import { defaultSettings } from '../../helpers/shared/pagination';
+import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
@@ -112,9 +112,9 @@ describe('role', () => {
       fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({ data: 'something' }) }));
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
       fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({ data: 'something' }) }));
-      let wrapper;
+      let container;
       await act(async () => {
-        wrapper = mount(
+        const { container: ci } = render(
           <Provider store={store}>
             <MemoryRouter initialEntries={['/groups/detail/123/roles/detail/456']}>
               <Routes>
@@ -123,8 +123,9 @@ describe('role', () => {
             </MemoryRouter>
           </Provider>
         );
+
+        container = ci;
       });
-      wrapper.update();
       expect(store.getActions()[0]).toMatchObject({ type: 'FETCH_ROLE_PENDING' });
       expect(store.getActions()[1]).toMatchObject({ type: 'FETCH_GROUP_PENDING' });
       expect(store.getActions()[2]).toMatchObject({
@@ -133,15 +134,15 @@ describe('role', () => {
         },
         type: 'FETCH_ROLE_FULFILLED',
       });
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(1);
+      expect(container).toMatchSnapshot();
     });
 
     it('should render correctly with router and redux store', async () => {
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
       fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-      let wrapper;
+      let container;
       await act(async () => {
-        wrapper = mount(
+        const { container: ci } = render(
           <Provider
             store={mockStore({
               ...initialState,
@@ -160,9 +161,10 @@ describe('role', () => {
             </MemoryRouter>
           </Provider>
         );
+
+        container = ci;
       });
-      wrapper.update();
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(3);
+      expect(container).toMatchSnapshot();
     });
   });
 
@@ -174,9 +176,9 @@ describe('role', () => {
       });
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
 
-      let wrapper;
+      let container;
       await act(async () => {
-        wrapper = mount(
+        const { container: ci } = render(
           <Provider store={store}>
             <MemoryRouter initialEntries={['/roles/detail/1234']}>
               <Routes>
@@ -185,8 +187,8 @@ describe('role', () => {
             </MemoryRouter>
           </Provider>
         );
+        container = ci;
       });
-      wrapper.update();
       expect(store.getActions()[0]).toMatchObject({ type: 'FETCH_ROLE_PENDING' });
       expect(store.getActions()[1]).toMatchObject({
         payload: {
@@ -194,14 +196,14 @@ describe('role', () => {
         },
         type: 'FETCH_ROLE_FULFILLED',
       });
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(1);
+      expect(container).toMatchSnapshot();
     });
 
     it('should render correctly with router and redux store', async () => {
       fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-      let wrapper;
+      let container;
       await act(async () => {
-        wrapper = mount(
+        const { container: ci } = render(
           <Provider store={mockStore(initialState)}>
             <MemoryRouter initialEntries={['/roles/detail/1234']}>
               <Routes>
@@ -210,17 +212,17 @@ describe('role', () => {
             </MemoryRouter>
           </Provider>
         );
+
+        container = ci;
       });
-      wrapper.update();
-      expect(wrapper.find('.pf-c-breadcrumb__item').length).toBe(2);
+      expect(container).toMatchSnapshot();
     });
   });
 
   it('should render correctly with loading', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider
           store={mockStore({
             groupReducer: { error: undefined },
@@ -237,16 +239,15 @@ describe('role', () => {
         </Provider>
       );
     });
-    wrapper.update();
-    expect(wrapper.find('.ins-c-skeleton').length).toBe(10);
+    expect(screen.getAllByLabelText('datalist-item-placeholder-row')).toHaveLength(5);
   });
 
   it('should render permissions table', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
             <Routes>
@@ -255,17 +256,17 @@ describe('role', () => {
           </MemoryRouter>
         </Provider>
       );
+
+      container = ci;
     });
-    wrapper.update();
-    expect(wrapper.find('.pf-c-pagination__nav button').first().props().disabled).toBe(true);
-    expect(toJson(wrapper.find('.pf-c-table'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render top toolbar', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/roles/detail/1234']}>
             <Routes>
@@ -274,17 +275,18 @@ describe('role', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    wrapper.update();
-    expect(toJson(wrapper.find('TopToolbar'), { mode: 'shallow' })).toMatchSnapshot();
+    expect(container).toMatchSnapshot();
   });
 
   it('should render second page of table', async () => {
+    jest.useFakeTimers();
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
     fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider
           store={mockStore({
             ...initialState,
@@ -302,37 +304,65 @@ describe('role', () => {
           </MemoryRouter>
         </Provider>
       );
+
+      container = ci;
     });
-    wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(20);
-    wrapper.find('.pf-c-pagination__nav button[data-action="next"]').first().simulate('click');
-    wrapper.update();
-    expect(wrapper.find('.pf-c-table tbody tr').length).toBe(8);
-    expect(toJson(wrapper.find('.pf-c-table'), { mode: 'shallow' })).toMatchSnapshot();
+    // The +1 is for the header row
+    expect(screen.getAllByRole('row')).toHaveLength(20 + 1);
+
+    await act(async () => {
+      await fireEvent.click(screen.getAllByLabelText('Go to next page')[0]);
+    });
+
+    // Flush all promises
+    await act(async () => {
+      jest.runAllTimers();
+    });
+
+    // The +1 is for the header row
+    expect(screen.getAllByRole('row')).toHaveLength(8 + 1);
+    expect(container.querySelector('table')).toMatchSnapshot();
   });
 
   it('should open and cancel remove modal', async () => {
+    jest.useFakeTimers();
     fetchRoleSpy
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={mockStore(initialState)}>
-          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+          <MemoryRouter initialEntries={['/iam/user-access/roles/detail/1234']}>
             <Routes>
-              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+              <Route path="/iam/user-access/roles/detail/:roleId/*" element={<Role />}>
+                <Route path="remove" element={<RemoveRoleModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
+              </Route>
             </Routes>
           </MemoryRouter>
         </Provider>
       );
     });
-    expect(wrapper.find(RemoveModal)).toHaveLength(0);
-    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
-    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
-    expect(wrapper.find(RemoveModal)).toHaveLength(1);
-    wrapper.find('button.pf-m-link').simulate('click');
-    expect(wrapper.find(RemoveModal)).toHaveLength(0);
+    expect(() => screen.getByText('Delete role?')).toThrow();
+
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText('Actions'));
+    });
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Delete'));
+    });
+
+    expect(screen.getByText('Delete role?')).toBeInTheDocument();
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Cancel'));
+    });
+
+    // flush all promises
+    await act(async () => {
+      await Promise.resolve();
+    });
+    expect(() => screen.getByText('Delete role?')).toThrow();
   });
 
   it('should open and close remove modal', async () => {
@@ -342,24 +372,35 @@ describe('role', () => {
     fetchRoleSpy
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={mockStore(initialState)}>
-          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+          <MemoryRouter initialEntries={['/iam/user-access/roles/detail/1234']}>
             <Routes>
-              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+              <Route path="/iam/user-access/roles/detail/:roleId/*" element={<Role />}>
+                <Route path="remove" element={<RemoveModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
+              </Route>
             </Routes>
           </MemoryRouter>
         </Provider>
       );
     });
-    expect(wrapper.find(RemoveModal)).toHaveLength(0);
-    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
-    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
-    expect(wrapper.find(RemoveModal)).toHaveLength(1);
-    wrapper.find('button.pf-m-danger').simulate('click');
-    expect(wrapper.find(RemoveModal)).toHaveLength(0);
+    expect(() => screen.getByText('Remove permission?')).toThrow();
+    await act(async () => {
+      await screen.getAllByLabelText('Kebab toggle')[0].click();
+    });
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Remove'));
+    });
+
+    expect(screen.getByText('Remove permission?')).toBeInTheDocument();
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Cancel'));
+    });
+
+    expect(() => screen.getByText('Remove permission?')).toThrow();
   });
 
   it('should check permission and remove it', async () => {
@@ -369,28 +410,36 @@ describe('role', () => {
     fetchRoleSpy
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }))
       .mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({}) }));
-    let wrapper;
+
     let store = mockStore(initialState);
     await act(async () => {
-      wrapper = mount(
+      render(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/roles/detail/1234']}>
+          <MemoryRouter initialEntries={['/iam/user-access/roles/detail/1234']}>
             <Routes>
-              <Route path="/roles/detail/:roleId/*" element={<Role />} />
+              <Route path="/iam/user-access/roles/detail/:roleId/*" element={<Role />}>
+                <Route path="remove" element={<RemoveModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
+              </Route>
             </Routes>
           </MemoryRouter>
         </Provider>
       );
     });
+
     await act(async () => {
-      wrapper.update();
+      await fireEvent.click(screen.getByLabelText('Select row 0'));
     });
 
-    wrapper.find('button.pf-c-dropdown__toggle').last().simulate('click');
-    wrapper.find('button.pf-c-dropdown__menu-item').first().simulate('click');
+    await act(async () => {
+      await fireEvent.click(screen.getByLabelText('kebab dropdown toggle'));
+    });
 
     await act(async () => {
-      wrapper.find('button.pf-m-danger').simulate('click');
+      fireEvent.click(screen.getByText('Remove'));
+    });
+
+    await act(async () => {
+      await fireEvent.click(screen.getByText('Remove permission'));
     });
     const expectedPayload = [
       { type: `${FETCH_ROLE}_PENDING` },

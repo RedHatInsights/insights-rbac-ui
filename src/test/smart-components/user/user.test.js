@@ -2,7 +2,7 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
-import { mount } from 'enzyme';
+import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
 import { rolesInitialState } from '../../../redux/reducers/role-reducer';
@@ -58,9 +58,9 @@ describe('<User />', () => {
   it('should render user', async () => {
     fetchUsersSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
     fetchRolesSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
-    let wrapper;
+    let container;
     await act(async () => {
-      wrapper = mount(
+      const { container: ci } = render(
         <Provider store={mockStore(initialState)}>
           <MemoryRouter initialEntries={['/users/detail/epacific-insights']}>
             <Routes>
@@ -69,8 +69,8 @@ describe('<User />', () => {
           </MemoryRouter>
         </Provider>
       );
+      container = ci;
     });
-    wrapper.update();
-    expect(wrapper.find(User)).toHaveLength(1);
+    expect(container).toMatchSnapshot();
   });
 });

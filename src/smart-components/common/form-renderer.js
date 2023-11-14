@@ -1,6 +1,5 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import Pf4SelectWrapper from '../../presentational-components/shared/pf4-select-wrapper';
 import FormButtons from './FormButtons';
 import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import TextField from '@data-driven-forms/pf4-component-mapper/text-field';
@@ -13,7 +12,6 @@ const FormRenderer = ({ formTemplateProps, ...props }) => (
     componentMapper={{
       [componentTypes.TEXT_FIELD]: TextField,
       [componentTypes.TEXTAREA]: Textarea,
-      [componentTypes.SELECT]: Pf4SelectWrapper,
     }}
     FormTemplate={(props) => <FormTemplate {...formTemplateProps} {...props} FormButtons={FormButtons} />}
     {...props}

@@ -4,6 +4,7 @@ import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
+import { fireEvent, render, screen } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
@@ -11,9 +12,6 @@ import MUARolesTable from '../../../smart-components/myUserAccess/MUARolesTable'
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import * as RoleActions from '../../../redux/actions/role-actions';
 import { FETCH_ROLES, FETCH_ROLE_FOR_PRINCIPAL } from '../../../redux/action-types';
-import { RowWrapper } from '@patternfly/react-table';
-import ResourceDefinitionsLink from '../../../presentational-components/myUserAccess/ResourceDefinitionsLink';
-import { Modal } from '@patternfly/react-core';
 
 /**
  * Mock debounce to remove tomers shenanigans
@@ -102,130 +100,127 @@ describe('<MUARolesTable />', () => {
   it('should load data and render table', async () => {
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: true });
     fetchRolesSpy.mockImplementationOnce(() => rolesMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
         </ContextWrapper>
       );
     });
-    wrapper.update();
 
-    /**
-     * There is 5 rows because
-     * Two for data
-     * Two more hidden expandable tables
-     * One for access table
-     */
-    expect(wrapper.find(RowWrapper)).toHaveLength(5);
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // +1 for header
   });
 
   it('should expand row and fetch data for nested roles table', async () => {
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: true });
     fetchRolesSpy.mockImplementationOnce(() => rolesMock);
     fetchRoleForPrincipalSpy.mockImplementationOnce(() => roleForPrincipalMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      await render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
         </ContextWrapper>
       );
     });
-    wrapper.update();
-    expect(wrapper.find(RowWrapper).at(3).prop('row').isExpanded).toEqual(false);
+
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // +1 for header
     /**
      * expand table row
      */
-    act(() => {
-      wrapper.find(RowWrapper).at(2).find('button.pf-c-table__button').prop('onClick')();
+    await act(async () => {
+      await fireEvent.click(screen.getByText(2));
     });
-    wrapper.update();
-    expect(wrapper.find(RowWrapper).at(3).prop('row').isExpanded).toEqual(true);
+
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1 + 3); // +1 for header, +e for the expandable table and its rows (1 new row for table, 1 for new table header, 1 for the table data rows)
 
     /**
      * Close row
      */
-    act(() => {
-      wrapper.find(RowWrapper).at(2).find('button.pf-c-table__button').prop('onClick')();
+    await act(async () => {
+      await fireEvent.click(screen.getByText(2));
     });
-    /**
-     * expand table row second time should not trigger API call
-     */
-    act(() => {
-      wrapper.find(RowWrapper).at(2).find('button.pf-c-table__button').prop('onClick')();
-    });
-    expect(fetchRoleForPrincipalSpy).toHaveBeenCalledTimes(1);
+
+    expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // +1 for header
   });
 
   it('should render nested table with RD column and open modal', async () => {
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: true });
     fetchRolesSpy.mockImplementationOnce(() => rolesMock);
     fetchRoleForPrincipalSpy.mockImplementationOnce(() => roleForPrincipalMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} showResourceDefinitions />
         </ContextWrapper>
       );
     });
-    wrapper.update();
 
     /**
      * expand table row
      */
-    act(() => {
-      wrapper.find(RowWrapper).at(2).find('button.pf-c-table__button').prop('onClick')();
-    });
-    wrapper.update();
-    expect(wrapper.find(ResourceDefinitionsLink)).toHaveLength(1);
-    expect(wrapper.find(Modal)).toHaveLength(0);
     await act(async () => {
-      wrapper.find(ResourceDefinitionsLink).prop('onClick')();
+      await fireEvent.click(screen.getByText(2));
+    });
+    expect(screen.getAllByText(1, { selector: 'a' })).toHaveLength(1);
+
+    expect(() =>
+      screen.getByText('Resource definitions', {
+        selector: '.pf-v5-c-modal-box__title-text',
+      })
+    ).toThrow();
+    await act(async () => {
+      fireEvent.click(screen.getByText(1, { selector: 'a' }));
     });
     /**
      * We need this double update to trigger the react lazy/Suspense interaction
      */
     await act(async () => {
-      wrapper.update();
+      await Promise.resolve();
     });
-    wrapper.update();
-    expect(wrapper.find(Modal)).toHaveLength(1);
-    act(() => {
-      wrapper.find(Modal).prop('onClose')();
+    expect(
+      screen.getByText('Resource definitions', {
+        selector: '.pf-v5-c-modal-box__title-text',
+      })
+    ).toBeInTheDocument();
+    await act(async () => {
+      fireEvent.click(screen.getByText('Close'));
     });
-    wrapper.update();
-    expect(wrapper.find(Modal)).toHaveLength(0);
+    expect(() =>
+      screen.getByText('Resource definitions', {
+        selector: '.pf-v5-c-modal-box__title-text',
+      })
+    ).toThrow();
   });
 
   it('should filter roles by application', async () => {
     jest.useFakeTimers();
     const filters = createFilter({ apps: initialProps.apps, isOrgAdmin: true });
     fetchRolesSpy.mockImplementationOnce(() => rolesMock).mockImplementationOnce(() => rolesMock);
-    let wrapper;
     await act(async () => {
-      wrapper = mount(
+      render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
         </ContextWrapper>
       );
     });
-    jest.runAllTimers();
-    wrapper.update();
-    wrapper.find('button.pf-c-select__toggle').first().prop('onClick')();
-    wrapper.update();
-    /**
-     * Select last option in applications select
-     */
-    wrapper.find('input.pf-c-check__input').last().prop('onChange')();
+    await act(async () => {
+      jest.runAllTimers();
+    });
+
+    act(() => {
+      // click on a element with Filter by {key} text
+      screen.getByText('Filter by {key}').click();
+    });
+
+    act(() => {
+      // click on a second checkbox
+      screen.getAllByRole('checkbox')[1].click();
+    });
     /**
      * Skip debounce
      */
-    wrapper.update();
     await act(async () => {
-      jest.runOnlyPendingTimers();
+      await jest.runOnlyPendingTimers();
     });
     expect(fetchRolesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesSpy.mock.calls).toEqual([

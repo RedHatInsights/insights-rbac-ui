@@ -46,7 +46,6 @@ const Groups = () => {
 
   // using 'isAdmin' (0 or 1) determines correct index for columns due to 'isSelectable' property on Table component
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
-  const [filterValue, setFilterValue] = useState(filters?.name || '');
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
 
@@ -78,6 +77,8 @@ const Groups = () => {
     }),
     shallowEqual
   );
+
+  const [filterValue, setFilterValue] = useState(filters?.name || '');
 
   useEffect(() => {
     applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);

@@ -1,7 +1,15 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { DataList, DataListCell, DataListItem, DataListItemRow, DataListItemCells, Form, FormGroup } from '@patternfly/react-core';
-import ContentLoader from 'react-content-loader';
+import {
+  DataList,
+  DataListCell,
+  DataListItem,
+  DataListItemRow,
+  DataListItemCells,
+  Form,
+  FormGroup,
+  Skeleton as PFSkeleton,
+} from '@patternfly/react-core';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 
 export const ListLoader = ({ items, isCompact, ...props }) => (
@@ -33,21 +41,19 @@ ListLoader.defaultProps = {
   items: 5,
 };
 
-export const AppPlaceholder = (props) => (
+export const AppPlaceholder = () => (
   <div>
-    <ContentLoader height={16} width={300} speed={2} {...props}>
-      <rect x="0" y="0" rx="0" ry="0" width="420" height="10" />
-    </ContentLoader>
+    <div style={{ height: 16, width: 300 }}>
+      <Skeleton />
+    </div>
     <ListLoader />
   </div>
 );
 
-export const ToolbarTitlePlaceholder = (props) => {
+export const ToolbarTitlePlaceholder = () => {
   return (
     <div style={{ width: '200px', height: '21px' }}>
-      <ContentLoader height={21} width={200} speed={2} {...props}>
-        <rect x="0" y="0" rx="0" ry="0" width="200" height="21" />
-      </ContentLoader>
+      <Skeleton />
     </div>
   );
 };
@@ -56,9 +62,7 @@ export const ToolbarTitlePlaceholder = (props) => {
 export const BreadcrumbPlaceholder = ({ showDivider, ...props }) => {
   return (
     <div style={{ width: '200px', height: '18px' }}>
-      <ContentLoader height={18} width={200} speed={2} {...props}>
-        <rect x="0" y="0" rx="0" ry="0" width="200" height="18" />
-      </ContentLoader>
+      <PFSkeleton fontSize="sm" />
     </div>
   );
 };
@@ -68,9 +72,9 @@ BreadcrumbPlaceholder.propTypes = {
 };
 
 export const FormItemLoader = () => (
-  <ContentLoader height={32} width={160} speed={2}>
-    <rect x="0" y="0" rx="0" ry="0" width="160" height="32" />
-  </ContentLoader>
+  <div style={{ height: 32, width: 160 }}>
+    <Skeleton />
+  </div>
 );
 
 export const PolicyRolesLoader = () => (

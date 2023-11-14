@@ -1,7 +1,7 @@
 const path = require('path');
 
 module.exports = {
-  appUrl: ['/iam/my-user-access', '/settings/rbac', '/iam', '/iam/user-access'],
+  appUrl: ['/iam/my-user-access', '/iam', '/iam/user-access'],
   debug: true,
   useProxy: true,
   proxyVerbose: true,
@@ -13,13 +13,13 @@ module.exports = {
    * Add additional webpack plugins
    */
   plugins: [],
-  _unstableHotReload: process.env.HOT === 'true',
+  hotReload: process.env.HOT === 'true',
   moduleFederation: {
     exposes: {
       './MyUserAccess': path.resolve(__dirname, './src/entries/MyUserAccess.js'),
       './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
     },
     exclude: ['react-router-dom'],
-    shared: [{ 'react-router-dom': { singleton: true } }],
+    shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],
   },
 };
