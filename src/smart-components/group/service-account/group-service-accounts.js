@@ -55,8 +55,6 @@ const GroupServiceAccounts = () => {
   const navigate = useAppNavigate();
   const { groupId } = useParams();
   const [descriptionValue, setDescriptionValue] = useState('');
-  const [ownerValue, setOwnerValue] = useState('');
-  const [timeCreatedValue, setTimeCreatedValue] = useState('');
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -65,10 +63,10 @@ const GroupServiceAccounts = () => {
   const fetchGroupAccounts = (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, options));
 
   const columns = [
-    { title: intl.formatMessage(messages.description), orderBy: 'description' },
-    { title: intl.formatMessage(messages.clientId), orderBy: 'clientID' },
-    { title: intl.formatMessage(messages.owner), orderBy: 'owner' },
-    { title: intl.formatMessage(messages.timeCreated), orderBy: 'timeCreated' },
+    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.clientId) },
+    { title: intl.formatMessage(messages.owner) },
+    { title: intl.formatMessage(messages.timeCreated) },
   ];
 
   const fetchData = useCallback(() => {
@@ -154,14 +152,10 @@ const GroupServiceAccounts = () => {
           rows={createRows(serviceAccounts, selectedAccounts)}
           data={serviceAccounts}
           filterValue={descriptionValue}
-          fetchData={(config) => {
-            fetchGroupAccounts(groupId, config);
-          }}
-          emptyFilters={{ owner: '', description: '', timeCreated: '' }}
-          setFilterValue={({ name, description }) => {
-            typeof name !== 'undefined' && setOwnerValue(name);
+          fetchData={(config) => fetchGroupAccounts(groupId, config)}
+          emptyFilters={{ description: '' }}
+          setFilterValue={({ description }) => {
             typeof description !== 'undefined' && setDescriptionValue(description);
-            typeof timeCreatedValue !== 'undefined' && setTimeCreatedValue(description);
           }}
           isLoading={isLoading}
           pagination={pagination}
@@ -175,10 +169,7 @@ const GroupServiceAccounts = () => {
             title: intl.formatMessage(messages.noGroupAccounts),
             description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
           }}
-          filters={[
-            { key: 'description', value: descriptionValue },
-            { key: 'owner', value: ownerValue },
-          ]}
+          filters={[{ key: 'description', value: descriptionValue }]}
           tableId="group-accounts"
           ouiaId="group-accounts"
         />
