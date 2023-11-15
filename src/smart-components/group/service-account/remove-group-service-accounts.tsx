@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
@@ -30,20 +30,21 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
   const selectedServiceAccounts = useSelector<RBACStore, { name: string }[]>(({ groupReducer: { selectedGroup } }) =>
     (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name))
   );
+  const accountsCount = useMemo(() => params.getAll('name').length, [params]);
   const dispatch = useDispatch();
   const intl = useIntl();
 
   return (
     <RemoveModal
       isOpen
-      title={intl.formatMessage(messages.removeGroupServiceAccountQuestion)}
+      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
       text={
         <FormattedMessage
           {...messages.removeServiceAccountsText}
           values={{
             b: (text) => <b>{text}</b>,
-            count: params.getAll('name').length,
-            name: selectedServiceAccounts[0].name,
+            count: accountsCount,
+            name: selectedServiceAccounts[0]?.name,
             group: group.name,
           }}
         />

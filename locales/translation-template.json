@@ -886,10 +886,6 @@
     "defaultMessage": "Success removing roles from group",
     "description": "Remove group roles success notification title"
   },
-  "removeGroupServiceAccountQuestion": {
-    "defaultMessage": "Remove service account from group?",
-    "description": "Remove service account from group question label"
-  },
   "removeGroupServiceAccountsErrorDescription": {
     "defaultMessage": "The service accounts were NOT removed from the group because of error.",
     "description": "Removal of  group service accounts error notification description"
@@ -897,6 +893,10 @@
   "removeGroupServiceAccountsErrorTitle": {
     "defaultMessage": "Failed removing service accounts from group",
     "description": "Removal of  group service accounts error notification title"
+  },
+  "removeGroupServiceAccountsQuestion": {
+    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}} from group?",
+    "description": "Remove service accounts from group question label"
   },
   "removeGroupServiceAccountsSuccessDescription": {
     "defaultMessage": "The service accounts were successfully removed from the group.",
