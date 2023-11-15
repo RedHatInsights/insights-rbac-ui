@@ -110,14 +110,12 @@ const GroupServiceAccounts = () => {
     </AppLink>,
     {
       label: intl.formatMessage(messages.remove),
-      value: 'remove',
       props: {
         isDisabled: selectedAccounts.length === 0,
-        isDanger: true,
       },
       onClick: () => {
         const searchParams = createSearchParams();
-        selectedAccounts.forEach(({ name }) => searchParams.append('id', name));
+        selectedAccounts.forEach(({ name }) => searchParams.append('name', name));
         navigate({
           pathname: pathnames['group-service-accounts-remove-group'].link.replace(':groupId', groupId),
           search: searchParams.toString(),
@@ -188,9 +186,10 @@ const GroupServiceAccounts = () => {
           context={{
             [pathnames['group-service-accounts-remove-group'].path]: {
               postMethod: (promise) => {
+                setSelectedAccounts([]);
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
                 if (promise) {
-                  promise.then(fetchData);
+                  promise.then?.(fetchData);
                 }
               },
             },
@@ -198,7 +197,7 @@ const GroupServiceAccounts = () => {
               postMethod: (promise) => {
                 navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
                 if (promise) {
-                  promise.then(fetchData);
+                  promise.then?.(fetchData);
                 }
               },
             },
