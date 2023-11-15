@@ -149,10 +149,10 @@ export async function fetchAccountsForGroup(groupId, options = {}) {
   return await groupApi.getPrincipalsFromGroup(
     groupId,
     undefined,
-    options.username,
+    options.description,
     options.limit,
     options.offset,
-    options.orderBy,
+    undefined,
     undefined,
     'service-account'
   );
