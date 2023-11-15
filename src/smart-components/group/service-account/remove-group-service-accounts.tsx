@@ -1,10 +1,10 @@
 import React from 'react';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import { useDispatch, useSelector } from 'react-redux';
-import { FormattedMessage } from 'react-intl';
-import messages from '../../../Messages';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
+import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import messages from '../../../Messages';
 
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
@@ -31,9 +31,12 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
     (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name))
   );
   const dispatch = useDispatch();
+  const intl = useIntl();
+
   return (
     <RemoveModal
-      title={`Remove service account from group ${group.name}`}
+      isOpen
+      title={intl.formatMessage(messages.removeGroupServiceAccountQuestion)}
       text={
         <FormattedMessage
           {...messages.removeServiceAccountsText}
@@ -45,7 +48,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
           }}
         />
       }
-      confirmButtonLabel="Remove"
+      confirmButtonLabel={intl.formatMessage(messages.remove)}
       withCheckbox
       onClose={() => postMethod()}
       onSubmit={() => {
@@ -53,7 +56,6 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
         dispatch(action);
         postMethod(action.payload);
       }}
-      isOpen={true}
     />
   );
 };
