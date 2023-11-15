@@ -813,6 +813,11 @@ export default defineMessages({
     description: 'Add service account label',
     defaultMessage: 'Add service account',
   },
+  removeGroupServiceAccountsQuestion: {
+    id: 'removeGroupServiceAccountsQuestion',
+    description: 'Remove service accounts from group question label',
+    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}} from group?',
+  },
   removeServiceAccountsText: {
     id: 'removeServiceAccountsText',
     description: 'Remove service accounts description',

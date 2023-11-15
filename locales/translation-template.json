@@ -147,12 +147,6 @@
     "defaultMessage": "Add service account",
     "description": "Add service account label"
   },
-  "removeServiceAccounts": {
-    "id": "removeMembersText",
-    "description": "Remove service accounts description",
-    "defaultMessage":
-      "{count, plural, one {{name} service account} other {<b>{count} service accounts</b>}} will be removed from <b>{group}</b> group."
-  },
   "addServiceAccountsToGroupDescription": {
     "defaultMessage": "This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.",
     "description": "Add service accounts to group description"
@@ -892,6 +886,26 @@
     "defaultMessage": "Success removing roles from group",
     "description": "Remove group roles success notification title"
   },
+  "removeGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "The service accounts were NOT removed from the group because of error.",
+    "description": "Removal of  group service accounts error notification description"
+  },
+  "removeGroupServiceAccountsErrorTitle": {
+    "defaultMessage": "Failed removing service accounts from group",
+    "description": "Removal of  group service accounts error notification title"
+  },
+  "removeGroupServiceAccountsQuestion": {
+    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}} from group?",
+    "description": "Remove service accounts from group question label"
+  },
+  "removeGroupServiceAccountsSuccessDescription": {
+    "defaultMessage": "The service accounts were successfully removed from the group.",
+    "description": "Removal of  group service accounts success notification description"
+  },
+  "removeGroupServiceAccountsSuccessTitle": {
+    "defaultMessage": "Successfull remove of service accounts from group",
+    "description": "Removal of group service accounts success notification title"
+  },
   "removeGroupSuccess": {
     "defaultMessage": "Group deleted successfully",
     "description": "Remove group success notification title"
@@ -987,6 +1001,10 @@
   "removeRolesQuestion": {
     "defaultMessage": "Remove roles?",
     "description": "Remove roles question label"
+  },
+  "removeServiceAccountsText": {
+    "defaultMessage": "{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.",
+    "description": "Remove service accounts description"
   },
   "required": {
     "defaultMessage": "Required",
