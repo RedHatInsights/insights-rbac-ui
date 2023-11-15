@@ -51,7 +51,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       }
       confirmButtonLabel={intl.formatMessage(messages.remove)}
       withCheckbox
-      onClose={() => postMethod()}
+      onClose={postMethod}
       onSubmit={() => {
         const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
         dispatch(action);
