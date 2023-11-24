@@ -325,42 +325,42 @@ export default defineMessages({
   addGroupServiceAccountsSuccessTitle: {
     id: 'addGroupServiceAccountsSuccessTitle',
     description: 'Add group service accounts success notification title',
-    defaultMessage: 'Success adding service accounts to group',
+    defaultMessage: 'Success adding service {count, plural, one {account} other {accounts}} to group',
   },
   addGroupServiceAccountsSuccessDescription: {
     id: 'addGroupServiceAccountsSuccessDescription',
     description: 'Add group service accounts success notification description',
-    defaultMessage: 'The service accounts were successfully added to the group.',
+    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} successfully added to the group.',
   },
   addGroupServiceAccountsErrorTitle: {
     id: 'addGroupServiceAccountsErrorTitle',
     description: 'Add group service accounts error notification title',
-    defaultMessage: 'Failed adding service accounts to group',
+    defaultMessage: 'Failed adding service {count, plural, one {account} other {accounts}} to group',
   },
   addGroupServiceAccountsErrorDescription: {
     id: 'addGroupServiceAccountsErrorDescription',
     description: 'Add group service accounts error notification description',
-    defaultMessage: 'The service accounts were not added successfully.',
+    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} not added successfully.',
   },
   removeGroupServiceAccountsSuccessTitle: {
     id: 'removeGroupServiceAccountsSuccessTitle',
     description: 'Removal of group service accounts success notification title',
-    defaultMessage: 'Successfull remove of service accounts from group',
+    defaultMessage: 'Success removing service {count, plural, one {account} other {accounts}} from the group',
   },
   removeGroupServiceAccountsSuccessDescription: {
     id: 'removeGroupServiceAccountsSuccessDescription',
     description: 'Removal of  group service accounts success notification description',
-    defaultMessage: 'The service accounts were successfully removed from the group.',
+    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} successfully removed from the group.',
   },
   removeGroupServiceAccountsErrorTitle: {
     id: 'removeGroupServiceAccountsErrorTitle',
     description: 'Removal of  group service accounts error notification title',
-    defaultMessage: 'Failed removing service accounts from group',
+    defaultMessage: 'Failed removing service {count, plural, one {account} other {accounts}} from group',
   },
   removeGroupServiceAccountsErrorDescription: {
     id: 'removeGroupServiceAccountsErrorDescription',
     description: 'Removal of  group service accounts error notification description',
-    defaultMessage: 'The service accounts were NOT removed from the group because of error.',
+    defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} NOT removed from the group because of error.',
   },
   removeGroupRolesSuccessTitle: {
     id: 'removeGroupRolesSuccessTitle',
