@@ -195,16 +195,19 @@ export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
       notifications: {
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.addGroupServiceAccountsSuccessTitle),
+          title: intl.formatMessage(messages.addGroupServiceAccountsSuccessTitle, { count: serviceAccounts.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.addGroupServiceAccountsSuccessDescription),
+          description: intl.formatMessage(messages.addGroupServiceAccountsSuccessDescription, { count: serviceAccounts.length }),
         },
-        rejected: {
+        rejected: (payload) => ({
           variant: 'danger',
-          title: intl.formatMessage(messages.addGroupServiceAccountsErrorTitle),
+          title: intl.formatMessage(messages.addGroupServiceAccountsErrorTitle, { count: serviceAccounts.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.addGroupServiceAccountsErrorDescription),
-        },
+          description: intl.formatMessage(
+            Number(payload?.errors?.[0]?.status) === 404 ? messages.groupDoesNotExist : messages.addGroupServiceAccountsErrorDescription,
+            { count: serviceAccounts.length, id: groupId }
+          ),
+        }),
       },
     },
   };
@@ -220,15 +223,15 @@ export const removeServiceAccountFromGroup = (groupId, serviceAccounts) => {
       notifications: {
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle),
+          title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle, { count: serviceAccounts.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription),
+          description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription, { count: serviceAccounts.length }),
         },
         rejected: {
           variant: 'danger',
-          title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle),
+          title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle, { count: serviceAccounts.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription),
+          description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription, { count: serviceAccounts.length }),
         },
       },
     },

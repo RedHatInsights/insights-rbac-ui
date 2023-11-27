@@ -56,19 +56,19 @@
     "description": "Add group roles success notification description"
   },
   "addGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service accounts were not added successfully.",
+    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} not added successfully.",
     "description": "Add group service accounts error notification description"
   },
   "addGroupServiceAccountsErrorTitle": {
-    "defaultMessage": "Failed adding service accounts to group",
+    "defaultMessage": "Failed adding service {count, plural, one {account} other {accounts}} to group",
     "description": "Add group service accounts error notification title"
   },
   "addGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service accounts were successfully added to the group.",
+    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully added to the group.",
     "description": "Add group service accounts success notification description"
   },
   "addGroupServiceAccountsSuccessTitle": {
-    "defaultMessage": "Success adding service accounts to group",
+    "defaultMessage": "Success adding service {count, plural, one {account} other {accounts}} to group",
     "description": "Add group service accounts success notification title"
   },
   "addGroupSuccessDescription": {
@@ -887,11 +887,11 @@
     "description": "Remove group roles success notification title"
   },
   "removeGroupServiceAccountsErrorDescription": {
-    "defaultMessage": "The service accounts were NOT removed from the group because of error.",
+    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} NOT removed from the group because of error.",
     "description": "Removal of  group service accounts error notification description"
   },
   "removeGroupServiceAccountsErrorTitle": {
-    "defaultMessage": "Failed removing service accounts from group",
+    "defaultMessage": "Failed removing service {count, plural, one {account} other {accounts}} from group",
     "description": "Removal of  group service accounts error notification title"
   },
   "removeGroupServiceAccountsQuestion": {
@@ -899,11 +899,11 @@
     "description": "Remove service accounts from group question label"
   },
   "removeGroupServiceAccountsSuccessDescription": {
-    "defaultMessage": "The service accounts were successfully removed from the group.",
+    "defaultMessage": "The service {count, plural, one {account was} other {accounts were}} successfully removed from the group.",
     "description": "Removal of  group service accounts success notification description"
   },
   "removeGroupServiceAccountsSuccessTitle": {
-    "defaultMessage": "Successfull remove of service accounts from group",
+    "defaultMessage": "Success removing service {count, plural, one {account} other {accounts}} from the group",
     "description": "Removal of group service accounts success notification title"
   },
   "removeGroupSuccess": {
