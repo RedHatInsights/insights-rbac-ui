@@ -2,7 +2,7 @@ import React, { useState, useEffect, useContext, useRef, Suspense, Fragment, use
 import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Outlet, createSearchParams, useParams } from 'react-router-dom';
-import { Alert, Button } from '@patternfly/react-core';
+import { Alert, Bullseye, Button, Card, CardBody, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultSettings } from '../../../helpers/shared/pagination';
@@ -47,6 +47,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   isAdminDefault: selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
   group: selectedGroup,
+  platformDefault: selectedGroup.platform_default,
 });
 
 const GroupServiceAccounts = () => {
@@ -58,7 +59,7 @@ const GroupServiceAccounts = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid } = useSelector(reducer);
+  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, platformDefault } = useSelector(reducer);
 
   const fetchGroupAccounts = (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, options));
 
@@ -130,71 +131,88 @@ const GroupServiceAccounts = () => {
   ];
   return (
     <React.Fragment>
+      {' '}
       <Section type="content" id="tab-service-accounts">
-        <Alert
-          className="rbac-service-accounts-alert"
-          variant="info"
-          isInline
-          isPlain
-          title={intl.formatMessage(messages.visitServiceAccountsPage, {
-            link: (
-              <AppLink to="/service-accounts" linkBasename="/iam">
-                {intl.formatMessage(messages.serviceAccountsPage)}
-              </AppLink>
-            ),
-          })}
-        />
-        <TableToolbarView
-          columns={columns}
-          isSelectable
-          rows={createRows(serviceAccounts, selectedAccounts)}
-          data={serviceAccounts}
-          filterValue={descriptionValue}
-          fetchData={(config) => fetchGroupAccounts(groupId, config)}
-          emptyFilters={{ description: '' }}
-          setFilterValue={({ description }) => {
-            typeof description !== 'undefined' && setDescriptionValue(description);
-          }}
-          isLoading={isLoading}
-          pagination={pagination}
-          checkedRows={selectedAccounts}
-          setCheckedItems={setSelectedAccounts}
-          titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
-          titleSingular={intl.formatMessage(messages.serviceAccount)}
-          toolbarButtons={toolbarButtons}
-          actionResolver={actionResolver}
-          emptyProps={{
-            title: intl.formatMessage(messages.noGroupAccounts),
-            description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
-          }}
-          filters={[{ key: 'description', value: descriptionValue }]}
-          tableId="group-accounts"
-          ouiaId="group-accounts"
-        />
+        {platformDefault ? (
+          <Card>
+            <CardBody>
+              <Bullseye>
+                <TextContent>
+                  <Text component={TextVariants.h1}>{intl.formatMessage(messages.noAccountsInDefaultAccess)}</Text>
+                </TextContent>
+              </Bullseye>
+            </CardBody>
+          </Card>
+        ) : (
+          <>
+            <Alert
+              className="rbac-service-accounts-alert"
+              variant="info"
+              isInline
+              isPlain
+              title={intl.formatMessage(messages.visitServiceAccountsPage, {
+                link: (
+                  <AppLink to="/service-accounts" linkBasename="/iam">
+                    {intl.formatMessage(messages.serviceAccountsPage)}
+                  </AppLink>
+                ),
+              })}
+            />
+            <TableToolbarView
+              columns={columns}
+              isSelectable
+              rows={createRows(serviceAccounts, selectedAccounts)}
+              data={serviceAccounts}
+              filterValue={descriptionValue}
+              fetchData={(config) => fetchGroupAccounts(groupId, config)}
+              emptyFilters={{ description: '' }}
+              setFilterValue={({ description }) => {
+                typeof description !== 'undefined' && setDescriptionValue(description);
+              }}
+              isLoading={isLoading}
+              pagination={pagination}
+              checkedRows={selectedAccounts}
+              setCheckedItems={setSelectedAccounts}
+              titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
+              titleSingular={intl.formatMessage(messages.serviceAccount)}
+              toolbarButtons={toolbarButtons}
+              actionResolver={actionResolver}
+              emptyProps={{
+                title: intl.formatMessage(messages.noGroupAccounts),
+                description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
+              }}
+              filters={[{ key: 'description', value: descriptionValue }]}
+              tableId="group-accounts"
+              ouiaId="group-accounts"
+            />
+          </>
+        )}
       </Section>
-      <Suspense>
-        <Outlet
-          context={{
-            [pathnames['group-service-accounts-remove-group'].path]: {
-              postMethod: (promise) => {
-                setSelectedAccounts([]);
-                navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
-                if (promise) {
-                  promise.then?.(fetchData);
-                }
+      {!platformDefault ? (
+        <Suspense>
+          <Outlet
+            context={{
+              [pathnames['group-service-accounts-remove-group'].path]: {
+                postMethod: (promise) => {
+                  setSelectedAccounts([]);
+                  navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
+                  if (promise) {
+                    promise.then?.(fetchData);
+                  }
+                },
               },
-            },
-            [pathnames['group-add-service-account'].path]: {
-              postMethod: (promise) => {
-                navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
-                if (promise) {
-                  promise.then?.(fetchData);
-                }
+              [pathnames['group-add-service-account'].path]: {
+                postMethod: (promise) => {
+                  navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId));
+                  if (promise) {
+                    promise.then?.(fetchData);
+                  }
+                },
               },
-            },
-          }}
-        />
-      </Suspense>
+            }}
+          />
+        </Suspense>
+      ) : null}
     </React.Fragment>
   );
 };
