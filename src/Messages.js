@@ -864,6 +864,12 @@ export default defineMessages({
     description: 'All users are members of this group message',
     defaultMessage: 'All users in this organization are members of this group.',
   },
+  noAccountsInDefaultAccess: {
+    id: 'noAccountsInDefaultAccess',
+    description: 'No service accounts for Default Access group message',
+    defaultMessage:
+      'In adherence to security guidelines, service accounts are not automatically included in the default access group. To grant access, it is necessary to manually add them to the appropriate user access groups.',
+  },
   noGroupMembers: {
     id: 'noGroupMembers',
     description: 'No members in a given group title',
