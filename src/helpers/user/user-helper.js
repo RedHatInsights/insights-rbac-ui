@@ -1,6 +1,6 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import { isInt, isStage } from '../../itLessConfig';
+import { isInt, isStage, isProd } from '../../itLessConfig';
 
 const principalApi = getPrincipalApi();
 
@@ -8,6 +8,31 @@ const principalStatusApiMap = {
   Active: 'enabled',
   Inactive: 'disabled',
   All: 'all',
+};
+
+const env = () => {
+  if (isInt) {
+    return 'int';
+  } else if (isStage) {
+    return 'stage';
+  } else if (isProd) {
+    return 'prod';
+  } else {
+    return '';
+  }
+};
+
+const getBaseUrl = (url) => {
+  switch (env) {
+    case 'prod':
+      return url.prod;
+    case 'stage':
+      return url.stage;
+    case 'int':
+      return url.int;
+    default:
+      return '';
+  }
 };
 
 async function fetchBaseUrl() {
@@ -20,7 +45,6 @@ async function fetchBaseUrl() {
   }
 }
 
-
 const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, email, mappedStatus) => {
   const token = await insights.chrome.auth.getToken();
   const requestOpts = {
@@ -32,7 +56,7 @@ const fetchUsersApi = async (limit, offset, matchCriteria, username, sortOrder, 
     },
   };
   const url = await fetchBaseUrl();
-  const baseUrl = isStage ? url?.stage : isInt ? url?.int : url?.ephem;
+  const baseUrl = getBaseUrl(url);
   const result = await fetch(`${baseUrl}/users?offset=${offset}&limit=${limit}&org_id=1010101`, requestOpts)
     .then((res) => res.json())
     .then((res) => {
@@ -60,7 +84,7 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
     }),
   };
   const url = await fetchBaseUrl();
-  const baseUrl = isStage ? url?.stage : isInt ? url?.int : url?.ephem;
+  const baseUrl = getBaseUrl(url);
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
@@ -99,7 +123,7 @@ export async function updateUserIsOrgAdminStatus(user) {
   };
 
   const url = await fetchBaseUrl();
-  const baseUrl = isStage ? url?.stage : isInt ? url?.int : url?.ephem;
+  const baseUrl = getBaseUrl(url);
 
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
@@ -137,7 +161,7 @@ export async function updateUsers(users) {
   };
 
   const url = await fetchBaseUrl();
-  const baseUrl = isStage ? url?.stage : isInt ? url?.int : url?.ephem;
+  const baseUrl = getBaseUrl(url);
 
   let promise = new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/change-users-status`, requestOpts)
