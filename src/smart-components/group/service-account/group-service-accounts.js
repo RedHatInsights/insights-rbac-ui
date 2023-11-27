@@ -131,7 +131,6 @@ const GroupServiceAccounts = () => {
   ];
   return (
     <React.Fragment>
-      {' '}
       <Section type="content" id="tab-service-accounts">
         {platformDefault ? (
           <Card>
