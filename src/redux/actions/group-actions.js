@@ -199,12 +199,15 @@ export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
           dismissDelay: 8000,
           description: intl.formatMessage(messages.addGroupServiceAccountsSuccessDescription, { count: serviceAccounts.length }),
         },
-        rejected: {
+        rejected: (payload) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.addGroupServiceAccountsErrorTitle, { count: serviceAccounts.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.addGroupServiceAccountsErrorDescription, { count: serviceAccounts.length }),
-        },
+          description: intl.formatMessage(
+            Number(payload?.errors?.[0]?.status) === 404 ? messages.groupDoesNotExist : messages.addGroupServiceAccountsErrorDescription,
+            { count: serviceAccounts.length, id: groupId }
+          ),
+        }),
       },
     },
   };
