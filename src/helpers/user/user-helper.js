@@ -10,7 +10,7 @@ const principalStatusApiMap = {
   All: 'all',
 };
 
-const env = () => {
+const getEnv = () => {
   if (isInt) {
     return 'int';
   } else if (isStage) {
@@ -21,6 +21,8 @@ const env = () => {
     return '';
   }
 };
+
+const env = getEnv();
 
 const getBaseUrl = (url) => {
   switch (env) {
