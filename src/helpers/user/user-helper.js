@@ -1,6 +1,6 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import { isInt, isStage, isProd } from '../../itLessConfig';
+import { isInt, isStage, isITLessProd } from '../../itLessConfig';
 
 const principalApi = getPrincipalApi();
 
@@ -10,30 +10,15 @@ const principalStatusApiMap = {
   All: 'all',
 };
 
-const getEnv = () => {
-  if (isInt) {
-    return 'int';
-  } else if (isStage) {
-    return 'stage';
-  } else if (isProd) {
-    return 'prod';
+const getBaseUrl = (url) => {
+  if (isInt()) {
+    return url.int;
+  } else if (isStage()) {
+    return url.stage;
+  } else if (isITLessProd()) {
+    return url.prod;
   } else {
     return '';
-  }
-};
-
-const env = getEnv();
-
-const getBaseUrl = (url) => {
-  switch (env) {
-    case 'prod':
-      return url.prod;
-    case 'stage':
-      return url.stage;
-    case 'int':
-      return url.int;
-    default:
-      return '';
   }
 };
 
