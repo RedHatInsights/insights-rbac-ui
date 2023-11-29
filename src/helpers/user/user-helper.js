@@ -11,11 +11,11 @@ const principalStatusApiMap = {
 };
 
 const getBaseUrl = (url) => {
-  if (isInt()) {
+  if (isInt) {
     return url.int;
-  } else if (isStage()) {
+  } else if (isStage) {
     return url.stage;
-  } else if (isITLessProd()) {
+  } else if (isITLessProd) {
     return url.prod;
   } else {
     return '';
