@@ -7,7 +7,6 @@ import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import AppLink from '../../presentational-components/shared/AppLink';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
@@ -43,7 +42,7 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading) => {
+export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
   return data.reduce(
     (
@@ -56,6 +55,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading
         uuid,
         isAdminDefault,
         isPlatformDefault,
+        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         cells: [
           {
             title: isAdmin ? (
@@ -111,22 +111,16 @@ export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading
                     { title: intl.formatMessage(messages.permissions) },
                     { title: intl.formatMessage(messages.lastModified) },
                   ]}
-                  rows={roles?.map((role) =>
-                    isLoading ? (
-                      <ListLoader items={1} isCompact />
-                    ) : (
-                      {
-                        cells: [
-                          { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
-                          role.description,
-                          role.accessCount,
-                          <Fragment key={`${uuid}-modified`}>
-                            <DateFormat date={modified} type={getDateFormat(modified)} />
-                          </Fragment>,
-                        ],
-                      }
-                    )
-                  )}
+                  rows={roles?.map((role) => ({
+                    cells: [
+                      { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
+                      role.description,
+                      role.accessCount,
+                      <Fragment key={`${uuid}-modified`}>
+                        <DateFormat date={modified} type={getDateFormat(modified)} />
+                      </Fragment>,
+                    ],
+                  }))}
                 >
                   <TableHeader />
                   <TableBody />
@@ -160,31 +154,25 @@ export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading
                     { title: intl.formatMessage(messages.email) },
                     intl.formatMessage(messages.status),
                   ]}
-                  rows={members?.map((member) =>
-                    isLoading ? (
-                      <ListLoader items={1} isCompact />
-                    ) : (
-                      {
-                        cells: [
-                          <TextContent key={member.is_org_admin}>
-                            {member?.is_org_admin ? (
-                              <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
-                            ) : (
-                              <CloseIcon key="no-icon" className="pf-u-mx-sm" />
-                            )}
-                            {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
-                          </TextContent>,
-                          member.first_name,
-                          member.last_name,
-                          member.username,
-                          member.email,
-                          <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
-                            {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
-                          </Label>,
-                        ],
-                      }
-                    )
-                  )}
+                  rows={members?.map((member) => ({
+                    cells: [
+                      <TextContent key={member.is_org_admin}>
+                        {member?.is_org_admin ? (
+                          <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+                        ) : (
+                          <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+                        )}
+                        {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
+                      </TextContent>,
+                      member.first_name,
+                      member.last_name,
+                      member.username,
+                      member.email,
+                      <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
+                        {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
+                      </Label>,
+                    ],
+                  }))}
                 >
                   <TableHeader />
                   <TableBody />
@@ -196,7 +184,6 @@ export const createRows = (isAdmin, data, selectedRows, expanded = [], isLoading
               ),
           },
         ],
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
       },
     ],
     []

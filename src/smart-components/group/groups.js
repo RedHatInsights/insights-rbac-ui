@@ -1,8 +1,7 @@
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useContext, useEffect, useRef, useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { nowrap, sortable } from '@patternfly/react-table';
+import { nowrap, sortable, compoundExpand } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import { compoundExpand } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -185,8 +184,8 @@ const Groups = () => {
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
 
-  const fetchExpandedRoles = (uuid) => dispatch(fetchRolesForGroup(uuid, defaultCompactSettings));
-  const fetchExpandedMembers = (uuid) => dispatch(fetchMembersForGroup(uuid, defaultCompactSettings));
+  const fetchExpandedRoles = useCallback((uuid) => dispatch(fetchRolesForGroup(uuid, defaultCompactSettings, undefined, true)), [dispatch]);
+  const fetchExpandedMembers = useCallback((uuid) => dispatch(fetchMembersForGroup(uuid, defaultCompactSettings, undefined, true)), [dispatch]);
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
     if (!isOpen) {
@@ -198,7 +197,7 @@ const Groups = () => {
     }
   };
 
-  const rows = createRows(isAdmin, data, selectedRows, expanded, isLoading);
+  const rows = createRows(isAdmin, data, selectedRows, expanded);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeGroupsList.length;
 
