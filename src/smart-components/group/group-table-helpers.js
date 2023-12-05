@@ -1,7 +1,7 @@
 import React, { Fragment, useRef, useState } from 'react';
 import { OutlinedQuestionCircleIcon, CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { Popover, TextContent, Label, Text } from '@patternfly/react-core';
-import { Table, TableBody, TableHeader, TableVariant } from '@patternfly/react-table';
+import { Table, Tbody, Thead, TableVariant } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
@@ -122,8 +122,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     ],
                   }))}
                 >
-                  <TableHeader />
-                  <TableBody />
+                  <Thead />
+                  <Tbody />
                 </Table>
               ) : (
                 <Text className="pf-u-mx-lg pf-u-my-sm">{intl.formatMessage(messages.noGroupRoles)}</Text>
@@ -174,8 +174,8 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                     ],
                   }))}
                 >
-                  <TableHeader />
-                  <TableBody />
+                  <Thead />
+                  <Tbody />
                 </Table>
               ) : isAdminDefault || isPlatformDefault ? (
                 ''
