@@ -99,7 +99,8 @@ const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) 
   };
 
   const handleSubmit = (data) =>
-    dispatch(patchRole(roleId, { name: data.name, display_name: data.name, description: data.description })).then(() => {
+    // description is optional - however API only honors an empty description set to null (and not omitted or undefined or empty string)
+    dispatch(patchRole(roleId, { name: data.name, display_name: data.name, description: data.description || null })).then(() => {
       afterSubmit();
       navigate(submitRoute);
     });
