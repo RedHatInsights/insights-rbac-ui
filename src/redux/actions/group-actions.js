@@ -178,6 +178,22 @@ export const removeMembersFromGroup = (groupId, members) => {
 export const fetchRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ROLES_FOR_GROUP,
   payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
+});
+
+export const fetchRolesForExpandedGroup = (groupId, pagination, options) => ({
+  type: ActionTypes.FETCH_ROLES_FOR_EXPANDED_GROUP,
+  payload: GroupHelper.fetchRolesForGroup(groupId, false, pagination, options).catch(handleUuidError),
+  meta: { groupId, isPlatformDefault: options.isPlatformDefault, isAdminDefault: options.isAdminDefault },
+});
+
+export const fetchMembersForGroup = (groupId, usernames, options) => ({
+  type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
+  payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
+});
+
+export const fetchMembersForExpandedGroup = (groupId, usernames, options) => ({
+  type: ActionTypes.FETCH_MEMBERS_FOR_EXPANDED_GROUP,
+  payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
   meta: { groupId },
 });
 
@@ -238,12 +254,6 @@ export const removeServiceAccountFromGroup = (groupId, serviceAccounts) => {
     },
   };
 };
-
-export const fetchMembersForGroup = (groupId, usernames, options) => ({
-  type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
-  payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
-  meta: { groupId },
-});
 
 export const fetchAddRolesForGroup = (groupId, pagination, options) => ({
   type: ActionTypes.FETCH_ADD_ROLES_FOR_GROUP,
