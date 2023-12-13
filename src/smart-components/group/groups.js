@@ -1,6 +1,6 @@
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useContext, useEffect, useRef, useCallback, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { sortable } from '@patternfly/react-table';
+import { nowrap, sortable, compoundExpand } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -8,7 +8,13 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
-import { fetchAdminGroup, fetchGroups, fetchSystemGroup } from '../../redux/actions/group-actions';
+import {
+  fetchAdminGroup,
+  fetchGroups,
+  fetchMembersForExpandedGroup,
+  fetchSystemGroup,
+  fetchRolesForExpandedGroup,
+} from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import GroupRowWrapper from './group-row-wrapper';
@@ -25,6 +31,7 @@ import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './groups.scss';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const Groups = () => {
   const intl = useIntl();
@@ -34,13 +41,14 @@ const Groups = () => {
   const chrome = useChrome();
   const fetchData = (options) => dispatch(fetchGroups({ ...options, usesMetaInURL: true, chrome, platformDefault: false, adminDefault: false }));
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const explorerViewEnabled = useFlag('insights.rbac.group_explorer');
   const isAdmin = orgAdmin || userAccessAdministrator;
   const textFilterRef = useRef(null);
 
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'name', transforms: [sortable] },
-    { title: intl.formatMessage(messages.roles) },
-    { title: intl.formatMessage(messages.members) },
+    { title: intl.formatMessage(messages.roles), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.members), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [sortable] },
   ];
 
@@ -48,6 +56,7 @@ const Groups = () => {
   const [sortByState, setSortByState] = useState({ index: Number(isAdmin), direction: 'asc' });
   const [selectedRows, setSelectedRows] = useState([]);
   const [removeGroupsList, setRemoveGroupsList] = useState([]);
+  const [expanded, setExpanded] = useState({});
 
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)].key}`;
 
@@ -177,10 +186,27 @@ const Groups = () => {
         ]
       : []),
   ];
+
   const data = groups.map((group) =>
     group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
   );
-  const rows = createRows(isAdmin, data, selectedRows);
+
+  // TO DO - add pagination to the expandable tables
+  const fetchExpandedRoles = useCallback((uuid, flags) => dispatch(fetchRolesForExpandedGroup(uuid, { limit: 100 }, flags)), [dispatch]);
+  const fetchExpandedMembers = useCallback((uuid) => dispatch(fetchMembersForExpandedGroup(uuid, undefined, { limit: 100 })), [dispatch]);
+
+  const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
+    if (!isOpen) {
+      setExpanded({ ...expanded, [rowData.uuid]: colIndex + Number(!isAdmin) });
+      colIndex + Number(!isAdmin) === 2 &&
+        fetchExpandedRoles(rowData.uuid, { isPlatformDefault: rowData.isPlatformDefault, isAdminDefault: rowData.isAdminDefault });
+      colIndex + Number(!isAdmin) === 3 && fetchExpandedMembers(rowData.uuid);
+    } else {
+      setExpanded({ ...expanded, [rowData.uuid]: -1 });
+    }
+  };
+
+  const rows = createRows(isAdmin, data, selectedRows, expanded, explorerViewEnabled);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeGroupsList.length;
 
@@ -194,6 +220,7 @@ const Groups = () => {
       <StackItem>
         <Section type="content" id="tab-groups">
           <TableToolbarView
+            isExpandable={explorerViewEnabled}
             data={groups}
             rows={rows}
             sortBy={sortByState}
@@ -204,6 +231,7 @@ const Groups = () => {
               fetchData({ ...pagination, orderBy, filters: { name: filterValue } });
             }}
             columns={columns}
+            onExpand={explorerViewEnabled ? onExpand : undefined}
             isSelectable={isAdmin}
             isRowSelectable={(row) => !(row.platform_default || row.admin_default || row.system)}
             checkedRows={selectedRows}
