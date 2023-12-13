@@ -80,10 +80,14 @@ const setRolesForGroup = (state, { payload }) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
-    ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : payload),
-    loaded: true,
+    roles: {
+      isLoading: false,
+      ...(!payload.error ? payload : {}),
+    },
+    ...(payload.error ? payload : {}),
   },
 });
+
 const setRolesForExpandedGroupLoading = (state, { meta }) => ({
   ...state,
   ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, isLoadingRoles: true } } : {}),

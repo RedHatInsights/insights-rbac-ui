@@ -94,8 +94,7 @@ describe('Group reducer', () => {
     const payload = { data: ['bar'], meta: { count: 1 } };
     const expectedState = {
       ...initialState,
-      isRecordRolesLoading: false,
-      selectedGroup: { ...initialState.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true },
+      selectedGroup: { ...initialState.selectedGroup, roles: { isLoading: false, ...payload } },
     };
     expect(reducer(initialState, { type: `${FETCH_ROLES_FOR_GROUP}_FULFILLED`, payload })).toEqual(expectedState);
   });
