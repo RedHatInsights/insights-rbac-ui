@@ -1,11 +1,14 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { Popover } from '@patternfly/react-core';
+import { OutlinedQuestionCircleIcon, CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import { Popover, TextContent, Label, Text } from '@patternfly/react-core';
+import { TableVariant } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import AppLink from '../../presentational-components/shared/AppLink';
+import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
@@ -41,48 +44,176 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, selectedRows = []) => {
+export const createRows = (isAdmin, data, selectedRows, expanded = [], explorerViewEnabled) => {
+  console.log(explorerViewEnabled);
   const intl = useIntl();
   return data.reduce(
-    (acc, { uuid, name, roleCount, principalCount, modified, platform_default: isPlatformDefault, admin_default: isAdminDefault }) => [
-      ...acc,
+    (
+      acc,
       {
         uuid,
-        isAdminDefault,
-        isPlatformDefault,
-        cells: [
-          <Fragment key={uuid}>
-            <div className="pf-m-inline-flex">
-              {isAdmin ? (
-                <AppLink
-                  key={`${uuid}-link`}
-                  state={{ uuid }}
-                  to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
-                >
-                  {name}
-                </AppLink>
+        name,
+        roleCount,
+        principalCount,
+        modified,
+        roles,
+        members,
+        platform_default: isPlatformDefault,
+        admin_default: isAdminDefault,
+        isLoadingRoles,
+        isLoadingMembers,
+      },
+      i
+    ) => {
+      const compoundRolesId = `compound-roles-${uuid}`;
+      const compoundMembersId = `compound-members-${uuid}`;
+      return [
+        ...acc,
+        {
+          uuid,
+          isAdminDefault,
+          isPlatformDefault,
+          selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
+          cells: [
+            {
+              title: isAdmin ? (
+                <>
+                  <AppLink
+                    key={`${uuid}-link`}
+                    state={{ uuid }}
+                    to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
+                  >
+                    {name}
+                  </AppLink>
+                  <Fragment>
+                    {(isPlatformDefault || isAdminDefault) && (
+                      <DefaultPlatformPopover
+                        id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
+                        uuid={uuid}
+                        key={`${uuid}-popover`}
+                        bodyContent={intl.formatMessage(isAdminDefault ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
+                      />
+                    )}
+                  </Fragment>
+                </>
               ) : (
                 name
-              )}
-              {(isPlatformDefault || isAdminDefault) && (
-                <DefaultPlatformPopover
-                  id={`default${isAdminDefault ? '-admin' : ''}-group-popover`}
-                  uuid={uuid}
-                  key={`${uuid}-popover`}
-                  bodyContent={intl.formatMessage(isAdminDefault ? messages.orgAdminInheritedRoles : messages.usersInheritedRoles)}
-                />
-              )}
-            </div>
-          </Fragment>,
-          roleCount,
-          principalCount,
-          <Fragment key={`${uuid}-modified`}>
-            <DateFormat date={modified} type={getDateFormat(modified)} />
-          </Fragment>,
-        ],
-        selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
-      },
-    ],
+              ),
+            },
+            { title: roleCount, props: { isOpen: expanded[uuid] === 2, ariaControls: compoundRolesId } },
+            {
+              title: principalCount,
+              props:
+                isPlatformDefault || isAdminDefault
+                  ? { className: 'rbac-c-not-expandable-cell' }
+                  : { isOpen: expanded[uuid] === 3, ariaControls: compoundMembersId },
+            },
+            { title: <DateFormat date={modified} type={getDateFormat(modified)} /> },
+          ],
+        },
+        {
+          uuid: `${uuid}-roles`,
+          parent: 3 * i,
+          compoundParent: 1,
+          fullWidth: true,
+          noPadding: true,
+          cells: [
+            {
+              props: { colSpan: 7, className: 'pf-m-no-padding' },
+              title: isLoadingRoles ? (
+                <ListLoader items={3} isCompact />
+              ) : roleCount > 0 ? (
+                <Table
+                  id={compoundRolesId}
+                  ouiaId={compoundRolesId}
+                  aria-label="Compound roles table"
+                  variant={TableVariant.compact}
+                  cells={[
+                    { title: intl.formatMessage(messages.roleName) },
+                    { title: intl.formatMessage(messages.description) },
+                    { title: intl.formatMessage(messages.permissions) },
+                    { title: intl.formatMessage(messages.lastModified) },
+                  ]}
+                  rows={roles?.map((role) => ({
+                    cells: [
+                      { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
+                      role.description,
+                      role.accessCount,
+                      <Fragment key={`${uuid}-modified`}>
+                        <DateFormat date={modified} type={getDateFormat(modified)} />
+                      </Fragment>,
+                    ],
+                  }))}
+                >
+                  <TableHeader />
+                  <TableBody />
+                </Table>
+              ) : (
+                <Text id={compoundRolesId} className="pf-u-mx-lg pf-u-my-sm">
+                  {intl.formatMessage(messages.noGroupRoles)}
+                </Text>
+              ),
+            },
+          ],
+        },
+        {
+          uuid: `${uuid}-members`,
+          parent: 3 * i,
+          compoundParent: 2,
+          fullWidth: true,
+          noPadding: true,
+          cells: [
+            {
+              props: { colSpan: 7, className: 'pf-m-no-padding' },
+              title: isLoadingMembers ? (
+                <ListLoader items={3} isCompact />
+              ) : principalCount > 0 ? (
+                <Table
+                  id={compoundMembersId}
+                  ouiaId={compoundMembersId}
+                  aria-label="Compound members table"
+                  variant={TableVariant.compact}
+                  cells={[
+                    { title: intl.formatMessage(messages.orgAdministrator) },
+                    { title: intl.formatMessage(messages.firstName) },
+                    { title: intl.formatMessage(messages.lastName) },
+                    { title: intl.formatMessage(messages.username) },
+                    { title: intl.formatMessage(messages.email) },
+                    { title: intl.formatMessage(messages.status) },
+                  ]}
+                  rows={members?.map((member) => [
+                    <TextContent key={member.is_org_admin}>
+                      {member?.is_org_admin ? (
+                        <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+                      ) : (
+                        <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+                      )}
+                      {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
+                    </TextContent>,
+                    member.first_name,
+                    member.last_name,
+                    member.username,
+                    member.email,
+                    <Label key={member.is_active} color={member.is_active ? 'green' : 'grey'}>
+                      {intl.formatMessage(member?.is_active ? messages.active : messages.inactive)}
+                    </Label>,
+                  ])}
+                >
+                  <TableHeader />
+                  <TableBody />
+                </Table>
+              ) : isAdminDefault || isPlatformDefault ? (
+                ''
+              ) : (
+                <Text id={compoundMembersId} className="pf-u-mx-lg pf-u-my-sm">
+                  {intl.formatMessage(messages.noGroupMembers)}
+                </Text>
+              ),
+            },
+          ],
+        },
+      ];
+    },
     []
   );
 };
