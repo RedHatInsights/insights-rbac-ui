@@ -4,7 +4,7 @@ import messages from '../../Messages';
 import { TableVariant, Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
-import { ListLoader } from './loader-placeholders';
+import { ListLoader } from '../shared/loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-state';

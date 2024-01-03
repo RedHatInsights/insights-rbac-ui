@@ -10,6 +10,8 @@ import {
   FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
   UPDATE_GROUPS_FILTERS,
   INVALIDATE_SYSTEM_GROUP,
+  FETCH_ROLES_FOR_EXPANDED_GROUP,
+  FETCH_MEMBERS_FOR_EXPANDED_GROUP,
 } from '../../redux/action-types';
 import omit from 'lodash/omit';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -76,13 +78,42 @@ const setGroup = (state, { payload }) => ({
 const resetSelectedGroup = (state) => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state, { payload }) => ({
   ...state,
-  isRecordRolesLoading: false,
   selectedGroup: {
     ...state.selectedGroup,
-    ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : payload),
-    loaded: true,
+    roles: {
+      isLoading: false,
+      ...(!payload.error ? payload : {}),
+    },
+    ...(payload.error ? payload : {}),
   },
 });
+
+const setRolesForExpandedGroupLoading = (state, { meta }) => ({
+  ...state,
+  ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, isLoadingRoles: true } } : {}),
+  ...(meta.isPlatformDefault ? { systemGroup: { ...state.systemGroup, isLoadingRoles: true } } : {}),
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...(group.uuid === meta.groupId && { isLoadingRoles: true }),
+    })),
+  },
+});
+
+const setRolesForExpandedGroup = (state, { payload, meta }) => ({
+  ...state,
+  ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, roles: payload.data, isLoadingRoles: false } } : {}),
+  ...(meta.isPlatformDefault ? { systemGroup: { ...state.systemGroup, roles: payload.data, isLoadingRoles: false } } : {}),
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...(group.uuid === meta.groupId && { roles: payload.data, isLoadingRoles: false }),
+    })),
+  },
+});
+
 const setAccountsForGroupLoading = (state = {}) => ({
   ...state,
   selectedGroup: {
@@ -102,6 +133,7 @@ const setAccountsForGroup = (state, { payload }) => ({
     },
   },
 });
+
 const setMembersForGroupLoading = (state = {}) => ({
   ...state,
   selectedGroup: {
@@ -109,6 +141,17 @@ const setMembersForGroupLoading = (state = {}) => ({
     members: { isLoading: true },
   },
 });
+const setMembersForExpandedGroupLoading = (state, { meta }) => ({
+  ...state,
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...(group.uuid === meta.groupId && { isLoadingMembers: true }),
+    })),
+  },
+});
+
 const setMembersForGroup = (state, { payload }) => ({
   ...state,
   selectedGroup: {
@@ -118,6 +161,17 @@ const setMembersForGroup = (state, { payload }) => ({
       ...(!payload.error ? payload : {}),
     },
     ...(payload.error ? payload : {}),
+  },
+});
+
+const setMembersForExpandedGroup = (state, { payload, meta }) => ({
+  ...state,
+  groups: {
+    ...state.groups,
+    data: state.groups.data.map((group) => ({
+      ...group,
+      ...(group.uuid === meta.groupId && { members: payload.data, isLoadingMembers: false }),
+    })),
   },
 });
 
@@ -148,10 +202,14 @@ export default {
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
+  [`${FETCH_ROLES_FOR_EXPANDED_GROUP}_PENDING`]: setRolesForExpandedGroupLoading,
+  [`${FETCH_ROLES_FOR_EXPANDED_GROUP}_FULFILLED`]: setRolesForExpandedGroup,
   [`${FETCH_SERVICE_ACCOUNTS_FOR_GROUP}_PENDING`]: setAccountsForGroupLoading,
   [`${FETCH_SERVICE_ACCOUNTS_FOR_GROUP}_FULFILLED`]: setAccountsForGroup,
   [`${FETCH_MEMBERS_FOR_GROUP}_PENDING`]: setMembersForGroupLoading,
   [`${FETCH_MEMBERS_FOR_GROUP}_FULFILLED`]: setMembersForGroup,
+  [`${FETCH_MEMBERS_FOR_EXPANDED_GROUP}_PENDING`]: setMembersForExpandedGroupLoading,
+  [`${FETCH_MEMBERS_FOR_EXPANDED_GROUP}_FULFILLED`]: setMembersForExpandedGroup,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_FULFILLED`]: setAddRolesForGroup,
   [RESET_SELECTED_GROUP]: resetSelectedGroup,

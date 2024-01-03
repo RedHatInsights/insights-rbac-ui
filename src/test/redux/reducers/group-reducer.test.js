@@ -94,8 +94,7 @@ describe('Group reducer', () => {
     const payload = { data: ['bar'], meta: { count: 1 } };
     const expectedState = {
       ...initialState,
-      isRecordRolesLoading: false,
-      selectedGroup: { ...initialState.selectedGroup, roles: payload.data, pagination: payload.meta, loaded: true },
+      selectedGroup: { ...initialState.selectedGroup, roles: { isLoading: false, ...payload } },
     };
     expect(reducer(initialState, { type: `${FETCH_ROLES_FOR_GROUP}_FULFILLED`, payload })).toEqual(expectedState);
   });
@@ -104,7 +103,6 @@ describe('Group reducer', () => {
     const expectedState = { ...initialState, selectedGroup: { ...initialState.selectedGroup, members: { isLoading: true } } };
     expect(reducer(initialState, { type: `${FETCH_MEMBERS_FOR_GROUP}_PENDING` })).toEqual(expectedState);
   });
-
   it('should set members for selected group and loading state to false', () => {
     const payload = { data: ['bar'], meta: { count: 1 } };
     const expectedState = {
