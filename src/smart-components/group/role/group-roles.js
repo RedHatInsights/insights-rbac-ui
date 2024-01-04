@@ -131,7 +131,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   const fetchGroupData = (customId) => dispatch(fetchGroup(customId ?? groupId));
   const fetchSystGroup = () => dispatch(fetchSystemGroup({ chrome }));
   const removeRoles = (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback));
-  const fetchGroupRoles = (config) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, config, options));
+  const fetchGroupRoles = (pagination) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, pagination, options));
 
   const columns = [
     { title: intl.formatMessage(messages.name), orderBy: 'name' },
