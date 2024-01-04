@@ -52,6 +52,9 @@ describe('<User />', () => {
       roleReducer: {
         ...rolesInitialState,
       },
+      groupReducer: {
+        adminGroup: {},
+      },
     };
   });
 
