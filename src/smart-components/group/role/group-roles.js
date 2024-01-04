@@ -28,8 +28,8 @@ import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import './group-roles.scss';
 
-const createRows = (groupId, data, checkedRows = []) =>
-  data?.reduce(
+const createRows = (groupId, roles, checkedRows = []) =>
+  roles?.reduce(
     (acc, { uuid, display_name, name, description, modified }) => [
       ...acc,
       {
@@ -73,7 +73,7 @@ const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
 };
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
-  roles: selectedGroup.roles,
+  roles: selectedGroup.roles?.data || [],
   pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.roles && selectedGroup.roles.length },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
@@ -148,7 +148,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   }, [systemGroupUuid]);
 
   useEffect(() => {
-    if (roles?.length > 0) {
+    if (roles.length > 0) {
       if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
         fetchAddGroupRoles(groupId);
       } else {
