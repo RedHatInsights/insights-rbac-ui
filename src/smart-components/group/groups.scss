@@ -1,3 +1,7 @@
+.rbac-c-not-expandable-cell {
+  padding: var(--pf-v5-c-table--cell--PaddingTop) var(--pf-v5-c-table--cell--PaddingRight) var(--pf-v5-c-table--cell--PaddingBottom) var(--pf-v5-c-table--cell--PaddingLeft);
+}
+
 .rbac-c-groups {
   .pf-v5-c-table tbody tr.rbac-c-group-default {
     .pf-v5-c-table__check  > * {

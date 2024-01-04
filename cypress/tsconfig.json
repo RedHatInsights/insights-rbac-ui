@@ -1,12 +1,10 @@
 {
   "compilerOptions": {
-    "outDir": "./build/",
-    "sourceMap": true,
+    "sourceMap": false,
     "noImplicitAny": true,
     "module": "esnext",
     "target": "esnext",
     "jsx": "react",
-    "allowJs": true,
     "moduleResolution": "node",
     "removeComments": false,
     "strict": true,
@@ -14,11 +12,16 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["src/redux/store.d.ts"]
+    "baseUrl": "./",
+    "types": ["cypress", "node"]
   },
-  "include": [
-    "src/**/*.ts",
-    "src/**/*.tsx",
-    "src/presentational-components/shared/AppLink.js", "src/presentational-components/shared/AppLink.js"  ],
-  "exclude": ["node_modules", "cypress/**/*.ts", "**/*.cy.tsx"]
+  "include": ["./**/*.ts", "./**/*.tsx"],
+  "exclude": [
+    "../src/**/*.test.ts",
+    "../src/**/*.test.tsx",
+    "../src/**/*.spec.tsx",
+    "../src/**/*.spec.ts",
+    "../src/**/__mocks__/**/*.ts",
+    "../src/**/__mocks__/**/*.tx",
+  ]
 }
