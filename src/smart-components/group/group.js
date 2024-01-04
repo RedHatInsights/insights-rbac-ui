@@ -57,10 +57,10 @@ const Group = () => {
     shallowEqual
   );
 
-  const { group, isFetching } = useSelector(
-    ({ groupReducer: { selectedGroup, isRecordLoading, isRecordRolesLoading } }) => ({
+  const { group, isGroupLoading } = useSelector(
+    ({ groupReducer: { selectedGroup, isRecordLoading } }) => ({
       group: selectedGroup,
-      isFetching: isRecordLoading || isRecordRolesLoading,
+      isGroupLoading: isRecordLoading,
     }),
     shallowEqual
   );
@@ -85,7 +85,7 @@ const Group = () => {
       to: getBackRoute(mergeToBasename(pathnames.groups.link), pagination, filters),
     },
     groupExists
-      ? { title: isFetching ? undefined : group.name, isActive: true }
+      ? { title: isGroupLoading ? undefined : group.name, isActive: true }
       : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
   ];
 
@@ -199,11 +199,11 @@ const Group = () => {
               <SplitItem isFilled>
                 <TopToolbarTitle
                   title={
-                    !isFetching && group ? (
+                    !isGroupLoading && group ? (
                       <Fragment>{group.platform_default && !group.system ? defaultGroupChangedIcon(group.name) : group.name}</Fragment>
                     ) : undefined
                   }
-                  description={!isFetching && group ? group.description : undefined}
+                  description={(!isGroupLoading && group?.description) || undefined}
                 />
               </SplitItem>
               {group.platform_default && !group.system ? <SplitItem>{defaultGroupRestore()}</SplitItem> : null}

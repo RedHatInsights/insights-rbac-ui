@@ -44,8 +44,7 @@ DefaultPlatformPopover.propTypes = {
   bodyContent: PropTypes.string.isRequired,
 };
 
-export const createRows = (isAdmin, data, selectedRows, expanded = [], explorerViewEnabled) => {
-  console.log(explorerViewEnabled);
+export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
   return data.reduce(
     (
