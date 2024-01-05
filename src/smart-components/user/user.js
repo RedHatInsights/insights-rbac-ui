@@ -24,7 +24,7 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
-import { addRolesToGroup } from '../../redux/actions/group-actions';
+import { addRolesToGroup, fetchAdminGroup } from '../../redux/actions/group-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import './user.scss';
 
@@ -47,7 +47,9 @@ const User = () => {
       users: { data },
       isUserDataLoading: isLoadingUsers,
     },
+    groupReducer: { adminGroup },
   }) => ({
+    adminGroup,
     roles,
     isLoadingRoles,
     rolesWithAccess,
@@ -56,7 +58,7 @@ const User = () => {
     userExists: error !== BAD_UUID,
   });
 
-  const { roles, isLoadingRoles, rolesWithAccess, user, isLoadingUsers, userExists } = useSelector(selector);
+  const { roles, isLoadingRoles, rolesWithAccess, user, isLoadingUsers, userExists, adminGroup } = useSelector(selector);
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
   const isAdmin = orgAdmin || userAccessAdministrator;
 
@@ -64,6 +66,7 @@ const User = () => {
 
   useEffect(() => {
     chrome.appObjectId(username);
+    dispatch(fetchAdminGroup({ chrome }));
     dispatch(fetchUsers({ ...defaultSettings, limit: 0, filters: { username } }));
     fetchRolesData({ limit: 20, offset: 0, username });
     setLoadingRolesTemp(true);
@@ -90,7 +93,7 @@ const User = () => {
     },
   ];
 
-  const createRows = (data, username) =>
+  const createRows = (data, username, adminGroup) =>
     data
       ? data.reduce(
           (acc, { uuid, display_name, groups_in = [], modified, accessCount }, i) => [
@@ -123,14 +126,15 @@ const User = () => {
                             { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', g.uuid)}>{g.name}</AppLink> },
                             g.description,
                             {
-                              title: (
-                                <AppLink
-                                  to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', g.uuid)}
-                                  state={{ name: g.name }}
-                                >
-                                  {intl.formatMessage(messages.addRoleToThisGroup)}
-                                </AppLink>
-                              ),
+                              title:
+                                adminGroup.uuid === g.uuid ? null : (
+                                  <AppLink
+                                    to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', g.uuid)}
+                                    state={{ name: g.name }}
+                                  >
+                                    {intl.formatMessage(messages.addRoleToThisGroup)}
+                                  </AppLink>
+                                ),
                               props: { className: 'pf-v5-u-text-align-right' },
                             },
                           ],
@@ -264,7 +268,7 @@ const User = () => {
                 columns={columns}
                 isExpandable
                 onExpand={onExpand}
-                rows={createRows(roles.data, username)}
+                rows={createRows(roles.data, username, adminGroup)}
                 data={roles.data}
                 filterValue={filter}
                 ouiaId="user-details-table"

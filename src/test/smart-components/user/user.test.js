@@ -8,12 +8,21 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { rolesInitialState } from '../../../redux/reducers/role-reducer';
 import { usersInitialState } from '../../../redux/reducers/user-reducer';
 import User from '../../../smart-components/user/user';
-import { FETCH_USERS } from '../../../redux/action-types';
+import { FETCH_ADMIN_GROUP, FETCH_USERS } from '../../../redux/action-types';
 import * as UserActions from '../../../redux/actions/user-actions';
 import * as RoleActions from '../../../redux/actions/role-actions';
+import * as GroupActions from '../../../redux/actions/group-actions';
 
 jest.mock('../../../redux/actions/user-actions', () => {
   const actions = jest.requireActual('../../../redux/actions/user-actions');
+  return {
+    __esModule: true,
+    ...actions,
+  };
+});
+
+jest.mock('../../../redux/actions/group-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/group-actions');
   return {
     __esModule: true,
     ...actions,
@@ -36,6 +45,7 @@ describe('<User />', () => {
 
   const fetchUsersSpy = jest.spyOn(UserActions, 'fetchUsers');
   const fetchRolesSpy = jest.spyOn(RoleActions, 'fetchRoles');
+  const fetchAdminGroupSpy = jest.spyOn(GroupActions, 'fetchAdminGroup');
 
   beforeEach(() => {
     enhanceState = {
@@ -52,12 +62,16 @@ describe('<User />', () => {
       roleReducer: {
         ...rolesInitialState,
       },
+      groupReducer: {
+        adminGroup: {},
+      },
     };
   });
 
   it('should render user', async () => {
     fetchUsersSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
     fetchRolesSpy.mockImplementationOnce(() => ({ type: FETCH_USERS, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     let container;
     await act(async () => {
       const { container: ci } = render(
