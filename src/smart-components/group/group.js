@@ -6,7 +6,6 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Alert, AlertActionCloseButton, Popover, PopoverPosition, Split, SplitItem, Button } from '@patternfly/react-core';
 import { DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core/deprecated';
-import { useFlag } from '@unleash/proxy-client-react';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
@@ -20,6 +19,7 @@ import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
+import { usePreviewFlag } from '../../helpers/shared/use-preview-flag';
 import './group.scss';
 
 const Group = () => {
@@ -30,7 +30,7 @@ const Group = () => {
   const chrome = useChrome();
   const { groupId } = useParams();
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
-  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts');
+  const enableServiceAccounts = usePreviewFlag('platform.rbac.group-service-accounts');
 
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId), to: 'roles' },
