@@ -130,14 +130,12 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   cells={[
                     { title: intl.formatMessage(messages.roleName) },
                     { title: intl.formatMessage(messages.description) },
-                    { title: intl.formatMessage(messages.permissions) },
                     { title: intl.formatMessage(messages.lastModified) },
                   ]}
                   rows={roles?.map((role) => ({
                     cells: [
                       { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
                       role.description,
-                      role.accessCount,
                       <Fragment key={`${uuid}-modified`}>
                         <DateFormat date={modified} type={getDateFormat(modified)} />
                       </Fragment>,
