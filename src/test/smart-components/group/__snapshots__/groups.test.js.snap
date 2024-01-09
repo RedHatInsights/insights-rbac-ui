@@ -503,15 +503,6 @@ exports[`<Groups /> should render group list correctly 1`] = `
                       <th
                         class="pf-v5-c-table__th"
                         data-key="2"
-                        data-label="Permissions"
-                        scope="col"
-                        tabindex="-1"
-                      >
-                        Permissions
-                      </th>
-                      <th
-                        class="pf-v5-c-table__th"
-                        data-key="3"
                         data-label="Last modified"
                         scope="col"
                         tabindex="-1"
