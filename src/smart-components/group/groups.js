@@ -238,7 +238,7 @@ const Groups = () => {
             ouiaId="groups-table"
             pagination={pagination}
             filterValue={filterValue}
-            fetchData={({ name, count, limit, offset, orderBy }) => {
+            fetchData={({ name, count, limit, offset }) => {
               applyFiltersToUrl(location, navigate, { name });
               return fetchData({ count, limit, offset, orderBy, filters: { name } });
             }}
