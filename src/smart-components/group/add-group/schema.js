@@ -9,7 +9,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 
-export const schemaBuilder = () => {
+export const schemaBuilder = (container) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -21,6 +21,7 @@ export const schemaBuilder = () => {
         inModal: true,
         showTitles: true,
         title: intl.formatMessage(messages.createGroup),
+        container,
         fields: [
           {
             name: 'name-and-description',

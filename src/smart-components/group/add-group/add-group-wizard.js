@@ -57,7 +57,8 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
 const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const schema = useRef(schemaBuilder());
+  const container = useRef(document.createElement('div'));
+  const schema = useRef(schemaBuilder(container.current));
   const navigate = useAppNavigate();
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -111,32 +112,49 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
 
   return (
     <AddGroupWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
-      {wizardContextValue.success ? (
-        <Wizard
-          isOpen
-          title={intl.formatMessage(messages.createGroup)}
-          onClose={onClose}
-          steps={[
-            {
-              name: 'success',
-              component: <AddGroupSuccess onClose={onClose} />,
-              isFinishedStep: true,
-            },
-          ]}
-        />
-      ) : wizardContextValue.canceled ? (
-        <WarningModal isOpen type="group" onModalCancel={() => setWizardCanceled(false)} onModalConfirm={redirectToGroups} />
-      ) : !wizardContextValue.hideForm ? (
+      <WarningModal
+        type="group"
+        isOpen={wizardContextValue.canceled}
+        onModalCancel={() => {
+          container.current.hidden = false;
+          setWizardCanceled(false);
+        }}
+        onModalConfirm={redirectToGroups}
+      />
+      {wizardContextValue.hideForm ? (
+        wizardContextValue.success ? (
+          <Wizard
+            isOpen
+            title={intl.formatMessage(messages.createGroup)}
+            onClose={onClose}
+            steps={[
+              {
+                name: 'success',
+                component: <AddGroupSuccess onClose={onClose} />,
+                isFinishedStep: true,
+              },
+            ]}
+          />
+        ) : null
+      ) : (
         <FormRenderer
           schema={schema.current}
+          container={container}
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
           initialValues={groupData}
-          onCancel={onCancel(redirectToGroups, setWizardCanceled, setGroupData)}
+          onCancel={onCancel(
+            redirectToGroups,
+            () => {
+              container.current.hidden = true;
+              setWizardCanceled(true);
+            },
+            setGroupData
+          )}
         />
-      ) : null}
+      )}
     </AddGroupWizardContext.Provider>
   );
 };
