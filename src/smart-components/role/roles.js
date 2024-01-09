@@ -200,7 +200,7 @@ const Roles = () => {
             rows={rows}
             data={roles}
             filterValue={filterValue}
-            fetchData={({ name, limit, offset, orderBy }) => {
+            fetchData={({ name, limit, offset }) => {
               applyFiltersToUrl(location, navigate, { display_name: name });
               return fetchData(mappedProps({ limit, offset, orderBy, filters: { display_name: name } }));
             }}

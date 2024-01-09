@@ -147,7 +147,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
         isExpandable={true}
         onExpand={onExpand}
         ouiaId="roles-table"
-        fetchData={({ limit, offset, name, application, permission, orderBy }) => {
+        fetchData={({ limit, offset, name, application, permission }) => {
           debouncedFetch(limit, offset, name, application, permission, orderBy);
         }}
         sortBy={sortByState}
