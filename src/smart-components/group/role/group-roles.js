@@ -77,7 +77,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.roles && selectedGroup.roles.length },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
-  isLoading: !selectedGroup.loaded,
+  isLoading: selectedGroup.roles?.isLoading,
   isPlatformDefault: selectedGroup.platform_default,
   isAdminDefault: selectedGroup.admin_default,
   isChanged: !selectedGroup.system,
