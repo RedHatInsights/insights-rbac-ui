@@ -64,7 +64,7 @@ const GroupServiceAccounts = () => {
   const fetchGroupAccounts = (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, options));
 
   const columns = [
-    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.name) },
     { title: intl.formatMessage(messages.clientId) },
     { title: intl.formatMessage(messages.owner) },
     { title: intl.formatMessage(messages.timeCreated) },

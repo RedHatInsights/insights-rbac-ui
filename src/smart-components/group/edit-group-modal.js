@@ -87,8 +87,8 @@ const EditGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = can
         ],
       },
       {
-        name: 'description',
-        label: intl.formatMessage(messages.description),
+        name: 'name',
+        label: intl.formatMessage(messages.name),
         component: selectedGroup ? componentTypes.TEXTAREA : 'skeleton',
         validate: [
           {
