@@ -37,8 +37,14 @@ const setRecordLoadingState = (state) => ({
 });
 const setRecordRolesLoadingState = (state) => ({
   ...state,
-  isRecordRolesLoading: true,
-  selectedGroup: { ...state.selectedGroup, error: undefined, loaded: false },
+  selectedGroup: {
+    ...state.selectedGroup,
+    error: undefined,
+    roles: {
+      ...(state.selectedGroup.roles || {}),
+      isLoading: true,
+    },
+  },
 });
 const setSystemGroupLoadingState = (state) => ({
   ...state,

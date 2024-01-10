@@ -86,7 +86,7 @@ describe('Group reducer', () => {
   });
 
   it('should set loading state for roles in group', () => {
-    const expectedState = { ...initialState, isRecordRolesLoading: true, selectedGroup: { ...initialState.selectedGroup, loaded: false } };
+    const expectedState = { ...initialState, selectedGroup: { ...initialState.selectedGroup, error: undefined, roles: { isLoading: true } } };
     expect(reducer(initialState, { type: `${FETCH_ROLES_FOR_GROUP}_PENDING` })).toEqual(expectedState);
   });
 
