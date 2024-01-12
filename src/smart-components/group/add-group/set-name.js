@@ -24,17 +24,18 @@ const SetName = (props) => {
   const [groupDescription, setGroupDescription] = useState(description);
 
   const processGroupName = (value) => {
+    const trimmedValue = value.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
     input.onChange(undefined);
-    debouncedAsyncValidator(value)
+    debouncedAsyncValidator(trimmedValue)
       .then(() => {
-        input.onChange(value);
+        input.onChange(trimmedValue);
         setGroupNameError(undefined);
       })
       .catch((error) => {
         setGroupNameError(error);
         input.onChange(undefined);
       });
-    setGroupName(value);
+    setGroupName(trimmedValue);
   };
 
   useEffect(() => {
