@@ -55,7 +55,7 @@ const GroupServiceAccounts = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
-  const [descriptionValue, setDescriptionValue] = useState('');
+  const [clientIDValue, setClientIDValue] = useState('');
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -162,11 +162,11 @@ const GroupServiceAccounts = () => {
               isSelectable
               rows={createRows(serviceAccounts, selectedAccounts)}
               data={serviceAccounts}
-              filterValue={descriptionValue}
+              filterValue={clientIDValue}
               fetchData={(config) => fetchGroupAccounts(groupId, config)}
               emptyFilters={{ description: '' }}
-              setFilterValue={({ description }) => {
-                typeof description !== 'undefined' && setDescriptionValue(description);
+              setFilterValue={({ clientID }) => {
+                typeof clientID !== 'undefined' && setClientIDValue(clientID);
               }}
               isLoading={isLoading}
               pagination={pagination}
@@ -180,7 +180,7 @@ const GroupServiceAccounts = () => {
                 title: intl.formatMessage(messages.noGroupAccounts),
                 description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
               }}
-              filters={[{ key: 'description', value: descriptionValue }]}
+              filters={[{ key: 'clientID', value: clientIDValue }]}
               tableId="group-accounts"
               ouiaId="group-accounts"
             />

@@ -149,7 +149,7 @@ export async function fetchAccountsForGroup(groupId, options = {}) {
   return await groupApi.getPrincipalsFromGroup(
     groupId,
     undefined,
-    options.description,
+    options.clientID,
     options.limit,
     options.offset,
     undefined,
