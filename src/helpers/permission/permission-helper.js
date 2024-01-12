@@ -2,6 +2,8 @@ import { getPermissionApi } from '../shared/user-login';
 
 const accessApi = getPermissionApi();
 
+const disallowedPermissions = ['inventory:staleness'];
+
 export async function listPermissions(
   limit,
   offset,
@@ -15,7 +17,7 @@ export async function listPermissions(
   allowedOnly,
   options
 ) {
-  return await accessApi.listPermissions(
+  const response = await accessApi.listPermissions(
     limit,
     offset,
     orderBy,
@@ -28,6 +30,11 @@ export async function listPermissions(
     allowedOnly,
     options
   );
+
+  return {
+    ...response,
+    data: response.data.filter(({ permission }) => !disallowedPermissions.some((item) => permission.includes(item))),
+  };
 }
 
 export async function listPermissionOptions(field, limit, offset, application, resourceType, verb, allowedOnly, options) {
