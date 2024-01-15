@@ -111,8 +111,7 @@
     "webpack-bundle-analyzer": "^4.5.0"
   },
   "scripts": {
-    "build:res": "fec build",
-    "build:res:beta": "fec build",
+    "build": "fec build",
     "test": "TZ=UTC jest --verbose",
     "lint": "npm-run-all lint:*",
     "lint:js": "eslint config src",
