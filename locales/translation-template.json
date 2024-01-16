@@ -539,6 +539,10 @@
     "defaultMessage": "Exit edit resource definitions?",
     "description": "Exit edit resource definitions question text"
   },
+  "exitItemAdding": {
+    "defaultMessage": "Exit {item} adding?",
+    "description": "Exit item adding modal title"
+  },
   "exitItemCreation": {
     "defaultMessage": "Exit {item} creation?",
     "description": "Exit item creation modal title"

@@ -134,6 +134,7 @@
   "email": "Email",
   "exit": "Exit",
   "exitEditResourceDefinitions": "Exit edit resource definitions?",
+  "exitItemAdding": "Exit {item} adding?",
   "exitItemCreation": "Exit {item} creation?",
   "filterByKey": "Filter by {key}",
   "filterByResource": "Filter by resource...",
