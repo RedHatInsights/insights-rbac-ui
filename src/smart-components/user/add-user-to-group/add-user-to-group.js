@@ -5,11 +5,11 @@ import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Modal, Button, ModalVariant, Alert } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import PermissionsContext from '../../../utilities/permissions-context';
 import GroupRowWrapper from '../../group/group-row-wrapper';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { WarningModal } from '../../common/warningModal';
 import { addMembersToGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
@@ -93,11 +93,13 @@ const AddUserToGroup = ({ username }) => {
   return (
     <Fragment>
       <WarningModal
-        type="user"
+        title={intl.formatMessage(messages.exitItemAdding, { item: intl.formatMessage(messages.users).toLocaleLowerCase() })}
         isOpen={cancelWarningVisible}
-        onModalCancel={() => setCancelWarningVisible(false)}
-        onModalConfirm={redirectToUserDetail}
-      />
+        onClose={() => setCancelWarningVisible(false)}
+        onConfirm={redirectToUserDetail}
+      >
+        {intl.formatMessage(messages.changesWillBeLost)}
+      </WarningModal>
       <Modal
         variant={ModalVariant.medium}
         isOpen={!cancelWarningVisible}
