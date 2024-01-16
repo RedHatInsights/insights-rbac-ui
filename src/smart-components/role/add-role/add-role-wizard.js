@@ -11,7 +11,7 @@ import { createQueryParams } from '../../../helpers/shared/helpers';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { schemaBuilder } from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
-import { WarningModal } from '../../common/warningModal';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AddRoleSuccess from './add-role-success';
 import BaseRoleTable from './base-role-table';
 import AddPermissionsTable from './add-permissions';
@@ -169,14 +169,16 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <SilentErrorBoundary silentErrorString="focus-trap">
         <WarningModal
-          type="role"
+          title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.role).toLocaleLowerCase() })}
           isOpen={cancelWarningVisible}
-          onModalCancel={() => {
+          onClose={() => {
             container.current.hidden = false;
             setCancelWarningVisible(false);
           }}
-          onModalConfirm={onCancel}
-        />
+          onConfirm={onCancel}
+        >
+          {intl.formatMessage(messages.discardedInputsWarning)}
+        </WarningModal>
       </SilentErrorBoundary>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
