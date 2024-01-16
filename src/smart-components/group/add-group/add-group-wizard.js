@@ -7,7 +7,7 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { WarningModal } from '../../common/warningModal';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { schemaBuilder } from './schema';
 import { addGroup } from '../../../redux/actions/group-actions';
 import { createQueryParams } from '../../../helpers/shared/helpers';
@@ -113,14 +113,18 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   return (
     <AddGroupWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <WarningModal
-        type="group"
+        title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.group).toLocaleLowerCase() })}
         isOpen={wizardContextValue.canceled}
-        onModalCancel={() => {
+        onClose={() => {
           container.current.hidden = false;
           setWizardCanceled(false);
         }}
-        onModalConfirm={redirectToGroups}
-      />
+        confirmButtonLabel={intl.formatMessage(messages.exit)}
+        cancelButtonLabel={intl.formatMessage(messages.stay)}
+        onConfirm={redirectToGroups}
+      >
+        {intl.formatMessage(messages.discardedInputsWarning)}
+      </WarningModal>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard
