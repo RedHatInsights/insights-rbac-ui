@@ -6,10 +6,10 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Alert, AlertActionCloseButton, Popover, PopoverPosition, Split, SplitItem, Button } from '@patternfly/react-core';
 import { DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core/deprecated';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { WarningModal } from '../common/warningModal';
 import { fetchGroup, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
 import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
@@ -167,21 +167,12 @@ const Group = () => {
     <Fragment>
       {isResetWarningVisible && (
         <WarningModal
-          type="group"
           isOpen={isResetWarningVisible}
-          customTitle={<div>{intl.formatMessage(messages.restoreDefaultAccessQuestion)}</div>}
-          customDescription={
-            <FormattedMessage
-              {...messages.restoreDefaultAccessDescription}
-              values={{
-                b: (text) => <b>{text}</b>,
-              }}
-            />
-          }
-          customPrimaryButtonTitle={intl.formatMessage(messages.continue)}
-          customSecondaryButtonTitle={intl.formatMessage(messages.cancel)}
-          onModalCancel={() => setResetWarningVisible(false)}
-          onModalConfirm={() => {
+          title={intl.formatMessage(messages.restoreDefaultAccessQuestion)}
+          confirmButtonLabel={intl.formatMessage(messages.continue)}
+          cancelButtonLabel={intl.formatMessage(messages.cancel)}
+          onClose={() => setResetWarningVisible(false)}
+          onConfirm={() => {
             dispatch(removeGroups([systemGroupUuid])).then(() =>
               dispatch(fetchSystemGroup({ chrome })).then(() => {
                 setShowDefaultGroupChangedInfo(false);
@@ -190,7 +181,14 @@ const Group = () => {
             setResetWarningVisible(false);
             navigate(pathnames['group-detail-roles'].link.replace(':groupId', DEFAULT_ACCESS_GROUP_ID));
           }}
-        />
+        >
+          <FormattedMessage
+            {...messages.restoreDefaultAccessDescription}
+            values={{
+              b: (text) => <b>{text}</b>,
+            }}
+          />
+        </WarningModal>
       )}
       {groupExists ? (
         <Fragment>
