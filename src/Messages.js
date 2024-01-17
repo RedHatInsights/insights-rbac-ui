@@ -1511,11 +1511,6 @@ export default defineMessages({
     description: 'Permissions will not be granted through role message',
     defaultMessage: 'The <b>{permissions}</b> permissions will no longer be granted through the <b>{role}</b> role.',
   },
-  lastCommit: {
-    id: 'lastCommit',
-    description: 'Last commit label',
-    defaultMessage: 'Last commit',
-  },
   resourceDefinitionsApplyToCostAndInventory: {
     id: 'resourceDefinitionsApplyToCostAndInventory',
     description: 'Resource definitions only apply to Cost Management and Inventory permissions message',

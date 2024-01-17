@@ -48,7 +48,7 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                     intl.formatMessage(messages.application),
                     intl.formatMessage(messages.resourceType),
                     intl.formatMessage(messages.operation),
-                    intl.formatMessage(messages.lastCommit),
+                    intl.formatMessage(messages.lastModified),
                   ]}
                   rows={access.map((access) => {
                     const [appName, type, operation] = access.permission.split(':');
