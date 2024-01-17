@@ -487,6 +487,11 @@ export default defineMessages({
     description: 'Exit item creation modal title',
     defaultMessage: 'Exit {item} creation?',
   },
+  exitItemAdding: {
+    id: 'exitItemAdding',
+    description: 'Exit item adding modal title',
+    defaultMessage: 'Exit {item} adding?',
+  },
   discardedInputsWarning: {
     id: 'discardedInputsWarning',
     description: 'Warning saying that all inputs will be discarded',

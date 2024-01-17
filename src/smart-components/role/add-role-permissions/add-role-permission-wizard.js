@@ -6,7 +6,7 @@ import { Wizard } from '@patternfly/react-core/deprecated';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { WarningModal } from '../../common/warningModal';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { updateRole } from '../../../redux/actions/role-actions.js';
 import AddPermissionsTable from '../add-role/add-permissions';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
@@ -128,11 +128,13 @@ const AddRolePermissionWizard = ({ role }) => {
       value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm, rolePermissions: role.access }}
     >
       <WarningModal
-        type={intl.formatMessage(messages.permission).toLocaleLowerCase()}
+        title={intl.formatMessage(messages.exitItemAdding, { item: intl.formatMessage(messages.permissions).toLocaleLowerCase() })}
         isOpen={cancelWarningVisible}
-        onModalCancel={() => setCancelWarningVisible(false)}
-        onModalConfirm={handleConfirmCancel}
-      />
+        onClose={() => setCancelWarningVisible(false)}
+        onConfirm={handleConfirmCancel}
+      >
+        {intl.formatMessage(messages.changesWillBeLost)}
+      </WarningModal>
       {wizardContextValue.hideForm ? (
         wizardContextValue.success ? (
           <Wizard

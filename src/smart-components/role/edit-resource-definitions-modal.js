@@ -7,7 +7,7 @@ import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
 import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { WarningModal } from '../common/warningModal';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
@@ -162,12 +162,16 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   return (
     <React.Fragment>
       <WarningModal
-        customTitle={intl.formatMessage(messages.exitEditResourceDefinitions)}
-        customDescription={intl.formatMessage(messages.changesWillBeLost)}
+        title={intl.formatMessage(messages.exitEditResourceDefinitions)}
         isOpen={state.cancelWarningVisible}
-        onModalCancel={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
-        onModalConfirm={onCancel}
-      ></WarningModal>
+        onClose={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
+        onConfirm={onCancel}
+        data-testid="warning-modal"
+        confirmButtonLabel={intl.formatMessage(messages.exit)}
+        cancelButtonLabel={intl.formatMessage(messages.stay)}
+      >
+        {intl.formatMessage(messages.changesWillBeLost)}
+      </WarningModal>
       {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
         <Modal
           variant={ModalVariant.large}
