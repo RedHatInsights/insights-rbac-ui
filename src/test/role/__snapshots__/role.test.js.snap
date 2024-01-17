@@ -843,11 +843,11 @@ exports[`role role and group should render correctly with router and redux store
           <th
             class="pf-v5-c-table__th pf-m-width-15"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             scope="col"
             tabindex="-1"
           >
-            Last commit
+            Last modified
           </th>
           <td
             class="pf-v5-c-table__th"
@@ -921,7 +921,7 @@ exports[`role role and group should render correctly with router and redux store
           <td
             class="pf-v5-c-table__td"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             tabindex="-1"
           >
             Invalid date
@@ -1985,11 +1985,11 @@ exports[`role role only should render correctly with router and redux store 1`] 
           <th
             class="pf-v5-c-table__th pf-m-width-15"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             scope="col"
             tabindex="-1"
           >
-            Last commit
+            Last modified
           </th>
           <td
             class="pf-v5-c-table__th"
@@ -2063,7 +2063,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
           <td
             class="pf-v5-c-table__td"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             tabindex="-1"
           >
             Invalid date
@@ -2918,11 +2918,11 @@ exports[`role should render permissions table 1`] = `
           <th
             class="pf-v5-c-table__th pf-m-width-15"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             scope="col"
             tabindex="-1"
           >
-            Last commit
+            Last modified
           </th>
           <td
             class="pf-v5-c-table__th"
@@ -2996,7 +2996,7 @@ exports[`role should render permissions table 1`] = `
           <td
             class="pf-v5-c-table__td"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             tabindex="-1"
           >
             Invalid date
@@ -3309,11 +3309,11 @@ exports[`role should render second page of table 1`] = `
       <th
         class="pf-v5-c-table__th pf-m-width-15"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         scope="col"
         tabindex="-1"
       >
-        Last commit
+        Last modified
       </th>
       <td
         class="pf-v5-c-table__th"
@@ -3371,7 +3371,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3448,7 +3448,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3525,7 +3525,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3602,7 +3602,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3679,7 +3679,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3756,7 +3756,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3833,7 +3833,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -3910,7 +3910,7 @@ exports[`role should render second page of table 1`] = `
       <td
         class="pf-v5-c-table__td"
         data-key="4"
-        data-label="Last commit"
+        data-label="Last modified"
         tabindex="-1"
       >
         Invalid date
@@ -4543,11 +4543,11 @@ exports[`role should render top toolbar 1`] = `
           <th
             class="pf-v5-c-table__th pf-m-width-15"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             scope="col"
             tabindex="-1"
           >
-            Last commit
+            Last modified
           </th>
           <td
             class="pf-v5-c-table__th"
@@ -4621,7 +4621,7 @@ exports[`role should render top toolbar 1`] = `
           <td
             class="pf-v5-c-table__td"
             data-key="5"
-            data-label="Last commit"
+            data-label="Last modified"
             tabindex="-1"
           >
             Invalid date

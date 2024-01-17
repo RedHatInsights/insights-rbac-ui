@@ -650,10 +650,6 @@
     "defaultMessage": "Key",
     "description": "Key label"
   },
-  "lastCommit": {
-    "defaultMessage": "Last commit",
-    "description": "Last commit label"
-  },
   "lastModified": {
     "defaultMessage": "Last modified",
     "description": "Last modified column label"

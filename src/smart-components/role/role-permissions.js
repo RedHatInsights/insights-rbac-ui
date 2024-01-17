@@ -80,7 +80,7 @@ const Permissions = ({ cantAddPermissions }) => {
         }),
       ],
     },
-    { title: intl.formatMessage(messages.lastCommit), transforms: [cellWidth(15)] },
+    { title: intl.formatMessage(messages.lastModified), transforms: [cellWidth(15)] },
   ];
 
   const setCheckedItems = (newSelection) => {
