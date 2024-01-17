@@ -529,11 +529,11 @@ exports[`<Roles /> should render correctly 1`] = `
                 <th
                   class="pf-v5-c-table__th"
                   data-key="3"
-                  data-label="Last commit"
+                  data-label="Last modified"
                   scope="col"
                   tabindex="-1"
                 >
-                  Last commit
+                  Last modified
                 </th>
               </tr>
             </thead>
@@ -574,7 +574,7 @@ exports[`<Roles /> should render correctly 1`] = `
                 <td
                   class="pf-v5-c-table__td"
                   data-key="3"
-                  data-label="Last commit"
+                  data-label="Last modified"
                   tabindex="-1"
                 >
                   01 Jan 1970
@@ -1201,11 +1201,11 @@ exports[`<Roles /> should render correctly expanded 1`] = `
               <th
                 class="pf-v5-c-table__th"
                 data-key="3"
-                data-label="Last commit"
+                data-label="Last modified"
                 scope="col"
                 tabindex="-1"
               >
-                Last commit
+                Last modified
               </th>
             </tr>
           </thead>
@@ -1246,7 +1246,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
               <td
                 class="pf-v5-c-table__td"
                 data-key="3"
-                data-label="Last commit"
+                data-label="Last modified"
                 tabindex="-1"
               >
                 01 Jan 1970
