@@ -4,7 +4,7 @@ import { Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@pattern
 import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { getResourceDefinitions, getResource } from '../../../redux/actions/cost-management-actions';
+import { fetchResourceDefinitions, fetchResource } from '../../../redux/actions/cost-management-actions';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './cost-resources.scss';
@@ -78,8 +78,8 @@ const reducer = (state, action) => {
 const CostResources = (props) => {
   const intl = useIntl();
   const dispatch = useDispatch();
-  const fetchData = (apiProps) => dispatch(getResourceDefinitions(apiProps));
-  const fetchResource = (apiProps) => dispatch(getResource(apiProps));
+  const fetchData = (apiProps) => dispatch(fetchResourceDefinitions(apiProps));
+  const getResource = (apiProps) => dispatch(fetchResource(apiProps));
   const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector(selector, shallowEqual);
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
@@ -123,7 +123,7 @@ const CostResources = (props) => {
       const resourcePaths = [
         ...new Set(permissions.map((permission) => resourceTypes.find((r) => r.value === permission.uuid.split(':')?.[1])?.path)),
       ].filter((path) => path); // remove undefined
-      resourcePaths.map((path) => fetchResource(path));
+      resourcePaths.map((path) => getResource(path));
     }
   }, [resourceTypes]);
 

@@ -9,6 +9,7 @@ import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/Page
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { fetchRole } from '../../redux/actions/role-actions';
+import { HOSTS_TYPE, INVENTORY_PREFIX } from '../../utilities/constants';
 import paths from '../../utilities/pathnames';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import { getBackRoute } from '../../helpers/shared/helpers';
@@ -31,6 +32,7 @@ const ResourceDefinitions = () => {
   const dispatch = useDispatch();
 
   const { roleId, permissionId } = useParams();
+  const isHosts = permissionId.includes(INVENTORY_PREFIX) && permissionId.includes(HOSTS_TYPE);
 
   const { role, permission, isRecordLoading, rolesPagination, rolesFilters } = useSelector(
     (state) => ({
@@ -109,7 +111,7 @@ const ResourceDefinitions = () => {
         </TextContent>
         <TableToolbarView
           columns={[{}]}
-          rows={createRows(data)}
+          rows={createRows(data, isHosts, intl)}
           data={data}
           filterValue={filter}
           fetchData={({ limit, offset, name }) =>

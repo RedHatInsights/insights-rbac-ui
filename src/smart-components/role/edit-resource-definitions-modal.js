@@ -2,32 +2,45 @@ import React, { useEffect, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import FormRenderer from '../common/form-renderer';
+import flatten from 'lodash/flattenDeep';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
-import { getResource, getResourceDefinitions } from '../../redux/actions/cost-management-actions';
+import { fetchResource, fetchResourceDefinitions } from '../../redux/actions/cost-management-actions';
+import { fetchInventoryGroups } from '../../redux/actions/inventory-actions';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
-import flatten from 'lodash/flattenDeep';
-import { useIntl } from 'react-intl';
+import { HOSTS_TYPE, INVENTORY_PREFIX } from '../../utilities/constants';
 import messages from '../../Messages';
 import './role-permissions.scss';
 
-const createOptions = (resources) =>
-  Object.entries(resources).reduce(
-    (acc, [key, value]) => [
-      ...acc,
-      ...value.map((r) => ({
-        value: r.value,
-        path: key,
-        label: r.value,
-      })),
-    ],
-    []
-  );
+const createOptions = (resources, isInventory, isHosts) =>
+  isInventory
+    ? // options for inventory
+      [
+        ...(isHosts ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
+        ...Object.values(resources || {}).map((inventoryGroup) => (
+          <span key={inventoryGroup.id} data-value={inventoryGroup.id}>
+            {inventoryGroup.name}
+          </span>
+        )),
+      ]
+    : // options for cost-management
+      Object.entries(resources).reduce(
+        (acc, [key, value]) => [
+          ...acc,
+          ...value.map((r) => ({
+            value: r.value,
+            path: key,
+            label: r.value,
+          })),
+        ],
+        []
+      );
 
 const initialState = {
   changedResources: undefined,
@@ -48,7 +61,7 @@ function reducer(state, action) {
   }
 }
 
-const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) => {
+const createEditResourceDefinitionsSchema = (resources, resourcesPath, options, isInventory) => {
   const intl = useIntl();
   return {
     fields: [
@@ -59,19 +72,32 @@ const createEditResourceDefinitionsSchema = (resources, resourcesPath, options) 
         rightTitle: intl.formatMessage(messages.resourcesDefined),
         filterOptionsTitle: intl.formatMessage(messages.filterByResource),
         filterValueTitle: intl.formatMessage(messages.filterByResource),
-        options: [...(resourcesPath && resources ? options : [])],
+        options: [...((resourcesPath || isInventory) && resources ? options : [])],
         validate: [{ type: 'validate-resources' }],
         isSearchable: true,
+        ...(isInventory
+          ? {
+              getValueFromNode: (option) => option.props['data-value'],
+            }
+          : {}),
       },
     ],
   };
 };
 
-const selector = ({ costReducer: { resourceTypes, isLoading, loadingResources, resources } }, resourcesPath) => ({
+const selector = (
+  {
+    costReducer: { resourceTypes, isLoading, loadingResources, resources },
+    inventoryReducer: { resourceTypes: inventoryGroups, isLoading: isLoadingInventory },
+  },
+  resourcesPath
+) => ({
   resourceTypes: resourceTypes.data,
   resources: resources[resourcesPath] ? { resourcesPath: resources[resourcesPath] } : resources,
   isLoading,
   isLoadingResources: loadingResources > 0,
+  isLoadingInventory,
+  inventoryGroups,
 });
 
 const validatorMapper = {
@@ -84,9 +110,16 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const navigate = useAppNavigate();
 
   const dispatch = useDispatch();
-  const fetchResourceDefinitions = () => dispatch(getResourceDefinitions());
-
+  const getResourceDefinitions = () => dispatch(fetchResourceDefinitions());
+  const getInventoryGroups = () => dispatch(fetchInventoryGroups([permissionId]));
   const [state, dispatchLocally] = useReducer(reducer, initialState);
+  const isInventory = permissionId.includes(INVENTORY_PREFIX);
+  const isHosts = permissionId.includes(INVENTORY_PREFIX) && permissionId.includes(HOSTS_TYPE);
+
+  const { resourceTypes, isLoading, isLoadingResources, resources, isLoadingInventory, inventoryGroups } = useSelector(
+    (props) => selector(props, state.resourcesPath),
+    shallowEqual
+  );
 
   const { definedResources, role } = useSelector(
     (state) => ({
@@ -95,7 +128,11 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
         ? flatten(
             state.roleReducer.selectedRole.access
               .filter((a) => a.permission === permissionId)
-              .map((access) => access.resourceDefinitions.map((resource) => resource.attributeFilter.value))
+              .map((access) =>
+                access.resourceDefinitions.map((resource) =>
+                  isInventory ? resource.attributeFilter.value.map((value) => String(value)) : resource.attributeFilter.value
+                )
+              )
           )
         : [],
       isRecordLoading: state.roleReducer.isRecordLoading,
@@ -103,10 +140,8 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     shallowEqual
   );
 
-  const { resourceTypes, isLoading, isLoadingResources, resources } = useSelector((props) => selector(props, state.resourcesPath), shallowEqual);
-
   useEffect(() => {
-    fetchResourceDefinitions();
+    (isInventory && getInventoryGroups()) || getResourceDefinitions();
   }, [permissionId]);
 
   useEffect(() => {
@@ -114,7 +149,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       let path = resourceTypes.find((r) => r.value === permissionId.split(':')?.[1])?.path;
       if (path) {
         dispatchLocally({ type: 'update', payload: { resourcesPath: path.split('/')[5] } });
-        dispatch(getResource(path));
+        dispatch(fetchResource(path));
       }
     }
   }, [resourceTypes]);
@@ -137,14 +172,15 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
 
   const handleSubmit = (data) => {
     dispatchLocally({ type: 'update', payload: { changedResources: data['dual-list-select'] } });
+    const dualListData = data['dual-list-select'].map((item) => (item === 'null' ? null : item));
     const newAccess = {
       permission: permissionId,
       resourceDefinitions: [
         {
           attributeFilter: {
-            key: `cost-management.${permissionId.split(':')?.[1]}`,
-            operation: data['dual-list-select'].length === 1 ? 'equal' : 'in',
-            value: data['dual-list-select'].length === 1 ? data['dual-list-select'][0] : data['dual-list-select'],
+            key: isInventory ? 'group.id' : `cost-management.${permissionId.split(':')?.[1]}`,
+            operation: dualListData.length === 1 ? 'equal' : 'in',
+            value: dualListData.length === 1 ? dualListData[0] : dualListData,
           },
         },
       ],
@@ -157,7 +193,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     );
   };
 
-  const options = createOptions(resources);
+  const options = createOptions(isInventory ? inventoryGroups[permissionId] : resources, isInventory, isHosts);
 
   return (
     <React.Fragment>
@@ -172,7 +208,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
       >
         {intl.formatMessage(messages.changesWillBeLost)}
       </WarningModal>
-      {(isLoading || isLoadingResources) && state.loadingStateVisible ? (
+      {(isLoading || isLoadingResources || isLoadingInventory) && state.loadingStateVisible ? (
         <Modal
           variant={ModalVariant.large}
           className="rbac-m-resource-definitions"
@@ -189,7 +225,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
         </Modal>
       ) : (
         <FormRenderer
-          schema={createEditResourceDefinitionsSchema(resources, state.resourcesPath, options)}
+          schema={createEditResourceDefinitionsSchema(resources, state.resourcesPath, options, isInventory)}
           componentMapper={componentMapper}
           initialValues={{ 'dual-list-select': state.changedResources || definedResources || [] }}
           onSubmit={handleSubmit}

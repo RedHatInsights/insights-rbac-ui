@@ -1,4 +1,4 @@
-import { GET_RESOURCE_DEFINITIONS, GET_RESOURCE } from '../../redux/action-types';
+import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State
@@ -24,8 +24,8 @@ const setResource = (state, { payload }) => ({
 const setResourceLoading = (state) => ({ ...state, loadingResources: state.loadingResources + 1 });
 
 export default {
-  [`${GET_RESOURCE_DEFINITIONS}_PENDING`]: setLoadingState,
-  [`${GET_RESOURCE_DEFINITIONS}_FULFILLED`]: setResourceDefinitions,
-  [`${GET_RESOURCE}_PENDING`]: setResourceLoading,
-  [`${GET_RESOURCE}_FULFILLED`]: setResource,
+  [`${FETCH_RESOURCE_DEFINITIONS}_PENDING`]: setLoadingState,
+  [`${FETCH_RESOURCE_DEFINITIONS}_FULFILLED`]: setResourceDefinitions,
+  [`${FETCH_RESOURCE}_PENDING`]: setResourceLoading,
+  [`${FETCH_RESOURCE}_FULFILLED`]: setResource,
 };

@@ -8,7 +8,7 @@ import debouncePromise from '@redhat-cloud-services/frontend-components-utilitie
 import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
-import { getResourceDefinitions } from '../../../redux/actions/cost-management-actions';
+import { fetchResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
 import { DisabledRowWrapper } from './DisabledRowWrapper';
 import { isEqual } from 'lodash';
@@ -180,7 +180,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   }, []);
 
   useEffect(() => {
-    hasCostAccess && dispatch(getResourceDefinitions());
+    hasCostAccess && dispatch(fetchResourceDefinitions());
   }, [hasCostAccess]);
 
   useEffect(() => {
