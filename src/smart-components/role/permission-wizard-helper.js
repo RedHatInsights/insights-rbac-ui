@@ -1,9 +1,9 @@
-import { COST_MANAGEMENT_PREFIX, INVENTORY_PREFIX } from '../../utilities/constants';
+import { isCostPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';
 
 export const validateNextAddRolePermissionStep = (currentStep, values) => {
   const permissions = (values && values['add-permissions-table']) || [];
-  const hasCostPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes(COST_MANAGEMENT_PREFIX));
-  const hasInventoryPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes(INVENTORY_PREFIX));
+  const hasCostPermissions = permissions.some(({ uuid }) => isCostPermission(uuid));
+  const hasInventoryPermissions = permissions.some(({ uuid }) => isInventoryPermission(uuid));
 
   if (currentStep === 'inventory-groups-role' && hasCostPermissions) return 'cost-resources-definition';
 

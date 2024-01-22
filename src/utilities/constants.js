@@ -5,7 +5,3 @@ export const INVENTORY_API_BASE = `/api/inventory/v1`;
 export const DEFAULT_MUA_BUNDLE = 'rhel';
 
 export const DEFAULT_ACCESS_GROUP_ID = 'default-access';
-
-export const INVENTORY_PREFIX = 'inventory';
-export const COST_MANAGEMENT_PREFIX = 'cost-management';
-export const HOSTS_TYPE = ':hosts:';

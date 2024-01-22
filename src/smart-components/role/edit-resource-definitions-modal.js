@@ -14,15 +14,15 @@ import WarningModal from '@patternfly/react-component-groups/dist/dynamic/Warnin
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
-import { HOSTS_TYPE, INVENTORY_PREFIX } from '../../utilities/constants';
+import { isInventoryHostsPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';
 import messages from '../../Messages';
 import './role-permissions.scss';
 
-const createOptions = (resources, isInventory, isHosts) =>
-  isInventory
+const createOptions = (resources, permissionId) =>
+  isInventoryPermission(permissionId)
     ? // options for inventory
       [
-        ...(isHosts ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
+        ...(isInventoryHostsPermission(permissionId) ? [<FormattedMessage key="ungrouped" data-value="null" {...messages.ungroupedSystems} />] : []),
         ...Object.values(resources || {}).map((inventoryGroup) => (
           <span key={inventoryGroup.id} data-value={inventoryGroup.id}>
             {inventoryGroup.name}
@@ -113,8 +113,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const getResourceDefinitions = () => dispatch(fetchResourceDefinitions());
   const getInventoryGroups = () => dispatch(fetchInventoryGroups([permissionId]));
   const [state, dispatchLocally] = useReducer(reducer, initialState);
-  const isInventory = permissionId.includes(INVENTORY_PREFIX);
-  const isHosts = permissionId.includes(INVENTORY_PREFIX) && permissionId.includes(HOSTS_TYPE);
+  const isInventory = isInventoryPermission(permissionId);
 
   const { resourceTypes, isLoading, isLoadingResources, resources, isLoadingInventory, inventoryGroups } = useSelector(
     (props) => selector(props, state.resourcesPath),
@@ -193,7 +192,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     );
   };
 
-  const options = createOptions(isInventory ? inventoryGroups[permissionId] : resources, isInventory, isHosts);
+  const options = createOptions(isInventory ? inventoryGroups[permissionId] : resources, permissionId);
 
   return (
     <React.Fragment>
