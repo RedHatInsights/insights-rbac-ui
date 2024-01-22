@@ -109,7 +109,7 @@ const ResourceDefinitions = () => {
         </TextContent>
         <TableToolbarView
           columns={[{}]}
-          rows={createRows(data)}
+          rows={createRows(data, permissionId, intl)}
           data={data}
           filterValue={filter}
           fetchData={({ limit, offset, name }) =>

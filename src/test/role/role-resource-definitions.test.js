@@ -9,7 +9,7 @@ import ResourceDefinitions from '../../smart-components/role/role-resource-defin
 
 import * as RoleActions from '../../redux/actions/role-actions';
 
-describe('RoleResourceDefinitions', () => {
+describe('RoleResourceDefinitions - Cost management', () => {
   let mockStore;
   let initialState;
 
@@ -101,5 +101,55 @@ describe('RoleResourceDefinitions', () => {
       fireEvent.click(screen.getByLabelText('Go to last page'));
     });
     expect(store.getActions()).toEqual([]);
+  });
+});
+
+describe('RoleResourceDefinitions - Inventory', () => {
+  let mockStore;
+  let initialState;
+
+  const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
+
+  beforeEach(() => {
+    mockStore = configureStore();
+    initialState = {
+      roleReducer: {
+        isRecordLoading: false,
+        selectedRole: {
+          uuid: '1234',
+          display_name: 'name',
+          description: 'description',
+          access: [
+            {
+              resourceDefinitions: Array(21).fill({
+                attributeFilter: {
+                  key: 'group.in',
+                  value: [null, 'aaaa', 'bbbb', 'cccc'],
+                  operation: 'in',
+                },
+              }),
+              permission: 'inventory:hosts:read',
+            },
+          ],
+        },
+      },
+    };
+  });
+
+  it('should render resource definitions table', async () => {
+    fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+    await act(async () => {
+      render(
+        <Provider store={mockStore(initialState)}>
+          <MemoryRouter initialEntries={['/roles/detail/1234/permission/inventory:hosts:read']}>
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
+            </Routes>
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    expect(screen.getByText('Ungrouped systems')).toBeInTheDocument();
+    expect(screen.getByLabelText('resources table')).toMatchSnapshot();
   });
 });

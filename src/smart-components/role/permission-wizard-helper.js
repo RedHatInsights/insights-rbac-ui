@@ -1,7 +1,9 @@
+import { isCostPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';
+
 export const validateNextAddRolePermissionStep = (currentStep, values) => {
   const permissions = (values && values['add-permissions-table']) || [];
-  const hasCostPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes('cost-management'));
-  const hasInventoryPermissions = permissions.some(({ uuid }) => uuid.split(':')[0].includes('inventory'));
+  const hasCostPermissions = permissions.some(({ uuid }) => isCostPermission(uuid));
+  const hasInventoryPermissions = permissions.some(({ uuid }) => isInventoryPermission(uuid));
 
   if (currentStep === 'inventory-groups-role' && hasCostPermissions) return 'cost-resources-definition';
 

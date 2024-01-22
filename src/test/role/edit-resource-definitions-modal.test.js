@@ -4,18 +4,19 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import EditResourceDefinitionsModal from '../../smart-components/role/edit-resource-definitions-modal';
-import { GET_RESOURCE_DEFINITIONS, GET_RESOURCE } from '../../redux/action-types';
+import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE, FETCH_INVENTORY_GROUP } from '../../redux/action-types';
 
 import * as CostManagementActions from '../../redux/actions/cost-management-actions';
+import * as InventoryActions from '../../redux/actions/inventory-actions';
 import { render, screen } from '@testing-library/react';
 
-describe('EditResourceDefinitionsModal', () => {
+describe('EditResourceDefinitionsModal - Cost management', () => {
   let mockStore;
   let initialState;
   let initialProps;
 
-  const getResourceDefinitionsSpy = jest.spyOn(CostManagementActions, 'getResourceDefinitions');
-  const getResourceSpy = jest.spyOn(CostManagementActions, 'getResource');
+  const getResourceDefinitionsSpy = jest.spyOn(CostManagementActions, 'fetchResourceDefinitions');
+  const getResourceSpy = jest.spyOn(CostManagementActions, 'fetchResource');
 
   beforeEach(() => {
     mockStore = configureStore();
@@ -69,6 +70,10 @@ describe('EditResourceDefinitionsModal', () => {
         },
         isLoadingResources: false,
       },
+      inventoryReducer: {
+        isLoading: false,
+        resourceTypes: {},
+      },
     };
     initialProps = {
       cancelRoute: '/roles',
@@ -76,8 +81,8 @@ describe('EditResourceDefinitionsModal', () => {
   });
 
   it('should render edit resource definitions modal', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementation(() => ({ type: GET_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceSpy.mockImplementation(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -94,8 +99,8 @@ describe('EditResourceDefinitionsModal', () => {
 
   it('should show warning modal on cancel with changes and close it', async () => {
     jest.useFakeTimers();
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -127,8 +132,8 @@ describe('EditResourceDefinitionsModal', () => {
   });
 
   it('should not show warning modal on cancel without changes', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -151,8 +156,8 @@ describe('EditResourceDefinitionsModal', () => {
   });
 
   it('should show warning modal on close with changes', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -179,8 +184,8 @@ describe('EditResourceDefinitionsModal', () => {
   });
 
   it('should show alert on removing last resource and cancel', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: GET_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -199,5 +204,78 @@ describe('EditResourceDefinitionsModal', () => {
       await screen.getByLabelText('Remove all').click();
     });
     expect(screen.getByText(RDAlertText)).toBeInTheDocument();
+  });
+});
+
+describe('EditResourceDefinitionsModal - Inventory', () => {
+  let mockStore;
+  let initialState;
+  let initialProps;
+
+  const getInventoryGroupsSpy = jest.spyOn(InventoryActions, 'fetchInventoryGroups');
+
+  beforeEach(() => {
+    mockStore = configureStore();
+    initialState = {
+      roleReducer: {
+        isRecordLoading: false,
+        selectedRole: {
+          uuid: '1234',
+          display_name: 'name',
+          description: 'description',
+          access: [
+            {
+              resourceDefinitions: [
+                {
+                  attributeFilter: {
+                    key: 'group.in',
+                    value: [null, 'test1', 'test2'],
+                    operation: 'in',
+                  },
+                },
+              ],
+              permission: 'inventory:hosts:read',
+            },
+          ],
+        },
+      },
+      costReducer: {
+        isLoading: false,
+        resourceTypes: { data: [] },
+        resources: {},
+        isLoadingResources: false,
+      },
+      inventoryReducer: {
+        isLoading: false,
+        resourceTypes: {
+          'inventory:hosts:read': {
+            test1: { id: 'test1ID', name: 'test1' },
+            test2: { id: 'test2ID', name: 'test2' },
+            test3: { id: 'test3ID', name: 'test3' },
+            test4: { id: 'test4ID', name: 'test4' },
+          },
+        },
+      },
+    };
+    initialProps = {
+      cancelRoute: '/roles',
+    };
+  });
+
+  it('should render edit resource definitions modal', async () => {
+    getInventoryGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_INVENTORY_GROUP, payload: Promise.resolve({ data: 'something' }) }));
+
+    await act(async () => {
+      render(
+        <Provider store={mockStore(initialState)}>
+          <MemoryRouter initialEntries={['/roles/detail/1234/permission/inventory:hosts:read/edit']}>
+            <Routes>
+              <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
+            </Routes>
+          </MemoryRouter>
+        </Provider>
+      );
+    });
+    expect(screen.getAllByRole('dialog')[0]).toMatchSnapshot();
   });
 });
