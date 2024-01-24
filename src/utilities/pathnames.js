@@ -3,6 +3,11 @@ const pathnames = {
     path: '/',
     title: 'User Access',
   },
+  overview: {
+    link: '/overview',
+    path: '/overview/*',
+    title: 'Overview',
+  },
   groups: {
     link: '/groups',
     path: '/groups/*',

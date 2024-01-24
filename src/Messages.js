@@ -758,6 +758,159 @@ export default defineMessages({
     description: 'Group members label',
     defaultMessage: 'Members',
   },
+  overview: {
+    id: 'overview',
+    description: 'Overview label',
+    defaultMessage: 'User Access',
+  },
+  overviewSubtitle: {
+    id: 'overviewSubtitle',
+    description: 'Overview subtitle',
+    defaultMessage:
+      'Streamline access management for your organization’s users and resources with the User Access to ensure secure and efficient control over permissions and authorization.',
+  },
+  learnMore: {
+    id: 'learnMore',
+    description: 'learn more link',
+    defaultMessage: 'Learn more',
+  },
+  overviewHeroTitle: {
+    id: 'overviewHeroTitle',
+    description: 'Overview Hero section title',
+    defaultMessage: 'Get started with User Access',
+  },
+  overviewHeroSubtitle: {
+    id: 'overviewHeroSubtitle',
+    description: 'Overview Hero section subtitle',
+    defaultMessage: 'Red Hat’s Hybrid Cloud Console uses role-based access controls (RBAC).',
+  },
+  overviewHeroListItem1: {
+    id: 'overviewHeroListItem1',
+    description: 'Overview Hero first list item',
+    defaultMessage: 'Control user access by organizing roles instead of assigning permissions individually to users',
+  },
+  overviewHeroListItem2: {
+    id: 'overviewHeroListItem2',
+    description: 'Overview Hero second list item',
+    defaultMessage: 'Create groups that include roles and their corresponding permissions',
+  },
+  overviewHeroListItem3: {
+    id: 'overviewHeroListItem3',
+    description: 'Overview Hero third list item',
+    defaultMessage: `Assign users to these groups, allowing them to inherit the permissions associated with their group's roles`,
+  },
+  viewGroupsBtn: {
+    id: 'viewGroupsBtn',
+    description: 'View groups button',
+    defaultMessage: 'View groups',
+  },
+  viewRolesBtn: {
+    id: 'viewRolesBtn',
+    description: 'View roles button',
+    defaultMessage: 'View roles',
+  },
+  overviewSupportingFeaturesTitle: {
+    id: 'overviewSupportingFeaturesTitle',
+    description: 'Overview Supporting Features title',
+    defaultMessage: 'About default groups',
+  },
+  overviewSupportingFeaturesSubtitle1: {
+    id: 'overviewSupportingFeaturesSubtitle1',
+    description: 'Overview Supporting Features subtitle',
+    defaultMessage:
+      'The Default access group contains all authenticated users in your organization. These users automatically inherit a selection of predefined roles. The Default admin access group is limited to Organization Administrator users in your organization.',
+  },
+  overviewSupportingFeaturesSubtitle2: {
+    id: 'overviewSupportingFeaturesSubtitle2',
+    description: 'Overview Supporting Features subtitle',
+    defaultMessage:
+      'If you need to modify the default access group to add or remove roles, this new group will change to a Custom default access group.',
+  },
+  viewDefaultGroupsLink: {
+    id: 'viewDefaultGroupsLink',
+    description: 'View Default Groups link',
+    defaultMessage: 'View your default groups',
+  },
+  recommendedContentTitle: {
+    id: 'recommendedContentTitle',
+    description: 'Recommended Content title',
+    defaultMessage: 'Recommended content',
+  },
+  recommendedContentItem1: {
+    id: 'recommendedContentItem1',
+    description: 'Recommended content',
+    defaultMessage: 'Restricting access to a service to a team',
+  },
+  recommendedContentItem2: {
+    id: 'recommendedContentItem2',
+    description: 'Recommended content',
+    defaultMessage: 'Configuring granular permissions by service',
+  },
+  recommendedContentItem3: {
+    id: 'recommendedContentItem3',
+    description: 'Recommended content',
+    defaultMessage: 'Configuring read-only permissions for a team',
+  },
+  recommendedContentItem4: {
+    id: 'recommendedContentItem4',
+    description: 'Recommended content',
+    defaultMessage: 'Reducing permissions across my organization',
+  },
+  recommendedContentItem5: {
+    id: 'recommendedContentItem5',
+    description: 'Recommended content',
+    defaultMessage: 'User Access Configuration Guide for RBAC',
+  },
+  recommendedContentItem6: {
+    id: 'recommendedContentItem6',
+    description: 'Recommended content',
+    defaultMessage: 'RBAC API v.1.0.0',
+  },
+  recommendedContentItem7: {
+    id: 'recommendedContentItem7',
+    description: 'Recommended content',
+    defaultMessage: 'Red Hat blog post on Console RBAC',
+  },
+  labelQuickStart: {
+    id: 'labelQuickStart',
+    description: 'Quick Start label',
+    defaultMessage: 'Quick start',
+  },
+  labelDocumentation: {
+    id: 'labelDocumentation',
+    description: 'Documentation label',
+    defaultMessage: 'Documentation',
+  },
+  labelOtherResource: {
+    id: 'labelOtherResource',
+    description: 'Other resource label',
+    defaultMessage: 'Other resource',
+  },
+  beginQuickStartLink: {
+    id: 'beginQuickStartLink',
+    description: 'Begin Quick start link',
+    defaultMessage: 'Begin Quick start',
+  },
+  viewDocumentationLink: {
+    id: 'viewDocumentationLink',
+    description: 'View Documentation link',
+    defaultMessage: 'View documentation',
+  },
+  viewApiSiteLink: {
+    id: 'viewApiSiteLink',
+    description: 'View API site link',
+    defaultMessage: 'View API site',
+  },
+  readBlogPostLink: {
+    id: 'readBlogPostLink',
+    description: 'Read blog post link',
+    defaultMessage: 'Read blog post',
+  },
+  iamLearningResourcesLink: {
+    id: 'iamLearningResourcesLink',
+    description: 'Identity and Access Management Learning Resources link',
+    defaultMessage: 'View all Identity and Access Management Learning Resources.',
+  },
   user: {
     id: 'user',
     description: 'User label',
