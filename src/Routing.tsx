@@ -8,6 +8,8 @@ import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { useFlag } from '@unleash/proxy-client-react';
 
+const Overview = lazy(() => import('./smart-components/overview/overview'));
+
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
@@ -36,6 +38,10 @@ const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/grou
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
+  {
+    path: pathnames.overview.path,
+    element: Overview,
+  },
   {
     path: pathnames['user-detail'].path,
     element: UserDetail,
