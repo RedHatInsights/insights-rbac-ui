@@ -244,7 +244,7 @@
     "description": "Apply Cost permission text"
   },
   "applyInventoryGroupsRolePermission": {
-    "defaultMessage": "Specify which inventory groups youd like to give access for these permissions",
+    "defaultMessage": "Specify which inventory groups you'd like to give access for these permissions",
     "description": "Permissions for Groups"
   },
   "assignAtLeastOneGroup": {
@@ -262,6 +262,10 @@
   "baseRole": {
     "defaultMessage": "Base role",
     "description": "Base role label"
+  },
+  "beginQuickStartLink": {
+    "defaultMessage": "Begin Quick start",
+    "description": "Begin Quick start link"
   },
   "cancel": {
     "defaultMessage": "Cancel",
@@ -615,6 +619,10 @@
     "defaultMessage": "Groups",
     "description": "Groups plural"
   },
+  "iamLearningResourcesLink": {
+    "defaultMessage": "View all Identity and Access Management Learning Resources.",
+    "description": "Identity and Access Management Learning Resources link"
+  },
   "inactive": {
     "defaultMessage": "Inactive",
     "description": "Inactive label"
@@ -650,6 +658,18 @@
     "defaultMessage": "Key",
     "description": "Key label"
   },
+  "labelDocumentation": {
+    "defaultMessage": "Documentation",
+    "description": "Documentation label"
+  },
+  "labelOtherResource": {
+    "defaultMessage": "Other resource",
+    "description": "Other resource label"
+  },
+  "labelQuickStart": {
+    "defaultMessage": "Quick start",
+    "description": "Quick Start label"
+  },
   "lastModified": {
     "defaultMessage": "Last modified",
     "description": "Last modified column label"
@@ -657,6 +677,10 @@
   "lastName": {
     "defaultMessage": "Last name",
     "description": "Last name label"
+  },
+  "learnMore": {
+    "defaultMessage": "Learn more",
+    "description": "learn more link"
   },
   "loading": {
     "defaultMessage": "Loading...",
@@ -798,6 +822,46 @@
     "defaultMessage": "Org. Administrator",
     "description": "Org. Administrator name"
   },
+  "overview": {
+    "defaultMessage": "User Access",
+    "description": "Overview label"
+  },
+  "overviewHeroListItem1": {
+    "defaultMessage": "Control user access by organizing roles instead of assigning permissions individually to users",
+    "description": "Overview Hero first list item"
+  },
+  "overviewHeroListItem2": {
+    "defaultMessage": "Create groups that include roles and their corresponding permissions",
+    "description": "Overview Hero second list item"
+  },
+  "overviewHeroListItem3": {
+    "defaultMessage": "Assign users to these groups, allowing them to inherit the permissions associated with their group's roles",
+    "description": "Overview Hero third list item"
+  },
+  "overviewHeroSubtitle": {
+    "defaultMessage": "Red Hat’s Hybrid Cloud Console uses role-based access controls (RBAC).",
+    "description": "Overview Hero section subtitle"
+  },
+  "overviewHeroTitle": {
+    "defaultMessage": "Get started with User Access",
+    "description": "Overview Hero section title"
+  },
+  "overviewSubtitle": {
+    "defaultMessage": "Streamline access management for your organization’s users and resources with the User Access to ensure secure and efficient control over permissions and authorization.",
+    "description": "Overview subtitle"
+  },
+  "overviewSupportingFeaturesSubtitle1": {
+    "defaultMessage": "The Default access group contains all authenticated users in your organization. These users automatically inherit a selection of predefined roles. The Default admin access group is limited to Organization Administrator users in your organization.",
+    "description": "Overview Supporting Features subtitle"
+  },
+  "overviewSupportingFeaturesSubtitle2": {
+    "defaultMessage": "If you need to modify the default access group to add or remove roles, this new group will change to a Custom default access group.",
+    "description": "Overview Supporting Features subtitle"
+  },
+  "overviewSupportingFeaturesTitle": {
+    "defaultMessage": "About default groups",
+    "description": "Overview Supporting Features title"
+  },
   "owner": {
     "defaultMessage": "Owner",
     "description": "Owner column label"
@@ -849,6 +913,42 @@
   "rbacUsers": {
     "defaultMessage": "RBAC Users",
     "description": "RBAC Users error cather title"
+  },
+  "readBlogPostLink": {
+    "defaultMessage": "Read blog post",
+    "description": "Read blog post link"
+  },
+  "recommendedContentItem1": {
+    "defaultMessage": "Restricting access to a service to a team",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem2": {
+    "defaultMessage": "Configuring granular permissions by service",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem3": {
+    "defaultMessage": "Configuring read-only permissions for a team",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem4": {
+    "defaultMessage": "Reducing permissions across my organization",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem5": {
+    "defaultMessage": "User Access Configuration Guide for RBAC",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem6": {
+    "defaultMessage": "RBAC API v.1.0.0",
+    "description": "Recommended content"
+  },
+  "recommendedContentItem7": {
+    "defaultMessage": "Red Hat blog post on Console RBAC",
+    "description": "Recommended content"
+  },
+  "recommendedContentTitle": {
+    "defaultMessage": "Recommended content",
+    "description": "Recommended Content title"
   },
   "remove": {
     "defaultMessage": "Remove",
@@ -1262,9 +1362,29 @@
     "defaultMessage": "Value",
     "description": "Value label"
   },
+  "viewApiSiteLink": {
+    "defaultMessage": "View API site",
+    "description": "View API site link"
+  },
+  "viewDefaultGroupsLink": {
+    "defaultMessage": "View your default groups",
+    "description": "View Default Groups link"
+  },
+  "viewDocumentationLink": {
+    "defaultMessage": "View documentation",
+    "description": "View Documentation link"
+  },
+  "viewGroupsBtn": {
+    "defaultMessage": "View groups",
+    "description": "View groups button"
+  },
   "viewResourceDefinitions": {
     "defaultMessage": "View resource definitions for the <strong>{permission}</strong> permission",
     "description": "View resource definitions message"
+  },
+  "viewRolesBtn": {
+    "defaultMessage": "View roles",
+    "description": "View roles button"
   },
   "visitServiceAccountsPage": {
     "defaultMessage": "To add, reset credentials, or delete service accounts visit the {link}.",

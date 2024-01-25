@@ -1566,7 +1566,7 @@ export default defineMessages({
   applyInventoryGroupsRolePermission: {
     id: 'applyInventoryGroupsRolePermission',
     description: 'Permissions for Groups',
-    defaultMessage: 'Specify which inventory groups youd like to give access for these permissions',
+    defaultMessage: "Specify which inventory groups you'd like to give access for these permissions",
   },
   createRoleFromScratch: {
     id: 'createRoleFromScratch',
