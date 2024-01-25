@@ -233,7 +233,7 @@ const InventoryGroupsRole = (props) => {
             </Tooltip>
           </GridItem>
           <GridItem lg={2} md={4} sm={2}>
-            {index <= 0 && (
+            {index <= 0 && permissions.length > 1 && (
               <Button key={`${permissionID}-copy`} variant="link" isInLink onClick={() => dispatchLocally({ type: 'copyToAll', permissions })}>
                 {intl.formatMessage(messages.copyToAll)}
               </Button>
