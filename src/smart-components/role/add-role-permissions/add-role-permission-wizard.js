@@ -143,7 +143,7 @@ const AddRolePermissionWizard = ({ role }) => {
             steps={[
               {
                 name: 'success',
-                component: new AddRolePermissionSuccess({ currentRoleID }),
+                component: <AddRolePermissionSuccess currentRoleID={currentRoleID} />,
                 isFinishedStep: true,
               },
             ]}
