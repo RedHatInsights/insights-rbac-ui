@@ -128,9 +128,13 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
             state.roleReducer.selectedRole.access
               .filter((a) => a.permission === permissionId)
               .map((access) =>
-                access.resourceDefinitions.map((resource) =>
-                  isInventory ? resource.attributeFilter.value.map((value) => String(value)) : resource.attributeFilter.value
-                )
+                access.resourceDefinitions.map((resource) => {
+                  const value = resource.attributeFilter.value;
+                  if (isInventory) {
+                    return Array.isArray(value) ? value.map((value) => String(value)) : String(value);
+                  }
+                  return resource.attributeFilter.value;
+                })
               )
           )
         : [],
