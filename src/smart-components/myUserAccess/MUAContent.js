@@ -15,7 +15,9 @@ import messages from '../../Messages';
 
 const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
   const intl = useIntl();
-  const entitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => is_entitled);
+  const entitledBundles = Object.entries(entitlements).filter(
+    ([entitlement, { is_entitled }]) => is_entitled && entitlement !== 'application_services'
+  );
   const unEntitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => !is_entitled);
   const { bundle } = useSearchParams('bundle');
   const hasAdminAccess = isOrgAdmin || isUserAccessAdmin;
