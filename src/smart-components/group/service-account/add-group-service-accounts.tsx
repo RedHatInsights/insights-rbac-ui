@@ -51,6 +51,7 @@ const createRows = (data: ServiceAccount[], checkedRows = []) =>
         title: curr.name,
         cells: [
           curr.name,
+          curr.description,
           curr.clientId,
           curr.createdBy,
           <Fragment key={`${curr.name}-modified`}>
@@ -96,6 +97,7 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
 
   const columns = [
     { title: intl.formatMessage(messages.name), orderBy: 'name' },
+    { title: intl.formatMessage(messages.description), orderBy: 'description' },
     { title: intl.formatMessage(messages.clientId), orderBy: 'clientId' },
     { title: intl.formatMessage(messages.owner), orderBy: 'owner' },
     { title: intl.formatMessage(messages.timeCreated), orderBy: 'timeCreated' },
