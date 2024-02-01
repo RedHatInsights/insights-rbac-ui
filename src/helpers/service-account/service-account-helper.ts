@@ -19,6 +19,7 @@ export interface ServiceAccount {
   uuid: string;
   clientId: string;
   name: string;
+  description: string;
   createdBy: string;
   createdAt: number;
 }
