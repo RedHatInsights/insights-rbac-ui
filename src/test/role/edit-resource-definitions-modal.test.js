@@ -125,7 +125,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
     expect(screen.getByTestId('warning-modal')).toBeInTheDocument();
 
     await act(async () => {
-      screen.getByText('Exit').click();
+      screen.getByText('Discard').click();
     });
 
     expect(() => screen.getByTestId('warning-modal')).toThrow('');
