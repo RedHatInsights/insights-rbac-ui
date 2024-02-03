@@ -170,7 +170,6 @@ const Group = () => {
           isOpen={isResetWarningVisible}
           title={intl.formatMessage(messages.restoreDefaultAccessQuestion)}
           confirmButtonLabel={intl.formatMessage(messages.continue)}
-          cancelButtonLabel={intl.formatMessage(messages.cancel)}
           onClose={() => setResetWarningVisible(false)}
           onConfirm={() => {
             dispatch(removeGroups([systemGroupUuid])).then(() =>

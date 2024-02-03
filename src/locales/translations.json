@@ -111,6 +111,7 @@
   "deletingGroupRemovesRoles": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
   "deletingGroupsRemovesRoles": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",
   "description": "Description",
+  "discard": "Discard",
   "discardedInputsWarning": "All inputs will be discarded",
   "edit": "Edit",
   "editGroupCanceledDescription": "Edit group was canceled by the user.",

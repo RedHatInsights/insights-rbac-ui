@@ -447,6 +447,10 @@
     "defaultMessage": "Description",
     "description": "Description column label"
   },
+  "discard": {
+    "defaultMessage": "Discard",
+    "description": "Discard label"
+  },
   "discardedInputsWarning": {
     "defaultMessage": "All inputs will be discarded",
     "description": "Warning saying that all inputs will be discarded"

@@ -206,8 +206,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
         onClose={() => dispatchLocally({ type: 'update', payload: { cancelWarningVisible: false } })}
         onConfirm={onCancel}
         data-testid="warning-modal"
-        confirmButtonLabel={intl.formatMessage(messages.exit)}
-        cancelButtonLabel={intl.formatMessage(messages.stay)}
+        confirmButtonLabel={intl.formatMessage(messages.discard)}
       >
         {intl.formatMessage(messages.changesWillBeLost)}
       </WarningModal>
