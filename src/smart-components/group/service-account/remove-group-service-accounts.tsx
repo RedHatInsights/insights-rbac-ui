@@ -2,14 +2,15 @@ import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import messages from '../../../Messages';
+import { ButtonVariant } from '@patternfly/react-core';
 
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
   submitRoute: string;
-  postMethod: (promise?: Promise<unknown>) => void;
+  postMethod: (promise?: any) => void;
 };
 
 type RBACStore = {
@@ -35,29 +36,29 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
   const intl = useIntl();
 
   return (
-    <RemoveModal
+    <WarningModal
       isOpen
-      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
-      text={
-        <FormattedMessage
-          {...messages.removeServiceAccountsText}
-          values={{
-            b: (text) => <b>{text}</b>,
-            count: accountsCount,
-            name: selectedServiceAccounts[0]?.name,
-            group: group.name,
-          }}
-        />
-      }
-      confirmButtonLabel={intl.formatMessage(messages.remove)}
       withCheckbox
+      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
+      confirmButtonLabel={intl.formatMessage(messages.remove)}
+      confirmButtonVariant={ButtonVariant.danger}
       onClose={postMethod}
-      onSubmit={() => {
+      onConfirm={() => {
         const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
         dispatch(action);
         postMethod(action.payload);
       }}
-    />
+    >
+      <FormattedMessage
+        {...messages.removeServiceAccountsText}
+        values={{
+          b: (text) => <b>{text}</b>,
+          count: accountsCount,
+          name: selectedServiceAccounts[0]?.name,
+          group: group.name,
+        }}
+      />
+    </WarningModal>
   );
 };
 
