@@ -2,10 +2,10 @@ import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import { ButtonVariant } from '@patternfly/react-core';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
-import { ButtonVariant } from '@patternfly/react-core';
 
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
@@ -40,7 +40,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       isOpen
       withCheckbox
       title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
-      confirmButtonLabel={intl.formatMessage(messages.remove)}
+      confirmButtonLabel={intl.formatMessage(messages.removeServiceAccounts, { count: accountsCount })}
       confirmButtonVariant={ButtonVariant.danger}
       onClose={postMethod}
       onConfirm={() => {

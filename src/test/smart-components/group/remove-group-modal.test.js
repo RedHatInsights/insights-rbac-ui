@@ -96,7 +96,7 @@ describe('<RemoveGroupModal />', () => {
     });
 
     await act(async () => {
-      fireEvent.click(screen.getByText('I understand that this action cannot be undone.'));
+      fireEvent.click(screen.getByText('I understand that this action cannot be undone'));
     });
     await act(async () => {
       fireEvent.click(screen.getByText('Delete group'));
