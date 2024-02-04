@@ -12,6 +12,7 @@ const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {
       withCheckbox
       isOpen={isOpen}
       title={intl.formatMessage(messages.warning)}
+      checkboxLabel={intl.formatMessage(messages.confirmCheckMessage)}
       confirmButtonLabel={intl.formatMessage(messages.continue)}
       onClose={onClose}
       onConfirm={onSubmit}
