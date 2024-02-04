@@ -108,6 +108,7 @@
   "deleteGroupQuestion": "Delete group?",
   "deleteGroups": "Delete groups",
   "deleteGroupsQuestion": "Delete groups?",
+  "deleteRole": "Delete role",
   "deleteRoleQuestion": "Delete role?",
   "deletingGroupRemovesRoles": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
   "deletingGroupsRemovesRoles": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",

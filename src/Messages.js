@@ -1643,6 +1643,11 @@ export default defineMessages({
     description: 'Delete role question message',
     defaultMessage: 'Delete role?',
   },
+  deleteRole: {
+    id: 'deleteRole',
+    description: 'Delete role message',
+    defaultMessage: 'Delete role',
+  },
   roleWilBeRemovedWithPermissions: {
     id: 'roleWilBeRemovedWithPermissions',
     description: 'Role will be removed with permissions message',

@@ -435,6 +435,10 @@
     "defaultMessage": "Delete groups?",
     "description": "Delete groups question label"
   },
+  "deleteRole": {
+    "defaultMessage": "Delete role",
+    "description": "Delete role message"
+  },
   "deleteRoleQuestion": {
     "defaultMessage": "Delete role?",
     "description": "Delete role question message"
