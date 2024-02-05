@@ -3,6 +3,8 @@ export const BAD_UUID = 'bad uuid';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import { calculatePage } from './pagination';
 
+export const trimAll = (string) => string.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+
 export const scrollToTop = () =>
   document.getElementById('root').scrollTo({
     behavior: 'smooth',
