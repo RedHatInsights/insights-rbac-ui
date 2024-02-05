@@ -96,6 +96,7 @@ const AddUserToGroup = ({ username }) => {
         title={intl.formatMessage(messages.exitItemAdding, { item: intl.formatMessage(messages.users).toLocaleLowerCase() })}
         isOpen={cancelWarningVisible}
         onClose={() => setCancelWarningVisible(false)}
+        confirmButtonLabel={intl.formatMessage(messages.discard)}
         onConfirm={redirectToUserDetail}
       >
         {intl.formatMessage(messages.changesWillBeLost)}

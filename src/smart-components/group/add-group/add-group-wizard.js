@@ -119,8 +119,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
           container.current.hidden = false;
           setWizardCanceled(false);
         }}
-        confirmButtonLabel={intl.formatMessage(messages.exit)}
-        cancelButtonLabel={intl.formatMessage(messages.stay)}
+        confirmButtonLabel={intl.formatMessage(messages.discard)}
         onConfirm={redirectToGroups}
       >
         {intl.formatMessage(messages.discardedInputsWarning)}

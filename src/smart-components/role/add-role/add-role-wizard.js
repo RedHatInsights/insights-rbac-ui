@@ -170,6 +170,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       <SilentErrorBoundary silentErrorString="focus-trap">
         <WarningModal
           title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.role).toLocaleLowerCase() })}
+          confirmButtonLabel={intl.formatMessage(messages.discard)}
           isOpen={cancelWarningVisible}
           onClose={() => {
             container.current.hidden = false;

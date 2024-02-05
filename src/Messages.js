@@ -1781,4 +1781,9 @@ export default defineMessages({
     description: 'Copy to all label',
     defaultMessage: 'Copy to all',
   },
+  discard: {
+    id: 'discard',
+    description: 'Discard label',
+    defaultMessage: 'Discard',
+  },
 });
