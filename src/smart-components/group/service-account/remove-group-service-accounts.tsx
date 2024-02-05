@@ -10,7 +10,7 @@ import messages from '../../../Messages';
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
   submitRoute: string;
-  postMethod: (promise?: any) => void;
+  postMethod: (promise?: Promise<unknown>) => void;
 };
 
 type RBACStore = {
@@ -42,7 +42,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
       confirmButtonLabel={intl.formatMessage(messages.removeServiceAccounts, { count: accountsCount })}
       confirmButtonVariant={ButtonVariant.danger}
-      onClose={postMethod}
+      onClose={() => postMethod()}
       onConfirm={() => {
         const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
         dispatch(action);
