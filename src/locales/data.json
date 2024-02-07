@@ -81,6 +81,7 @@
     "confirmCheckMessage": "I understand, and I want to continue.",
     "confirmDetails": "Confirm details",
     "confirmDetailsDescription": "Confirm the details for your source, or click Back to revise",
+    "contactOrgAdmin": "Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.",
     "contactOrgAdministrator": "Contact your Org. Administrator for more information.",
     "contactServiceTeamForAccounts": "Contact your platform service team to add service accounts.",
     "contactServiceTeamForRoles": "Contact your platform service team to add roles.",
