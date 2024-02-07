@@ -7,6 +7,7 @@ import { TableVariant, compoundExpand } from '@patternfly/react-table';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import debounce from 'lodash/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
@@ -18,7 +19,6 @@ import EmptyWithAction from '../../presentational-components/shared/empty-state'
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
@@ -79,7 +79,9 @@ const User = () => {
   }, []);
 
   const columns = [
-    intl.formatMessage(messages.roles),
+    {
+      title: intl.formatMessage(messages.roles),
+    },
     {
       title: intl.formatMessage(messages.groups),
       cellTransforms: [compoundExpand],
@@ -91,6 +93,12 @@ const User = () => {
     {
       title: intl.formatMessage(messages.lastModified),
     },
+  ];
+
+  const nestedPermissionsCells = [
+    intl.formatMessage(messages.application),
+    intl.formatMessage(messages.resourceType),
+    intl.formatMessage(messages.operation),
   ];
 
   const createRows = (data, username, adminGroup) =>
@@ -152,7 +160,7 @@ const User = () => {
               ],
             },
             {
-              uuid: `${uuid}-groups`,
+              uuid: `${uuid}-permissions`,
               parent: 3 * i,
               compoundParent: 2,
               cells: [
@@ -165,11 +173,7 @@ const User = () => {
                           aria-label="Simple Table"
                           ouiaId="permissions-in-role-nested-table"
                           variant={TableVariant.compact}
-                          cells={[
-                            intl.formatMessage(messages.application),
-                            intl.formatMessage(messages.resourceType),
-                            intl.formatMessage(messages.operation),
-                          ]}
+                          cells={nestedPermissionsCells}
                           rows={rolesWithAccess[uuid].access.map((access) => ({ cells: access.permission.split(':') }))}
                         >
                           <TableHeader />
@@ -179,7 +183,7 @@ const User = () => {
                         <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
                       )
                     ) : (
-                      <ListLoader items={3} isCompact />
+                      <SkeletonTable rows={accessCount} columns={nestedPermissionsCells} variant={TableVariant.compact} />
                     ),
                 },
               ],
