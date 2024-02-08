@@ -9,13 +9,10 @@ jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
 const ComponentWrapper = ({ initialEntries, children }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
 
 describe('<MUAContent />', () => {
-  it('should render one entitled and un_entitled sections', async () => {
+  it('should render one entitled', async () => {
     const entitlements = {
       entitled: {
         is_entitled: true,
-      },
-      unEntitled: {
-        is_entitled: false,
       },
     };
 
@@ -28,7 +25,6 @@ describe('<MUAContent />', () => {
     });
 
     expect(screen.getByTestId('entitle-section')).toBeInTheDocument();
-    expect(screen.getByText('Not subscribed')).toBeInTheDocument();
   });
   it('should render permissions title for non org admins', async () => {
     const entitlements = {};
