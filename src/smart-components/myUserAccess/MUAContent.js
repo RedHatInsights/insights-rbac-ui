@@ -18,7 +18,6 @@ const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
   const entitledBundles = Object.entries(entitlements).filter(
     ([entitlement, { is_entitled }]) => is_entitled && entitlement !== 'application_services'
   );
-  const unEntitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => !is_entitled);
   const { bundle } = useSearchParams('bundle');
   const hasAdminAccess = isOrgAdmin || isUserAccessAdmin;
 
@@ -30,11 +29,6 @@ const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
             <StackItem data-testid="entitle-section" className="rbac-l-myUserAccess-section__cards--entitled">
               <MUACard entitlements={entitledBundles} />
             </StackItem>
-            {unEntitledBundles.length > 0 && (
-              <StackItem className="rbac-l-myUserAccess-section__cards--unentitled">
-                <MUACard header={intl.formatMessage(messages.notSubscribed)} entitlements={unEntitledBundles} isDisabled />
-              </StackItem>
-            )}
           </Stack>
         </GridItem>
         <GridItem className="pf-m-9-col-on-md rbac-l-myUserAccess-section__table">
