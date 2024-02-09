@@ -217,7 +217,7 @@ describe('<AddGroupRoles />', () => {
         )
       ).toBeInTheDocument()
     );
-    waitFor(() => expect(screen.getByText('I understand, and I want to continue.')).toBeInTheDocument());
+    waitFor(() => expect(screen.getByText('I understand, and I want to continue')).toBeInTheDocument());
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByText('Continue'));
     expect(onDefaultGroupChanged).toHaveBeenCalled();
@@ -266,7 +266,7 @@ describe('<AddGroupRoles />', () => {
 
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByText('Add to group'));
-    expect(screen.getByText('I understand, and I want to continue.')).toBeInTheDocument();
+    expect(screen.getByText('I understand, and I want to continue')).toBeInTheDocument();
     fireEvent.click(screen.getByText('Cancel'));
     expect(addRolesToGroupSpy).not.toHaveBeenCalled();
     expect(setSelectedRoles).toHaveBeenCalled();

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import DefaultGroupChange from './default-group-change-modal';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import { ButtonVariant } from '@patternfly/react-core';
 
 const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabel, isDefault, isChanged }) => {
   const [showConfirmModal, setShowConfirmModal] = useState(false);
@@ -13,24 +14,22 @@ const RemoveRoles = ({ title, text, onClose, onSubmit, isOpen, confirmButtonLabe
         onClose();
         setShowConfirmModal(false);
       }}
-      onSubmit={() => {
-        onSubmit();
-      }}
+      onSubmit={onSubmit}
     />
   ) : (
-    <RemoveModal
-      text={text}
+    <WarningModal
       title={title}
       isOpen={isOpen}
       confirmButtonLabel={confirmButtonLabel}
-      onClose={() => {
-        onClose();
-      }}
-      onSubmit={() => {
+      confirmButtonVariant={ButtonVariant.danger}
+      onClose={onClose}
+      onConfirm={() => {
         setShowConfirmModal(true);
         (!isDefault || isChanged) && onSubmit();
       }}
-    />
+    >
+      {text}
+    </WarningModal>
   );
 };
 

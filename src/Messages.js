@@ -129,7 +129,7 @@ export default defineMessages({
   confirmCheckMessage: {
     id: 'confirmCheckMessage',
     description: 'Confirm modal check message',
-    defaultMessage: 'I understand, and I want to continue.',
+    defaultMessage: 'I understand, and I want to continue',
   },
   noMatchingItemsFound: {
     id: 'noMatchingItemsFound',
@@ -974,7 +974,7 @@ export default defineMessages({
   removeGroupServiceAccountsQuestion: {
     id: 'removeGroupServiceAccountsQuestion',
     description: 'Remove service accounts from group question label',
-    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}} from group?',
+    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}?',
   },
   removeServiceAccountsText: {
     id: 'removeServiceAccountsText',
@@ -986,6 +986,11 @@ export default defineMessages({
     id: 'remove',
     description: 'Remove button label',
     defaultMessage: 'Remove',
+  },
+  removeServiceAccounts: {
+    id: 'removeServiceAccounts',
+    description: 'Remove service accounts button label',
+    defaultMessage: 'Remove service {count, plural, one {account} other {accounts}}',
   },
   member: {
     id: 'member',
@@ -1253,7 +1258,7 @@ export default defineMessages({
   understandActionIrreversible: {
     id: 'understandActionIrreversible',
     description: 'Understand action cannot be undone message',
-    defaultMessage: 'I understand that this action cannot be undone.',
+    defaultMessage: 'I understand that this action cannot be undone',
   },
   nameAlreadyTaken: {
     id: 'nameAlreadyTaken',
@@ -1642,6 +1647,11 @@ export default defineMessages({
     id: 'deleteRoleQuestion',
     description: 'Delete role question message',
     defaultMessage: 'Delete role?',
+  },
+  deleteRole: {
+    id: 'deleteRole',
+    description: 'Delete role message',
+    defaultMessage: 'Delete role',
   },
   roleWilBeRemovedWithPermissions: {
     id: 'roleWilBeRemovedWithPermissions',

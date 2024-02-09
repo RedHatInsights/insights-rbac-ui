@@ -1,10 +1,11 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { cellWidth, info } from '@patternfly/react-table';
-import { Button } from '@patternfly/react-core';
+import { Button, ButtonVariant } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -22,7 +23,6 @@ import {
   SUBMIT_REMOVE_MODAL,
 } from './role-permissions-table-helpers';
 import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
-import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './role-permissions.scss';
@@ -221,19 +221,21 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
 
   return (
     <section className="pf-v5-c-page__main-section rbac-c-role__permissions">
-      {showRemoveModal && (
-        <RemoveModal
-          text={deleteInfo.text}
-          title={deleteInfo.title}
-          isOpen={showRemoveModal}
-          confirmButtonLabel={deleteInfo.confirmButtonLabel}
-          onClose={() => internalDispatch({ type: SHOW_REMOVE_MODAL, showRemoveModal: false })}
-          onSubmit={() => {
-            confirmDelete();
-            internalDispatch({ type: SUBMIT_REMOVE_MODAL });
-          }}
-        />
-      )}
+      <WarningModal
+        title={deleteInfo.title}
+        isOpen={showRemoveModal}
+        confirmButtonLabel={deleteInfo.confirmButtonLabel}
+        confirmButtonVariant={ButtonVariant.danger}
+        onClose={() => internalDispatch({ type: SHOW_REMOVE_MODAL, showRemoveModal: false })}
+        onConfirm={() => {
+          confirmDelete();
+          internalDispatch({ type: SUBMIT_REMOVE_MODAL });
+        }}
+        aria-label="Remove role permissions modal"
+      >
+        {deleteInfo.text}
+      </WarningModal>
+
       {isLoading ? (
         <SkeletonTable rows={pagination.limit} columns={columns.map((item) => item.title)} />
       ) : (

@@ -312,7 +312,7 @@
     "description": "Confirm button text"
   },
   "confirmCheckMessage": {
-    "defaultMessage": "I understand, and I want to continue.",
+    "defaultMessage": "I understand, and I want to continue",
     "description": "Confirm modal check message"
   },
   "confirmDetails": {
@@ -434,6 +434,10 @@
   "deleteGroupsQuestion": {
     "defaultMessage": "Delete groups?",
     "description": "Delete groups question label"
+  },
+  "deleteRole": {
+    "defaultMessage": "Delete role",
+    "description": "Delete role message"
   },
   "deleteRoleQuestion": {
     "defaultMessage": "Delete role?",
@@ -1007,7 +1011,7 @@
     "description": "Removal of  group service accounts error notification title"
   },
   "removeGroupServiceAccountsQuestion": {
-    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}} from group?",
+    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}}?",
     "description": "Remove service accounts from group question label"
   },
   "removeGroupServiceAccountsSuccessDescription": {
@@ -1113,6 +1117,10 @@
   "removeRolesQuestion": {
     "defaultMessage": "Remove roles?",
     "description": "Remove roles question label"
+  },
+  "removeServiceAccounts": {
+    "defaultMessage": "Remove service {count, plural, one {account} other {accounts}}",
+    "description": "Remove service accounts button label"
   },
   "removeServiceAccountsText": {
     "defaultMessage": "{count, plural, one {<b>{name}</b> service account} other {<b>#</b> service accounts}} will be removed from <b>{group}</b> group.",
@@ -1319,7 +1327,7 @@
     "description": "Message advising change of the filter settings"
   },
   "understandActionIrreversible": {
-    "defaultMessage": "I understand that this action cannot be undone.",
+    "defaultMessage": "I understand that this action cannot be undone",
     "description": "Understand action cannot be undone message"
   },
   "ungroupedSystems": {

@@ -3,14 +3,14 @@ import React, { Fragment, useState, useEffect, useContext, useRef, Suspense } fr
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
-import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent } from '@patternfly/react-core';
+import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent, ButtonVariant } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { createRows } from './member-table-helpers';
 import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
 import { getBackRoute } from '../../../helpers/shared/helpers';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import PermissionsContext from '../../../utilities/permissions-context';
 import AppLink from '../../../presentational-components/shared/AppLink';
@@ -157,17 +157,19 @@ const GroupMembers = () => {
 
   return (
     <Fragment>
-      <RemoveModal
-        text={deleteInfo.text}
+      <WarningModal
         title={deleteInfo.title}
         confirmButtonLabel={deleteInfo.confirmButtonLabel}
+        confirmButtonVariant={ButtonVariant.danger}
         isOpen={showRemoveModal}
         onClose={() => setShowRemoveModal(false)}
-        onSubmit={() => {
+        onConfirm={() => {
           setShowRemoveModal(false);
           confirmDelete();
         }}
-      />
+      >
+        {deleteInfo.text}
+      </WarningModal>
       <Section type="content" id="tab-principals">
         {platformDefault || adminDefault ? (
           <Card>

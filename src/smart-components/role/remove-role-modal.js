@@ -3,8 +3,8 @@ import PropTypes from 'prop-types';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import ExclamationTriangleIcon from '@patternfly/react-icons/dist/dynamic/icons/exclamation-triangle-icon';
-import { Button, Checkbox, Modal, Text, TextContent, TextVariants, Split, SplitItem, Icon } from '@patternfly/react-core';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import { Text, TextContent, TextVariants, ButtonVariant } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import { removeRole } from '../../redux/actions/role-actions';
 import { fetchRole } from '../../helpers/role/role-helper';
@@ -23,7 +23,6 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
 
     return roles.length;
   });
-  const [isDisabled, setIsDisabled] = useState(true);
   const [internalRoleName, setInternalRoleName] = useState(roleName);
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
@@ -48,35 +47,16 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
     return null;
   }
 
-  return !isLoading ? (
-    <Modal
-      className="rbac"
-      aria-label="remove-role"
-      header={
-        <TextContent>
-          <Split hasGutter>
-            <SplitItem>
-              <Icon size="lg">
-                <ExclamationTriangleIcon style={{ fill: '#f0ab00' }} />
-              </Icon>
-            </SplitItem>
-            <SplitItem>
-              <Text component="h1">{intl.formatMessage(messages.deleteRoleQuestion)}</Text>
-            </SplitItem>
-          </Split>
-        </TextContent>
-      }
-      isOpen
-      variant="small"
+  return (
+    <WarningModal
+      withCheckbox
+      isOpen={!isLoading}
+      aria-label="delete-role"
+      title={intl.formatMessage(messages.deleteRoleQuestion)}
       onClose={onCancel}
-      actions={[
-        <Button isDisabled={isDisabled} key="submit" variant="danger" type="button" id="confirm-delete-portfolio" onClick={onSubmit}>
-          {intl.formatMessage(messages.confirm)}
-        </Button>,
-        <Button key="cancel" variant="link" type="button" onClick={onCancel}>
-          {intl.formatMessage(messages.cancel)}
-        </Button>,
-      ]}
+      onConfirm={onSubmit}
+      confirmButtonLabel={intl.formatMessage(messages.deleteRole)}
+      confirmButtonVariant={ButtonVariant.danger}
     >
       <TextContent>
         <Text component={TextVariants.p}>
@@ -89,18 +69,9 @@ const RemoveRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit, 
             }}
           />
         </Text>
-        <Checkbox
-          id="remove-role-checkbox"
-          role="checkbox"
-          aria-label="Confirm role removal"
-          name="remove-role-checkbox"
-          label={intl.formatMessage(messages.understandActionIrreversible)}
-          isChecked={!isDisabled}
-          onChange={() => setIsDisabled((prev) => !prev)}
-        />
       </TextContent>
-    </Modal>
-  ) : null;
+    </WarningModal>
+  );
 };
 
 RemoveRoleModal.propTypes = {

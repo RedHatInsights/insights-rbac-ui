@@ -1,33 +1,33 @@
 import React from 'react';
 import PropTypes from 'prop-types';
 import { Text, TextContent } from '@patternfly/react-core';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
 const DefaultGroupChange = ({ isOpen, onClose, onSubmit }) => {
   const intl = useIntl();
   return (
-    <RemoveModal
-      text={
-        <TextContent>
-          <Text>
-            <FormattedMessage
-              {...messages.defaultAccessGroupEditWarning}
-              values={{
-                b: (text) => <b>{text}</b>,
-              }}
-            />
-          </Text>
-        </TextContent>
-      }
-      title={intl.formatMessage(messages.warning)}
+    <WarningModal
       withCheckbox
       isOpen={isOpen}
+      title={intl.formatMessage(messages.warning)}
+      checkboxLabel={intl.formatMessage(messages.confirmCheckMessage)}
       confirmButtonLabel={intl.formatMessage(messages.continue)}
       onClose={onClose}
-      onSubmit={onSubmit}
-    />
+      onConfirm={onSubmit}
+    >
+      <TextContent>
+        <Text>
+          <FormattedMessage
+            {...messages.defaultAccessGroupEditWarning}
+            values={{
+              b: (text) => <b>{text}</b>,
+            }}
+          />
+        </Text>
+      </TextContent>
+    </WarningModal>
   );
 };
 

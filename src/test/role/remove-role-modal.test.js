@@ -74,11 +74,11 @@ describe('<RemoveRoleModal />', () => {
     );
 
     await act(async () => {
-      await fireEvent.click(screen.getByText('I understand that this action cannot be undone.'));
+      await fireEvent.click(screen.getByText('I understand that this action cannot be undone'));
     });
 
     act(() => {
-      screen.getByText(/confirm/i).click();
+      screen.getByText('Delete role').click();
     });
 
     expect(removeRoleSpy).toHaveBeenCalledTimes(1);

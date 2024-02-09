@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
 import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
@@ -11,7 +12,6 @@ import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
 import * as UserLogin from '../../helpers/shared/user-login';
-import RemoveModal from '../../presentational-components/shared/RemoveModal';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 
@@ -379,7 +379,7 @@ describe('role', () => {
           <MemoryRouter initialEntries={['/iam/user-access/roles/detail/1234']}>
             <Routes>
               <Route path="/iam/user-access/roles/detail/:roleId/*" element={<Role />}>
-                <Route path="remove" element={<RemoveModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
+                <Route path="remove" element={<WarningModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
               </Route>
             </Routes>
           </MemoryRouter>
@@ -419,7 +419,7 @@ describe('role', () => {
           <MemoryRouter initialEntries={['/iam/user-access/roles/detail/1234']}>
             <Routes>
               <Route path="/iam/user-access/roles/detail/:roleId/*" element={<Role />}>
-                <Route path="remove" element={<RemoveModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
+                <Route path="remove" element={<WarningModal cancelRoute="/iam/user-access/roles/detail/1234" />} />
               </Route>
             </Routes>
           </MemoryRouter>

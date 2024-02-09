@@ -2,8 +2,9 @@ import React, { useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
+import { ButtonVariant } from '@patternfly/react-core';
+import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
-import RemoveModal from '../../../presentational-components/shared/RemoveModal';
 import messages from '../../../Messages';
 
 type AddGroupServiceAccountsProps = {
@@ -35,29 +36,29 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
   const intl = useIntl();
 
   return (
-    <RemoveModal
+    <WarningModal
       isOpen
-      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
-      text={
-        <FormattedMessage
-          {...messages.removeServiceAccountsText}
-          values={{
-            b: (text) => <b>{text}</b>,
-            count: accountsCount,
-            name: selectedServiceAccounts[0]?.name,
-            group: group.name,
-          }}
-        />
-      }
-      confirmButtonLabel={intl.formatMessage(messages.remove)}
       withCheckbox
-      onClose={postMethod}
-      onSubmit={() => {
+      title={intl.formatMessage(messages.removeGroupServiceAccountsQuestion, { count: accountsCount })}
+      confirmButtonLabel={intl.formatMessage(messages.removeServiceAccounts, { count: accountsCount })}
+      confirmButtonVariant={ButtonVariant.danger}
+      onClose={() => postMethod()}
+      onConfirm={() => {
         const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
         dispatch(action);
         postMethod(action.payload);
       }}
-    />
+    >
+      <FormattedMessage
+        {...messages.removeServiceAccountsText}
+        values={{
+          b: (text) => <b>{text}</b>,
+          count: accountsCount,
+          name: selectedServiceAccounts[0]?.name,
+          group: group.name,
+        }}
+      />
+    </WarningModal>
   );
 };
 
