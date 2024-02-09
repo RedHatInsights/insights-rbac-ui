@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useIntl } from 'react-intl';
 import { FormHelperText, HelperText, HelperTextItem, Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -7,7 +8,7 @@ import { TextInput } from '@patternfly/react-core/dist/esm/components/TextInput/
 import { TextArea } from '@patternfly/react-core/dist/esm/components/TextArea/TextArea';
 import { FormGroup } from '@patternfly/react-core/dist/esm/components/Form/FormGroup';
 import { debouncedAsyncValidator } from '../validators';
-import { useIntl } from 'react-intl';
+import { trimAll } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
 
 const groupNameValidated = (groupName, groupNameError) =>
@@ -24,7 +25,7 @@ const SetName = (props) => {
   const [groupDescription, setGroupDescription] = useState(description);
 
   const processGroupName = (value) => {
-    const trimmedValue = value.replace(/[\u200B-\u200D\uFEFF]/g, '').trim();
+    const trimmedValue = trimAll(value);
     input.onChange(undefined);
     debouncedAsyncValidator(trimmedValue)
       .then(() => {
@@ -35,7 +36,7 @@ const SetName = (props) => {
         setGroupNameError(error);
         input.onChange(undefined);
       });
-    setGroupName(trimmedValue);
+    setGroupName(value);
   };
 
   useEffect(() => {
