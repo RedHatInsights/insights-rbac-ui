@@ -7,11 +7,11 @@ import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { Alert, AlertActionCloseButton, Popover, PopoverPosition, Split, SplitItem, Button } from '@patternfly/react-core';
 import { DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core/deprecated';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import SkeletonTable from '@patternfly/react-component-groups/dist/esm/SkeletonTable';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
 import { fetchGroup, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
 import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
@@ -244,7 +244,7 @@ const Group = () => {
               systemGroupUuid,
             }}
           />
-          {!group && <ListLoader />}
+          {!group && <SkeletonTable numberOfColumns={1} />}
         </Fragment>
       ) : (
         <Fragment>

@@ -10,7 +10,6 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
@@ -174,7 +173,7 @@ const Role = ({ onDelete }) => {
               </TextContent>
             )}
           </TopToolbar>
-          {isLoading || !role ? <ListLoader /> : <Permissions cantAddPermissions={isNonPermissionAddingRole} />}
+          <Permissions cantAddPermissions={isNonPermissionAddingRole} isLoading={isLoading || !role} />
           <Suspense>
             <Outlet
               context={{

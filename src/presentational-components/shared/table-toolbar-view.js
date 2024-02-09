@@ -5,8 +5,8 @@ import messages from '../../Messages';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
-import { ListLoader } from './loader-placeholders';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
@@ -131,7 +131,11 @@ export const TableToolbarView = ({
           textFilterRef={textFilterRef}
         />
         {isLoading ? (
-          <ListLoader isCompact={isCompact} items={pagination?.limit} />
+          <SkeletonTable
+            variant={isCompact ? TableVariant.compact : undefined}
+            rows={pagination?.limit}
+            columns={columns.map((item) => item.title)}
+          />
         ) : (
           <Table
             canSelectAll={false}

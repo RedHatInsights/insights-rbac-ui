@@ -1786,4 +1786,9 @@ export default defineMessages({
     description: 'Discard label',
     defaultMessage: 'Discard',
   },
+  contactOrgAdmin: {
+    id: 'contactOrgAdmin',
+    description: 'Contact organization administrator message for not authorized state',
+    defaultMessage: 'Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.',
+  },
 });

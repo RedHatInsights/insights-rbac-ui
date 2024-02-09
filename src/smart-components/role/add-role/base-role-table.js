@@ -25,9 +25,9 @@ const BaseRoleTable = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const columns = [
-    '',
+    { title: '' },
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [sortable] },
-    intl.formatMessage(messages.description),
+    { title: intl.formatMessage(messages.description) },
   ];
 
   const [sortByState, setSortByState] = useState({ index: 1, direction: 'asc' });

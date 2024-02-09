@@ -239,7 +239,8 @@ describe('role', () => {
         </Provider>
       );
     });
-    expect(screen.getAllByLabelText('datalist-item-placeholder-row')).toHaveLength(5);
+    expect(screen.getByLabelText('Loading')).toBeInTheDocument();
+    expect(screen.getAllByRole('rowgroup')).toHaveLength(2);
   });
 
   it('should render permissions table', async () => {

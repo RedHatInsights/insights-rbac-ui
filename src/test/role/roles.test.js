@@ -106,7 +106,7 @@ describe('<Roles />', () => {
         </MemoryRouter>
       </Provider>
     );
-    expect(screen.getByLabelText('datalist-placeholder')).toMatchSnapshot();
+    expect(screen.getByLabelText('Loading')).toMatchSnapshot();
   });
 
   it('should render correctly in org admin', () => {
