@@ -4,6 +4,7 @@ import { cellWidth, info } from '@patternfly/react-table';
 import { Button } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -47,7 +48,7 @@ const removeModalText = (permissions, role, plural) => {
   );
 };
 
-const Permissions = ({ cantAddPermissions }) => {
+const Permissions = ({ cantAddPermissions, isLoading }) => {
   const intl = useIntl();
   const { role, isRecordLoading } = useSelector(
     (state) => ({
@@ -91,7 +92,7 @@ const Permissions = ({ cantAddPermissions }) => {
     : ['To configure user access to applications,', 'add at least one permission to this role.', ''];
 
   useEffect(() => {
-    if (Object.keys(role).length > 0) {
+    if (Object.keys(role || {}).length > 0) {
       const { resources, operations } = Object.entries(
         role.access.reduce(
           ({ resources, operations }, { permission }) => {
@@ -233,96 +234,101 @@ const Permissions = ({ cantAddPermissions }) => {
           }}
         />
       )}
-      <TableToolbarView
-        columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
-        rows={createRows(showResourceDefinitions, role?.uuid, data, intl, selectedPermissions)}
-        actionResolver={role.system ? undefined : actionResolver}
-        data={data}
-        filterValue=""
-        ouiaId="role-permissions-table"
-        fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}
-        isSelectable={!role.system}
-        setCheckedItems={setCheckedItems}
-        checkedRows={selectedPermissions}
-        onShowMore={
-          filterItemOverflow
-            ? () => {
-                internalDispatch({ type: SET_TOGGLED });
-              }
-            : undefined
-        }
-        setFilterValue={({ applications, resources, operations }) => {
-          internalDispatch({
-            type: SET_FILTERS,
-            ...(applications ? { applications } : filters.applications),
-            ...(resources ? { resources } : filters.resources),
-            ...(operations ? { operations } : filters.operations),
-          });
-        }}
-        toolbarButtons={toolbarButtons}
-        isLoading={isRecordLoading}
-        pagination={{
-          ...pagination,
-          count: filteredRows.length,
-        }}
-        titlePlural={intl.formatMessage(messages.permissions)}
-        titleSingular={intl.formatMessage(messages.permission)}
-        emptyProps={{
-          title: intl.formatMessage(messages.noRolePermissions),
-          description: emptyPropsDescription,
-        }}
-        filters={[
-          {
-            key: 'applications',
-            value: filters.applications.length === 0 ? '' : filters.applications,
-            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.application).toLowerCase() }),
-            type: 'group',
-            selected: calculateSelected(filters.applications),
-            groups: [
-              {
-                type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
-                items:
-                  sanitizedRole.applications.length > 0
-                    ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
-                    : [emptyItem],
-              },
-            ],
-          },
-          {
-            key: 'resources',
-            value: filters.resources.length === 0 ? '' : filters.resources,
-            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resourceType).toLowerCase() }),
-            type: 'group',
-            selected: calculateSelected(filters.resources),
-            groups: [
-              {
-                type: resources.length > 0 ? 'checkbox' : 'plain',
-                items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-              },
-            ],
-          },
-          {
-            key: 'operations',
-            value: filters.operations.length === 0 ? '' : filters.operations,
-            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.operation).toLowerCase() }),
-            type: 'group',
-            selected: calculateSelected(filters.operations),
-            groups: [
-              {
-                type: operations.length > 0 ? 'checkbox' : 'plain',
-                items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
-              },
-            ],
-          },
-        ]}
-        tableId="role-permissions"
-      />
+      {isLoading ? (
+        <SkeletonTable rows={pagination.limit} columns={columns.map((item) => item.title)} />
+      ) : (
+        <TableToolbarView
+          columns={showResourceDefinitions ? columns : columns.filter((c) => c.title !== intl.formatMessage(messages.resourceDefinitions))}
+          rows={createRows(showResourceDefinitions, role?.uuid, data, intl, selectedPermissions)}
+          actionResolver={role.system ? undefined : actionResolver}
+          data={data}
+          filterValue=""
+          ouiaId="role-permissions-table"
+          fetchData={({ limit, offset }) => internalDispatch({ type: SET_PAGINATION, limit, offset })}
+          isSelectable={!role.system}
+          setCheckedItems={setCheckedItems}
+          checkedRows={selectedPermissions}
+          onShowMore={
+            filterItemOverflow
+              ? () => {
+                  internalDispatch({ type: SET_TOGGLED });
+                }
+              : undefined
+          }
+          setFilterValue={({ applications, resources, operations }) => {
+            internalDispatch({
+              type: SET_FILTERS,
+              ...(applications ? { applications } : filters.applications),
+              ...(resources ? { resources } : filters.resources),
+              ...(operations ? { operations } : filters.operations),
+            });
+          }}
+          toolbarButtons={toolbarButtons}
+          isLoading={isRecordLoading}
+          pagination={{
+            ...pagination,
+            count: filteredRows.length,
+          }}
+          titlePlural={intl.formatMessage(messages.permissions)}
+          titleSingular={intl.formatMessage(messages.permission)}
+          emptyProps={{
+            title: intl.formatMessage(messages.noRolePermissions),
+            description: emptyPropsDescription,
+          }}
+          filters={[
+            {
+              key: 'applications',
+              value: filters.applications.length === 0 ? '' : filters.applications,
+              placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.application).toLowerCase() }),
+              type: 'group',
+              selected: calculateSelected(filters.applications),
+              groups: [
+                {
+                  type: sanitizedRole.applications.length > 0 ? 'checkbox' : 'plain',
+                  items:
+                    sanitizedRole.applications.length > 0
+                      ? sanitizedRole.applications.slice(0, isToggled ? undefined : maxFilterItems).map((item) => ({ label: item, value: item }))
+                      : [emptyItem],
+                },
+              ],
+            },
+            {
+              key: 'resources',
+              value: filters.resources.length === 0 ? '' : filters.resources,
+              placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.resourceType).toLowerCase() }),
+              type: 'group',
+              selected: calculateSelected(filters.resources),
+              groups: [
+                {
+                  type: resources.length > 0 ? 'checkbox' : 'plain',
+                  items: resources.length > 0 ? resources.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+                },
+              ],
+            },
+            {
+              key: 'operations',
+              value: filters.operations.length === 0 ? '' : filters.operations,
+              placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.operation).toLowerCase() }),
+              type: 'group',
+              selected: calculateSelected(filters.operations),
+              groups: [
+                {
+                  type: operations.length > 0 ? 'checkbox' : 'plain',
+                  items: operations.length > 0 ? operations.slice(0, isToggled ? undefined : maxFilterItems) : [emptyItem],
+                },
+              ],
+            },
+          ]}
+          tableId="role-permissions"
+        />
+      )}
     </section>
   );
 };
 
 Permissions.propTypes = {
   cantAddPermissions: PropTypes.bool,
+  isLoading: PropTypes.bool,
 };
 
 export default Permissions;

@@ -323,6 +323,10 @@
     "defaultMessage": "Confirm the details for your source, or click Back to revise",
     "description": "Confirm details description message"
   },
+  "contactOrgAdmin": {
+    "defaultMessage": "Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.",
+    "description": "Contact organization administrator message for not authorized state"
+  },
   "contactOrgAdministrator": {
     "defaultMessage": "Contact your Org. Administrator for more information.",
     "description": "Contact org. administrator for more info message"

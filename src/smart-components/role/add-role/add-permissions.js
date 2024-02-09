@@ -52,7 +52,11 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
   const intl = useIntl();
   const { hasAccess: hasCostAccess } = usePermissions('cost-management', ['cost-management:*:*']);
   const { hasAccess: hasRbacAccess } = usePermissions('rbac', ['rbac:*:*']);
-  const columns = [intl.formatMessage(messages.application), intl.formatMessage(messages.resourceType), intl.formatMessage(messages.operation)];
+  const columns = [
+    { title: intl.formatMessage(messages.application) },
+    { title: intl.formatMessage(messages.resourceType) },
+    { title: intl.formatMessage(messages.operation) },
+  ];
 
   useEffect(() => {
     const setOrgAdmin = async () => {

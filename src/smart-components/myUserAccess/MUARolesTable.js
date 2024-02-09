@@ -1,11 +1,11 @@
 import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import messages from '../../Messages';
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
@@ -30,6 +30,13 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
       title: intl.formatMessage(messages.permissions),
       cellTransforms: [compoundExpand, cellWidth(20)],
     },
+  ];
+
+  const compoundPermissionsCells = [
+    intl.formatMessage(messages.application),
+    intl.formatMessage(messages.resourceType),
+    intl.formatMessage(messages.operation),
+    ...(showResourceDefinitions ? [intl.formatMessage(messages.resourceDefinitions)] : []),
   ];
 
   const { roles, isLoading, rolesWithAccess } = useSelector(
@@ -74,12 +81,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
                   aria-label="Simple Table"
                   borders={false}
                   variant={TableVariant.compact}
-                  cells={[
-                    intl.formatMessage(messages.application),
-                    intl.formatMessage(messages.resourceType),
-                    intl.formatMessage(messages.operation),
-                    ...(showResourceDefinitions ? [intl.formatMessage(messages.resourceDefinitions)] : []),
-                  ]}
+                  cells={compoundPermissionsCells}
                   rows={rolesWithAccess[uuid].access.map((access) => ({
                     cells: [
                       ...access.permission.split(':'),
@@ -106,7 +108,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
                   <TableBody />
                 </Table>
               ) : (
-                <ListLoader />
+                <SkeletonTable columns={compoundPermissionsCells} rows={accessCount} variant={TableVariant.compact} />
               ),
             },
           ],

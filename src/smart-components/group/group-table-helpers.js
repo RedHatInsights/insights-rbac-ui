@@ -7,8 +7,8 @@ import { useIntl } from 'react-intl';
 import classNames from 'classnames';
 import PropTypes from 'prop-types';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import AppLink from '../../presentational-components/shared/AppLink';
-import { ListLoader } from '../../presentational-components/shared/loader-placeholders';
 import { getDateFormat } from '../../helpers/shared/helpers';
 import pathnames from '../../utilities/pathnames';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
@@ -46,6 +46,22 @@ DefaultPlatformPopover.propTypes = {
 
 export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
   const intl = useIntl();
+
+  const compoundRolesCells = [
+    { title: intl.formatMessage(messages.roleName) },
+    { title: intl.formatMessage(messages.description) },
+    { title: intl.formatMessage(messages.lastModified) },
+  ];
+
+  const compoundMembersCells = [
+    { title: intl.formatMessage(messages.orgAdministrator) },
+    { title: intl.formatMessage(messages.firstName) },
+    { title: intl.formatMessage(messages.lastName) },
+    { title: intl.formatMessage(messages.username) },
+    { title: intl.formatMessage(messages.email) },
+    { title: intl.formatMessage(messages.status) },
+  ];
+
   return data.reduce(
     (
       acc,
@@ -120,18 +136,14 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
             {
               props: { colSpan: 7, className: 'pf-m-no-padding' },
               title: isLoadingRoles ? (
-                <ListLoader items={3} isCompact />
+                <SkeletonTable rows={roleCount} variant={TableVariant.compact} columns={compoundRolesCells.map((item) => item.title)} />
               ) : roleCount > 0 ? (
                 <Table
                   id={compoundRolesId}
                   ouiaId={compoundRolesId}
                   aria-label="Compound roles table"
                   variant={TableVariant.compact}
-                  cells={[
-                    { title: intl.formatMessage(messages.roleName) },
-                    { title: intl.formatMessage(messages.description) },
-                    { title: intl.formatMessage(messages.lastModified) },
-                  ]}
+                  cells={compoundRolesCells}
                   rows={roles?.map((role) => ({
                     cells: [
                       { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', role.uuid)}>{role.name}</AppLink> },
@@ -163,21 +175,14 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
             {
               props: { colSpan: 7, className: 'pf-m-no-padding' },
               title: isLoadingMembers ? (
-                <ListLoader items={3} isCompact />
+                <SkeletonTable rows={principalCount} variant={TableVariant.compact} columns={compoundMembersCells.map((item) => item.title)} />
               ) : principalCount > 0 ? (
                 <Table
                   id={compoundMembersId}
                   ouiaId={compoundMembersId}
                   aria-label="Compound members table"
                   variant={TableVariant.compact}
-                  cells={[
-                    { title: intl.formatMessage(messages.orgAdministrator) },
-                    { title: intl.formatMessage(messages.firstName) },
-                    { title: intl.formatMessage(messages.lastName) },
-                    { title: intl.formatMessage(messages.username) },
-                    { title: intl.formatMessage(messages.email) },
-                    { title: intl.formatMessage(messages.status) },
-                  ]}
+                  cells={compoundMembersCells}
                   rows={members?.map((member) => [
                     <TextContent key={member.is_org_admin}>
                       {member?.is_org_admin ? (

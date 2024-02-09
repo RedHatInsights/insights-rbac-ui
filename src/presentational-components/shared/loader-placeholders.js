@@ -1,52 +1,15 @@
-import React, { Fragment } from 'react';
+import React from 'react';
 import PropTypes from 'prop-types';
-import {
-  DataList,
-  DataListCell,
-  DataListItem,
-  DataListItemRow,
-  DataListItemCells,
-  Form,
-  FormGroup,
-  Skeleton as PFSkeleton,
-} from '@patternfly/react-core';
-import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
-
-export const ListLoader = ({ items, isCompact, ...props }) => (
-  <Fragment>
-    <DataList aria-label="datalist-placeholder" isCompact={isCompact}>
-      {[...Array(items)].map((_item, index) => (
-        <DataListItem key={index} aria-labelledby="datalist-item-placeholder">
-          <DataListItemRow aria-label="datalist-item-placeholder-row">
-            <DataListItemCells
-              dataListCells={[
-                <DataListCell key="1">
-                  <Skeleton size={SkeletonSize.lg} {...props} />
-                </DataListCell>,
-              ]}
-            />
-          </DataListItemRow>
-        </DataListItem>
-      ))}
-    </DataList>
-  </Fragment>
-);
-
-ListLoader.propTypes = {
-  items: PropTypes.number,
-  isCompact: PropTypes.bool,
-};
-
-ListLoader.defaultProps = {
-  items: 5,
-};
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
+import { Form, FormGroup, Skeleton as PFSkeleton } from '@patternfly/react-core';
+import { Skeleton } from '@redhat-cloud-services/frontend-components/Skeleton';
 
 export const AppPlaceholder = () => (
   <div>
     <div style={{ height: 16, width: 300 }}>
       <Skeleton />
     </div>
-    <ListLoader />
+    <SkeletonTable numberOfColumns={1} />
   </div>
 );
 
