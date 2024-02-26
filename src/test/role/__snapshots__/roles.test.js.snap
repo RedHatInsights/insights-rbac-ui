@@ -517,6 +517,15 @@ exports[`<Roles /> should render correctly 1`] = `
                 >
                   Description
                 </th>
+                <th
+                  class="pf-v5-c-table__th"
+                  data-key="2"
+                  data-label=" "
+                  scope="col"
+                  tabindex="-1"
+                >
+                   
+                </th>
               </tr>
             </thead>
             <tbody
@@ -549,6 +558,20 @@ exports[`<Roles /> should render correctly 1`] = `
                   data-label="Description"
                   tabindex="-1"
                 />
+                <td
+                  class="pf-v5-c-table__td pf-v5-u-text-align-right"
+                  data-key="2"
+                  data-label=" "
+                  tabindex="-1"
+                >
+                  <span>
+                    <a
+                      href="/iam/user-access/roles/test/add-group-roles/abc"
+                    >
+                      Add role to this group
+                    </a>
+                  </span>
+                </td>
               </tr>
             </tbody>
           </table>
@@ -1195,6 +1218,15 @@ exports[`<Roles /> should render correctly expanded 1`] = `
               >
                 Description
               </th>
+              <th
+                class="pf-v5-c-table__th"
+                data-key="2"
+                data-label=" "
+                scope="col"
+                tabindex="-1"
+              >
+                 
+              </th>
             </tr>
           </thead>
           <tbody
@@ -1227,6 +1259,20 @@ exports[`<Roles /> should render correctly expanded 1`] = `
                 data-label="Description"
                 tabindex="-1"
               />
+              <td
+                class="pf-v5-c-table__td pf-v5-u-text-align-right"
+                data-key="2"
+                data-label=" "
+                tabindex="-1"
+              >
+                <span>
+                  <a
+                    href="/iam/user-access/roles/test/add-group-roles/abc"
+                  >
+                    Add role to this group
+                  </a>
+                </span>
+              </td>
             </tr>
           </tbody>
         </table>

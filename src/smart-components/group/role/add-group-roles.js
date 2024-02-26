@@ -41,7 +41,7 @@ const AddGroupRoles = ({
   }));
 
   useEffect(() => {
-    dispatch(fetchGroup(groupId));
+    name || dispatch(fetchGroup(groupId));
   }, []);
 
   const onCancel = () => {

@@ -10,7 +10,8 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { rolesInitialState } from '../../redux/reducers/role-reducer';
 
 import * as RoleActions from '../../redux/actions/role-actions';
-import { FETCH_ROLES } from '../../redux/action-types';
+import * as GroupActions from '../../redux/actions/group-actions';
+import { FETCH_ADMIN_GROUP, FETCH_ROLES } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 describe('<Roles />', () => {
@@ -19,6 +20,7 @@ describe('<Roles />', () => {
   let initialState;
 
   const fetchRolesWithPoliciesSpy = jest.spyOn(RoleActions, 'fetchRolesWithPolicies');
+  const fetchAdminGroupSpy = jest.spyOn(GroupActions, 'fetchAdminGroup');
   beforeEach(() => {
     mockStore = configureStore(middlewares);
     initialState = {
@@ -58,16 +60,21 @@ describe('<Roles />', () => {
         },
         isLoading: false,
       },
+      groupReducer: {
+        adminGroup: {},
+      },
     };
   });
 
   afterEach(() => {
     fetchRolesWithPoliciesSpy.mockReset();
+    fetchAdminGroupSpy.mockReset();
   });
 
   it('should render correctly', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     let container;
     await act(async () => {
       const { container: ci } = render(
@@ -92,6 +99,7 @@ describe('<Roles />', () => {
 
   it('should render correctly in loading state', () => {
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
       roleReducer: {
@@ -111,6 +119,7 @@ describe('<Roles />', () => {
 
   it('should render correctly in org admin', () => {
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
       roleReducer: {
@@ -138,6 +147,7 @@ describe('<Roles />', () => {
     fetchRolesWithPoliciesSpy
       .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }))
       .mockImplementation(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     await act(async () => {
       render(
         <Provider store={store}>
@@ -180,6 +190,7 @@ describe('<Roles />', () => {
   it('should render correctly expanded', async () => {
     const store = mockStore(initialState);
     fetchRolesWithPoliciesSpy.mockImplementationOnce(() => ({ type: FETCH_ROLES, payload: Promise.resolve({}) }));
+    fetchAdminGroupSpy.mockImplementationOnce(() => ({ type: FETCH_ADMIN_GROUP, payload: Promise.resolve({}) }));
     let container;
     await act(async () => {
       const { container: ci } = render(

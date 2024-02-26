@@ -5,7 +5,7 @@ import { Provider } from 'react-redux';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
-import { FETCH_GROUPS } from '../../../redux/action-types';
+import { FETCH_GROUP, FETCH_GROUPS } from '../../../redux/action-types';
 
 describe('<AddGroupRoles />', () => {
   const setSelectedRoles = jest.fn();
@@ -16,6 +16,7 @@ describe('<AddGroupRoles />', () => {
 
   const addRolesToGroupSpy = jest.spyOn(GroupActions, 'addRolesToGroup');
   const fetchAddRolesForGroupSpy = jest.spyOn(GroupActions, 'fetchAddRolesForGroup');
+  const fetchGroupSpy = jest.spyOn(GroupActions, 'fetchGroup');
   beforeEach(() => {
     initialState = {
       groupReducer: {
@@ -49,6 +50,7 @@ describe('<AddGroupRoles />', () => {
 
   test('should render AddGroupRoles modal', async () => {
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = { selectedRoles: [], setSelectedRoles: jest.fn() };
 
@@ -56,7 +58,7 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
@@ -72,6 +74,7 @@ describe('<AddGroupRoles />', () => {
 
   test('should cancel adding roles', async () => {
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
       closeUrl: '/roles',
@@ -80,6 +83,9 @@ describe('<AddGroupRoles />', () => {
     };
 
     const expectedPayload = [
+      expect.objectContaining({
+        type: 'FETCH_GROUP',
+      }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
@@ -98,7 +104,7 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
@@ -110,6 +116,7 @@ describe('<AddGroupRoles />', () => {
 
   test('should close AddGroupRoles modal', async () => {
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
       closeUrl: '/roles',
@@ -118,6 +125,9 @@ describe('<AddGroupRoles />', () => {
     };
 
     const expectedPayload = [
+      expect.objectContaining({
+        type: 'FETCH_GROUP',
+      }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
@@ -136,7 +146,7 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
@@ -149,9 +159,13 @@ describe('<AddGroupRoles />', () => {
   test('should submit AddGroupRoles modal', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
 
     const expectedPayload = [
+      expect.objectContaining({
+        type: 'FETCH_GROUP',
+      }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
@@ -161,7 +175,7 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...initialProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
@@ -176,6 +190,7 @@ describe('<AddGroupRoles />', () => {
   test('should submit AddGroupRoles modal with a default group', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let enhancedProps = {
       ...initialProps,
@@ -191,13 +206,16 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...enhancedProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...enhancedProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
     );
 
     const expectedPayload = [
+      expect.objectContaining({
+        type: 'FETCH_GROUP',
+      }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
@@ -229,6 +247,7 @@ describe('<AddGroupRoles />', () => {
   test('should cancel default group warning modal', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
     fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let enhancedProps = {
       ...initialProps,
@@ -240,6 +259,9 @@ describe('<AddGroupRoles />', () => {
       title: 'test',
     };
     const expectedPayload = [
+      expect.objectContaining({
+        type: 'FETCH_GROUP',
+      }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
       }),
@@ -258,7 +280,7 @@ describe('<AddGroupRoles />', () => {
       <Provider store={store}>
         <MemoryRouter initialEntries={['/groups/detail/123']}>
           <Routes>
-            <Route path="/groups/detail/:uuid" element={<AddGroupRoles {...enhancedProps} />} />
+            <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...enhancedProps} />} />
           </Routes>
         </MemoryRouter>
       </Provider>
