@@ -535,7 +535,13 @@ exports[`<Roles /> should render correctly 1`] = `
                   data-label="Group name"
                   tabindex="-1"
                 >
-                  Test Redirect
+                  <span>
+                    <a
+                      href="/iam/user-access/groups/detail/abc"
+                    >
+                      Test Redirect
+                    </a>
+                  </span>
                 </td>
                 <td
                   class="pf-v5-c-table__td"
@@ -1207,7 +1213,13 @@ exports[`<Roles /> should render correctly expanded 1`] = `
                 data-label="Group name"
                 tabindex="-1"
               >
-                Test Redirect
+                <span>
+                  <a
+                    href="/iam/user-access/groups/detail/abc"
+                  >
+                    Test Redirect
+                  </a>
+                </span>
               </td>
               <td
                 class="pf-v5-c-table__td"
