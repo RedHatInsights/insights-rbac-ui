@@ -94,6 +94,10 @@ const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
     element: Roles,
     childRoutes: [
       {
+        path: pathnames['roles-add-group-roles'].path,
+        element: AddGroupRoles,
+      },
+      {
         path: pathnames['add-role'].path,
         element: AddRoleWizard,
       },

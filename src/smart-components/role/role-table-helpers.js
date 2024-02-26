@@ -8,7 +8,7 @@ import { getDateFormat } from '../../helpers/shared/helpers';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 
-export const createRows = (data, selectedRows, intl, expanded) =>
+export const createRows = (data, selectedRows, intl, expanded, adminGroup) =>
   data.reduce(
     (
       acc,
@@ -44,11 +44,23 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                   aria-label="Compound groups table"
                   ouiaId="role-in-groups-nested-table"
                   variant={TableVariant.compact}
-                  cells={[intl.formatMessage(messages.groupName), intl.formatMessage(messages.description)]}
+                  cells={[intl.formatMessage(messages.groupName), intl.formatMessage(messages.description), ' ']}
                   rows={groups.map((group) => ({
                     cells: [
                       { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> },
                       group.description,
+                      {
+                        title:
+                          adminGroup.uuid === group.uuid ? null : (
+                            <AppLink
+                              to={pathnames['roles-add-group-roles'].link.replace(':roleId', uuid).replace(':groupId', group.uuid)}
+                              state={{ name: group.name }}
+                            >
+                              {intl.formatMessage(messages.addRoleToThisGroup)}
+                            </AppLink>
+                          ),
+                        props: { className: 'pf-v5-u-text-align-right' },
+                      },
                     ],
                   }))}
                 >
