@@ -24,13 +24,13 @@ export const createRows = (data, selectedRows, intl, expanded) =>
         cells: [
           { title: <AppLink to={pathnames['role-detail'].link.replace(':roleId', uuid)}>{display_name || name}</AppLink> },
           { title: description },
-          { title: accessCount, props: { isOpen: expanded[uuid] === 3 } },
-          { title: groupsCount, props: { isOpen: expanded[uuid] === 4 } },
+          { title: groupsCount, props: { isOpen: expanded[uuid] === 3 } },
+          { title: accessCount, props: { isOpen: expanded[uuid] === 4 } },
           { title: <DateFormat date={modified} type={getDateFormat(modified)} /> },
         ],
       },
       {
-        uuid: `${uuid}-permissions`,
+        uuid: `${uuid}-groups`,
         parent: 3 * i,
         compoundParent: 2,
         fullWidth: true,
@@ -39,10 +39,37 @@ export const createRows = (data, selectedRows, intl, expanded) =>
           {
             props: { colSpan: 7, className: 'pf-m-no-padding' },
             title:
+              groupsCount > 0 ? (
+                <Table
+                  aria-label="Compound groups table"
+                  ouiaId="role-in-groups-nested-table"
+                  variant={TableVariant.compact}
+                  cells={[intl.formatMessage(messages.groupName), intl.formatMessage(messages.description)]}
+                  rows={groups.map((group) => ({ cells: [group.name, group.description] }))}
+                >
+                  <TableHeader />
+                  <TableBody />
+                </Table>
+              ) : (
+                <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
+              ),
+          },
+        ],
+      },
+      {
+        uuid: `${uuid}-permissions`,
+        parent: 3 * i,
+        compoundParent: 3,
+        fullWidth: true,
+        noPadding: true,
+        cells: [
+          {
+            props: { colSpan: 7, className: 'pf-m-no-padding' },
+            title:
               access.length > 0 ? (
                 <Table
-                  ouiaId="groups-in-role-nested-table"
-                  aria-label="Simple Table"
+                  ouiaId="permissions-in-role-nested-table"
+                  aria-label="Compound permissions table"
                   variant={TableVariant.compact}
                   cells={[
                     intl.formatMessage(messages.application),
@@ -69,33 +96,6 @@ export const createRows = (data, selectedRows, intl, expanded) =>
                 </Table>
               ) : (
                 <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noPermissions)}</Text>
-              ),
-          },
-        ],
-      },
-      {
-        uuid: `${uuid}-groups`,
-        parent: 3 * i,
-        compoundParent: 3,
-        fullWidth: true,
-        noPadding: true,
-        cells: [
-          {
-            props: { colSpan: 7, className: 'pf-m-no-padding' },
-            title:
-              groupsCount > 0 ? (
-                <Table
-                  aria-label="Simple Table"
-                  ouiaId="permissions-in-role-nested-table"
-                  variant={TableVariant.compact}
-                  cells={[intl.formatMessage(messages.groupName), intl.formatMessage(messages.description)]}
-                  rows={groups.map((group) => ({ cells: [group.name, group.description] }))}
-                >
-                  <TableHeader />
-                  <TableBody />
-                </Table>
-              ) : (
-                <Text className="pf-v5-u-mx-lg pf-v5-u-my-sm">{intl.formatMessage(messages.noGroups)}</Text>
               ),
           },
         ],

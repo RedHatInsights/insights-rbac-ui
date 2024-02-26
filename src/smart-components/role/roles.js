@@ -62,8 +62,8 @@ const Roles = () => {
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
     { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true, chrome }));

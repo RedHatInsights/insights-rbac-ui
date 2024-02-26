@@ -299,20 +299,20 @@ exports[`<Roles /> should render correctly 1`] = `
         <th
           class="pf-v5-c-table__th pf-m-nowrap"
           data-key="2"
-          data-label="Permissions"
-          scope="col"
-          tabindex="-1"
-        >
-          Permissions
-        </th>
-        <th
-          class="pf-v5-c-table__th pf-m-nowrap"
-          data-key="3"
           data-label="Groups"
           scope="col"
           tabindex="-1"
         >
           Groups
+        </th>
+        <th
+          class="pf-v5-c-table__th pf-m-nowrap"
+          data-key="3"
+          data-label="Permissions"
+          scope="col"
+          tabindex="-1"
+        >
+          Permissions
         </th>
         <th
           aria-sort="none"
@@ -397,7 +397,7 @@ exports[`<Roles /> should render correctly 1`] = `
         <td
           class="pf-v5-c-table__td pf-v5-c-table__compound-expansion-toggle"
           data-key="2"
-          data-label="Permissions"
+          data-label="Groups"
           tabindex="-1"
         >
           <button
@@ -416,7 +416,7 @@ exports[`<Roles /> should render correctly 1`] = `
         <td
           class="pf-v5-c-table__td pf-v5-c-table__compound-expansion-toggle"
           data-key="3"
-          data-label="Groups"
+          data-label="Permissions"
           tabindex="-1"
         >
           <button
@@ -483,9 +483,9 @@ exports[`<Roles /> should render correctly 1`] = `
           tabindex="-1"
         >
           <table
-            aria-label="Simple Table"
+            aria-label="Compound groups table"
             class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-            data-ouia-component-id="groups-in-role-nested-table"
+            data-ouia-component-id="role-in-groups-nested-table"
             data-ouia-component-type="PF5/Table"
             data-ouia-safe="true"
             role="grid"
@@ -496,6 +496,92 @@ exports[`<Roles /> should render correctly 1`] = `
               <tr
                 class="pf-v5-c-table__tr"
                 data-ouia-component-id="OUIA-Generated-TableRow-4"
+                data-ouia-component-type="PF5/TableRow"
+                data-ouia-safe="true"
+              >
+                <th
+                  class="pf-v5-c-table__th"
+                  data-key="0"
+                  data-label="Group name"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Group name
+                </th>
+                <th
+                  class="pf-v5-c-table__th"
+                  data-key="1"
+                  data-label="Description"
+                  scope="col"
+                  tabindex="-1"
+                >
+                  Description
+                </th>
+              </tr>
+            </thead>
+            <tbody
+              class="pf-v5-c-table__tbody"
+              role="rowgroup"
+            >
+              <tr
+                class="pf-v5-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-5"
+                data-ouia-component-type="PF5/TableRow"
+                data-ouia-safe="true"
+              >
+                <td
+                  class="pf-v5-c-table__td"
+                  data-key="0"
+                  data-label="Group name"
+                  tabindex="-1"
+                >
+                  Test Redirect
+                </td>
+                <td
+                  class="pf-v5-c-table__td"
+                  data-key="1"
+                  data-label="Description"
+                  tabindex="-1"
+                />
+              </tr>
+            </tbody>
+          </table>
+        </td>
+        <td
+          class="pf-v5-c-table__td pf-v5-c-table__action"
+          data-key="5"
+          style="padding-right: 0px;"
+          tabindex="-1"
+        />
+      </tr>
+      <tr
+        class="pf-v5-c-table__tr pf-v5-c-table__expandable-row"
+        data-ouia-component-id="OUIA-Generated-TableRow-6"
+        data-ouia-component-type="PF5/TableRow"
+        data-ouia-safe="true"
+        hidden=""
+      >
+        <td
+          class="pf-v5-c-table__td pf-m-no-padding pf-m-no-padding"
+          colspan="7"
+          data-key="0"
+          id="expanded-content2"
+          tabindex="-1"
+        >
+          <table
+            aria-label="Compound permissions table"
+            class="pf-v5-c-table pf-m-grid-md pf-m-compact"
+            data-ouia-component-id="permissions-in-role-nested-table"
+            data-ouia-component-type="PF5/Table"
+            data-ouia-safe="true"
+            role="grid"
+          >
+            <thead
+              class="pf-v5-c-table__thead"
+            >
+              <tr
+                class="pf-v5-c-table__tr"
+                data-ouia-component-id="OUIA-Generated-TableRow-7"
                 data-ouia-component-type="PF5/TableRow"
                 data-ouia-safe="true"
               >
@@ -543,7 +629,7 @@ exports[`<Roles /> should render correctly 1`] = `
             >
               <tr
                 class="pf-v5-c-table__tr"
-                data-ouia-component-id="OUIA-Generated-TableRow-5"
+                data-ouia-component-id="OUIA-Generated-TableRow-8"
                 data-ouia-component-type="PF5/TableRow"
                 data-ouia-safe="true"
               >
@@ -579,92 +665,6 @@ exports[`<Roles /> should render correctly 1`] = `
                 >
                   01 Jan 1970
                 </td>
-              </tr>
-            </tbody>
-          </table>
-        </td>
-        <td
-          class="pf-v5-c-table__td pf-v5-c-table__action"
-          data-key="5"
-          style="padding-right: 0px;"
-          tabindex="-1"
-        />
-      </tr>
-      <tr
-        class="pf-v5-c-table__tr pf-v5-c-table__expandable-row"
-        data-ouia-component-id="OUIA-Generated-TableRow-6"
-        data-ouia-component-type="PF5/TableRow"
-        data-ouia-safe="true"
-        hidden=""
-      >
-        <td
-          class="pf-v5-c-table__td pf-m-no-padding pf-m-no-padding"
-          colspan="7"
-          data-key="0"
-          id="expanded-content2"
-          tabindex="-1"
-        >
-          <table
-            aria-label="Simple Table"
-            class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-            data-ouia-component-id="permissions-in-role-nested-table"
-            data-ouia-component-type="PF5/Table"
-            data-ouia-safe="true"
-            role="grid"
-          >
-            <thead
-              class="pf-v5-c-table__thead"
-            >
-              <tr
-                class="pf-v5-c-table__tr"
-                data-ouia-component-id="OUIA-Generated-TableRow-7"
-                data-ouia-component-type="PF5/TableRow"
-                data-ouia-safe="true"
-              >
-                <th
-                  class="pf-v5-c-table__th"
-                  data-key="0"
-                  data-label="Group name"
-                  scope="col"
-                  tabindex="-1"
-                >
-                  Group name
-                </th>
-                <th
-                  class="pf-v5-c-table__th"
-                  data-key="1"
-                  data-label="Description"
-                  scope="col"
-                  tabindex="-1"
-                >
-                  Description
-                </th>
-              </tr>
-            </thead>
-            <tbody
-              class="pf-v5-c-table__tbody"
-              role="rowgroup"
-            >
-              <tr
-                class="pf-v5-c-table__tr"
-                data-ouia-component-id="OUIA-Generated-TableRow-8"
-                data-ouia-component-type="PF5/TableRow"
-                data-ouia-safe="true"
-              >
-                <td
-                  class="pf-v5-c-table__td"
-                  data-key="0"
-                  data-label="Group name"
-                  tabindex="-1"
-                >
-                  Test Redirect
-                </td>
-                <td
-                  class="pf-v5-c-table__td"
-                  data-key="1"
-                  data-label="Description"
-                  tabindex="-1"
-                />
               </tr>
             </tbody>
           </table>
@@ -972,20 +972,20 @@ exports[`<Roles /> should render correctly expanded 1`] = `
       <th
         class="pf-v5-c-table__th pf-m-nowrap"
         data-key="2"
-        data-label="Permissions"
-        scope="col"
-        tabindex="-1"
-      >
-        Permissions
-      </th>
-      <th
-        class="pf-v5-c-table__th pf-m-nowrap"
-        data-key="3"
         data-label="Groups"
         scope="col"
         tabindex="-1"
       >
         Groups
+      </th>
+      <th
+        class="pf-v5-c-table__th pf-m-nowrap"
+        data-key="3"
+        data-label="Permissions"
+        scope="col"
+        tabindex="-1"
+      >
+        Permissions
       </th>
       <th
         aria-sort="none"
@@ -1070,7 +1070,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
       <td
         class="pf-v5-c-table__td pf-v5-c-table__compound-expansion-toggle pf-m-expanded"
         data-key="2"
-        data-label="Permissions"
+        data-label="Groups"
         tabindex="-1"
       >
         <button
@@ -1089,7 +1089,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
       <td
         class="pf-v5-c-table__td pf-v5-c-table__compound-expansion-toggle"
         data-key="3"
-        data-label="Groups"
+        data-label="Permissions"
         tabindex="-1"
       >
         <button
@@ -1155,9 +1155,9 @@ exports[`<Roles /> should render correctly expanded 1`] = `
         tabindex="-1"
       >
         <table
-          aria-label="Simple Table"
+          aria-label="Compound groups table"
           class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-          data-ouia-component-id="groups-in-role-nested-table"
+          data-ouia-component-id="role-in-groups-nested-table"
           data-ouia-component-type="PF5/Table"
           data-ouia-safe="true"
           role="grid"
@@ -1168,6 +1168,92 @@ exports[`<Roles /> should render correctly expanded 1`] = `
             <tr
               class="pf-v5-c-table__tr"
               data-ouia-component-id="OUIA-Generated-TableRow-49"
+              data-ouia-component-type="PF5/TableRow"
+              data-ouia-safe="true"
+            >
+              <th
+                class="pf-v5-c-table__th"
+                data-key="0"
+                data-label="Group name"
+                scope="col"
+                tabindex="-1"
+              >
+                Group name
+              </th>
+              <th
+                class="pf-v5-c-table__th"
+                data-key="1"
+                data-label="Description"
+                scope="col"
+                tabindex="-1"
+              >
+                Description
+              </th>
+            </tr>
+          </thead>
+          <tbody
+            class="pf-v5-c-table__tbody"
+            role="rowgroup"
+          >
+            <tr
+              class="pf-v5-c-table__tr"
+              data-ouia-component-id="OUIA-Generated-TableRow-50"
+              data-ouia-component-type="PF5/TableRow"
+              data-ouia-safe="true"
+            >
+              <td
+                class="pf-v5-c-table__td"
+                data-key="0"
+                data-label="Group name"
+                tabindex="-1"
+              >
+                Test Redirect
+              </td>
+              <td
+                class="pf-v5-c-table__td"
+                data-key="1"
+                data-label="Description"
+                tabindex="-1"
+              />
+            </tr>
+          </tbody>
+        </table>
+      </td>
+      <td
+        class="pf-v5-c-table__td pf-v5-c-table__action"
+        data-key="5"
+        style="padding-right: 0px;"
+        tabindex="-1"
+      />
+    </tr>
+    <tr
+      class="pf-v5-c-table__tr pf-v5-c-table__expandable-row"
+      data-ouia-component-id="OUIA-Generated-TableRow-51"
+      data-ouia-component-type="PF5/TableRow"
+      data-ouia-safe="true"
+      hidden=""
+    >
+      <td
+        class="pf-v5-c-table__td pf-m-no-padding pf-m-no-padding"
+        colspan="7"
+        data-key="0"
+        id="expanded-content2"
+        tabindex="-1"
+      >
+        <table
+          aria-label="Compound permissions table"
+          class="pf-v5-c-table pf-m-grid-md pf-m-compact"
+          data-ouia-component-id="permissions-in-role-nested-table"
+          data-ouia-component-type="PF5/Table"
+          data-ouia-safe="true"
+          role="grid"
+        >
+          <thead
+            class="pf-v5-c-table__thead"
+          >
+            <tr
+              class="pf-v5-c-table__tr"
+              data-ouia-component-id="OUIA-Generated-TableRow-52"
               data-ouia-component-type="PF5/TableRow"
               data-ouia-safe="true"
             >
@@ -1215,7 +1301,7 @@ exports[`<Roles /> should render correctly expanded 1`] = `
           >
             <tr
               class="pf-v5-c-table__tr"
-              data-ouia-component-id="OUIA-Generated-TableRow-50"
+              data-ouia-component-id="OUIA-Generated-TableRow-53"
               data-ouia-component-type="PF5/TableRow"
               data-ouia-safe="true"
             >
@@ -1251,92 +1337,6 @@ exports[`<Roles /> should render correctly expanded 1`] = `
               >
                 01 Jan 1970
               </td>
-            </tr>
-          </tbody>
-        </table>
-      </td>
-      <td
-        class="pf-v5-c-table__td pf-v5-c-table__action"
-        data-key="5"
-        style="padding-right: 0px;"
-        tabindex="-1"
-      />
-    </tr>
-    <tr
-      class="pf-v5-c-table__tr pf-v5-c-table__expandable-row"
-      data-ouia-component-id="OUIA-Generated-TableRow-51"
-      data-ouia-component-type="PF5/TableRow"
-      data-ouia-safe="true"
-      hidden=""
-    >
-      <td
-        class="pf-v5-c-table__td pf-m-no-padding pf-m-no-padding"
-        colspan="7"
-        data-key="0"
-        id="expanded-content2"
-        tabindex="-1"
-      >
-        <table
-          aria-label="Simple Table"
-          class="pf-v5-c-table pf-m-grid-md pf-m-compact"
-          data-ouia-component-id="permissions-in-role-nested-table"
-          data-ouia-component-type="PF5/Table"
-          data-ouia-safe="true"
-          role="grid"
-        >
-          <thead
-            class="pf-v5-c-table__thead"
-          >
-            <tr
-              class="pf-v5-c-table__tr"
-              data-ouia-component-id="OUIA-Generated-TableRow-52"
-              data-ouia-component-type="PF5/TableRow"
-              data-ouia-safe="true"
-            >
-              <th
-                class="pf-v5-c-table__th"
-                data-key="0"
-                data-label="Group name"
-                scope="col"
-                tabindex="-1"
-              >
-                Group name
-              </th>
-              <th
-                class="pf-v5-c-table__th"
-                data-key="1"
-                data-label="Description"
-                scope="col"
-                tabindex="-1"
-              >
-                Description
-              </th>
-            </tr>
-          </thead>
-          <tbody
-            class="pf-v5-c-table__tbody"
-            role="rowgroup"
-          >
-            <tr
-              class="pf-v5-c-table__tr"
-              data-ouia-component-id="OUIA-Generated-TableRow-53"
-              data-ouia-component-type="PF5/TableRow"
-              data-ouia-safe="true"
-            >
-              <td
-                class="pf-v5-c-table__td"
-                data-key="0"
-                data-label="Group name"
-                tabindex="-1"
-              >
-                Test Redirect
-              </td>
-              <td
-                class="pf-v5-c-table__td"
-                data-key="1"
-                data-label="Description"
-                tabindex="-1"
-              />
             </tr>
           </tbody>
         </table>
@@ -1389,14 +1389,14 @@ exports[`<Roles /> should render correctly in loading state 1`] = `
         scope="col"
         tabindex="-1"
       >
-        Permissions
+        Groups
       </th>
       <th
         class="pf-v5-c-table__th"
         scope="col"
         tabindex="-1"
       >
-        Groups
+        Permissions
       </th>
       <th
         class="pf-v5-c-table__th"
