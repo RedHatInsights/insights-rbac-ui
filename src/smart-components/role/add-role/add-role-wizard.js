@@ -72,7 +72,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const onClose = () =>
     navigate({
       pathname: paths.roles.link,
-      search: createQueryParams({ page: 1, per_page: pagination.limit }),
+      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
 
   const onCancel = () => {
@@ -87,15 +87,10 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     }
 
     setCancelWarningVisible(false);
-    /**
-     * This timeout should force React to wait for the modal close and push to history afterwards.
-     * That should fix the runtime error we are seeing in the production version of the code.
-     */
-    setTimeout(() => {
-      navigate({
-        pathname: paths.roles.link,
-        search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
-      });
+
+    navigate({
+      pathname: paths.roles.link,
+      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
     });
   };
 
