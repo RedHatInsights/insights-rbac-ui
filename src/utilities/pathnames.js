@@ -103,6 +103,11 @@ const pathnames = {
     path: '/roles/*',
     title: 'Roles',
   },
+  'roles-add-group-roles': {
+    link: '/roles/:roleId/add-group-roles/:groupId',
+    path: ':roleId/add-group-roles/:groupId',
+    title: 'Add group roles',
+  },
   'add-role': {
     link: '/roles/add-role',
     path: 'add-role',
