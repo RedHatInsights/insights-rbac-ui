@@ -117,24 +117,13 @@
     }
 }
 
-.rbac-m-resource-type-select {
-    .pf-v5-c-select__menu {
+.rbac-c-resource-type-select {
+    .pf-v5-c-menu__content {
         max-height: 300px;
         overflow: auto;
         width: inherit;
-        .pf-v5-c-select__menu-item:nth-child(3) {
-            .pf-v5-c-check__input {
-                display: none;
-            }
-            .pf-v5-c-check__label {
-                color: var(--pf-v5-global--link--Color);
-            }
-        }
     }
-    .pf-v5-c-check.pf-v5-c-select__menu-item {
-         width: inherit;
-    }
-    .pf-v5-c-check__label {
+    .pf-v5-c-menu__item-text {
         white-space: pre-wrap;
     }
 }
