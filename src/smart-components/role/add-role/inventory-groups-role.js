@@ -207,6 +207,7 @@ const InventoryGroupsRole = (props) => {
             {state[permissionID].selected.length > 0 ? (
               <ChipGroup aria-label="Current selections">
                 <Chip
+                  closeBtnAriaLabel="Clear all"
                   badge={<Badge isRead>{state[permissionID].selected.length}</Badge>}
                   onClick={(ev) => {
                     ev.stopPropagation();

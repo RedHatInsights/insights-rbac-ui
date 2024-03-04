@@ -109,7 +109,7 @@ describe('Inventory groups role', () => {
     const store = mockStore(initialStateWithPermissions);
     renderComponent(store);
 
-    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+    fireEvent.click(screen.getAllByLabelText('Menu toggle')[0]);
 
     expect(screen.getByText('fooBar')).toBeInTheDocument();
   });
@@ -123,7 +123,7 @@ describe('Inventory groups role', () => {
     const store = mockStore(initialStateWithPermissions);
     const renderedResults = renderComponent(store);
 
-    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+    fireEvent.click(screen.getAllByLabelText('Menu toggle')[0]);
     expect(screen.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
@@ -132,8 +132,8 @@ describe('Inventory groups role', () => {
 
     // Opening the second groups selection
     fireEvent.click(renderedResults.getByText('Copy to all'));
-    expect(screen.getAllByLabelText('Options menu')[1]);
-    fireEvent.click(screen.getAllByLabelText('Options menu')[1]);
+    expect(screen.getAllByLabelText('Menu toggle')[1]);
+    fireEvent.click(screen.getAllByLabelText('Menu toggle')[1]);
 
     const badgesAfterCopyAll = screen.getAllByText('1', { selector: '.pf-v5-c-badge' });
     expect(badgesAfterCopyAll).toHaveLength(2);
@@ -148,7 +148,7 @@ describe('Inventory groups role', () => {
     const store = mockStore(initialStateWithPermissions);
     const renderedResults = renderComponent(store);
 
-    fireEvent.click(screen.getAllByLabelText('Options menu')[0]);
+    fireEvent.click(screen.getAllByLabelText('Menu toggle')[0]);
     expect(renderedResults.getByText('fooBar')).toBeInTheDocument();
     fireEvent.click(screen.getByText('fooBar'));
 
