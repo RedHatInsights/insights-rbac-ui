@@ -27,6 +27,7 @@ import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
 import pathnames from '../../utilities/pathnames';
+import { addRolesToGroup, fetchAdminGroup } from '../../redux/actions/group-actions';
 
 const Roles = () => {
   const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
@@ -39,13 +40,15 @@ const Roles = () => {
   const screenSize = useScreenSize();
   const chrome = useChrome();
 
-  const { roles, filters, pagination, isLoading } = useSelector(
+  const { roles, filters, pagination, isLoading, adminGroup } = useSelector(
     ({
       roleReducer: {
         roles: { data, filters, pagination },
         isLoading,
       },
+      groupReducer: { adminGroup },
     }) => ({
+      adminGroup,
       roles: data,
       filters,
       pagination: {
@@ -62,8 +65,8 @@ const Roles = () => {
   const columns = [
     { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
     { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
+    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
     { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
   ];
   const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true, chrome }));
@@ -73,6 +76,7 @@ const Roles = () => {
   const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
   const [expanded, setExpanded] = useState({});
   const [removeRolesList, setRemoveRolesList] = useState([]);
+  const [selectedAddRoles, setSelectedAddRoles] = useState([]);
 
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
 
@@ -89,6 +93,7 @@ const Roles = () => {
     const { display_name } = syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
     chrome.appNavClick({ id: 'roles', secondaryNav: true });
+    dispatch(fetchAdminGroup({ chrome }));
     fetchData({ limit, offset, orderBy, filters: { display_name } });
   }, []);
 
@@ -174,7 +179,7 @@ const Roles = () => {
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) =>
     setExpanded({ ...expanded, [rowData.uuid]: isOpen ? -1 : colIndex + Number(!isSelectable) });
 
-  const rows = createRows(roles, selectedRows, intl, expanded);
+  const rows = createRows(roles, selectedRows, intl, expanded, adminGroup);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeRolesList.length;
 
@@ -253,6 +258,16 @@ const Roles = () => {
                   afterSubmit: () => {
                     fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
                     setSelectedRows([]);
+                  },
+                },
+                [pathnames['roles-add-group-roles'].path]: {
+                  selectedRoles: selectedAddRoles,
+                  setSelectedRoles: setSelectedAddRoles,
+                  closeUrl: getBackRoute(paths.roles.link, pagination, filters),
+                  addRolesToGroup: (groupId, roles) => dispatch(addRolesToGroup(groupId, roles)),
+                  afterSubmit: () => {
+                    fetchData({ ...pagination, offset: 0, filters: { display_name: filterValue } }, true);
+                    setSelectedAddRoles([]);
                   },
                 },
               }}

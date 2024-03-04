@@ -129,16 +129,16 @@ const User = () => {
                         aria-label="Simple Table"
                         variant={TableVariant.compact}
                         cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description), ' ']}
-                        rows={groups_in.map((g) => ({
+                        rows={groups_in.map((group) => ({
                           cells: [
-                            { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', g.uuid)}>{g.name}</AppLink> },
-                            g.description,
+                            { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> },
+                            group.description,
                             {
                               title:
-                                adminGroup.uuid === g.uuid ? null : (
+                                adminGroup.uuid === group.uuid ? null : (
                                   <AppLink
-                                    to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', g.uuid)}
-                                    state={{ name: g.name }}
+                                    to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid)}
+                                    state={{ name: group.name }}
                                   >
                                     {intl.formatMessage(messages.addRoleToThisGroup)}
                                   </AppLink>
