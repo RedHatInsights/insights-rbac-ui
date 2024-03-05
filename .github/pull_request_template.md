@@ -5,7 +5,7 @@
 <!-- Must include RHCLOUD-XXXXXX link (if proposed change involves tracked issue or story) -->
 _description text..._
 
-##### JIRA: <!-- [RHCLOUD-XXXXX](https://issues.redhat.com/browse/RHCLOUD-XXXXX) -->
+#### JIRA: <!-- [RHCLOUD-XXXXX](https://issues.redhat.com/browse/RHCLOUD-XXXXX) -->
 
 ---
 
