@@ -13,10 +13,10 @@ _description text..._
 <!-- Before and after proposed changes is ideal -->
 <!-- Any key UI permutations should be captured -->
 <!-- Draw attention to the area of UI that has changed -->
-##### Before:
+#### Before:
 
 
-##### After:
+#### After:
 
 
 ---
