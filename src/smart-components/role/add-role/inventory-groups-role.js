@@ -1,6 +1,26 @@
 import React, { useEffect, useReducer } from 'react';
-import { Button, Grid, GridItem, Text, TextVariants, FormGroup, Tooltip, Divider } from '@patternfly/react-core';
-import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
+import {
+  Button,
+  Grid,
+  GridItem,
+  Text,
+  TextVariants,
+  FormGroup,
+  Tooltip,
+  Divider,
+  MenuToggle,
+  TextInputGroup,
+  TextInputGroupMain,
+  TextInputGroupUtilities,
+  SelectList,
+  SelectOption,
+  Select,
+  Spinner,
+  Badge,
+  Chip,
+  ChipGroup,
+} from '@patternfly/react-core';
+import { TimesIcon } from '@patternfly/react-icons';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -105,6 +125,7 @@ const InventoryGroupsRole = (props) => {
   const dispatch = useDispatch();
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
+  const isHosts = (permissionID) => permissionID.includes('hosts:');
 
   const { resourceTypes, totalCount, isLoading } = useSelector(selector, shallowEqual);
   const permissions =
@@ -115,11 +136,15 @@ const InventoryGroupsRole = (props) => {
 
   const fetchData = (permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps));
 
-  // eslint-disable-next-line
-  const onSelect = (event, selection, selectAll, key) => {
+  const onSelect = (_event, selection, selectAll, key) => {
     const ungroupedSystems = { id: null, name: 'null' };
     return (
-      (selectAll && dispatchLocally({ type: 'selectAll', selectionArray: [ungroupedSystems, ...Object.values(resourceTypes[key])], key })) ||
+      (selectAll &&
+        dispatchLocally({
+          type: 'selectAll',
+          selectionArray: isHosts(key) ? [ungroupedSystems, ...Object.values(resourceTypes[key])] : Object.values(resourceTypes[key]),
+          key,
+        })) ||
       dispatchLocally({ type: 'select', processedSelection: selection === 'null' ? ungroupedSystems : resourceTypes[key][selection], key })
     );
   };
@@ -152,87 +177,141 @@ const InventoryGroupsRole = (props) => {
     formOptions.change('inventory-group-permissions', groupsPermissionsDefinition);
   }, [state]);
 
+  const onToggleClick = (permissionID) => dispatchLocally({ type: 'toggle', key: permissionID, isOpen: !state[permissionID].isOpen });
+
+  const onTextInputChange = (_event, value, permissionID) => {
+    dispatchLocally({ type: 'setFilter', key: permissionID, filterValue: value });
+    debouncedFetch(() => fetchData([permissionID], { name: value }), 2000);
+  };
+
+  const toggle = (toggleRef, permissionID) => (
+    <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
+      <MenuToggle
+        variant="typeahead"
+        aria-label={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
+        onClick={() => onToggleClick(permissionID)}
+        innerRef={toggleRef}
+        isExpanded={state[permissionID].isOpen}
+        isFullWidth
+      >
+        <TextInputGroup isPlain>
+          <TextInputGroupMain
+            value={state[permissionID].filterValue}
+            onClick={() => state[permissionID].isOpen || onToggleClick(permissionID)}
+            onChange={(e, value) => onTextInputChange(e, value, permissionID)}
+            autoComplete="off"
+            placeholder={intl.formatMessage(messages.selectGroups)}
+            role="combobox"
+            isExpanded={state[permissionID].isOpen}
+          >
+            {state[permissionID].selected.length > 0 ? (
+              <ChipGroup aria-label="Current selections">
+                <Chip
+                  closeBtnAriaLabel="Clear all"
+                  badge={<Badge isRead>{state[permissionID].selected.length}</Badge>}
+                  onClick={(ev) => {
+                    ev.stopPropagation();
+                    clearSelection(permissionID);
+                  }}
+                >
+                  selected
+                </Chip>
+              </ChipGroup>
+            ) : null}
+          </TextInputGroupMain>
+
+          <TextInputGroupUtilities>
+            {state[permissionID].filterValue.length > 0 && (
+              <Button
+                variant="plain"
+                aria-label="Clear input value"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  e.preventDefault();
+                  onTextInputChange(e, '', permissionID);
+                }}
+              >
+                <TimesIcon aria-hidden />
+              </Button>
+            )}
+          </TextInputGroupUtilities>
+        </TextInputGroup>
+      </MenuToggle>
+    </Tooltip>
+  );
+
   const makeRow = (permissionID, index) => {
-    const ungroupedSystems = intl
-      .formatMessage(messages.ungroupedSystems)
-      .toLocaleLowerCase()
-      .includes(state[permissionID].filterValue.toLocaleLowerCase())
-      ? [
-          <SelectOption key={`${permissionID}-ungrouped`} value="null">
-            <FormattedMessage {...messages.ungroupedSystems} />
-          </SelectOption>,
-          <Divider component="li" key={`${permissionID}-divider`} />,
-        ]
-      : [];
     const options = Object.values(resourceTypes?.[permissionID] ?? {});
 
     return (
       <React.Fragment key={permissionID}>
         <Grid>
-          <GridItem lg={3} md={3} sm={4}>
+          <GridItem md={3}>
             <FormGroup label={permissionID?.replace('inventory:', '')} isRequired />
           </GridItem>
-          <GridItem lg={7} md={6} sm={5}>
-            <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
-              <Select
-                className="rbac-m-resource-type-select"
-                variant={SelectVariant.checkbox}
-                typeAheadAriaLabel={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
-                aria-labelledby={permissionID}
-                selections={state[permissionID].selected.map(({ name }) => name)}
-                placeholderText={intl.formatMessage(messages.selectGroups)}
-                onSelect={(event, selection) => onSelect(event, selection, selection === 'select-all', permissionID)}
-                onToggle={(_event, isOpen) => {
-                  // TODO: persist filter state when https://github.com/patternfly/patternfly-react/issues/9490 is resolved
-                  !isOpen && state[permissionID].filterValue?.length > 0 && fetchData([permissionID]);
-                  dispatchLocally({ type: 'toggle', key: permissionID, filterValue: '', page: 1, isOpen });
-                }}
-                onClear={() => clearSelection(permissionID)}
-                onFilter={(event) => {
-                  if (event) {
-                    dispatchLocally({ type: 'setFilter', key: permissionID, filterValue: event.target.value });
-                    debouncedFetch(() => fetchData([permissionID], { name: event.target.value }), 2000);
-                  }
-                }}
-                isOpen={state[permissionID].isOpen}
-                hasInlineFilter
-                {...(!isLoading &&
-                  resourceTypes[permissionID] &&
-                  Object.values(resourceTypes[permissionID]).length < totalCount && {
-                    loadingVariant: {
-                      text: intl.formatMessage(messages.seeMore),
-                      onClick: () => {
-                        fetchData([permissionID], { page: state[permissionID].page + 1, name: state[permissionID].filterValue });
-                        dispatchLocally({ type: 'setPage', key: permissionID, page: state[permissionID].page++ });
-                      },
-                    },
-                  })}
-                {...(isLoading && { loadingVariant: 'spinner' })}
-              >
-                {[
-                  ...(options?.length > 0
-                    ? [
-                        <SelectOption key={`${permissionID}-all`} value="select-all">
-                          <FormattedMessage
-                            {...messages.selectAll}
-                            values={{
-                              length: options?.length,
-                            }}
-                          />
-                        </SelectOption>,
-                      ]
-                    : []),
-                  ...(permissionID.includes('hosts:') ? ungroupedSystems : []),
-                  ...(options?.map((option, index) => (
-                    <SelectOption key={`${permissionID}-${index + 1}`} value={option?.name}>
-                      {option.children}
+          <GridItem md={7}>
+            <Select
+              role="menu"
+              aria-labelledby={permissionID}
+              className="rbac-c-resource-type-select"
+              isOpen={state[permissionID].isOpen}
+              selected={state[permissionID].selected}
+              onSelect={(event, selection) => onSelect(event, selection, selection === 'select-all', permissionID)}
+              onOpenChange={(isOpen) => dispatchLocally({ type: 'toggle', key: permissionID, isOpen })}
+              toggle={(toggleRef) => toggle(toggleRef, permissionID)}
+            >
+              <SelectList>
+                {options?.length > 0 ? (
+                  <SelectOption className="pf-v5-u-link-color" key={`${permissionID}-all`} value="select-all">
+                    <FormattedMessage
+                      {...messages.selectAll}
+                      values={{
+                        length: options?.length + Number(isHosts(permissionID)),
+                      }}
+                    />
+                  </SelectOption>
+                ) : null}
+                {isHosts(permissionID) ? (
+                  <>
+                    <SelectOption
+                      key={`${permissionID}-ungrouped`}
+                      value="null"
+                      hasCheckbox
+                      isSelected={state[permissionID].selected.some((item) => item.name === 'null')}
+                    >
+                      <FormattedMessage {...messages.ungroupedSystems} />
                     </SelectOption>
-                  )) || []),
-                ]}
-              </Select>
-            </Tooltip>
+                    {options.length > 0 ? <Divider component="li" key={`${permissionID}-divider`} /> : null}
+                  </>
+                ) : null}
+                {options.map((option) => (
+                  <SelectOption
+                    hasCheckbox
+                    key={option.id}
+                    isSelected={state[permissionID].selected.some((item) => item.name === option.name)}
+                    className={option.className}
+                    value={option.name}
+                  >
+                    {option.name}
+                  </SelectOption>
+                ))}
+                {isLoading || (resourceTypes[permissionID] && Object.values(resourceTypes[permissionID]).length < totalCount) ? (
+                  <SelectOption
+                    {...(!isLoading && { isLoadButton: true })}
+                    {...(isLoading && { isLoading: true })}
+                    onClick={() => {
+                      fetchData([permissionID], { page: state[permissionID].page + 1, name: state[permissionID].filterValue });
+                      dispatchLocally({ type: 'setPage', key: permissionID, page: state[permissionID].page++ });
+                    }}
+                    value="loader"
+                  >
+                    {isLoading ? <Spinner size="lg" /> : intl.formatMessage(messages.seeMore)}
+                  </SelectOption>
+                ) : null}
+              </SelectList>
+            </Select>
           </GridItem>
-          <GridItem lg={2} md={4} sm={2}>
+          <GridItem md={2}>
             {index <= 0 && permissions.length > 1 && (
               <Button key={`${permissionID}-copy`} variant="link" isInLink onClick={() => dispatchLocally({ type: 'copyToAll', permissions })}>
                 {intl.formatMessage(messages.copyToAll)}
@@ -246,7 +325,7 @@ const InventoryGroupsRole = (props) => {
 
   return (
     <Grid hasGutter>
-      <GridItem lg={3} md={6} className="rbac-m-hide-on-sm">
+      <GridItem md={3} className="rbac-m-hide-on-sm">
         <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
           {intl.formatMessage(messages.permissions)}
         </Text>
