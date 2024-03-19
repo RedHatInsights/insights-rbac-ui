@@ -41,7 +41,7 @@ const Overview = () => {
 
   return (
     <React.Fragment>
-      <PageHeader data-component-ouia-id="overview-header">
+      <PageHeader data-ouia-component-id="overview-header">
         <Flex className="pf-u-flex-nowrap">
           <FlexItem>
             <img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />
@@ -52,14 +52,14 @@ const Overview = () => {
             }}
           />
           <FlexItem className="pf-u-align-self-flex-start">
-            <PageHeaderTitle data-component-ouia-id="overview-header-title" title={intl.formatMessage(messages.overview)} className="pf-u-mb-sm" />
+            <PageHeaderTitle data-ouia-component-id="overview-header-title" title={intl.formatMessage(messages.overview)} className="pf-u-mb-sm" />
             <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewSubtitle)}</p>
             <a
               href="https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index"
               title="link to User Access documentation"
               target="_blank"
               rel="noreferrer"
-              data-component-ouia-id="overview-header-learn-more-button"
+              data-ouia-component-id="overview-header-learn-more-button"
             >
               {intl.formatMessage(messages.learnMore)} <ExternalLinkAltIcon />
             </a>
@@ -67,11 +67,11 @@ const Overview = () => {
         </Flex>
       </PageHeader>
       <PageSection>
-        <Card aria-label="Get started card" className="pf-u-mb-lg" data-component-ouia-id="get-started-card">
+        <Card aria-label="Get started card" className="pf-u-mb-lg" data-ouia-component-id="get-started-card">
           <Grid hasGutter>
             <GridItem sm={12} md={6} lg={8}>
               <CardTitle>
-                <Title headingLevel="h2" data-component-ouia-id="get-started-title">
+                <Title headingLevel="h2" data-ouia-component-id="get-started-title">
                   {intl.formatMessage(messages.overviewHeroTitle)}
                 </Title>
               </CardTitle>
@@ -87,14 +87,14 @@ const Overview = () => {
                 <ActionList>
                   <ActionListItem>
                     <AppLink to={pathnames.groups.link}>
-                      <Button variant="primary" size="lg" aria-label="View groups" data-component-ouia-id="getstarted-view-groups-button">
+                      <Button variant="primary" size="lg" aria-label="View groups" data-ouia-component-id="getstarted-view-groups-button">
                         {intl.formatMessage(messages.viewGroupsBtn)}
                       </Button>
                     </AppLink>
                   </ActionListItem>
                   <ActionListItem>
                     <AppLink to={pathnames.roles.link}>
-                      <Button variant="secondary" aria-label="View roles" size="lg" data-component-ouia-id="getstarted-view-roles-button">
+                      <Button variant="secondary" aria-label="View roles" size="lg" data-ouia-component-id="getstarted-view-roles-button">
                         {intl.formatMessage(messages.viewRolesBtn)}
                       </Button>
                     </AppLink>
@@ -109,10 +109,15 @@ const Overview = () => {
         <DataList aria-label="Supporting features list" className="pf-u-mb-lg">
           <DataListItem aria-labelledby="item1" isExpanded={expanded} className={expanded && 'active-item'}>
             <DataListItemRow className="pf-u-align-items-center">
-              <DataListToggle isExpanded={expanded} aria-controls="about-default-groups" onClick={() => setExpanded(!expanded)} />
+              <DataListToggle
+                isExpanded={expanded}
+                aria-controls="about-default-groups"
+                data-ouia-component-id="about-toggle"
+                onClick={() => setExpanded(!expanded)}
+              />
               <DataListItemCells
                 dataListCells={[
-                  <DataListCell key="about-default-groups-key" data-component-ouia-id="about-card">
+                  <DataListCell key="about-default-groups-key" data-ouia-component-id="about-card">
                     <div>
                       <Flex className="pf-u-flex-nowrap">
                         <FlexItem className="pf-u-align-self-center">
@@ -126,7 +131,7 @@ const Overview = () => {
                           }}
                         />
                         <FlexItem className="pf-u-align-self-center">
-                          <Title headingLevel="h4" data-component-ouia-id="about-title">
+                          <Title headingLevel="h4" data-ouia-component-id="about-title">
                             {intl.formatMessage(messages.overviewSupportingFeaturesTitle)}
                           </Title>
                         </FlexItem>
@@ -141,6 +146,7 @@ const Overview = () => {
               className="pf-v5-u-px-lg pf-v5-u-pb-xl"
               aria-label="About default groups - detailed explanation"
               id="about-default-groups"
+              data-ouia-component-id="about-view-default-group"
               isHidden={!expanded}
             >
               <p className="pf-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
@@ -154,10 +160,10 @@ const Overview = () => {
           </DataListItem>
         </DataList>
 
-        <Title headingLevel="h2" className="pf-u-mb-md" data-component-ouia-id="recommended-title">
+        <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="recommended-title">
           {intl.formatMessage(messages.recommendedContentTitle)}
         </Title>
-        <Table aria-label="Recommended content table" className="pf-u-mb-lg" data-component-ouia-id="recommended-table">
+        <Table aria-label="Recommended content table" className="pf-u-mb-lg" data-ouia-component-id="recommended-table">
           <Tbody>
             <Tr key="row1">
               <Td dataLabel="Recommended content label">{intl.formatMessage(messages.recommendedContentItem1)}</Td>
@@ -264,7 +270,7 @@ const Overview = () => {
         <a
           href="https://console.redhat.com/settings/learning-resources?quickstart=rbac-admin-vuln-permissions"
           className="pf-u-mb-lg"
-          data-component-ouia-id="overview-view-all-resources-button"
+          data-ouia-component-id="overview-view-all-resources-button"
         >
           {intl.formatMessage(messages.iamLearningResourcesLink)}
         </a>
