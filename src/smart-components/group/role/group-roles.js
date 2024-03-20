@@ -74,7 +74,7 @@ const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   roles: selectedGroup.roles?.data || [],
-  pagination: selectedGroup.pagination || { ...defaultSettings, count: selectedGroup?.roles && selectedGroup.roles.length },
+  pagination: { ...defaultSettings, ...(selectedGroup.roles?.meta || {}) },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
   isLoading: selectedGroup.roles?.isLoading,
@@ -141,9 +141,9 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
 
   useEffect(() => {
     if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
-      fetchGroupRoles(pagination)(groupId);
+      fetchGroupRoles({ ...pagination, offset: 0 })(groupId);
     } else {
-      systemGroupUuid && fetchGroupRoles(pagination)(systemGroupUuid);
+      systemGroupUuid && fetchGroupRoles({ ...pagination, offset: 0 })(systemGroupUuid);
     }
   }, [systemGroupUuid]);
 

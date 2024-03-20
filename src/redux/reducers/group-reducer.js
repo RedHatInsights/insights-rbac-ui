@@ -90,7 +90,6 @@ const setRolesForGroup = (state, { payload }) => ({
       isLoading: false,
       ...(!payload.error ? payload : {}),
     },
-    ...(payload.error ? payload : {}),
   },
 });
 
