@@ -342,6 +342,12 @@ export default defineMessages({
     description: 'Add group service accounts error notification description',
     defaultMessage: 'The service {count, plural, one {account was} other {accounts were}} not added successfully.',
   },
+  addNewGroupServiceAccountsErrorDescription: {
+    id: 'addNewGroupServiceAccountsErrorDescription',
+    description: 'Add group service accounts error notification description',
+    defaultMessage:
+      'The group has been created, but the service {count, plural, one {account was} other {accounts were}} not associated successfully. Try adding the the service {count, plural, one {account} other {accounts}} later.',
+  },
   removeGroupServiceAccountsSuccessTitle: {
     id: 'removeGroupServiceAccountsSuccessTitle',
     description: 'Removal of group service accounts success notification title',
@@ -752,6 +758,26 @@ export default defineMessages({
     id: 'addMembers',
     description: 'Add members wizard step title',
     defaultMessage: 'Add members',
+  },
+  addServiceAccounts: {
+    id: 'addServiceAccounts',
+    description: 'Add service accounts wizard step title',
+    defaultMessage: 'Add service accounts',
+  },
+  groupBeingCreated: {
+    id: 'groupBeingCreated',
+    description: 'Creating group step title',
+    defaultMessage: 'The group is being created',
+  },
+  creatingGroup: {
+    id: 'creatingGroup',
+    description: 'Creating group label',
+    defaultMessage: 'Creating a group',
+  },
+  associatingServiceAccounts: {
+    id: 'associatingServiceAccounts',
+    description: 'Adding service accounts label',
+    defaultMessage: 'Associating service accounts',
   },
   members: {
     id: 'members',
