@@ -1,6 +1,6 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Card, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
+import { Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import UsersList from './users-list';
@@ -35,9 +35,7 @@ const SetUsers = (props) => {
           </StackItem>
           <StackItem>
             <FormGroup fieldId="select-user">
-              <Card>
-                <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
-              </Card>
+              <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
             </FormGroup>
           </StackItem>
         </Stack>
