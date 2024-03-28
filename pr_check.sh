@@ -57,7 +57,7 @@ echo "Expecting image tag ${IMAGE_TAG}"
 set -e
 # Deploy to an ephemeral namespace for testing
 # We deploy rbac and override the image tag for insights-frontend-chrome
-export IMAGE="quay.io/cloudservices/insights-rbac-ui"
+export IMAGE="quay.io/cloudservices/rbac-frontend"
 export GIT_COMMIT=master
 export DEPLOY_FRONTENDS=true
 source $CICD_ROOT/deploy_ephemeral_env.sh
