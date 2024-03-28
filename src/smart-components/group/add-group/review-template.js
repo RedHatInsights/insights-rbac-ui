@@ -7,7 +7,6 @@ import {
   Button,
   ButtonVariant,
   EmptyState,
-  EmptyStateBody,
   EmptyStateHeader,
   EmptyStateIcon,
   EmptyStateVariant,
@@ -45,6 +44,7 @@ const ReviewTemplate = ({ formFields }) => {
   }
 
   if (submittingServiceAccounts && !error) {
+    const value = submittingGroup ? 1 : submittingServiceAccounts ? 2 : 3;
     return (
       <EmptyState variant={EmptyStateVariant.lg} data-component-ouia-id="wizard-progress" className="rbac-add-group-progress">
         <EmptyStateHeader
@@ -52,14 +52,15 @@ const ReviewTemplate = ({ formFields }) => {
           icon={<EmptyStateIcon className="pf-v5-u-mt-xl" icon={InProgressIcon} />}
           headingLevel="h4"
         />
-        <EmptyStateBody>
-          <Progress
-            min={0}
-            max={2}
-            value={submittingGroup ? 0 : submittingServiceAccounts ? 1 : 2}
-            label={intl.formatMessage(submittingGroup ? messages.creatingGroup : messages.associatingServiceAccounts)}
-          />
-        </EmptyStateBody>
+        <Progress
+          className="pf-v5-u-mt-lg"
+          style={{ textAlign: 'left' }}
+          min={0}
+          max={3}
+          value={value}
+          label={`${submittingGroup ? 1 : 2} of 2`}
+          title={intl.formatMessage(submittingGroup ? messages.creatingGroup : messages.associatingServiceAccounts)}
+        />
       </EmptyState>
     );
   }
