@@ -36,6 +36,37 @@ echo "After docker run"
 source <(curl -sSL $COMMON_BUILDER/src/frontend-build.sh)
 BUILD_RESULTS=$?
 
+# === Deploy ephemeral ===
+
+export APP_NAME=rbac
+export COMPONENT="rbac"
+export COMPONENT_NAME="rbac"
+
+# Install bonfire
+CICD_URL=https://raw.githubusercontent.com/RedHatInsights/bonfire/master/cicd
+curl -s $CICD_URL/bootstrap.sh > .cicd_bootstrap.sh
+source .cicd_bootstrap.sh
+
+echo "Taking a short nap"
+sleep 60
+
+SHORT_SHA=$(git rev-parse --short HEAD)
+IMAGE_TAG="pr-${ghprbPullId}-${SHORT_SHA}"
+echo "Expecting image tag ${IMAGE_TAG}"
+
+set -e
+# Deploy to an ephemeral namespace for testing
+# We deploy rbac and override the image tag for insights-frontend-chrome
+export IMAGE="quay.io/cloudservices/insights-rbac-ui"
+export GIT_COMMIT=master
+export DEPLOY_FRONTENDS=true
+source $CICD_ROOT/deploy_ephemeral_env.sh
+
+
+# === Run RBAC smoke tests in CJI ===
+# TODO
+
+
 # Stubbed out for now
 mkdir -p $WORKSPACE/artifacts
 cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
