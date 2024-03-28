@@ -17,6 +17,7 @@ export const schemaBuilder = (container) => {
       {
         component: 'wizard',
         name: 'wizard',
+        className: 'rbac',
         isDynamic: true,
         inModal: true,
         showTitles: true,
@@ -63,12 +64,23 @@ export const schemaBuilder = (container) => {
           },
           {
             name: 'add-users',
-            nextStep: 'review',
+            nextStep: 'add-service-accounts',
             title: intl.formatMessage(messages.addMembers),
             fields: [
               {
                 component: 'set-users',
                 name: 'users-list',
+              },
+            ],
+          },
+          {
+            name: 'add-service-accounts',
+            nextStep: 'review',
+            title: intl.formatMessage(messages.addServiceAccounts),
+            fields: [
+              {
+                component: 'set-service-accounts',
+                name: 'service-accounts-list',
               },
             ],
           },

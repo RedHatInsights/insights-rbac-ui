@@ -9,11 +9,12 @@ import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-templa
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { schemaBuilder } from './schema';
-import { addGroup } from '../../../redux/actions/group-actions';
+import { addGroup, addServiceAccountsToGroup } from '../../../redux/actions/group-actions';
 import { createQueryParams } from '../../../helpers/shared/helpers';
 import SetName from './set-name';
 import SetRoles from './set-roles';
 import SetUsers from './set-users';
+import SetServiceAccounts from './set-service-accounts';
 import SummaryContent from './summary-content';
 import AddGroupSuccess from './add-group-success';
 import useAppNavigate from '../../../hooks/useAppNavigate';
@@ -42,6 +43,7 @@ export const mapperExtension = {
   'set-name': SetName,
   'set-roles': SetRoles,
   'set-users': SetUsers,
+  'set-service-accounts': SetServiceAccounts,
   'summary-content': SummaryContent,
 };
 
@@ -89,15 +91,28 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
   const onSubmit = (formData) => {
-    setWizardContextValue((prev) => ({ ...prev, submitting: true }));
+    const serviceAccountsAdded = formData['service-accounts-list']?.length > 0;
+    setWizardContextValue((prev) => ({ ...prev, submitting: true, submittingGroup: true, submittingServiceAccounts: serviceAccountsAdded }));
     const groupData = {
       name: formData['group-name'],
       description: formData['group-description'],
       user_list: formData['users-list'].map((user) => ({ username: user.label })),
       roles_list: formData['roles-list'].map((role) => role.uuid),
     };
-    dispatch(addGroup(groupData)).then(() => {
-      setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
+    dispatch(addGroup(groupData)).then(({ value }) => {
+      setWizardContextValue((prev) => ({
+        ...prev,
+        submittingGroup: false,
+        success: !serviceAccountsAdded,
+        hideForm: !serviceAccountsAdded,
+        submitting: serviceAccountsAdded,
+      }));
+      serviceAccountsAdded &&
+        dispatch(addServiceAccountsToGroup(value.uuid, formData['service-accounts-list']))
+          .then(() => {
+            setWizardContextValue((prev) => ({ ...prev, submitting: false, submittingServiceAccounts: false, success: true, hideForm: true }));
+          })
+          .catch(() => setWizardError(true));
     });
   };
 
