@@ -64,9 +64,20 @@ source $CICD_ROOT/deploy_ephemeral_env.sh
 
 
 # === Run RBAC smoke tests in CJI ===
-# TODO
-# Bump
 
+echo "Running tests with CJI"
+export IQE_IMAGE_TAG="latest"
+IQE_PLUGINS="rbac_frontend"
+IQE_MARKER_EXPRESSION="smoke"
+# Exclude progressive profile tests
+# Exclude APIdocs tests
+IQE_FILTER_EXPRESSION=""
+IQE_ENV="ephemeral"
+IQE_SELENIUM="true"
+IQE_CJI_TIMEOUT="30m"
+DEPLOY_TIMEOUT="900"  # 15min
+DEPLOY_FRONTENDS="true"
+source $CICD_ROOT/cji_smoke_test.sh
 
 # Stubbed out for now
 mkdir -p $WORKSPACE/artifacts
