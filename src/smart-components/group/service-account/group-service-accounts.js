@@ -55,7 +55,7 @@ const GroupServiceAccounts = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
-  const [clientIDValue, setClientIDValue] = useState('');
+  const [filterValue, setFilterValue] = useState({ clientID: '', name: '', description: '' });
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -162,11 +162,15 @@ const GroupServiceAccounts = () => {
               isSelectable
               rows={createRows(serviceAccounts, selectedAccounts)}
               data={serviceAccounts}
-              filterValue={clientIDValue}
+              filterValue={filterValue}
               fetchData={(config) => fetchGroupAccounts(groupId, config)}
-              emptyFilters={{ description: '' }}
-              setFilterValue={({ clientID }) => {
-                typeof clientID !== 'undefined' && setClientIDValue(clientID);
+              emptyFilters={{ clientID: '', name: '', description: '' }}
+              setFilterValue={({ clientID, name, description }) => {
+                setFilterValue({
+                  clientID: typeof clientID === 'undefined' ? filterValue.clientID : clientID,
+                  name: typeof name === 'undefined' ? filterValue.name : name,
+                  description: typeof description === 'undefined' ? filterValue.description : description,
+                });
               }}
               isLoading={isLoading}
               pagination={pagination}
@@ -180,7 +184,12 @@ const GroupServiceAccounts = () => {
                 title: intl.formatMessage(messages.noGroupAccounts),
                 description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
               }}
-              filters={[{ key: 'clientID', value: clientIDValue }]}
+              filters={[
+                { key: 'clientID', value: filterValue.clientID },
+                { key: 'name', value: filterValue.name },
+                { key: 'description', value: filterValue.description },
+              ]}
+              isFilterable={true}
               tableId="group-accounts"
               ouiaId="group-accounts"
             />

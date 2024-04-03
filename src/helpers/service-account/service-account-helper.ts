@@ -11,6 +11,7 @@ export interface ServiceAccountPayloadItem {
   id: string;
   clientId: string;
   name: string;
+  description: string;
   createdBy: string;
   createdAt: number;
 }
