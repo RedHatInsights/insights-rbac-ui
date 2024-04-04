@@ -14,6 +14,7 @@ import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({
+  className,
   isCompact,
   borders,
   columns,
@@ -174,7 +175,7 @@ export const TableToolbarView = ({
   };
 
   return (
-    <Fragment>
+    <div className={className}>
       {routes()}
       {!isLoading && rows?.length === 0 && filterValue?.length === 0 && filters.every(({ value }) => !value) ? (
         <EmptyWithAction
@@ -190,7 +191,7 @@ export const TableToolbarView = ({
       ) : (
         renderTable()
       )}
-    </Fragment>
+    </div>
   );
 };
 
@@ -200,6 +201,7 @@ TableToolbarView.propTypes = {
     directions: propTypes.string,
     index: propTypes.number,
   }),
+  className: propTypes.string,
   rowWrapper: propTypes.any,
   isCompact: propTypes.bool,
   isRowSelectable: propTypes.func,

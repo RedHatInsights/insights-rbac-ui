@@ -13,6 +13,7 @@ const SummaryContent = () => {
     'group-description': description,
     'users-list': selectedUsers,
     'roles-list': selectedRoles,
+    'service-accounts-list': selectedServiceAccounts,
   } = formOptions.getState().values;
 
   return (
@@ -65,6 +66,20 @@ const SummaryContent = () => {
                   {selectedUsers.map((role, index) => (
                     <Text className="pf-v5-u-mb-0" key={index}>
                       {role.label}
+                    </Text>
+                  ))}
+                </GridItem>
+              </Grid>
+              <Grid>
+                <GridItem md={3}>
+                  <Text component={TextVariants.h4} className="rbac-bold-text">
+                    {intl.formatMessage(messages.serviceAccounts)}
+                  </Text>
+                </GridItem>
+                <GridItem md={9}>
+                  {selectedServiceAccounts.map((account, index) => (
+                    <Text className="pf-v5-u-mb-0" key={index}>
+                      {account.name}
                     </Text>
                   ))}
                 </GridItem>

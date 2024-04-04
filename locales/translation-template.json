@@ -91,6 +91,10 @@
     "defaultMessage": "Add members",
     "description": "Add members wizard step title"
   },
+  "addNewGroupServiceAccountsErrorDescription": {
+    "defaultMessage": "The group has been created, but the service {count, plural, one {account was} other {accounts were}} not associated successfully. Try adding the the service {count, plural, one {account} other {accounts}} later.",
+    "description": "Add group service accounts error notification description"
+  },
   "addNewUsersText": {
     "defaultMessage": "To add new users or manage existing users, go to your",
     "description": "Add new users text"
@@ -146,6 +150,10 @@
   "addServiceAccount": {
     "defaultMessage": "Add service account",
     "description": "Add service account label"
+  },
+  "addServiceAccounts": {
+    "defaultMessage": "Add service accounts",
+    "description": "Add service accounts wizard step title"
   },
   "addServiceAccountsToGroupDescription": {
     "defaultMessage": "This list contains all service accounts associated with your Red Hat organization account. Select any service accounts you wish to associate with the User Access group.",
@@ -254,6 +262,10 @@
   "assignAtLeastOneResource": {
     "defaultMessage": "You need to assign at least one resource to each permission.",
     "description": "Assign at least one resource message"
+  },
+  "associatingServiceAccounts": {
+    "defaultMessage": "Associating service accounts",
+    "description": "Adding service accounts label"
   },
   "backToPreviousPage": {
     "defaultMessage": "Back to previous page",
@@ -382,6 +394,10 @@
   "createRoleFromScratch": {
     "defaultMessage": "Create a role from scratch",
     "description": "Create role from scratch option"
+  },
+  "creatingGroup": {
+    "defaultMessage": "Creating a group",
+    "description": "Creating group label"
   },
   "creatingRoleCanceled": {
     "defaultMessage": "Creating role was canceled by the user",
@@ -594,6 +610,10 @@
   "group": {
     "defaultMessage": "Group",
     "description": "Group singular"
+  },
+  "groupBeingCreated": {
+    "defaultMessage": "The group is being created",
+    "description": "Creating group step title"
   },
   "groupCreatedSuccessfully": {
     "defaultMessage": "You have successfully created a new group",
