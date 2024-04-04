@@ -154,7 +154,10 @@ export async function fetchAccountsForGroup(groupId, options = {}) {
     options.offset,
     undefined,
     undefined,
-    'service-account'
+    'service-account',
+    undefined,
+    options.description,
+    options.name
   );
 }
 
