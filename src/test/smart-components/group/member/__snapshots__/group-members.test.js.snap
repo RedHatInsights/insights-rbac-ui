@@ -32,6 +32,7 @@ exports[`<GroupMembers /> should render correctly loader 1`] = `
                 >
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <span
                       class="pf-v5-c-form-control pf-m-disabled pf-m-icon ins-c-conditional-filter"
@@ -1548,6 +1549,7 @@ exports[`<GroupMembers /> should render correctly with data 1`] = `
                 >
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <span
                       class="pf-v5-c-form-control pf-m-icon ins-c-conditional-filter"
@@ -2317,6 +2319,7 @@ exports[`<GroupMembers /> should render correctly with org admin rights 1`] = `
                 >
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <span
                       class="pf-v5-c-form-control pf-m-icon ins-c-conditional-filter"
