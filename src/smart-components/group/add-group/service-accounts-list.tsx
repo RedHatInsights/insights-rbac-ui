@@ -15,6 +15,8 @@ import './service-accounts-list.scss';
 interface ServiceAccountsListProps {
   selected: ServiceAccount[];
   setSelected: Dispatch<SetStateAction<ServiceAccount[]>>;
+  // optional group ID to check whether SA are assigned to selected group
+  groupId?: string;
 }
 
 const reducer = ({ serviceAccountReducer }: { serviceAccountReducer: ServiceAccountsState }) => ({
@@ -41,13 +43,14 @@ const createRows = (data: ServiceAccount[], checkedRows: ServiceAccount[]) =>
             <DateFormat date={curr.createdAt} type={getDateFormat(curr.createdAt)} />
           </Fragment>,
         ],
-        selected: Boolean(checkedRows && checkedRows.find((row: ServiceAccount) => row.uuid === curr.uuid)),
+        selected: Boolean(checkedRows && checkedRows.find((row: ServiceAccount) => row.uuid === curr.uuid)) || curr.assignedToSelectedGroup,
+        disableSelection: curr.assignedToSelectedGroup,
       },
     ],
     []
   );
 
-export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ selected, setSelected }) => {
+export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ selected, setSelected, groupId }) => {
   const { auth, getEnvironmentDetails } = useChrome();
   const { serviceAccounts, status, limit, offset, isLoading } = useSelector(reducer);
 
@@ -58,7 +61,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     async (props?: PaginationProps) => {
       const env = getEnvironmentDetails();
       const token = await auth.getToken();
-      dispatch(fetchServiceAccounts({ limit: props?.limit ?? limit, offset: props?.offset ?? offset, token, sso: env?.sso }));
+      dispatch(fetchServiceAccounts({ limit: props?.limit ?? limit, offset: props?.offset ?? offset, token, sso: env?.sso, groupId }));
     },
     [limit, offset]
   );
