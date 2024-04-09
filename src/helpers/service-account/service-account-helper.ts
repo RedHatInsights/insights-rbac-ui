@@ -1,4 +1,3 @@
-import { ServiceAccountInGroupResponse } from '@redhat-cloud-services/rbac-client';
 import { fetchAccountsForGroup } from '../group/group-helper';
 import { defaultCompactSettings } from '../shared/pagination';
 import { getServiceAccountsApi } from '../shared/user-login';
