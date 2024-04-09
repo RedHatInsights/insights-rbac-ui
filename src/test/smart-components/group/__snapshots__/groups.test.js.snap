@@ -67,7 +67,6 @@ exports[`<Groups /> should render group list correctly 1`] = `
                     >
                       <div
                         class="pf-v5-l-split__item pf-m-fill"
-                        data-ouia-component-id="ConditionalFilter"
                       >
                         <span
                           class="pf-v5-c-form-control pf-m-icon ins-c-conditional-filter"
