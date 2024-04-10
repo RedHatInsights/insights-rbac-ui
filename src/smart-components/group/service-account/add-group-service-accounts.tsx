@@ -91,7 +91,11 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
           </TextContent>
         </StackItem>
         <StackItem className="rbac-add-service-account-modal">
-          <ServiceAccountsList selected={selectedAccounts} setSelected={setSelectedAccounts} />
+          <ServiceAccountsList
+            selected={selectedAccounts}
+            setSelected={setSelectedAccounts}
+            groupId={groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId}
+          />
         </StackItem>
       </Stack>
     </Modal>
