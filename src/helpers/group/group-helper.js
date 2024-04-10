@@ -155,7 +155,7 @@ export async function fetchAccountsForGroup(groupId, options = {}) {
     undefined,
     undefined,
     options.serviceAccountClientIds ? undefined : 'service-account',
-    options.serviceAccountClientIds
+    options.serviceAccountClientIds,
     options.description,
     options.name
   );
