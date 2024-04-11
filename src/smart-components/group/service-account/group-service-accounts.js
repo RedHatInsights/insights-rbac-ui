@@ -185,7 +185,14 @@ const GroupServiceAccounts = () => {
                 description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
               }}
               filters={[
-                { key: 'clientID', value: filterValue.clientID },
+                {
+                  key: 'clientID',
+                  value: filterValue.clientID,
+                  label: intl.formatMessage(messages.clientId),
+                  placeholder: intl.formatMessage(messages.filterByKey, {
+                    key: `${intl.formatMessage(messages.clientId)[0].toLowerCase()}${intl.formatMessage(messages.clientId).slice(1)}`,
+                  }),
+                },
                 { key: 'name', value: filterValue.name },
                 { key: 'description', value: filterValue.description },
               ]}
