@@ -51,7 +51,7 @@ export const createRows = (data, selectedRows, intl, expanded, adminGroup) =>
                       group.description,
                       {
                         title:
-                          adminGroup.uuid === group.uuid ? null : (
+                          adminGroup?.uuid === group.uuid ? null : (
                             <AppLink
                               to={pathnames['roles-add-group-roles'].link.replace(':roleId', uuid).replace(':groupId', group.uuid)}
                               state={{ name: group.name }}
