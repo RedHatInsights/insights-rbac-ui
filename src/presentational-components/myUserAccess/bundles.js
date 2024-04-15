@@ -34,6 +34,7 @@ export const bundleData = [
       subscriptions: '/subscriptions',
       repositories: '/content',
       provisioning: '/provisioning',
+      tasks: '/tasks',
     },
     appsIds: [
       'dashboard',
@@ -50,6 +51,7 @@ export const bundleData = [
       'subscriptions',
       'content-sources',
       'provisioning',
+      'tasks',
     ],
   },
   {
