@@ -4,6 +4,7 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useSearchParams } from 'react-router-dom';
 import { ButtonVariant } from '@patternfly/react-core';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
 import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
 
@@ -19,16 +20,18 @@ type RBACStore = {
       uuid: string;
       name: string;
       serviceAccounts?: {
-        data: { name: string }[];
+        data: ServiceAccount[];
       };
     };
   };
 };
 
 const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAccountsProps> = ({ postMethod }: AddGroupServiceAccountsProps) => {
-  const group = useSelector<RBACStore, { name: string; uuid: string }>(({ groupReducer: { selectedGroup } }) => selectedGroup);
+  const group = useSelector<RBACStore, { name: string; uuid: string; serviceAccounts?: { data: ServiceAccount[] } }>(
+    ({ groupReducer: { selectedGroup } }) => selectedGroup
+  );
   const [params] = useSearchParams();
-  const selectedServiceAccounts = useSelector<RBACStore, { name: string }[]>(({ groupReducer: { selectedGroup } }) =>
+  const selectedServiceAccounts = useSelector<RBACStore, ServiceAccount[]>(({ groupReducer: { selectedGroup } }) =>
     (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name))
   );
   const accountsCount = useMemo(() => params.getAll('name').length, [params]);
@@ -44,7 +47,10 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       confirmButtonVariant={ButtonVariant.danger}
       onClose={() => postMethod()}
       onConfirm={() => {
-        const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccounts);
+        const action = removeServiceAccountFromGroup(
+          group.uuid,
+          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientID)
+        );
         dispatch(action);
         postMethod(action.payload);
       }}

@@ -19,7 +19,7 @@ export interface ServiceAccountPayloadItem {
 
 export interface ServiceAccount {
   uuid: string;
-  clientId: string;
+  clientID: string;
   name: string;
   description: string;
   createdBy: string;
@@ -28,7 +28,7 @@ export interface ServiceAccount {
 }
 
 export interface ServiceAccountsPayload {
-  data: ServiceAccount[];
+  data: (ServiceAccount & { clientId: string })[];
   status: string;
 }
 

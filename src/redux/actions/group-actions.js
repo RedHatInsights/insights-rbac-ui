@@ -230,25 +230,25 @@ export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
   };
 };
 
-export const removeServiceAccountFromGroup = (groupId, serviceAccounts) => {
+export const removeServiceAccountFromGroup = (groupId, serviceAccountsIds) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.REMOVE_SERVICE_ACCOUNTS_FROM_GROUP,
-    payload: GroupHelper.removeServiceAccountsFromGroup(groupId, serviceAccounts),
+    payload: GroupHelper.removeServiceAccountsFromGroup(groupId, serviceAccountsIds),
     meta: {
       notifications: {
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle, { count: serviceAccounts.length }),
+          title: intl.formatMessage(messages.removeGroupServiceAccountsSuccessTitle, { count: serviceAccountsIds.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription, { count: serviceAccounts.length }),
+          description: intl.formatMessage(messages.removeGroupServiceAccountsSuccessDescription, { count: serviceAccountsIds.length }),
         },
         rejected: {
           variant: 'danger',
-          title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle, { count: serviceAccounts.length }),
+          title: intl.formatMessage(messages.removeGroupServiceAccountsErrorTitle, { count: serviceAccountsIds.length }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription, { count: serviceAccounts.length }),
+          description: intl.formatMessage(messages.removeGroupServiceAccountsErrorDescription, { count: serviceAccountsIds.length }),
         },
       },
     },

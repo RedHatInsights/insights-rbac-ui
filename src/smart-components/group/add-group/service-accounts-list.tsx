@@ -37,7 +37,7 @@ const createRows = (data: ServiceAccount[], checkedRows: ServiceAccount[]) =>
         cells: [
           curr.name,
           curr.description,
-          curr.clientId,
+          curr.clientID,
           curr.createdBy,
           <Fragment key={`${curr.name}-modified`}>
             <DateFormat date={curr.createdAt} type={getDateFormat(curr.createdAt)} />

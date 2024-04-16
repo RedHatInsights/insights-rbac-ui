@@ -29,7 +29,7 @@ const setServiceAccounts = (state: ServiceAccountsState, { payload, meta }: { pa
   ...state,
   limit: meta.limit,
   offset: meta.offset,
-  serviceAccounts: payload.data,
+  serviceAccounts: payload.data.map((item) => ({ ...item, clientID: item.clientId })),
   status: payload.status,
   isLoading: false,
 });
