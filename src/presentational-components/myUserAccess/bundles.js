@@ -30,9 +30,11 @@ export const bundleData = [
       patch: '/patch',
       vulnerability: '/vulnerability',
       policies: '/policies',
+      remediations: '/remediations',
       subscriptions: '/subscriptions',
       repositories: '/content',
       provisioning: '/provisioning',
+      tasks: '/tasks',
     },
     appsIds: [
       'dashboard',
@@ -45,9 +47,11 @@ export const bundleData = [
       'inventory',
       'notifications',
       'image-builder',
+      'remediations',
       'subscriptions',
       'content-sources',
       'provisioning',
+      'tasks',
     ],
   },
   {
