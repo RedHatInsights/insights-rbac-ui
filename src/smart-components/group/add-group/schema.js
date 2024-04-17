@@ -9,7 +9,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 
-export const schemaBuilder = (container) => {
+export const schemaBuilder = (container, enableServiceAccounts) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -64,7 +64,7 @@ export const schemaBuilder = (container) => {
           },
           {
             name: 'add-users',
-            nextStep: 'add-service-accounts',
+            nextStep: enableServiceAccounts ? 'add-service-accounts' : 'review',
             title: intl.formatMessage(messages.addMembers),
             fields: [
               {
@@ -73,17 +73,21 @@ export const schemaBuilder = (container) => {
               },
             ],
           },
-          {
-            name: 'add-service-accounts',
-            nextStep: 'review',
-            title: intl.formatMessage(messages.addServiceAccounts),
-            fields: [
-              {
-                component: 'set-service-accounts',
-                name: 'service-accounts-list',
-              },
-            ],
-          },
+          ...(enableServiceAccounts
+            ? [
+                {
+                  name: 'add-service-accounts',
+                  nextStep: 'review',
+                  title: intl.formatMessage(messages.addServiceAccounts),
+                  fields: [
+                    {
+                      component: 'set-service-accounts',
+                      name: 'service-accounts-list',
+                    },
+                  ],
+                },
+              ]
+            : []),
           {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),

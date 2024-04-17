@@ -20,6 +20,8 @@ import AddGroupSuccess from './add-group-success';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import paths from '../../../utilities/pathnames';
 import messages from '../../../Messages';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
 
 export const AddGroupWizardContext = createContext({
   success: false,
@@ -60,7 +62,10 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const container = useRef(document.createElement('div'));
-  const schema = useRef(schemaBuilder(container.current));
+  const { isBeta } = useChrome();
+  const enableServiceAccounts =
+    (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const schema = useRef(schemaBuilder(container.current, enableServiceAccounts));
   const navigate = useAppNavigate();
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({

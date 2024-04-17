@@ -232,8 +232,9 @@ const renderRoutes = (routes: RouteType[] = []) =>
 
 const Routing = () => {
   const location = useLocation();
-  const { updateDocumentTitle } = useChrome();
-  const enableServiceAccounts = useFlag('platform.rbac.group-service-accounts');
+  const { updateDocumentTitle, isBeta } = useChrome();
+  const enableServiceAccounts =
+    (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
   useEffect(() => {
     const currPath = Object.values(pathnames).find(

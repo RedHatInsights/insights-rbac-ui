@@ -4,10 +4,13 @@ import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfl
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const SummaryContent = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
+  const { isBeta } = useChrome();
   const {
     'group-name': name,
     'group-description': description,
@@ -15,6 +18,8 @@ const SummaryContent = () => {
     'roles-list': selectedRoles,
     'service-accounts-list': selectedServiceAccounts,
   } = formOptions.getState().values;
+  const enableServiceAccounts =
+    (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
   return (
     <div className="rbac">
@@ -76,13 +81,15 @@ const SummaryContent = () => {
                     {intl.formatMessage(messages.serviceAccounts)}
                   </Text>
                 </GridItem>
-                <GridItem md={9}>
-                  {selectedServiceAccounts.map((account, index) => (
-                    <Text className="pf-v5-u-mb-0" key={index}>
-                      {account.name}
-                    </Text>
-                  ))}
-                </GridItem>
+                {enableServiceAccounts && (
+                  <GridItem md={9}>
+                    {selectedServiceAccounts?.map((account, index) => (
+                      <Text className="pf-v5-u-mb-0" key={index}>
+                        {account.name}
+                      </Text>
+                    ))}
+                  </GridItem>
+                )}
               </Grid>
             </StackItem>
           </Stack>

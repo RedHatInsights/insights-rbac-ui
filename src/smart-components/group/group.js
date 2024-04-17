@@ -19,7 +19,7 @@ import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { usePreviewFlag } from '../../helpers/shared/use-preview-flag';
+import { useFlag } from '@unleash/proxy-client-react';
 import './group.scss';
 
 const Group = () => {
@@ -30,7 +30,9 @@ const Group = () => {
   const chrome = useChrome();
   const { groupId } = useParams();
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
-  const enableServiceAccounts = usePreviewFlag('platform.rbac.group-service-accounts');
+  const enableServiceAccounts =
+    (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
+    (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
   const tabItems = [
     { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId), to: 'roles' },

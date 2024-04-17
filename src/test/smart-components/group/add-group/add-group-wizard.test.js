@@ -11,6 +11,20 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import AddGroupWizard, { onCancel } from '../../../../smart-components/group/add-group/add-group-wizard';
 import { defaultSettings } from '../../../../helpers/shared/pagination';
 
+jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {
+  return {
+    __esModule: true,
+    default: () => ({
+      isBeta: () => true,
+    }),
+  };
+});
+
+jest.mock('@unleash/proxy-client-react', () => ({
+  __esModule: true,
+  useFlag: () => true,
+}));
+
 describe('<AddGroupWizard />', () => {
   let initialProps;
   let initialState;
