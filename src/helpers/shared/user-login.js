@@ -10,7 +10,7 @@ import {
 } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { GroupApi, PrincipalApi, RoleApi, PolicyApi, AccessApi, PermissionApi } from '@redhat-cloud-services/rbac-client';
 import { HostsApi } from '@redhat-cloud-services/host-inventory-client';
-import { BaseAPI } from '@redhat-cloud-services/rbac-client/base';
+import { BaseAPI } from '@redhat-cloud-services/rbac-client/dist/base';
 
 import { RBAC_API_BASE, COST_API_BASE, INVENTORY_API_BASE } from '../../utilities/constants';
 import registry from '../../utilities/store';
