@@ -87,14 +87,14 @@ const Overview = () => {
                 <ActionList>
                   <ActionListItem>
                     <AppLink to={pathnames.groups.link}>
-                      <Button variant="primary" size="lg" aria-label="View groups" data-ouia-component-id="getstarted-view-groups-button">
+                      <Button variant="primary" size="lg" aria-label="View groups" ouiaId="getstarted-view-groups-button">
                         {intl.formatMessage(messages.viewGroupsBtn)}
                       </Button>
                     </AppLink>
                   </ActionListItem>
                   <ActionListItem>
                     <AppLink to={pathnames.roles.link}>
-                      <Button variant="secondary" aria-label="View roles" size="lg" data-ouia-component-id="getstarted-view-roles-button">
+                      <Button variant="secondary" aria-label="View roles" size="lg" ouiaId="getstarted-view-roles-button">
                         {intl.formatMessage(messages.viewRolesBtn)}
                       </Button>
                     </AppLink>
