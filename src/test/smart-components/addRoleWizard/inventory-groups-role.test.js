@@ -7,7 +7,7 @@ import { BrowserRouter } from 'react-router-dom';
 import InventoryGroupsRole from '../../../smart-components/role/add-role/inventory-groups-role';
 import { testInventoryGroups } from './inventory-groups-test-data';
 import * as InventoryActions from '../../../redux/actions/inventory-actions';
-import { FETCH_INVENTORY_GROUP } from '../../../redux/action-types';
+import { FETCH_INVENTORY_GROUPS } from '../../../redux/action-types';
 
 const initialStateWithPermissions = {
   inventoryReducer: {
@@ -89,7 +89,7 @@ describe('Inventory groups role', () => {
 
   test('Add permissions to group renders without failing', async () => {
     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
-      type: FETCH_INVENTORY_GROUP,
+      type: FETCH_INVENTORY_GROUPS,
       payload: Promise.resolve({}),
     }));
     const store = mockStore(initialStateWithPermissions);
@@ -102,7 +102,7 @@ describe('Inventory groups role', () => {
 
   test('Display available permission groups successfully', async () => {
     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
-      type: FETCH_INVENTORY_GROUP,
+      type: FETCH_INVENTORY_GROUPS,
       payload: Promise.resolve({}),
     }));
 
@@ -116,7 +116,7 @@ describe('Inventory groups role', () => {
 
   test('Selecting group for permission and Copy to all to other permissions successfully', async () => {
     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
-      type: FETCH_INVENTORY_GROUP,
+      type: FETCH_INVENTORY_GROUPS,
       payload: Promise.resolve({}),
     }));
 
@@ -141,7 +141,7 @@ describe('Inventory groups role', () => {
 
   test('Cancelling groups selection clears selections successfully', async () => {
     fetchInventoryGroupsSpy.mockImplementationOnce(() => ({
-      type: FETCH_INVENTORY_GROUP,
+      type: FETCH_INVENTORY_GROUPS,
       payload: Promise.resolve({}),
     }));
 
