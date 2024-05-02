@@ -1,8 +1,9 @@
-import { FETCH_INVENTORY_GROUP } from '../action-types';
+import { FETCH_INVENTORY_GROUPS, FETCH_INVENTORY_GROUPS_DETAILS } from '../action-types';
 
 export const inventoryGroupsInitialState = {
   isLoading: false,
   resourceTypes: {},
+  inventoryGroupsDetails: {},
   total: 0,
 };
 
@@ -24,7 +25,17 @@ const setResourceTypes = (state, { payload, meta }) => {
   };
 };
 
+const setInventoryGroupsDetails = (state, { payload }) => {
+  return {
+    ...state,
+    inventoryGroupsDetails: payload.results.reduce((acc, curr) => ({ ...acc, [curr.id]: curr }), {}),
+    isLoading: false,
+  };
+};
+
 export default {
-  [`${FETCH_INVENTORY_GROUP}_PENDING`]: setLoadingState,
-  [`${FETCH_INVENTORY_GROUP}_FULFILLED`]: setResourceTypes,
+  [`${FETCH_INVENTORY_GROUPS}_PENDING`]: setLoadingState,
+  [`${FETCH_INVENTORY_GROUPS}_FULFILLED`]: setResourceTypes,
+  [`${FETCH_INVENTORY_GROUPS_DETAILS}_PENDING`]: setLoadingState,
+  [`${FETCH_INVENTORY_GROUPS_DETAILS}_FULFILLED`]: setInventoryGroupsDetails,
 };

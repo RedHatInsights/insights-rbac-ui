@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useEffect, useMemo, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import FormRenderer from '../common/form-renderer';
@@ -8,7 +8,8 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector, shallowEqual } from 'react-redux';
 import { updateRole, fetchRole } from '../../redux/actions/role-actions';
 import { fetchResource, fetchResourceDefinitions } from '../../redux/actions/cost-management-actions';
-import { fetchInventoryGroups } from '../../redux/actions/inventory-actions';
+import { fetchInventoryGroups, fetchInventoryGroupsDetails } from '../../redux/actions/inventory-actions';
+import { processResourceDefinitions } from '../../helpers/role/inventory-helper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
@@ -113,7 +114,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
   const getResourceDefinitions = () => dispatch(fetchResourceDefinitions());
   const getInventoryGroups = () => dispatch(fetchInventoryGroups([permissionId]));
   const [state, dispatchLocally] = useReducer(reducer, initialState);
-  const isInventory = isInventoryPermission(permissionId);
+  const isInventory = useMemo(() => isInventoryPermission(permissionId), [permissionId]);
 
   const { resourceTypes, isLoading, isLoadingResources, resources, isLoadingInventory, inventoryGroups } = useSelector(
     (props) => selector(props, state.resourcesPath),
@@ -190,7 +191,14 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
     };
     dispatch(updateRole(roleId, { ...role, access: [...role.access.filter((item) => item.permission !== permissionId), newAccess] }), true).then(
       () => {
-        dispatch(fetchRole(roleId));
+        dispatch(fetchRole(roleId)).then(({ value }) => {
+          isInventory &&
+            dispatch(
+              fetchInventoryGroupsDetails(
+                processResourceDefinitions(value?.access?.find((item) => item.permission === permissionId)?.resourceDefinitions)
+              )
+            );
+        });
         navigate(cancelRoute);
       }
     );
