@@ -1,7 +1,9 @@
-import { getInventoryGroupsApi } from '../shared/user-login';
+import { getInventoryGroupsApi, getInventoryResourceTypesApi } from '../shared/user-login';
 
+const inventoryResourceTypesApi = getInventoryResourceTypesApi();
 const inventoryGroupsApi = getInventoryGroupsApi();
 
-export const getInventoryGroups = async (apiProps) => {
-  return await inventoryGroupsApi.getInventoryGroups(apiProps);
+export const getInventoryGroups = async ({ name, perPage, page, options } = {}) => {
+  return await inventoryResourceTypesApi.apiResourceTypeGetResourceTypeGroupsList(name, perPage, page, options);
+};
 };
