@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import EditResourceDefinitionsModal from '../../smart-components/role/edit-resource-definitions-modal';
-import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE, FETCH_INVENTORY_GROUP } from '../../redux/action-types';
+import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE, FETCH_INVENTORY_GROUPS } from '../../redux/action-types';
 
 import * as CostManagementActions from '../../redux/actions/cost-management-actions';
 import * as InventoryActions from '../../redux/actions/inventory-actions';
@@ -263,7 +263,7 @@ describe('EditResourceDefinitionsModal - Inventory', () => {
   });
 
   it('should render edit resource definitions modal', async () => {
-    getInventoryGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_INVENTORY_GROUP, payload: Promise.resolve({ data: 'something' }) }));
+    getInventoryGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_INVENTORY_GROUPS, payload: Promise.resolve({ data: 'something' }) }));
 
     await act(async () => {
       render(

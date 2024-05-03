@@ -357,7 +357,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        aaaa
+        Test name for A
       </td>
     </tr>
     <tr
@@ -372,7 +372,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        bbbb
+        Test name for B
       </td>
     </tr>
     <tr
@@ -387,7 +387,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        cccc
+        Test name for C
       </td>
     </tr>
     <tr
@@ -402,7 +402,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        aaaa
+        Test name for A
       </td>
     </tr>
     <tr
@@ -417,7 +417,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        bbbb
+        Test name for B
       </td>
     </tr>
     <tr
@@ -432,7 +432,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        cccc
+        Test name for C
       </td>
     </tr>
     <tr
@@ -447,7 +447,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        aaaa
+        Test name for A
       </td>
     </tr>
     <tr
@@ -462,7 +462,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        bbbb
+        Test name for B
       </td>
     </tr>
     <tr
@@ -477,7 +477,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        cccc
+        Test name for C
       </td>
     </tr>
     <tr
@@ -492,7 +492,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        aaaa
+        Test name for A
       </td>
     </tr>
     <tr
@@ -507,7 +507,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        bbbb
+        Test name for B
       </td>
     </tr>
     <tr
@@ -522,7 +522,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        cccc
+        Test name for C
       </td>
     </tr>
     <tr
@@ -537,7 +537,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        aaaa
+        Test name for A
       </td>
     </tr>
     <tr
@@ -552,7 +552,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        bbbb
+        Test name for B
       </td>
     </tr>
     <tr
@@ -567,7 +567,7 @@ exports[`RoleResourceDefinitions - Inventory should render resource definitions 
         data-label="column-0"
         tabindex="-1"
       >
-        cccc
+        Test name for C
       </td>
     </tr>
   </tbody>
