@@ -201,7 +201,7 @@ const InventoryGroupsRole = (props) => {
             onClick={() => state[permissionID].isOpen || onToggleClick(permissionID)}
             onChange={(e, value) => onTextInputChange(e, value, permissionID)}
             autoComplete="off"
-            placeholder={intl.formatMessage(messages.selectWorkspaces)}
+            placeholder={intl.formatMessage(enableWorkspacesNameChange ? messages.selectWorkspaces : messages.selectGroups)}
             role="combobox"
             isExpanded={state[permissionID].isOpen}
           >
