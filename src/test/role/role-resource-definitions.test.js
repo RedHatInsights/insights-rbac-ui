@@ -2,21 +2,24 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
+import thunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise-middleware';
+import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import { FETCH_ROLE } from '../../redux/action-types';
+import { FETCH_INVENTORY_GROUPS_DETAILS, FETCH_ROLE } from '../../redux/action-types';
 import ResourceDefinitions from '../../smart-components/role/role-resource-definitions';
-
+import * as InventoryActions from '../../redux/actions/inventory-actions';
 import * as RoleActions from '../../redux/actions/role-actions';
 
 describe('RoleResourceDefinitions - Cost management', () => {
-  let mockStore;
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const mockStore = configureStore(middlewares);
   let initialState;
 
   const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
 
   beforeEach(() => {
-    mockStore = configureStore();
     initialState = {
       roleReducer: {
         isRecordLoading: false,
@@ -71,7 +74,10 @@ describe('RoleResourceDefinitions - Cost management', () => {
         </Provider>
       );
     });
-    const expectedActions = [expect.objectContaining({ type: FETCH_ROLE })];
+    const expectedActions = [
+      expect.objectContaining({ type: `${FETCH_ROLE}_PENDING` }),
+      expect.objectContaining({ type: `${FETCH_ROLE}_FULFILLED` }),
+    ];
     expect(store.getActions()).toEqual(expectedActions);
     store.clearActions();
     await act(async () => {
@@ -94,7 +100,10 @@ describe('RoleResourceDefinitions - Cost management', () => {
         </Provider>
       );
     });
-    const expectedActions = [expect.objectContaining({ type: FETCH_ROLE })];
+    const expectedActions = [
+      expect.objectContaining({ type: `${FETCH_ROLE}_PENDING` }),
+      expect.objectContaining({ type: `${FETCH_ROLE}_FULFILLED` }),
+    ];
     expect(store.getActions()).toEqual(expectedActions);
     store.clearActions();
     await act(async () => {
@@ -105,13 +114,14 @@ describe('RoleResourceDefinitions - Cost management', () => {
 });
 
 describe('RoleResourceDefinitions - Inventory', () => {
-  let mockStore;
+  const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+  const mockStore = configureStore(middlewares);
   let initialState;
 
   const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');
+  const fetchInventoryGroupsDetailsSpy = jest.spyOn(InventoryActions, 'fetchInventoryGroupsDetails');
 
   beforeEach(() => {
-    mockStore = configureStore();
     initialState = {
       roleReducer: {
         isRecordLoading: false,
@@ -124,7 +134,7 @@ describe('RoleResourceDefinitions - Inventory', () => {
               resourceDefinitions: Array(21).fill({
                 attributeFilter: {
                   key: 'group.in',
-                  value: [null, 'aaaa', 'bbbb', 'cccc'],
+                  value: [null, 'A', 'B', 'C'],
                   operation: 'in',
                 },
               }),
@@ -133,11 +143,23 @@ describe('RoleResourceDefinitions - Inventory', () => {
           ],
         },
       },
+      inventoryReducer: {
+        inventoryGroupsDetails: {
+          A: { name: 'Test name for A' },
+          B: { name: 'Test name for B' },
+          C: { name: 'Test name for C' },
+        },
+        isLoading: false,
+      },
     };
   });
 
   it('should render resource definitions table', async () => {
     fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+    fetchInventoryGroupsDetailsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUPS_DETAILS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
