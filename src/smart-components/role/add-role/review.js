@@ -4,6 +4,7 @@ import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfl
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './review.scss';
+import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
 
 const stickyTable = (columns, rows) => (
   <div className="rbac-c-sticky">
@@ -95,7 +96,13 @@ const ReviewStep = () => {
                 </Text>
               </GridItem>
               <GridItem sm={12} md={10}>
-                {stickyTable([intl.formatMessage(messages.permission), intl.formatMessage(messages.groupDefinition)], groupPermissionsRows)}
+                {stickyTable(
+                  [
+                    intl.formatMessage(messages.permission),
+                    intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition),
+                  ],
+                  groupPermissionsRows
+                )}
               </GridItem>
             </Grid>
           )}

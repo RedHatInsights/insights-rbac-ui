@@ -7,6 +7,7 @@ import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from '../add-role/inventory-groups-role-template';
+import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
 
 export const schemaBuilder = (container) => {
   const cache = createIntlCache();
@@ -37,14 +38,20 @@ export const schemaBuilder = (container) => {
           },
           {
             name: 'inventory-groups-role',
-            title: intl.formatMessage(messages.inventoryGroupsAccessTitle),
+            title: intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
             StepTemplate: InventoryGroupsRoleTemplate,
             nextStep: ({ values }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
             fields: [
               {
                 component: 'plain-text',
                 name: 'text-description',
-                label: <p>{intl.formatMessage(messages.inventoryGroupsAccessDescription)}</p>,
+                label: (
+                  <p>
+                    {intl.formatMessage(
+                      enableWorkspacesNameChange ? messages.workspacesAccessDescription : messages.inventoryGroupsAccessDescription
+                    )}
+                  </p>
+                ),
               },
               {
                 component: 'inventory-groups-role',
