@@ -1,5 +1,3 @@
-
-import { getInventoryGroupsApi } from '../shared/user-login';
 import { useFlag } from '@unleash/proxy-client-react';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import flatten from 'lodash/flatten';
@@ -21,4 +19,3 @@ export const getInventoryGroupsDetails = async (groupsIds) => {
 
 export const processResourceDefinitions = (resourceDefinitions) =>
   resourceDefinitions ? flatten(resourceDefinitions.map((definition) => definition.attributeFilter.value)) : [];
-
