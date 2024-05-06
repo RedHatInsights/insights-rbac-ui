@@ -3,10 +3,11 @@ import PropTypes from 'prop-types';
 import { Title } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const InventoryGroupsRoleTemplate = ({ formFields }) => {
   const intl = useIntl();
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
   return (
     <div className="rbac">

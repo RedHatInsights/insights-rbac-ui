@@ -4,7 +4,7 @@ import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfl
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './review.scss';
-import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const stickyTable = (columns, rows) => (
   <div className="rbac-c-sticky">
@@ -29,6 +29,7 @@ const stickyTable = (columns, rows) => (
 
 const ReviewStep = () => {
   const intl = useIntl();
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const formOptions = useFormApi();
   const {
     'role-name': name,

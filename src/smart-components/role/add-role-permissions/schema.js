@@ -7,11 +7,13 @@ import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from '../add-role/inventory-groups-role-template';
-import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
+import { useFlag } from '@unleash/proxy-client-react';
 
 export const schemaBuilder = (container) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
+
   return {
     fields: [
       {

@@ -29,7 +29,7 @@ import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
 import { debouncedFetch } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
 import './cost-resources.scss';
-import { enableWorkspacesNameChange } from '../../../helpers/role/inventory-helper';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const selector = ({ inventoryReducer: { resourceTypes, total, isLoading } }) => ({
   resourceTypes,
@@ -127,6 +127,7 @@ const InventoryGroupsRole = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const isHosts = (permissionID) => permissionID.includes('hosts:');
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
   const { resourceTypes, totalCount, isLoading } = useSelector(selector, shallowEqual);
   const permissions =
