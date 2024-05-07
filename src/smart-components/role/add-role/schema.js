@@ -13,12 +13,10 @@ import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from './inventory-groups-role-template';
-import { useFlag } from '@unleash/proxy-client-react';
 
-export const schemaBuilder = (container) => {
+export const schemaBuilder = (container, featureFlag) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
-  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
   return {
     fields: [
@@ -156,7 +154,7 @@ export const schemaBuilder = (container) => {
             ],
           },
           {
-            title: intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
+            title: intl.formatMessage(featureFlag ? messages.workspacesAccessTitle : messages.inventoryGroupsAccessTitle),
             name: 'inventory-groups-role',
             StepTemplate: InventoryGroupsRoleTemplate,
             nextStep: ({ values }) => validateNextAddRolePermissionStep('inventory-groups-role', values),
@@ -166,9 +164,7 @@ export const schemaBuilder = (container) => {
                 name: 'cost-resources',
                 label: (
                   <p className="pf-v5-u-mb-md">
-                    {intl.formatMessage(
-                      enableWorkspacesNameChange ? messages.applyWorkspacesRolePermission : messages.applyInventoryGroupsRolePermission
-                    )}
+                    {intl.formatMessage(featureFlag ? messages.applyWorkspacesRolePermission : messages.applyInventoryGroupsRolePermission)}
                   </p>
                 ),
               },
