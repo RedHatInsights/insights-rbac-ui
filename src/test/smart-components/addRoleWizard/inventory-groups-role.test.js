@@ -62,6 +62,11 @@ jest.mock('@data-driven-forms/react-form-renderer/use-field-api', () => {
   };
 });
 
+jest.mock('@unleash/proxy-client-react', () => ({
+  __esModule: true,
+  useFlag: () => true,
+}));
+
 const renderComponent = (store) => {
   return render(
     <React.Fragment>

@@ -7,6 +7,7 @@ import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import { useFlag } from '@unleash/proxy-client-react';
 import { updateRole } from '../../../redux/actions/role-actions.js';
 import AddPermissionsTable from '../add-role/add-permissions';
 import AddRolePermissionSummaryContent from './add-role-permissions-summary-content';
@@ -39,6 +40,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const [currentRoleID, setCurrentRoleID] = useState('');
   const navigate = useAppNavigate();
   const dispatch = useDispatch();
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -49,7 +51,7 @@ const AddRolePermissionWizard = ({ role }) => {
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
-  const schema = useMemo(() => schemaBuilder(container.current), []);
+  const schema = useMemo(() => schemaBuilder(container.current, enableWorkspacesNameChange), []);
 
   useEffect(() => {
     setCurrentRoleID(role.uuid);

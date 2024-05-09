@@ -28,7 +28,7 @@ exports[`Inventory groups role Add permissions to group renders without failing 
         data-ouia-safe="true"
         data-pf-content="true"
       >
-        Group definition
+        Workspaces definition
       </h4>
     </div>
     <div
@@ -88,7 +88,7 @@ exports[`Inventory groups role Add permissions to group renders without failing 
                     aria-expanded="false"
                     aria-label="Type to filter"
                     class="pf-v5-c-text-input-group__text-input"
-                    placeholder="Select groups"
+                    placeholder="Select workspaces"
                     role="combobox"
                     type="text"
                     value=""
@@ -202,7 +202,7 @@ exports[`Inventory groups role Add permissions to group renders without failing 
                     aria-expanded="false"
                     aria-label="Type to filter"
                     class="pf-v5-c-text-input-group__text-input"
-                    placeholder="Select groups"
+                    placeholder="Select workspaces"
                     role="combobox"
                     type="text"
                     value=""

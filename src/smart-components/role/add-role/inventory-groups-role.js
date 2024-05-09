@@ -29,6 +29,7 @@ import { fetchInventoryGroups } from '../../../redux/actions/inventory-actions';
 import { debouncedFetch } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
 import './cost-resources.scss';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const selector = ({ inventoryReducer: { resourceTypes, total, isLoading } }) => ({
   resourceTypes,
@@ -126,6 +127,7 @@ const InventoryGroupsRole = (props) => {
   const { input } = useFieldApi(props);
   const formOptions = useFormApi();
   const isHosts = (permissionID) => permissionID.includes('hosts:');
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
   const { resourceTypes, totalCount, isLoading } = useSelector(selector, shallowEqual);
   const permissions =
@@ -185,10 +187,10 @@ const InventoryGroupsRole = (props) => {
   };
 
   const toggle = (toggleRef, permissionID) => (
-    <Tooltip content={<div>{intl.formatMessage(messages.inventoryGroupsTooltip)}</div>}>
+    <Tooltip content={<div>{intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesTooltip : messages.inventoryGroupsTooltip)}</div>}>
       <MenuToggle
         variant="typeahead"
-        aria-label={intl.formatMessage(messages.inventoryGroupsTypeAheadLabel)}
+        aria-label={intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesTypeAheadLabel : messages.inventoryGroupsTypeAheadLabel)}
         onClick={() => onToggleClick(permissionID)}
         innerRef={toggleRef}
         isExpanded={state[permissionID].isOpen}
@@ -200,7 +202,7 @@ const InventoryGroupsRole = (props) => {
             onClick={() => state[permissionID].isOpen || onToggleClick(permissionID)}
             onChange={(e, value) => onTextInputChange(e, value, permissionID)}
             autoComplete="off"
-            placeholder={intl.formatMessage(messages.selectGroups)}
+            placeholder={intl.formatMessage(enableWorkspacesNameChange ? messages.selectWorkspaces : messages.selectGroups)}
             role="combobox"
             isExpanded={state[permissionID].isOpen}
           >
@@ -332,7 +334,7 @@ const InventoryGroupsRole = (props) => {
       </GridItem>
       <GridItem lg={9} md={6} className="rbac-m-hide-on-sm">
         <Text component={TextVariants.h4} className="rbac-bold-text pf-v5-u-mt-sm">
-          {intl.formatMessage(messages.groupDefinition)}
+          {intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition)}
         </Text>
       </GridItem>
       {permissions.map(makeRow)}

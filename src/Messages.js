@@ -704,6 +704,11 @@ export default defineMessages({
     description: 'Group definition label',
     defaultMessage: 'Group definition',
   },
+  workspacesDefinition: {
+    id: 'workspacesDefinition',
+    description: 'Group workspaces label',
+    defaultMessage: 'Workspaces definition',
+  },
   required: {
     id: 'required',
     description: 'Required input label',
@@ -1559,25 +1564,50 @@ export default defineMessages({
     description: 'Select groups label',
     defaultMessage: 'Select groups',
   },
+  selectWorkspaces: {
+    id: 'selectWorkspaces',
+    description: 'Select workspaces label',
+    defaultMessage: 'Select workspaces',
+  },
   inventoryGroupsTypeAheadLabel: {
     id: 'invGroupsLabel',
     description: 'Type ahead label for inventory groups role permissions',
     defaultMessage: 'Select a group to add permissions for',
+  },
+  workspacesTypeAheadLabel: {
+    id: 'workspacesLabel',
+    description: 'Type ahead label for workspaces role permissions',
+    defaultMessage: 'Select workspaces to add permissions for',
   },
   inventoryGroupsTooltip: {
     id: 'inventoryGroupsTooltip',
     description: 'Tooltip for inventory group role permissions',
     defaultMessage: 'Add permission to these groups.',
   },
+  workspacesTooltip: {
+    id: 'workspacesTooltip',
+    description: 'Tooltip for workspaces role permissions',
+    defaultMessage: 'Add permission to these workspaces.',
+  },
   inventoryGroupsAccessTitle: {
     id: 'inventoryGroupsAccessTitle',
     description: 'Step for adding correct group permissions to role.',
     defaultMessage: 'Define Inventory group access',
   },
+  workspacesAccessTitle: {
+    id: 'workspacesAccessTitle',
+    description: 'Step for adding correct workspaces permissions to role.',
+    defaultMessage: 'Define Workspaces access',
+  },
   inventoryGroupsAccessDescription: {
     id: 'inventoryGroupsAccessDescription',
     descriptioin: 'Description for adding correct group permissions to role.',
     defaultMessage: "Specify which inventory group(s) you'd like to apply your selected permissions to, using the dropdowns below.",
+  },
+  workspacesAccessDescription: {
+    id: 'workspacesAccessDescription',
+    descriptioin: 'Description for adding correct workspaces permissions to role.',
+    defaultMessage: "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below.",
   },
   createRole: {
     id: 'createRole',
@@ -1598,6 +1628,11 @@ export default defineMessages({
     id: 'applyInventoryGroupsRolePermission',
     description: 'Permissions for Groups',
     defaultMessage: "Specify which inventory groups you'd like to give access for these permissions",
+  },
+  applyWorkspacesRolePermission: {
+    id: 'applyWorkspacesRolePermission',
+    description: 'Permissions for Workspaces',
+    defaultMessage: "Specify which workspaces you'd like to give access for these permissions",
   },
   createRoleFromScratch: {
     id: 'createRoleFromScratch',

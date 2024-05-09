@@ -11,6 +11,7 @@ import { createQueryParams } from '../../../helpers/shared/helpers';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { schemaBuilder } from './schema';
 import { createRole, fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
+import { useFlag } from '@unleash/proxy-client-react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AddRoleSuccess from './add-role-success';
 import BaseRoleTable from './base-role-table';
@@ -55,6 +56,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const chrome = useChrome();
+  const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
     submitting: false,
@@ -66,7 +68,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   const [schema, setSchema] = useState();
 
   useEffect(() => {
-    setSchema(schemaBuilder(container.current));
+    setSchema(schemaBuilder(container.current, enableWorkspacesNameChange));
   }, []);
 
   const onClose = () =>
