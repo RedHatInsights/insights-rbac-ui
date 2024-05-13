@@ -6,6 +6,8 @@
 
 ## Getting Started
 
+foo
+
 ### Running dev server
 
 ```bash
