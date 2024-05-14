@@ -17,7 +17,12 @@ export const bundleData = [
       subscriptions: '/subscriptions',
       'cost management': '/cost-management',
     },
-    appsIds: ['cost-management', 'subscriptions', 'ocp-advisor', 'ocm'],
+    appsIds: [
+      'cost-management',
+      'subscriptions',
+      'ocp-advisor',
+      'ocm',
+    ],
   },
   {
     entitlement: 'rhel',
@@ -27,14 +32,16 @@ export const bundleData = [
       compliance: '/compliance',
       drift: '/drift',
       'image builder': '/image-builder',
-      patch: '/patch',
-      vulnerability: '/vulnerability',
+      malware detection: '/malware-detection',
       policies: '/policies',
-      remediations: '/remediations',
-      subscriptions: '/subscriptions',
-      repositories: '/content',
       provisioning: '/provisioning',
+      remediations: '/remediations',
+      repositories: '/content',
+      ros: '/ros',
+      subscriptions: '/subscriptions',
       tasks: '/tasks',
+      vulnerability: '/vulnerability',
+
     },
     appsIds: [
       'dashboard',
@@ -52,6 +59,8 @@ export const bundleData = [
       'content-sources',
       'provisioning',
       'tasks',
+      'ros',
+      'malware-detection'
     ],
   },
   {
@@ -62,6 +71,11 @@ export const bundleData = [
       'automation services catalog': '/catalog',
       insights: '/automation-analytics',
     },
-    appsIds: ['catalog', 'approval', 'automation-analytics', 'automation-hub'],
+    appsIds: [
+      'catalog',
+      'approval',
+      'automation-analytics',
+      'automation-hub'
+    ],
   },
 ];
