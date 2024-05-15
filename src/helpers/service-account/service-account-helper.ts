@@ -40,7 +40,7 @@ export async function getServiceAccounts({ limit = defaultCompactSettings.limit,
   const response = await serviceAccountsApi.getServiceAccounts(page, perPage, token, sso);
 
   let assignedServiceAccounts: string[] = [];
-  if (groupId) {
+  if (groupId && response.data.length > 0) {
     const serviceAccountClientIds = response.data.map((item: ServiceAccountPayloadItem) => item.clientId);
     const assignedAccountsTemp = (await fetchAccountsForGroup(groupId, { serviceAccountClientIds: serviceAccountClientIds.toString() }))
       .data as Record<string, boolean>;
