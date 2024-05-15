@@ -1,14 +1,5 @@
 export const bundleData = [
   {
-    entitlement: 'application_services',
-    title: 'Application Services',
-    apps: {
-      'Streams for Apache Kafka (beta)': '/',
-      'API Management (beta)': '/',
-      'Data Science (private beta)': '/',
-    },
-  },
-  {
     entitlement: 'openshift',
     title: 'OpenShift',
     apps: {
@@ -41,7 +32,6 @@ export const bundleData = [
       subscriptions: '/subscriptions',
       tasks: '/tasks',
       vulnerability: '/vulnerability',
-
     },
     appsIds: [
       'dashboard',
