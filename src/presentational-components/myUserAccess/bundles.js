@@ -75,7 +75,7 @@ export const bundleData = [
       'catalog',
       'approval',
       'automation-analytics',
-      'automation-hub'
+      'automation-hub',
     ],
   },
 ];
