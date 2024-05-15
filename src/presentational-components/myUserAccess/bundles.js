@@ -60,7 +60,7 @@ export const bundleData = [
       'provisioning',
       'tasks',
       'ros',
-      'malware-detection'
+      'malware-detection',
     ],
   },
   {
