@@ -27,7 +27,7 @@ export const bundleData = [
       provisioning: '/provisioning',
       tasks: '/tasks',
       ros: '/ros',
-      malware detection: '/malware-detection',
+      'malware detection': '/malware-detection',
     },
     appsIds: [
       'dashboard',
