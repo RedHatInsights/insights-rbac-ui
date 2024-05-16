@@ -71,6 +71,11 @@ export const schemaBuilder = (container, featureFlag) => {
                 },
               },
               {
+                component: 'text-field',
+                name: 'role-description',
+                hideField: true,
+              },
+              {
                 component: 'base-role-table',
                 name: 'copy-base-role',
                 label: intl.formatMessage(messages.baseRole),
