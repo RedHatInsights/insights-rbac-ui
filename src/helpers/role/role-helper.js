@@ -43,7 +43,7 @@ export async function fetchRolesWithPolicies({
   offset,
   filters = {},
   nameMatch,
-  scope = 'account',
+  scope = 'org_id',
   orderBy = 'display_name',
   addFields = ['groups_in_count', 'groups_in', 'access'],
   username,
