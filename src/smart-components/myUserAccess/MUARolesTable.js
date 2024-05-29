@@ -25,7 +25,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
       key: 'display_name',
       transforms: [sortable],
     },
-    intl.formatMessage(messages.description),
+    { title: intl.formatMessage(messages.description) },
     {
       title: intl.formatMessage(messages.permissions),
       cellTransforms: [compoundExpand, cellWidth(20)],
