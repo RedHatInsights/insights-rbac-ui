@@ -7,7 +7,6 @@ import { Button, Level, LevelItem, Text, TextContent } from '@patternfly/react-c
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
@@ -26,7 +25,6 @@ import './role.scss';
 const Role = ({ onDelete }) => {
   const intl = useIntl();
   const chrome = useChrome();
-  const navigate = useAppNavigate();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { roleId, groupId } = useParams();
@@ -213,7 +211,7 @@ const Role = ({ onDelete }) => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => navigate(-1)}
+                onClick={() => window.history.back()}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
