@@ -263,7 +263,7 @@ const Group = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => navigate(-1)}
+                onClick={() => window.history.back()}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
