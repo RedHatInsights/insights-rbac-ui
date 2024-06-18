@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useContext, Fragment, Suspense } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { TableVariant, compoundExpand } from '@patternfly/react-table';
@@ -33,6 +33,7 @@ let debouncedFetch;
 const User = () => {
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const navigationType = useNavigationType();
   const dispatch = useDispatch();
   const { username } = useParams();
   const [filter, setFilter] = useState('');
@@ -319,7 +320,7 @@ const User = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => window.history.back()}
+                onClick={() => navigate(navigationType !== 'POP' ? -1 : pathnames.users.link)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
