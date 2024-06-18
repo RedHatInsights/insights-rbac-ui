@@ -1,6 +1,6 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { useLocation, useParams, Outlet } from 'react-router-dom';
+import { useLocation, useParams, Outlet, useNavigationType } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
@@ -27,6 +27,7 @@ const Group = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const location = useLocation();
+  const navigationType = useNavigationType();
   const chrome = useChrome();
   const { groupId } = useParams();
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
@@ -263,7 +264,7 @@ const Group = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => window.history.back()}
+                onClick={() => navigate(navigationType !== 'POP' ? -1 : pathnames.groups.link)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,

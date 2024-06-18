@@ -1,7 +1,7 @@
 import React, { Fragment, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { Outlet, useParams } from 'react-router-dom';
+import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { shallowEqual, useSelector, useDispatch } from 'react-redux';
 import { Button, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
@@ -13,6 +13,7 @@ import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/ac
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import Permissions from './role-permissions';
 import EmptyWithAction from '../../presentational-components/shared/empty-state';
@@ -25,6 +26,8 @@ import './role.scss';
 const Role = ({ onDelete }) => {
   const intl = useIntl();
   const chrome = useChrome();
+  const navigate = useAppNavigate();
+  const navigationType = useNavigationType();
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { roleId, groupId } = useParams();
@@ -211,7 +214,7 @@ const Role = ({ onDelete }) => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => window.history.back()}
+                onClick={() => navigate(navigationType !== 'POP' ? -1 : pathnames.roles.link)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
