@@ -96,7 +96,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   <AppLink
                     key={`${uuid}-link`}
                     state={{ uuid }}
-                    to={pathnames['group-detail'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
+                    to={pathnames['group-detail-roles'].link.replace(':groupId', isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : uuid)}
                   >
                     {name}
                   </AppLink>
