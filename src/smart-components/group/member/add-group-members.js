@@ -8,6 +8,7 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
+import UsersListItless from '../add-group/users-list-itless';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
@@ -53,6 +54,16 @@ const AddGroupMembers = ({ cancelRoute }) => {
     navigate(cancelRoute);
   };
 
+  const activeUserProps = {
+    ...(!chrome.isFedramp && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
+  };
+
+  const usersListProps = {
+    selectedUsers,
+    setSelectedUsers,
+    displayNarrow: true,
+  };
+
   return (
     <Modal
       title={intl.formatMessage(messages.addMembers)}
@@ -71,12 +82,10 @@ const AddGroupMembers = ({ cancelRoute }) => {
       <Stack hasGutter>
         <StackItem>
           <TextContent>
-            <ActiveUser linkDescription={intl.formatMessage(messages.toManageUsersText)} />
+            <ActiveUser {...activeUserProps} />
           </TextContent>
         </StackItem>
-        <StackItem>
-          <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
-        </StackItem>
+        <StackItem>{chrome.isFedramp ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}</StackItem>
       </Stack>
     </Modal>
   );

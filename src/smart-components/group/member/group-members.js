@@ -136,12 +136,12 @@ const GroupMembers = () => {
             onClick: () => {
               const multipleMembersSelected = selectedMembers.length > 1;
               const removeText = intl.formatMessage(multipleMembersSelected ? messages.removeMembersQuestion : messages.removeMemberQuestion);
-              setConfirmDelete(() => () => removeMembers(selectedMembers.map((user) => user.uuid)));
+              setConfirmDelete(() => () => removeMembers(selectedMembers.map((user) => (chrome.isFedramp ? user.label : user.uuid))));
               setDeleteInfo({
                 title: removeText,
                 confirmButtonLabel: removeText,
                 text: removeModalText(
-                  multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid,
+                  multipleMembersSelected ? selectedMembers.length : chrome.isFedramp ? selectedMembers[0].label : selectedMembers[0].uuid,
                   group.name,
                   multipleMembersSelected
                 ),

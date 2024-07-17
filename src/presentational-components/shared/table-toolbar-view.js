@@ -4,6 +4,7 @@ import propTypes from 'prop-types';
 import messages from '../../Messages';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
@@ -59,8 +60,10 @@ export const TableToolbarView = ({
   tableId,
   containerRef,
   textFilterRef,
+  toolbarChildren,
 }) => {
   const intl = useIntl();
+  const chrome = useChrome();
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
@@ -130,6 +133,7 @@ export const TableToolbarView = ({
           tableId={tableId}
           containerRef={containerRef}
           textFilterRef={textFilterRef}
+          toolbarChildren={toolbarChildren}
         />
         {isLoading ? (
           <SkeletonTable
@@ -146,7 +150,7 @@ export const TableToolbarView = ({
             {...(isSelectable &&
               rows?.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
-                  setCheckedItems(selectedRows([{ uuid, name, requires }], isSelected)),
+                  setCheckedItems(selectedRows([{ uuid, name, requires, ...(chrome.isFedramp && { username: data[_idx]?.username }) }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
             rows={rows?.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
@@ -234,6 +238,7 @@ TableToolbarView.propTypes = {
   noDataDescription: propTypes.arrayOf(propTypes.node),
   filters: propTypes.array,
   tableId: propTypes.string.isRequired,
+  toolbarChildren: propTypes.func,
 };
 
 TableToolbarView.defaultProps = {
@@ -245,4 +250,5 @@ TableToolbarView.defaultProps = {
   hideFilterChips: false,
   checkedRows: [],
   hideHeader: false,
+  toolbarChildren: () => null,
 };

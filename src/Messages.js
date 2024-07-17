@@ -1,6 +1,93 @@
 import { defineMessages } from 'react-intl';
 
 export default defineMessages({
+  inviteUsers: {
+    id: 'inviteUsers',
+    description: 'Invite users',
+    defaultMessage: 'Invite users',
+  },
+  inviteUsersTitle: {
+    id: 'inviteUsersTitle',
+    description: 'Invite users modal title',
+    defaultMessage: 'Invite New Users',
+  },
+  inviteUsersDescription: {
+    id: 'inviteUsersDescription',
+    description: 'Invite users modal description',
+    defaultMessage:
+      'Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.',
+  },
+  inviteUsersFormIsAdminFieldTitle: {
+    id: 'inviteUsersFormIsAdminFieldTitle',
+    description: 'Invite users form is admin field title',
+    defaultMessage: 'Organization Administrators',
+  },
+  inviteUsersFormIsAdminFieldDescription: {
+    id: 'inviteUsersFormIsAdminFieldDescription',
+    description: 'Invite users form is admin field description',
+    defaultMessage:
+      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+  },
+  inviteUsersFormEmailsFieldTitle: {
+    id: 'inviteUsersFormEmailsFieldTitle',
+    description: 'Invite users form emails field title',
+    defaultMessage: 'Enter the e-mail addresses of the users you would like to invite',
+  },
+  inviteUsersFormEmailsFieldDescription: {
+    id: 'inviteUsersFormEmailsFieldDescription',
+    description: 'Invite users form emails field description',
+    defaultMessage: 'Enter up to 50 email addresses separated by commas or returns.',
+  },
+  inviteUsersCancelled: {
+    id: 'inviteUsersCancelled',
+    description: 'Invite users cancelled notification description',
+    defaultMessage: 'Invite users process was canceled by the user.',
+  },
+  inviteUsersButton: {
+    id: 'inviteUsersButton',
+    description: 'Invite users button text',
+    defaultMessage: 'Invite new users',
+  },
+  inviteUsersErrorTitle: {
+    id: 'inviteUsersErrorTitle',
+    description: 'Invite users error notification title',
+    defaultMessage: 'Failed inviting all users',
+  },
+  inviteUsersErrorDescription: {
+    id: 'inviteUsersErrorDescription',
+    description: 'Invite users error notification description',
+    defaultMessage: 'Failed inviting users.',
+  },
+  activateUsersButton: {
+    id: 'activateUsersButton',
+    description: 'activate users button text',
+    defaultMessage: 'Activate users',
+  },
+  deactivateUsersButton: {
+    id: 'deactivateUsersButton',
+    description: 'deactivate users button text',
+    defaultMessage: 'Deactivate users',
+  },
+  deactivateUsersConfirmationModalTitle: {
+    id: 'deactivateUsersConfirmationModalTitle',
+    description: 'deactivate users confirmation modal title text',
+    defaultMessage: 'Deactivate users',
+  },
+  deactivateUsersConfirmationModalDescription: {
+    id: 'deactivateUsersConfirmationModalDescription',
+    description: 'deactivate users confirmation modal description text',
+    defaultMessage: 'Are you sure you want to deactivate the user(s) below from your Red Hat organization?',
+  },
+  deactivateUsersConfirmationModalCheckboxText: {
+    id: 'deactivateUsersConfirmationModalCheckboxText',
+    description: 'deactivate users confirmation modal checkbox text',
+    defaultMessage: 'Yes, I confirm that I want to remove these users',
+  },
+  deactivateUsersConfirmationButton: {
+    id: 'deactivateUsersConfirmationButton',
+    description: 'deactivate users confirmation button text',
+    defaultMessage: 'Deactivate user(s)',
+  },
   notApplicable: {
     id: 'notApplicable',
     description: 'Not applicable text for resource definitions',
@@ -221,6 +308,26 @@ export default defineMessages({
     id: 'editGroupErrorDescription',
     description: 'Edit group error notification description',
     defaultMessage: 'The group was not updated successfuly.',
+  },
+  editUserSuccessTitle: {
+    id: 'editUserSuccessTitle',
+    description: 'Edit user success notification title',
+    defaultMessage: 'Success updating user',
+  },
+  editUserSuccessDescription: {
+    id: 'editUserSuccessDescription',
+    description: 'Edit user success notification description',
+    defaultMessage: 'The user was updated successfully.',
+  },
+  editUserErrorTitle: {
+    id: 'editUserErrorTitle',
+    description: 'Edit user error notification title',
+    defaultMessage: 'Failed updating user',
+  },
+  editUserErrorDescription: {
+    id: 'editUserErrorDescription',
+    description: 'Edit user error notification description',
+    defaultMessage: 'The user was not updated successfuly.',
   },
   removeGroupSuccess: {
     id: 'removeGroupSuccess',

@@ -158,6 +158,11 @@ const pathnames = {
     path: '/users',
     title: 'Users',
   },
+  'invite-users': {
+    link: '/users/invite',
+    path: '/users/invite',
+    title: 'Invite users',
+  },
   'user-detail': {
     link: '/users/detail/:username',
     path: '/users/detail/:username/*',

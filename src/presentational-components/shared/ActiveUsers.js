@@ -13,7 +13,7 @@ const ActiveUser = ({ linkDescription, linkTitle }) => {
   const env = chrome.getEnvironment();
   const prefix = chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext);
-  return orgAdmin ? (
+  return !chrome.isFedramp && orgAdmin ? (
     <Text className="pf-v5-u-mt-0" component={TextVariants.h7}>
       {`${intl.formatMessage(messages.usersDescription)} `}
       {linkDescription}
