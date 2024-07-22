@@ -38,7 +38,7 @@ const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/serv
 const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
-const getRoutes = ({ enableServiceAccounts, isFedramp }: Record<string, boolean>) => [
+const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>) => [
   {
     path: pathnames.overview.path,
     element: Overview,
@@ -61,7 +61,7 @@ const getRoutes = ({ enableServiceAccounts, isFedramp }: Record<string, boolean>
     path: pathnames.users.path,
     element: Users,
   },
-  isFedramp && {
+  isITLess && {
     path: pathnames['invite-users'].path,
     element: InviteUsersModal,
   },
@@ -236,7 +236,8 @@ const renderRoutes = (routes: RouteType[] = []) =>
 
 const Routing = () => {
   const location = useLocation();
-  const { updateDocumentTitle, isBeta, isFedramp } = useChrome();
+  const { updateDocumentTitle, isBeta } = useChrome();
+  const isITLess = useFlag('platform.rbac.itless');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
@@ -256,7 +257,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts, isFedramp });
+  const routes = getRoutes({ enableServiceAccounts, isITLess });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
   return (
     <Suspense fallback={<AppPlaceholder />}>

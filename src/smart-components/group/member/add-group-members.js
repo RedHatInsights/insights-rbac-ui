@@ -3,6 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
+import { useFlag } from '@unleash/proxy-client-react';
 import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -20,6 +21,7 @@ const AddGroupMembers = ({ cancelRoute }) => {
   const navigate = useAppNavigate();
   const { groupId } = useParams();
   const dispatch = useDispatch();
+  const isITLess = useFlag('platform.rbac.itless');
 
   const [selectedUsers, setSelectedUsers] = useState([]);
 
@@ -55,7 +57,7 @@ const AddGroupMembers = ({ cancelRoute }) => {
   };
 
   const activeUserProps = {
-    ...(!chrome.isFedramp && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
+    ...(!isITLess && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
   };
 
   const usersListProps = {
@@ -85,7 +87,7 @@ const AddGroupMembers = ({ cancelRoute }) => {
             <ActiveUser {...activeUserProps} />
           </TextContent>
         </StackItem>
-        <StackItem>{chrome.isFedramp ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}</StackItem>
+        <StackItem>{isITLess ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}</StackItem>
       </Stack>
     </Modal>
   );

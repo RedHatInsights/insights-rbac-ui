@@ -22,7 +22,6 @@ import {
 } from '../../../helpers/shared/pagination';
 import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
-import { createRows } from '../../user/user-table-helpers';
 import PermissionsContext from '../../../utilities/permissions-context';
 import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
@@ -243,10 +242,8 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
   };
 
   useEffect(() => {
-    if (chrome.isFedramp) {
-      chrome.auth.getUser().then((user) => setCurrentUser(user));
-      chrome.auth.getToken().then((token) => setUserToken(token));
-    }
+    chrome.auth.getUser().then((user) => setCurrentUser(user));
+    chrome.auth.getToken().then((token) => setUserToken(token));
   }, []);
 
   const isUserSelectable = (external_source_id) => external_source_id != currentUser?.identity?.internal?.account_id;
@@ -457,14 +454,10 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
         isSelectable
         borders={false}
         columns={columns}
-        rows={
-          chrome.isFedramp
-            ? createITLessRows(userLinks, users, selectedUsers ? selectedUsers : selectedRows)
-            : createRows(userLinks, users, intl, selectedUsers, true)
-        }
+        rows={createITLessRows(userLinks, users, selectedUsers ? selectedUsers : selectedRows)}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
-          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - 1].key}`;
           setSortByState({ index, direction });
           fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
         }}

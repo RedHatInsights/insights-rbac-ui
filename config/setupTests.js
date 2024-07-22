@@ -51,3 +51,11 @@ global.matchMedia =
   };
 
 Object.assign(global, { TextDecoder, TextEncoder });
+
+// TODO several tests do not wrap components in a flag provider and assume this returns false
+jest.mock('@unleash/proxy-client-react', () => {
+  return {
+    __esModule: true,
+    useFlag: () => false,
+  };
+});

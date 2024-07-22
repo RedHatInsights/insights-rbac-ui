@@ -271,46 +271,44 @@ const Toolbar = ({
   tableId,
   textFilterRef,
   toolbarChildren,
-}) => {
-  return (
-    <PrimaryToolbar
-      {...(isSelectable && {
-        bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable),
+}) => (
+  <PrimaryToolbar
+    {...(isSelectable && {
+      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable),
+    })}
+    filterConfig={filterConfigBuilder(
+      isLoading,
+      setFilterValue,
+      fetchData,
+      filterValue,
+      pagination,
+      titleSingular,
+      filterPlaceholder,
+      filterItems,
+      filters,
+      isFilterable,
+      onShowMore,
+      showMoreTitle,
+      onFilter,
+      onChange,
+      value,
+      sortBy,
+      textFilterRef
+    )}
+    actionsConfig={{
+      actions: toolbarButtons(),
+    }}
+    {...(!isLoading && {
+      pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps),
+    })}
+    {...((filterValue.length > 0 || (filters && filters.length > 0)) &&
+      !hideFilterChips && {
+        activeFiltersConfig: activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy),
       })}
-      filterConfig={filterConfigBuilder(
-        isLoading,
-        setFilterValue,
-        fetchData,
-        filterValue,
-        pagination,
-        titleSingular,
-        filterPlaceholder,
-        filterItems,
-        filters,
-        isFilterable,
-        onShowMore,
-        showMoreTitle,
-        onFilter,
-        onChange,
-        value,
-        sortBy,
-        textFilterRef
-      )}
-      actionsConfig={{
-        actions: toolbarButtons(),
-      }}
-      {...(!isLoading && {
-        pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps),
-      })}
-      {...((filterValue.length > 0 || (filters && filters.length > 0)) &&
-        !hideFilterChips && {
-          activeFiltersConfig: activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy),
-        })}
-    >
-      {toolbarChildren()}
-    </PrimaryToolbar>
-  );
-};
+  >
+    {toolbarChildren()}
+  </PrimaryToolbar>
+);
 
 Toolbar.propTypes = {
   isSelectable: PropTypes.bool,

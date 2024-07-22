@@ -1,9 +1,9 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useFlag } from '@unleash/proxy-client-react';
 import { Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import UsersList from './users-list';
 import UsersListItless from './users-list-itless';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
@@ -16,7 +16,7 @@ const SetUsers = (props) => {
   const { input } = useFieldApi(props);
   const intl = useIntl();
   const formOptions = useFormApi();
-  const chrome = useChrome();
+  const isITLess = useFlag('platform.rbac.itless');
 
   useEffect(() => {
     setSelectedUsers(formOptions.getState().values['users-list'] || []);
@@ -28,7 +28,7 @@ const SetUsers = (props) => {
   }, [selectedUsers]);
 
   const activeUserProps = {
-    ...(!chrome.isFedramp && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
+    ...(!isITLess && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
   };
 
   const usersListProps = {
@@ -47,9 +47,7 @@ const SetUsers = (props) => {
             </TextContent>
           </StackItem>
           <StackItem>
-            <FormGroup fieldId="select-user">
-              {chrome.isFedramp ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}
-            </FormGroup>
+            <FormGroup fieldId="select-user">{isITLess ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}</FormGroup>
           </StackItem>
         </Stack>
       </Form>

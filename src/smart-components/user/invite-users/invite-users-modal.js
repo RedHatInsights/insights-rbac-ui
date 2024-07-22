@@ -106,7 +106,7 @@ const InviteUsersModal = ({ fetchData }) => {
               name="invite-user-email-list"
               value={rawEmails}
               placeholder={intl.formatMessage(messages.inviteUsersFormEmailsFieldDescription)}
-              onChange={handleRawEmailsChange}
+              onChange={(_event, value) => handleRawEmailsChange(value)}
             />
           </FormGroup>
 

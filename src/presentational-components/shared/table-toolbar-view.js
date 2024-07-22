@@ -2,9 +2,9 @@ import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
 import messages from '../../Messages';
+import { useFlag } from '@unleash/proxy-client-react';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
-import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
@@ -63,7 +63,7 @@ export const TableToolbarView = ({
   toolbarChildren,
 }) => {
   const intl = useIntl();
-  const chrome = useChrome();
+  const isITLess = useFlag('platform.rbac.itless');
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
@@ -150,7 +150,7 @@ export const TableToolbarView = ({
             {...(isSelectable &&
               rows?.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
-                  setCheckedItems(selectedRows([{ uuid, name, requires, ...(chrome.isFedramp && { username: data[_idx]?.username }) }], isSelected)),
+                  setCheckedItems(selectedRows([{ uuid, name, requires, ...(isITLess && { username: data[_idx]?.username }) }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
             rows={rows?.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}

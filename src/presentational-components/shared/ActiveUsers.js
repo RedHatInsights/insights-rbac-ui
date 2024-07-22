@@ -6,6 +6,7 @@ import { ExternalLinkAltIcon } from '@patternfly/react-icons';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const ActiveUser = ({ linkDescription, linkTitle }) => {
   const intl = useIntl();
@@ -13,7 +14,8 @@ const ActiveUser = ({ linkDescription, linkTitle }) => {
   const env = chrome.getEnvironment();
   const prefix = chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext);
-  return !chrome.isFedramp && orgAdmin ? (
+  const isITLess = useFlag('platform.rbac.itless');
+  return !isITLess && orgAdmin ? (
     <Text className="pf-v5-u-mt-0" component={TextVariants.h7}>
       {`${intl.formatMessage(messages.usersDescription)} `}
       {linkDescription}
