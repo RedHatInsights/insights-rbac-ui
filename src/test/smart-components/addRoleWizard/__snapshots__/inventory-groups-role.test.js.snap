@@ -101,8 +101,9 @@ exports[`Inventory groups role Add permissions to group renders without failing 
             </div>
             <button
               aria-expanded="false"
-              aria-label="Menu toggle"
+              aria-label="Select workspaces to add permissions for"
               class="pf-v5-c-menu-toggle__button"
+              tabindex="-1"
               type="button"
             >
               <span
@@ -215,8 +216,9 @@ exports[`Inventory groups role Add permissions to group renders without failing 
             </div>
             <button
               aria-expanded="false"
-              aria-label="Menu toggle"
+              aria-label="Select workspaces to add permissions for"
               class="pf-v5-c-menu-toggle__button"
+              tabindex="-1"
               type="button"
             >
               <span
