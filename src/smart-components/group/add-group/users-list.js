@@ -113,7 +113,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       rows={createRows(userLinks, users, intl, selectedUsers, true)}
       sortBy={sortByState}
       onSort={(e, index, direction) => {
-        const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+        const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - 1].key}`;
         setSortByState({ index, direction });
         fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
       }}
