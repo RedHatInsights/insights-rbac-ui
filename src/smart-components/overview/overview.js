@@ -26,7 +26,6 @@ import {
   PageSection,
   Title,
 } from '@patternfly/react-core';
-// import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
