@@ -270,6 +270,7 @@ const Toolbar = ({
   hideFilterChips,
   tableId,
   textFilterRef,
+  toolbarChildren,
 }) => (
   <PrimaryToolbar
     {...(isSelectable && {
@@ -304,7 +305,9 @@ const Toolbar = ({
       !hideFilterChips && {
         activeFiltersConfig: activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy),
       })}
-  />
+  >
+    {toolbarChildren()}
+  </PrimaryToolbar>
 );
 
 Toolbar.propTypes = {
@@ -348,6 +351,7 @@ Toolbar.propTypes = {
   hideFilterChips: PropTypes.bool,
   tableId: PropTypes.string,
   textFilterRef: PropTypes.object,
+  toolbarChildren: PropTypes.func,
 };
 
 Toolbar.defaultProps = {
@@ -366,6 +370,7 @@ Toolbar.defaultProps = {
   filters: [],
   isFilterable: false,
   hideFilterChips: false,
+  toolbarChildren: () => null,
 };
 
 export default Toolbar;

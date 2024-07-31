@@ -2,6 +2,7 @@ import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
 import propTypes from 'prop-types';
 import messages from '../../Messages';
+import { useFlag } from '@unleash/proxy-client-react';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
@@ -59,8 +60,10 @@ export const TableToolbarView = ({
   tableId,
   containerRef,
   textFilterRef,
+  toolbarChildren,
 }) => {
   const intl = useIntl();
+  const isITLess = useFlag('platform.rbac.itless');
   const renderEmpty = () => ({
     title: (
       <EmptyWithAction
@@ -130,6 +133,7 @@ export const TableToolbarView = ({
           tableId={tableId}
           containerRef={containerRef}
           textFilterRef={textFilterRef}
+          toolbarChildren={toolbarChildren}
         />
         {isLoading ? (
           <SkeletonTable
@@ -146,7 +150,7 @@ export const TableToolbarView = ({
             {...(isSelectable &&
               rows?.length > 0 && {
                 onSelect: (_e, isSelected, _idx, { uuid, cells: [name], requires }) =>
-                  setCheckedItems(selectedRows([{ uuid, name, requires }], isSelected)),
+                  setCheckedItems(selectedRows([{ uuid, name, requires, ...(isITLess && { username: data[_idx]?.username }) }], isSelected)),
               })}
             {...(isExpandable && { onExpand })}
             rows={rows?.length > 0 ? rows : [{ fullWidth: true, cells: [renderEmpty()] }]}
@@ -234,6 +238,7 @@ TableToolbarView.propTypes = {
   noDataDescription: propTypes.arrayOf(propTypes.node),
   filters: propTypes.array,
   tableId: propTypes.string.isRequired,
+  toolbarChildren: propTypes.func,
 };
 
 TableToolbarView.defaultProps = {
@@ -245,4 +250,5 @@ TableToolbarView.defaultProps = {
   hideFilterChips: false,
   checkedRows: [],
   hideHeader: false,
+  toolbarChildren: () => null,
 };
