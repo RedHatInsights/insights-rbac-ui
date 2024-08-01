@@ -15,6 +15,7 @@ jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {
   return {
     __esModule: true,
     default: () => ({}),
+    useChrome: () => {},
   };
 });
 

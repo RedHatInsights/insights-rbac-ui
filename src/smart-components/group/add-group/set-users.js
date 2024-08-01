@@ -1,9 +1,11 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import PropTypes from 'prop-types';
+import { useFlag } from '@unleash/proxy-client-react';
 import { Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import UsersList from './users-list';
+import UsersListItless from './users-list-itless';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
@@ -14,6 +16,7 @@ const SetUsers = (props) => {
   const { input } = useFieldApi(props);
   const intl = useIntl();
   const formOptions = useFormApi();
+  const isITLess = useFlag('platform.rbac.itless');
 
   useEffect(() => {
     setSelectedUsers(formOptions.getState().values['users-list'] || []);
@@ -24,19 +27,27 @@ const SetUsers = (props) => {
     formOptions.change('users-list', selectedUsers);
   }, [selectedUsers]);
 
+  const activeUserProps = {
+    ...(!isITLess && { linkDescription: intl.formatMessage(messages.toManageUsersText) }),
+  };
+
+  const usersListProps = {
+    selectedUsers,
+    setSelectedUsers,
+    displayNarrow: true,
+  };
+
   return (
     <Fragment>
       <Form>
         <Stack hasGutter>
           <StackItem>
             <TextContent>
-              <ActiveUser linkDescription={intl.formatMessage(messages.toManageUsersText)} />
+              <ActiveUser {...activeUserProps} />
             </TextContent>
           </StackItem>
           <StackItem>
-            <FormGroup fieldId="select-user">
-              <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow />
-            </FormGroup>
+            <FormGroup fieldId="select-user">{isITLess ? <UsersListItless {...usersListProps} /> : <UsersList {...usersListProps} />}</FormGroup>
           </StackItem>
         </Stack>
       </Form>

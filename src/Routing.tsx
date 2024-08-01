@@ -13,6 +13,7 @@ const Overview = lazy(() => import('./smart-components/overview/overview'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
+const InviteUsersModal = lazy(() => import('./smart-components/user/invite-users/invite-users-modal'));
 
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Role = lazy(() => import('./smart-components/role/role'));
@@ -37,7 +38,7 @@ const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/serv
 const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
-const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
+const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>) => [
   {
     path: pathnames.overview.path,
     element: Overview,
@@ -60,7 +61,10 @@ const getRoutes = ({ enableServiceAccounts }: Record<string, boolean>) => [
     path: pathnames.users.path,
     element: Users,
   },
-
+  isITLess && {
+    path: pathnames['invite-users'].path,
+    element: InviteUsersModal,
+  },
   {
     path: pathnames['role-detail'].path,
     element: Role,
@@ -233,6 +237,7 @@ const renderRoutes = (routes: RouteType[] = []) =>
 const Routing = () => {
   const location = useLocation();
   const { updateDocumentTitle, isBeta } = useChrome();
+  const isITLess = useFlag('platform.rbac.itless');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
@@ -252,7 +257,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts });
+  const routes = getRoutes({ enableServiceAccounts, isITLess });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
   return (
     <Suspense fallback={<AppPlaceholder />}>
