@@ -19,14 +19,14 @@ import './group-service-accounts.scss';
 
 const createRows = (data = [], checkedRows = []) =>
   data?.reduce(
-    (acc, { uuid, name, clientID, owner, time_created: timeCreated }) => [
+    (acc, { uuid, name, clientId, owner, time_created: timeCreated }) => [
       ...acc,
       {
         uuid,
         title: name,
         cells: [
           name,
-          clientID,
+          clientId,
           owner,
           <Fragment key={`${name}-modified`}>
             <DateFormat date={timeCreated} type={getDateFormat(timeCreated)} />
@@ -55,7 +55,7 @@ const GroupServiceAccounts = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams();
-  const [filterValue, setFilterValue] = useState({ clientID: '', name: '', description: '' });
+  const [filterValue, setFilterValue] = useState({ clientId: '', name: '', description: '' });
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -164,10 +164,10 @@ const GroupServiceAccounts = () => {
               data={serviceAccounts}
               filterValue={filterValue}
               fetchData={(config) => fetchGroupAccounts(groupId, config)}
-              emptyFilters={{ clientID: '', name: '', description: '' }}
-              setFilterValue={({ clientID, name, description }) => {
+              emptyFilters={{ clientId: '', name: '', description: '' }}
+              setFilterValue={({ clientId, name, description }) => {
                 setFilterValue({
-                  clientID: typeof clientID === 'undefined' ? filterValue.clientID : clientID,
+                  clientId: typeof clientId === 'undefined' ? filterValue.clientId : clientId,
                   name: typeof name === 'undefined' ? filterValue.name : name,
                   description: typeof description === 'undefined' ? filterValue.description : description,
                 });
@@ -186,8 +186,8 @@ const GroupServiceAccounts = () => {
               }}
               filters={[
                 {
-                  key: 'clientID',
-                  value: filterValue.clientID,
+                  key: 'clientId',
+                  value: filterValue.clientId,
                   label: intl.formatMessage(messages.clientId),
                   placeholder: intl.formatMessage(messages.filterByKey, {
                     key: `${intl.formatMessage(messages.clientId)[0].toLowerCase()}${intl.formatMessage(messages.clientId).slice(1)}`,
