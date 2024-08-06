@@ -26,7 +26,7 @@ import {
   PageSection,
   Title,
 } from '@patternfly/react-core';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { ArrowRightIcon, CubesIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
@@ -41,31 +41,16 @@ const Overview = () => {
 
   return (
     <React.Fragment>
-      <PageHeader data-ouia-component-id="overview-header">
-        <Flex className="pf-u-flex-nowrap">
-          <FlexItem>
-            <img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />
-          </FlexItem>
-          <Divider
-            orientation={{
-              default: 'vertical',
-            }}
-          />
-          <FlexItem className="pf-u-align-self-flex-start">
-            <PageHeaderTitle data-ouia-component-id="overview-header-title" title={intl.formatMessage(messages.overview)} className="pf-u-mb-sm" />
-            <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewSubtitle)}</p>
-            <a
-              href="https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index"
-              title="link to User Access documentation"
-              target="_blank"
-              rel="noreferrer"
-              data-ouia-component-id="overview-header-learn-more-button"
-            >
-              {intl.formatMessage(messages.learnMore)} <ExternalLinkAltIcon />
-            </a>
-          </FlexItem>
-        </Flex>
-      </PageHeader>
+      <ContentHeader
+        title={intl.formatMessage(messages.overview)}
+        subtitle={intl.formatMessage(messages.overviewSubtitle)}
+        icon={<img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
+        linkProps={{
+          label: intl.formatMessage(messages.learnMore),
+          isExternal: true,
+          to: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
+        }}
+      />
       <PageSection>
         <Card aria-label="Get started card" className="pf-u-mb-lg" data-ouia-component-id="get-started-card">
           <Grid hasGutter>

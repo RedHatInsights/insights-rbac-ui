@@ -10,6 +10,9 @@ exports[`<Groups /> should render group list correctly 1`] = `
     >
       <section
         class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+        data-ouia-component-id="OUIA-Generated-RHI/Header-true-1"
+        data-ouia-component-type="RHI/Header"
+        data-ouia-safe="true"
         widget-type="InsightsPageHeader"
       >
         <div
@@ -18,15 +21,23 @@ exports[`<Groups /> should render group list correctly 1`] = `
           <div
             class="pf-v5-u-mb-sm"
           >
-            <h1
-              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-              data-ouia-component-id="OUIA-Generated-Title-1"
-              data-ouia-component-type="PF5/Title"
-              data-ouia-safe="true"
-              widget-type="InsightsPageHeaderTitle"
+            <div
+              class="pf-v5-l-flex pf-m-justify-content-space-between"
             >
-              Groups
-            </h1>
+              <div
+                class=""
+              >
+                <h1
+                  class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+                  data-ouia-component-id="OUIA-Generated-RHI/Header-true-2"
+                  data-ouia-component-type="RHI/Header"
+                  data-ouia-safe="true"
+                  widget-type="InsightsPageHeaderTitle"
+                >
+                  Groups
+                </h1>
+              </div>
+            </div>
           </div>
           <div
             class=""
@@ -67,6 +78,7 @@ exports[`<Groups /> should render group list correctly 1`] = `
                     >
                       <div
                         class="pf-v5-l-split__item pf-m-fill"
+                        data-ouia-component-id="ConditionalFilter"
                       >
                         <span
                           class="pf-v5-c-form-control pf-m-icon ins-c-conditional-filter"
