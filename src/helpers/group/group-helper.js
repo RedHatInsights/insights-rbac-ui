@@ -133,19 +133,19 @@ export async function fetchRolesForGroup(groupId, excluded, { limit, offset, nam
 
 export async function addServiceAccountsToGroup(groupId, serviceAccounts) {
   return await groupApi.addPrincipalToGroup(groupId, {
-    principals: serviceAccounts.map((account) => ({ clientID: account.uuid, type: 'service-account' })),
+    principals: serviceAccounts.map((account) => ({ clientId: account.uuid, type: 'service-account' })),
   });
 }
 
 export async function removeServiceAccountsFromGroup(groupId, serviceAccountsIds) {
-  return await groupApi.deletePrincipalFromGroup(groupId, undefined, serviceAccountsIds.map((clientID) => `service-account-${clientID}`).join(','));
+  return await groupApi.deletePrincipalFromGroup(groupId, undefined, serviceAccountsIds.map((clientId) => `service-account-${clientId}`).join(','));
 }
 
 export async function fetchAccountsForGroup(groupId, options = {}) {
   return await groupApi.getPrincipalsFromGroup(
     groupId,
     undefined,
-    options.serviceAccountClientIds ? undefined : options.clientID,
+    options.serviceAccountClientIds ? undefined : options.clientId,
     options.limit,
     options.offset,
     undefined,
