@@ -278,7 +278,6 @@ const Overview = () => {
           </a>
         </PageSection>
       </React.Fragment>
-      <WorkspacesOverview />
     </>
   );
 };
