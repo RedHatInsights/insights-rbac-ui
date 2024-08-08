@@ -20,6 +20,8 @@ IQE_FILTER_EXPRESSION=""
 
 set -exv
 
+yum -y install which
+
 docker run -t \
   -v $PWD:/e2e:ro,Z \
   -w /e2e \
