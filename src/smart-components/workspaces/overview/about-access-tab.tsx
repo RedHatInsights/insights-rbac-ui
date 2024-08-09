@@ -242,7 +242,7 @@ const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v5-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href={}>
+                <a href="">
                   Begin Quick start <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -254,7 +254,7 @@ const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v5-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href={}>
+                <a href="">
                   View documentation <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -266,7 +266,7 @@ const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v5-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href={}>
+                <a href="">
                   View documentation <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -278,7 +278,7 @@ const WorkspacesOverview = () => {
               </Td>
               <Td className="pf-v5-u-text-align-right">
                 {/* to do - add link when available */}
-                <a href={}>
+                <a href="">
                   View documentation <ExternalLinkAltIcon />
                 </a>
               </Td>
