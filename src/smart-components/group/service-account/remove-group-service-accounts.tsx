@@ -49,7 +49,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       onConfirm={() => {
         const action = removeServiceAccountFromGroup(
           group.uuid,
-          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientID)
+          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientId)
         );
         dispatch(action);
         postMethod(action.payload);

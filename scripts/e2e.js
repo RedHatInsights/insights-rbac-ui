@@ -11,6 +11,7 @@ const options = {
     return status >= 200 && status < 300; // default if not provided
   },
   verbose: true,
+  timeout: 3 * 60 * 1000,
 };
 let child;
 async function runTests() {

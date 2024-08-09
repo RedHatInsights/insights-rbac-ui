@@ -118,6 +118,7 @@ exports[`<CommonBundleView /> should render MUAAccessTable for orgAdmins 1`] = `
               >
                 <div
                   class="pf-v5-l-split__item pf-m-fill"
+                  data-ouia-component-id="ConditionalFilter"
                 >
                   <button
                     aria-expanded="false"
@@ -623,8 +624,9 @@ exports[`<CommonBundleView /> should render MUARolesTable for orgAdmins 1`] = `
                 >
                   <button
                     aria-expanded="false"
-                    aria-label="Conditional filter"
+                    aria-label="Conditional filter toggle"
                     class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
+                    data-ouia-component-id="ConditionalFilterToggle"
                     type="button"
                   >
                     <span
@@ -682,6 +684,7 @@ exports[`<CommonBundleView /> should render MUARolesTable for orgAdmins 1`] = `
                 </div>
                 <div
                   class="pf-v5-l-split__item pf-m-fill"
+                  data-ouia-component-id="ConditionalFilter"
                 >
                   <button
                     aria-expanded="false"
