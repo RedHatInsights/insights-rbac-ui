@@ -79,7 +79,7 @@ const WorkspacesOverview = () => {
 
         <Gallery hasGutter minWidths={{ default: '330px' }}>
           <GalleryItem>
-            <Card>
+            <Card isFullHeight>
               <CardHeader>
                 <Split hasGutter>
                   <SplitItem>
@@ -87,7 +87,9 @@ const WorkspacesOverview = () => {
                   </SplitItem>
                   <SplitItem>
                     <TextContent>
-                      <Text component={TextVariants.h2}>Workspaces</Text>
+                      <Text component={TextVariants.h2} className="pf-v5-u-text-align-center">
+                        Workspaces
+                      </Text>
                     </TextContent>
                   </SplitItem>
                 </Split>
@@ -104,7 +106,7 @@ const WorkspacesOverview = () => {
             </Card>
           </GalleryItem>
           <GalleryItem>
-            <Card>
+            <Card isFullHeight>
               <CardHeader>
                 <Split hasGutter>
                   <SplitItem>
@@ -128,11 +130,11 @@ const WorkspacesOverview = () => {
             </Card>
           </GalleryItem>
           <GalleryItem>
-            <Card>
+            <Card isFullHeight>
               <CardHeader>
                 <Split hasGutter>
                   <SplitItem>
-                    <img src={rolesIcon} alt="roles-icon" className="pf-u-primary-color-100" />
+                    <img src={rolesIcon} alt="roles-icon" className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />
                   </SplitItem>
                   <SplitItem>
                     <TextContent>
@@ -150,15 +152,17 @@ const WorkspacesOverview = () => {
             </Card>
           </GalleryItem>
           <GalleryItem>
-            <Card>
+            <Card isFullHeight>
               <CardHeader>
                 <Split hasGutter>
                   <SplitItem>
-                    <img src={bindingsIcon} alt="bindings-icon" className="pf-u-primary-color-100" />{' '}
+                    <img src={bindingsIcon} alt="bindings-icon" className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />
                   </SplitItem>
                   <SplitItem>
                     <TextContent>
-                      <Text component={TextVariants.h2}>Bindings</Text>
+                      <Text component={TextVariants.h2} className="pf-v5-u-mb-sm">
+                        Bindings
+                      </Text>
                     </TextContent>
                   </SplitItem>
                 </Split>
