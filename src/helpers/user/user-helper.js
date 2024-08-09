@@ -33,10 +33,11 @@ async function fetchBaseUrl() {
   }
 }
 
-const headers = {
+const getHeaders = (token) => ({
   'Content-Type': 'application/json',
   Accept: 'application/json',
-};
+  Authorization: `Bearer ${token}`,
+});
 
 function handleResponse(response, resolve, reject) {
   if (response.ok && response.status !== 206) {
@@ -55,9 +56,10 @@ function handleError(error, reject) {
 }
 
 export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
+  const token = await insights.chrome.auth.getToken();
   const requestOpts = {
     method: 'POST',
-    headers,
+    headers: getHeaders(token),
     body: JSON.stringify({
       emails: usersData.emails,
       isAdmin: usersData.isAdmin,
@@ -78,9 +80,10 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
 }
 
 export async function updateUserIsOrgAdminStatus(user) {
+  const token = await insights.chrome.auth.getToken();
   let requestOpts = {
     method: 'PUT',
-    headers,
+    headers: getHeaders(token),
   };
 
   const url = await fetchBaseUrl();
@@ -99,9 +102,10 @@ export async function updateUserIsOrgAdminStatus(user) {
 }
 
 export async function updateUsers(users) {
+  const token = await insights.chrome.auth.getToken();
   let requestOpts = {
     method: 'PUT',
-    headers,
+    headers: getHeaders(token),
     body: JSON.stringify({ users: users }),
   };
 
