@@ -1,5 +1,5 @@
 import React from 'react';
-import { ContentHeader, ServiceCard } from '@patternfly/react-component-groups';
+import { ContentHeader } from '@patternfly/react-component-groups';
 import {
   Button,
   ButtonVariant,
