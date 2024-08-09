@@ -3,6 +3,11 @@ import { ContentHeader, ServiceCard } from '@patternfly/react-component-groups';
 import {
   Button,
   ButtonVariant,
+  Card,
+  CardBody,
+  CardFooter,
+  CardHeader,
+  CardTitle,
   DataList,
   ExpandableSection,
   Gallery,
@@ -11,7 +16,10 @@ import {
   List,
   ListItem,
   PageSection,
+  Split,
+  SplitItem,
   Text,
+  TextContent,
   TextVariants,
   Title,
 } from '@patternfly/react-core';
@@ -25,6 +33,8 @@ const GRANT_ACCESS = '';
 
 const WorkspacesOverview = () => {
   const workspacesIcon = '/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg';
+  const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-icon.svg';
+  const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
 
   const [isExpanded, setIsExpanded] = React.useState(false);
   const onToggle = (_event: React.MouseEvent, isExpanded: boolean) => {
@@ -51,69 +61,122 @@ const WorkspacesOverview = () => {
         <Text component={TextVariants.p}>
           Workspaces let&apos;s you group related assets together (such as RHEL hosts). This simplifies management and user access control.
         </Text>
-
+        <br></br>
         <ExpandableSection
           toggleText="Show me how my assets and permissions will be organized into workspaces"
           onToggle={onToggle}
           isExpanded={isExpanded}
         >
           {/* to do - add migration visualization when ready */}
+          <Card ouiaId="animation-card">
+            <CardTitle>A cool animation</CardTitle>
+            <CardBody>will go here</CardBody>
+            <CardFooter>when its ready</CardFooter>
+          </Card>
         </ExpandableSection>
+
+        <br></br>
 
         <Gallery hasGutter minWidths={{ default: '330px' }}>
           <GalleryItem>
-            <ServiceCard
-              title="Workspaces"
-              subtitle=""
-              description="Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time."
-              icon={<InfrastructureIcon className="pf-u-primary-color-100" />}
-              footer={
+            <Card>
+              <CardHeader>
+                <Split hasGutter>
+                  <SplitItem>
+                    <InfrastructureIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />
+                  </SplitItem>
+                  <SplitItem>
+                    <TextContent>
+                      <Text component={TextVariants.h2}>Workspaces</Text>
+                    </TextContent>
+                  </SplitItem>
+                </Split>
+              </CardHeader>
+              <CardBody>
+                Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships).
+                Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time.
+              </CardBody>
+              <CardFooter>
                 <Button variant={ButtonVariant.primary} isInline component="a" href="">
                   Workspaces
                 </Button>
-              }
-            />
+              </CardFooter>
+            </Card>
           </GalleryItem>
           <GalleryItem>
-            <ServiceCard
-              title="Groups"
-              subtitle=""
-              description="Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization's structure."
-              icon={<UsersIcon className="pf-u-primary-color-100" />}
-              footer={
+            <Card>
+              <CardHeader>
+                <Split hasGutter>
+                  <SplitItem>
+                    <UsersIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />
+                  </SplitItem>
+                  <SplitItem>
+                    <TextContent>
+                      <Text component={TextVariants.h2}>Groups</Text>
+                    </TextContent>
+                  </SplitItem>
+                </Split>
+              </CardHeader>
+              <CardBody>
+                Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization&apos;s structure.
+              </CardBody>
+              <CardFooter>
                 <Button variant={ButtonVariant.secondary} isInline component="a" href="/iam/user-access/groups">
                   View groups
                 </Button>
-              }
-            />
+              </CardFooter>
+            </Card>
           </GalleryItem>
           <GalleryItem>
-            <ServiceCard
-              title="Role"
-              subtitle=""
-              description="Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions."
-              icon={<img src={} alt="roles-icon" />}
-              footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="/iam/user-access/roles">
+            <Card>
+              <CardHeader>
+                <Split hasGutter>
+                  <SplitItem>
+                    <img src={rolesIcon} alt="roles-icon" className="pf-u-primary-color-100" />
+                  </SplitItem>
+                  <SplitItem>
+                    <TextContent>
+                      <Text component={TextVariants.h2}>Role</Text>
+                    </TextContent>
+                  </SplitItem>
+                </Split>
+              </CardHeader>
+              <CardBody>Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions.</CardBody>
+              <CardFooter>
+                <Button variant={ButtonVariant.secondary} isInline component="a" href="">
                   View roles
                 </Button>
-              }
-            />
+              </CardFooter>
+            </Card>
           </GalleryItem>
           <GalleryItem>
-            <ServiceCard
-              title="Bindings"
-              subtitle=""
-              description="Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform."
-              icon={<img src={} alt="bindings-icon" />}
-              footer={
+            <Card>
+              <CardHeader>
+                <Split hasGutter>
+                  <SplitItem>
+                    <img src={bindingsIcon} alt="bindings-icon" className="pf-u-primary-color-100" />{' '}
+                  </SplitItem>
+                  <SplitItem>
+                    <TextContent>
+                      <Text component={TextVariants.h2}>Bindings</Text>
+                    </TextContent>
+                  </SplitItem>
+                </Split>
+              </CardHeader>
+              <CardBody>
+                Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access
+                what, and the actions they&apos;re allowed to perform.
+              </CardBody>
+              <CardFooter>
                 <Button variant={ButtonVariant.secondary} isInline component="a" href="">
                   View access requests
                 </Button>
-              }
-            />
+              </CardFooter>
+            </Card>
           </GalleryItem>
         </Gallery>
+
+        <br></br>
 
         <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="understanding-access-title">
           Understanding access
@@ -174,7 +237,8 @@ const WorkspacesOverview = () => {
                 <Label color="green">Quick start</Label>
               </Td>
               <Td className="pf-v5-u-text-align-right">
-                <a href={} onClick={}>
+                {/* to do - add link when available */}
+                <a href={}>
                   Begin Quick start <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -185,7 +249,8 @@ const WorkspacesOverview = () => {
                 <Label color="orange">Documentation</Label>
               </Td>
               <Td className="pf-v5-u-text-align-right">
-                <a href={} onClick={}>
+                {/* to do - add link when available */}
+                <a href={}>
                   View documentation <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -196,7 +261,8 @@ const WorkspacesOverview = () => {
                 <Label color="orange">Documentation</Label>
               </Td>
               <Td className="pf-v5-u-text-align-right">
-                <a href={} onClick={}>
+                {/* to do - add link when available */}
+                <a href={}>
                   View documentation <ExternalLinkAltIcon />
                 </a>
               </Td>
@@ -207,6 +273,7 @@ const WorkspacesOverview = () => {
                 <Label color="orange">Documentation</Label>
               </Td>
               <Td className="pf-v5-u-text-align-right">
+                {/* to do - add link when available */}
                 <a href={}>
                   View documentation <ExternalLinkAltIcon />
                 </a>
@@ -216,7 +283,7 @@ const WorkspacesOverview = () => {
         </Table>
 
         <a href={`/settings/learning-resources`} className="pf-u-mb-lg">
-          View all Settings Learning Resources
+          View all Identity and Access Management Learning resources
         </a>
       </PageSection>
     </>
