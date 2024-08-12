@@ -13,17 +13,10 @@ import {
   Icon,
   Title,
 } from '@patternfly/react-core';
-import { KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-
-export enum IconName {
-  KEY = 'access',
-  USERS = 'users',
-}
 
 interface CustomDataListItemProps {
-  icon: IconName;
+  icon: React.ReactNode;
   heading: string;
   linkTitle?: string;
   linkTarget?: string;
@@ -32,22 +25,7 @@ interface CustomDataListItemProps {
   isExpanded?: boolean;
 }
 
-const IconMapper = {
-  [IconName.USERS]: <UsersIcon className="pf-u-primary-color-100" />,
-  [IconName.KEY]: <KeyIcon className="pf-u-primary-color-100" />,
-};
-
-const CustomDataListItem: React.FC<CustomDataListItemProps> = ({
-  icon,
-  heading,
-  linkTitle,
-  linkTarget,
-  expandableContent,
-  isRedirect,
-  isExpanded,
-}) => {
-  const navigate = useNavigate();
-  const iconElement: React.ReactNode | null = IconMapper[icon] || null;
+const CustomDataListItem: React.FC<CustomDataListItemProps> = ({ icon, heading, linkTitle, linkTarget, expandableContent, isExpanded }) => {
   const [expanded, setExpanded] = React.useState(isExpanded || false);
 
   return (
@@ -57,11 +35,11 @@ const CustomDataListItem: React.FC<CustomDataListItemProps> = ({
           <DataListToggle isExpanded={expanded} id="toggle1" aria-controls="expand1" onClick={() => setExpanded(!expanded)} />
           <DataListItemCells
             dataListCells={[
-              <DataListCell key={'cell-' + icon.toString().toLowerCase()}>
+              <DataListCell key={`cell-${icon?.toString().toLowerCase()}`}>
                 <div>
                   <Flex className="pf-u-flex-nowrap">
                     <FlexItem className="pf-u-align-self-center">
-                      <Icon size="lg">{iconElement}</Icon>
+                      <Icon size="lg">{icon}</Icon>
                     </FlexItem>
                     <Divider
                       orientation={{
@@ -78,24 +56,14 @@ const CustomDataListItem: React.FC<CustomDataListItemProps> = ({
           />
           {linkTitle && linkTarget && (
             <DataListAction aria-labelledby="item1 action1" id="action1" aria-label="Actions" isPlainButtonAction>
-              <Button
-                component="a"
-                href={linkTarget}
-                variant="link"
-                onClick={(e) => {
-                  if (!isRedirect) {
-                    e.preventDefault();
-                    navigate(linkTarget.replace('/preview', ''));
-                  }
-                }}
-              >
+              <Button component="a" href={linkTarget} variant="link">
                 {linkTitle}
               </Button>
             </DataListAction>
           )}
         </DataListItemRow>
-        <DataListContent aria-label={heading + ' - Detailed Explanation'} id="expand1" isHidden={!expanded}>
-          <p>{expandableContent}</p>
+        <DataListContent aria-label={`${heading} - Detailed Explanation`} id="expand1" isHidden={!expanded}>
+          {expandableContent}
         </DataListContent>
       </DataListItem>
     </React.Fragment>

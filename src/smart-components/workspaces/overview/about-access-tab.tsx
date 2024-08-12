@@ -19,24 +19,19 @@ import {
   TextVariants,
   Title,
 } from '@patternfly/react-core';
-import CustomDataListItem, { IconName } from './custom-data-list-item';
-import { ExternalLinkAltIcon, InfrastructureIcon, UsersIcon } from '@patternfly/react-icons';
+import CustomDataListItem from './custom-data-list-item';
+import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
 const GRANT_ACCESS = '';
+const workspacesIcon = '/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg';
+const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-icon.svg';
+const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
 
 const WorkspacesOverview = () => {
-  const workspacesIcon = '/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg';
-  const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-icon.svg';
-  const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
-
   const [isExpanded, setIsExpanded] = React.useState(false);
-  const onToggle = (_event: React.MouseEvent, isExpanded: boolean) => {
-    setIsExpanded(isExpanded);
-  };
-
   return (
     <>
       <ContentHeader
@@ -60,7 +55,7 @@ const WorkspacesOverview = () => {
         <br></br>
         <ExpandableSection
           toggleText="Show me how my assets and permissions will be organized into workspaces"
-          onToggle={onToggle}
+          onToggle={(_e: React.MouseEvent, isExpanded: boolean) => setIsExpanded(isExpanded)}
           isExpanded={isExpanded}
         >
           {/* to do - add migration visualization when ready */}
@@ -71,7 +66,7 @@ const WorkspacesOverview = () => {
           </Card>
         </ExpandableSection>
 
-        <br></br>
+        <br />
 
         <Gallery hasGutter minWidths={{ default: '330px' }}>
           <GalleryItem>
@@ -145,7 +140,7 @@ const WorkspacesOverview = () => {
 
         <DataList aria-label="understanding access" className="pf-u-mb-md">
           <CustomDataListItem
-            icon={IconName.USERS}
+            icon={<UsersIcon className="pf-u-primary-color-100" />}
             isExpanded
             heading="Default groups"
             linkTitle="View your default groups"
@@ -163,7 +158,7 @@ const WorkspacesOverview = () => {
             }
           />
           <CustomDataListItem
-            icon={IconName.KEY}
+            icon={<KeyIcon className="pf-u-primary-color-100" />}
             heading="Granting access in workspaces"
             linkTitle="Grant access"
             linkTarget={GRANT_ACCESS}
