@@ -53,31 +53,42 @@ exports[`role role and group should render correctly with router 1`] = `
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-1"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-1"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            style="width: 200px; height: 21px;"
+            class=""
           >
-            <div
-              class="pf-v5-c-skeleton ins-c-skeleton ins-c-skeleton__md"
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-2"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
             >
-              <span
-                class="pf-v5-screen-reader"
-              />
-            </div>
+              <div
+                style="width: 200px; height: 21px;"
+              >
+                <div
+                  class="pf-v5-c-skeleton ins-c-skeleton ins-c-skeleton__md"
+                >
+                  <span
+                    class="pf-v5-screen-reader"
+                  />
+                </div>
+              </div>
+            </h1>
           </div>
-        </h1>
+        </div>
       </div>
     </div>
   </section>
@@ -1675,21 +1686,32 @@ exports[`role role and group should render correctly with router and redux store
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-3"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-2"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
-          name
-        </h1>
+          <div
+            class=""
+          >
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-4"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
+            >
+              name
+            </h1>
+          </div>
+        </div>
       </div>
       <div>
         <div
@@ -1762,8 +1784,8 @@ exports[`role role and group should render correctly with router and redux store
               >
                 <button
                   aria-expanded="false"
-                  aria-label="BulkSelect"
                   class="pf-v5-c-menu-toggle"
+                  data-ouia-component-id="BulkSelect"
                   type="button"
                 >
                   <span
@@ -1776,7 +1798,7 @@ exports[`role role and group should render correctly with router and redux store
                         aria-invalid="false"
                         aria-label="Select all"
                         class="pf-v5-c-check__input"
-                        data-ouia-component-id="BulkSelect"
+                        data-ouia-component-id="BulkSelectCheckbox"
                         data-ouia-component-type="PF5/MenuToggleCheckbox"
                         data-ouia-safe="true"
                         name="role-permissions-toggle-checkbox"
@@ -1818,8 +1840,9 @@ exports[`role role and group should render correctly with router and redux store
                   >
                     <button
                       aria-expanded="false"
-                      aria-label="Conditional filter"
+                      aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
+                      data-ouia-component-id="ConditionalFilterToggle"
                       type="button"
                     >
                       <span
@@ -1877,6 +1900,7 @@ exports[`role role and group should render correctly with router and redux store
                   </div>
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <div>
                       <div
@@ -1950,6 +1974,7 @@ exports[`role role and group should render correctly with router and redux store
                 aria-expanded="false"
                 aria-label="kebab dropdown toggle"
                 class="pf-v5-c-menu-toggle pf-m-plain"
+                data-ouia-component-id="BulkActionsToggle"
                 type="button"
               >
                 <svg
@@ -2599,31 +2624,42 @@ exports[`role role only should render correctly with router 1`] = `
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-5"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-3"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            style="width: 200px; height: 21px;"
+            class=""
           >
-            <div
-              class="pf-v5-c-skeleton ins-c-skeleton ins-c-skeleton__md"
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-6"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
             >
-              <span
-                class="pf-v5-screen-reader"
-              />
-            </div>
+              <div
+                style="width: 200px; height: 21px;"
+              >
+                <div
+                  class="pf-v5-c-skeleton ins-c-skeleton ins-c-skeleton__md"
+                >
+                  <span
+                    class="pf-v5-screen-reader"
+                  />
+                </div>
+              </div>
+            </h1>
           </div>
-        </h1>
+        </div>
       </div>
     </div>
   </section>
@@ -4194,21 +4230,32 @@ exports[`role role only should render correctly with router and redux store 1`] 
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-7"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-4"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
-          name
-        </h1>
+          <div
+            class=""
+          >
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-8"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
+            >
+              name
+            </h1>
+          </div>
+        </div>
       </div>
       <div>
         <div
@@ -4281,8 +4328,8 @@ exports[`role role only should render correctly with router and redux store 1`] 
               >
                 <button
                   aria-expanded="false"
-                  aria-label="BulkSelect"
                   class="pf-v5-c-menu-toggle"
+                  data-ouia-component-id="BulkSelect"
                   type="button"
                 >
                   <span
@@ -4295,7 +4342,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                         aria-invalid="false"
                         aria-label="Select all"
                         class="pf-v5-c-check__input"
-                        data-ouia-component-id="BulkSelect"
+                        data-ouia-component-id="BulkSelectCheckbox"
                         data-ouia-component-type="PF5/MenuToggleCheckbox"
                         data-ouia-safe="true"
                         name="role-permissions-toggle-checkbox"
@@ -4337,8 +4384,9 @@ exports[`role role only should render correctly with router and redux store 1`] 
                   >
                     <button
                       aria-expanded="false"
-                      aria-label="Conditional filter"
+                      aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
+                      data-ouia-component-id="ConditionalFilterToggle"
                       type="button"
                     >
                       <span
@@ -4396,6 +4444,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                   </div>
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <div>
                       <div
@@ -4469,6 +4518,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                 aria-expanded="false"
                 aria-label="kebab dropdown toggle"
                 class="pf-v5-c-menu-toggle pf-m-plain"
+                data-ouia-component-id="BulkActionsToggle"
                 type="button"
               >
                 <svg
@@ -5129,21 +5179,32 @@ exports[`role should render permissions table 1`] = `
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-11"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-6"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
-          name
-        </h1>
+          <div
+            class=""
+          >
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-12"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
+            >
+              name
+            </h1>
+          </div>
+        </div>
       </div>
       <div>
         <div
@@ -5216,8 +5277,8 @@ exports[`role should render permissions table 1`] = `
               >
                 <button
                   aria-expanded="false"
-                  aria-label="BulkSelect"
                   class="pf-v5-c-menu-toggle"
+                  data-ouia-component-id="BulkSelect"
                   type="button"
                 >
                   <span
@@ -5230,7 +5291,7 @@ exports[`role should render permissions table 1`] = `
                         aria-invalid="false"
                         aria-label="Select all"
                         class="pf-v5-c-check__input"
-                        data-ouia-component-id="BulkSelect"
+                        data-ouia-component-id="BulkSelectCheckbox"
                         data-ouia-component-type="PF5/MenuToggleCheckbox"
                         data-ouia-safe="true"
                         name="role-permissions-toggle-checkbox"
@@ -5272,8 +5333,9 @@ exports[`role should render permissions table 1`] = `
                   >
                     <button
                       aria-expanded="false"
-                      aria-label="Conditional filter"
+                      aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
+                      data-ouia-component-id="ConditionalFilterToggle"
                       type="button"
                     >
                       <span
@@ -5331,6 +5393,7 @@ exports[`role should render permissions table 1`] = `
                   </div>
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <div>
                       <div
@@ -5404,6 +5467,7 @@ exports[`role should render permissions table 1`] = `
                 aria-expanded="false"
                 aria-label="kebab dropdown toggle"
                 class="pf-v5-c-menu-toggle pf-m-plain"
+                data-ouia-component-id="BulkActionsToggle"
                 type="button"
               >
                 <svg
@@ -6757,21 +6821,32 @@ exports[`role should render top toolbar 1`] = `
   </section>
   <section
     class="rbac-page-header pf-v5-l-page-header pf-v5-c-page-header pf-v5-l-page__main-section pf-v5-c-page__main-section pf-m-light"
+    data-ouia-component-id="OUIA-Generated-RHI/Header-true-13"
+    data-ouia-component-type="RHI/Header"
+    data-ouia-safe="true"
     widget-type="InsightsPageHeader"
   >
     <div
       class="pf-v5-l-level"
     >
       <div>
-        <h1
-          class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
-          data-ouia-component-id="OUIA-Generated-Title-7"
-          data-ouia-component-type="PF5/Title"
-          data-ouia-safe="true"
-          widget-type="InsightsPageHeaderTitle"
+        <div
+          class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
-          name
-        </h1>
+          <div
+            class=""
+          >
+            <h1
+              class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
+              data-ouia-component-id="OUIA-Generated-RHI/Header-true-14"
+              data-ouia-component-type="RHI/Header"
+              data-ouia-safe="true"
+              widget-type="InsightsPageHeaderTitle"
+            >
+              name
+            </h1>
+          </div>
+        </div>
       </div>
       <div>
         <div
@@ -6844,8 +6919,8 @@ exports[`role should render top toolbar 1`] = `
               >
                 <button
                   aria-expanded="false"
-                  aria-label="BulkSelect"
                   class="pf-v5-c-menu-toggle"
+                  data-ouia-component-id="BulkSelect"
                   type="button"
                 >
                   <span
@@ -6858,7 +6933,7 @@ exports[`role should render top toolbar 1`] = `
                         aria-invalid="false"
                         aria-label="Select all"
                         class="pf-v5-c-check__input"
-                        data-ouia-component-id="BulkSelect"
+                        data-ouia-component-id="BulkSelectCheckbox"
                         data-ouia-component-type="PF5/MenuToggleCheckbox"
                         data-ouia-safe="true"
                         name="role-permissions-toggle-checkbox"
@@ -6900,8 +6975,9 @@ exports[`role should render top toolbar 1`] = `
                   >
                     <button
                       aria-expanded="false"
-                      aria-label="Conditional filter"
+                      aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
+                      data-ouia-component-id="ConditionalFilterToggle"
                       type="button"
                     >
                       <span
@@ -6959,6 +7035,7 @@ exports[`role should render top toolbar 1`] = `
                   </div>
                   <div
                     class="pf-v5-l-split__item pf-m-fill"
+                    data-ouia-component-id="ConditionalFilter"
                   >
                     <div>
                       <div
@@ -7032,6 +7109,7 @@ exports[`role should render top toolbar 1`] = `
                 aria-expanded="false"
                 aria-label="kebab dropdown toggle"
                 class="pf-v5-c-menu-toggle pf-m-plain"
+                data-ouia-component-id="BulkActionsToggle"
                 type="button"
               >
                 <svg

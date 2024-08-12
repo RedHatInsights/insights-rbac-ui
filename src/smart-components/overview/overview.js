@@ -26,7 +26,7 @@ import {
   PageSection,
   Title,
 } from '@patternfly/react-core';
-import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
+import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { ArrowRightIcon, CubesIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
@@ -40,73 +40,56 @@ const Overview = () => {
   const [expanded, setExpanded] = useState(true);
 
   return (
-    <>
-      <React.Fragment>
-        <PageHeader data-ouia-component-id="overview-header">
-          <Flex className="pf-u-flex-nowrap">
-            <FlexItem>
-              <img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />
-            </FlexItem>
-            <Divider
-              orientation={{
-                default: 'vertical',
-              }}
-            />
-            <FlexItem className="pf-u-align-self-flex-start">
-              <PageHeaderTitle data-ouia-component-id="overview-header-title" title={intl.formatMessage(messages.overview)} className="pf-u-mb-sm" />
-              <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewSubtitle)}</p>
-              <a
-                href="https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index"
-                title="link to User Access documentation"
-                target="_blank"
-                rel="noreferrer"
-                data-ouia-component-id="overview-header-learn-more-button"
-              >
-                {intl.formatMessage(messages.learnMore)} <ExternalLinkAltIcon />
-              </a>
-            </FlexItem>
-          </Flex>
-        </PageHeader>
-        <PageSection>
-          <Card aria-label="Get started card" className="pf-u-mb-lg" data-ouia-component-id="get-started-card">
-            <Grid hasGutter>
-              <GridItem sm={12} md={6} lg={8}>
-                <CardTitle>
-                  <Title headingLevel="h2" data-ouia-component-id="get-started-title">
-                    {intl.formatMessage(messages.overviewHeroTitle)}
-                  </Title>
-                </CardTitle>
-                <CardBody>
-                  <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
-                  <List>
-                    <ListItem>{intl.formatMessage(messages.overviewHeroListItem1)}</ListItem>
-                    <ListItem>{intl.formatMessage(messages.overviewHeroListItem2)}</ListItem>
-                    <ListItem>{intl.formatMessage(messages.overviewHeroListItem3)}</ListItem>
-                  </List>
-                </CardBody>
-                <CardFooter>
-                  <ActionList>
-                    <ActionListItem>
-                      <AppLink to={pathnames.groups.link}>
-                        <Button variant="primary" size="lg" aria-label="View groups" ouiaId="getstarted-view-groups-button">
-                          {intl.formatMessage(messages.viewGroupsBtn)}
-                        </Button>
-                      </AppLink>
-                    </ActionListItem>
-                    <ActionListItem>
-                      <AppLink to={pathnames.roles.link}>
-                        <Button variant="secondary" aria-label="View roles" size="lg" ouiaId="getstarted-view-roles-button">
-                          {intl.formatMessage(messages.viewRolesBtn)}
-                        </Button>
-                      </AppLink>
-                    </ActionListItem>
-                  </ActionList>
-                </CardFooter>
-              </GridItem>
-              <GridItem md={6} lg={4} className="pf-u-display-none pf-u-display-block-on-md pf-c-card__cover-image"></GridItem>
-            </Grid>
-          </Card>
-
+    <React.Fragment>
+      <ContentHeader
+        title={intl.formatMessage(messages.overview)}
+        subtitle={intl.formatMessage(messages.overviewSubtitle)}
+        icon={<img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
+        linkProps={{
+          label: intl.formatMessage(messages.learnMore),
+          isExternal: true,
+          to: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
+        }}
+      />
+      <PageSection>
+        <Card aria-label="Get started card" className="pf-u-mb-lg" data-ouia-component-id="get-started-card">
+          <Grid hasGutter>
+            <GridItem sm={12} md={6} lg={8}>
+              <CardTitle>
+                <Title headingLevel="h2" data-ouia-component-id="get-started-title">
+                  {intl.formatMessage(messages.overviewHeroTitle)}
+                </Title>
+              </CardTitle>
+              <CardBody>
+                <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
+                <List>
+                  <ListItem>{intl.formatMessage(messages.overviewHeroListItem1)}</ListItem>
+                  <ListItem>{intl.formatMessage(messages.overviewHeroListItem2)}</ListItem>
+                  <ListItem>{intl.formatMessage(messages.overviewHeroListItem3)}</ListItem>
+                </List>
+              </CardBody>
+              <CardFooter>
+                <ActionList>
+                  <ActionListItem>
+                    <AppLink to={pathnames.groups.link}>
+                      <Button variant="primary" size="lg" aria-label="View groups" ouiaId="getstarted-view-groups-button">
+                        {intl.formatMessage(messages.viewGroupsBtn)}
+                      </Button>
+                    </AppLink>
+                  </ActionListItem>
+                  <ActionListItem>
+                    <AppLink to={pathnames.roles.link}>
+                      <Button variant="secondary" aria-label="View roles" size="lg" ouiaId="getstarted-view-roles-button">
+                        {intl.formatMessage(messages.viewRolesBtn)}
+                      </Button>
+                    </AppLink>
+                  </ActionListItem>
+                </ActionList>
+              </CardFooter>
+            </GridItem>
+            <GridItem md={6} lg={4} className="pf-u-display-none pf-u-display-block-on-md pf-c-card__cover-image"></GridItem>
+          </Grid>
+        </Card>
           <DataList aria-label="Supporting features list" className="pf-u-mb-lg">
             <DataListItem aria-labelledby="item1" isExpanded={expanded} className={expanded && 'active-item'}>
               <DataListItemRow className="pf-u-align-items-center">
