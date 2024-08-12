@@ -1771,7 +1771,6 @@ exports[`role role and group should render correctly with router and redux store
                   >
                     <label
                       class="pf-v5-c-check pf-m-standalone"
-                      for="role-permissions-toggle-checkbox"
                     >
                       <input
                         aria-invalid="false"
@@ -2139,6 +2138,7 @@ exports[`role role and group should render correctly with router and redux store
               class="pf-v5-c-table__th"
               data-key="0"
               data-label=""
+              scope=""
               tabindex="-1"
             />
             <th
@@ -4290,7 +4290,6 @@ exports[`role role only should render correctly with router and redux store 1`] 
                   >
                     <label
                       class="pf-v5-c-check pf-m-standalone"
-                      for="role-permissions-toggle-checkbox"
                     >
                       <input
                         aria-invalid="false"
@@ -4658,6 +4657,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
               class="pf-v5-c-table__th"
               data-key="0"
               data-label=""
+              scope=""
               tabindex="-1"
             />
             <th
@@ -5225,7 +5225,6 @@ exports[`role should render permissions table 1`] = `
                   >
                     <label
                       class="pf-v5-c-check pf-m-standalone"
-                      for="role-permissions-toggle-checkbox"
                     >
                       <input
                         aria-invalid="false"
@@ -5593,6 +5592,7 @@ exports[`role should render permissions table 1`] = `
               class="pf-v5-c-table__th"
               data-key="0"
               data-label=""
+              scope=""
               tabindex="-1"
             />
             <th
@@ -6033,6 +6033,7 @@ exports[`role should render second page of table 1`] = `
         class="pf-v5-c-table__th"
         data-key="0"
         data-label=""
+        scope=""
         tabindex="-1"
       />
       <th
@@ -6852,7 +6853,6 @@ exports[`role should render top toolbar 1`] = `
                   >
                     <label
                       class="pf-v5-c-check pf-m-standalone"
-                      for="role-permissions-toggle-checkbox"
                     >
                       <input
                         aria-invalid="false"
@@ -7220,6 +7220,7 @@ exports[`role should render top toolbar 1`] = `
               class="pf-v5-c-table__th"
               data-key="0"
               data-label=""
+              scope=""
               tabindex="-1"
             />
             <th

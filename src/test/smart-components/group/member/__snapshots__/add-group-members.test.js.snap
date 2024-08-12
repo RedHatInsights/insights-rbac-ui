@@ -124,7 +124,6 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                               >
                                 <label
                                   class="pf-v5-c-check pf-m-standalone"
-                                  for="users-list-toggle-checkbox"
                                 >
                                   <input
                                     aria-invalid="false"
@@ -552,6 +551,7 @@ exports[`<AddGroupMembers /> should render correctly 1`] = `
                           class="pf-v5-c-table__th"
                           data-key="0"
                           data-label=""
+                          scope=""
                           tabindex="-1"
                         />
                         <th
@@ -1124,7 +1124,6 @@ exports[`<AddGroupMembers /> should render correctly empty 1`] = `
                               >
                                 <label
                                   class="pf-v5-c-check pf-m-standalone"
-                                  for="users-list-toggle-checkbox"
                                 >
                                   <input
                                     aria-invalid="false"

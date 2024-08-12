@@ -32,7 +32,6 @@ exports[`<Toolbar> checkedRows is loading - false 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -320,7 +319,6 @@ exports[`<Toolbar> checkedRows is loading - false NO DATA 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -607,7 +605,6 @@ exports[`<Toolbar> checkedRows is loading - true 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -757,7 +754,6 @@ exports[`<Toolbar> checkedRows is loading - true NO DATA 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -1458,7 +1454,6 @@ exports[`<Toolbar> isSelectable is loading - false 1`] = `
               >
                 <label
                   class="pf-v5-c-check pf-m-standalone"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -1738,7 +1733,6 @@ exports[`<Toolbar> isSelectable is loading - true 1`] = `
               >
                 <label
                   class="pf-v5-c-check pf-m-standalone"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -2921,7 +2915,6 @@ exports[`<Toolbar> should render with full data is loading - false 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
@@ -3334,7 +3327,6 @@ exports[`<Toolbar> should render with full data is loading - true 1`] = `
               >
                 <label
                   class="pf-v5-c-check"
-                  for="toggle-checkbox"
                 >
                   <input
                     aria-invalid="false"
