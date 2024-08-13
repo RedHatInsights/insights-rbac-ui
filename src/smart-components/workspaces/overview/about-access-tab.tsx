@@ -44,7 +44,7 @@ const WorkspacesOverview = () => {
         subtitle={intl.formatMessage(messages.workspacesOverviewSubtitle)}
         icon={<img src={workspacesIcon} alt="workspaces-header-icon" />}
         linkProps={{
-          label: 'Learn more',
+          label: intl.formatMessage(messages.learnMore),
           isExternal: true,
           // to do - add learn more url once available
         }}
