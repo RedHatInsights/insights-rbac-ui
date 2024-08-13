@@ -19,9 +19,11 @@ import {
   TextVariants,
   Title,
 } from '@patternfly/react-core';
+import messages from '../../../Messages';
 import CustomDataListItem from './custom-data-list-item';
 import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
+import { useIntl } from 'react-intl';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
@@ -32,12 +34,14 @@ const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg'
 
 const WorkspacesOverview = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
+  const intl = useIntl();
+
   return (
     <>
       <ContentHeader
-        title="Access Management"
+        title={intl.formatMessage(messages.workspacesOverviewTitle)}
         // to do - add url for viewing assets once available
-        subtitle="Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram."
+        subtitle={intl.formatMessage(messages.workspacesOverviewSubtitle)}
         icon={<img src={workspacesIcon} alt="workspaces-header-icon" />}
         linkProps={{
           label: 'Learn more',
@@ -47,11 +51,9 @@ const WorkspacesOverview = () => {
       />
       <PageSection>
         <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="header-title">
-          Get started with workspaces
+          {intl.formatMessage(messages.workspacesOverviewTitle)}
         </Title>
-        <Text component={TextVariants.p}>
-          Workspaces let&apos;s you group related assets together (such as RHEL hosts). This simplifies management and user access control.
-        </Text>
+        <Text component={TextVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Text>
         <br></br>
         <ExpandableSection
           toggleText="Show me how my assets and permissions will be organized into workspaces"
@@ -74,8 +76,7 @@ const WorkspacesOverview = () => {
               isFullHeight
               title="Workspaces"
               subtitle=""
-              description="Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships).
-                Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time."
+              description={intl.formatMessage(messages.workspacesServiceCardDescription)}
               icon={<InfrastructureIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
                 <Button variant={ButtonVariant.primary} isInline component="a" href="">
@@ -90,7 +91,7 @@ const WorkspacesOverview = () => {
               isFullHeight
               title="Groups"
               subtitle=""
-              description="Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization's structure."
+              description={intl.formatMessage(messages.groupsServiceCardDescription)}
               icon={<UsersIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
                 <Button variant={ButtonVariant.secondary} isInline component="a" href="/iam/user-access/groups">
@@ -105,7 +106,7 @@ const WorkspacesOverview = () => {
               isFullHeight
               title="Role"
               subtitle=""
-              description="Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions."
+              description={intl.formatMessage(messages.roleServiceCardDescription)}
               icon={<img src={rolesIcon} alt="roles-icon" className="pf-u-primary-color-100" />}
               footer={
                 <Button variant={ButtonVariant.secondary} isInline component="a" href="">
@@ -120,7 +121,7 @@ const WorkspacesOverview = () => {
               isFullHeight
               title="Bindings"
               subtitle=""
-              description="Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform."
+              description={intl.formatMessage(messages.bindingsServiceCardDescription)}
               icon={<img src={bindingsIcon} alt="bindings-icon" className="pf-u-primary-color-100" />}
               footer={
                 <Button variant={ButtonVariant.secondary} isInline component="a" href="">
