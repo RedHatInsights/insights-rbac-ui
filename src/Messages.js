@@ -1969,4 +1969,48 @@ export default defineMessages({
     description: 'Contact organization administrator message for not authorized state',
     defaultMessage: 'Contact your organization administrator(s) for more information or visit {link} to learn more about your permissions.',
   },
+  workspacesOverviewTitle: {
+    id: 'workspacesTitle',
+    description: 'workspaces title',
+    defaultMessage: 'Access Management',
+  },
+  workspacesOverviewSubtitle: {
+    id: 'workspacesSubtitle',
+    description: 'Securely manage user access and organize assets within your organization using workspaces.',
+    defaultMessage:
+      'Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.',
+  },
+  workspacesPageTitle: {
+    id: 'workspacesOverviewPageTitle',
+    description: 'workspaces page section title',
+    defaultMessage: 'Get started with workspaces',
+  },
+  workspacesPageSubtitle: {
+    id: 'workspacesOverviewPageSubtitle',
+    description: 'workspaces page section subtitle',
+    defaultMessage:
+      'Workspaces let&apos;s you group related assets together (such as RHEL hosts). This simplifies management and user access control.',
+  },
+  workspacesServiceCardDescription: {
+    id: 'workspacesServiceCardDescription',
+    description: 'workspaces service card description',
+    defaultMessage:
+      'Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships).     Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time.',
+  },
+  groupsServiceCardDescription: {
+    id: 'groupsServiceCardDescription',
+    description: 'groups service card description',
+    defaultMessage: 'Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization&apos;s structure.',
+  },
+  roleServiceCardDescription: {
+    id: 'roleServiceCardDescription',
+    description: 'role service card description',
+    defaultMessage: 'Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions.',
+  },
+  bindingsServiceCardDescription: {
+    id: 'bindingsServiceCardDescription',
+    description: 'bindings service card description',
+    defaultMessage:
+      'Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they&apos;re allowed to perform.',
+  },
 });

@@ -34,6 +34,7 @@ import './overview.scss';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import WorkspacesOverview from '../workspaces/overview/about-access-tab';
 
 const Overview = () => {
   const intl = useIntl();
@@ -90,7 +91,6 @@ const Overview = () => {
             <GridItem md={6} lg={4} className="pf-u-display-none pf-u-display-block-on-md pf-c-card__cover-image"></GridItem>
           </Grid>
         </Card>
-
         <DataList aria-label="Supporting features list" className="pf-u-mb-lg">
           <DataListItem aria-labelledby="item1" isExpanded={expanded} className={expanded && 'active-item'}>
             <DataListItemRow className="pf-u-align-items-center">
@@ -260,6 +260,7 @@ const Overview = () => {
           {intl.formatMessage(messages.iamLearningResourcesLink)}
         </a>
       </PageSection>
+      <WorkspacesOverview />
     </React.Fragment>
   );
 };
