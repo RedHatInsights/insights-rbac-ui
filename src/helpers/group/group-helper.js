@@ -138,7 +138,7 @@ export async function addServiceAccountsToGroup(groupId, serviceAccounts) {
 }
 
 export async function removeServiceAccountsFromGroup(groupId, serviceAccountsIds) {
-  return await groupApi.deletePrincipalFromGroup(groupId, undefined, serviceAccountsIds.map((clientId) => `service-account-${clientId}`).join(','));
+  return await groupApi.deletePrincipalFromGroup(groupId, undefined, serviceAccountsIds.join(','));
 }
 
 export async function fetchAccountsForGroup(groupId, options = {}) {
