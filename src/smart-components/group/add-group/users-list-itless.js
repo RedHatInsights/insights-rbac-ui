@@ -1,9 +1,9 @@
-import React, { useEffect, Fragment, useState, useContext, useRef, useCallback } from 'react';
+import React, { useEffect, Fragment, useState, useContext, useRef, useCallback, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
@@ -353,7 +353,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
   }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
 
   useEffect(() => {
-    const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
+    const { limit, offset } = usesMetaInURL ? syncDefaultPaginationWithUrl(location, navigate, pagination) : pagination;
     const newFilters = usesMetaInURL
       ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
       : { status: filters.status };
@@ -514,6 +514,15 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
         tableId="users-list"
         {...props}
       />
+      <Suspense>
+        <Outlet
+          context={{
+            [paths['invite-users'].path]: {
+              fetchData,
+            },
+          }}
+        />
+      </Suspense>
     </>
   );
 };

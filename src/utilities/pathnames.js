@@ -160,7 +160,7 @@ const pathnames = {
   },
   'invite-users': {
     link: '/users/invite',
-    path: '/users/invite',
+    path: 'invite',
     title: 'Invite users',
   },
   'user-detail': {

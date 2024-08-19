@@ -10,6 +10,7 @@ import ActiveUser from '../../presentational-components/shared/ActiveUsers';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import UsersListItless from '../group/add-group/users-list-itless';
+import paths from '../../utilities/pathnames';
 
 const Users = () => {
   const intl = useIntl();
@@ -29,7 +30,7 @@ const Users = () => {
       isSelectable: !isITLess ? false : activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
       isCompact: false,
     },
-    usesMetaInURL: true,
+    usesMetaInURL: isITLess ? !location.pathname.includes(paths['invite-users'].link) : true,
   };
 
   return (
