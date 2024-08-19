@@ -40,7 +40,7 @@ Cypress.Commands.add('login', () => {
   cy.session(
     `login-${Cypress.env('E2E_USER')}`,
     () => {
-      cy.intercept({ url: '/beta/apps/*', times: 1 }, {});
+      cy.intercept({ url: '/apps/*', times: 1 }, {});
       cy.intercept({ url: '/api/', times: 4 }, {});
       // This JS file causes randomly an uncaught exception on login page which blocks the tests
       // Cannot read properties of undefined (reading 'setAttribute')
