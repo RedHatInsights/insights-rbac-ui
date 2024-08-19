@@ -13,6 +13,8 @@ module.exports = {
    * Add additional webpack plugins
    */
   plugins: [],
+  chromeHost: process.env.FEC_CHROME_HOST ?? undefined,
+  chromePort: process.env.FEC_CHROME_PORT ?? undefined,
   hotReload: process.env.HOT === 'true',
   moduleFederation: {
     exposes: {
