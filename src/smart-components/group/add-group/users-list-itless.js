@@ -518,7 +518,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
         <Outlet
           context={{
             [paths['invite-users'].path]: {
-              fetchData,
+              fetchData: () => fetchData({ ...pagination, filters, usesMetaInURL }),
             },
           }}
         />
