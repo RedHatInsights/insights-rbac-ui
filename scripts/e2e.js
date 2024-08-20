@@ -16,18 +16,6 @@ const options = {
 let child;
 async function runTests() {
   process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
-  execSync(`ls -Al /home/tester/workspace`, {
-    encoding: 'utf-8',
-    stdio: [process.stdout, process.stdout, process.stdout],
-  });
-  execSync(`ls -Al`, {
-    encoding: 'utf-8',
-    stdio: [process.stdout, process.stdout, process.stdout],
-  });
-  execSync(`mkdir -p /home/tester/workspace/dist`, {
-    encoding: 'utf-8',
-    stdio: [process.stdout, process.stdout, process.stdout],
-  });
   //start stage beta
   child = spawn('npm', ['run', 'start', '--', '--clouddotEnv=stage', '--uiEnv=beta'], {
     stdio: [process.stdout, process.stdout, process.stdout],

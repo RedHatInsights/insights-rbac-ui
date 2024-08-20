@@ -24,6 +24,8 @@ CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insigh
 CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
 
 docker run -d --name $CHROME_CONTAINER_NAME --replace --network bridge quay.io/cloudservices/insights-chrome-frontend:$CHROME_SHA
+mkdir -p dist
+docker cp $CHROME_CONTAINER_NAME:/opt/app-root/src/build/stable/index.html dist/
 
 CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CHROME_CONTAINER_NAME)
 
