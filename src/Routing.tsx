@@ -60,10 +60,12 @@ const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>)
   {
     path: pathnames.users.path,
     element: Users,
-  },
-  isITLess && {
-    path: pathnames['invite-users'].path,
-    element: InviteUsersModal,
+    childRoutes: [
+      isITLess && {
+        path: pathnames['invite-users'].path,
+        element: InviteUsersModal,
+      },
+    ],
   },
   {
     path: pathnames['role-detail'].path,
