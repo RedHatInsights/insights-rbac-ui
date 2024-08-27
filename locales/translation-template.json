@@ -871,7 +871,7 @@
     "description": "Overview Hero third list item"
   },
   "overviewHeroSubtitle": {
-    "defaultMessage": "Red Hat’s Hybrid Cloud Console uses role-based access controls (RBAC).",
+    "defaultMessage": "The Red Hat Hybrid Cloud Console uses role-based access control (RBAC).",
     "description": "Overview Hero section subtitle"
   },
   "overviewHeroTitle": {

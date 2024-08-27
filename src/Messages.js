@@ -920,7 +920,7 @@ export default defineMessages({
   overviewHeroSubtitle: {
     id: 'overviewHeroSubtitle',
     description: 'Overview Hero section subtitle',
-    defaultMessage: 'Red Hat’s Hybrid Cloud Console uses role-based access controls (RBAC).',
+    defaultMessage: 'The Red Hat Hybrid Cloud Console uses role-based access control (RBAC).',
   },
   overviewHeroListItem1: {
     id: 'overviewHeroListItem1',

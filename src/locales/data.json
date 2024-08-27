@@ -222,7 +222,7 @@
     "overviewHeroListItem1": "Control user access by organizing roles instead of assigning permissions individually to users",
     "overviewHeroListItem2": "Create groups that include roles and their corresponding permissions",
     "overviewHeroListItem3": "Assign users to these groups, allowing them to inherit the permissions associated with their group's roles",
-    "overviewHeroSubtitle": "Red Hat’s Hybrid Cloud Console uses role-based access controls (RBAC).",
+    "overviewHeroSubtitle": "The Red Hat Hybrid Cloud Console uses role-based access control (RBAC).",
     "overviewHeroTitle": "Get started with User Access",
     "overviewSubtitle": "Streamline access management for your organization’s users and resources with the User Access to ensure secure and efficient control over permissions and authorization.",
     "overviewSupportingFeaturesSubtitle1": "The Default access group contains all authenticated users in your organization. These users automatically inherit a selection of predefined roles. The Default admin access group is limited to Organization Administrator users in your organization.",
