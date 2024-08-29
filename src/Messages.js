@@ -765,10 +765,10 @@ export default defineMessages({
     description: 'Roles plural',
     defaultMessage: 'Roles',
   },
-  groups: {
-    id: 'groups',
-    description: 'Groups plural',
-    defaultMessage: 'Groups',
+  userGroups: {
+    id: 'user-groups',
+    description: 'User groups plural',
+    defaultMessage: 'User groups',
   },
   group: {
     id: 'group',
@@ -1074,6 +1074,11 @@ export default defineMessages({
     id: 'users',
     description: 'Users plural label',
     defaultMessage: 'Users',
+  },
+  groups: {
+    id: 'groups',
+    description: 'User groups label',
+    defaultMessage: 'Groups',
   },
   username: {
     id: 'username',
@@ -2028,5 +2033,15 @@ export default defineMessages({
     description: 'bindings service card description',
     defaultMessage:
       'Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they&apos;re allowed to perform.',
+  },
+  usersAndUserGroups: {
+    id: 'usersAndUserGroups',
+    description: 'Users and user groups label',
+    defaultMessage: 'Users and User Groups',
+  },
+  usersAndUserGroupsDescription: {
+    id: 'usersAndUserGroupsDescription',
+    description: 'Users and user groups description',
+    defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
   },
 });
