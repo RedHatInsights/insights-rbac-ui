@@ -39,7 +39,13 @@ const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/serv
 const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
+const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups'));
+
 const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>) => [
+  {
+    path: pathnames['users-and-user-groups'].path,
+    element: UsersAndUserGroups,
+  },
   {
     path: pathnames.overview.path,
     element: Overview,
