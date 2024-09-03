@@ -34,7 +34,6 @@ import './overview.scss';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
-import WorkspacesOverview from '../workspaces/overview/about-access-tab';
 
 const Overview = () => {
   const intl = useIntl();
@@ -260,7 +259,6 @@ const Overview = () => {
           {intl.formatMessage(messages.iamLearningResourcesLink)}
         </a>
       </PageSection>
-      <WorkspacesOverview />
     </React.Fragment>
   );
 };
