@@ -34,6 +34,9 @@ import './overview.scss';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import { EnableWorkspacesAlert } from './enable-workspaces-alert';
+import { Alert } from '@patternfly/react-core/components';
+import { UsersIcon } from '@patternfly/react-icons';
 
 const Overview = () => {
   const intl = useIntl();
@@ -41,6 +44,8 @@ const Overview = () => {
 
   return (
     <React.Fragment>
+      {/* <Alert title={intl.formatMessage(messages.workspacesAlertTitle)} customIcon={<UsersIcon />} ouiaId="enable-workspaces-alert"></Alert> */}
+      <EnableWorkspacesAlert />
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}

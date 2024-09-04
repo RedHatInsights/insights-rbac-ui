@@ -1691,6 +1691,11 @@ export default defineMessages({
     description: 'Tooltip for inventory group role permissions',
     defaultMessage: 'Add permission to these groups.',
   },
+  workspacesAlertTitle: {
+    id: 'workspacesAlertTitle',
+    description: 'Title for workspaces alert on overview page',
+    defaultMessage: 'You are qualitified to opt into the worksapce user access model for your organization.',
+  },
   workspacesTooltip: {
     id: 'workspacesTooltip',
     description: 'Tooltip for workspaces role permissions',
