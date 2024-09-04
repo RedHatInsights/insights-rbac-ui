@@ -20,7 +20,7 @@ IQE_FILTER_EXPRESSION=""
 
 set -exv
 
-CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/" | jq .tags\[0\].name -r)
+CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/?onlyActiveTags=true" | jq .tags\[0\].name -r)
 CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
 
 docker run -d --name $CHROME_CONTAINER_NAME --replace --network bridge quay.io/cloudservices/insights-chrome-frontend:$CHROME_SHA
