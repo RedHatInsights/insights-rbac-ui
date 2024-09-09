@@ -1696,6 +1696,16 @@ export default defineMessages({
     description: 'Title for workspaces alert on overview page',
     defaultMessage: 'You are qualitified to opt into the worksapce user access model for your organization.',
   },
+  enableWorkspacesWizardTitle: {
+    id: 'enableWorkspacesWizardTitle',
+    description: 'Title for Enable Workspaces wizard',
+    defaultMessage: 'Enable workspaces',
+  },
+  enableWorkspacesWizardDesc: {
+    id: 'enableWorkspacesWizardDesc',
+    description: 'Description for Enable Workspaces wizard',
+    defaultMessage: 'Enable ' / workspaces / ' for your organization to enhance access management (assets, roles, users, groups, etc.)',
+  },
   workspacesTooltip: {
     id: 'workspacesTooltip',
     description: 'Tooltip for workspaces role permissions',
