@@ -1704,7 +1704,7 @@ export default defineMessages({
   enableWorkspacesWizardDesc: {
     id: 'enableWorkspacesWizardDesc',
     description: 'Description for Enable Workspaces wizard',
-    defaultMessage: 'Enable ' / workspaces / ' for your organization to enhance access management (assets, roles, users, groups, etc.)',
+    defaultMessage: 'Enable "workspaces" for your organization to enhance access management (assets, roles, users, groups, etc.)',
   },
   workspacesTooltip: {
     id: 'workspacesTooltip',
