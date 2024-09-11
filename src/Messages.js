@@ -1696,6 +1696,11 @@ export default defineMessages({
     description: 'Title for workspaces alert on overview page',
     defaultMessage: 'You are qualitified to opt into the worksapce user access model for your organization.',
   },
+  workspacesSuccessAlertTitle: {
+    id: 'workspacesSuccessAlertTitle',
+    description: 'Title for success alert for workspaces enablement',
+    defaultMessage: 'Your workspace migration is complete and ready to manage!',
+  },
   enableWorkspacesWizardTitle: {
     id: 'enableWorkspacesWizardTitle',
     description: 'Title for Enable Workspaces wizard',
@@ -1705,6 +1710,30 @@ export default defineMessages({
     id: 'enableWorkspacesWizardDesc',
     description: 'Description for Enable Workspaces wizard',
     defaultMessage: 'Enable "workspaces" for your organization to enhance access management (assets, roles, users, groups, etc.)',
+  },
+  enableWorkspacesWizardBodyPart1: {
+    id: 'enableWorkspacesWizardBodyPart1',
+    description: 'First part of the Enable Workspaces wizard body',
+    defaultMessage:
+      'Securely manage user access and organize assets wtihin your organization using workspaces. Implement granular access controls to streamline\
+       permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.',
+  },
+  enableWorkspacesWizardBodyPart2: {
+    id: 'enableWorkspacesWizardBodyPart2',
+    description: 'Second part of the Enable Workspaces wizard body',
+    defaultMessage:
+      'Configure workspaces to fit your organizational structure. They can be structured in a hierarchy (parent-child\
+          relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you configuration\
+          time. Learn more about workspace hierarchy and use cases for them in your organziation.',
+  },
+  enableWorkspacesWizardBodyPart3: {
+    id: 'enableWorkspacesWizardBodyPart3',
+    description: 'Third part of the Enable Workspaces wizard body',
+    defaultMessage:
+      "Create user groups of both end users and service accounts. Tailor these groups to mirror your\
+          organization's structure. Explore predefined roles to see if they fit your needs. If not, create custom roles with specific\
+          permissions. Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings dtermine who can\
+          access what, adn the actions they're allowed to perform. Learn more about access managment.",
   },
   workspacesTooltip: {
     id: 'workspacesTooltip',
