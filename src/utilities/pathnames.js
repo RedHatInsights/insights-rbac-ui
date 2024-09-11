@@ -8,6 +8,11 @@ const pathnames = {
     path: '/overview/*',
     title: 'Overview',
   },
+  workspaces: {
+    link: '/workspaces',
+    path: '/workspaces/*',
+    title: 'Workspaces',
+  },
   groups: {
     link: '/groups',
     path: '/groups/*',
