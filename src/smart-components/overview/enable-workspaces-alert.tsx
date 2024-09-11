@@ -24,7 +24,6 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
   const onConfirm = () => {
     setIsToggled(false);
     setIsModalOpen(false);
-    console.log(isConfirmed);
     setIsConfirmed(true);
   };
 
