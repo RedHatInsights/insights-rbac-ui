@@ -2,6 +2,7 @@ import axios from 'axios';
 import { responseDataInterceptor, interceptor500, errorInterceptor } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 
 import getWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesRead';
+import listWorkspaces from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesList';
 import createWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesCreate';
 import updateWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
@@ -84,24 +85,7 @@ const workspacesApi = new APIFactory(
         },
       };
     },
-    listWorkspaces: () => {
-      return {
-        urlObj: {
-          pathname: '/workspaces',
-          search: '',
-          hash: '',
-        },
-        options: {
-          transformResponse: () => {
-            return {
-              // TODO: return normal data
-              data: [],
-              meta: {},
-            };
-          },
-        },
-      };
-    },
+    listWorkspaces,
   },
   { axios: axiosInstance }
 );
