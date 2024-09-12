@@ -937,6 +937,22 @@ export default defineMessages({
     description: 'Overview Hero third list item',
     defaultMessage: `Assign users to these groups, allowing them to inherit the permissions associated with their group's roles`,
   },
+  workspaces: {
+    id: 'workspaces',
+    description: 'Workspaces heading',
+    defaultMessage: 'Workspaces',
+  },
+  workspacesSubtitle: {
+    id: 'workspacesSubtitle',
+    description: 'Workspaces subtitle',
+    defaultMessage:
+      'Workspaces provide a flexible, hierarchical, approach to organizing your assets and streamlining access management. Configure workspaces to fit your organizational structure.',
+  },
+  workspacesLearnMore: {
+    id: 'workspacesLearnMore',
+    description: 'learn more link',
+    defaultMessage: 'Learn more about workspaces',
+  },
   viewGroupsBtn: {
     id: 'viewGroupsBtn',
     description: 'View groups button',
