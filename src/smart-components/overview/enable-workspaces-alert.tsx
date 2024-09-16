@@ -27,8 +27,6 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
     setIsConfirmed(true);
   };
 
-  const checkboxLabel: string = 'By checking this box, I acknowledge that this action cannot be undone.';
-
   const header = (
     <React.Fragment>
       <Title id="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
@@ -39,7 +37,6 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
   );
 
   const EnableWorkspacesModal = (
-    /* eslint-disable react/no-children-prop */
     <React.Fragment>
       <Modal
         variant={ModalVariant.large}
@@ -56,10 +53,10 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
             }}
             isDisabled={!checked}
           >
-            Confirm
+            {intl.formatMessage(Messages.confirm)}
           </Button>,
           <Button key="cancel" variant={ButtonVariant.link} onClick={handleModalToggle}>
-            Cancel
+            {intl.formatMessage(Messages.cancel)}
           </Button>,
         ]}
       >
@@ -67,16 +64,21 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
         <br />
         <br />
         <span>
-          <b>Workspaces: </b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2)}
+          <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2Header)}</b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2)}
         </span>
         <br />
         <br />
         <span>
-          <b>Groups, roles, and role bindings: </b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3)}
+          <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3Header)}</b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3)}
         </span>
         <br />
         <br />
-        <Checkbox isChecked={checked} onChange={(_event, value) => setChecked(value)} label={checkboxLabel} id="enable-workspace-checkbox" />
+        <Checkbox
+          isChecked={checked}
+          onChange={(_event, value) => setChecked(value)}
+          label={intl.formatMessage(Messages.enableWorkspacesWizardCheckboxLabel)}
+          id="enable-workspace-checkbox"
+        />
       </Modal>
     </React.Fragment>
   );

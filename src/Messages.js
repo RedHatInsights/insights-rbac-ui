@@ -1710,7 +1710,7 @@ export default defineMessages({
   workspacesAlertTitle: {
     id: 'workspacesAlertTitle',
     description: 'Title for workspaces alert on overview page',
-    defaultMessage: 'You are qualitified to opt into the worksapce user access model for your organization.',
+    defaultMessage: 'You are qualified to opt into the workspace user access model for your organization.',
   },
   workspacesSuccessAlertTitle: {
     id: 'workspacesSuccessAlertTitle',
@@ -1731,7 +1731,7 @@ export default defineMessages({
     id: 'enableWorkspacesWizardBodyPart1',
     description: 'First part of the Enable Workspaces wizard body',
     defaultMessage:
-      'Securely manage user access and organize assets wtihin your organization using workspaces. Implement granular access controls to streamline\
+      'Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline\
        permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.',
   },
   enableWorkspacesWizardBodyPart2: {
@@ -1742,14 +1742,29 @@ export default defineMessages({
           relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you configuration\
           time. Learn more about workspace hierarchy and use cases for them in your organziation.',
   },
+  enableWorkspacesWizardBodyPart2Header: {
+    id: 'enableWorkspacesWizardBodyPart2Header',
+    description: 'Header for second part of the Enable Workspaces wizard body',
+    defaultMessage: 'Workspaces: ',
+  },
   enableWorkspacesWizardBodyPart3: {
     id: 'enableWorkspacesWizardBodyPart3',
     description: 'Third part of the Enable Workspaces wizard body',
     defaultMessage:
       "Create user groups of both end users and service accounts. Tailor these groups to mirror your\
           organization's structure. Explore predefined roles to see if they fit your needs. If not, create custom roles with specific\
-          permissions. Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings dtermine who can\
-          access what, adn the actions they're allowed to perform. Learn more about access managment.",
+          permissions. Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can\
+          access what, and the actions they're allowed to perform. Learn more about access management.",
+  },
+  enableWorkspacesWizardBodyPart3Header: {
+    id: 'enableWorkspacesWizardBodyPart3Header',
+    description: 'Header for third part of the Enable Workspaces wizard body',
+    defaultMessage: 'Groups, roles, and role bindings: ',
+  },
+  enableWorkspacesWizardCheckboxLabel: {
+    id: 'enableWorkspacesWizardCheckboxLabel',
+    description: 'Checkbox label for Enable Workspaces wizard',
+    defaultMessage: 'By checking this box, I acknowledge that this action cannot be undone.',
   },
   workspacesTooltip: {
     id: 'workspacesTooltip',
