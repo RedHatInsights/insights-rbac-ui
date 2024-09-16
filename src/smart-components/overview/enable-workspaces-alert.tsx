@@ -29,7 +29,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
 
   const header = (
     <React.Fragment>
-      <Title id="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
+      <Title ouiaId="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
         {intl.formatMessage(Messages.enableWorkspacesWizardTitle)}
       </Title>
       <p>{intl.formatMessage(Messages.enableWorkspacesWizardDesc)}</p>
@@ -77,6 +77,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           isChecked={checked}
           onChange={(_event, value) => setChecked(value)}
           label={intl.formatMessage(Messages.enableWorkspacesWizardCheckboxLabel)}
+          ouiaId="enable-workspace-checkbox"
           id="enable-workspace-checkbox"
         />
       </Modal>
