@@ -116,7 +116,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
         >
           <Switch
             id="enable-workspaces-switch"
-            label="Enable workspaces"
+            label={intl.formatMessage(Messages.workspacesAlertSwitchLabel)}
             isChecked={isToggled}
             defaultChecked={false}
             ouiaId="enable-workspaces-switch"

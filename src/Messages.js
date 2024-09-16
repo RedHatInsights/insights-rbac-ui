@@ -1707,6 +1707,11 @@ export default defineMessages({
     description: 'Tooltip for inventory group role permissions',
     defaultMessage: 'Add permission to these groups.',
   },
+  workspacesAlertSwitchLabel: {
+    id: 'workspacesAlertSwitchLabel',
+    description: 'Enable workspaces',
+    defaultMessage: 'Enable workspaces',
+  },
   workspacesAlertTitle: {
     id: 'workspacesAlertTitle',
     description: 'Title for workspaces alert on overview page',
@@ -1740,7 +1745,7 @@ export default defineMessages({
     defaultMessage:
       'Configure workspaces to fit your organizational structure. They can be structured in a hierarchy (parent-child\
           relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you configuration\
-          time. Learn more about workspace hierarchy and use cases for them in your organziation.',
+          time. Learn more about workspace hierarchy and use cases for them in your organization.',
   },
   enableWorkspacesWizardBodyPart2Header: {
     id: 'enableWorkspacesWizardBodyPart2Header',
