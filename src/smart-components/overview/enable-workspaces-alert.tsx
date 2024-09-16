@@ -1,6 +1,20 @@
 import React from 'react';
 import { UsersIcon } from '@patternfly/react-icons';
-import { Alert, Button, ButtonVariant, Checkbox, Modal, ModalVariant, Switch, Title, TitleSizes } from '@patternfly/react-core';
+import {
+  Alert,
+  Button,
+  ButtonVariant,
+  Checkbox,
+  Modal,
+  ModalVariant,
+  Stack,
+  StackItem,
+  Switch,
+  Text,
+  TextVariants,
+  Title,
+  TitleSizes,
+} from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
 import './enable-workspaces-alert.scss';
@@ -32,7 +46,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
       <Title ouiaId="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
         {intl.formatMessage(Messages.enableWorkspacesWizardTitle)}
       </Title>
-      <p>{intl.formatMessage(Messages.enableWorkspacesWizardDesc)}</p>
+      <Text component={TextVariants.p}>{intl.formatMessage(Messages.enableWorkspacesWizardDesc)}</Text>
     </React.Fragment>
   );
 
@@ -60,31 +74,35 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           </Button>,
         ]}
       >
-        <span>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart1)}</span>
-        <br />
-        <br />
-        <span>
-          <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2Header)}</b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2)}
-        </span>
-        <br />
-        <br />
-        <span>
-          <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3Header)}</b> {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3)}
-        </span>
-        <br />
-        <br />
-        <Checkbox
-          isChecked={checked}
-          onChange={(_event, value) => setChecked(value)}
-          label={intl.formatMessage(Messages.enableWorkspacesWizardCheckboxLabel)}
-          ouiaId="enable-workspace-checkbox"
-          id="enable-workspace-checkbox"
-        />
+        <Stack hasGutter>
+          <StackItem>
+            <span>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart1)}</span>
+          </StackItem>
+          <StackItem>
+            <span>
+              <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2Header)}</b>{' '}
+              {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart2)}
+            </span>
+          </StackItem>
+          <StackItem>
+            <span>
+              <b>{intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3Header)}</b>{' '}
+              {intl.formatMessage(Messages.enableWorkspacesWizardBodyPart3)}
+            </span>
+          </StackItem>
+          <StackItem>
+            <Checkbox
+              isChecked={checked}
+              onChange={(_event, value) => setChecked(value)}
+              label={intl.formatMessage(Messages.enableWorkspacesWizardCheckboxLabel)}
+              ouiaId="enable-workspace-checkbox"
+              id="enable-workspace-checkbox"
+            />
+          </StackItem>
+        </Stack>
       </Modal>
     </React.Fragment>
   );
-
-  const successAlert = <Alert variant="success" title={intl.formatMessage(Messages.workspacesSuccessAlertTitle)}></Alert>;
 
   return (
     <div>
@@ -106,9 +124,8 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           />
         </Alert>
       ) : (
-        successAlert
+        <Alert variant="success" title={intl.formatMessage(Messages.workspacesSuccessAlertTitle)}></Alert>
       )}
-
       {EnableWorkspacesModal}
     </div>
   );
