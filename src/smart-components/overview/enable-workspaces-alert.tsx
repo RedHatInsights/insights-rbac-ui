@@ -63,6 +63,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
         actions={[
           <Button
             key="confirm"
+            ouiaId="enable-workspace-modal-confirm-button"
             variant={ButtonVariant.primary}
             onClick={() => {
               onConfirm?.(), setChecked(false);

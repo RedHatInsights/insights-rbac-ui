@@ -44,7 +44,7 @@ const Overview = () => {
 
   return (
     <React.Fragment>
-      {isWorkspacesFlag && <EnableWorkspacesAlert />}
+      {!isWorkspacesFlag && <EnableWorkspacesAlert />}
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
