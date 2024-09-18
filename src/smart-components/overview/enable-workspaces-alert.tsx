@@ -46,7 +46,9 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
       <Title ouiaId="enable-workspaces-modal-header" headingLevel="h1" size={TitleSizes['2xl']}>
         {intl.formatMessage(Messages.enableWorkspacesWizardTitle)}
       </Title>
-      <Text component={TextVariants.p}>{intl.formatMessage(Messages.enableWorkspacesWizardDesc)}</Text>
+      <Text component={TextVariants.p} ouiaId="enable-workspaces-modal-description">
+        {intl.formatMessage(Messages.enableWorkspacesWizardDesc)}
+      </Text>
     </React.Fragment>
   );
 
@@ -112,10 +114,9 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           title={intl.formatMessage(Messages.workspacesAlertTitle)}
           customIcon={<UsersIcon />}
           ouiaId="enable-workspaces-alert"
-          className="pf-v5-enable-workspace-alert"
+          className="enable-workspace-alert"
         >
           <Switch
-            id="enable-workspaces-switch"
             label={intl.formatMessage(Messages.workspacesAlertSwitchLabel)}
             isChecked={isToggled}
             defaultChecked={false}
@@ -124,7 +125,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           />
         </Alert>
       ) : (
-        <Alert variant="success" title={intl.formatMessage(Messages.workspacesSuccessAlertTitle)}></Alert>
+        <Alert ouiaId="enable-workspaces-success-alert" variant="success" title={intl.formatMessage(Messages.workspacesSuccessAlertTitle)}></Alert>
       )}
       {EnableWorkspacesModal}
     </div>
