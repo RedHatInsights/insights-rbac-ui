@@ -28,6 +28,8 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
 
   const handleModalToggle = () => {
     setIsToggled(false);
+    setChecked(false);
+    setIsConfirmed(false);
     setIsModalOpen((prevIsModalOpen) => !prevIsModalOpen);
   };
 
