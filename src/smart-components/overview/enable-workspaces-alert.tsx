@@ -121,6 +121,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           className="enable-workspace-alert"
         >
           <Switch
+            className="pf-v5-u-mt-xs"
             label={intl.formatMessage(Messages.workspacesAlertSwitchLabel)}
             isChecked={isToggled}
             defaultChecked={false}
