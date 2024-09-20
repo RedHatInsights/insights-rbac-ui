@@ -31,6 +31,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
     setChecked(false);
     setIsConfirmed(false);
     setIsModalOpen((prevIsModalOpen) => !prevIsModalOpen);
+    document.getElementById('enable-workspaces-switch')?.click();
   };
 
   const handleSwitchChange = (_event: React.FormEvent<HTMLInputElement>, toggled: boolean) => {
@@ -125,6 +126,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
             defaultChecked={false}
             ouiaId="enable-workspaces-switch"
             onChange={handleSwitchChange}
+            id="enable-workspaces-switch"
           />
         </Alert>
       ) : (
