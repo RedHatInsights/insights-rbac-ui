@@ -2,7 +2,8 @@ describe('Enable Workspaces Alert', () => {
   beforeEach(() => {
     cy.login();
     cy.visit('/iam/user-access/overview');
-    cy.wait(5000);
+    cy.intercept('GET', '**/api/rbac/v1/access/?application=rbac&limit=1000').as('overviewPage');
+    cy.wait('@overviewPage', { timeout: 8000 }).its('response.statusCode').should('eq', 200);
   });
 
   it('should be visible', () => {
@@ -18,7 +19,6 @@ describe('Enable Workspaces Alert', () => {
   });
 
   it('should show success alert after confirming', () => {
-    cy.wait(3000);
     cy.get('[data-ouia-component-id="enable-workspaces-switch"]').click();
     cy.get('[data-ouia-component-id="enable-workspace-checkbox"]').click();
     cy.get('[data-ouia-component-id="enable-workspace-modal-confirm-button"]').click();
