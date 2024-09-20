@@ -11,8 +11,8 @@ import { fetchUsers } from '../../helpers/user/user-helper';
 const COLUMNS = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
 const ROW_ACTIONS = [
-  { title: 'Add to User Group', onClick: () => console.log('ADD TO USER GROUP') },
-  { title: 'Remove from User Group', onClick: () => console.log('REMOVE FROM USER GROUP') },
+  { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
+  { title: 'Remove from user group', onClick: () => console.log('REMOVE FROM USER GROUP') },
 ];
 
 const PER_PAGE_OPTIONS = [
