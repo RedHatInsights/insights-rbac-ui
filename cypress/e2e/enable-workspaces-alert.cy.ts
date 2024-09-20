@@ -24,4 +24,10 @@ describe('Enable Workspaces Alert', () => {
     cy.get('[data-ouia-component-id="enable-workspace-modal-confirm-button"]').click();
     cy.get('[data-ouia-component-id="enable-workspaces-success-alert"]').should('be.visible');
   });
+
+  it('should show switch toggled off when modal is cancelled', () => {
+    cy.get('[data-ouia-component-id="enable-workspaces-switch"]').click();
+    cy.get('[data-ouia-component-id="enable-workspace-modal-cancel-button"]').click();
+    cy.get('[data-ouia-component-id="enable-workspaces-switch"]').should('not.be.checked');
+  });
 });

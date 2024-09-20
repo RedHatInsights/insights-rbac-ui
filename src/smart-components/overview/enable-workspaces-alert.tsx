@@ -75,7 +75,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           >
             {intl.formatMessage(Messages.confirm)}
           </Button>,
-          <Button key="cancel" variant={ButtonVariant.link} onClick={handleModalToggle}>
+          <Button key="cancel" ouiaId="enable-workspace-modal-cancel-button" variant={ButtonVariant.link} onClick={handleModalToggle}>
             {intl.formatMessage(Messages.cancel)}
           </Button>,
         ]}
