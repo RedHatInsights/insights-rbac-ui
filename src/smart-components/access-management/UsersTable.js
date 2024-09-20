@@ -69,7 +69,6 @@ const UsersTable = () => {
     }
   };
 
-  if (loading) return <div>Loading...</div>;
   if (error) return <div>{error}</div>;
 
   const rows = users.map((user) => [
@@ -116,7 +115,7 @@ const UsersTable = () => {
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+      <DataViewTable aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} isLoading={loading} />
       <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
