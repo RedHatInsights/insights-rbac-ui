@@ -20,26 +20,17 @@ import Messages from '../../Messages';
 import './enable-workspaces-alert.scss';
 
 const EnableWorkspacesAlert: React.FunctionComponent = () => {
-  const [isToggled, setIsToggled] = React.useState<boolean>(false);
   const [checked, setChecked] = React.useState<boolean>(false);
   const [isModalOpen, setIsModalOpen] = React.useState<boolean>(false);
   const [isConfirmed, setIsConfirmed] = React.useState<boolean>(false);
   const intl = useIntl();
 
-  const handleModalToggle = () => {
-    setIsToggled(false);
+  const onClose = () => {
     setChecked(false);
-    setIsConfirmed(false);
-    setIsModalOpen((prevIsModalOpen) => !prevIsModalOpen);
-    document.getElementById('enable-workspaces-switch')?.click();
-  };
-
-  const handleSwitchChange = (_event: React.FormEvent<HTMLInputElement>, toggled: boolean) => {
-    setIsModalOpen(toggled);
+    setIsModalOpen(false);
   };
 
   const onConfirm = () => {
-    setIsToggled(false);
     setIsModalOpen(false);
     setIsConfirmed(true);
   };
@@ -61,8 +52,8 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
         variant={ModalVariant.large}
         header={header}
         isOpen={isModalOpen}
-        onClose={handleModalToggle}
-        onEscapePress={handleModalToggle}
+        onClose={onClose}
+        onEscapePress={onClose}
         actions={[
           <Button
             key="confirm"
@@ -75,7 +66,7 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           >
             {intl.formatMessage(Messages.confirm)}
           </Button>,
-          <Button key="cancel" ouiaId="enable-workspace-modal-cancel-button" variant={ButtonVariant.link} onClick={handleModalToggle}>
+          <Button key="cancel" ouiaId="enable-workspace-modal-cancel-button" variant={ButtonVariant.link} onClick={onClose}>
             {intl.formatMessage(Messages.cancel)}
           </Button>,
         ]}
@@ -123,10 +114,9 @@ const EnableWorkspacesAlert: React.FunctionComponent = () => {
           <Switch
             className="pf-v5-u-mt-xs"
             label={intl.formatMessage(Messages.workspacesAlertSwitchLabel)}
-            isChecked={isToggled}
-            defaultChecked={false}
+            isChecked={isModalOpen || isConfirmed}
             ouiaId="enable-workspaces-switch"
-            onChange={handleSwitchChange}
+            onChange={(_e, value) => setIsModalOpen(value)}
             id="enable-workspaces-switch"
           />
         </Alert>
