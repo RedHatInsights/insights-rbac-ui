@@ -36,9 +36,11 @@
 //   }
 // }
 
-Cypress.Commands.add('login', () => {
+Cypress.Commands.add('login', (enableWorkspaces = false) => {
+  const usernameVariable = enableWorkspaces ? 'E2E_WORKSPACES_USER' : 'E2E_USER';
+  const passwordVariable = enableWorkspaces ? 'E2E_WORKSPACES_PASSWORD' : 'E2E_PASSWORD';
   cy.session(
-    `login-${Cypress.env('E2E_USER')}`,
+    `login-${Cypress.env(usernameVariable)}`,
     () => {
       cy.intercept({ url: '/beta/apps/*', times: 1 }, {});
       cy.intercept({ url: '/api/', times: 4 }, {});
@@ -52,9 +54,9 @@ Cypress.Commands.add('login', () => {
 
       cy.wait(1000);
       // login into the session
-      cy.get('#username-verification').type(Cypress.env('E2E_USER'));
+      cy.get('#username-verification').type(Cypress.env(usernameVariable));
       cy.get('#login-show-step2').click();
-      cy.get('#password').type(Cypress.env('E2E_PASSWORD'));
+      cy.get('#password').type(Cypress.env(passwordVariable));
       cy.get('#rh-password-verification-submit-button').click();
       // cy.url().should('eq', `${Cypress.config().baseUrl}/`);
     },

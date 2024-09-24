@@ -36,6 +36,8 @@ export default defineConfig({
     env: {
       E2E_USER: process.env.E2E_USER,
       E2E_PASSWORD: process.env.E2E_PASSWORD,
+      E2E_WORKSPACES_USER: process.env.E2E_WORKSPACES_USER,
+      E2E_WORKSPACES_PASSWORD: process.env.E2E_WORKSPACES_PASSWORD
     },
     screenshotOnRunFailure: false,
     // required for the SSO redirect
