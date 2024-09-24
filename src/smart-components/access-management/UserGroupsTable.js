@@ -34,7 +34,7 @@ const UserGroupsTable = () => {
   const pagination = useDataViewPagination({ perPage: 20 });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.uuid === b.uuid });
+  const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
   const { selected, onSelect, isSelected } = selection;
 
   useEffect(() => {
