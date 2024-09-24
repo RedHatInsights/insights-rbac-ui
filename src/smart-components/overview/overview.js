@@ -34,13 +34,17 @@ import './overview.scss';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import EnableWorkspacesAlert from './enable-workspaces-alert';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const Overview = () => {
   const intl = useIntl();
   const [expanded, setExpanded] = useState(true);
+  const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
 
   return (
     <React.Fragment>
+      {isWorkspacesFlag && <EnableWorkspacesAlert />}
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
