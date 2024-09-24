@@ -34,6 +34,8 @@ docker run -t \
   -w /e2e \
   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
   -e CHROME_PASSWORD=$CHROME_PASSWORD \
+  -e RBAC_WORKSPACES_ACCOUNT=$RBAC_FRONTEND_USER \
+  -e RBAC_WORKSPACES_PASSWORD=$RBAC_FRONTEND_PASSWORD \
   -e CHROME_HOST=$CHROME_HOST \
   --add-host stage.foo.redhat.com:127.0.0.1 \
   --add-host prod.foo.redhat.com:127.0.0.1 \
