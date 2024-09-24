@@ -1,6 +1,6 @@
 describe('Enable Workspaces Alert', () => {
   beforeEach(() => {
-    cy.login();
+    cy.login(true);
     cy.visit('/iam/user-access/overview');
     cy.intercept('GET', '**/api/rbac/v1/access/?application=rbac&limit=1000').as('overviewPage');
     cy.wait('@overviewPage', { timeout: 8000 }).its('response.statusCode').should('eq', 200);
