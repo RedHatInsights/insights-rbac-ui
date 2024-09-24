@@ -23,7 +23,7 @@ async function runTests() {
   });
   await waitOn(options);
   execSync(
-    `NO_COLOR=1 E2E_USER=${process.env.CHROME_ACCOUNT} E2E_PASSWORD=${process.env.CHROME_PASSWORD} E2E_WORKSPACES_USER=${process.env.RBAC_WORKSPACES_ACCOUNT} E2E_WORKSPACES_PASSWORD=${process.env.RBAC_WORKSPACES_PASSWORD} npm run cypress run`,
+    `NO_COLOR=1 E2E_USER=${process.env.CHROME_ACCOUNT} E2E_PASSWORD=${process.env.CHROME_PASSWORD} E2E_WORKSPACES_USER=${process.env.RBAC_FRONTEND_USER} E2E_WORKSPACES_PASSWORD=${process.env.RBAC_FRONTEND_PASSWORD} npm run cypress run`,
     {
       encoding: 'utf-8',
       stdio: 'inherit',
