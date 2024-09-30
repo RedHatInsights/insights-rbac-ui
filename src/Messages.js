@@ -765,6 +765,11 @@ export default defineMessages({
     description: 'Roles plural',
     defaultMessage: 'Roles',
   },
+  userGroups: {
+    id: 'user-groups',
+    description: 'User groups plural',
+    defaultMessage: 'User groups',
+  },
   groups: {
     id: 'groups',
     description: 'Groups plural',

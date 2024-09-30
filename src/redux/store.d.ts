@@ -1,7 +1,9 @@
+import { RoleStore } from './reducers/role-reducer';
 import { UserStore } from './reducers/user-reducer';
 
 export type RBACStore = {
   userReducer: UserStore;
+  roleReducer: RoleStore;
 };
 
 declare module 'react-redux' {

@@ -15,6 +15,7 @@
     "@formatjs/cli": "6.2.2",
     "@patternfly/quickstarts": "^5.1.0",
     "@patternfly/react-core": "^5.1.1",
+    "@patternfly/react-data-view": "^5.1.1",
     "@patternfly/react-icons": "^5.1.1",
     "@patternfly/react-table": "^5.1.1",
     "@patternfly/react-tokens": "^5.1.1",

@@ -8,6 +8,8 @@ import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { useFlag } from '@unleash/proxy-client-react';
 
+// const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
+
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
 const Workspaces = lazy(() => import('./smart-components/workspaces/workspaces'));
@@ -24,6 +26,7 @@ const RemoveRole = lazy(() => import('./smart-components/role/remove-role-modal'
 const AddRolePermissionWizard = lazy(() => import('./smart-components/role/add-role-permissions/add-role-permission-wizard'));
 const ResourceDefinitions = lazy(() => import('./smart-components/role/role-resource-definitions'));
 const EditResourceDefinitionsModal = lazy(() => import('./smart-components/role/edit-resource-definitions-modal'));
+const newRolesTable = lazy(() => import('./smart-components/role/RolesTable'));
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Group = lazy(() => import('./smart-components/group/group'));
@@ -40,6 +43,10 @@ const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/grou
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>) => [
+  {
+    path: pathnames['newRoles'].path,
+    element: newRolesTable,
+  },
   {
     path: pathnames.overview.path,
     element: Overview,
@@ -102,7 +109,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>)
   },
   {
     path: pathnames.roles.path,
-    element: Roles,
+    element: newRolesTable,
     childRoutes: [
       {
         path: pathnames['roles-add-group-roles'].path,
