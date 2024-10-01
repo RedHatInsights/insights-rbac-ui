@@ -6,7 +6,7 @@ import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import AppLink from '../../presentational-components/shared/AppLink';
 
-interface UserProps {
+export interface UserProps {
   email: string;
   first_name: string;
   is_active: boolean;
