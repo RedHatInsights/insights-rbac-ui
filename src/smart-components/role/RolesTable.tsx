@@ -100,7 +100,7 @@ const RolesTable: React.FunctionComponent = () => {
       <PageSection isWidthLimited>
         <DataView ouiaId={ouiaId} selection={selection}>
           <DataViewToolbar
-            ouiaId={`${ouiaId}-header`}
+            ouiaId={`${ouiaId}-header-toolbar`}
             bulkSelect={
               <BulkSelect
                 isDataPaginated
@@ -123,8 +123,9 @@ const RolesTable: React.FunctionComponent = () => {
               />
             }
           />
-          <DataViewTable columns={COLUMNS} rows={rows} />
+          <DataViewTable columns={COLUMNS} rows={rows} ouiaId={`${ouiaId}-table`} />
           <DataViewToolbar
+            ouiaId={`${ouiaId}-footer-toolbar`}
             pagination={
               <Pagination
                 perPageOptions={PER_PAGE}
