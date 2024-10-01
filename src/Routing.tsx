@@ -8,8 +8,6 @@ import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { useFlag } from '@unleash/proxy-client-react';
 
-// const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
-
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
 const Workspaces = lazy(() => import('./smart-components/workspaces/workspaces'));
