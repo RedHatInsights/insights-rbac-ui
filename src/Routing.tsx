@@ -115,7 +115,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>)
   },
   {
     path: pathnames.roles.path,
-    element: newRolesTable,
+    element: Roles,
     childRoutes: [
       {
         path: pathnames['roles-add-group-roles'].path,
