@@ -198,6 +198,11 @@ const pathnames = {
     path: 'quickstarts-test',
     title: 'Quickstarts',
   },
+  'users-and-user-groups': {
+    link: '/users-and-user-groups',
+    path: '/users-and-user-groups/*',
+    title: 'Users & User Groups',
+  },
 };
 
 export default pathnames;
