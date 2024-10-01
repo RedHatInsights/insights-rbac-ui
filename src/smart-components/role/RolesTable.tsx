@@ -77,7 +77,7 @@ const RolesTable: React.FunctionComponent = () => {
   const rows = roles.map((role: Role) => [
     role.display_name,
     role.description,
-    '',
+    role.policyCount,
     '',
     '',
     role.modified,
