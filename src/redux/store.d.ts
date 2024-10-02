@@ -1,27 +1,10 @@
-import { PaginationDefaultI } from '../helpers/shared/pagination';
 import { UserStore } from './reducers/user-reducer';
 import { WorkspacesStore } from './reducers/workspaces-reducer';
-
-interface GroupsStore {
-  groups: {
-    data: any[];
-    meta: any;
-    filters: any;
-    pagination: { count: number };
-  };
-  selectedGroup: {
-    addRoles: any;
-    members: { meta: any };
-    serviceAccounts: { meta: any };
-    pagination: PaginationDefaultI & { redirected?: boolean };
-  };
-  isLoading: boolean;
-  isRecordLoading: boolean;
-}
+import { GroupsState } from './reducers/group-reducer';
 
 export type RBACStore = {
   userReducer: UserStore;
-  groupsReducer: GroupsStore;
+  groupReducer: GroupsState;
   workspacesReducer: WorkspacesStore;
 };
 

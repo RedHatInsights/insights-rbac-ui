@@ -11,6 +11,7 @@ import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import { fetchGroups } from '../../redux/actions/group-actions';
+import { formatDistanceToNow } from 'date-fns';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -33,8 +34,8 @@ const UserGroupsTable: React.FunctionComponent = () => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
-    groups: state.groupsReducer?.groups?.data || [],
-    totalCount: state.groupsReducer?.groups?.meta.count || 0,
+    groups: state.groupReducer?.groups?.data || [],
+    totalCount: state.groupReducer?.groups?.meta.count || 0,
   }));
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -75,10 +76,10 @@ const UserGroupsTable: React.FunctionComponent = () => {
     group.name,
     group.description,
     group.principalCount,
-    group.serviceAccounts, // not currently in API
+    group.serviceAccounts || '?', // not currently in API
     group.roleCount,
-    group.workspaces, // not currently in API
-    group.modified,
+    group.workspaces || '?', // not currently in API
+    formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
     {
       cell: <ActionsColumn items={ROW_ACTIONS} />,
       props: { isActionCell: true },
