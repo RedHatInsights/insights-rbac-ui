@@ -56,7 +56,7 @@ const UserGroupsTable: React.FunctionComponent = () => {
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: 'username',
+      orderBy: 'name',
       count: totalCount || 0,
     });
   }, [fetchData, page, perPage]);
@@ -72,12 +72,13 @@ const UserGroupsTable: React.FunctionComponent = () => {
   };
 
   const rows = groups.map((group: any) => [
-    group.username,
+    group.name,
     group.description,
-    group.first_name,
-    group.last_name,
-    group.is_active ? 'Active' : 'Inactive',
-    group.is_org_admin ? 'Yes' : 'No',
+    group.principalCount,
+    group.serviceAccounts, // not currently in API
+    group.roleCount,
+    group.workspaces, // not currently in API
+    group.modified,
     {
       cell: <ActionsColumn items={ROW_ACTIONS} />,
       props: { isActionCell: true },
