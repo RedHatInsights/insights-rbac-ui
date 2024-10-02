@@ -1,7 +1,9 @@
 import { UserStore } from './reducers/user-reducer';
+import { WorkspacesStore } from './reducers/workspaces-reducer';
 
 export type RBACStore = {
   userReducer: UserStore;
+  workspacesReducer: WorkspacesStore;
 };
 
 declare module 'react-redux' {
