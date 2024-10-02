@@ -1,5 +1,6 @@
 import { PaginationDefaultI } from '../helpers/shared/pagination';
 import { UserStore } from './reducers/user-reducer';
+import { WorkspacesStore } from './reducers/workspaces-reducer';
 
 interface GroupsStore {
   groups: {
@@ -21,6 +22,7 @@ interface GroupsStore {
 export type RBACStore = {
   userReducer: UserStore;
   groupsReducer: GroupsStore;
+  workspacesReducer: WorkspacesStore;
 };
 
 declare module 'react-redux' {

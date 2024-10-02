@@ -7,6 +7,7 @@ import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/fronte
 import reduxLogger from 'redux-logger';
 import thunk from 'redux-thunk';
 import userReducer, { usersInitialState } from '../redux/reducers/user-reducer';
+import workspacesReducer, { workspacesInitialState } from '../redux/reducers/workspaces-reducer';
 import groupReducer, { groupsInitialState } from '../redux/reducers/group-reducer';
 import policyReducer, { policiesInitialState } from '../redux/reducers/policy-reducer';
 import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
@@ -35,6 +36,7 @@ const registry = new ReducerRegistry({}, middlewares);
 
 registry.register({
   userReducer: applyReducerHash(userReducer, usersInitialState),
+  workspacesReducer: applyReducerHash(workspacesReducer, workspacesInitialState),
   groupReducer: applyReducerHash(groupReducer, groupsInitialState),
   policyReducer: applyReducerHash(policyReducer, policiesInitialState),
   roleReducer: applyReducerHash(roleReducer, rolesInitialState),

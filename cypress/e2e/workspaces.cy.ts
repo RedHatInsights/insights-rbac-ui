@@ -1,6 +1,6 @@
 describe('Workspaces page', () => {
   it('Visit Workspaces page', () => {
-    cy.login(true);
+    cy.login();
 
     cy.visit('/iam/access-management/workspaces');
     cy.wait(4000);
