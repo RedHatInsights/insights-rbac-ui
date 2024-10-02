@@ -42,11 +42,7 @@ const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quicks
 
 const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups'));
 
-const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>) => [
-  {
-    path: pathnames['newRoles'].path,
-    element: newRolesTable,
-  },
+const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag }: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
@@ -111,28 +107,37 @@ const getRoutes = ({ enableServiceAccounts, isITLess }: Record<string, boolean>)
       },
     ],
   },
-  {
-    path: pathnames.roles.path,
-    element: Roles,
-    childRoutes: [
-      {
-        path: pathnames['roles-add-group-roles'].path,
-        element: AddGroupRoles,
-      },
-      {
-        path: pathnames['add-role'].path,
-        element: AddRoleWizard,
-      },
-      {
-        path: pathnames['remove-role'].path,
-        element: RemoveRole,
-      },
-      {
-        path: pathnames['edit-role'].path,
-        element: EditRole,
-      },
-    ],
-  },
+  ...(isWorkspacesFlag
+    ? [
+        {
+          path: pathnames.roles.path,
+          element: newRolesTable,
+        },
+      ]
+    : [
+        {
+          path: pathnames.roles.path,
+          element: Roles,
+          childRoutes: [
+            {
+              path: pathnames['roles-add-group-roles'].path,
+              element: AddGroupRoles,
+            },
+            {
+              path: pathnames['add-role'].path,
+              element: AddRoleWizard,
+            },
+            {
+              path: pathnames['remove-role'].path,
+              element: RemoveRole,
+            },
+            {
+              path: pathnames['edit-role'].path,
+              element: EditRole,
+            },
+          ],
+        },
+      ]),
 
   {
     path: pathnames['group-detail-role-detail'].path,
@@ -258,6 +263,7 @@ const Routing = () => {
   const isITLess = useFlag('platform.rbac.itless');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+  const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
 
   useEffect(() => {
     const currPath = Object.values(pathnames).find(
@@ -275,7 +281,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts, isITLess });
+  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
   return (
     <Suspense fallback={<AppPlaceholder />}>
