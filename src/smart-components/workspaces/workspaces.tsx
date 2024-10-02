@@ -22,32 +22,32 @@ const Workspaces = () => {
     dispatch(fetchWorkspaces());
   }, [dispatch]);
 
+  const mapWorkspacesToHierarchy = (workspaceData: any[]): Workspace[] => {
+    const workspaceMap: { [key: string]: Workspace } = {};
+
+    workspaceData.forEach((ws) => {
+      workspaceMap[ws.uuid] = {
+        id: ws.uuid,
+        name: ws.name,
+        description: ws.description,
+        children: [],
+      };
+    });
+
+    const hierarchy: Workspace[] = [];
+    workspaceData.forEach((ws) => {
+      if (ws.parent_id) {
+        workspaceMap[ws.parent_id]?.children?.push(workspaceMap[ws.uuid]);
+      } else {
+        hierarchy.push(workspaceMap[ws.uuid]);
+      }
+    });
+
+    return hierarchy;
+  };
+
   useEffect(() => {
     if (workspaces.length > 0) {
-      const mapWorkspacesToHierarchy = (workspaceData: any[]): Workspace[] => {
-        const workspaceMap: { [key: string]: Workspace } = {};
-
-        workspaceData.forEach((ws) => {
-          workspaceMap[ws.uuid] = {
-            id: ws.uuid,
-            name: ws.name,
-            description: ws.description,
-            children: [],
-          };
-        });
-
-        const hierarchy: Workspace[] = [];
-        workspaceData.forEach((ws) => {
-          if (ws.parent_id) {
-            workspaceMap[ws.parent_id]?.children?.push(workspaceMap[ws.uuid]);
-          } else {
-            hierarchy.push(workspaceMap[ws.uuid]);
-          }
-        });
-
-        return hierarchy;
-      };
-
       setHierarchicalWorkspaces(mapWorkspacesToHierarchy(workspaces));
     }
   }, [workspaces]);
