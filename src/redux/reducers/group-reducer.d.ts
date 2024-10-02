@@ -1,4 +1,4 @@
-import { PaginationDefaultI } from "../../helpers/shared/pagination";
+import { PaginationDefaultI } from '../../helpers/shared/pagination';
 
 export interface Group {
   uuid: string;
