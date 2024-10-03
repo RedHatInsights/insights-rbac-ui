@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { PageSection, PageSectionVariants, Tab, TabContent, Tabs } from '@patternfly/react-core';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import Messages from '../../Messages';
 import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
@@ -13,9 +14,28 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
-  const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
-    setActiveTabKey(Number(key));
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const updateURL = (tabKey: number) => {
+    const params = new URLSearchParams(location.search);
+    params.set('activeTab', tabKey.toString());
+    navigate({ search: params.toString() });
   };
+
+  const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
+    const activeTab = Number(key);
+    setActiveTabKey(activeTab);
+    updateURL(activeTab);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabKey = params.get('activeTab');
+    if (tabKey) {
+      setActiveTabKey(Number(tabKey));
+    }
+  }, [location.search]);
 
   return (
     <React.Fragment>
