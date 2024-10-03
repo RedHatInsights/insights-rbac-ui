@@ -770,6 +770,11 @@ export default defineMessages({
     description: 'User groups plural',
     defaultMessage: 'User groups',
   },
+  groups: {
+    id: 'groups',
+    description: 'Groups plural',
+    defaultMessage: 'Groups',
+  },
   group: {
     id: 'group',
     description: 'Group singular',
@@ -1074,11 +1079,6 @@ export default defineMessages({
     id: 'users',
     description: 'Users plural label',
     defaultMessage: 'Users',
-  },
-  groups: {
-    id: 'groups',
-    description: 'User groups label',
-    defaultMessage: 'Groups',
   },
   username: {
     id: 'username',
