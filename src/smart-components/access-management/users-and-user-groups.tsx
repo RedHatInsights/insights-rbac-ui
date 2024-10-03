@@ -58,7 +58,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
             title={intl.formatMessage(Messages.userGroups)}
             tabContentId="groupsTab"
             tabContentRef={groupsRef}
-            ouiaId={'user-groups-tab-button'}
+            ouiaId="user-groups-tab-button"
           />
         </Tabs>
       </PageSection>
