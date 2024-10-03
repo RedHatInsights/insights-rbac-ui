@@ -1,8 +1,10 @@
+import { RoleStore } from './reducers/role-reducer';
 import { UserStore } from './reducers/user-reducer';
 import { WorkspacesStore } from './reducers/workspaces-reducer';
 
 export type RBACStore = {
   userReducer: UserStore;
+  roleReducer: RoleStore;
   workspacesReducer: WorkspacesStore;
 };
 
