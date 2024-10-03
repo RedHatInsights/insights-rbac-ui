@@ -5,7 +5,7 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination } from '@patternfly/react-core';
+import { Pagination, Tooltip } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
@@ -74,7 +74,11 @@ const UserGroupsTable: React.FunctionComponent = () => {
 
   const rows = groups.map((group: any) => [
     group.name,
-    group.description,
+    group.description && (
+      <Tooltip isContentLeftAligned content={group.description}>
+        <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
+      </Tooltip>
+    ),
     group.principalCount,
     group.serviceAccounts || '?', // not currently in API
     group.roleCount,
