@@ -13,11 +13,6 @@ const pathnames = {
     path: '/workspaces/*',
     title: 'Workspaces',
   },
-  newRoles: {
-    link: '/new-roles',
-    path: '/new-roles/*',
-    title: 'Roles',
-  },
   groups: {
     link: '/groups',
     path: '/groups/*',
