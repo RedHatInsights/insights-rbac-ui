@@ -74,10 +74,12 @@ const UserGroupsTable: React.FunctionComponent = () => {
 
   const rows = groups.map((group: any) => [
     group.name,
-    group.description && (
+    group.description ? (
       <Tooltip isContentLeftAligned content={group.description}>
         <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
       </Tooltip>
+    ) : (
+      <div className="pf-v5-u-color-400">No description</div>
     ),
     group.principalCount,
     group.serviceAccounts || '?', // not currently in API
@@ -121,7 +123,7 @@ const UserGroupsTable: React.FunctionComponent = () => {
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+      <DataViewTable variant='compact' aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
       <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
