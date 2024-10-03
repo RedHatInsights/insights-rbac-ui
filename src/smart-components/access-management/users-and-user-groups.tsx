@@ -32,8 +32,14 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           }}
           role="region"
         >
-          <Tab eventKey={0} title={intl.formatMessage(Messages.users)} tabContentId="usersTab" tabContentRef={usersRef} />
-          <Tab eventKey={1} title={intl.formatMessage(Messages.userGroups)} tabContentId="groupsTab" tabContentRef={groupsRef} />
+          <Tab eventKey={0} title={intl.formatMessage(Messages.users)} tabContentId="usersTab" tabContentRef={usersRef} ouiaId={'users-tab-button'} />
+          <Tab
+            eventKey={1}
+            title={intl.formatMessage(Messages.userGroups)}
+            tabContentId="groupsTab"
+            tabContentRef={groupsRef}
+            ouiaId={'user-groups-tab-button'}
+          />
         </Tabs>
       </PageSection>
       <PageSection>
