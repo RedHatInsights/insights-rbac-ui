@@ -123,7 +123,7 @@ const UserGroupsTable: React.FunctionComponent = () => {
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable variant='compact' aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
       <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
