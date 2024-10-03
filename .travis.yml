@@ -1,9 +1,10 @@
 language: node_js
 sudo: required
+dist: jammy
 notifications:
   email: false
 node_js:
-- '16'
+- '18'
 install:
   - npm ci
 script: npm run lint && npm run test && npx codecov && npm run deploy && curl -sSL https://raw.githubusercontent.com/RedHatInsights/insights-frontend-builder-common/master/src/bootstrap.sh | bash -s
