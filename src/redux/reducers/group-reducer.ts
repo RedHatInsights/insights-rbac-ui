@@ -64,13 +64,13 @@ export const groupsInitialState = {
   isRecordLoading: false,
 };
 
-const setLoadingState = (state:  GroupStore) => ({ ...state, error: undefined, isLoading: true });
-const setRecordLoadingState = (state:  GroupStore) => ({
+const setLoadingState = (state: GroupStore) => ({ ...state, error: undefined, isLoading: true });
+const setRecordLoadingState = (state: GroupStore) => ({
   ...state,
   isRecordLoading: true,
   selectedGroup: { ...state.selectedGroup, error: undefined, loaded: false },
 });
-const setRecordRolesLoadingState = (state:  GroupStore) => ({
+const setRecordRolesLoadingState = (state: GroupStore) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
@@ -81,12 +81,12 @@ const setRecordRolesLoadingState = (state:  GroupStore) => ({
     },
   },
 });
-const setSystemGroupLoadingState = (state:  GroupStore) => ({
+const setSystemGroupLoadingState = (state: GroupStore) => ({
   ...state,
   isSystemGroupLoading: true,
   error: undefined,
 });
-const setGroups = (state:  GroupStore, { payload }: any) => ({
+const setGroups = (state: GroupStore, { payload }: any) => ({
   ...state,
   groups: { pagination: state.groups?.pagination, filters: state.groups?.filters, ...payload },
   isLoading: false,
@@ -96,7 +96,7 @@ const setAdminGroup = (state: GroupStore, { payload }: any) => ({
   adminGroup: payload?.data?.filter((group: any) => group?.admin_default)?.[0],
 });
 const setSystemGroup = (state: GroupStore, { payload }: any) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
-const invalidateSystemGroup = (state:  GroupStore) => ({ ...state, systemGroup: undefined });
+const invalidateSystemGroup = (state: GroupStore) => ({ ...state, systemGroup: undefined });
 const setGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   isRecordLoading: false,
@@ -119,7 +119,7 @@ const setGroup = (state: GroupStore, { payload }: any) => ({
       }
     : payload),
 });
-const resetSelectedGroup = (state:  GroupStore) => ({ ...state, selectedGroup: undefined });
+const resetSelectedGroup = (state: GroupStore) => ({ ...state, selectedGroup: undefined });
 const setRolesForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
@@ -218,7 +218,7 @@ const setMembersForExpandedGroup = (state: GroupStore, { payload, meta }: any) =
   },
 });
 
-const setAddRolesLoading = (state:  GroupStore) => ({
+const setAddRolesLoading = (state: GroupStore) => ({
   ...state,
   selectedGroup: { ...state.selectedGroup, addRoles: { loaded: false } },
 });
