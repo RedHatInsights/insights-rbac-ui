@@ -1,10 +1,10 @@
 import { UserStore } from './reducers/user-reducer';
 import { WorkspacesStore } from './reducers/workspaces-reducer';
-import { GroupsState } from './reducers/group-reducer';
+import { GroupStore } from './reducers/group-reducer';
 
 export type RBACStore = {
   userReducer: UserStore;
-  groupReducer: GroupsState;
+  groupReducer: GroupStore;
   workspacesReducer: WorkspacesStore;
 };
 

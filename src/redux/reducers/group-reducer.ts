@@ -28,7 +28,7 @@ export interface Group {
   platform_default?: boolean;
 }
 
-export interface GroupsState {
+export interface GroupStore {
   groups: {
     data: Group[];
     meta: any;
@@ -64,13 +64,13 @@ export const groupsInitialState = {
   isRecordLoading: false,
 };
 
-const setLoadingState = (state:  GroupsState) => ({ ...state, error: undefined, isLoading: true });
-const setRecordLoadingState = (state:  GroupsState) => ({
+const setLoadingState = (state:  GroupStore) => ({ ...state, error: undefined, isLoading: true });
+const setRecordLoadingState = (state:  GroupStore) => ({
   ...state,
   isRecordLoading: true,
   selectedGroup: { ...state.selectedGroup, error: undefined, loaded: false },
 });
-const setRecordRolesLoadingState = (state:  GroupsState) => ({
+const setRecordRolesLoadingState = (state:  GroupStore) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
@@ -81,23 +81,23 @@ const setRecordRolesLoadingState = (state:  GroupsState) => ({
     },
   },
 });
-const setSystemGroupLoadingState = (state:  GroupsState) => ({
+const setSystemGroupLoadingState = (state:  GroupStore) => ({
   ...state,
   isSystemGroupLoading: true,
   error: undefined,
 });
-const setGroups = (state:  GroupsState, { payload }: any) => ({
+const setGroups = (state:  GroupStore, { payload }: any) => ({
   ...state,
   groups: { pagination: state.groups?.pagination, filters: state.groups?.filters, ...payload },
   isLoading: false,
 });
-const setAdminGroup = (state: GroupsState, { payload }: any) => ({
+const setAdminGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   adminGroup: payload?.data?.filter((group: any) => group?.admin_default)?.[0],
 });
-const setSystemGroup = (state: GroupsState, { payload }: any) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
-const invalidateSystemGroup = (state:  GroupsState) => ({ ...state, systemGroup: undefined });
-const setGroup = (state: GroupsState, { payload }: any) => ({
+const setSystemGroup = (state: GroupStore, { payload }: any) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
+const invalidateSystemGroup = (state:  GroupStore) => ({ ...state, systemGroup: undefined });
+const setGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   isRecordLoading: false,
   ...(!payload.error
@@ -119,8 +119,8 @@ const setGroup = (state: GroupsState, { payload }: any) => ({
       }
     : payload),
 });
-const resetSelectedGroup = (state:  GroupsState) => ({ ...state, selectedGroup: undefined });
-const setRolesForGroup = (state: GroupsState, { payload }: any) => ({
+const resetSelectedGroup = (state:  GroupStore) => ({ ...state, selectedGroup: undefined });
+const setRolesForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
@@ -131,7 +131,7 @@ const setRolesForGroup = (state: GroupsState, { payload }: any) => ({
   },
 });
 
-const setRolesForExpandedGroupLoading = (state: GroupsState, { meta }: any) => ({
+const setRolesForExpandedGroupLoading = (state: GroupStore, { meta }: any) => ({
   ...state,
   ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, isLoadingRoles: true } } : {}),
   ...(meta.isPlatformDefault ? { systemGroup: { ...state.systemGroup, isLoadingRoles: true } } : {}),
@@ -144,7 +144,7 @@ const setRolesForExpandedGroupLoading = (state: GroupsState, { meta }: any) => (
   },
 });
 
-const setRolesForExpandedGroup = (state: GroupsState, { payload, meta }: any) => ({
+const setRolesForExpandedGroup = (state: GroupStore, { payload, meta }: any) => ({
   ...state,
   ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, roles: payload.data, isLoadingRoles: false } } : {}),
   ...(meta.isPlatformDefault ? { systemGroup: { ...state.systemGroup, roles: payload.data, isLoadingRoles: false } } : {}),
@@ -157,14 +157,14 @@ const setRolesForExpandedGroup = (state: GroupsState, { payload, meta }: any) =>
   },
 });
 
-const setAccountsForGroupLoading = (state: GroupsState) => ({
+const setAccountsForGroupLoading = (state: GroupStore) => ({
   ...state,
   selectedGroup: {
     ...(state.selectedGroup || {}),
     serviceAccounts: { isLoading: true },
   },
 });
-const setAccountsForGroup = (state: GroupsState, { payload }: any) => ({
+const setAccountsForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
     ...(state.selectedGroup || {}),
@@ -177,14 +177,14 @@ const setAccountsForGroup = (state: GroupsState, { payload }: any) => ({
   },
 });
 
-const setMembersForGroupLoading = (state: GroupsState) => ({
+const setMembersForGroupLoading = (state: GroupStore) => ({
   ...state,
   selectedGroup: {
     ...(state.selectedGroup || {}),
     members: { isLoading: true },
   },
 });
-const setMembersForExpandedGroupLoading = (state: GroupsState, { meta }: any) => ({
+const setMembersForExpandedGroupLoading = (state: GroupStore, { meta }: any) => ({
   ...state,
   groups: {
     ...state.groups,
@@ -195,7 +195,7 @@ const setMembersForExpandedGroupLoading = (state: GroupsState, { meta }: any) =>
   },
 });
 
-const setMembersForGroup = (state: GroupsState, { payload }: any) => ({
+const setMembersForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
     ...(state.selectedGroup || {}),
@@ -207,7 +207,7 @@ const setMembersForGroup = (state: GroupsState, { payload }: any) => ({
   },
 });
 
-const setMembersForExpandedGroup = (state: GroupsState, { payload, meta }: any) => ({
+const setMembersForExpandedGroup = (state: GroupStore, { payload, meta }: any) => ({
   ...state,
   groups: {
     ...state.groups,
@@ -218,11 +218,11 @@ const setMembersForExpandedGroup = (state: GroupsState, { payload, meta }: any) 
   },
 });
 
-const setAddRolesLoading = (state:  GroupsState) => ({
+const setAddRolesLoading = (state:  GroupStore) => ({
   ...state,
   selectedGroup: { ...state.selectedGroup, addRoles: { loaded: false } },
 });
-const setAddRolesForGroup = (state: GroupsState, { payload }: any) => ({
+const setAddRolesForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
@@ -231,7 +231,7 @@ const setAddRolesForGroup = (state: GroupsState, { payload }: any) => ({
   ...(payload.error ? payload : {}),
 });
 
-const setFilters = (state: GroupsState, { payload }: any) => ({ ...state, groups: { ...state.groups, filters: payload } });
+const setFilters = (state: GroupStore, { payload }: any) => ({ ...state, groups: { ...state.groups, filters: payload } });
 
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
