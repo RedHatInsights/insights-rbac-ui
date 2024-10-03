@@ -32,8 +32,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabKey = params.get('activeTab');
-    if (tabKey) {
-      setActiveTabKey(Number(tabKey));
+    tabKey && setActiveTabKey(Number(tabKey));
     }
   }, [location.search]);
 
