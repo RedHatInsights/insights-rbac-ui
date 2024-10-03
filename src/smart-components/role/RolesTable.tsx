@@ -1,11 +1,24 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useState, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { PageSection, Pagination } from '@patternfly/react-core';
+import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
+import {
+  Drawer,
+  DrawerActions,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerContentBody,
+  DrawerHead,
+  DrawerPanelContent,
+  PageSection,
+  Pagination,
+  Title,
+  Text,
+} from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { fetchRoles } from '../../redux/actions/role-actions';
@@ -15,6 +28,35 @@ import { mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
+
+interface RolesDetailProps {
+  selectedRole?: Role;
+  setSelectedRole: React.Dispatch<React.SetStateAction<Role | undefined>>;
+}
+
+const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole, setSelectedRole }) => {
+  const context = useDataViewEventsContext();
+
+  useEffect(() => {
+    const unsubscribe = context.subscribe(EventTypes.rowClick, (role: Role) => {
+      setSelectedRole(role);
+    });
+    return () => unsubscribe();
+  }, []);
+
+  return (
+    <DrawerPanelContent>
+      <DrawerHead>
+        <Title className="pf-v5-u-mb-md" headingLevel="h2" ouiaId="detail-drawer-title">
+          {selectedRole?.display_name}
+        </Title>
+      </DrawerHead>
+      <DrawerActions>
+        <DrawerCloseButton onClick={() => setSelectedRole(undefined)} data-ouia-component-id="detail-drawer-close-btn" />
+      </DrawerActions>
+    </DrawerPanelContent>
+  );
+};
 
 const ROW_ACTIONS = [
   { title: 'Edit role', onClick: () => console.log('Editing role') },
@@ -31,11 +73,17 @@ const PER_PAGE = [
 
 const ouiaId = 'RolesTable';
 
-const RolesTable: React.FunctionComponent = () => {
+interface RolesTableProps {
+  selectedRole?: Role;
+}
+
+const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = undefined }) => {
   const { roles, totalCount } = useSelector((state: RBACStore) => ({
     roles: state.roleReducer.roles.data || [],
     totalCount: state.roleReducer.roles.meta.count,
   }));
+
+  const { trigger } = useDataViewEventsContext();
 
   const intl = useIntl();
 
@@ -74,15 +122,26 @@ const RolesTable: React.FunctionComponent = () => {
     });
   }, [fetchData, page, perPage]);
 
-  const rows = roles.map((role: Role) => [
-    role.display_name,
-    role.description,
-    role.policyCount,
-    '',
-    '',
-    role.modified,
-    { cell: <ActionsColumn items={ROW_ACTIONS} />, props: { isActionCell: true } },
-  ]);
+  const handleRowClick = (role: Role | undefined) => {
+    trigger(EventTypes.rowClick, role);
+  };
+
+  const rows = roles.map((role) => ({
+    row: Object.values({
+      display_name: role.display_name,
+      description: role.description,
+      permissions: role.policyCount,
+      workspaces: '',
+      user_groups: '',
+      last_modified: role.modified,
+      rowActions: { cell: <ActionsColumn items={ROW_ACTIONS} />, props: { isActionCell: true } },
+    }),
+    props: {
+      isClickable: true,
+      onRowClick: () => handleRowClick(selectedRole?.display_name === role.display_name ? undefined : role),
+      isRowSelected: selectedRole?.name === role.name,
+    },
+  }));
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -143,4 +202,23 @@ const RolesTable: React.FunctionComponent = () => {
   );
 };
 
-export default RolesTable;
+// export default RolesTable;
+
+export const RolesPage: React.FunctionComponent = () => {
+  const [selectedRole, setSelectedRole] = useState<Role>();
+  const drawerRef = useRef<HTMLDivElement>(null);
+
+  return (
+    <DataViewEventsProvider>
+      <Drawer isExpanded={Boolean(selectedRole)} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id="detail-drawer">
+        <DrawerContent panelContent={<RolesDetails selectedRole={selectedRole} setSelectedRole={setSelectedRole} />}>
+          <DrawerContentBody>
+            <RolesTable selectedRole={selectedRole} />
+          </DrawerContentBody>
+        </DrawerContent>
+      </Drawer>
+    </DataViewEventsProvider>
+  );
+};
+
+export default RolesPage;
