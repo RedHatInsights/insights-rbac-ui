@@ -33,7 +33,6 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     const params = new URLSearchParams(location.search);
     const tabKey = params.get('activeTab');
     tabKey && setActiveTabKey(Number(tabKey));
-    }
   }, [location.search]);
 
   return (
