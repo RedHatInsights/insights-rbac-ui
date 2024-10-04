@@ -1,9 +1,7 @@
-import React, { useEffect, useCallback, useState, useRef, useReducer } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React from 'react';
 import { Access, Role } from '../../redux/reducers/role-reducer';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable, DataViewTr } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 
 interface RolePermissionsTableProps {
   viewedRole?: Role;
