@@ -8,6 +8,11 @@ import {
 } from '../action-types';
 import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
+export interface Access {
+  resourceDefinition: any[];
+  permission: string;
+}
+
 export interface Role {
   description: string;
   name: string;
@@ -15,8 +20,8 @@ export interface Role {
   uuid: string;
   created: string;
   modified: string;
-  access: any;
-  accesscount: number;
+  access: Access[];
+  accessCount: number;
   admin_default: boolean;
   applications: string[];
   external_role_id: string;

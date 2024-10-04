@@ -6,22 +6,10 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
-import {
-  Drawer,
-  DrawerActions,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
-  PageSection,
-  Pagination,
-  Title,
-  Text,
-} from '@patternfly/react-core';
+import { Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRoles } from '../../redux/actions/role-actions';
+import { fetchRoles, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -29,34 +17,7 @@ import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 
-interface RolesDetailProps {
-  selectedRole?: Role;
-  setSelectedRole: React.Dispatch<React.SetStateAction<Role | undefined>>;
-}
-
-const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole, setSelectedRole }) => {
-  const context = useDataViewEventsContext();
-
-  useEffect(() => {
-    const unsubscribe = context.subscribe(EventTypes.rowClick, (role: Role) => {
-      setSelectedRole(role);
-    });
-    return () => unsubscribe();
-  }, []);
-
-  return (
-    <DrawerPanelContent>
-      <DrawerHead>
-        <Title className="pf-v5-u-mb-md" headingLevel="h2" ouiaId="detail-drawer-title">
-          {selectedRole?.display_name}
-        </Title>
-      </DrawerHead>
-      <DrawerActions>
-        <DrawerCloseButton onClick={() => setSelectedRole(undefined)} data-ouia-component-id="detail-drawer-close-btn" />
-      </DrawerActions>
-    </DrawerPanelContent>
-  );
-};
+import RolesDetails from './RolesTableDetails';
 
 const ROW_ACTIONS = [
   { title: 'Edit role', onClick: () => console.log('Editing role') },
@@ -108,7 +69,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
   const fetchData = useCallback(
     (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
       const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchRoles({ ...mappedProps({ count, limit, offset, orderBy }) }));
+      dispatch(fetchRolesWithPolicies({ ...mappedProps({ count, limit, offset, orderBy }) }));
     },
     [dispatch]
   );
@@ -130,7 +91,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
     row: Object.values({
       display_name: role.display_name,
       description: role.description,
-      permissions: role.policyCount,
+      permissions: role.accessCount,
       workspaces: '',
       user_groups: '',
       last_modified: role.modified,
@@ -201,8 +162,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
     </React.Fragment>
   );
 };
-
-// export default RolesTable;
 
 export const RolesPage: React.FunctionComponent = () => {
   const [selectedRole, setSelectedRole] = useState<Role>();
