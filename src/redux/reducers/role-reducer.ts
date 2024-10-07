@@ -8,6 +8,12 @@ import {
 } from '../action-types';
 import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
+export interface RoleGroup {
+  description: string;
+  name: string;
+  uuid: string;
+}
+
 export interface Access {
   resourceDefinition: any[];
   permission: string;
@@ -26,7 +32,7 @@ export interface Role {
   applications: string[];
   external_role_id: string;
   external_tenant: string;
-  groups_in: any;
+  groups_in: RoleGroup[];
   groups_in_count: number;
   platform_default: boolean;
   policyCount: number;

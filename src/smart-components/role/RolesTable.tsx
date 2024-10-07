@@ -9,7 +9,7 @@ import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@p
 import { Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRoles, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
+import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { mappedProps } from '../../helpers/shared/helpers';
