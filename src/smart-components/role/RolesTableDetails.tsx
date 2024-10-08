@@ -26,6 +26,8 @@ interface RolesDetailProps {
   setSelectedRole: React.Dispatch<React.SetStateAction<Role | undefined>>;
 }
 
+const ouiaId = 'RolesTable';
+
 const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole, setSelectedRole }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const context = useDataViewEventsContext();
@@ -44,13 +46,13 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
 
   const tooltipContent = (
     <TextContent>
-      <Text component={TextVariants.p}>{intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}</Text>
+      <Text>{intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}</Text>
       <Text component={TextVariants.small}>{intl.formatMessage(Messages.assignedUserGroupsTooltipBody)}</Text>
     </TextContent>
   );
 
   const assignedUserGroupsTooltip = (
-    <Tooltip content={tooltipContent} style={{ backgroundColor: '#fff' }}>
+    <Tooltip content={tooltipContent} className="pf-v5-u-background-color-100">
       <OutlinedQuestionCircleIcon />
     </Tooltip>
   );
@@ -58,18 +60,22 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
   return (
     <DrawerPanelContent>
       <DrawerHead>
-        <Title className="pf-v5-u-mb-md" headingLevel="h2" ouiaId="detail-drawer-title">
+        <Title className="pf-v5-u-mb-md" headingLevel="h2" ouiaId={`${ouiaId}-drawer-title`}>
           {selectedRole?.display_name}
         </Title>
         <DrawerActions>
-          <DrawerCloseButton onClick={() => setSelectedRole(undefined)} data-ouia-component-id="detail-drawer-close-btn" />
+          <DrawerCloseButton onClick={() => setSelectedRole(undefined)} data-ouia-component-id={`${ouiaId}-drawer-close-button`} />
         </DrawerActions>
       </DrawerHead>
-      <Tabs activeKey={activeTabKey} onSelect={handleTabClick}>
-        <Tab eventKey={0} title={<TabTitleText>Permissions</TabTitleText>}>
+      <Tabs activeKey={activeTabKey} onSelect={handleTabClick} ouiaId={`${ouiaId}-drawer-tabs`}>
+        <Tab eventKey={0} title={<TabTitleText>Permissions</TabTitleText>} ouiaId={`${ouiaId}-permissions-tab`}>
           <RolePermissionsTable viewedRole={selectedRole} />
         </Tab>
-        <Tab eventKey={1} title={<TabTitleText>Assigned user groups {assignedUserGroupsTooltip}</TabTitleText>}>
+        <Tab
+          eventKey={1}
+          title={<TabTitleText>Assigned user groups {assignedUserGroupsTooltip}</TabTitleText>}
+          ouiaId={`${ouiaId}-assigned-groups-tab`}
+        >
           <AssignedUserGroupsTable viewedRole={selectedRole} />
         </Tab>
       </Tabs>

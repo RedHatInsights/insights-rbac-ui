@@ -20,7 +20,7 @@ export const RolePermissionsTable: React.FunctionComponent<RolePermissionsTableP
 
   return (
     <React.Fragment>
-      <DataView>
+      <DataView ouiaId="role-permissions-table">
         <DataViewTable columns={COLUMNS} rows={rows} />
       </DataView>
     </React.Fragment>

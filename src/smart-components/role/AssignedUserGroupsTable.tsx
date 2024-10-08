@@ -14,7 +14,7 @@ export const AssignedUserGroupsTable: React.FunctionComponent<AssignedUserGroups
 
   return (
     <React.Fragment>
-      <DataView>
+      <DataView ouiaId="assigned-usergroups-table">
         <DataViewTable columns={COLUMNS} rows={rows} />
       </DataView>
     </React.Fragment>
