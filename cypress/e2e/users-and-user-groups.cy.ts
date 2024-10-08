@@ -25,6 +25,30 @@ describe('Users and User Groups page', () => {
     },
   };
 
+  const mockUserGroups = {
+    data: [
+      {
+        name: 'test-group-1',
+        description: 'Test Group 1',
+        principalCount: 1,
+        roleCount: 2,
+        modified: '2021-09-01T00:00:00Z',
+      },
+      {
+        name: 'test-group-2',
+        description: 'Test Group 2',
+        principalCount: 3,
+        roleCount: 4,
+        modified: '2021-09-02T00:00:00Z',
+      },
+    ],
+    meta: {
+      count: 2,
+      limit: 20,
+      offset: 0,
+    },
+  };
+
   beforeEach(() => {
     cy.login();
 
@@ -34,8 +58,14 @@ describe('Users and User Groups page', () => {
       body: mockUsers,
     }).as('getUsers');
 
+    // Mock the user groups
+    cy.intercept('GET', '**/api/rbac/v1/groups/*', {
+      statusCode: 200,
+      body: mockUserGroups,
+    }).as('getUserGroups');
+
     cy.visit('/iam/access-management/users-and-user-groups');
-    cy.wait('@getUsers', { timeout: 10000 });
+    cy.wait('@getUsers', { timeout: 30000 });
   });
 
   it('should display the Users table and correct data', () => {
@@ -55,6 +85,26 @@ describe('Users and User Groups page', () => {
         cy.get('td')
           .eq(6)
           .should('contain', user.is_org_admin ? 'Yes' : 'No');
+      });
+    });
+  });
+
+  it('should display the User groups table and correct data', () => {
+    // Check if the table exists
+    cy.get('[data-ouia-component-id^="iam-users-table"]').should('exist');
+
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').should('exist');
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+
+    cy.get('[data-ouia-component-id^="iam-user-groups-table"]').should('exist');
+
+    // Verify the data in the table matches the mock data
+    mockUserGroups.data.forEach((group, index) => {
+      cy.get(`[data-ouia-component-id^="iam-user-groups-table-table-tr-${index}"]`).within(() => {
+        cy.get('td').eq(1).should('contain', group.name);
+        cy.get('td').eq(2).should('contain', group.description);
+        cy.get('td').eq(3).should('contain', group.principalCount);
+        cy.get('td').eq(5).should('contain', group.roleCount);
       });
     });
   });

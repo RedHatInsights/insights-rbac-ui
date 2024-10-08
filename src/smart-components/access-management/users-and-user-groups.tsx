@@ -1,10 +1,11 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { PageSection, PageSectionVariants, Tab, TabContent, Tabs } from '@patternfly/react-core';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import Messages from '../../Messages';
 import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
+import { useLocation, useNavigate } from 'react-router-dom';
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
@@ -13,9 +14,26 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
-  const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
-    setActiveTabKey(Number(key));
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const updateURL = (tabKey: number) => {
+    const params = new URLSearchParams(location.search);
+    params.set('activeTab', tabKey.toString());
+    navigate({ search: params.toString() });
   };
+
+  const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
+    const activeTab = Number(key);
+    setActiveTabKey(activeTab);
+    updateURL(activeTab);
+  };
+
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    const tabKey = params.get('activeTab');
+    tabKey && setActiveTabKey(Number(tabKey));
+  }, [location.search]);
 
   return (
     <React.Fragment>
@@ -32,8 +50,14 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           }}
           role="region"
         >
-          <Tab eventKey={0} title={intl.formatMessage(Messages.users)} tabContentId="usersTab" tabContentRef={usersRef} />
-          <Tab eventKey={1} title={intl.formatMessage(Messages.userGroups)} tabContentId="groupsTab" tabContentRef={groupsRef} />
+          <Tab eventKey={0} title={intl.formatMessage(Messages.users)} tabContentId="usersTab" tabContentRef={usersRef} ouiaId="users-tab-button" />
+          <Tab
+            eventKey={1}
+            title={intl.formatMessage(Messages.userGroups)}
+            tabContentId="groupsTab"
+            tabContentRef={groupsRef}
+            ouiaId="user-groups-tab-button"
+          />
         </Tabs>
       </PageSection>
       <PageSection>
