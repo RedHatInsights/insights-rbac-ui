@@ -169,7 +169,7 @@ export const RolesPage: React.FunctionComponent = () => {
 
   return (
     <DataViewEventsProvider>
-      <Drawer isExpanded={Boolean(selectedRole)} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id="detail-drawer">
+      <Drawer isExpanded={Boolean(selectedRole)} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id={`${ouiaId}-detail-drawer`}>
         <DrawerContent panelContent={<RolesDetails selectedRole={selectedRole} setSelectedRole={setSelectedRole} />}>
           <DrawerContentBody>
             <RolesTable selectedRole={selectedRole} />
