@@ -770,6 +770,11 @@ export default defineMessages({
     description: 'User groups plural',
     defaultMessage: 'User groups',
   },
+  userGroup: {
+    id: 'user-groups',
+    description: 'User group singular',
+    defaultMessage: 'User group',
+  },
   groups: {
     id: 'groups',
     description: 'Groups plural',
@@ -2117,5 +2122,10 @@ export default defineMessages({
     id: 'assignedUserGroupsTooltipBody',
     description: 'body for assigned user groups tooltip',
     defaultMessage: 'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned',
+  },
+  workspaceAssignment: {
+    id: 'workspaceAssignment',
+    description: 'column header for assigned user groups table',
+    defaultMessage: 'Workspace assignment (TBD)',
   },
 });

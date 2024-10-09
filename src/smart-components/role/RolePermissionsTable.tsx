@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { Access, Role } from '../../redux/reducers/role-reducer';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { useIntl } from 'react-intl';
+import Messages from '../../Messages';
 
 interface RolePermissionsTableProps {
   viewedRole?: Role;
@@ -13,7 +15,13 @@ const transformRow = (access: Access) => {
 };
 
 export const RolePermissionsTable: React.FunctionComponent<RolePermissionsTableProps> = ({ viewedRole }) => {
-  const COLUMNS: string[] = ['Application', 'Resource type', 'Operation'];
+  const intl = useIntl();
+
+  const COLUMNS: string[] = [
+    intl.formatMessage(Messages.application),
+    intl.formatMessage(Messages.resourceType),
+    intl.formatMessage(Messages.operation),
+  ];
 
   const rows = useMemo(() => (viewedRole?.access ?? []).map((access: Access) => transformRow(access)), [viewedRole?.access]);
 
