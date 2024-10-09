@@ -770,6 +770,11 @@ export default defineMessages({
     description: 'User groups plural',
     defaultMessage: 'User groups',
   },
+  userGroup: {
+    id: 'user-groups',
+    description: 'User group singular',
+    defaultMessage: 'User group',
+  },
   groups: {
     id: 'groups',
     description: 'Groups plural',
@@ -2107,5 +2112,20 @@ export default defineMessages({
     id: 'usersAndUserGroupsDescription',
     description: 'Users and user groups description',
     defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
+  },
+  assignedUserGroupsTooltipHeader: {
+    id: 'assignedUserGroupsTooltipHeader',
+    description: 'header for assigned user groups tooltip',
+    defaultMessage: 'Assigned user groups',
+  },
+  assignedUserGroupsTooltipBody: {
+    id: 'assignedUserGroupsTooltipBody',
+    description: 'body for assigned user groups tooltip',
+    defaultMessage: 'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned',
+  },
+  workspaceAssignment: {
+    id: 'workspaceAssignment',
+    description: 'column header for assigned user groups table',
+    defaultMessage: 'Workspace assignment (TBD)',
   },
 });
