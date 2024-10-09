@@ -6,6 +6,7 @@ import {
   DrawerCloseButton,
   DrawerHead,
   DrawerPanelContent,
+  Popover,
   Title,
   Tabs,
   TabTitleText,
@@ -44,17 +45,14 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
     return () => unsubscribe();
   }, []);
 
-  const tooltipContent = (
-    <TextContent>
-      <Text>{intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}</Text>
-      <Text component={TextVariants.small}>{intl.formatMessage(Messages.assignedUserGroupsTooltipBody)}</Text>
-    </TextContent>
-  );
-
-  const assignedUserGroupsTooltip = (
-    <Tooltip content={tooltipContent} className="pf-v5-u-background-color-100">
+  const assignedUserGroupsPopover = (
+    <Popover
+      triggerAction="hover"
+      headerContent={intl.formatMessage(Messages.assignedUserGroupsTooltipHeader)}
+      bodyContent={intl.formatMessage(Messages.assignedUserGroupsTooltipBody)}
+    >
       <OutlinedQuestionCircleIcon />
-    </Tooltip>
+    </Popover>
   );
 
   return (
@@ -73,7 +71,7 @@ const RolesDetails: React.FunctionComponent<RolesDetailProps> = ({ selectedRole,
         </Tab>
         <Tab
           eventKey={1}
-          title={<TabTitleText>Assigned user groups {assignedUserGroupsTooltip}</TabTitleText>}
+          title={<TabTitleText>Assigned user groups {assignedUserGroupsPopover}</TabTitleText>}
           ouiaId={`${ouiaId}-assigned-groups-tab`}
         >
           <AssignedUserGroupsTable viewedRole={selectedRole} />
