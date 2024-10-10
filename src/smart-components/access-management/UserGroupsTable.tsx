@@ -30,7 +30,12 @@ const PER_PAGE_OPTIONS = [
 
 const OUIA_ID = 'iam-user-groups-table';
 
-const UserGroupsTable: React.FunctionComponent = () => {
+interface UserGroupsTableProps {
+  defaultPerPage?: 5 | 10 | 20 | 50 | 100;
+  useUrlParams?: boolean;
+}
+
+const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true }) => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
@@ -39,7 +44,13 @@ const UserGroupsTable: React.FunctionComponent = () => {
   }));
 
   const [searchParams, setSearchParams] = useSearchParams();
-  const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
+  const searchParamsValue = useUrlParams ? searchParams : undefined;
+  const setSearchParamsValue = useUrlParams ? setSearchParams : undefined;
+  const pagination = useDataViewPagination({
+    perPage: defaultPerPage,
+    searchParams: searchParamsValue,
+    setSearchParams: setSearchParamsValue,
+  });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
   const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
