@@ -5,20 +5,17 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination } from '@patternfly/react-core';
+import { Button, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { UserProps } from '../user/user-table-helpers';
 import { useSearchParams } from 'react-router-dom';
+import { useIntl } from 'react-intl';
+import messages from '../../Messages';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
-
-const ROW_ACTIONS = [
-  { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
-  { title: 'Remove from user group', onClick: () => console.log('REMOVE FROM USER GROUP') },
-];
 
 const PER_PAGE_OPTIONS = [
   { title: '5', value: 5 },
@@ -30,8 +27,20 @@ const PER_PAGE_OPTIONS = [
 
 const OUIA_ID = 'iam-users-table';
 
-const UsersTable: React.FunctionComponent = () => {
+interface UsersTableProps {
+  onAddUserClick: (selected: any[]) => void;
+}
+
+const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
   const dispatch = useDispatch();
+  const intl = useIntl();
+
+  const rowActions = (user: UserProps) => {
+    return [
+      { title: intl.formatMessage(messages['usersAndUserGroupsAddToGroup']), onClick: () => onAddUserClick([user]) },
+      { title: intl.formatMessage(messages['usersAndUserGroupsRemoveFromGroup']), onClick: () => console.log('REMOVE FROM USER GROUP') },
+    ];
+  };
 
   const { users, totalCount } = useSelector((state: RBACStore) => ({
     users: state.userReducer.users.data || [],
@@ -42,7 +51,7 @@ const UsersTable: React.FunctionComponent = () => {
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
+  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
@@ -72,18 +81,22 @@ const UsersTable: React.FunctionComponent = () => {
     }
   };
 
-  const rows = users.map((user: UserProps) => [
-    user.username,
-    user.email,
-    user.first_name,
-    user.last_name,
-    user.is_active ? 'Active' : 'Inactive',
-    user.is_org_admin ? 'Yes' : 'No',
-    {
-      cell: <ActionsColumn items={ROW_ACTIONS} />,
-      props: { isActionCell: true },
-    },
-  ]);
+  const rows = users.map((user: UserProps) => ({
+    id: user.username,
+    is_active: user.is_active,
+    row: [
+      user.username,
+      user.email,
+      user.first_name,
+      user.last_name,
+      user.is_active ? intl.formatMessage(messages['usersAndUserGroupsActive']) : intl.formatMessage(messages['usersAndUserGroupsInactive']),
+      user.is_org_admin ? intl.formatMessage(messages['usersAndUserGroupsYes']) : intl.formatMessage(messages['usersAndUserGroupsNo']),
+      {
+        cell: <ActionsColumn items={rowActions(user)} isDisabled={!user.is_active} />,
+        props: { isActionCell: true },
+      },
+    ],
+  }));
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
@@ -100,25 +113,39 @@ const UsersTable: React.FunctionComponent = () => {
   );
 
   return (
-    <DataView ouiaId={OUIA_ID} selection={selection}>
-      <DataViewToolbar
-        ouiaId={`${OUIA_ID}-header-toolbar`}
-        bulkSelect={
-          <BulkSelect
-            isDataPaginated
-            pageCount={users.length}
-            selectedCount={selected.length}
-            totalCount={totalCount}
-            pageSelected={pageSelected}
-            pagePartiallySelected={pagePartiallySelected}
-            onSelect={handleBulkSelect}
-          />
-        }
-        pagination={React.cloneElement(paginationComponent, { isCompact: true })}
-      />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
-      <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
-    </DataView>
+    <>
+      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }}>
+        <DataViewToolbar
+          ouiaId={`${OUIA_ID}-header-toolbar`}
+          bulkSelect={
+            <BulkSelect
+              isDataPaginated
+              pageCount={users.length}
+              selectedCount={selected.length}
+              totalCount={totalCount}
+              pageSelected={pageSelected}
+              pagePartiallySelected={pagePartiallySelected}
+              onSelect={handleBulkSelect}
+            />
+          }
+          pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => {
+                onAddUserClick(selected);
+              }}
+              isDisabled={selected.length === 0}
+              ouiaId={`${OUIA_ID}-add-user-button`}
+            >
+              {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
+            </Button>
+          }
+        />
+        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+        <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
+      </DataView>
+    </>
   );
 };
 

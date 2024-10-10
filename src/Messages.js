@@ -2113,6 +2113,67 @@ export default defineMessages({
     description: 'Users and user groups description',
     defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
   },
+  usersAndUserGroupsAdd: {
+    id: 'usersAndUserGroupsAdd',
+    description: 'Add label',
+    defaultMessage: 'Add',
+  },
+  usersAndUserGroupsAddToGroup: {
+    id: 'usersAndUserGroupsAddToGroup',
+    description: 'Add to user group label',
+    defaultMessage: 'Add to user group',
+  },
+  usersAndUserGroupsEditUserGroup: {
+    id: 'usersAndUserGroupsEditUserGroup',
+    description: 'Edit user group label',
+    defaultMessage: 'Edit user group',
+  },
+  usersAndUserGroupsDeleteUserGroup: {
+    id: 'usersAndUserGroupsDeleteUserGroup',
+    description: 'Delete user group label',
+    defaultMessage: 'Delete user group',
+  },
+  usersAndUserGroupsRemoveFromGroup: {
+    id: 'usersAndUserGroupsAddToGroup',
+    description: 'Remove from user group label',
+    defaultMessage: 'Remove from user group',
+  },
+  usersAndUserGroupsCancel: {
+    id: 'usersAndUserGroupsCancel',
+    description: 'Cancel add user label',
+    defaultMessage: 'Cancel',
+  },
+  usersAndUserGroupsNoDescription: {
+    id: 'usersAndUserGroupsNoDescription',
+    description: 'No description label',
+    defaultMessage: 'No description',
+  },
+  usersAndUserGroupsActive: {
+    id: 'usersAndUserGroupsActive',
+    description: 'User is active label',
+    defaultMessage: 'Active',
+  },
+  usersAndUserGroupsInactive: {
+    id: 'usersAndUserGroupsInactive',
+    description: 'User is inactive label',
+    defaultMessage: 'Inactive',
+  },
+  usersAndUserGroupsYes: {
+    id: 'usersAndUserGroupsYes',
+    description: 'Yes is Org Admin label',
+    defaultMessage: 'Yes',
+  },
+  usersAndUserGroupsNo: {
+    id: 'usersAndUserGroupsNo',
+    description: 'No isnt Org Admin label',
+    defaultMessage: 'No',
+  },
+  usersAndUserGroupsAddUserDescription: {
+    id: 'usersAndUserGroupsAddUserDescription',
+    description: 'Description within add user to user group modal',
+    defaultMessage:
+      'Select a user group to add {<b>{numUsers} {plural}</b>} to. These are all the user groups in your account. To manage user groups, go to user groups.}',
+  },
   assignedUserGroupsTooltipHeader: {
     id: 'assignedUserGroupsTooltipHeader',
     description: 'header for assigned user groups tooltip',
