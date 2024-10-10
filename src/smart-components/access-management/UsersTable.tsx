@@ -100,25 +100,27 @@ const UsersTable: React.FunctionComponent = () => {
   );
 
   return (
-    <DataView ouiaId={OUIA_ID} selection={selection}>
-      <DataViewToolbar
-        ouiaId={`${OUIA_ID}-header-toolbar`}
-        bulkSelect={
-          <BulkSelect
-            isDataPaginated
-            pageCount={users.length}
-            selectedCount={selected.length}
-            totalCount={totalCount}
-            pageSelected={pageSelected}
-            pagePartiallySelected={pagePartiallySelected}
-            onSelect={handleBulkSelect}
-          />
-        }
-        pagination={React.cloneElement(paginationComponent, { isCompact: true })}
-      />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
-      <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
-    </DataView>
+    <>
+      <DataView ouiaId={OUIA_ID} selection={selection}>
+        <DataViewToolbar
+          ouiaId={`${OUIA_ID}-header-toolbar`}
+          bulkSelect={
+            <BulkSelect
+              isDataPaginated
+              pageCount={users.length}
+              selectedCount={selected.length}
+              totalCount={totalCount}
+              pageSelected={pageSelected}
+              pagePartiallySelected={pagePartiallySelected}
+              onSelect={handleBulkSelect}
+            />
+          }
+          pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+        />
+        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+        <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
+      </DataView>
+    </>
   );
 };
 

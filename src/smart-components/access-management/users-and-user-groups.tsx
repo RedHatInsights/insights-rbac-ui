@@ -6,6 +6,7 @@ import Messages from '../../Messages';
 import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
 import { useLocation, useNavigate } from 'react-router-dom';
+import AddUserGroupModal from './AddUserGroupModal';
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
@@ -37,6 +38,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
+      <AddUserGroupModal />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
