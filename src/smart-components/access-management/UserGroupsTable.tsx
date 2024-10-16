@@ -5,7 +5,7 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination, Tooltip } from '@patternfly/react-core';
+import { Button, Pagination, Tooltip } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
@@ -31,7 +31,7 @@ const PER_PAGE_OPTIONS = [
 const OUIA_ID = 'iam-user-groups-table';
 
 interface UserGroupsTableProps {
-  defaultPerPage?: 5 | 10 | 20 | 50 | 100;
+  defaultPerPage?: number;
   useUrlParams?: boolean;
 }
 
@@ -43,14 +43,25 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
     totalCount: state.groupReducer?.groups?.meta.count || 0,
   }));
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const searchParamsValue = useUrlParams ? searchParams : undefined;
-  const setSearchParamsValue = useUrlParams ? setSearchParams : undefined;
-  const pagination = useDataViewPagination({
-    perPage: defaultPerPage,
-    searchParams: searchParamsValue,
-    setSearchParams: setSearchParamsValue,
-  });
+  let pagination;
+
+  if (useUrlParams) {
+    const [searchParams, setSearchParams] = useSearchParams();
+    pagination = useDataViewPagination({
+      perPage: defaultPerPage,
+      searchParams: searchParams,
+      setSearchParams: setSearchParams,
+    });
+  } else {
+    const [perPage, setPerPage] = React.useState(defaultPerPage);
+    const [page, setPage] = React.useState(1);
+    pagination = {
+      page,
+      perPage,
+      onSetPage: (_e: any, page: number) => setPage(page),
+      onPerPageSelect: (_e: any, perPage: number) => setPerPage(perPage),
+    }
+  }
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
   const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
