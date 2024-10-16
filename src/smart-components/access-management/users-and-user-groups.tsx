@@ -70,12 +70,16 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
         </Tabs>
       </PageSection>
       <PageSection>
-        <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-          <UsersTable onAddUserClick={handleOpenAddUserModal} />
-        </TabContent>
-        <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab" hidden>
-          <UserGroupsTable />
-        </TabContent>
+        {activeTabKey === 0 && (
+          <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
+            <UsersTable onAddUserClick={handleOpenAddUserModal} />
+          </TabContent>
+        )}
+        {activeTabKey === 1 && (
+          <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
+            <UserGroupsTable />
+          </TabContent>
+        )}
       </PageSection>
     </React.Fragment>
   );
