@@ -28,14 +28,13 @@ const PER_PAGE_OPTIONS = [
   { title: '100', value: 100 },
 ];
 
-const OUIA_ID = 'iam-user-groups-table';
-
 interface UserGroupsTableProps {
   defaultPerPage?: number;
   useUrlParams?: boolean;
+  ouiaId?: string;
 }
 
-const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true }) => {
+const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true, ouiaId='iam-user-groups-table' }) => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
@@ -129,9 +128,9 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
   );
 
   return (
-    <DataView ouiaId={OUIA_ID} selection={selection}>
+    <DataView ouiaId={ouiaId} selection={selection}>
       <DataViewToolbar
-        ouiaId={`${OUIA_ID}-header-toolbar`}
+        ouiaId={`${ouiaId}-header-toolbar`}
         bulkSelect={
           <BulkSelect
             isDataPaginated
@@ -145,8 +144,8 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
-      <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
+      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} />
+      <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
 };
