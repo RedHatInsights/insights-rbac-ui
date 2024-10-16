@@ -5,7 +5,7 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination } from '@patternfly/react-core';
+import { Button, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -30,7 +30,11 @@ const PER_PAGE_OPTIONS = [
 
 const OUIA_ID = 'iam-users-table';
 
-const UsersTable: React.FunctionComponent = () => {
+interface UsersTableProps {
+  onAddUserClick: (selected: any[]) => void;
+};
+
+const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
   const dispatch = useDispatch();
 
   const { users, totalCount } = useSelector((state: RBACStore) => ({
@@ -116,6 +120,17 @@ const UsersTable: React.FunctionComponent = () => {
             />
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+          actions={
+            <Button
+              variant="primary"
+              onClick={() => {
+                onAddUserClick(selected);
+              }}
+              ouiaId={`${OUIA_ID}-add-user-button`}
+            >
+              Add to user group
+            </Button>
+          }
         />
         <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />

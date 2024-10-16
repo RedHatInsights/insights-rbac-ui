@@ -11,6 +11,8 @@ import AddUserGroupModal from './AddUserGroupModal';
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
+  const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
+  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
 
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
@@ -30,6 +32,11 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     updateURL(activeTab);
   };
 
+  const handleOpenAddUserModal = (selected: any[]) => {
+    setSelectedUsers(selected);
+    setIsAddUserGroupModalOpen(true);
+  }
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabKey = params.get('activeTab');
@@ -38,7 +45,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <AddUserGroupModal />
+      <AddUserGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsers} />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
@@ -64,7 +71,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
       </PageSection>
       <PageSection>
         <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-          <UsersTable />
+          <UsersTable onAddUserClick={handleOpenAddUserModal} />
         </TabContent>
         <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab" hidden>
           <UserGroupsTable />
