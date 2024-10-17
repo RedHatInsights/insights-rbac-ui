@@ -3,7 +3,7 @@ description: Verify that the commit message format is correct
 runs:
   using: "composite"
   steps:
-    - uses: actions/cache@v4
+    - uses: actions/checkout@v4
       id: commitlint
       with:
         fetch-depth: 0
