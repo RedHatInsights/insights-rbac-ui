@@ -31,10 +31,12 @@ const PER_PAGE_OPTIONS = [
 interface UserGroupsTableProps {
   defaultPerPage?: number;
   useUrlParams?: boolean;
+  enableActions?: boolean;
   ouiaId?: string;
+  onChange?: (selectedGroups: any[]) => void;
 }
 
-const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true, ouiaId='iam-user-groups-table' }) => {
+const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true, enableActions=true, ouiaId='iam-user-groups-table', onChange }) => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
@@ -83,6 +85,12 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
     });
   }, [fetchData, page, perPage]);
 
+  useEffect(() => {
+    if (onChange) {
+      onChange(selected);
+    }
+  }, [selected]);
+
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
       onSelect(false);
@@ -107,7 +115,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
     group.roleCount,
     group.workspaces || '?', // not currently in API
     formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
-    {
+    enableActions &&{
       cell: <ActionsColumn items={ROW_ACTIONS} />,
       props: { isActionCell: true },
     },
