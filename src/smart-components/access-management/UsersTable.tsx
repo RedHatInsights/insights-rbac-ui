@@ -15,11 +15,6 @@ import { useSearchParams } from 'react-router-dom';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
-const ROW_ACTIONS = [
-  { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
-  { title: 'Remove from user group', onClick: () => console.log('REMOVE FROM USER GROUP') },
-];
-
 const PER_PAGE_OPTIONS = [
   { title: '5', value: 5 },
   { title: '10', value: 10 },
@@ -31,10 +26,17 @@ const PER_PAGE_OPTIONS = [
 const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
-  onAddUserClick: (selected: any[]) => void;
+  onAddUserClick: (selected: any[], removeUser?: boolean) => void;
 };
 
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
+  const rowActions = (user: UserProps) => {
+    return [
+      { title: 'Add to user group', onClick: () => onAddUserClick([user]) },
+      { title: 'Remove from user group', onClick: () => onAddUserClick([user], true) },
+    ];
+  }
+
   const dispatch = useDispatch();
 
   const { users, totalCount } = useSelector((state: RBACStore) => ({
@@ -84,7 +86,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
     user.is_active ? 'Active' : 'Inactive',
     user.is_org_admin ? 'Yes' : 'No',
     {
-      cell: <ActionsColumn items={ROW_ACTIONS} />,
+      cell: <ActionsColumn items={rowActions(user)} />,
       props: { isActionCell: true },
     },
   ]);
