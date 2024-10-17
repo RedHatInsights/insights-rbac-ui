@@ -12,7 +12,6 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
-  const [isRemovingUser, setIsRemovingUser] = React.useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
 
   const usersRef = React.createRef<HTMLElement>();
@@ -33,10 +32,9 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     updateURL(activeTab);
   };
 
-  const handleOpenAddUserModal = (selected: any[], isRemove?: boolean) => {
+  const handleOpenAddUserModal = (selected: any[]) => {
     if (selected.length > 0) {
       setSelectedUsers(selected);
-      setIsRemovingUser(isRemove || false);
       setIsAddUserGroupModalOpen(true);
     }
   };
@@ -49,12 +47,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <AddUserGroupModal
-        isOpen={isAddUserGroupModalOpen}
-        setIsOpen={setIsAddUserGroupModalOpen}
-        selectedUsers={selectedUsers}
-        isRemoving={isRemovingUser}
-      />
+      <AddUserGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsers} />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
