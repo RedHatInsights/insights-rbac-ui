@@ -10,15 +10,18 @@ interface AddUserGroupModalProps {
 }
 
 export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers, isRemoving = false }) => {
+  const [selectedGroups, setSelectedGroups] = React.useState<any[]>([]);
+  const handleUserGroupsChange = (groups: any[]) => setSelectedGroups(groups);
+
   const handleCloseModal = () => setIsOpen(false);
 
   const handleAddUsers = () => {
-    console.log(`adding ${selectedUsers} to user groups`);
+    console.log(`adding ${selectedUsers} to ${selectedGroups}`);
     setIsOpen(false);
   }
 
   const handleRemoveUsers = () => {
-    console.log(`removing ${selectedUsers} from user groups`);
+    console.log(`removing ${selectedUsers} from ${selectedGroups}`);
     setIsOpen(false);
   }
 
@@ -29,11 +32,11 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
       onClose={handleCloseModal}
       actions={[
         isRemoving ? (
-          <Button key="remove" variant="primary" onClick={handleRemoveUsers}>
+          <Button key="remove" variant="primary" onClick={handleRemoveUsers} isDisabled={selectedGroups.length === 0}>
             Remove
           </Button>
         ) : (
-          <Button key="add" variant="primary" onClick={handleAddUsers}>
+          <Button key="add" variant="primary" onClick={handleAddUsers} isDisabled={selectedGroups.length === 0}>
             Add
           </Button>
         ),
@@ -48,7 +51,7 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
         {selectedUsers.length} user{selectedUsers.length > 1 && 's'}
       </span>
       {isRemoving ? ' from' : ' to'}. These are all the user groups in your account. To manage user groups, go to user groups.
-      <UserGroupsTable defaultPerPage={10} useUrlParams={false} ouiaId="iam-add-users-modal-table" />
+      <UserGroupsTable defaultPerPage={10} useUrlParams={false} ouiaId="iam-add-users-modal-table" onChange={handleUserGroupsChange} enableActions={false} />
     </Modal>
   );
 };

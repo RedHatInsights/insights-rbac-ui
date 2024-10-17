@@ -128,6 +128,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
               onClick={() => {
                 onAddUserClick(selected);
               }}
+              isDisabled={selected.length === 0}
               ouiaId={`${OUIA_ID}-add-user-button`}
             >
               Add to user group
