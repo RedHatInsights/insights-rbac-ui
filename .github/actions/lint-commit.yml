@@ -1,0 +1,14 @@
+name: Verify commit format
+runs:
+  using: "composite"
+  steps:
+    - uses: actions/cache@v4
+      id: commitlint
+      with:
+        fetch-depth: 0
+    - name: Validate current commit on push
+      if: github.event_name == 'push'
+      run: npx commitlint --last --verbose
+    - name: Validate PR commits
+      if: github.event_name == 'pull_request'
+      run: npx commitlint --from ${{ github.event.pull_request.head.sha }}~${{ github.event.pull_request.commits }} --to ${{ github.event.pull_request.head.sha }} --verbose
