@@ -1,1 +1,3 @@
-npm run lint && npm run test
+if [ "$CI" != "true" ]; then
+  npm run lint && npm run test
+fi
