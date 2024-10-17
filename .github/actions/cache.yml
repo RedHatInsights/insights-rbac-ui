@@ -3,6 +3,10 @@ description: Retrieve and cache project node_modules
 runs:
   using: "composite"
   steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
     # cache node modules for all jobs to use
     - uses: actions/cache@v4
       id: node_modules-cache
