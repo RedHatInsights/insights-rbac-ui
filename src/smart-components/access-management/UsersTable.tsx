@@ -26,14 +26,14 @@ const PER_PAGE_OPTIONS = [
 const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
-  onAddUserClick: (selected: any[], removeUser?: boolean) => void;
+  onAddUserClick: (selected: any[]) => void;
 }
 
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
   const rowActions = (user: UserProps) => {
     return [
       { title: 'Add to user group', onClick: () => onAddUserClick([user]) },
-      { title: 'Remove from user group', onClick: () => onAddUserClick([user], true) },
+      { title: 'Remove from user group', onClick: () => console.log('REMOVE FROM USER GROUP') },
     ];
   };
 

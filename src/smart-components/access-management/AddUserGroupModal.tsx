@@ -6,10 +6,9 @@ interface AddUserGroupModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   selectedUsers: any[];
-  isRemoving?: boolean;
 }
 
-export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers, isRemoving = false }) => {
+export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
   const [selectedGroups, setSelectedGroups] = React.useState<any[]>([]);
   const handleUserGroupsChange = (groups: any[]) => setSelectedGroups(groups);
 
@@ -20,37 +19,26 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
     setIsOpen(false);
   };
 
-  const handleRemoveUsers = () => {
-    console.log(`removing ${selectedUsers} from ${selectedGroups}`);
-    setIsOpen(false);
-  };
-
   return (
     <Modal
-      title={isRemoving ? 'Remove from user group' : 'Add to user group'}
+      title={'Add to user group'}
       isOpen={isOpen}
       onClose={handleCloseModal}
       actions={[
-        isRemoving ? (
-          <Button key="remove" variant="primary" onClick={handleRemoveUsers} isDisabled={selectedGroups.length === 0}>
-            Remove
-          </Button>
-        ) : (
-          <Button key="add" variant="primary" onClick={handleAddUsers} isDisabled={selectedGroups.length === 0}>
-            Add
-          </Button>
-        ),
+        <Button key="add" variant="primary" onClick={handleAddUsers} isDisabled={selectedGroups.length === 0}>
+          Add
+        </Button>,
         <Button key="cancel" variant="link" onClick={handleCloseModal}>
           Cancel
         </Button>,
       ]}
       ouiaId={'add-user-group-modal'}
     >
-      Select a user group to {isRemoving ? 'remove ' : 'add '}
+      Select a user group to add
       <span className="pf-v5-u-font-weight-bold">
         {selectedUsers.length} user{selectedUsers.length > 1 && 's'}
       </span>
-      {isRemoving ? ' from' : ' to'}. These are all the user groups in your account. To manage user groups, go to user groups.
+      to. These are all the user groups in your account. To manage user groups, go to user groups.
       <UserGroupsTable
         defaultPerPage={10}
         useUrlParams={false}
