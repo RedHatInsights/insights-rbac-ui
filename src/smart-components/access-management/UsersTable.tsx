@@ -27,7 +27,7 @@ const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
   onAddUserClick: (selected: any[], removeUser?: boolean) => void;
-};
+}
 
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
   const rowActions = (user: UserProps) => {
@@ -35,7 +35,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
       { title: 'Add to user group', onClick: () => onAddUserClick([user]) },
       { title: 'Remove from user group', onClick: () => onAddUserClick([user], true) },
     ];
-  }
+  };
 
   const dispatch = useDispatch();
 

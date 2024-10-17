@@ -39,7 +39,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
       setIsRemovingUser(isRemove || false);
       setIsAddUserGroupModalOpen(true);
     }
-  }
+  };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -49,7 +49,12 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <AddUserGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsers} isRemoving={isRemovingUser} />
+      <AddUserGroupModal
+        isOpen={isAddUserGroupModalOpen}
+        setIsOpen={setIsAddUserGroupModalOpen}
+        selectedUsers={selectedUsers}
+        isRemoving={isRemovingUser}
+      />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
