@@ -12,6 +12,16 @@ interface AddUserGroupModalProps {
 export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers, isRemoving = false }) => {
   const handleCloseModal = () => setIsOpen(false);
 
+  const handleAddUsers = () => {
+    console.log(`adding ${selectedUsers} to user groups`);
+    setIsOpen(false);
+  }
+
+  const handleRemoveUsers = () => {
+    console.log(`removing ${selectedUsers} from user groups`);
+    setIsOpen(false);
+  }
+
   return (
     <Modal
       title={isRemoving ? 'Remove from user group' : 'Add to user group'}
@@ -19,11 +29,11 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
       onClose={handleCloseModal}
       actions={[
         isRemoving ? (
-          <Button key="remove" variant="primary" onClick={handleCloseModal}>
+          <Button key="remove" variant="primary" onClick={handleRemoveUsers}>
             Remove
           </Button>
         ) : (
-          <Button key="add" variant="primary" onClick={handleCloseModal}>
+          <Button key="add" variant="primary" onClick={handleAddUsers}>
             Add
           </Button>
         ),
