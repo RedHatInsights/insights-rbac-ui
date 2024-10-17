@@ -28,9 +28,21 @@ const PER_PAGE_OPTIONS = [
   { title: '100', value: 100 },
 ];
 
-const OUIA_ID = 'iam-user-groups-table';
+interface UserGroupsTableProps {
+  defaultPerPage?: number;
+  useUrlParams?: boolean;
+  enableActions?: boolean;
+  ouiaId?: string;
+  onChange?: (selectedGroups: any[]) => void;
+}
 
-const UserGroupsTable: React.FunctionComponent = () => {
+const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
+  defaultPerPage = 20,
+  useUrlParams = true,
+  enableActions = true,
+  ouiaId = 'iam-user-groups-table',
+  onChange,
+}) => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
@@ -38,8 +50,25 @@ const UserGroupsTable: React.FunctionComponent = () => {
     totalCount: state.groupReducer?.groups?.meta.count || 0,
   }));
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
+  let pagination;
+
+  if (useUrlParams) {
+    const [searchParams, setSearchParams] = useSearchParams();
+    pagination = useDataViewPagination({
+      perPage: defaultPerPage,
+      searchParams: searchParams,
+      setSearchParams: setSearchParams,
+    });
+  } else {
+    const [perPage, setPerPage] = React.useState(defaultPerPage);
+    const [page, setPage] = React.useState(1);
+    pagination = {
+      page,
+      perPage,
+      onSetPage: (_e: any, page: number) => setPage(page),
+      onPerPageSelect: (_e: any, perPage: number) => setPerPage(perPage),
+    };
+  }
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
   const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
@@ -61,6 +90,12 @@ const UserGroupsTable: React.FunctionComponent = () => {
       count: totalCount || 0,
     });
   }, [fetchData, page, perPage]);
+
+  useEffect(() => {
+    if (onChange) {
+      onChange(selected);
+    }
+  }, [selected]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
@@ -86,7 +121,7 @@ const UserGroupsTable: React.FunctionComponent = () => {
     group.roleCount,
     group.workspaces || '?', // not currently in API
     formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
-    {
+    enableActions && {
       cell: <ActionsColumn items={ROW_ACTIONS} />,
       props: { isActionCell: true },
     },
@@ -107,9 +142,9 @@ const UserGroupsTable: React.FunctionComponent = () => {
   );
 
   return (
-    <DataView ouiaId={OUIA_ID} selection={selection}>
+    <DataView ouiaId={ouiaId} selection={selection}>
       <DataViewToolbar
-        ouiaId={`${OUIA_ID}-header-toolbar`}
+        ouiaId={`${ouiaId}-header-toolbar`}
         bulkSelect={
           <BulkSelect
             isDataPaginated
@@ -123,8 +158,8 @@ const UserGroupsTable: React.FunctionComponent = () => {
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
-      <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
+      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} />
+      <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
 };
