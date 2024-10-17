@@ -5,7 +5,7 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Button, Pagination, Tooltip } from '@patternfly/react-core';
+import { Pagination, Tooltip } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
@@ -36,7 +36,13 @@ interface UserGroupsTableProps {
   onChange?: (selectedGroups: any[]) => void;
 }
 
-const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaultPerPage = 20, useUrlParams = true, enableActions=true, ouiaId='iam-user-groups-table', onChange }) => {
+const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
+  defaultPerPage = 20,
+  useUrlParams = true,
+  enableActions = true,
+  ouiaId = 'iam-user-groups-table',
+  onChange,
+}) => {
   const dispatch = useDispatch();
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
@@ -61,7 +67,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
       perPage,
       onSetPage: (_e: any, page: number) => setPage(page),
       onPerPageSelect: (_e: any, perPage: number) => setPerPage(perPage),
-    }
+    };
   }
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
@@ -115,7 +121,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({ defaul
     group.roleCount,
     group.workspaces || '?', // not currently in API
     formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
-    enableActions &&{
+    enableActions && {
       cell: <ActionsColumn items={ROW_ACTIONS} />,
       props: { isActionCell: true },
     },

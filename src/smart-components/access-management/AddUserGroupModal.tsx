@@ -18,12 +18,12 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
   const handleAddUsers = () => {
     console.log(`adding ${selectedUsers} to ${selectedGroups}`);
     setIsOpen(false);
-  }
+  };
 
   const handleRemoveUsers = () => {
     console.log(`removing ${selectedUsers} from ${selectedGroups}`);
     setIsOpen(false);
-  }
+  };
 
   return (
     <Modal
@@ -51,7 +51,13 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
         {selectedUsers.length} user{selectedUsers.length > 1 && 's'}
       </span>
       {isRemoving ? ' from' : ' to'}. These are all the user groups in your account. To manage user groups, go to user groups.
-      <UserGroupsTable defaultPerPage={10} useUrlParams={false} ouiaId="iam-add-users-modal-table" onChange={handleUserGroupsChange} enableActions={false} />
+      <UserGroupsTable
+        defaultPerPage={10}
+        useUrlParams={false}
+        ouiaId="iam-add-users-modal-table"
+        onChange={handleUserGroupsChange}
+        enableActions={false}
+      />
     </Modal>
   );
 };
