@@ -48,7 +48,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
+  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
@@ -78,18 +78,21 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
     }
   };
 
-  const rows = users.map((user: UserProps) => [
-    user.username,
-    user.email,
-    user.first_name,
-    user.last_name,
-    user.is_active ? 'Active' : 'Inactive',
-    user.is_org_admin ? 'Yes' : 'No',
-    {
-      cell: <ActionsColumn items={rowActions(user)} />,
-      props: { isActionCell: true },
-    },
-  ]);
+  const rows = users.map((user: UserProps) => ({
+    id: user.username,
+    row: [
+      user.username,
+      user.email,
+      user.first_name,
+      user.last_name,
+      user.is_active ? 'Active' : 'Inactive',
+      user.is_org_admin ? 'Yes' : 'No',
+      {
+        cell: <ActionsColumn items={rowActions(user)} />,
+        props: { isActionCell: true },
+      },
+    ],
+  }));
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);

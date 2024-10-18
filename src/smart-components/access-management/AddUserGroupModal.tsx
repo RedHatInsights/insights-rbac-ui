@@ -18,10 +18,10 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
   const handleCloseModal = () => setIsOpen(false);
 
   const handleAddUsers = () => {
-    const selectedUsernames = selectedUsers.map((user) => ({username: user[0]})); // TODO: fix - this seems gross
+    const selectedUsernames = selectedUsers.map((user) => ({username: user.id}));
     selectedGroups.forEach((group) => {
-      console.log(`Adding ${JSON.stringify(selectedUsernames)} to group ${group.name} - ${group.uuid}`);
-      //dispatch(addMembersToGroup(group.uuid, selectedUsernames)); // TODO: fix 'user' not found 404 error
+      console.log(`Adding ${JSON.stringify(selectedUsernames)} to group ${group.id}`);
+      //dispatch(addMembersToGroup(group.id, selectedUsernames)); // TODO: fix 'user' not found 404 error
     });
     setIsOpen(false);
   };

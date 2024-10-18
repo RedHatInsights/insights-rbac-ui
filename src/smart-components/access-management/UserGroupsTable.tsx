@@ -71,7 +71,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   }
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
+  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
@@ -93,10 +93,9 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
 
   useEffect(() => {
     if (onChange) {
-      const selectedGroups = groups.filter((group) => selected.some((s) => s[0] === group.name)); // TODO: need better way to handle this :(
-      onChange(selectedGroups);
+      onChange(selected);
     }
-  }, [selected, groups]);
+  }, [selected]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
@@ -108,25 +107,28 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     }
   };
 
-  const rows = groups.map((group: any) => [
-    group.name,
-    group.description ? (
-      <Tooltip isContentLeftAligned content={group.description}>
-        <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
-      </Tooltip>
-    ) : (
-      <div className="pf-v5-u-color-400">No description</div>
-    ),
-    group.principalCount,
-    group.serviceAccounts || '?', // not currently in API
-    group.roleCount,
-    group.workspaces || '?', // not currently in API
-    formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
-    enableActions && {
-      cell: <ActionsColumn items={ROW_ACTIONS} />,
-      props: { isActionCell: true },
-    },
-  ]);
+  const rows = groups.map((group: any) => ({
+    id: group.uuid,
+    row: [
+      group.name,
+      group.description ? (
+        <Tooltip isContentLeftAligned content={group.description}>
+          <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
+        </Tooltip>
+      ) : (
+        <div className="pf-v5-u-color-400">No description</div>
+      ),
+      group.principalCount,
+      group.serviceAccounts || '?', // not currently in API
+      group.roleCount,
+      group.workspaces || '?', // not currently in API
+      formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
+      enableActions && {
+        cell: <ActionsColumn items={ROW_ACTIONS} />,
+        props: { isActionCell: true },
+      },
+    ],
+  }));
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
