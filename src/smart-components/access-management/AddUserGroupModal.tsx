@@ -34,9 +34,9 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
       ]}
       ouiaId={'add-user-group-modal'}
     >
-      Select a user group to add
+      Select a user group to add{' '}
       <span className="pf-v5-u-font-weight-bold">
-        {selectedUsers.length} user{selectedUsers.length > 1 && 's'}
+        {selectedUsers.length} user{selectedUsers.length > 1 && 's'}{' '}
       </span>
       to. These are all the user groups in your account. To manage user groups, go to user groups.
       <UserGroupsTable
