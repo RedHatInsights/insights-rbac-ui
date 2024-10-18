@@ -77,7 +77,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const fetchData = useCallback(
     (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
       const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchGroups({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true }));
+      dispatch(fetchGroups({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true, system: false }));
     },
     [dispatch]
   );
