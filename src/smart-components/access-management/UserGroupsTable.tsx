@@ -93,9 +93,10 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
 
   useEffect(() => {
     if (onChange) {
-      onChange(selected);
+      const selectedGroups = groups.filter((group) => selected.some((s) => s[0] === group.name)); // TODO: need better way to handle this :(
+      onChange(selectedGroups);
     }
-  }, [selected]);
+  }, [selected, groups]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {

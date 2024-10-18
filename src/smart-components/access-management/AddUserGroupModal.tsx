@@ -1,6 +1,8 @@
 import { Button, Modal } from '@patternfly/react-core';
 import React from 'react';
 import UserGroupsTable from './UserGroupsTable';
+import { useDispatch } from 'react-redux';
+import { addMembersToGroup } from '../../redux/actions/group-actions';
 
 interface AddUserGroupModalProps {
   isOpen: boolean;
@@ -11,11 +13,16 @@ interface AddUserGroupModalProps {
 export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
   const [selectedGroups, setSelectedGroups] = React.useState<any[]>([]);
   const handleUserGroupsChange = (groups: any[]) => setSelectedGroups(groups);
+  const dispatch = useDispatch();
 
   const handleCloseModal = () => setIsOpen(false);
 
   const handleAddUsers = () => {
-    console.log(`adding ${selectedUsers} to ${selectedGroups}`);
+    const selectedUsernames = selectedUsers.map((user) => ({username: user[0]})); // TODO: fix - this seems gross
+    selectedGroups.forEach((group) => {
+      console.log(`Adding ${JSON.stringify(selectedUsernames)} to group ${group.name} - ${group.uuid}`);
+      //dispatch(addMembersToGroup(group.uuid, selectedUsernames)); // TODO: fix 'user' not found 404 error
+    });
     setIsOpen(false);
   };
 
