@@ -83,7 +83,7 @@ const InviteUsersModal = ({ fetchData }) => {
         actions={[
           <Button
             aria-label="Save"
-            className="pf-u-mr-sm"
+            className="pf-v5-u-mr-sm"
             ouiaId="primary-save-button"
             variant="primary"
             key="save"

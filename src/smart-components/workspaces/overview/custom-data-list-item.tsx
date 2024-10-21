@@ -31,14 +31,14 @@ const CustomDataListItem: React.FC<CustomDataListItemProps> = ({ icon, heading, 
   return (
     <React.Fragment>
       <DataListItem aria-labelledby="item1" isExpanded={expanded}>
-        <DataListItemRow className="pf-u-align-items-center">
+        <DataListItemRow className="pf-v5-u-align-items-center">
           <DataListToggle isExpanded={expanded} id="toggle1" aria-controls="expand1" onClick={() => setExpanded(!expanded)} />
           <DataListItemCells
             dataListCells={[
               <DataListCell key={`cell-${icon?.toString().toLowerCase()}`}>
                 <div>
-                  <Flex className="pf-u-flex-nowrap">
-                    <FlexItem className="pf-u-align-self-center">
+                  <Flex className="pf-v5-u-flex-nowrap">
+                    <FlexItem className="pf-v5-u-align-self-center">
                       <Icon size="lg">{icon}</Icon>
                     </FlexItem>
                     <Divider
@@ -46,7 +46,7 @@ const CustomDataListItem: React.FC<CustomDataListItemProps> = ({ icon, heading, 
                         default: 'vertical',
                       }}
                     />
-                    <FlexItem className="pf-u-align-self-center">
+                    <FlexItem className="pf-v5-u-align-self-center">
                       <Title headingLevel="h4">{heading}</Title>
                     </FlexItem>
                   </Flex>
