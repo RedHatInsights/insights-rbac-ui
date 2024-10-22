@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, Fragment } from 'react';
+import React, { useEffect, useCallback, useState, Fragment, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
@@ -79,29 +79,31 @@ const UsersTable: React.FunctionComponent = () => {
     }
   };
 
-  const rows = users.map((user: any) => [
-    user.username,
-    user.email,
-    user.first_name,
-    user.last_name,
-    user.is_active ? 'Active' : 'Inactive',
-    user.is_org_admin ? 'Yes' : 'No',
-    {
-      cell: (
-        <ActionsColumn
-          items={[
-            { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
-            {
-              title: 'Remove from user groups',
-              onClick: (event: KeyboardEvent | React.MouseEvent, rowId: number, rowData: any) => handleModalToggle(event, rowData),
-            },
-          ]}
-          rowData={user}
-        />
-      ),
-      props: { isActionCell: true },
-    },
-  ]);
+  const rows = useMemo(() => {
+    return users.map((user: any) => [
+      user.username,
+      user.email,
+      user.first_name,
+      user.last_name,
+      user.is_active ? 'Active' : 'Inactive',
+      user.is_org_admin ? 'Yes' : 'No',
+      {
+        cell: (
+          <ActionsColumn
+            items={[
+              { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
+              {
+                title: 'Remove from user groups',
+                onClick: (event: KeyboardEvent | React.MouseEvent, rowId: number, rowData: any) => handleModalToggle(event, rowData),
+              },
+            ]}
+            rowData={user}
+          />
+        ),
+        props: { isActionCell: true },
+      },
+    ]);
+  }, [users]);
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
