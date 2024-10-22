@@ -41,10 +41,11 @@ const Overview = () => {
   const intl = useIntl();
   const [expanded, setExpanded] = useState(true);
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
+  const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
 
   return (
     <React.Fragment>
-      {isWorkspacesFlag && <EnableWorkspacesAlert />}
+      {isWorkspacesEligible && !isWorkspacesFlag && <EnableWorkspacesAlert />}
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
