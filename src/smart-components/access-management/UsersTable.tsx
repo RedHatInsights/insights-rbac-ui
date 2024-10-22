@@ -121,6 +121,7 @@ const UsersTable: React.FunctionComponent = () => {
     <Fragment>
       {isDeleteModalOpen && (
         <WarningModal
+          ouiaId={`${OUIA_ID}-remove-user-modal`}
           isOpen={isDeleteModalOpen}
           title={intl.formatMessage(messages.deleteUserModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.remove)}
