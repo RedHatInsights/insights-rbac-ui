@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.0.0...v1.0.1) (2024-10-22)
+
+
+### Bug Fixes
+
+* upgrade utility classes to PF5 ([750a18a](https://github.com/RedHatInsights/insights-rbac-ui/commit/750a18a60cdeacbee029b70ff1e7920f7b83e8f3))
+
 # 1.0.0 (2024-10-18)
 
 
