@@ -1,3 +1,10 @@
+# [1.1.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.0.1...v1.1.0) (2024-10-22)
+
+
+### Features
+
+* show WS enable alert only if user can perform this action ([#1681](https://github.com/RedHatInsights/insights-rbac-ui/issues/1681)) ([b89b2d3](https://github.com/RedHatInsights/insights-rbac-ui/commit/b89b2d3467f34996a36e5bd1052688fa4f021648))
+
 ## [1.0.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.0.0...v1.0.1) (2024-10-22)
 
 
