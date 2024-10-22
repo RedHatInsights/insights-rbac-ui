@@ -968,6 +968,46 @@ export default defineMessages({
     description: 'learn more link',
     defaultMessage: 'Learn more about workspaces',
   },
+  workspacesActionEditWorkspace: {
+    id: 'workspacesActionEditWorkspace',
+    description: 'Menu item Edit workspace',
+    defaultMessage: 'Edit workspace',
+  },
+  workspacesActionGrantAccessToWorkspace: {
+    id: 'workspacesActionGrantAccessToWorkspace',
+    description: 'Menu item Grant access to workspace',
+    defaultMessage: 'Grant access to workspace',
+  },
+  workspacesActionCreateSubWorkspace: {
+    id: 'workspacesActionCreateSubWorkspace',
+    description: 'Menu item Create sub-workspace',
+    defaultMessage: 'Create sub-workspace',
+  },
+  workspacesActionViewTenant: {
+    id: 'workspacesActionViewTenant',
+    description: 'Menu item View tenant',
+    defaultMessage: 'View tenant',
+  },
+  workspacesActionManageIntegrations: {
+    id: 'workspacesActionManageIntegrations',
+    description: 'Menu item Manage integrations',
+    defaultMessage: 'Manage integrations',
+  },
+  workspacesActionManageNotifications: {
+    id: 'workspacesActionManageNotifications',
+    description: 'Menu item Manage notifications',
+    defaultMessage: 'Manage notifications',
+  },
+  workspacesActionDeleteWorkspace: {
+    id: 'workspacesActionDeleteWorkspace',
+    description: 'Menu item Delete workspace',
+    defaultMessage: 'Delete workspace',
+  },
+  workspacesDetailBreadcrumbTitle: {
+    id: 'workspacesDetailBreadcrumbTitle',
+    description: 'Workspace detail breadcrumb title',
+    defaultMessage: 'Workspace hierarchy: ',
+  },
   viewGroupsBtn: {
     id: 'viewGroupsBtn',
     description: 'View groups button',
