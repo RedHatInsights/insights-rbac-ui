@@ -24,6 +24,7 @@ import CustomDataListItem from './custom-data-list-item';
 import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router-dom';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
@@ -35,6 +36,7 @@ const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg'
 const WorkspacesOverview = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const intl = useIntl();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -79,7 +81,16 @@ const WorkspacesOverview = () => {
               description={intl.formatMessage(messages.workspacesServiceCardDescription)}
               icon={<InfrastructureIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
-                <Button variant={ButtonVariant.primary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.primary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/workspaces"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/workspaces');
+                  }}
+                >
                   Workspaces
                 </Button>
               }
@@ -94,7 +105,16 @@ const WorkspacesOverview = () => {
               description={intl.formatMessage(messages.groupsServiceCardDescription)}
               icon={<UsersIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="/iam/user-access/groups">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/users-and-user-groups?&activeTab=user-groups"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/users-and-user-groups?&activeTab=user-groups');
+                  }}
+                >
                   View groups
                 </Button>
               }
@@ -109,7 +129,16 @@ const WorkspacesOverview = () => {
               description={intl.formatMessage(messages.roleServiceCardDescription)}
               icon={<img src={rolesIcon} alt="roles-icon" className="pf-v5-u-primary-color-100" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/roles"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/roles');
+                  }}
+                >
                   View roles
                 </Button>
               }
@@ -124,7 +153,16 @@ const WorkspacesOverview = () => {
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
               icon={<img src={bindingsIcon} alt="bindings-icon" className="pf-v5-u-primary-color-100" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/access-requests"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/access-requests');
+                  }}
+                >
                   View access requests
                 </Button>
               }
