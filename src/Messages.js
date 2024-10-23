@@ -2138,4 +2138,14 @@ export default defineMessages({
     description: 'Modal body text for delete user',
     defaultMessage: 'will lose all the roles associated with the user groups it belongs to.',
   },
+  addToUserGroup: {
+    id: 'addToUserGroup',
+    description: 'Action column option to add user to group',
+    defaultMessage: 'Add to user group',
+  },
+  removeFromUserGroup: {
+    id: 'removeFromUserGroup',
+    description: 'Action column option to remove user from group',
+    defaultMessage: 'Remove from user groups',
+  },
 });

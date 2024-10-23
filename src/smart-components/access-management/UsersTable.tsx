@@ -80,7 +80,7 @@ const UsersTable: React.FunctionComponent = () => {
   };
 
   const rows = useMemo(() => {
-    return users.map((user: any) => [
+    return users.map((user: User) => [
       user.username,
       user.email,
       user.first_name,
@@ -91,9 +91,9 @@ const UsersTable: React.FunctionComponent = () => {
         cell: (
           <ActionsColumn
             items={[
-              { title: 'Add to user group', onClick: () => console.log('ADD TO USER GROUP') },
+              { title: intl.formatMessage(messages.addToUserGroup), onClick: () => console.log('ADD TO USER GROUP') },
               {
-                title: 'Remove from user groups',
+                title: intl.formatMessage(messages.removeFromUserGroup),
                 onClick: (event: KeyboardEvent | React.MouseEvent, rowId: number, rowData: any) => handleModalToggle(event, rowData),
               },
             ]}
