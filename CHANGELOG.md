@@ -1,3 +1,10 @@
+# [1.2.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.1.0...v1.2.0) (2024-10-23)
+
+
+### Features
+
+* **konflux:** enablet unit tests on Konflux ([#1656](https://github.com/RedHatInsights/insights-rbac-ui/issues/1656)) ([527b4d8](https://github.com/RedHatInsights/insights-rbac-ui/commit/527b4d89273077820459004049fbd16b79e42d2b))
+
 # [1.1.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.0.1...v1.1.0) (2024-10-22)
 
 
