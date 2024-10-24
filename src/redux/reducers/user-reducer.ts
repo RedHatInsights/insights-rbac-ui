@@ -1,6 +1,17 @@
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../action-types';
 import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
+export interface User {
+  email: string;
+  external_source_id: number;
+  first_name: string;
+  is_active: boolean;
+  is_org_admin: boolean;
+  last_name: string;
+  username: string;
+  uuid?: number;
+}
+
 export interface UserFilters {
   username?: string;
   email?: string;
@@ -13,7 +24,7 @@ export interface UserStore {
     meta: PaginationDefaultI;
     filters: UserFilters;
     pagination: PaginationDefaultI & { redirected?: boolean };
-    data?: any;
+    data?: User[];
   };
 }
 
