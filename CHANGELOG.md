@@ -1,3 +1,10 @@
+# [1.4.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.3.0...v1.4.0) (2024-10-24)
+
+
+### Features
+
+* **workspaces:** enable overview if feature flag enabled ([#1683](https://github.com/RedHatInsights/insights-rbac-ui/issues/1683)) ([59fa607](https://github.com/RedHatInsights/insights-rbac-ui/commit/59fa60744a0fe99304f4cda2795c0a2120036c49))
+
 # [1.3.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.2.0...v1.3.0) (2024-10-24)
 
 
