@@ -1,3 +1,15 @@
+# [1.3.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.2.0...v1.3.0) (2024-10-24)
+
+
+### Bug Fixes
+
+* memoize users row data ([60deb9b](https://github.com/RedHatInsights/insights-rbac-ui/commit/60deb9b76285d3b6899ebe59d8d849f92ae9a384))
+
+
+### Features
+
+* **userstable:** add delete user modal ([814f7f1](https://github.com/RedHatInsights/insights-rbac-ui/commit/814f7f161c513f7fe3bfd95c4909f30e10c18f30))
+
 # [1.2.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.1.0...v1.2.0) (2024-10-23)
 
 
