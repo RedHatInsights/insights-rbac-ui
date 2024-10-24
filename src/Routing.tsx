@@ -10,6 +10,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
+const WorkspacesOverview = lazy(() => import('./smart-components/workspaces/overview/about-access-tab'));
 const Workspaces = lazy(() => import('./smart-components/workspaces/workspaces'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
@@ -49,7 +50,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag }: Record
   },
   {
     path: pathnames.overview.path,
-    element: Overview,
+    element: isWorkspacesFlag ? WorkspacesOverview : Overview,
   },
   {
     path: pathnames.workspaces.path,

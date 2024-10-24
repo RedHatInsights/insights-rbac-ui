@@ -7,6 +7,8 @@ import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
 import { useLocation, useNavigate } from 'react-router-dom';
 
+const TAB_NAMES = ['users', 'user-groups'];
+
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
@@ -17,7 +19,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const updateURL = (tabKey: number) => {
+  const updateURL = (tabKey: string) => {
     const params = new URLSearchParams(location.search);
     params.set('activeTab', tabKey.toString());
     navigate({ search: params.toString() });
@@ -26,13 +28,13 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
     const activeTab = Number(key);
     setActiveTabKey(activeTab);
-    updateURL(activeTab);
+    updateURL(TAB_NAMES[activeTab]);
   };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabKey = params.get('activeTab');
-    tabKey && setActiveTabKey(Number(tabKey));
+    tabKey && setActiveTabKey(Number(TAB_NAMES.findIndex((val) => val === tabKey)));
   }, [location.search]);
 
   return (
