@@ -158,7 +158,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   <TableBody />
                 </Table>
               ) : (
-                <Text id={compoundRolesId} className="pf-u-mx-lg pf-u-my-sm">
+                <Text id={compoundRolesId} className="pf-v5-u-mx-lg pf-v5-u-my-sm">
                   {intl.formatMessage(messages.noGroupRoles)}
                 </Text>
               ),
@@ -186,9 +186,9 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
                   rows={members?.map((member) => [
                     <TextContent key={member.is_org_admin}>
                       {member?.is_org_admin ? (
-                        <CheckIcon key="yes-icon" className="pf-u-mx-sm" />
+                        <CheckIcon key="yes-icon" className="pf-v5-u-mx-sm" />
                       ) : (
-                        <CloseIcon key="no-icon" className="pf-u-mx-sm" />
+                        <CloseIcon key="no-icon" className="pf-v5-u-mx-sm" />
                       )}
                       {intl.formatMessage(member?.is_org_admin ? messages.yes : messages.no)}
                     </TextContent>,
@@ -207,7 +207,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
               ) : isAdminDefault || isPlatformDefault ? (
                 ''
               ) : (
-                <Text id={compoundMembersId} className="pf-u-mx-lg pf-u-my-sm">
+                <Text id={compoundMembersId} className="pf-v5-u-mx-lg pf-v5-u-my-sm">
                   {intl.formatMessage(messages.noGroupMembers)}
                 </Text>
               ),

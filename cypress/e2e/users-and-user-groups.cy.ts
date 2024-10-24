@@ -89,6 +89,12 @@ describe('Users and User Groups page', () => {
     });
   });
 
+  it('should display warning modal when removing user', () => {
+    cy.get('[data-ouia-component-id^="iam-users-table-table-td-0-6"]').click();
+    cy.get('[data-ouia-component-id^="OUIA-Generated-DropdownItem-2"]').click();
+    cy.get('[data-ouia-component-id^="iam-users-table-remove-user-modal"]').should('be.visible');
+  });
+
   it('should display the User groups table and correct data', () => {
     // Check if the table exists
     cy.get('[data-ouia-component-id^="iam-users-table"]').should('exist');

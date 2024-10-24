@@ -2078,8 +2078,7 @@ export default defineMessages({
   workspacesPageSubtitle: {
     id: 'workspacesOverviewPageSubtitle',
     description: 'workspaces page section subtitle',
-    defaultMessage:
-      'Workspaces let&apos;s you group related assets together (such as RHEL hosts). This simplifies management and user access control.',
+    defaultMessage: "Workspaces let's you group related assets together (such as RHEL hosts). This simplifies management and user access control.",
   },
   workspacesServiceCardDescription: {
     id: 'workspacesServiceCardDescription',
@@ -2090,7 +2089,7 @@ export default defineMessages({
   groupsServiceCardDescription: {
     id: 'groupsServiceCardDescription',
     description: 'groups service card description',
-    defaultMessage: 'Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization&apos;s structure.',
+    defaultMessage: "Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization's structure.",
   },
   roleServiceCardDescription: {
     id: 'roleServiceCardDescription',
@@ -2101,7 +2100,7 @@ export default defineMessages({
     id: 'bindingsServiceCardDescription',
     description: 'bindings service card description',
     defaultMessage:
-      'Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they&apos;re allowed to perform.',
+      "Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform.",
   },
   usersAndUserGroups: {
     id: 'usersAndUserGroups',
@@ -2188,5 +2187,25 @@ export default defineMessages({
     id: 'workspaceAssignment',
     description: 'column header for assigned user groups table',
     defaultMessage: 'Workspace assignment (TBD)',
+  },
+  deleteUserModalTitle: {
+    id: 'deleteUserModalTitle',
+    description: 'Title for delete user modal ',
+    defaultMessage: 'Remove from user groups?',
+  },
+  deleteUserModalBody: {
+    id: 'deleteUserModalBody',
+    description: 'Modal body text for delete user',
+    defaultMessage: 'will lose all the roles associated with the user groups it belongs to.',
+  },
+  addToUserGroup: {
+    id: 'addToUserGroup',
+    description: 'Action column option to add user to group',
+    defaultMessage: 'Add to user group',
+  },
+  removeFromUserGroup: {
+    id: 'removeFromUserGroup',
+    description: 'Action column option to remove user from group',
+    defaultMessage: 'Remove from user groups',
   },
 });

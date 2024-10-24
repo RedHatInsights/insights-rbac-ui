@@ -24,6 +24,7 @@ import CustomDataListItem from './custom-data-list-item';
 import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router-dom';
 
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
@@ -35,6 +36,7 @@ const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg'
 const WorkspacesOverview = () => {
   const [isExpanded, setIsExpanded] = React.useState(false);
   const intl = useIntl();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -50,7 +52,7 @@ const WorkspacesOverview = () => {
         }}
       />
       <PageSection>
-        <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="header-title">
+        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="header-title">
           {intl.formatMessage(messages.workspacesOverviewTitle)}
         </Title>
         <Text component={TextVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Text>
@@ -77,9 +79,18 @@ const WorkspacesOverview = () => {
               title="Workspaces"
               subtitle=""
               description={intl.formatMessage(messages.workspacesServiceCardDescription)}
-              icon={<InfrastructureIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<InfrastructureIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
-                <Button variant={ButtonVariant.primary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.primary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/workspaces"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/workspaces');
+                  }}
+                >
                   Workspaces
                 </Button>
               }
@@ -92,9 +103,18 @@ const WorkspacesOverview = () => {
               title="Groups"
               subtitle=""
               description={intl.formatMessage(messages.groupsServiceCardDescription)}
-              icon={<UsersIcon className="pf-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
+              icon={<UsersIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="/iam/user-access/groups">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/users-and-user-groups?&activeTab=user-groups"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/users-and-user-groups?&activeTab=user-groups');
+                  }}
+                >
                   View groups
                 </Button>
               }
@@ -107,9 +127,18 @@ const WorkspacesOverview = () => {
               title="Role"
               subtitle=""
               description={intl.formatMessage(messages.roleServiceCardDescription)}
-              icon={<img src={rolesIcon} alt="roles-icon" className="pf-u-primary-color-100" />}
+              icon={<img src={rolesIcon} alt="roles-icon" className="pf-v5-u-primary-color-100" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/roles"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/roles');
+                  }}
+                >
                   View roles
                 </Button>
               }
@@ -122,9 +151,18 @@ const WorkspacesOverview = () => {
               title="Bindings"
               subtitle=""
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
-              icon={<img src={bindingsIcon} alt="bindings-icon" className="pf-u-primary-color-100" />}
+              icon={<img src={bindingsIcon} alt="bindings-icon" className="pf-v5-u-primary-color-100" />}
               footer={
-                <Button variant={ButtonVariant.secondary} isInline component="a" href="">
+                <Button
+                  variant={ButtonVariant.secondary}
+                  isInline
+                  component="a"
+                  href="/iam/access-management/access-requests"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    navigate('/iam/access-management/access-requests');
+                  }}
+                >
                   View access requests
                 </Button>
               }
@@ -135,13 +173,13 @@ const WorkspacesOverview = () => {
 
         <br></br>
 
-        <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="understanding-access-title">
+        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="understanding-access-title">
           Understanding access
         </Title>
 
-        <DataList aria-label="understanding access" className="pf-u-mb-md">
+        <DataList aria-label="understanding access" className="pf-v5-u-mb-md">
           <CustomDataListItem
-            icon={<UsersIcon className="pf-u-primary-color-100" />}
+            icon={<UsersIcon className="pf-v5-u-primary-color-100" />}
             isExpanded
             heading="Default groups"
             linkTitle="View your default groups"
@@ -159,7 +197,7 @@ const WorkspacesOverview = () => {
             }
           />
           <CustomDataListItem
-            icon={<KeyIcon className="pf-u-primary-color-100" />}
+            icon={<KeyIcon className="pf-v5-u-primary-color-100" />}
             heading="Granting access in workspaces"
             linkTitle="Grant access"
             linkTarget={GRANT_ACCESS}
@@ -182,11 +220,11 @@ const WorkspacesOverview = () => {
           />
         </DataList>
 
-        <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="recommended-content-title">
+        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="recommended-content-title">
           Recommended content
         </Title>
 
-        <Table aria-label="Recommended content" className="pf-u-mb-lg">
+        <Table aria-label="Recommended content" className="pf-v5-u-mb-lg">
           <Tbody>
             <Tr className="noti-c-table-border-top">
               <Td>Create a workspace and grant access</Td>
@@ -239,7 +277,7 @@ const WorkspacesOverview = () => {
           </Tbody>
         </Table>
 
-        <a href={`/settings/learning-resources`} className="pf-u-mb-lg">
+        <a href={`/settings/learning-resources`} className="pf-v5-u-mb-lg">
           View all Identity and Access Management Learning resources
         </a>
       </PageSection>

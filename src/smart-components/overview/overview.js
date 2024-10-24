@@ -41,10 +41,11 @@ const Overview = () => {
   const intl = useIntl();
   const [expanded, setExpanded] = useState(true);
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
+  const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
 
   return (
     <React.Fragment>
-      {isWorkspacesFlag && <EnableWorkspacesAlert />}
+      {isWorkspacesEligible && !isWorkspacesFlag && <EnableWorkspacesAlert />}
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
@@ -56,7 +57,7 @@ const Overview = () => {
         }}
       />
       <PageSection>
-        <Card aria-label="Get started card" className="pf-u-mb-lg" data-ouia-component-id="get-started-card">
+        <Card aria-label="Get started card" className="pf-v5-u-mb-lg" data-ouia-component-id="get-started-card">
           <Grid hasGutter>
             <GridItem sm={12} md={6} lg={8}>
               <CardTitle>
@@ -65,7 +66,7 @@ const Overview = () => {
                 </Title>
               </CardTitle>
               <CardBody>
-                <p className="pf-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
+                <p className="pf-v5-u-mb-sm">{intl.formatMessage(messages.overviewHeroSubtitle)}</p>
                 <List>
                   <ListItem>{intl.formatMessage(messages.overviewHeroListItem1)}</ListItem>
                   <ListItem>{intl.formatMessage(messages.overviewHeroListItem2)}</ListItem>
@@ -91,12 +92,12 @@ const Overview = () => {
                 </ActionList>
               </CardFooter>
             </GridItem>
-            <GridItem md={6} lg={4} className="pf-u-display-none pf-u-display-block-on-md pf-c-card__cover-image"></GridItem>
+            <GridItem md={6} lg={4} className="pf-v5-u-display-none pf-v5-u-display-block-on-md pf-c-card__cover-image"></GridItem>
           </Grid>
         </Card>
-        <DataList aria-label="Supporting features list" className="pf-u-mb-lg">
+        <DataList aria-label="Supporting features list" className="pf-v5-u-mb-lg">
           <DataListItem aria-labelledby="item1" isExpanded={expanded} className={expanded && 'active-item'}>
-            <DataListItemRow className="pf-u-align-items-center">
+            <DataListItemRow className="pf-v5-u-align-items-center">
               <DataListToggle
                 isExpanded={expanded}
                 aria-controls="about-default-groups"
@@ -107,10 +108,10 @@ const Overview = () => {
                 dataListCells={[
                   <DataListCell key="about-default-groups-key" data-ouia-component-id="about-card">
                     <div>
-                      <Flex className="pf-u-flex-nowrap">
-                        <FlexItem className="pf-u-align-self-center">
+                      <Flex className="pf-v5-u-flex-nowrap">
+                        <FlexItem className="pf-v5-u-align-self-center">
                           <Icon size="lg">
-                            <CubesIcon className="pf-u-primary-color-100" />
+                            <CubesIcon className="pf-v5-u-primary-color-100" />
                           </Icon>
                         </FlexItem>
                         <Divider
@@ -118,7 +119,7 @@ const Overview = () => {
                             default: 'vertical',
                           }}
                         />
-                        <FlexItem className="pf-u-align-self-center">
+                        <FlexItem className="pf-v5-u-align-self-center">
                           <Title headingLevel="h4" data-ouia-component-id="about-title">
                             {intl.formatMessage(messages.overviewSupportingFeaturesTitle)}
                           </Title>
@@ -137,8 +138,8 @@ const Overview = () => {
               data-ouia-component-id="about-view-default-group"
               isHidden={!expanded}
             >
-              <p className="pf-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
-              <p className="pf-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
+              <p className="pf-v5-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle1)}</p>
+              <p className="pf-v5-u-mb-md">{intl.formatMessage(messages.overviewSupportingFeaturesSubtitle2)}</p>
               <AppLink to={pathnames.groups.link}>
                 <Button variant="link" isInline>
                   {intl.formatMessage(messages.viewDefaultGroupsLink)}
@@ -148,10 +149,10 @@ const Overview = () => {
           </DataListItem>
         </DataList>
 
-        <Title headingLevel="h2" className="pf-u-mb-md" data-ouia-component-id="recommended-title">
+        <Title headingLevel="h2" className="pf-v5-u-mb-md" data-ouia-component-id="recommended-title">
           {intl.formatMessage(messages.recommendedContentTitle)}
         </Title>
-        <Table aria-label="Recommended content table" className="pf-u-mb-lg" data-ouia-component-id="recommended-table">
+        <Table aria-label="Recommended content table" className="pf-v5-u-mb-lg" data-ouia-component-id="recommended-table">
           <Tbody>
             <Tr key="row1">
               <Td dataLabel="Recommended content label">{intl.formatMessage(messages.recommendedContentItem1)}</Td>
@@ -257,7 +258,7 @@ const Overview = () => {
 
         <a
           href="https://console.redhat.com/settings/learning-resources?quickstart=rbac-admin-vuln-permissions"
-          className="pf-u-mb-lg"
+          className="pf-v5-u-mb-lg"
           data-ouia-component-id="overview-view-all-resources-button"
         >
           {intl.formatMessage(messages.iamLearningResourcesLink)}
