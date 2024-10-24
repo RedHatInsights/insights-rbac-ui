@@ -2171,7 +2171,7 @@ export default defineMessages({
     id: 'usersAndUserGroupsAddUserDescription',
     description: 'Description within add user to user group modal',
     defaultMessage:
-      'Select a user group to add {<b>{numUsers} {plural}</b>} to. These are all the user groups in your account. To manage user groups, go to user groups.}',
+      'Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.',
   },
   assignedUserGroupsTooltipHeader: {
     id: 'assignedUserGroupsTooltipHeader',

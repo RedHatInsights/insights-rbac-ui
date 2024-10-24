@@ -47,7 +47,7 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
         {...messages['usersAndUserGroupsAddUserDescription']}
         values={{
           b: (text) => <b>{text}</b>,
-          count: selectedUsers.length,
+          numUsers: selectedUsers.length,
           plural: selectedUsers.length > 1 ? 'users' : 'user',
         }}
       />
