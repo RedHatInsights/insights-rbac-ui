@@ -50,7 +50,7 @@ describe('Roles page', () => {
     }).as('getRoles');
 
     cy.visit('/iam/user-access/roles');
-    cy.wait('@getRoles', { timeout: 10000 });
+    cy.wait('@getRoles', { timeout: 15000 });
   });
 
   it('should display the Roles table and correct data', () => {

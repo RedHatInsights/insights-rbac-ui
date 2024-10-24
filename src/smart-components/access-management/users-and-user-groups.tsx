@@ -6,12 +6,15 @@ import Messages from '../../Messages';
 import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
 import { useLocation, useNavigate } from 'react-router-dom';
+import AddUserGroupModal from './AddUserGroupModal';
 
 const TAB_NAMES = ['users', 'user-groups'];
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
+  const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
+  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
 
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
@@ -31,6 +34,13 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     updateURL(TAB_NAMES[activeTab]);
   };
 
+  const handleOpenAddUserModal = (selected: any[]) => {
+    if (selected.length > 0) {
+      setSelectedUsers(selected);
+      setIsAddUserGroupModalOpen(true);
+    }
+  };
+
   useEffect(() => {
     const params = new URLSearchParams(location.search);
     const tabKey = params.get('activeTab');
@@ -39,6 +49,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
+      <AddUserGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsers} />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
@@ -63,12 +74,16 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
         </Tabs>
       </PageSection>
       <PageSection>
-        <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-          <UsersTable />
-        </TabContent>
-        <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab" hidden>
-          <UserGroupsTable />
-        </TabContent>
+        {activeTabKey === 0 && (
+          <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
+            <UsersTable onAddUserClick={handleOpenAddUserModal} />
+          </TabContent>
+        )}
+        {activeTabKey === 1 && (
+          <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
+            <UserGroupsTable />
+          </TabContent>
+        )}
       </PageSection>
     </React.Fragment>
   );

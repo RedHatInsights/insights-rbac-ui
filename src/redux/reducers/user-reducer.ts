@@ -1,5 +1,6 @@
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../action-types';
 import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
+import { UserProps } from '../../smart-components/user/user-table-helpers';
 
 export interface User {
   email: string;
@@ -24,7 +25,7 @@ export interface UserStore {
     meta: PaginationDefaultI;
     filters: UserFilters;
     pagination: PaginationDefaultI & { redirected?: boolean };
-    data?: User[];
+    data?: UserProps[];
   };
 }
 

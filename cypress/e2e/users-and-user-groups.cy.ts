@@ -114,4 +114,10 @@ describe('Users and User Groups page', () => {
       });
     });
   });
+
+  it('should be able to open Add User Modal once an active user is selected', () => {
+    cy.get('[aria-label="Select row 0"]').click();
+    cy.get('[data-ouia-component-id="iam-users-table-add-user-button"]').click();
+    cy.get('[data-ouia-component-id="add-user-group-modal"]').should('be.visible');
+  });
 });
