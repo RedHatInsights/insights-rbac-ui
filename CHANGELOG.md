@@ -1,3 +1,15 @@
+# [1.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.4.0...v1.5.0) (2024-10-25)
+
+
+### Bug Fixes
+
+* issues with merge commit ([84917d3](https://github.com/RedHatInsights/insights-rbac-ui/commit/84917d3caab81a7970f80f148d3f9252582eb746))
+
+
+### Features
+
+* create add to user group modal ([0112379](https://github.com/RedHatInsights/insights-rbac-ui/commit/011237902147bd8f7c6e702bb58524016d353269))
+
 # [1.4.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.3.0...v1.4.0) (2024-10-24)
 
 
