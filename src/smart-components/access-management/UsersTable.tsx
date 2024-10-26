@@ -15,7 +15,6 @@ import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { useSearchParams } from 'react-router-dom';
 import { WarningModal } from '@patternfly/react-component-groups';
-import { UserProps } from '../user/user-table-helpers';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -30,10 +29,11 @@ const PER_PAGE_OPTIONS = [
 const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
-  onAddUserClick: (selected: any[]) => void;
+  onAddUserClick: (selected: User[]) => void;
+  onFocusUser?: (user: User) => void;
 }
 
-const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
+const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, onFocusUser }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const dispatch = useDispatch();
@@ -84,7 +84,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
   };
 
   const rows = useMemo(() => {
-    return users.map((user: UserProps) => ({
+    return users.map((user: User) => ({
       id: user.username,
       is_active: user.is_active,
       row: [
@@ -113,6 +113,9 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
           props: { isActionCell: true },
         },
       ],
+      props: {
+        onClick: () => onFocusUser && onFocusUser(user),
+      },
     }));
   }, [users, intl, onAddUserClick, handleModalToggle]);
 

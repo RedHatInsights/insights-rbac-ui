@@ -120,4 +120,12 @@ describe('Users and User Groups page', () => {
     cy.get('[data-ouia-component-id="iam-users-table-add-user-button"]').click();
     cy.get('[data-ouia-component-id="add-user-group-modal"]').should('be.visible');
   });
+
+  it('can view user details when a user is clicked', () => {
+    cy.get('[data-ouia-component-id="iam-users-table-table-tr-0"]').click();
+    cy.get('[data-ouia-component-id="user-details-drawer"]').should('be.visible');
+    cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].first_name).should('exist');
+    cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].last_name).should('exist');
+    cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].email).should('exist');
+  });
 });
