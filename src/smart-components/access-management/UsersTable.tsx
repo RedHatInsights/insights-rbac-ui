@@ -15,7 +15,7 @@ import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { useSearchParams } from 'react-router-dom';
 import { WarningModal } from '@patternfly/react-component-groups';
-import { UserProps } from '../user/user-table-helpers';
+import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -30,14 +30,16 @@ const PER_PAGE_OPTIONS = [
 const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
-  onAddUserClick: (selected: any[]) => void;
+  onAddUserClick: (selected: User[]) => void;
+  focusedUser?: User;
 }
 
-const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }) => {
+const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { trigger } = useDataViewEventsContext();
 
   const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, user: User) => {
     setCurrentUser(user);
@@ -84,7 +86,11 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
   };
 
   const rows = useMemo(() => {
-    return users.map((user: UserProps) => ({
+    const handleRowClick = (event: any, user: User | undefined) => {
+      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, user);
+    };
+
+    return users.map((user: User) => ({
       id: user.username,
       is_active: user.is_active,
       row: [
@@ -113,8 +119,13 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick }
           props: { isActionCell: true },
         },
       ],
+      props: {
+        isClickable: Boolean(user.is_active),
+        onRowClick: (event: any) => user.is_active && handleRowClick(event, focusedUser?.username === user.username ? undefined : user),
+        isRowSelected: focusedUser?.username === user.username,
+      },
     }));
-  }, [users, intl, onAddUserClick, handleModalToggle]);
+  }, [users, intl, onAddUserClick, handleModalToggle, trigger, focusedUser?.username]);
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);

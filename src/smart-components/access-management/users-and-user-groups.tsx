@@ -7,6 +7,9 @@ import UsersTable from './UsersTable';
 import UserGroupsTable from './UserGroupsTable';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddUserGroupModal from './AddUserGroupModal';
+import { User } from '../../redux/reducers/user-reducer';
+import UserDetailsDrawer from './UserDetailsDrawer';
+import { DataViewEventsProvider } from '@patternfly/react-data-view';
 
 const TAB_NAMES = ['users', 'user-groups'];
 
@@ -14,8 +17,8 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
-
+  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
+  const [focusedUser, setFocusedUser] = React.useState<User | undefined>(undefined);
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
@@ -34,7 +37,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     updateURL(TAB_NAMES[activeTab]);
   };
 
-  const handleOpenAddUserModal = (selected: any[]) => {
+  const handleOpenAddUserModal = (selected: User[]) => {
     if (selected.length > 0) {
       setSelectedUsers(selected);
       setIsAddUserGroupModalOpen(true);
@@ -73,11 +76,15 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           />
         </Tabs>
       </PageSection>
-      <PageSection>
+      <PageSection padding={{ default: 'noPadding' }}>
         {activeTabKey === 0 && (
-          <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-            <UsersTable onAddUserClick={handleOpenAddUserModal} />
-          </TabContent>
+          <DataViewEventsProvider>
+            <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setFocusedUser} focusedUser={focusedUser}>
+              <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
+                <UsersTable onAddUserClick={handleOpenAddUserModal} focusedUser={focusedUser} />
+              </TabContent>
+            </UserDetailsDrawer>
+          </DataViewEventsProvider>
         )}
         {activeTabKey === 1 && (
           <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">

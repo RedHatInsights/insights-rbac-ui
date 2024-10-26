@@ -947,6 +947,11 @@ export default defineMessages({
     description: 'Overview Hero third list item',
     defaultMessage: `Assign users to these groups, allowing them to inherit the permissions associated with their group's roles`,
   },
+  workspace: {
+    id: 'workspace',
+    description: 'Workspace singular label',
+    defaultMessage: 'Workspace',
+  },
   workspaces: {
     id: 'workspaces',
     description: 'Workspaces heading',
@@ -2172,6 +2177,17 @@ export default defineMessages({
     description: 'Description within add user to user group modal',
     defaultMessage:
       'Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.',
+  },
+  assignedRoles: {
+    id: 'assignedRoles',
+    description: 'User details assigned roles label',
+    defaultMessage: 'Assigned roles',
+  },
+  assignedRolesDescription: {
+    id: 'assignedRolesDescription',
+    description: 'User details roles info popover description',
+    defaultMessage:
+      'User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned.',
   },
   assignedUserGroupsTooltipHeader: {
     id: 'assignedUserGroupsTooltipHeader',
