@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.0...v1.5.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* **permission:** unable to load more than 2 pages in permissions ([#1688](https://github.com/RedHatInsights/insights-rbac-ui/issues/1688)) ([2d08c25](https://github.com/RedHatInsights/insights-rbac-ui/commit/2d08c25204ab35488a01c1c05cb51c942f244510))
+
 # [1.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.4.0...v1.5.0) (2024-10-25)
 
 
