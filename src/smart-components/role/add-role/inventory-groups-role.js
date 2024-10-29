@@ -303,7 +303,7 @@ const InventoryGroupsRole = (props) => {
                     {...(isLoading && { isLoading: true })}
                     onClick={() => {
                       fetchData([permissionID], { page: state[permissionID].page + 1, name: state[permissionID].filterValue });
-                      dispatchLocally({ type: 'setPage', key: permissionID, page: state[permissionID].page++ });
+                      dispatchLocally({ type: 'setPage', key: permissionID, page: state[permissionID].page + 1 });
                     }}
                     value="loader"
                   >
