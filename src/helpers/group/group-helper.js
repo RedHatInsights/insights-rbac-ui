@@ -124,8 +124,8 @@ export async function fetchRolesForGroup(groupId, excluded, { limit, offset, nam
     description || undefined,
     undefined,
     undefined,
-    limit,
-    offset,
+    limit || undefined,
+    offset || undefined,
     'display_name',
     options
   );

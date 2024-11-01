@@ -14,6 +14,7 @@ import { fetchGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
+import { Group } from '../../redux/reducers/group-reducer';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -31,6 +32,7 @@ interface UserGroupsTableProps {
   enableActions?: boolean;
   ouiaId?: string;
   onChange?: (selectedGroups: any[]) => void;
+  onFocusGroup?: (group: Group) => void;
 }
 
 const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
@@ -39,6 +41,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   enableActions = true,
   ouiaId = 'iam-user-groups-table',
   onChange,
+  onFocusGroup,
 }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
@@ -129,6 +132,9 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         props: { isActionCell: true },
       },
     ],
+    props: {
+      onClick: () => onFocusGroup?.(group),
+    }
   }));
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);

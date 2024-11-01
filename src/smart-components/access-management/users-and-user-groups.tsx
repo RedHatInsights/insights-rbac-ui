@@ -9,6 +9,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AddUserGroupModal from './AddUserGroupModal';
 import { User } from '../../redux/reducers/user-reducer';
 import UserDetailsDrawer from './UserDetailsDrawer';
+import { Group } from '../../redux/reducers/group-reducer';
+import GroupDetailsDrawer from './GroupDetailsDrawer';
 
 const TAB_NAMES = ['users', 'user-groups'];
 
@@ -18,6 +20,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
   const [focusedUser, setFocusedUser] = React.useState<User | undefined>(undefined);
+  const [focusedGroup, setFocusedGroup] = React.useState<Group | undefined>(undefined);
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
@@ -87,9 +90,20 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           </UserDetailsDrawer>
         )}
         {activeTabKey === 1 && (
-          <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
-            <UserGroupsTable />
-          </TabContent>
+          <GroupDetailsDrawer
+            ouiaId="groups-details-drawer"
+            isOpen={!!focusedGroup}
+            focusedGroup={focusedGroup}
+            onClose={() => setFocusedGroup(undefined)}
+          >
+            <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
+              <UserGroupsTable
+                onFocusGroup={(group) => {
+                  setFocusedGroup(group);
+                }}
+              />
+            </TabContent>
+          </GroupDetailsDrawer>
         )}
       </PageSection>
     </React.Fragment>
