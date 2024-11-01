@@ -1,3 +1,10 @@
+## [1.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.1...v1.5.2) (2024-11-01)
+
+
+### Bug Fixes
+
+* **konflux:** add rpms check to pull requests ([#1691](https://github.com/RedHatInsights/insights-rbac-ui/issues/1691)) ([981c7ce](https://github.com/RedHatInsights/insights-rbac-ui/commit/981c7ceae4bc46143f703f666484e2cea4338469))
+
 ## [1.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.0...v1.5.1) (2024-10-29)
 
 
