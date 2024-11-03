@@ -1,3 +1,10 @@
+## [1.5.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.2...v1.5.3) (2024-11-03)
+
+
+### Bug Fixes
+
+* **deploy:** correct quay repository in frontend config ([#1693](https://github.com/RedHatInsights/insights-rbac-ui/issues/1693)) ([800fbb7](https://github.com/RedHatInsights/insights-rbac-ui/commit/800fbb7bf3efec362ac3f08e7a690b3982f2b4c3))
+
 ## [1.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.1...v1.5.2) (2024-11-01)
 
 
