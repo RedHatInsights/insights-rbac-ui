@@ -63,4 +63,4 @@ parameters:
   - name: IMAGE_TAG
     required: true
   - name: IMAGE
-    value: quay.io/cloudservices/rbac-frontend
+    value: quay.io/redhat-services-prod/rh-platform-experien-tenant/insights-rbac-ui
