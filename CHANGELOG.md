@@ -1,3 +1,38 @@
+# [1.6.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.3...v1.6.0) (2024-11-05)
+
+
+### Bug Fixes
+
+* **deploy:** correct quay repository in frontend config ([#1693](https://github.com/RedHatInsights/insights-rbac-ui/issues/1693)) ([1f433e9](https://github.com/RedHatInsights/insights-rbac-ui/commit/1f433e927df2f3febc5301cedb775bdbea21caa8))
+* **konflux:** add rpms check to pull requests ([#1691](https://github.com/RedHatInsights/insights-rbac-ui/issues/1691)) ([81d51ff](https://github.com/RedHatInsights/insights-rbac-ui/commit/81d51fffbabaf08a4fa3a7461d0bba31407d892d))
+* **permission:** unable to load more than 2 pages in permissions ([#1688](https://github.com/RedHatInsights/insights-rbac-ui/issues/1688)) ([f150391](https://github.com/RedHatInsights/insights-rbac-ui/commit/f150391edead6b54b4c8255706024a1f09126f49))
+
+
+### Features
+
+* create user details view ([53ccf7a](https://github.com/RedHatInsights/insights-rbac-ui/commit/53ccf7a6970e48ff7881a910c69370950a433899))
+
+## [1.5.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.2...v1.5.3) (2024-11-03)
+
+
+### Bug Fixes
+
+* **deploy:** correct quay repository in frontend config ([#1693](https://github.com/RedHatInsights/insights-rbac-ui/issues/1693)) ([800fbb7](https://github.com/RedHatInsights/insights-rbac-ui/commit/800fbb7bf3efec362ac3f08e7a690b3982f2b4c3))
+
+## [1.5.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.1...v1.5.2) (2024-11-01)
+
+
+### Bug Fixes
+
+* **konflux:** add rpms check to pull requests ([#1691](https://github.com/RedHatInsights/insights-rbac-ui/issues/1691)) ([981c7ce](https://github.com/RedHatInsights/insights-rbac-ui/commit/981c7ceae4bc46143f703f666484e2cea4338469))
+
+## [1.5.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.0...v1.5.1) (2024-10-29)
+
+
+### Bug Fixes
+
+* **permission:** unable to load more than 2 pages in permissions ([#1688](https://github.com/RedHatInsights/insights-rbac-ui/issues/1688)) ([2d08c25](https://github.com/RedHatInsights/insights-rbac-ui/commit/2d08c25204ab35488a01c1c05cb51c942f244510))
+
 # [1.5.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.4.0...v1.5.0) (2024-10-25)
 
 

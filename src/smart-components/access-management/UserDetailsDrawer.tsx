@@ -15,28 +15,32 @@ import {
   TextContent,
   Title,
 } from '@patternfly/react-core';
-import React from 'react';
+import React, { useEffect } from 'react';
 import { User } from '../../redux/reducers/user-reducer';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import UserDetailsGroupsView from './UserDetailsGroupsView';
 import UserDetailsRolesView from './UserDetailsRolesView';
+import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 
 interface UserDetailsProps {
   focusedUser?: User;
+  drawerRef: React.RefObject<HTMLDivElement>;
   onClose: () => void;
   ouiaId: string;
 }
 
-const UserDetailsDrawerContent: React.FunctionComponent<UserDetailsProps> = ({ focusedUser, onClose, ouiaId }) => {
+const UserDetailsDrawerContent: React.FunctionComponent<UserDetailsProps> = ({ focusedUser, drawerRef, onClose, ouiaId }) => {
   const [activeTabKey, setActiveTabKey] = React.useState<string | number>(0);
   const intl = useIntl();
 
   return (
     <DrawerPanelContent>
       <DrawerHead>
-        <Title headingLevel="h2">{`${focusedUser?.first_name} ${focusedUser?.last_name}`}</Title>
+        <Title headingLevel="h2">
+          <span tabIndex={focusedUser ? 0 : -1} ref={drawerRef}>{`${focusedUser?.first_name} ${focusedUser?.last_name}`}</span>
+        </Title>
         <TextContent>
           <Text>{focusedUser?.email}</Text>
         </TextContent>
@@ -74,21 +78,36 @@ const UserDetailsDrawerContent: React.FunctionComponent<UserDetailsProps> = ({ f
 };
 
 interface DetailDrawerProps {
-  isOpen: boolean;
   focusedUser?: User;
-  onClose: () => void;
+  setFocusedUser: (user: User | undefined) => void;
   children: React.ReactNode;
   ouiaId: string;
 }
 
-const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ isOpen, focusedUser, onClose, children, ouiaId }) => {
+const UserDetailsDrawer: React.FunctionComponent<DetailDrawerProps> = ({ focusedUser, setFocusedUser, children, ouiaId }) => {
   const drawerRef = React.useRef<HTMLDivElement>(null);
+  const context = useDataViewEventsContext();
+
+  useEffect(() => {
+    const unsubscribe = context.subscribe(EventTypes.rowClick, (user: User | undefined) => {
+      setFocusedUser(user);
+      drawerRef.current?.focus();
+    });
+
+    return () => unsubscribe();
+  }, [drawerRef]);
 
   return (
-    <Drawer isExpanded={isOpen} onExpand={() => drawerRef.current?.focus()} data-ouia-component-id={ouiaId}>
+    <Drawer isExpanded={Boolean(focusedUser)} data-ouia-component-id={ouiaId}>
       <DrawerContent
-        panelContent={<UserDetailsDrawerContent ouiaId={`${ouiaId}-panel-content`} focusedUser={focusedUser} onClose={onClose} />}
-        ref={drawerRef}
+        panelContent={
+          <UserDetailsDrawerContent
+            ouiaId={`${ouiaId}-panel-content`}
+            drawerRef={drawerRef}
+            focusedUser={focusedUser}
+            onClose={() => setFocusedUser(undefined)}
+          />
+        }
       >
         <DrawerContentBody hasPadding>{children}</DrawerContentBody>
       </DrawerContent>

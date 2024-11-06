@@ -11,6 +11,7 @@ import { User } from '../../redux/reducers/user-reducer';
 import UserDetailsDrawer from './UserDetailsDrawer';
 import { Group } from '../../redux/reducers/group-reducer';
 import GroupDetailsDrawer from './GroupDetailsDrawer';
+import { DataViewEventsProvider } from '@patternfly/react-data-view';
 
 const TAB_NAMES = ['users', 'user-groups'];
 
@@ -80,14 +81,13 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
       </PageSection>
       <PageSection padding={{ default: 'noPadding' }}>
         {activeTabKey === 0 && (
-          <UserDetailsDrawer ouiaId="user-details-drawer" isOpen={!!focusedUser} focusedUser={focusedUser} onClose={() => setFocusedUser(undefined)}>
-            <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-              <UsersTable
-                onAddUserClick={handleOpenAddUserModal}
-                onFocusUser={(user) => (user?.is_active ? setFocusedUser(user) : setFocusedUser(undefined))}
-              />
-            </TabContent>
-          </UserDetailsDrawer>
+          <DataViewEventsProvider>
+            <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setFocusedUser} focusedUser={focusedUser}>
+              <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
+                <UsersTable onAddUserClick={handleOpenAddUserModal} focusedUser={focusedUser} />
+              </TabContent>
+            </UserDetailsDrawer>
+          </DataViewEventsProvider>
         )}
         {activeTabKey === 1 && (
           <GroupDetailsDrawer
