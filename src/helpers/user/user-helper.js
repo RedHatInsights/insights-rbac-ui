@@ -55,7 +55,10 @@ function handleError(error, reject) {
   reject(new Error(error.message));
 }
 
-export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
+export async function addUsers(usersData = { emails: [], isAdmin: undefined, message: undefined }, isCommonAuth = false) {
+  if (isCommonAuth) {
+    return Promise.resolve();
+  }
   const token = await insights.chrome.auth.getToken();
   const requestOpts = {
     method: 'POST',
@@ -79,7 +82,10 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined }) {
   return promise;
 }
 
-export async function updateUserIsOrgAdminStatus(user) {
+export async function updateUserIsOrgAdminStatus(user, isCommonAuth = false) {
+  if (isCommonAuth) {
+    return Promise.resolve();
+  }
   const token = await insights.chrome.auth.getToken();
   let requestOpts = {
     method: 'PUT',
@@ -101,7 +107,10 @@ export async function updateUserIsOrgAdminStatus(user) {
   return promise;
 }
 
-export async function updateUsers(users) {
+export async function updateUsers(users, isCommonAuth = false) {
+  if (isCommonAuth) {
+    return Promise.resolve();
+  }
   const token = await insights.chrome.auth.getToken();
   let requestOpts = {
     method: 'PUT',
