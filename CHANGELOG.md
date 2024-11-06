@@ -1,3 +1,10 @@
+# [1.7.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.6.0...v1.7.0) (2024-11-06)
+
+
+### Features
+
+* **common-auth-model:** add mocked requests ([#1695](https://github.com/RedHatInsights/insights-rbac-ui/issues/1695)) ([966361c](https://github.com/RedHatInsights/insights-rbac-ui/commit/966361cb70c7bf4784d549a05d46eb43f82dfe59))
+
 # [1.6.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.5.3...v1.6.0) (2024-11-05)
 
 
