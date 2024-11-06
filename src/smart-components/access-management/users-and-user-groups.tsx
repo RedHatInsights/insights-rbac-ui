@@ -90,20 +90,13 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           </DataViewEventsProvider>
         )}
         {activeTabKey === 1 && (
-          <GroupDetailsDrawer
-            ouiaId="groups-details-drawer"
-            isOpen={!!focusedGroup}
-            focusedGroup={focusedGroup}
-            onClose={() => setFocusedGroup(undefined)}
-          >
-            <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
-              <UserGroupsTable
-                onFocusGroup={(group) => {
-                  setFocusedGroup(group);
-                }}
-              />
-            </TabContent>
-          </GroupDetailsDrawer>
+          <DataViewEventsProvider>
+            <GroupDetailsDrawer ouiaId="groups-details-drawer" focusedGroup={focusedGroup} setFocusedGroup={setFocusedGroup}>
+              <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
+                <UserGroupsTable focusedGroup={focusedGroup} />
+              </TabContent>
+            </GroupDetailsDrawer>
+          </DataViewEventsProvider>
         )}
       </PageSection>
     </React.Fragment>

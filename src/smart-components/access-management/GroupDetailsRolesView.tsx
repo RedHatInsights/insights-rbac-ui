@@ -4,7 +4,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RBACStore } from '../../redux/store';
 import messages from '../../Messages';
 import { useIntl } from 'react-intl';
-import { mappedProps } from '../../helpers/shared/helpers';
 import { fetchRolesForGroup } from '../../redux/actions/group-actions';
 
 interface GroupRolesViewProps {
@@ -20,7 +19,7 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
   const roles = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.data || []);
 
   const fetchData = useCallback(() => {
-    dispatch(fetchRolesForGroup(groupId,{ limit: 1000}));
+    dispatch(fetchRolesForGroup(groupId, { limit: 1000 }));
   }, [dispatch, groupId]);
 
   useEffect(() => {

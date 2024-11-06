@@ -14,7 +14,11 @@ interface GroupDetailsServiceAccountsViewProps {
 const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServiceAccountsViewProps> = ({ groupId, ouiaId }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
-  const GROUP_SERVICE_ACCOUNTS_COLUMNS: string[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.clientId), intl.formatMessage(messages.owner)];
+  const GROUP_SERVICE_ACCOUNTS_COLUMNS: string[] = [
+    intl.formatMessage(messages.name),
+    intl.formatMessage(messages.clientId),
+    intl.formatMessage(messages.owner),
+  ];
 
   const serviceAccounts = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.serviceAccounts?.data || []);
 
