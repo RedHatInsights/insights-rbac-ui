@@ -1,21 +1,22 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, Fragment } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination, Tooltip } from '@patternfly/react-core';
+import { ButtonVariant, Pagination, Tooltip } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
-import { fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroups, removeGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { WarningModal } from '@patternfly/react-component-groups';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -44,14 +45,16 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   onChange,
   focusedGroup,
 }) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [currentGroups, setCurrentGroups] = React.useState<Group[]>([]);
   const dispatch = useDispatch();
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
 
-  const rowActions = [
-    { title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']), onClick: () => console.log('EDIT USER GROUP') },
-    { title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']), onClick: () => console.log('DELETE USER GROUP') },
-  ];
+  const handleDeleteModalToggle = (groups: Group[]) => {
+    setCurrentGroups(groups);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
 
   const { groups, totalCount } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer?.groups?.data || [],
@@ -135,7 +138,21 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         group.workspaces || '?', // not currently in API
         formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
         enableActions && {
-          cell: <ActionsColumn items={rowActions} />,
+          cell: (
+            <ActionsColumn
+              items={[
+                {
+                  title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
+                  onClick: () => console.log('EDIT USER GROUP'),
+                },
+                {
+                  title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
+                  onClick: () => handleDeleteModalToggle([group]),
+                },
+              ]}
+              rowData={group}
+            />
+          ),
           props: { isActionCell: true },
         },
       ],
@@ -150,6 +167,17 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
 
+  const handleDeleteGroups = async (groupsToDelete: Group[]) => {
+    await dispatch(removeGroups(groupsToDelete.map((group) => group.uuid)));
+    setIsDeleteModalOpen(false);
+    fetchData({
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      orderBy: 'name',
+      count: totalCount || 0,
+    });
+  };
+
   const paginationComponent = (
     <Pagination
       perPageOptions={PER_PAGE_OPTIONS}
@@ -162,25 +190,79 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   );
 
   return (
-    <DataView ouiaId={ouiaId} selection={selection}>
-      <DataViewToolbar
-        ouiaId={`${ouiaId}-header-toolbar`}
-        bulkSelect={
-          <BulkSelect
-            isDataPaginated
-            pageCount={groups.length}
-            selectedCount={selected.length}
-            totalCount={totalCount}
-            pageSelected={pageSelected}
-            pagePartiallySelected={pagePartiallySelected}
-            onSelect={handleBulkSelect}
+    <Fragment>
+      {isDeleteModalOpen && (
+        <WarningModal
+          ouiaId={`${ouiaId}-remove-user-modal`}
+          isOpen={isDeleteModalOpen}
+          title={
+            <FormattedMessage
+              {...messages.deleteUserGroupModalTitle}
+              values={{
+                count: currentGroups.length,
+                plural: currentGroups.length > 1 ? intl.formatMessage(messages.groups) : intl.formatMessage(messages.group),
+              }}
+            />
+          }
+          withCheckbox
+          checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
+          confirmButtonLabel={intl.formatMessage(messages.remove)}
+          confirmButtonVariant={ButtonVariant.danger}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            handleDeleteGroups(currentGroups);
+          }}
+        >
+          <FormattedMessage
+            {...messages.deleteUserGroupModalBody}
+            values={{
+              b: (text) => <b>{text}</b>,
+              count: currentGroups.length,
+              plural: currentGroups.length > 1 ? intl.formatMessage(messages.groups) : intl.formatMessage(messages.group),
+              name: currentGroups[0]?.name,
+            }}
           />
-        }
-        pagination={React.cloneElement(paginationComponent, { isCompact: true })}
-      />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} />
-      <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
-    </DataView>
+        </WarningModal>
+      )}
+      <DataView ouiaId={ouiaId} selection={selection}>
+        <DataViewToolbar
+          ouiaId={`${ouiaId}-header-toolbar`}
+          bulkSelect={
+            <BulkSelect
+              isDataPaginated
+              pageCount={groups.length}
+              selectedCount={selected.length}
+              totalCount={totalCount}
+              pageSelected={pageSelected}
+              pagePartiallySelected={pagePartiallySelected}
+              onSelect={handleBulkSelect}
+            />
+          }
+          actions={
+            <div data-ouia-component-id={`${ouiaId}-actions-dropdown`}>
+              <ActionsColumn
+                items={[
+                  {
+                    title: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
+                    onClick: () => console.log('EDIT USER GROUP'),
+                  },
+                  {
+                    title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
+                    onClick: () => {
+                      handleDeleteModalToggle(groups.filter((group) => selected.some((selectedGroup) => selectedGroup.id === group.uuid)));
+                    },
+                  },
+                ]}
+                isDisabled={selected.length === 0}
+              />
+            </div>
+          }
+          pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+        />
+        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} />
+        <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
+      </DataView>
+    </Fragment>
   );
 };
 
