@@ -22,12 +22,12 @@ const Workspaces = () => {
     dispatch(fetchWorkspaces());
   }, [dispatch]);
 
-  const mapWorkspacesToHierarchy = (workspaceData: any[]): Workspace[] => {
+  const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace[] => {
     const workspaceMap: { [key: string]: Workspace } = {};
 
     workspaceData.forEach((ws) => {
-      workspaceMap[ws.uuid] = {
-        id: ws.uuid,
+      workspaceMap[ws.id] = {
+        id: ws.id,
         name: ws.name,
         description: ws.description,
         children: [],
@@ -37,9 +37,9 @@ const Workspaces = () => {
     const hierarchy: Workspace[] = [];
     workspaceData.forEach((ws) => {
       if (ws.parent_id) {
-        workspaceMap[ws.parent_id]?.children?.push(workspaceMap[ws.uuid]);
+        workspaceMap[ws.parent_id]?.children?.push(workspaceMap[ws.id]);
       } else {
-        hierarchy.push(workspaceMap[ws.uuid]);
+        hierarchy.push(workspaceMap[ws.id]);
       }
     });
 

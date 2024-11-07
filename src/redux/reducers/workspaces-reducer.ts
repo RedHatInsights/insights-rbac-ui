@@ -5,6 +5,7 @@ export interface Workspace {
   name: string;
   description: string;
   children?: Workspace[];
+  parent_id?: string;
 }
 export interface WorkspacesStore {
   isLoading: boolean;
