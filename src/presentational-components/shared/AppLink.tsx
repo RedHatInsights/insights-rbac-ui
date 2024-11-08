@@ -4,6 +4,7 @@ import { Link, LinkProps, To } from 'react-router-dom';
 
 interface AppLinkProps extends LinkProps {
   linkBasename?: string;
+  to: To;
 }
 
 export const mergeToBasename = (to: To, basename = '/iam/user-access') => {
@@ -18,15 +19,17 @@ export const mergeToBasename = (to: To, basename = '/iam/user-access') => {
   };
 };
 
-const AppLink: React.FC<AppLinkProps> = React.forwardRef((props: AppLinkProps, ref: LegacyRef<HTMLSpanElement>) => {
-  const { getBundle, getApp } = useChrome();
-  const defaultBasename = `/${getBundle()}/${getApp()}`;
-  return (
-    <span ref={ref}>
-      <Link {...props} to={mergeToBasename(props.to, props.linkBasename || defaultBasename)} />
-    </span>
-  );
-});
+const AppLink: React.FC<React.PropsWithChildren<AppLinkProps & { className?: string }>> = React.forwardRef(
+  (props: React.PropsWithChildren<AppLinkProps>, ref: LegacyRef<HTMLSpanElement>) => {
+    const { getBundle, getApp } = useChrome();
+    const defaultBasename = `/${getBundle()}/${getApp()}`;
+    return (
+      <span ref={ref}>
+        <Link {...props} to={mergeToBasename(props.to, props.linkBasename || defaultBasename)} />
+      </span>
+    );
+  }
+);
 
 AppLink.displayName = 'AppLink';
 

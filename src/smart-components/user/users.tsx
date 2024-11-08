@@ -17,6 +17,7 @@ const Users = () => {
   const activeUserPermissions = useContext(PermissionsContext);
   const { appNavClick } = useChrome();
   const isITLess = useFlag('platform.rbac.itless');
+  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
 
   const description = <ActiveUser linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 
@@ -30,7 +31,7 @@ const Users = () => {
       isSelectable: !isITLess ? false : activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
       isCompact: false,
     },
-    usesMetaInURL: isITLess ? !location.pathname.includes(paths['invite-users'].link) : true,
+    usesMetaInURL: isITLess || isCommonAuthModel ? !location.pathname.includes(paths['invite-users'].link) : true,
   };
 
   return (
