@@ -9,8 +9,8 @@ import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@p
 import { ButtonVariant, Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
-import { useIntl } from 'react-intl';
+import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
+import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
@@ -33,7 +33,7 @@ interface RolesTableProps {
   selectedRole?: Role;
 }
 
-const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = undefined }) => {
+const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRole, setCurrentRole] = useState<Role | undefined>();
   const { roles, totalCount } = useSelector((state: RBACStore) => ({
@@ -90,7 +90,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
     };
 
-    return roles.map((role) => ({
+    return roles.map((role: Role) => ({
       row: Object.values({
         display_name: role.display_name,
         description: role.description,
@@ -105,7 +105,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
                 { title: 'Edit role', onClick: () => console.log('Editing role') },
                 {
                   title: 'Delete role',
-                  onClick: (event: KeyboardEvent | React.MouseEvent, rowId: number, rowData: any) => handleModalToggle(event, rowData),
+                  isDisabled: role.system,
+                  onClick: (event: KeyboardEvent | React.MouseEvent) => handleModalToggle(event, role),
                 },
               ]}
             />
@@ -119,7 +120,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
-  }, [roles, handleModalToggle, trigger, selectedRole]);
+  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -142,14 +143,21 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
             title={intl.formatMessage(messages.deleteUserModalTitle)}
             confirmButtonLabel={intl.formatMessage(messages.remove)}
             confirmButtonVariant={ButtonVariant.danger}
+            withCheckbox
+            checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={() => {
-              console.log(`Deleting ${currentRole?.display_name}`);
-              //add delete user api call here when v2 is ready
+              dispatch(removeRole(currentRole?.uuid));
               setIsDeleteModalOpen(false);
             }}
           >
-            {`${currentRole?.display_name} ${intl.formatMessage(messages.deleteUserModalBody)}`}
+            <FormattedMessage
+              {...messages.deleteCustomRoleModalBody}
+              values={{
+                strong: (text) => <strong>{text}</strong>,
+                name: currentRole?.display_name,
+              }}
+            />
           </WarningModal>
         )}
         <DataView ouiaId={ouiaId} selection={selection}>

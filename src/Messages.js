@@ -2224,4 +2224,9 @@ export default defineMessages({
     description: 'Action column option to remove user from group',
     defaultMessage: 'Remove from user groups',
   },
+  deleteCustomRoleModalBody: {
+    id: 'deleteCustomRoleModalBody',
+    description: 'Modal body text for deleting custom role',
+    defaultMessage: 'Deleting the <strong>{name}</strong> may remove groups in your organization',
+  },
 });
