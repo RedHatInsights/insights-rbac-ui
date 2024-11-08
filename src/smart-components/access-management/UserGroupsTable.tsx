@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
@@ -14,6 +14,8 @@ import { fetchGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
+import { Group } from '../../redux/reducers/group-reducer';
+import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -31,6 +33,7 @@ interface UserGroupsTableProps {
   enableActions?: boolean;
   ouiaId?: string;
   onChange?: (selectedGroups: any[]) => void;
+  focusedGroup?: Group;
 }
 
 const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
@@ -39,9 +42,11 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   enableActions = true,
   ouiaId = 'iam-user-groups-table',
   onChange,
+  focusedGroup,
 }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { trigger } = useDataViewEventsContext();
 
   const rowActions = [
     { title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']), onClick: () => console.log('EDIT USER GROUP') },
@@ -108,28 +113,39 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     }
   };
 
-  const rows = groups.map((group: any) => ({
-    id: group.uuid,
-    row: [
-      group.name,
-      group.description ? (
-        <Tooltip isContentLeftAligned content={group.description}>
-          <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
-        </Tooltip>
-      ) : (
-        <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
-      ),
-      group.principalCount,
-      group.serviceAccounts || '?', // not currently in API
-      group.roleCount,
-      group.workspaces || '?', // not currently in API
-      formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
-      enableActions && {
-        cell: <ActionsColumn items={rowActions} />,
-        props: { isActionCell: true },
+  const rows = useMemo(() => {
+    const handleRowClick = (event: any, group: Group | undefined) => {
+      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, group);
+    };
+
+    return groups.map((group: any) => ({
+      id: group.uuid,
+      row: [
+        group.name,
+        group.description ? (
+          <Tooltip isContentLeftAligned content={group.description}>
+            <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
+          </Tooltip>
+        ) : (
+          <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
+        ),
+        group.principalCount,
+        group.serviceAccounts || '?', // not currently in API
+        group.roleCount,
+        group.workspaces || '?', // not currently in API
+        formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
+        enableActions && {
+          cell: <ActionsColumn items={rowActions} />,
+          props: { isActionCell: true },
+        },
+      ],
+      props: {
+        isClickable: true,
+        onRowClick: (event: any) => handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
+        isRowSelected: focusedGroup?.uuid === group.uuid,
       },
-    ],
-  }));
+    }));
+  }, [groups, focusedGroup]);
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);

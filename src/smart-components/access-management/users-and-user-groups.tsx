@@ -9,6 +9,8 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import AddUserGroupModal from './AddUserGroupModal';
 import { User } from '../../redux/reducers/user-reducer';
 import UserDetailsDrawer from './UserDetailsDrawer';
+import { Group } from '../../redux/reducers/group-reducer';
+import GroupDetailsDrawer from './GroupDetailsDrawer';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 
 const TAB_NAMES = ['users', 'user-groups'];
@@ -19,6 +21,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
   const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
   const [focusedUser, setFocusedUser] = React.useState<User | undefined>(undefined);
+  const [focusedGroup, setFocusedGroup] = React.useState<Group | undefined>(undefined);
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
@@ -87,9 +90,13 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
           </DataViewEventsProvider>
         )}
         {activeTabKey === 1 && (
-          <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
-            <UserGroupsTable />
-          </TabContent>
+          <DataViewEventsProvider>
+            <GroupDetailsDrawer ouiaId="groups-details-drawer" focusedGroup={focusedGroup} setFocusedGroup={setFocusedGroup}>
+              <TabContent eventKey={1} id="groupsTab" ref={groupsRef} aria-label="Groups tab">
+                <UserGroupsTable focusedGroup={focusedGroup} />
+              </TabContent>
+            </GroupDetailsDrawer>
+          </DataViewEventsProvider>
         )}
       </PageSection>
     </React.Fragment>
