@@ -5,12 +5,18 @@ import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
 
-export const addUsers = (usersData) => {
+/**
+ * An action creator function to invite new users to CRC.
+ * @param { emails: string[], isOrgAdmin: boolean, message: string } usersData data to be sent to server.
+ * @param {boolean} isCommonAuth feature flag to indicate if common auth is used or fedramp branch.
+ * @returns action to be dispatched
+ */
+export const addUsers = (usersData, isCommonAuth) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.ADD_USERS,
-    payload: UserHelper.addUsers(usersData),
+    payload: UserHelper.addUsers(usersData, isCommonAuth),
     meta: {
       notifications: {
         rejected: (payload) => {
@@ -36,12 +42,18 @@ export const addUsers = (usersData) => {
   };
 };
 
-export const updateUserIsOrgAdminStatus = (user) => {
+/**
+ * An action creator function to promote/demote an user to be org. admin in CRC.
+ * @param {id: UUID, is_org_admin: boolean} user to be promoted to organization administrator.
+ * @param {boolean} isCommonAuth feature flag to indicate if common auth is used or fedramp branch.
+ * @returns action to be dispatched
+ */
+export const updateUserIsOrgAdminStatus = (user, isCommonAuth) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.UPDATE_USER_IS_ORG_ADMIN_STATUS,
-    payload: UserHelper.updateUserIsOrgAdminStatus(user),
+    payload: UserHelper.updateUserIsOrgAdminStatus(user, isCommonAuth),
     meta: {
       notifications: {
         fulfilled: {
@@ -63,12 +75,18 @@ export const updateUserIsOrgAdminStatus = (user) => {
   };
 };
 
-export const updateUsers = (userList) => {
+/**
+ * An action creator function to change user status to active/inactive in CRC.
+ * @param {User} userList list of users to change their status.
+ * @param {boolean} isCommonAuth feature flag to indicate if common auth is used or fedramp branch.
+ * @returns action to be dispatched
+ */
+export const updateUsers = (userList, isCommonAuth) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.UPDATE_USERS,
-    payload: UserHelper.updateUsers(userList),
+    payload: UserHelper.updateUsers(userList, isCommonAuth),
     meta: {
       notifications: {
         fulfilled: {
