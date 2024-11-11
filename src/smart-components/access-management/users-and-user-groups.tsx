@@ -8,10 +8,10 @@ import UserGroupsTable from './UserGroupsTable';
 import { useLocation, useNavigate } from 'react-router-dom';
 import AddUserGroupModal from './AddUserGroupModal';
 import { User } from '../../redux/reducers/user-reducer';
-import UserDetailsDrawer from './UserDetailsDrawer';
 import { Group } from '../../redux/reducers/group-reducer';
 import GroupDetailsDrawer from './GroupDetailsDrawer';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
+import UserDetailsDrawer from './UserDetailsDrawer';
 
 const TAB_NAMES = ['users', 'user-groups'];
 

@@ -10,7 +10,7 @@ import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
-import { fetchGroups } from '../../redux/actions/group-actions';
+import { fetchGroups, removeGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
@@ -198,8 +198,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={() => {
-            console.log(`Deleting ${currentGroups.map((group) => group.name).join(', ')} from user groups`);
-            //add delete user api call here when v2 is ready
+            dispatch(removeGroups(currentGroups.map((group) => group.uuid)));
             setIsDeleteModalOpen(false);
           }}
         >
