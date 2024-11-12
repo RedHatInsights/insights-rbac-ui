@@ -252,6 +252,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
                   },
                 },
               ]}
+              isDisabled={selected.length === 0}
             />
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
