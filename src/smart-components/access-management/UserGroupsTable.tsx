@@ -51,7 +51,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
 
-  const handleDeleteModalToggle = (_event: KeyboardEvent | React.MouseEvent, groups: Group[]) => {
+  const handleDeleteModalToggle = (groups: Group[]) => {
     setCurrentGroups(groups);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
@@ -138,20 +138,21 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         group.workspaces || '?', // not currently in API
         formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
         enableActions && {
-          cell: <ActionsColumn items={
-            [
-              {
-                title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
-                onClick: () => console.log('EDIT USER GROUP'),
-              },
-              {
-                title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
-                onClick: (event: KeyboardEvent | React.MouseEvent) => handleDeleteModalToggle(event, [group]),
-              },
-            ]
-          }
-          rowData={group}
-          />,
+          cell: (
+            <ActionsColumn
+              items={[
+                {
+                  title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
+                  onClick: () => console.log('EDIT USER GROUP'),
+                },
+                {
+                  title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
+                  onClick: () => handleDeleteModalToggle([group]),
+                },
+              ]}
+              rowData={group}
+            />
+          ),
           props: { isActionCell: true },
         },
       ],
@@ -208,7 +209,9 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           confirmButtonLabel={intl.formatMessage(messages.remove)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={()=>{handleDeleteGroups(currentGroups)}}
+          onConfirm={() => {
+            handleDeleteGroups(currentGroups);
+          }}
         >
           <FormattedMessage
             {...messages.deleteUserGroupModalBody}
@@ -233,6 +236,22 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
               pageSelected={pageSelected}
               pagePartiallySelected={pagePartiallySelected}
               onSelect={handleBulkSelect}
+            />
+          }
+          actions={
+            <ActionsColumn
+              items={[
+                {
+                  title: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
+                  onClick: () => console.log('EDIT USER GROUP'),
+                },
+                {
+                  title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
+                  onClick: () => {
+                    handleDeleteModalToggle(groups.filter((group) => selected.some((selectedGroup) => selectedGroup.id === group.uuid)));
+                  },
+                },
+              ]}
             />
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
