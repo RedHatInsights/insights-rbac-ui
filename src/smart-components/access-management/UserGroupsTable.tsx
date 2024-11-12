@@ -166,6 +166,17 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
 
+  const handleDeleteGroups = async (groupsToDelete: Group[]) => {
+    await dispatch(removeGroups(groupsToDelete.map((group) => group.uuid)));
+    setIsDeleteModalOpen(false);
+    fetchData({
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      orderBy: 'name',
+      count: totalCount || 0,
+    });
+  };
+
   const paginationComponent = (
     <Pagination
       perPageOptions={PER_PAGE_OPTIONS}
@@ -197,10 +208,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           confirmButtonLabel={intl.formatMessage(messages.remove)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            dispatch(removeGroups(currentGroups.map((group) => group.uuid)));
-            setIsDeleteModalOpen(false);
-          }}
+          onConfirm={()=>{handleDeleteGroups(currentGroups)}}
         >
           <FormattedMessage
             {...messages.deleteUserGroupModalBody}
