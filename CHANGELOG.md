@@ -1,3 +1,10 @@
+## [1.7.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.0...v1.7.1) (2024-11-12)
+
+
+### Bug Fixes
+
+* **basename:** basename for workspaces is calculated incorrectly ([#1699](https://github.com/RedHatInsights/insights-rbac-ui/issues/1699)) ([113a38e](https://github.com/RedHatInsights/insights-rbac-ui/commit/113a38e4d3475e79252a0e931c203056d6e77359))
+
 # [1.7.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.6.0...v1.7.0) (2024-11-06)
 
 
