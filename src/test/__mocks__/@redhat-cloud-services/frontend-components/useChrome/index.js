@@ -5,6 +5,8 @@ const useChrome = () => ({
   isProd: () => true,
   getEnvironment: () => undefined,
   auth: { getUser: () => undefined },
+  getBundle: () => 'iam',
+  getApp: () => 'user-access',
 });
 
 module.exports = useChrome;

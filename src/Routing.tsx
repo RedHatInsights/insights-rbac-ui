@@ -284,13 +284,16 @@ const Routing = () => {
 
   const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
+
+  const { getBundle, getApp } = useChrome();
+  const defaultBasename = `/${getBundle()}/${getApp()}`;
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <QuickstartsTestButtons />
       <RouterRoutes>
         {renderedRoutes}
         {/* Catch all unmatched routes */}
-        <RouterRoute path="*" element={<Navigate to={mergeToBasename(pathnames.users.link)} />} />
+        <RouterRoute path="*" element={<Navigate to={mergeToBasename(pathnames.users.link, defaultBasename)} />} />
       </RouterRoutes>
     </Suspense>
   );
