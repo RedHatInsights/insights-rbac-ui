@@ -239,21 +239,23 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
             />
           }
           actions={
-            <ActionsColumn
-              items={[
-                {
-                  title: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
-                  onClick: () => console.log('EDIT USER GROUP'),
-                },
-                {
-                  title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
-                  onClick: () => {
-                    handleDeleteModalToggle(groups.filter((group) => selected.some((selectedGroup) => selectedGroup.id === group.uuid)));
+            <div data-ouia-component-id={`${ouiaId}-actions-dropdown`}>
+              <ActionsColumn
+                items={[
+                  {
+                    title: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
+                    onClick: () => console.log('EDIT USER GROUP'),
                   },
-                },
-              ]}
-              isDisabled={selected.length === 0}
-            />
+                  {
+                    title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
+                    onClick: () => {
+                      handleDeleteModalToggle(groups.filter((group) => selected.some((selectedGroup) => selectedGroup.id === group.uuid)));
+                    },
+                  },
+                ]}
+                isDisabled={selected.length === 0}
+              />
+            </div>
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
         />

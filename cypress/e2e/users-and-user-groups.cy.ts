@@ -128,4 +128,18 @@ describe('Users and User Groups page', () => {
     cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].last_name).should('exist');
     cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].email).should('exist');
   });
+
+  it('should be able to open Delete User Groups Modal from row actions', () => {
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+    cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"]').click();
+    cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').contains('Delete user group').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-remove-user-modal"]').should('be.visible');
+  });
+
+  it('should be able to open Delete User Groups modal from toolbar', () => {
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+    cy.get('[data-ouia-component-id^="iam-user-groups-table-table-tr-0"]').find('input[type="checkbox"]').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown"]').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown"] button').contains('Delete user group').click();
+  });
 });
