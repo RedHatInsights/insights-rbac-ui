@@ -1,3 +1,10 @@
+# [1.8.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.1...v1.8.0) (2024-11-13)
+
+
+### Features
+
+* add detailed view to Workspaces ([#1682](https://github.com/RedHatInsights/insights-rbac-ui/issues/1682)) ([2f1efc1](https://github.com/RedHatInsights/insights-rbac-ui/commit/2f1efc1fdff0cdd77972b479d3d5a12ad300c204))
+
 ## [1.7.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.0...v1.7.1) (2024-11-12)
 
 
