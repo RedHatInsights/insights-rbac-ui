@@ -140,8 +140,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           <WarningModal
             ouiaId={`${ouiaId}-remove-role-modal`}
             isOpen={isDeleteModalOpen}
-            title={intl.formatMessage(messages.deleteUserModalTitle)}
-            confirmButtonLabel={intl.formatMessage(messages.remove)}
+            title={intl.formatMessage(messages.deleteCustomRoleModalHeader)}
+            confirmButtonLabel={intl.formatMessage(messages.deleteRoleConfirm)}
             confirmButtonVariant={ButtonVariant.danger}
             withCheckbox
             checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
