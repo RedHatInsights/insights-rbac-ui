@@ -6,7 +6,6 @@ import listWorkspaces from '@redhat-cloud-services/rbac-client/dist/v2/Workspace
 import createWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesCreate';
 import updateWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
-// import listWorkspaces from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesList';
 import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
 
 import { RBAC_API_BASE_2 } from '../../utilities/constants';
