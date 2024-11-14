@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useRef } from 'react';
+import React, { useEffect, useCallback, useState, useRef, useMemo } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
@@ -6,23 +6,18 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
-import { Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
+import { ButtonVariant, Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
-import { useIntl } from 'react-intl';
+import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
+import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
-
 import RolesDetails from './RolesTableDetails';
-
-const ROW_ACTIONS = [
-  { title: 'Edit role', onClick: () => console.log('Editing role') },
-  { title: 'Delete role', onClick: () => console.log('Removing role') },
-];
+import { WarningModal } from '@patternfly/react-component-groups';
 
 const PER_PAGE = [
   { title: '5', value: 5 },
@@ -38,7 +33,9 @@ interface RolesTableProps {
   selectedRole?: Role;
 }
 
-const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = undefined }) => {
+const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentRole, setCurrentRole] = useState<Role | undefined>();
   const { roles, totalCount } = useSelector((state: RBACStore) => ({
     roles: state.roleReducer.roles.data || [],
     totalCount: state.roleReducer.roles.meta.count,
@@ -47,6 +44,11 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
   const { trigger } = useDataViewEventsContext();
 
   const intl = useIntl();
+
+  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, role: Role) => {
+    setCurrentRole(role);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
 
   const COLUMNS: string[] = [
     intl.formatMessage(messages.name),
@@ -83,26 +85,42 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
     });
   }, [fetchData, page, perPage]);
 
-  const handleRowClick = (role: Role | undefined) => {
-    trigger(EventTypes.rowClick, role);
-  };
+  const rows = useMemo(() => {
+    const handleRowClick = (event: any, role: Role | undefined) => {
+      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
+    };
 
-  const rows = roles.map((role) => ({
-    row: Object.values({
-      display_name: role.display_name,
-      description: role.description,
-      permissions: role.accessCount,
-      workspaces: '',
-      user_groups: '',
-      last_modified: role.modified,
-      rowActions: { cell: <ActionsColumn items={ROW_ACTIONS} />, props: { isActionCell: true } },
-    }),
-    props: {
-      isClickable: true,
-      onRowClick: () => handleRowClick(selectedRole?.display_name === role.display_name ? undefined : role),
-      isRowSelected: selectedRole?.name === role.name,
-    },
-  }));
+    return roles.map((role: Role) => ({
+      row: Object.values({
+        display_name: role.display_name,
+        description: role.description,
+        permissions: role.accessCount,
+        workspaces: '',
+        user_groups: '',
+        last_modified: role.modified,
+        rowActions: {
+          cell: (
+            <ActionsColumn
+              items={[
+                { title: 'Edit role', onClick: () => console.log('Editing role') },
+                {
+                  title: 'Delete role',
+                  isDisabled: role.system,
+                  onClick: (event: KeyboardEvent | React.MouseEvent) => handleModalToggle(event, role),
+                },
+              ]}
+            />
+          ),
+          props: { isActionCell: true },
+        },
+      }),
+      props: {
+        isClickable: true,
+        onRowClick: (event: any) => handleRowClick(event, selectedRole?.display_name === role.display_name ? undefined : role),
+        isRowSelected: selectedRole?.name === role.name,
+      },
+    }));
+  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -118,6 +136,30 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole = u
     <React.Fragment>
       <ContentHeader title="Roles" subtitle={''} />
       <PageSection isWidthLimited>
+        {isDeleteModalOpen && (
+          <WarningModal
+            ouiaId={`${ouiaId}-remove-role-modal`}
+            isOpen={isDeleteModalOpen}
+            title={intl.formatMessage(messages.deleteCustomRoleModalHeader)}
+            confirmButtonLabel={intl.formatMessage(messages.deleteRoleConfirm)}
+            confirmButtonVariant={ButtonVariant.danger}
+            withCheckbox
+            checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
+            onClose={() => setIsDeleteModalOpen(false)}
+            onConfirm={() => {
+              dispatch(removeRole(currentRole?.uuid));
+              setIsDeleteModalOpen(false);
+            }}
+          >
+            <FormattedMessage
+              {...messages.deleteCustomRoleModalBody}
+              values={{
+                strong: (text) => <strong>{text}</strong>,
+                name: currentRole?.display_name,
+              }}
+            />
+          </WarningModal>
+        )}
         <DataView ouiaId={ouiaId} selection={selection}>
           <DataViewToolbar
             ouiaId={`${ouiaId}-header-toolbar`}
