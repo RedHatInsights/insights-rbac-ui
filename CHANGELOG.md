@@ -1,3 +1,10 @@
+# [1.9.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.8.0...v1.9.0) (2024-11-14)
+
+
+### Features
+
+* **rolestable:** delete roles modal ([#1696](https://github.com/RedHatInsights/insights-rbac-ui/issues/1696)) ([546a465](https://github.com/RedHatInsights/insights-rbac-ui/commit/546a465963ea395fdb9c776313687b464d92b816))
+
 # [1.8.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.1...v1.8.0) (2024-11-13)
 
 
