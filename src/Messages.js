@@ -2294,6 +2294,26 @@ export default defineMessages({
     defaultMessage:
       'Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.',
   },
+  usersEmptyStateTitle: {
+    id: 'usersEmptyStateTitle',
+    description: 'Empty state title Users',
+    defaultMessage: 'No users found',
+  },
+  usersEmptyStateSubtitle: {
+    id: 'usersEmptyStateSubtitle',
+    description: 'Empty state subtitle Users',
+    defaultMessage: 'This filter criteria matches no users.{br}Try changing your filter input.',
+  },
+  userGroupsEmptyStateTitle: {
+    id: 'userGroupsEmptyStateTitle',
+    description: 'Empty state title User groups',
+    defaultMessage: 'No user group found',
+  },
+  userGroupsEmptyStateSubtitle: {
+    id: 'userGroupsEmptyStateSubtitle',
+    description: 'Empty state subtitle User groups',
+    defaultMessage: 'This filter criteria matches no user groups.{br}Try changing your filter input.',
+  },
   assignedRoles: {
     id: 'assignedRoles',
     description: 'User details assigned roles label',
