@@ -15,7 +15,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
-import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { DataViewTrObject, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { WarningModal } from '@patternfly/react-component-groups';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
@@ -121,7 +121,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, group);
     };
 
-    return groups.map((group: any) => ({
+    return groups.map((group: Group) => ({
       id: group.uuid,
       row: [
         group.name,
@@ -133,10 +133,10 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
         ),
         group.principalCount,
-        group.serviceAccounts || '?', // not currently in API
+        '?', // not currently in API
         group.roleCount,
-        group.workspaces || '?', // not currently in API
-        formatDistanceToNow(new Date(group.modified), { addSuffix: true }),
+        '?', // not currently in API
+        group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '',
         enableActions && {
           cell: (
             <ActionsColumn
@@ -151,6 +151,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
                 },
               ]}
               rowData={group}
+              isDisabled={group.platform_default || group.system}
             />
           ),
           props: { isActionCell: true },
@@ -166,6 +167,10 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
+  const isRowSystemOrPlatformDefault = (selectedRow: any) => {
+    const group = groups.find((group) => group.uuid === selectedRow.id);
+    return group?.platform_default || group?.system;
+  };
 
   const handleDeleteGroups = async (groupsToDelete: Group[]) => {
     await dispatch(removeGroups(groupsToDelete.map((group) => group.uuid)));
@@ -195,15 +200,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         <WarningModal
           ouiaId={`${ouiaId}-remove-user-modal`}
           isOpen={isDeleteModalOpen}
-          title={
-            <FormattedMessage
-              {...messages.deleteUserGroupModalTitle}
-              values={{
-                count: currentGroups.length,
-                plural: currentGroups.length > 1 ? intl.formatMessage(messages.groups) : intl.formatMessage(messages.group),
-              }}
-            />
-          }
+          title={intl.formatMessage(messages.deleteUserGroupModalTitle, { count: currentGroups.length })}
           withCheckbox
           checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
           confirmButtonLabel={intl.formatMessage(messages.remove)}
@@ -249,11 +246,13 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
                   {
                     title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
                     onClick: () => {
-                      handleDeleteModalToggle(groups.filter((group) => selected.some((selectedGroup) => selectedGroup.id === group.uuid)));
+                      handleDeleteModalToggle(
+                        groups.filter((group) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === group.uuid))
+                      );
                     },
                   },
                 ]}
-                isDisabled={selected.length === 0}
+                isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
               />
             </div>
           }
