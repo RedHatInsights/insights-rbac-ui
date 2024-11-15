@@ -1,3 +1,10 @@
+# [1.11.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.10.0...v1.11.0) (2024-11-15)
+
+
+### Features
+
+* add empty state and loading state to Users & User Groups ([#1707](https://github.com/RedHatInsights/insights-rbac-ui/issues/1707)) ([92ea430](https://github.com/RedHatInsights/insights-rbac-ui/commit/92ea430d3c461f11fa2428588e687fde4cab55c4))
+
 # [1.10.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.9.0...v1.10.0) (2024-11-15)
 
 
