@@ -1,11 +1,13 @@
-import React, { useEffect, useCallback, useState, Fragment, useMemo } from 'react';
+import React, { useEffect, useCallback, useState, Fragment, useMemo, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
+import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Button, Pagination, ButtonVariant } from '@patternfly/react-core';
+import { Pagination, ButtonVariant } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
@@ -13,9 +15,12 @@ import { RBACStore } from '../../redux/store';
 import { User } from '../../redux/reducers/user-reducer';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { useSearchParams } from 'react-router-dom';
+import { Outlet, useSearchParams } from 'react-router-dom';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import paths from '../../utilities/pathnames';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import useAppNavigate from '../../hooks/useAppNavigate';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -35,11 +40,13 @@ interface UsersTableProps {
 }
 
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
+  const { getBundle, getApp } = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const dispatch = useDispatch();
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
+  const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
 
   const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, user: User) => {
     setCurrentUser(user);
@@ -176,21 +183,41 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
           actions={
-            <Button
-              variant="primary"
-              onClick={() => {
-                onAddUserClick(selected);
-              }}
-              isDisabled={selected.length === 0}
-              ouiaId={`${OUIA_ID}-add-user-button`}
-            >
-              {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
-            </Button>
+            <ResponsiveActions breakpoint="lg" ouiaId="example-actions">
+              <ResponsiveAction
+                isPersistent
+                onClick={() => {
+                  onAddUserClick(selected);
+                }}
+                variant="primary"
+                isDisabled={selected.length === 0}
+                ouiaId={`${OUIA_ID}-add-user-button`}
+              >
+                {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
+              </ResponsiveAction>
+              <ResponsiveAction
+                variant="primary"
+                onClick={() => {
+                  appNavigate(paths['invite-group-users'].link);
+                }}
+              >
+                {intl.formatMessage(messages.inviteUsers)}
+              </ResponsiveAction>
+            </ResponsiveActions>
           }
         />
         <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
+      <Suspense>
+        <Outlet
+          context={{
+            fetchData: () => {
+              appNavigate(paths['users-and-user-groups'].link);
+            },
+          }}
+        />
+      </Suspense>
     </Fragment>
   );
 };

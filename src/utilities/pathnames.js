@@ -200,7 +200,12 @@ const pathnames = {
   },
   'users-and-user-groups': {
     link: '/users-and-user-groups',
-    path: '/users-and-user-groups/*',
+    path: '/users-and-user-groups',
+    title: 'Users & User Groups',
+  },
+  'invite-group-users': {
+    link: '/users-and-user-groups/invite',
+    path: '/users-and-user-groups/invite',
     title: 'Users & User Groups',
   },
 };

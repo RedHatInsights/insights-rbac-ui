@@ -54,7 +54,7 @@ interface MainTableProps {
   setFilterValue: (value: FilterProps) => void;
   pagination: { limit?: number; offset?: number; count?: number; noBottom?: boolean };
   fetchData: (config: FetchDataProps) => void;
-  toolbarButtons?: () => React.ReactNode[];
+  toolbarButtons?: () => (React.JSX.Element | React.ReactNode)[];
   filterPlaceholder?: string;
   filters: Array<{
     value: string | number | Array<unknown>;

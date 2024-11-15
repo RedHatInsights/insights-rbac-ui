@@ -2,6 +2,10 @@ import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
 import { isInt, isStage, isITLessProd } from '../../itLessConfig';
 
+export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view-edit-user';
+export const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view-all';
+export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view-edit-all';
+
 const principalApi = getPrincipalApi();
 
 const principalStatusApiMap = {
