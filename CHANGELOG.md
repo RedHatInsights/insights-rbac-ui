@@ -1,3 +1,10 @@
+# [1.10.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.9.0...v1.10.0) (2024-11-15)
+
+
+### Features
+
+* **invite-users:** add invite users modal via data driven forms ([#1706](https://github.com/RedHatInsights/insights-rbac-ui/issues/1706)) ([98cb047](https://github.com/RedHatInsights/insights-rbac-ui/commit/98cb047b14ff13885d7ce2ea3f92cdccd5a7df49))
+
 # [1.9.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.8.0...v1.9.0) (2024-11-14)
 
 
