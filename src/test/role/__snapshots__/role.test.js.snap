@@ -66,7 +66,7 @@ exports[`role role and group should render correctly with router 1`] = `
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -620,7 +620,7 @@ exports[`role role and group should render correctly with router and redux store
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -835,7 +835,7 @@ exports[`role role and group should render correctly with router and redux store
                           aria-expanded="false"
                           aria-label="Group filter"
                           class="pf-v5-c-menu-toggle ins-c-group-menu-toggle"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-3"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-default-1"
                           data-ouia-component-type="PF5/MenuToggle"
                           data-ouia-safe="true"
                           type="button"
@@ -1571,7 +1571,7 @@ exports[`role role only should render correctly with router 1`] = `
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -2098,7 +2098,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -2184,7 +2184,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                 <button
                   aria-expanded="false"
                   class="pf-v5-c-menu-toggle"
-                  data-ouia-component-id="OUIA-Generated-MenuToggle-4"
+                  data-ouia-component-id="OUIA-Generated-MenuToggle-3"
                   data-ouia-component-type="PF5/MenuToggle"
                   data-ouia-safe="true"
                   type="button"
@@ -2243,7 +2243,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                       aria-expanded="false"
                       aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
-                      data-ouia-component-id="OUIA-Generated-MenuToggle-5"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-4"
                       data-ouia-component-type="PF5/MenuToggle"
                       data-ouia-safe="true"
                       type="button"
@@ -2313,7 +2313,7 @@ exports[`role role only should render correctly with router and redux store 1`] 
                           aria-expanded="false"
                           aria-label="Group filter"
                           class="pf-v5-c-menu-toggle ins-c-group-menu-toggle"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-6"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-default-2"
                           data-ouia-component-type="PF5/MenuToggle"
                           data-ouia-safe="true"
                           type="button"
@@ -3060,7 +3060,7 @@ exports[`role should render permissions table 1`] = `
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -3146,7 +3146,7 @@ exports[`role should render permissions table 1`] = `
                 <button
                   aria-expanded="false"
                   class="pf-v5-c-menu-toggle"
-                  data-ouia-component-id="OUIA-Generated-MenuToggle-7"
+                  data-ouia-component-id="OUIA-Generated-MenuToggle-5"
                   data-ouia-component-type="PF5/MenuToggle"
                   data-ouia-safe="true"
                   type="button"
@@ -3205,7 +3205,7 @@ exports[`role should render permissions table 1`] = `
                       aria-expanded="false"
                       aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
-                      data-ouia-component-id="OUIA-Generated-MenuToggle-8"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-6"
                       data-ouia-component-type="PF5/MenuToggle"
                       data-ouia-safe="true"
                       type="button"
@@ -3275,7 +3275,7 @@ exports[`role should render permissions table 1`] = `
                           aria-expanded="false"
                           aria-label="Group filter"
                           class="pf-v5-c-menu-toggle ins-c-group-menu-toggle"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-9"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-default-3"
                           data-ouia-component-type="PF5/MenuToggle"
                           data-ouia-safe="true"
                           type="button"
@@ -4738,7 +4738,7 @@ exports[`role should render top toolbar 1`] = `
           class="pf-v5-l-flex pf-m-justify-content-space-between"
         >
           <div
-            class=""
+            class="pf-v5-u-flex-grow-1"
           >
             <h1
               class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
@@ -4824,7 +4824,7 @@ exports[`role should render top toolbar 1`] = `
                 <button
                   aria-expanded="false"
                   class="pf-v5-c-menu-toggle"
-                  data-ouia-component-id="OUIA-Generated-MenuToggle-10"
+                  data-ouia-component-id="OUIA-Generated-MenuToggle-7"
                   data-ouia-component-type="PF5/MenuToggle"
                   data-ouia-safe="true"
                   type="button"
@@ -4883,7 +4883,7 @@ exports[`role should render top toolbar 1`] = `
                       aria-expanded="false"
                       aria-label="Conditional filter toggle"
                       class="pf-v5-c-menu-toggle ins-c-conditional-filter__group"
-                      data-ouia-component-id="OUIA-Generated-MenuToggle-11"
+                      data-ouia-component-id="OUIA-Generated-MenuToggle-8"
                       data-ouia-component-type="PF5/MenuToggle"
                       data-ouia-safe="true"
                       type="button"
@@ -4953,7 +4953,7 @@ exports[`role should render top toolbar 1`] = `
                           aria-expanded="false"
                           aria-label="Group filter"
                           class="pf-v5-c-menu-toggle ins-c-group-menu-toggle"
-                          data-ouia-component-id="OUIA-Generated-MenuToggle-12"
+                          data-ouia-component-id="OUIA-Generated-MenuToggle-default-4"
                           data-ouia-component-type="PF5/MenuToggle"
                           data-ouia-safe="true"
                           type="button"

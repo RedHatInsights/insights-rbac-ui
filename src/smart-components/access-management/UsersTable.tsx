@@ -7,20 +7,21 @@ import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynam
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination, ButtonVariant } from '@patternfly/react-core';
-import { ActionsColumn } from '@patternfly/react-table';
+import { ButtonVariant, Pagination, EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { ActionsColumn, TableVariant } from '@patternfly/react-table';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { User } from '../../redux/reducers/user-reducer';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { WarningModal } from '@patternfly/react-component-groups';
-import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
 import paths from '../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import { DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { SearchIcon } from '@patternfly/react-icons';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -42,6 +43,7 @@ interface UsersTableProps {
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
   const { getBundle, getApp } = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const dispatch = useDispatch();
   const intl = useIntl();
@@ -53,9 +55,10 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const { users, totalCount } = useSelector((state: RBACStore) => ({
+  const { users, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     users: state.userReducer.users.data || [],
     totalCount: state.userReducer.users.meta.count,
+    isLoading: state.userReducer.isUserDataLoading,
   }));
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -81,6 +84,14 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       count: totalCount || 0,
     });
   }, [fetchData, page, perPage]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+    }
+  }, [totalCount, isLoading]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
@@ -148,6 +159,20 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     />
   );
 
+  const empty = (
+    <EmptyState>
+      <EmptyStateHeader titleText={intl.formatMessage(messages.usersEmptyStateTitle)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+
   return (
     <Fragment>
       {isDeleteModalOpen && (
@@ -167,7 +192,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           {`${currentUser?.username} ${intl.formatMessage(messages.deleteUserModalBody)}`}
         </WarningModal>
       )}
-      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }}>
+      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }} activeState={activeState}>
         <DataViewToolbar
           ouiaId={`${OUIA_ID}-header-toolbar`}
           bulkSelect={
@@ -206,7 +231,11 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
             </ResponsiveActions>
           }
         />
-        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
+        {isLoading ? (
+          <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
+        ) : (
+          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
+        )}
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
       <Suspense>

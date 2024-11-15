@@ -1,21 +1,23 @@
-import React, { useEffect, useCallback, useMemo } from 'react';
+import React, { useEffect, useCallback, useMemo, useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { Pagination, Tooltip } from '@patternfly/react-core';
-import { ActionsColumn } from '@patternfly/react-table';
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
+import { ActionsColumn, TableVariant } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import { fetchGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
-import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { SearchIcon } from '@patternfly/react-icons';
+import { SkeletonTable } from '@patternfly/react-component-groups';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -45,6 +47,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   focusedGroup,
 }) => {
   const dispatch = useDispatch();
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
 
@@ -53,9 +56,10 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     { title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']), onClick: () => console.log('DELETE USER GROUP') },
   ];
 
-  const { groups, totalCount } = useSelector((state: RBACStore) => ({
+  const { groups, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer?.groups?.data || [],
     totalCount: state.groupReducer?.groups?.meta.count || 0,
+    isLoading: state.groupReducer?.isLoading,
   }));
 
   let pagination;
@@ -98,6 +102,14 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
       count: totalCount || 0,
     });
   }, [fetchData, page, perPage]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+    }
+  }, [totalCount, isLoading]);
 
   useEffect(() => {
     onChange?.(selected);
@@ -161,8 +173,26 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     />
   );
 
+  const empty = (
+    <EmptyState>
+      <EmptyStateHeader
+        titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)}
+        headingLevel="h4"
+        icon={<EmptyStateIcon icon={SearchIcon} />}
+      />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['userGroupsEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+
   return (
-    <DataView ouiaId={ouiaId} selection={selection}>
+    <DataView ouiaId={ouiaId} selection={selection} activeState={activeState}>
       <DataViewToolbar
         ouiaId={`${ouiaId}-header-toolbar`}
         bulkSelect={
@@ -178,7 +208,11 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         }
         pagination={React.cloneElement(paginationComponent, { isCompact: true })}
       />
-      <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} />
+      {isLoading ? (
+        <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
+      ) : (
+        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
+      )}
       <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
     </DataView>
   );
