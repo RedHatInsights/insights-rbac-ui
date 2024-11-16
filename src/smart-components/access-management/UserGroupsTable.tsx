@@ -5,15 +5,7 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { 
-  ButtonVariant, 
-  EmptyState, 
-  EmptyStateBody, 
-  EmptyStateHeader, 
-  EmptyStateIcon, 
-  Pagination, 
-  Tooltip 
-} from '@patternfly/react-core';
+import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
 import { ActionsColumn, TableVariant } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
@@ -25,7 +17,7 @@ import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
-import { SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -273,39 +265,29 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
             />
           }
           actions={
-            <div data-ouia-component-id={`${ouiaId}-actions-dropdown`}>
-              <ActionsColumn
-                items={[
-                  {
-                    title: intl.formatMessage(messages.usersAndUserGroupsEditUserGroup),
-                    onClick: () => console.log('EDIT USER GROUP'),
-                  },
-                  {
-                    title: intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup),
-                    onClick: () => {
-                      handleDeleteModalToggle(
-                        groups.filter((group) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === group.uuid))
-                      );
-                    },
-                  },
-                ]}
+            <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+              <ResponsiveAction
                 isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
-              />
-            </div>
+                onClick={() => console.log('EDIT USER GROUP')}
+              >
+                {intl.formatMessage(messages.usersAndUserGroupsEditUserGroup)}
+              </ResponsiveAction>
+              <ResponsiveAction
+                isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
+                onClick={() => {
+                  handleDeleteModalToggle(groups.filter((group) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === group.uuid)));
+                }}
+              >
+                {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)}
+              </ResponsiveAction>
+            </ResponsiveActions>
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
         />
         {isLoading ? (
           <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
         ) : (
-          <DataViewTable 
-            variant="compact" 
-            aria-label="Users Table" 
-            ouiaId={`${ouiaId}-table`} 
-            columns={COLUMNS} 
-            rows={rows} 
-            states={{ empty }} 
-          />
+          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
         )}
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
