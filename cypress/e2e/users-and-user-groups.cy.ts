@@ -139,7 +139,7 @@ describe('Users and User Groups page', () => {
   it('should be able to open Delete User Groups modal from toolbar', () => {
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-tr-0"]').find('input[type="checkbox"]').click();
-    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown"]').click();
-    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown"] button').contains('Delete user group').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"]').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"] button').contains('Delete user group').click();
   });
 });
