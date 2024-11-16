@@ -1,3 +1,31 @@
+# [1.11.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.10.0...v1.11.0) (2024-11-15)
+
+
+### Features
+
+* add empty state and loading state to Users & User Groups ([#1707](https://github.com/RedHatInsights/insights-rbac-ui/issues/1707)) ([92ea430](https://github.com/RedHatInsights/insights-rbac-ui/commit/92ea430d3c461f11fa2428588e687fde4cab55c4))
+
+# [1.10.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.9.0...v1.10.0) (2024-11-15)
+
+
+### Features
+
+* **invite-users:** add invite users modal via data driven forms ([#1706](https://github.com/RedHatInsights/insights-rbac-ui/issues/1706)) ([98cb047](https://github.com/RedHatInsights/insights-rbac-ui/commit/98cb047b14ff13885d7ce2ea3f92cdccd5a7df49))
+
+# [1.9.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.8.0...v1.9.0) (2024-11-14)
+
+
+### Features
+
+* **rolestable:** delete roles modal ([#1696](https://github.com/RedHatInsights/insights-rbac-ui/issues/1696)) ([546a465](https://github.com/RedHatInsights/insights-rbac-ui/commit/546a465963ea395fdb9c776313687b464d92b816))
+
+# [1.8.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.1...v1.8.0) (2024-11-13)
+
+
+### Features
+
+* add detailed view to Workspaces ([#1682](https://github.com/RedHatInsights/insights-rbac-ui/issues/1682)) ([2f1efc1](https://github.com/RedHatInsights/insights-rbac-ui/commit/2f1efc1fdff0cdd77972b479d3d5a12ad300c204))
+
 ## [1.7.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.7.0...v1.7.1) (2024-11-12)
 
 

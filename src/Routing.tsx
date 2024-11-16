@@ -11,11 +11,13 @@ import { useFlag } from '@unleash/proxy-client-react';
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
 const WorkspacesOverview = lazy(() => import('./smart-components/workspaces/overview/about-access-tab'));
-const Workspaces = lazy(() => import('./smart-components/workspaces/workspaces'));
+const WorkspaceList = lazy(() => import('./smart-components/workspaces/WorkspaceList'));
+const WorkspaceDetail = lazy(() => import('./smart-components/workspaces/WorkspaceDetail'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
 const InviteUsersModal = lazy(() => import('./smart-components/user/invite-users/invite-users-modal'));
+const InviteUsersModalCommonAuth = lazy(() => import('./smart-components/user/invite-users/invite-users-modal-common-auth'));
 
 const Roles = lazy(() => import('./smart-components/role/roles'));
 const Role = lazy(() => import('./smart-components/role/role'));
@@ -43,10 +45,16 @@ const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quicks
 
 const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups'));
 
-const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag }: Record<string, boolean>) => [
+const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel }: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
+    childRoutes: [
+      isCommonAuthModel && {
+        path: pathnames['invite-group-users'].path,
+        element: InviteUsersModalCommonAuth,
+      },
+    ],
   },
   {
     path: pathnames.overview.path,
@@ -54,7 +62,11 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag }: Record
   },
   {
     path: pathnames.workspaces.path,
-    element: Workspaces,
+    element: WorkspaceList,
+  },
+  {
+    path: pathnames['workspace-detail'].path,
+    element: WorkspaceDetail,
   },
   {
     path: pathnames['user-detail'].path,
@@ -74,9 +86,9 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag }: Record
     path: pathnames.users.path,
     element: Users,
     childRoutes: [
-      isITLess && {
+      (isITLess || isCommonAuthModel) && {
         path: pathnames['invite-users'].path,
-        element: InviteUsersModal,
+        element: isCommonAuthModel ? InviteUsersModalCommonAuth : InviteUsersModal,
       },
     ],
   },
@@ -262,6 +274,7 @@ const Routing = () => {
   const location = useLocation();
   const { updateDocumentTitle, isBeta } = useChrome();
   const isITLess = useFlag('platform.rbac.itless');
+  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
@@ -282,7 +295,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag });
+  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 
   const { getBundle, getApp } = useChrome();

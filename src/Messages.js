@@ -28,6 +28,67 @@ export default defineMessages({
     defaultMessage:
       'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
   },
+  inviteUsersFormManageSupportCasesFieldTitle: {
+    id: 'inviteUsersFormManageSupportCasesFieldTitle',
+    description: 'Invite users form manage support cases field title',
+    defaultMessage: 'Organization administrators',
+  },
+  inviteUsersFormManageSupportCasesFieldDescription: {
+    id: 'inviteUsersFormManageSupportCasesFieldDescription',
+    description: 'Invite users form manage support cases field description',
+    defaultMessage:
+      'The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.',
+  },
+  inviteUsersFormDownloadSoftwareUpdatesFieldTitle: {
+    id: 'inviteUsersFormDownloadSoftwareUpdatesFieldTitle',
+    description: 'Invite users form download software and updates field title',
+    defaultMessage: 'Download software and updates',
+  },
+  inviteUsersFormDownloadSoftwareUpdatesFieldDescription: {
+    id: 'inviteUsersFormDownloadSoftwareUpdatesFieldDescription',
+    description: 'Invite users form download software and updates field description',
+    defaultMessage: 'User can download software and updates from the Red Hat Customer Portal.',
+  },
+  inviteUsersFormManageSubscriptionsFieldTitle: {
+    id: 'inviteUsersFormManageSubscriptionsFieldTitle',
+    description: 'Invite users form manage subscriptions field title',
+    defaultMessage: 'Manage your subscriptions',
+  },
+  inviteUsersFormManageSubscriptionsFieldDescription: {
+    id: 'inviteUsersFormManageSubscriptionsFieldDescription',
+    description: 'Invite users form manage subscriptions field description',
+    defaultMessage: 'Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.',
+  },
+  inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle: {
+    id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle',
+    description: 'Invite users form manage subscriptions field View edit Users only title',
+    defaultMessage: 'View/Edit users only',
+  },
+  inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription: {
+    id: 'inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription',
+    description: 'Invite users form manage subscriptions field View edit Users only description',
+    defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
+  },
+  inviteUsersFormManageSubscriptionsViewAllTitle: {
+    id: 'inviteUsersFormManageSubscriptionsViewAllTitle',
+    description: 'Invite users form manage subscriptions field view all option title',
+    defaultMessage: 'User can view and edit only the systems that they have registered in the account.',
+  },
+  inviteUsersFormManageSubscriptionsViewAllDescription: {
+    id: 'inviteUsersFormManageSubscriptionsViewAllDescription',
+    description: 'Invite users form manage subscriptions field view all option description',
+    defaultMessage: 'User can view (but not edit) all systems and Subscription Management Applications in the account.',
+  },
+  inviteUsersFormManageSubscriptionsViewEditAllTitle: {
+    id: 'inviteUsersFormManageSubscriptionsViewEditAllTitle',
+    description: 'Invite users form manage subscriptions field View/Edit all option title',
+    defaultMessage: 'View/Edit all',
+  },
+  inviteUsersFormManageSubscriptionsViewEditAllDescription: {
+    id: 'inviteUsersFormManageSubscriptionsViewEditAllDescription',
+    description: 'Invite users form manage subscriptions field View/Edit all option description',
+    defaultMessage: 'User can view and edit all systems and Subscription Management Applications in the account.',
+  },
   inviteUsersFormEmailsFieldTitle: {
     id: 'inviteUsersFormEmailsFieldTitle',
     description: 'Invite users form emails field title',
@@ -36,7 +97,22 @@ export default defineMessages({
   inviteUsersFormEmailsFieldDescription: {
     id: 'inviteUsersFormEmailsFieldDescription',
     description: 'Invite users form emails field description',
-    defaultMessage: 'Enter up to 50 e-mail addresses separated by commas or returns.',
+    defaultMessage: 'Enter up to 50 email addresses separated by commas or returns.',
+  },
+  inviteUsersFormEmailsFieldError: {
+    id: 'inviteUsersFormEmailsFieldError',
+    description: 'Invite users form emails field error message is one email address is not valid.',
+    defaultMessage: 'Some of the email addresses you provided are not valid',
+  },
+  inviteUsersMessageTitle: {
+    id: 'inviteUsersMessageTitle',
+    description: 'Message to be sent to each email',
+    defaultMessage: 'Send a message with the invite',
+  },
+  inviteUsersCustomerPortalPermissions: {
+    id: 'inviteUsersCustomerPortalPermissions',
+    description: 'Customer portal permissions title',
+    defaultMessage: 'Customer Portal access permissions',
   },
   inviteUsersCancelled: {
     id: 'inviteUsersCancelled',
@@ -967,6 +1043,46 @@ export default defineMessages({
     id: 'workspacesLearnMore',
     description: 'learn more link',
     defaultMessage: 'Learn more about workspaces',
+  },
+  workspacesActionEditWorkspace: {
+    id: 'workspacesActionEditWorkspace',
+    description: 'Menu item Edit workspace',
+    defaultMessage: 'Edit workspace',
+  },
+  workspacesActionGrantAccessToWorkspace: {
+    id: 'workspacesActionGrantAccessToWorkspace',
+    description: 'Menu item Grant access to workspace',
+    defaultMessage: 'Grant access to workspace',
+  },
+  workspacesActionCreateSubWorkspace: {
+    id: 'workspacesActionCreateSubWorkspace',
+    description: 'Menu item Create sub-workspace',
+    defaultMessage: 'Create sub-workspace',
+  },
+  workspacesActionViewTenant: {
+    id: 'workspacesActionViewTenant',
+    description: 'Menu item View tenant',
+    defaultMessage: 'View tenant',
+  },
+  workspacesActionManageIntegrations: {
+    id: 'workspacesActionManageIntegrations',
+    description: 'Menu item Manage integrations',
+    defaultMessage: 'Manage integrations',
+  },
+  workspacesActionManageNotifications: {
+    id: 'workspacesActionManageNotifications',
+    description: 'Menu item Manage notifications',
+    defaultMessage: 'Manage notifications',
+  },
+  workspacesActionDeleteWorkspace: {
+    id: 'workspacesActionDeleteWorkspace',
+    description: 'Menu item Delete workspace',
+    defaultMessage: 'Delete workspace',
+  },
+  workspacesDetailBreadcrumbTitle: {
+    id: 'workspacesDetailBreadcrumbTitle',
+    description: 'Workspace detail breadcrumb title',
+    defaultMessage: 'Workspace hierarchy: ',
   },
   viewGroupsBtn: {
     id: 'viewGroupsBtn',
@@ -2178,6 +2294,26 @@ export default defineMessages({
     defaultMessage:
       'Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.',
   },
+  usersEmptyStateTitle: {
+    id: 'usersEmptyStateTitle',
+    description: 'Empty state title Users',
+    defaultMessage: 'No users found',
+  },
+  usersEmptyStateSubtitle: {
+    id: 'usersEmptyStateSubtitle',
+    description: 'Empty state subtitle Users',
+    defaultMessage: 'This filter criteria matches no users.{br}Try changing your filter input.',
+  },
+  userGroupsEmptyStateTitle: {
+    id: 'userGroupsEmptyStateTitle',
+    description: 'Empty state title User groups',
+    defaultMessage: 'No user group found',
+  },
+  userGroupsEmptyStateSubtitle: {
+    id: 'userGroupsEmptyStateSubtitle',
+    description: 'Empty state subtitle User groups',
+    defaultMessage: 'This filter criteria matches no user groups.{br}Try changing your filter input.',
+  },
   assignedRoles: {
     id: 'assignedRoles',
     description: 'User details assigned roles label',
@@ -2233,5 +2369,20 @@ export default defineMessages({
     id: 'removeFromUserGroup',
     description: 'Action column option to remove user from group',
     defaultMessage: 'Remove from user groups',
+  },
+  deleteCustomRoleModalHeader: {
+    id: 'deleteCustomRoleModalHeader',
+    description: 'Modal header text for deleting custom role',
+    defaultMessage: 'Delete role?',
+  },
+  deleteCustomRoleModalBody: {
+    id: 'deleteCustomRoleModalBody',
+    description: 'Modal body text for deleting custom role',
+    defaultMessage: 'Deleting the <strong>{name}</strong> may remove acess to certain user groups in your organization',
+  },
+  deleteRoleConfirm: {
+    id: 'deleteRoleConfirm',
+    description: 'confirm button for deleting role',
+    defaultMessage: 'Delete role',
   },
 });

@@ -1,16 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
-import messages from '../../Messages';
-import { BulkSelect, BulkSelectValue, ContentHeader } from '@patternfly/react-component-groups';
-import { PageSection } from '@patternfly/react-core';
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups';
 import { DataView, DataViewTable, DataViewTh, DataViewToolbar, DataViewTrTree, useDataViewSelection } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
+import AppLink from '../../presentational-components/shared/AppLink';
+import pathnames from '../../utilities/pathnames';
 
-const Workspaces = () => {
-  const intl = useIntl();
+const WorkspaceListTable = () => {
   const dispatch = useDispatch();
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
@@ -54,7 +52,16 @@ const Workspaces = () => {
 
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
-      row: [workspace.name, workspace.description],
+      row: [
+        <AppLink
+          to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
+          key={`${workspace.id}-detail`}
+          className="rbac-m-hide-on-sm"
+        >
+          {workspace.name}
+        </AppLink>,
+        workspace.description,
+      ],
       id: workspace.id,
       ...(workspace.children && workspace.children.length > 0
         ? {
@@ -74,37 +81,26 @@ const Workspaces = () => {
 
   return (
     <React.Fragment>
-      <ContentHeader
-        title={intl.formatMessage(messages.workspaces)}
-        subtitle={intl.formatMessage(messages.workspacesSubtitle)}
-        linkProps={{
-          label: intl.formatMessage(messages.workspacesLearnMore),
-          isExternal: true,
-          href: '#', //TODO: URL to be specified by UX team later
-        }}
-      />
-      <PageSection>
-        {isLoading && <p>Loading...</p>}
-        {error && <p>Error: {error}</p>}
-        {!isLoading && !error && (
-          <DataView selection={selection}>
-            <DataViewToolbar
-              bulkSelect={
-                <BulkSelect
-                  canSelectAll
-                  isDataPaginated={false}
-                  totalCount={workspaces.length}
-                  selectedCount={selection.selected.length}
-                  onSelect={handleBulkSelect}
-                />
-              }
-            />
-            <DataViewTable isTreeTable aria-label="Repositories table" ouiaId={'ouiaId'} columns={columns} rows={rows} />
-          </DataView>
-        )}
-      </PageSection>
+      {isLoading && <p>Loading state...</p>}
+      {error && <p>Error state: {error}</p>}
+      {!isLoading && !error && (
+        <DataView selection={selection}>
+          <DataViewToolbar
+            bulkSelect={
+              <BulkSelect
+                canSelectAll
+                isDataPaginated={false}
+                totalCount={workspaces.length}
+                selectedCount={selection.selected.length}
+                onSelect={handleBulkSelect}
+              />
+            }
+          />
+          <DataViewTable isTreeTable aria-label="Workspaces list table" ouiaId={'ouiaId'} columns={columns} rows={rows} />
+        </DataView>
+      )}
     </React.Fragment>
   );
 };
 
-export default Workspaces;
+export default WorkspaceListTable;

@@ -13,6 +13,11 @@ const pathnames = {
     path: '/workspaces/*',
     title: 'Workspaces',
   },
+  'workspace-detail': {
+    link: '/workspaces/:workspaceId',
+    path: '/workspaces/:workspaceId/*',
+    title: 'Workspace detail',
+  },
   groups: {
     link: '/groups',
     path: '/groups/*',
@@ -195,7 +200,12 @@ const pathnames = {
   },
   'users-and-user-groups': {
     link: '/users-and-user-groups',
-    path: '/users-and-user-groups/*',
+    path: '/users-and-user-groups',
+    title: 'Users & User Groups',
+  },
+  'invite-group-users': {
+    link: '/users-and-user-groups/invite',
+    path: '/users-and-user-groups/invite',
     title: 'Users & User Groups',
   },
 };

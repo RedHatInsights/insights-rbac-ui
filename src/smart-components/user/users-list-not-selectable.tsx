@@ -1,10 +1,11 @@
-import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
+import React, { useEffect, useState, useContext, useRef, useCallback, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
 import { fetchUsers, updateUsersFilters } from '../../redux/actions/user-actions';
 import UsersRow from '../../presentational-components/shared/UsersRow';
+import paths from '../../utilities/pathnames';
 import {
   defaultSettings,
   defaultAdminSettings,
@@ -19,6 +20,11 @@ import PermissionsContext from '../../utilities/permissions-context';
 import { createRows } from './user-table-helpers';
 import { ISortBy } from '@patternfly/react-table';
 import { UserFilters } from '../../redux/reducers/user-reducer';
+import AppLink from '../../presentational-components/shared/AppLink';
+import { Button } from '@patternfly/react-core';
+import { useFlag } from '@unleash/proxy-client-react';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 interface UsersListNotSelectableI {
   userLinks: boolean;
@@ -32,6 +38,9 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const location = useLocation();
   const dispatch = useDispatch();
   const { orgAdmin } = useContext(PermissionsContext);
+  const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
+  const { getBundle, getApp } = useChrome();
+  const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
   // use for text filter to focus
   const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
 
@@ -100,7 +109,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   useEffect(() => {
     if (usesMetaInURL) {
       isPaginationPresentInUrl(location) || applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
-      Object.values(filters).some((filter) => filter?.length > 0) &&
+      Object.values(filters).some((filter: unknown[]) => filter?.length > 0) &&
         !areFiltersPresentInUrl(location, Object.keys(filters)) &&
         syncDefaultFiltersWithUrl(location, navigate, Object.keys(filters), filters);
     }
@@ -111,73 +120,96 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setFilters({ username: '', ...payload });
   };
 
-  return (
-    <TableComposableToolbarView
-      isSelectable={false}
-      isCompact={false}
-      borders={false}
-      columns={columns}
-      rows={createRows(userLinks, users, intl)}
-      sortBy={sortByState}
-      onSort={(e, index, direction) => {
-        const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
-        setSortByState({ index, direction });
-        fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
-      }}
-      ouiaId="users-table"
-      fetchData={(config) => {
-        const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
-        const { username, email, count, limit, offset, orderBy } = config;
+  const toolbarButtons = () => [
+    <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+      <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+        {intl.formatMessage(messages.inviteUsers)}
+      </Button>
+    </AppLink>,
+  ];
 
-        Promise.resolve(fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL })).then(
-          () => {
-            if (innerRef !== null && innerRef.current !== null) {
-              innerRef.current.focus();
+  return (
+    <React.Fragment>
+      <TableComposableToolbarView
+        toolbarButtons={orgAdmin && isCommonAuthModel ? toolbarButtons : () => [] as React.ReactNode[]}
+        isSelectable={false}
+        isCompact={false}
+        borders={false}
+        columns={columns}
+        rows={createRows(userLinks, users, intl)}
+        sortBy={sortByState}
+        onSort={(e, index, direction) => {
+          const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
+          setSortByState({ index, direction });
+          fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
+        }}
+        ouiaId="users-table"
+        fetchData={(config) => {
+          const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
+          const { username, email, count, limit, offset, orderBy } = config;
+
+          Promise.resolve(fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL })).then(
+            () => {
+              if (innerRef !== null && innerRef.current !== null) {
+                innerRef.current.focus();
+              }
             }
-          }
-        );
-        applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
-        usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
-      }}
-      emptyFilters={{ username: '', email: '', status: [] }}
-      setFilterValue={({ username, email, status }) => {
-        updateFilters({
-          username: typeof username === 'undefined' ? filters.username : username,
-          email: typeof email === 'undefined' ? filters.email : email,
-          status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
-        });
-      }}
-      isLoading={isLoading}
-      pagination={pagination}
-      rowWrapper={UsersRow}
-      title={{ singular: intl.formatMessage(messages.user), plural: intl.formatMessage(messages.users).toLowerCase() }}
-      filters={[
-        {
-          key: 'username',
-          value: typeof filters?.username === 'object' || typeof filters?.username === 'undefined' ? '' : filters.username,
-          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
-          innerRef,
-        },
-        {
-          key: 'email',
-          value: filters.email || '',
-          placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
-          innerRef,
-        },
-        {
-          key: 'status',
-          value: filters.status || [],
-          label: intl.formatMessage(messages.status),
-          type: 'checkbox',
-          items: [
-            { label: intl.formatMessage(messages.active), value: 'Active' },
-            { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
-          ],
-        },
-      ]}
-      tableId="users-list"
-      {...props}
-    />
+          );
+          applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
+          usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
+        }}
+        emptyFilters={{ username: '', email: '', status: [] }}
+        setFilterValue={({ username, email, status }) => {
+          updateFilters({
+            username: typeof username === 'undefined' ? filters.username : username,
+            email: typeof email === 'undefined' ? filters.email : email,
+            status: typeof status === 'undefined' || status === filters.status ? filters.status : status,
+          });
+        }}
+        isLoading={isLoading}
+        pagination={pagination}
+        rowWrapper={UsersRow}
+        title={{ singular: intl.formatMessage(messages.user), plural: intl.formatMessage(messages.users).toLowerCase() }}
+        filters={[
+          {
+            key: 'username',
+            value: typeof filters?.username === 'object' || typeof filters?.username === 'undefined' ? '' : filters.username,
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.username).toLowerCase() }),
+            innerRef,
+          },
+          {
+            key: 'email',
+            value: filters.email || '',
+            placeholder: intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.email).toLowerCase() }),
+            innerRef,
+          },
+          {
+            key: 'status',
+            value: filters.status || [],
+            label: intl.formatMessage(messages.status),
+            type: 'checkbox',
+            items: [
+              { label: intl.formatMessage(messages.active), value: 'Active' },
+              { label: intl.formatMessage(messages.inactive), value: 'Inactive' },
+            ],
+          },
+        ]}
+        tableId="users-list"
+        {...props}
+      />
+      <Suspense>
+        <Outlet
+          context={{
+            fetchData: (isSubmit: boolean) => {
+              appNavigate(paths['users'].link);
+              if (isSubmit) {
+                fetchData({ ...pagination, filters, usesMetaInURL });
+              }
+            },
+          }}
+        />
+      </Suspense>
+    </React.Fragment>
   );
 };
 
