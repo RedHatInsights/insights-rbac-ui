@@ -3,6 +3,10 @@
     "defaultMessage": "Only Org. Administrators and cluster owners can perform actions on clusters.",
     "description": "Actions on clusters permissions message"
   },
+  "activateUsersButton": {
+    "defaultMessage": "Activate users",
+    "description": "activate users button text"
+  },
   "active": {
     "defaultMessage": "Active",
     "description": "Active label"
@@ -171,6 +175,10 @@
     "defaultMessage": "Add to group",
     "description": "Add to group label"
   },
+  "addToUserGroup": {
+    "defaultMessage": "Add to user group",
+    "description": "Action column option to add user to group"
+  },
   "addUserToConfigure": {
     "defaultMessage": "Add a user to configure user access.",
     "description": "Add a user to configure user access message"
@@ -255,6 +263,10 @@
     "defaultMessage": "Specify which inventory groups you'd like to give access for these permissions",
     "description": "Permissions for Groups"
   },
+  "applyWorkspacesRolePermission": {
+    "defaultMessage": "Specify which workspaces you'd like to give access for these permissions",
+    "description": "Permissions for Workspaces"
+  },
   "assignAtLeastOneGroup": {
     "defaultMessage": "You need to assign at least one inventory group to each permission.",
     "description": "Assign at least one inventory group message"
@@ -262,6 +274,22 @@
   "assignAtLeastOneResource": {
     "defaultMessage": "You need to assign at least one resource to each permission.",
     "description": "Assign at least one resource message"
+  },
+  "assignedRoles": {
+    "defaultMessage": "Assigned roles",
+    "description": "User details assigned roles label"
+  },
+  "assignedRolesDescription": {
+    "defaultMessage": "User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned.",
+    "description": "User details roles info popover description"
+  },
+  "assignedUserGroupsTooltipBody": {
+    "defaultMessage": "User groups are granted roles that contain a set of permissions. Roles are limited to the workspace in which they were assigned",
+    "description": "body for assigned user groups tooltip"
+  },
+  "assignedUserGroupsTooltipHeader": {
+    "defaultMessage": "Assigned user groups",
+    "description": "header for assigned user groups tooltip"
   },
   "associatingServiceAccounts": {
     "defaultMessage": "Associating service accounts",
@@ -278,6 +306,10 @@
   "beginQuickStartLink": {
     "defaultMessage": "Begin Quick start",
     "description": "Begin Quick start link"
+  },
+  "bindingsServiceCardDescription": {
+    "defaultMessage": "Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform.",
+    "description": "bindings service card description"
   },
   "cancel": {
     "defaultMessage": "Cancel",
@@ -403,6 +435,26 @@
     "defaultMessage": "Creating role was canceled by the user",
     "description": "Creating role canceled notification message"
   },
+  "deactivateUsersButton": {
+    "defaultMessage": "Deactivate users",
+    "description": "deactivate users button text"
+  },
+  "deactivateUsersConfirmationButton": {
+    "defaultMessage": "Deactivate user(s)",
+    "description": "deactivate users confirmation button text"
+  },
+  "deactivateUsersConfirmationModalCheckboxText": {
+    "defaultMessage": "Yes, I confirm that I want to remove these users",
+    "description": "deactivate users confirmation modal checkbox text"
+  },
+  "deactivateUsersConfirmationModalDescription": {
+    "defaultMessage": "Are you sure you want to deactivate the user(s) below from your Red Hat organization?",
+    "description": "deactivate users confirmation modal description text"
+  },
+  "deactivateUsersConfirmationModalTitle": {
+    "defaultMessage": "Deactivate users",
+    "description": "deactivate users confirmation modal title text"
+  },
   "defaultAccessGroupChanged": {
     "defaultMessage": "Default access group has changed",
     "description": "Default access group changed message"
@@ -435,6 +487,14 @@
     "defaultMessage": "Delete",
     "description": "Delete button text"
   },
+  "deleteCustomRoleModalBody": {
+    "defaultMessage": "Deleting the <strong>{name}</strong> may remove acess to certain user groups in your organization",
+    "description": "Modal body text for deleting custom role"
+  },
+  "deleteCustomRoleModalHeader": {
+    "defaultMessage": "Delete role?",
+    "description": "Modal header text for deleting custom role"
+  },
   "deleteGroup": {
     "defaultMessage": "Delete group",
     "description": "Delete group label"
@@ -455,9 +515,21 @@
     "defaultMessage": "Delete role",
     "description": "Delete role message"
   },
+  "deleteRoleConfirm": {
+    "defaultMessage": "Delete role",
+    "description": "confirm button for deleting role"
+  },
   "deleteRoleQuestion": {
     "defaultMessage": "Delete role?",
     "description": "Delete role question message"
+  },
+  "deleteUserModalBody": {
+    "defaultMessage": "will lose all the roles associated with the user groups it belongs to.",
+    "description": "Modal body text for delete user"
+  },
+  "deleteUserModalTitle": {
+    "defaultMessage": "Remove from user groups?",
+    "description": "Title for delete user modal "
   },
   "deletingGroupRemovesRoles": {
     "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
@@ -547,6 +619,22 @@
     "defaultMessage": "Success updating role",
     "description": "Edit role success notification title"
   },
+  "editUserErrorDescription": {
+    "defaultMessage": "The user was not updated successfuly.",
+    "description": "Edit user error notification description"
+  },
+  "editUserErrorTitle": {
+    "defaultMessage": "Failed updating user",
+    "description": "Edit user error notification title"
+  },
+  "editUserSuccessDescription": {
+    "defaultMessage": "The user was updated successfully.",
+    "description": "Edit user success notification description"
+  },
+  "editUserSuccessTitle": {
+    "defaultMessage": "Success updating user",
+    "description": "Edit user success notification title"
+  },
   "editingGroupTitle": {
     "defaultMessage": "Editing group",
     "description": "Editing group notification title"
@@ -562,6 +650,38 @@
   "email": {
     "defaultMessage": "Email",
     "description": "Email label"
+  },
+  "enableWorkspacesWizardBodyPart1": {
+    "defaultMessage": "Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.",
+    "description": "First part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart2": {
+    "defaultMessage": "Configure workspaces to fit your organizational structure. They can be structured in a hierarchy (parent-child relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you configuration time. Learn more about workspace hierarchy and use cases for them in your organization.",
+    "description": "Second part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart2Header": {
+    "defaultMessage": "Workspaces:",
+    "description": "Header for second part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart3": {
+    "defaultMessage": "Create user groups of both end users and service accounts. Tailor these groups to mirror your organization's structure. Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions. Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform. Learn more about access management.",
+    "description": "Third part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardBodyPart3Header": {
+    "defaultMessage": "Groups, roles, and role bindings:",
+    "description": "Header for third part of the Enable Workspaces wizard body"
+  },
+  "enableWorkspacesWizardCheckboxLabel": {
+    "defaultMessage": "By checking this box, I acknowledge that this action cannot be undone.",
+    "description": "Checkbox label for Enable Workspaces wizard"
+  },
+  "enableWorkspacesWizardDesc": {
+    "defaultMessage": "Enable \"workspaces\" for your organization to enhance access management (assets, roles, users, groups, etc.)",
+    "description": "Description for Enable Workspaces wizard"
+  },
+  "enableWorkspacesWizardTitle": {
+    "defaultMessage": "Enable workspaces",
+    "description": "Title for Enable Workspaces wizard"
   },
   "exit": {
     "defaultMessage": "Exit",
@@ -651,6 +771,10 @@
     "defaultMessage": "Groups",
     "description": "Groups plural"
   },
+  "groupsServiceCardDescription": {
+    "defaultMessage": "Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization's structure.",
+    "description": "groups service card description"
+  },
   "iamLearningResourcesLink": {
     "defaultMessage": "View all Identity and Access Management Learning Resources.",
     "description": "Identity and Access Management Learning Resources link"
@@ -685,6 +809,110 @@
   "inventoryGroupsTooltip": {
     "defaultMessage": "Add permission to these groups.",
     "description": "Tooltip for inventory group role permissions"
+  },
+  "inviteUsers": {
+    "defaultMessage": "Invite users",
+    "description": "Invite users"
+  },
+  "inviteUsersButton": {
+    "defaultMessage": "Invite new users",
+    "description": "Invite users button text"
+  },
+  "inviteUsersCancelled": {
+    "defaultMessage": "Invite users process was canceled by the user.",
+    "description": "Invite users cancelled notification description"
+  },
+  "inviteUsersCustomerPortalPermissions": {
+    "defaultMessage": "Customer Portal access permissions",
+    "description": "Customer portal permissions title"
+  },
+  "inviteUsersDescription": {
+    "defaultMessage": "Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.",
+    "description": "Invite users modal description"
+  },
+  "inviteUsersErrorDescription": {
+    "defaultMessage": "Failed inviting users.",
+    "description": "Invite users error notification description"
+  },
+  "inviteUsersErrorTitle": {
+    "defaultMessage": "Failed inviting all users",
+    "description": "Invite users error notification title"
+  },
+  "inviteUsersFormDownloadSoftwareUpdatesFieldDescription": {
+    "defaultMessage": "User can download software and updates from the Red Hat Customer Portal.",
+    "description": "Invite users form download software and updates field description"
+  },
+  "inviteUsersFormDownloadSoftwareUpdatesFieldTitle": {
+    "defaultMessage": "Download software and updates",
+    "description": "Invite users form download software and updates field title"
+  },
+  "inviteUsersFormEmailsFieldDescription": {
+    "defaultMessage": "Enter up to 50 email addresses separated by commas or returns.",
+    "description": "Invite users form emails field description"
+  },
+  "inviteUsersFormEmailsFieldError": {
+    "defaultMessage": "Some of the email addresses you provided are not valid",
+    "description": "Invite users form emails field error message is one email address is not valid."
+  },
+  "inviteUsersFormEmailsFieldTitle": {
+    "defaultMessage": "Enter the e-mail addresses of the users you would like to invite",
+    "description": "Invite users form emails field title"
+  },
+  "inviteUsersFormIsAdminFieldDescription": {
+    "defaultMessage": "The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.",
+    "description": "Invite users form is admin field description"
+  },
+  "inviteUsersFormIsAdminFieldTitle": {
+    "defaultMessage": "Organization Administrators",
+    "description": "Invite users form is admin field title"
+  },
+  "inviteUsersFormManageSubscriptionsFieldDescription": {
+    "defaultMessage": "Grants user access to subscription management via Red Hat Subscription Management in the Red Hat Customer Portal.",
+    "description": "Invite users form manage subscriptions field description"
+  },
+  "inviteUsersFormManageSubscriptionsFieldTitle": {
+    "defaultMessage": "Manage your subscriptions",
+    "description": "Invite users form manage subscriptions field title"
+  },
+  "inviteUsersFormManageSubscriptionsViewAllDescription": {
+    "defaultMessage": "User can view (but not edit) all systems and Subscription Management Applications in the account.",
+    "description": "Invite users form manage subscriptions field view all option description"
+  },
+  "inviteUsersFormManageSubscriptionsViewAllTitle": {
+    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
+    "description": "Invite users form manage subscriptions field view all option title"
+  },
+  "inviteUsersFormManageSubscriptionsViewEditAllDescription": {
+    "defaultMessage": "User can view and edit all systems and Subscription Management Applications in the account.",
+    "description": "Invite users form manage subscriptions field View/Edit all option description"
+  },
+  "inviteUsersFormManageSubscriptionsViewEditAllTitle": {
+    "defaultMessage": "View/Edit all",
+    "description": "Invite users form manage subscriptions field View/Edit all option title"
+  },
+  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyDescription": {
+    "defaultMessage": "User can view and edit only the systems that they have registered in the account.",
+    "description": "Invite users form manage subscriptions field View edit Users only description"
+  },
+  "inviteUsersFormManageSubscriptionsViewEditUsersOnlyTitle": {
+    "defaultMessage": "View/Edit users only",
+    "description": "Invite users form manage subscriptions field View edit Users only title"
+  },
+  "inviteUsersFormManageSupportCasesFieldDescription": {
+    "defaultMessage": "The organization administrator role is the highest permission level with full access to content and features. This is the only role that can manage users.",
+    "description": "Invite users form manage support cases field description"
+  },
+  "inviteUsersFormManageSupportCasesFieldTitle": {
+    "defaultMessage": "Organization administrators",
+    "description": "Invite users form manage support cases field title"
+  },
+  "inviteUsersMessageTitle": {
+    "defaultMessage": "Send a message with the invite",
+    "description": "Message to be sent to each email"
+  },
+  "inviteUsersTitle": {
+    "defaultMessage": "Invite New Users",
+    "description": "Invite users modal title"
   },
   "key": {
     "defaultMessage": "Key",
@@ -753,6 +981,10 @@
   "noAccountsInDefaultAccess": {
     "defaultMessage": "In adherence to security guidelines, service accounts are not automatically included in the default access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
     "description": "No service accounts for Default Access group message"
+  },
+  "noAccountsInDefaultAdminAccess": {
+    "defaultMessage": "In adherence to security guidelines, service accounts are not automatically included in the default admin access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
+    "description": "No service accounts for Default Admin Access group message"
   },
   "noCostManagementPermissions": {
     "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
@@ -985,6 +1217,10 @@
   "remove": {
     "defaultMessage": "Remove",
     "description": "Remove button label"
+  },
+  "removeFromUserGroup": {
+    "defaultMessage": "Remove from user groups",
+    "description": "Action column option to remove user from group"
   },
   "removeGroupError": {
     "defaultMessage": "There was an error deleting the group. Please try again.",
@@ -1238,6 +1474,10 @@
     "defaultMessage": "Role name already taken",
     "description": "Role name taken error title"
   },
+  "roleServiceCardDescription": {
+    "defaultMessage": "Explore predefined roles to see if they fit your needs. If not, create custom roles with specific permissions.",
+    "description": "role service card description"
+  },
   "roleWilBeRemovedWithPermissions": {
     "defaultMessage": "{count, plural, one {The} other {These}} <strong>{name}</strong> {count, plural, one {role} other {roles}} will be removed from any group it's in, and members in the groups will no longer be granted the permissions in the role.",
     "description": "Role will be removed with permissions message"
@@ -1297,6 +1537,10 @@
   "selectState": {
     "defaultMessage": "Select a state",
     "description": "Select state label"
+  },
+  "selectWorkspaces": {
+    "defaultMessage": "Select workspaces",
+    "description": "Select workspaces label"
   },
   "selectedPermissions": {
     "defaultMessage": "Selected permissions",
@@ -1358,6 +1602,10 @@
     "defaultMessage": "user",
     "description": "User label"
   },
+  "user-groups": {
+    "defaultMessage": "User group",
+    "description": "User group singular"
+  },
   "userAccessAdmin": {
     "defaultMessage": "User Access Admin",
     "description": "User Access Admin name"
@@ -1369,6 +1617,14 @@
   "userDescription": {
     "defaultMessage": "{username}'s roles, groups and permissions.",
     "description": "User description text"
+  },
+  "userGroupsEmptyStateSubtitle": {
+    "defaultMessage": "This filter criteria matches no user groups.{br}Try changing your filter input.",
+    "description": "Empty state subtitle User groups"
+  },
+  "userGroupsEmptyStateTitle": {
+    "defaultMessage": "No user group found",
+    "description": "Empty state title User groups"
   },
   "userNotFound": {
     "defaultMessage": "User not found",
@@ -1386,9 +1642,69 @@
     "defaultMessage": "Users",
     "description": "Users plural label"
   },
+  "usersAndUserGroups": {
+    "defaultMessage": "Users and User Groups",
+    "description": "Users and user groups label"
+  },
+  "usersAndUserGroupsActive": {
+    "defaultMessage": "Active",
+    "description": "User is active label"
+  },
+  "usersAndUserGroupsAdd": {
+    "defaultMessage": "Add",
+    "description": "Add label"
+  },
+  "usersAndUserGroupsAddToGroup": {
+    "defaultMessage": "Remove from user group",
+    "description": "Remove from user group label"
+  },
+  "usersAndUserGroupsAddUserDescription": {
+    "defaultMessage": "Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.",
+    "description": "Description within add user to user group modal"
+  },
+  "usersAndUserGroupsCancel": {
+    "defaultMessage": "Cancel",
+    "description": "Cancel add user label"
+  },
+  "usersAndUserGroupsDeleteUserGroup": {
+    "defaultMessage": "Delete user group",
+    "description": "Delete user group label"
+  },
+  "usersAndUserGroupsDescription": {
+    "defaultMessage": "These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.",
+    "description": "Users and user groups description"
+  },
+  "usersAndUserGroupsEditUserGroup": {
+    "defaultMessage": "Edit user group",
+    "description": "Edit user group label"
+  },
+  "usersAndUserGroupsInactive": {
+    "defaultMessage": "Inactive",
+    "description": "User is inactive label"
+  },
+  "usersAndUserGroupsNo": {
+    "defaultMessage": "No",
+    "description": "No isnt Org Admin label"
+  },
+  "usersAndUserGroupsNoDescription": {
+    "defaultMessage": "No description",
+    "description": "No description label"
+  },
+  "usersAndUserGroupsYes": {
+    "defaultMessage": "Yes",
+    "description": "Yes is Org Admin label"
+  },
   "usersDescription": {
     "defaultMessage": "These are all of the users in your Red Hat organization.",
     "description": "Description text for user list"
+  },
+  "usersEmptyStateSubtitle": {
+    "defaultMessage": "This filter criteria matches no users.{br}Try changing your filter input.",
+    "description": "Empty state subtitle Users"
+  },
+  "usersEmptyStateTitle": {
+    "defaultMessage": "No users found",
+    "description": "Empty state title Users"
   },
   "usersInheritedRoles": {
     "defaultMessage": "This group contains the roles that all users in your organization inherit by default.",
@@ -1433,6 +1749,105 @@
   "whyNotSeeingAllPermissions": {
     "defaultMessage": "Why am I not seeing all of my permissions?",
     "description": "Why am I not seeing all of my permissions message"
+  },
+  "workspace": {
+    "defaultMessage": "Workspace",
+    "description": "Workspace singular label"
+  },
+  "workspaceAssignment": {
+    "defaultMessage": "Workspace assignment (TBD)",
+    "description": "column header for assigned user groups table"
+  },
+  "workspaces": {
+    "defaultMessage": "Workspaces",
+    "description": "Workspaces heading"
+  },
+  "workspacesAccessDescription": {
+    "defaultMessage": "Specify which workspaces you'd like to apply your selected permissions to, using the dropdowns below."
+  },
+  "workspacesAccessTitle": {
+    "defaultMessage": "Define Workspaces access",
+    "description": "Step for adding correct workspaces permissions to role."
+  },
+  "workspacesActionCreateSubWorkspace": {
+    "defaultMessage": "Create sub-workspace",
+    "description": "Menu item Create sub-workspace"
+  },
+  "workspacesActionDeleteWorkspace": {
+    "defaultMessage": "Delete workspace",
+    "description": "Menu item Delete workspace"
+  },
+  "workspacesActionEditWorkspace": {
+    "defaultMessage": "Edit workspace",
+    "description": "Menu item Edit workspace"
+  },
+  "workspacesActionGrantAccessToWorkspace": {
+    "defaultMessage": "Grant access to workspace",
+    "description": "Menu item Grant access to workspace"
+  },
+  "workspacesActionManageIntegrations": {
+    "defaultMessage": "Manage integrations",
+    "description": "Menu item Manage integrations"
+  },
+  "workspacesActionManageNotifications": {
+    "defaultMessage": "Manage notifications",
+    "description": "Menu item Manage notifications"
+  },
+  "workspacesActionViewTenant": {
+    "defaultMessage": "View tenant",
+    "description": "Menu item View tenant"
+  },
+  "workspacesAlertSwitchLabel": {
+    "defaultMessage": "Enable workspaces",
+    "description": "Enable workspaces"
+  },
+  "workspacesAlertTitle": {
+    "defaultMessage": "You are qualified to opt into the workspace user access model for your organization.",
+    "description": "Title for workspaces alert on overview page"
+  },
+  "workspacesDefinition": {
+    "defaultMessage": "Workspaces definition",
+    "description": "Group workspaces label"
+  },
+  "workspacesDetailBreadcrumbTitle": {
+    "defaultMessage": "Workspace hierarchy:",
+    "description": "Workspace detail breadcrumb title"
+  },
+  "workspacesLabel": {
+    "defaultMessage": "Select workspaces to add permissions for",
+    "description": "Type ahead label for workspaces role permissions"
+  },
+  "workspacesLearnMore": {
+    "defaultMessage": "Learn more about workspaces",
+    "description": "learn more link"
+  },
+  "workspacesOverviewPageSubtitle": {
+    "defaultMessage": "Workspaces let's you group related assets together (such as RHEL hosts). This simplifies management and user access control.",
+    "description": "workspaces page section subtitle"
+  },
+  "workspacesOverviewPageTitle": {
+    "defaultMessage": "Get started with workspaces",
+    "description": "workspaces page section title"
+  },
+  "workspacesServiceCardDescription": {
+    "defaultMessage": "Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time.",
+    "description": "workspaces service card description"
+  },
+  "workspacesSubtitle": {
+    "defaultMessage": "Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.",
+    "description": "Securely manage user access and organize assets within your organization using workspaces."
+  },
+  "workspacesSuccessAlertTitle": {
+    "defaultMessage": "Your workspace migration is complete and ready to manage!",
+    "description": "Title for success alert for workspaces enablement"
+  },
+  "workspacesTitle": {
+    "defaultMessage": "Access Management",
+    "description": "workspaces title"
+  },
+  "workspacesTooltip": {
+    "defaultMessage": "Add permission to these workspaces.",
+    "description": "Tooltip for workspaces role permissions"
   },
   "yes": {
     "defaultMessage": "Yes",

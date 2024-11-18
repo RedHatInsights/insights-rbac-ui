@@ -47,7 +47,7 @@ const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
   isAdminDefault: selectedGroup.admin_default,
   systemGroupUuid: systemGroup?.uuid,
   group: selectedGroup,
-  platformDefault: selectedGroup.platform_default,
+  isPlatformDefault: selectedGroup.platform_default,
 });
 
 const GroupServiceAccounts = () => {
@@ -59,7 +59,7 @@ const GroupServiceAccounts = () => {
   const [selectedAccounts, setSelectedAccounts] = useState([]);
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, platformDefault } = useSelector(reducer);
+  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, isPlatformDefault } = useSelector(reducer);
 
   const fetchGroupAccounts = (groupId, options) => dispatch(fetchServiceAccountsForGroup(groupId, options));
 
@@ -132,12 +132,14 @@ const GroupServiceAccounts = () => {
   return (
     <React.Fragment>
       <Section type="content" id="tab-service-accounts">
-        {platformDefault ? (
+        {isPlatformDefault || isAdminDefault ? (
           <Card>
             <CardBody>
               <Bullseye>
                 <TextContent>
-                  <Text component={TextVariants.h1}>{intl.formatMessage(messages.noAccountsInDefaultAccess)}</Text>
+                  <Text component={TextVariants.h1}>
+                    {intl.formatMessage(isPlatformDefault ? messages.noAccountsInDefaultAccess : messages.noAccountsInDefaultAdminAccess)}
+                  </Text>
                 </TextContent>
               </Bullseye>
             </CardBody>
@@ -203,7 +205,7 @@ const GroupServiceAccounts = () => {
           </>
         )}
       </Section>
-      {!platformDefault ? (
+      {!(isPlatformDefault || isAdminDefault) ? (
         <Suspense>
           <Outlet
             context={{
