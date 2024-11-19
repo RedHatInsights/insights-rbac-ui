@@ -74,7 +74,7 @@ exports[`<User /> should render user 1`] = `
               class="pf-v5-l-flex pf-m-justify-content-space-between"
             >
               <div
-                class="pf-v5-u-flex-grow-1"
+                class=""
               >
                 <h1
                   class="pf-v5-c-title pf-m-2xl rbac-page-header__title"
