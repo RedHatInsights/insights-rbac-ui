@@ -2356,6 +2356,16 @@ export default defineMessages({
     description: 'Modal body text for delete user',
     defaultMessage: 'will lose all the roles associated with the user groups it belongs to.',
   },
+  deleteUserGroupModalTitle: {
+    id: 'deleteUserGroupModalTitle',
+    description: 'Title for delete user group modal',
+    defaultMessage: 'Delete user {count, plural, one {group} other {groups}}?',
+  },
+  deleteUserGroupModalBody: {
+    id: 'deleteUserGroupModalBody',
+    description: 'Modal body text for delete user group',
+    defaultMessage: 'Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.',
+  },
   addToUserGroup: {
     id: 'addToUserGroup',
     description: 'Action column option to add user to group',

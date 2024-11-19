@@ -26,6 +26,7 @@ export interface Group {
   modified?: string;
   admin_default?: boolean;
   platform_default?: boolean;
+  system?: boolean;
 }
 
 export interface GroupStore {
