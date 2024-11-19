@@ -1,3 +1,10 @@
+## [1.11.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.11.0...v1.11.1) (2024-11-19)
+
+
+### Bug Fixes
+
+* hide service accounts table for default admin access ([#1709](https://github.com/RedHatInsights/insights-rbac-ui/issues/1709)) ([1452179](https://github.com/RedHatInsights/insights-rbac-ui/commit/1452179da1a55c17c486aed55d23e3a1a7e48285))
+
 # [1.11.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.10.0...v1.11.0) (2024-11-15)
 
 
