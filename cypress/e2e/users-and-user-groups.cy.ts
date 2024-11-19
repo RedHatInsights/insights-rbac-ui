@@ -142,4 +142,11 @@ describe('Users and User Groups page', () => {
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"] button').contains('Delete user group').click();
   });
+
+  it('should be able to open the Create User Groups Wizard from the toolbar', () => {
+    cy.get('[data-ouia-component-id="add-group-wizard"]').should('not.exist');
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+    cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-action-0"]').click();
+    cy.get('[data-ouia-component-id="add-group-wizard"]').should('exist');
+  });
 });

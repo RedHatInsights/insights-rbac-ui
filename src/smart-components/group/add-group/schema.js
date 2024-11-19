@@ -9,7 +9,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 
-export const schemaBuilder = (container, enableServiceAccounts) => {
+export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
@@ -26,7 +26,7 @@ export const schemaBuilder = (container, enableServiceAccounts) => {
         fields: [
           {
             name: 'name-and-description',
-            nextStep: 'add-roles',
+            nextStep: enableRoles ? 'add-roles' : 'add-users',
             title: intl.formatMessage(messages.nameAndDescription),
             fields: [
               {
@@ -51,17 +51,21 @@ export const schemaBuilder = (container, enableServiceAccounts) => {
               },
             ],
           },
-          {
-            name: 'add-roles',
-            nextStep: 'add-users',
-            title: intl.formatMessage(messages.addRoles),
-            fields: [
-              {
-                component: 'set-roles',
-                name: 'roles-list',
-              },
-            ],
-          },
+          ...(enableRoles
+            ? [
+                {
+                  name: 'add-roles',
+                  nextStep: 'add-users',
+                  title: intl.formatMessage(messages.addRoles),
+                  fields: [
+                    {
+                      component: 'set-roles',
+                      name: 'roles-list',
+                    },
+                  ],
+                },
+              ]
+            : []),
           {
             name: 'add-users',
             nextStep: enableServiceAccounts ? 'add-service-accounts' : 'review',
