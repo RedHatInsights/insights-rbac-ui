@@ -1,3 +1,10 @@
+# [1.12.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.11.1...v1.12.0) (2024-11-19)
+
+
+### Features
+
+* create delete user groups modal ([#1703](https://github.com/RedHatInsights/insights-rbac-ui/issues/1703)) ([ed28740](https://github.com/RedHatInsights/insights-rbac-ui/commit/ed2874000ab2e090d0244865ccafe58aed2a5252))
+
 ## [1.11.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.11.0...v1.11.1) (2024-11-19)
 
 
