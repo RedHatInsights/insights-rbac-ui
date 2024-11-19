@@ -157,7 +157,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               currentRoles.forEach((role) => {
                 dispatch(removeRole(role.uuid));
               });
-              // dispatch(removeRole(currentRoles?.uuid));
               setIsDeleteModalOpen(false);
             }}
           >
@@ -191,8 +190,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                 <ResponsiveAction
                   isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
                   onClick={() => {
-                    console.log(selected.length);
-                    console.log(selected.some(isRowSystemOrPlatformDefault));
                     handleModalToggle(roles.filter((role) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === role.uuid)));
                   }}
                 >
