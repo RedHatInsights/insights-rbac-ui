@@ -1318,6 +1318,12 @@ export default defineMessages({
     defaultMessage:
       'In adherence to security guidelines, service accounts are not automatically included in the default access group. To grant access, it is necessary to manually add them to the appropriate user access groups.',
   },
+  noAccountsInDefaultAdminAccess: {
+    id: 'noAccountsInDefaultAdminAccess',
+    description: 'No service accounts for Default Admin Access group message',
+    defaultMessage:
+      'In adherence to security guidelines, service accounts are not automatically included in the default admin access group. To grant access, it is necessary to manually add them to the appropriate user access groups.',
+  },
   noGroupMembers: {
     id: 'noGroupMembers',
     description: 'No members in a given group title',
