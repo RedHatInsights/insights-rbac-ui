@@ -17,7 +17,8 @@ import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import RolesDetails from './RolesTableDetails';
-import { WarningModal } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
+import { DataViewTrObject } from '@patternfly/react-data-view';
 
 const PER_PAGE = [
   { title: '5', value: 5 },
@@ -35,7 +36,7 @@ interface RolesTableProps {
 
 const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [currentRole, setCurrentRole] = useState<Role | undefined>();
+  const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
   const { roles, totalCount } = useSelector((state: RBACStore) => ({
     roles: state.roleReducer.roles.data || [],
     totalCount: state.roleReducer.roles.meta.count,
@@ -45,8 +46,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const intl = useIntl();
 
-  const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, role: Role) => {
-    setCurrentRole(role);
+  const handleModalToggle = (roles: Role[]) => {
+    setCurrentRoles(roles);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
@@ -65,7 +66,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  const selection = useDataViewSelection({ matchOption: (a, b) => a[0] === b[0] });
+  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
@@ -91,6 +92,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     };
 
     return roles.map((role: Role) => ({
+      id: role.uuid,
       row: Object.values({
         display_name: role.display_name,
         description: role.description,
@@ -106,7 +108,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                 {
                   title: 'Delete role',
                   isDisabled: role.system,
-                  onClick: (event: KeyboardEvent | React.MouseEvent) => handleModalToggle(event, role),
+                  onClick: () => handleModalToggle([role]),
                 },
               ]}
             />
@@ -116,7 +118,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       }),
       props: {
         isClickable: true,
-        onRowClick: (event: any) => handleRowClick(event, selectedRole?.display_name === role.display_name ? undefined : role),
+        onRowClick: (event: any) => handleRowClick(event, selectedRole?.uuid === role.uuid ? undefined : role),
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
@@ -131,6 +133,11 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
+
+  const isRowSystemOrPlatformDefault = (selectedRow: any) => {
+    const role = roles.find((role) => role.uuid === selectedRow.id);
+    return role?.platform_default || role?.system;
+  };
 
   return (
     <React.Fragment>
@@ -147,15 +154,20 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
             onClose={() => setIsDeleteModalOpen(false)}
             onConfirm={() => {
-              dispatch(removeRole(currentRole?.uuid));
+              currentRoles.forEach((role) => {
+                dispatch(removeRole(role.uuid));
+              });
+              // dispatch(removeRole(currentRoles?.uuid));
               setIsDeleteModalOpen(false);
             }}
           >
             <FormattedMessage
               {...messages.deleteCustomRoleModalBody}
               values={{
-                strong: (text) => <strong>{text}</strong>,
-                name: currentRole?.display_name,
+                b: (text) => <b>{text}</b>,
+                count: currentRoles.length,
+                plural: currentRoles.length > 1 ? intl.formatMessage(messages.roles) : intl.formatMessage(messages.role),
+                name: currentRoles[0]?.display_name,
               }}
             />
           </WarningModal>
@@ -173,6 +185,20 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                 pagePartiallySelected={pagePartiallySelected}
                 onSelect={handleBulkSelect}
               />
+            }
+            actions={
+              <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+                <ResponsiveAction
+                  isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
+                  onClick={() => {
+                    console.log(selected.length);
+                    console.log(selected.some(isRowSystemOrPlatformDefault));
+                    handleModalToggle(roles.filter((role) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === role.uuid)));
+                  }}
+                >
+                  Delete Roles
+                </ResponsiveAction>
+              </ResponsiveActions>
             }
             pagination={
               <Pagination
