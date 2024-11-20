@@ -2384,12 +2384,18 @@ export default defineMessages({
   deleteCustomRoleModalBody: {
     id: 'deleteCustomRoleModalBody',
     description: 'Modal body text for deleting custom role',
-    defaultMessage: 'Deleting the <strong>{name}</strong> may remove acess to certain user groups in your organization',
+    defaultMessage:
+      'Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization',
   },
   deleteRoleConfirm: {
     id: 'deleteRoleConfirm',
     description: 'confirm button for deleting role',
     defaultMessage: 'Delete role',
+  },
+  deleteRolesAction: {
+    id: 'deleteRolesAction',
+    description: 'delete roles',
+    defaultMessage: 'Delete Roles',
   },
   createUserGroup: {
     id: 'createUserGroup',
