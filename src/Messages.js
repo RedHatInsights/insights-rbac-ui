@@ -2391,4 +2391,9 @@ export default defineMessages({
     description: 'confirm button for deleting role',
     defaultMessage: 'Delete role',
   },
+  createUserGroup: {
+    id: 'createUserGroup',
+    description: 'create user group button label',
+    defaultMessage: 'Create user group',
+  },
 });

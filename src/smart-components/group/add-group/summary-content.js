@@ -47,20 +47,22 @@ const SummaryContent = () => {
                   <Text component={TextVariants.p}>{description}</Text>
                 </GridItem>
               </Grid>
-              <Grid>
-                <GridItem md={3}>
-                  <Text component={TextVariants.h4} className="rbac-bold-text">
-                    {intl.formatMessage(messages.roles)}
-                  </Text>
-                </GridItem>
-                <GridItem md={9}>
-                  {selectedRoles.map((role, index) => (
-                    <Text className="pf-v5-u-mb-0" key={index}>
-                      {role.label}
+              {selectedRoles && (
+                <Grid>
+                  <GridItem md={3}>
+                    <Text component={TextVariants.h4} className="rbac-bold-text">
+                      {intl.formatMessage(messages.roles)}
                     </Text>
-                  ))}
-                </GridItem>
-              </Grid>
+                  </GridItem>
+                  <GridItem md={9}>
+                    {selectedRoles.map((role, index) => (
+                      <Text className="pf-v5-u-mb-0" key={index}>
+                        {role.label}
+                      </Text>
+                    ))}
+                  </GridItem>
+                </Grid>
+              )}
               <Grid>
                 <GridItem md={3}>
                   <Text component={TextVariants.h4} className="rbac-bold-text">
