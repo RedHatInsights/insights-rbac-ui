@@ -1,3 +1,10 @@
+# [1.13.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.12.0...v1.13.0) (2024-11-20)
+
+
+### Features
+
+* add create user group to user group list ([#1713](https://github.com/RedHatInsights/insights-rbac-ui/issues/1713)) ([6c4cd82](https://github.com/RedHatInsights/insights-rbac-ui/commit/6c4cd824ac893aaf9b367f3a78865e2da26f3e00))
+
 # [1.12.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.11.1...v1.12.0) (2024-11-19)
 
 
