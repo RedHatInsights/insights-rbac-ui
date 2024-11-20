@@ -2392,4 +2392,9 @@ export default defineMessages({
     description: 'confirm button for deleting role',
     defaultMessage: 'Delete role',
   },
+  deleteRolesAction: {
+    id: 'deleteRolesAction',
+    description: 'delete roles',
+    defaultMessage: 'Delete Roles',
+  },
 });

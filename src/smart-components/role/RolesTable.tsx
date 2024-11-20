@@ -193,7 +193,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                     handleModalToggle(roles.filter((role) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === role.uuid)));
                   }}
                 >
-                  Delete Roles
+                  {intl.formatMessage(messages.deleteRolesAction)}
                 </ResponsiveAction>
               </ResponsiveActions>
             }
