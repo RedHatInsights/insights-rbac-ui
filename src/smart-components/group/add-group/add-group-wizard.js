@@ -58,14 +58,14 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
+const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles = true, setIsWizardOpen }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const container = useRef(document.createElement('div'));
   const { isBeta } = useChrome();
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
-  const schema = useRef(schemaBuilder(container.current, enableServiceAccounts));
+  const schema = useRef(schemaBuilder(container.current, enableServiceAccounts, enableRoles));
   const navigate = useAppNavigate();
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({
@@ -84,10 +84,12 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
         description: intl.formatMessage(messages.addingGroupCanceledDescription),
       })
     );
-    navigate({
-      pathname: paths.groups.link,
-      search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
-    });
+    setIsWizardOpen
+      ? setIsWizardOpen(false)
+      : navigate({
+          pathname: paths.groups.link,
+          search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+        });
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -102,7 +104,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
       name: formData['group-name'],
       description: formData['group-description'],
       user_list: formData['users-list'].map((user) => ({ username: user.label })),
-      roles_list: formData['roles-list'].map((role) => role.uuid),
+      roles_list: enableRoles ? formData['roles-list'].map((role) => role.uuid) : [],
     };
     dispatch(addGroup(groupData)).then(({ value }) => {
       setWizardContextValue((prev) => ({
@@ -124,10 +126,12 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const onClose = () => {
     setWizardContextValue((prev) => ({ ...prev, success: false, hideForm: false }));
     postMethod({ limit: pagination.limit, offset: 0, orderBy, filters: {} });
-    navigate({
-      pathname: paths.groups.link,
-      search: createQueryParams({ page: 1, per_page: pagination.limit }),
-    });
+    setIsWizardOpen
+      ? setIsWizardOpen(false)
+      : navigate({
+          pathname: paths.groups.link,
+          search: createQueryParams({ page: 1, per_page: pagination.limit }),
+        });
   };
 
   return (
@@ -189,6 +193,8 @@ AddGroupWizard.propTypes = {
   }).isRequired,
   filters: PropTypes.object.isRequired,
   orderBy: PropTypes.string,
+  enableRoles: PropTypes.bool.isRequired,
+  setIsWizardOpen: PropTypes.func,
 };
 
 export default AddGroupWizard;

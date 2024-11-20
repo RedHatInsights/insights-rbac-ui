@@ -18,6 +18,7 @@ import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ResponsiveAction, ResponsiveActions, SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
+import AddGroupWizard from '../group/add-group/add-group-wizard';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -47,6 +48,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   focusedGroup,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
+  const [isAddGroupWizardOpen, setIsAddGroupWizardOpen] = React.useState(false);
   const [currentGroups, setCurrentGroups] = React.useState<Group[]>([]);
   const dispatch = useDispatch();
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
@@ -225,6 +227,11 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
 
   return (
     <Fragment>
+      {isAddGroupWizardOpen && (
+        <div data-ouia-component-id="add-group-wizard">
+          <AddGroupWizard pagination={{ limit: 20 }} filters={{}} enableRoles={false} setIsWizardOpen={setIsAddGroupWizardOpen} />
+        </div>
+      )}
       {isDeleteModalOpen && (
         <WarningModal
           ouiaId={`${ouiaId}-remove-user-modal`}
@@ -266,6 +273,9 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           }
           actions={
             <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+              <ResponsiveAction isPinned isPersistent onClick={() => setIsAddGroupWizardOpen(true)}>
+                {intl.formatMessage(messages.createUserGroup)}
+              </ResponsiveAction>
               <ResponsiveAction
                 isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
                 onClick={() => console.log('EDIT USER GROUP')}
