@@ -1,3 +1,16 @@
+# [1.14.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.13.0...v1.14.0) (2024-11-20)
+
+
+### Bug Fixes
+
+* fix typo and update snapshots ([67923e9](https://github.com/RedHatInsights/insights-rbac-ui/commit/67923e98223249eed39edcb5b4158d1a2d025d81))
+* update snapshots; localize string ([24a5d42](https://github.com/RedHatInsights/insights-rbac-ui/commit/24a5d42bb235a1ddd9b3e13d486d6bd9abfbba75))
+
+
+### Features
+
+* **RolesTable:** add bulk Delete Roles button ([7985c1e](https://github.com/RedHatInsights/insights-rbac-ui/commit/7985c1ed304bc793218635294527ed5a2cf11f4a))
+
 # [1.13.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.12.0...v1.13.0) (2024-11-20)
 
 
