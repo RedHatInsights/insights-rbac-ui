@@ -16,7 +16,7 @@ import { User } from '../../redux/reducers/user-reducer';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
+import { SkeletonTable, SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
 import paths from '../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -173,6 +173,8 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     </EmptyState>
   );
 
+  const loading = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length + 1} isSelectable />;
+
   return (
     <Fragment>
       {isDeleteModalOpen && (
@@ -231,11 +233,14 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
             </ResponsiveActions>
           }
         />
-        {isLoading ? (
-          <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
-        ) : (
-          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
-        )}
+        <DataViewTable
+          variant="compact"
+          aria-label="Users Table"
+          ouiaId={`${OUIA_ID}-table`}
+          columns={COLUMNS}
+          rows={rows}
+          bodyStates={{ empty, loading }}
+        />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
       <Suspense>
