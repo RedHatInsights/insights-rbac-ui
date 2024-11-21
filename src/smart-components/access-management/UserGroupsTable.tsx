@@ -17,8 +17,9 @@ import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
-import { ResponsiveAction, ResponsiveActions, SkeletonTable, WarningModal } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, SkeletonTable, SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
 import AddGroupWizard from '../group/add-group/add-group-wizard';
+import { Loading } from '@patternfly/quickstarts';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -225,6 +226,8 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     </EmptyState>
   );
 
+  const loading = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length + 1} isSelectable />;
+
   return (
     <Fragment>
       {isAddGroupWizardOpen && (
@@ -294,11 +297,14 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
         />
-        {isLoading ? (
-          <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
-        ) : (
-          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
-        )}
+        <DataViewTable
+          variant="compact"
+          aria-label="Users Table"
+          ouiaId={`${ouiaId}-table`}
+          columns={COLUMNS}
+          rows={rows}
+          bodyStates={{ empty, loading }}
+        />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
     </Fragment>
