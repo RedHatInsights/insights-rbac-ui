@@ -842,12 +842,12 @@ export default defineMessages({
     defaultMessage: 'Roles',
   },
   userGroups: {
-    id: 'user-groups',
+    id: 'userGroups',
     description: 'User groups plural',
     defaultMessage: 'User groups',
   },
   userGroup: {
-    id: 'user-groups',
+    id: 'userGroup',
     description: 'User group singular',
     defaultMessage: 'User group',
   },
