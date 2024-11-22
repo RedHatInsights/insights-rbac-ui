@@ -177,7 +177,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
               items={[
                 {
                   title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
-                  onClick: () => console.log('EDIT USER GROUP'),
+                  onClick: () => navigate(pathnames['users-and-user-groups-edit-group'].link.replace(':groupId', group.uuid)),
                 },
                 {
                   title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),
