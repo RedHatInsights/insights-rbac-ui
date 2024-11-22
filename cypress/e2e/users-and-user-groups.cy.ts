@@ -142,4 +142,12 @@ describe('Users and User Groups page', () => {
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"] button').contains('Delete user group').click();
   });
+
+  it('should be able to open Edit User Group page from row actions', () => {
+    cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+    cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"]').click();
+    cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').contains('Edit user group').click();
+    cy.url().should('include', '/iam/access-management/users-and-user-groups/edit-group');
+    cy.get('[data-ouia-component-id="edit-user-group-form"]').should('be.visible');
+  });
 });

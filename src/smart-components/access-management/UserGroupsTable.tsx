@@ -9,7 +9,7 @@ import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyState
 import { ActionsColumn, TableVariant } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
-import { useSearchParams } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchGroups, removeGroups } from '../../redux/actions/group-actions';
 import { formatDistanceToNow } from 'date-fns';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -52,6 +52,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
+  const navigate = useNavigate();
 
   const handleDeleteModalToggle = (groups: Group[]) => {
     setCurrentGroups(groups);
@@ -154,7 +155,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
               items={[
                 {
                   title: intl.formatMessage(messages['usersAndUserGroupsEditUserGroup']),
-                  onClick: () => console.log('EDIT USER GROUP'),
+                  onClick: () => navigate(`/iam/access-management/users-and-user-groups/edit-group/${group.uuid}`),
                 },
                 {
                   title: intl.formatMessage(messages['usersAndUserGroupsDeleteUserGroup']),

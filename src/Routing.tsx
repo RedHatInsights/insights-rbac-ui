@@ -44,6 +44,7 @@ const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/grou
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
 const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups'));
+const EditUserGroup = lazy(() => import('./smart-components/access-management/EditUserGroup'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel }: Record<string, boolean>) => [
   {
@@ -55,6 +56,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         element: InviteUsersModalCommonAuth,
       },
     ],
+  },
+  {
+    path: pathnames['users-and-user-groups-edit-group'].path,
+    element: EditUserGroup,
   },
   {
     path: pathnames.overview.path,
