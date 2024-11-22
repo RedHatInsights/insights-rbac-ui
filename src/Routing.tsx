@@ -7,6 +7,7 @@ import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
 import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { useFlag } from '@unleash/proxy-client-react';
+import EditUserGroup from './smart-components/access-management/EditUserGroup';
 
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
@@ -55,6 +56,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         element: InviteUsersModalCommonAuth,
       },
     ],
+  },
+  {
+    path: pathnames['users-and-user-groups-edit-group'].path,
+    element: EditUserGroup,
   },
   {
     path: pathnames.overview.path,
