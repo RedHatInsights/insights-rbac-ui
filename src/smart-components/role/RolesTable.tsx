@@ -6,8 +6,9 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
+import { useDataViewSort } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { ButtonVariant, Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
-import { ActionsColumn } from '@patternfly/react-table';
+import { ActionsColumn, ThProps } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -18,7 +19,7 @@ import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import RolesDetails from './RolesTableDetails';
 import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
-import { DataViewTrObject } from '@patternfly/react-data-view';
+import { DataViewTh, DataViewTr, DataViewTrObject } from '@patternfly/react-data-view';
 
 const PER_PAGE = [
   { title: '5', value: 5 },
@@ -51,17 +52,19 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const COLUMNS: string[] = [
-    intl.formatMessage(messages.name),
-    intl.formatMessage(messages.description),
-    intl.formatMessage(messages.permissions),
-    intl.formatMessage(messages.workspaces),
-    intl.formatMessage(messages.userGroups),
-    intl.formatMessage(messages.lastModified),
+  const COLUMNHEADERS = [
+    { label: intl.formatMessage(messages.name), key: 'display_name', index: 0 },
+    { label: intl.formatMessage(messages.description), key: 'description', index: 1 },
+    { label: intl.formatMessage(messages.permissions), key: 'accessCount', index: 2 },
+    { label: intl.formatMessage(messages.workspaces), key: 'workspaces', index: 3 },
+    { label: intl.formatMessage(messages.userGroups), key: 'user_groups', index: 4 },
+    { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 5 },
   ];
 
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
+  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => item.key === sortBy), [sortBy]);
 
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
@@ -86,12 +89,44 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     });
   }, [fetchData, page, perPage]);
 
-  const rows = useMemo(() => {
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: sortByIndex,
+      direction,
+      defaultDirection: 'asc',
+    },
+    onSort: (_event, index, direction) => onSort(_event, COLUMNHEADERS[index].key, direction),
+    columnIndex,
+  });
+
+  const sortData = (data: Role[], sortBy: string | undefined, direction: 'asc' | 'desc' | undefined) =>
+    sortBy && direction
+      ? [...data].sort((a, b) =>
+          direction === 'asc'
+            ? a[sortBy as keyof Role] < b[sortBy as keyof Role]
+              ? -1
+              : a[sortBy as keyof Role] > b[sortBy as keyof Role]
+              ? 1
+              : 0
+            : a[sortBy as keyof Role] > b[sortBy as keyof Role]
+            ? -1
+            : a[sortBy as keyof Role] < b[sortBy as keyof Role]
+            ? 1
+            : 0
+        )
+      : data;
+
+  const columns: DataViewTh[] = COLUMNHEADERS.map((column, index) => ({
+    cell: column.label,
+    props: { sort: getSortParams(index) },
+  }));
+
+  const rows: DataViewTr[] = useMemo(() => {
     const handleRowClick = (event: any, role: Role | undefined) => {
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
     };
 
-    return roles.map((role: Role) => ({
+    return sortData(roles, sortBy, direction).map((role: Role) => ({
       id: role.uuid,
       row: Object.values({
         display_name: role.display_name,
@@ -122,7 +157,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
-  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name]);
+  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, direction]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -208,7 +243,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               />
             }
           />
-          <DataViewTable columns={COLUMNS} rows={rows} ouiaId={`${ouiaId}-table`} />
+          <DataViewTable columns={columns} rows={rows} ouiaId={`${ouiaId}-table`} />
           <DataViewToolbar
             ouiaId={`${ouiaId}-footer-toolbar`}
             pagination={
