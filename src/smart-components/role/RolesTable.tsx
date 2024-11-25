@@ -147,8 +147,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     const handleRowClick = (event: any, role: Role | undefined) => {
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
     };
-    console.log(filteredData);
-    console.log(roles);
+
     return sortData(filteredData, sortBy, direction).map((role: Role) => ({
       id: role.uuid,
       row: Object.values({
@@ -267,9 +266,9 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               />
             }
             filters={
-              <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-                <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" />
-                <DataViewTextFilter filterId="description" title="Description" placeholder="Filter by description" />
+              <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters} ouiaId={`${ouiaId}-filters`}>
+                <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" ouiaId={`${ouiaId}-name-filter`} />
+                <DataViewTextFilter filterId="description" title="Description" placeholder="Filter by description" ouiaId={`${ouiaId}-desc-filter`} />
               </DataViewFilters>
             }
           />

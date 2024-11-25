@@ -33,9 +33,25 @@ describe('Roles page', () => {
         external_role_id: null,
         external_tenant: null,
       },
+      {
+        uuid: '00000-00000-1111-1111-111111',
+        name: 'A_Test_00000-00000',
+        display_name: 'A Test',
+        description: 'Test role A',
+        created: '2024-05-17T05:03:15.684013Z',
+        modified: '2024-05-17T05:03:15.709410Z',
+        policyCount: 2,
+        accessCount: 2,
+        applications: [],
+        system: false,
+        platform_default: false,
+        admin_default: false,
+        external_role_id: null,
+        external_tenant: null,
+      },
     ],
     meta: {
-      count: 2,
+      count: 3,
       limit: 20,
       offset: 0,
     },
@@ -84,5 +100,33 @@ describe('Roles page', () => {
     cy.get('[data-ouia-component-id^="role-permissions-table-stack"]').should('be.visible');
     cy.get('[data-ouia-component-id^="RolesTable-assigned-groups-tab"]').first().click();
     cy.get('[data-ouia-component-id^="assigned-usergroups-table-stack"]').should('be.visible');
+  });
+
+  it('should sort roles', () => {
+    cy.get('[data-ouia-component-id="RolesTable-table-th-0"]').click();
+    cy.get('[data-ouia-component-id="RolesTable-table-td-0-0"]').should('contain.text', 'A Test');
+    cy.get('[data-ouia-component-id="RolesTable-table-th-0"]').click();
+    cy.get('[data-ouia-component-id="RolesTable-table-td-0-0"]').should('contain.text', 'Test 2');
+  });
+
+  it('should filter roles by name or description', () => {
+    cy.get('[data-ouia-component-id="OUIA-Generated-Button-plain-1"]').click();
+    cy.get('[data-ouia-component-id="RolesTable-name-filter-input"]').type('A');
+    cy.get('table tbody tr').should('have.length', 1);
+    cy.get('[aria-label="Reset"]').click();
+    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-1"]').contains('Name').click();
+    cy.get('ul > li').contains('Description').click();
+    cy.get('[data-ouia-component-id="RolesTable-desc-filter"]').type('Test role A');
+    cy.get('table tbody tr').should('have.length', 1);
+  });
+
+  it('should show all data when filters are cleared', () => {
+    cy.get('[data-ouia-component-id="OUIA-Generated-Button-plain-1"]').click();
+    cy.get('[data-ouia-component-id="RolesTable-name-filter-input"]').type('A');
+    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-1"]').contains('Name').click();
+    cy.get('ul > li').contains('Description').click();
+    cy.get('[data-ouia-component-id="RolesTable-desc-filter"]').type('Test role A');
+    cy.get('[data-ouia-component-id^="RolesTable-header-toolbar-clear-all-filters"]').contains('Clear filters').click();
+    cy.get('table tbody tr').should('have.length', 3);
   });
 });
