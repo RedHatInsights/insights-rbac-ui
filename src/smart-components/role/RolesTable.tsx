@@ -19,7 +19,8 @@ import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import RolesDetails from './RolesTableDetails';
 import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
-import { DataViewTh, DataViewTr, DataViewTrObject } from '@patternfly/react-data-view';
+import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 
 const PER_PAGE = [
   { title: '5', value: 5 },
@@ -28,6 +29,11 @@ const PER_PAGE = [
   { title: '50', value: 50 },
   { title: '100', value: 100 },
 ];
+
+interface RoleFilters {
+  display_name: string;
+  description: string;
+}
 
 const ouiaId = 'RolesTable';
 
@@ -63,6 +69,12 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
+    initialFilters: { display_name: '', description: '' },
+    searchParams,
+    setSearchParams,
+  });
+
   const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
   const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => item.key === sortBy), [sortBy]);
 
@@ -121,12 +133,23 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     props: { sort: getSortParams(index) },
   }));
 
+  const filteredData = useMemo(
+    () =>
+      roles.filter(
+        (role) =>
+          (!filters.display_name || role.display_name?.toLocaleLowerCase().includes(filters.display_name?.toLocaleLowerCase())) &&
+          (!filters.description || role.description?.toLocaleLowerCase().includes(filters.description?.toLocaleLowerCase()))
+      ),
+    [filters, roles]
+  );
+
   const rows: DataViewTr[] = useMemo(() => {
     const handleRowClick = (event: any, role: Role | undefined) => {
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
     };
-
-    return sortData(roles, sortBy, direction).map((role: Role) => ({
+    console.log(filteredData);
+    console.log(roles);
+    return sortData(filteredData, sortBy, direction).map((role: Role) => ({
       id: role.uuid,
       row: Object.values({
         display_name: role.display_name,
@@ -157,7 +180,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
-  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, direction]);
+  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, direction, filteredData]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -209,6 +232,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
         <DataView ouiaId={ouiaId} selection={selection}>
           <DataViewToolbar
             ouiaId={`${ouiaId}-header-toolbar`}
+            clearAllFilters={clearAllFilters}
             bulkSelect={
               <BulkSelect
                 isDataPaginated
@@ -241,6 +265,12 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                 onSetPage={onSetPage}
                 onPerPageSelect={onPerPageSelect}
               />
+            }
+            filters={
+              <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
+                <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" />
+                <DataViewTextFilter filterId="description" title="Description" placeholder="Filter by description" />
+              </DataViewFilters>
             }
           />
           <DataViewTable columns={columns} rows={rows} ouiaId={`${ouiaId}-table`} />
