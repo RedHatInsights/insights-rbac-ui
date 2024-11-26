@@ -234,7 +234,14 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
         {isLoading ? (
           <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
         ) : (
-          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
+          <DataViewTable
+            variant="compact"
+            aria-label="Users Table"
+            ouiaId={`${OUIA_ID}-table`}
+            columns={COLUMNS}
+            rows={rows}
+            bodyStates={{ empty }}
+          />
         )}
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>

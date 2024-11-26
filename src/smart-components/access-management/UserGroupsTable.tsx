@@ -297,7 +297,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         {isLoading ? (
           <SkeletonTable rowsCount={10} columns={COLUMNS} variant={TableVariant.compact} />
         ) : (
-          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} states={{ empty }} />
+          <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${ouiaId}-table`} columns={COLUMNS} rows={rows} bodyStates={{ empty }} />
         )}
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
