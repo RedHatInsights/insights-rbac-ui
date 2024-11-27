@@ -6,6 +6,8 @@ export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view-edit-user';
 export const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view-all';
 export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view-edit-all';
 
+const getITApiUrl = (isProd) => `https://api.access${isProd ? '' : '.stage'}.redhat.com`;
+
 const principalApi = getPrincipalApi();
 
 const principalStatusApiMap = {
@@ -59,9 +61,21 @@ function handleError(error, reject) {
   reject(new Error(error.message));
 }
 
-export async function addUsers(usersData = { emails: [], isAdmin: undefined, message: undefined }, isCommonAuth = false) {
-  if (isCommonAuth) {
-    return Promise.resolve();
+export async function addUsers(usersData = { emails: [], isAdmin: undefined, message: undefined }, config) {
+  if (config) {
+    const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/invite`;
+    return fetch(currURL, {
+      body: JSON.stringify({
+        emails: usersData.emails,
+        message: usersData.message,
+        ...(usersData.isAdmin && { roles: ['organization_administrator'] }),
+      }),
+      method: 'POST',
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.token}`,
+      }),
+    });
   }
   const token = await insights.chrome.auth.getToken();
   const requestOpts = {
@@ -86,9 +100,19 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
   return promise;
 }
 
-export async function updateUserIsOrgAdminStatus(user, isCommonAuth = false) {
-  if (isCommonAuth) {
-    return Promise.resolve();
+export async function updateUserIsOrgAdminStatus(user, config) {
+  if (config) {
+    const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/roles`;
+    return fetch(currURL, {
+      method: user.is_org_admin ? 'POST' : 'DELETE',
+      body: JSON.stringify({
+        roles: ['organization_administrator'],
+      }),
+      headers: new Headers({
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${config.token}`,
+      }),
+    });
   }
   const token = await insights.chrome.auth.getToken();
   let requestOpts = {
@@ -111,9 +135,21 @@ export async function updateUserIsOrgAdminStatus(user, isCommonAuth = false) {
   return promise;
 }
 
-export async function updateUsers(users, isCommonAuth = false) {
-  if (isCommonAuth) {
-    return Promise.resolve();
+export async function chageUsersStatus(users, config) {
+  if (config) {
+    return users.map((user) => {
+      const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
+      return fetch(currURL, {
+        method: 'POST',
+        body: JSON.stringify({
+          status: user.is_active ? 'enabled' : 'disabled',
+        }),
+        headers: new Headers({
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${config.token}`,
+        }),
+      });
+    });
   }
   const token = await insights.chrome.auth.getToken();
   let requestOpts = {
