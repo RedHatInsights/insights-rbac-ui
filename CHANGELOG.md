@@ -1,3 +1,10 @@
+# [1.15.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.14.0...v1.15.0) (2024-11-27)
+
+
+### Features
+
+* **common-auth:** add it api to invite and edit users ([#1718](https://github.com/RedHatInsights/insights-rbac-ui/issues/1718)) ([0ac978c](https://github.com/RedHatInsights/insights-rbac-ui/commit/0ac978c95903f6a1a79cd82899f15cc405e56089))
+
 # [1.14.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.13.0...v1.14.0) (2024-11-20)
 
 
