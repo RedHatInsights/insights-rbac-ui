@@ -6,7 +6,7 @@ import PropTypes from 'prop-types';
 import { useLocation, useNavigate, Outlet } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
-import { fetchUsers, updateUsersFilters, updateUsers, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
+import { fetchUsers, updateUsersFilters, chageUsersStatus, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
 import { Button, Switch as PF4Switch, Label, Modal, ModalVariant, List, ListItem, Checkbox, Stack, StackItem } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/deprecated';
 import { sortable, nowrap } from '@patternfly/react-table';
@@ -226,7 +226,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
     const newUserList = users.map((user) => {
       return { id: user?.uuid || user?.external_source_id, is_active: isActivated };
     });
-    dispatch(updateUsers(newUserList))
+    dispatch(chageUsersStatus(newUserList))
       .then(() => {
         setFilters(newFilters);
         if (setSelectedUsers) {
