@@ -1,3 +1,10 @@
+## [1.15.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.1...v1.15.2) (2024-11-28)
+
+
+### Bug Fixes
+
+* **konflux:** update oci-ta and rpms scan image dependencies ([#1720](https://github.com/RedHatInsights/insights-rbac-ui/issues/1720)) ([1b2cf81](https://github.com/RedHatInsights/insights-rbac-ui/commit/1b2cf8171fb64ce0f3417335dbfda54b4e988973))
+
 ## [1.15.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.0...v1.15.1) (2024-11-28)
 
 
