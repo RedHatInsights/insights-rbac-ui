@@ -1,3 +1,10 @@
+## [1.15.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.0...v1.15.1) (2024-11-28)
+
+
+### Bug Fixes
+
+* **konflux:** update buildah image sha ([#1719](https://github.com/RedHatInsights/insights-rbac-ui/issues/1719)) ([7d637b8](https://github.com/RedHatInsights/insights-rbac-ui/commit/7d637b801e731a7f5a88fb97e4d9062b18412d7c))
+
 # [1.15.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.14.0...v1.15.0) (2024-11-27)
 
 
