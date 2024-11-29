@@ -1023,6 +1023,16 @@ export default defineMessages({
     description: 'Overview Hero third list item',
     defaultMessage: `Assign users to these groups, allowing them to inherit the permissions associated with their group's roles`,
   },
+  cores: {
+    id: 'cores',
+    description: 'Cores label',
+    defaultMessage: 'Cores',
+  },
+  totalAccountAvailability: {
+    id: 'totalAccountAvailability',
+    description: 'Total account availability text',
+    defaultMessage: 'Total availability from {billingAccount}: {count} Cores',
+  },
   billingAccount: {
     id: 'billingAccount',
     description: 'Billing account label',
