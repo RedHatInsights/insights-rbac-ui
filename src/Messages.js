@@ -1023,10 +1023,40 @@ export default defineMessages({
     description: 'Overview Hero third list item',
     defaultMessage: `Assign users to these groups, allowing them to inherit the permissions associated with their group's roles`,
   },
+  billingAccount: {
+    id: 'billingAccount',
+    description: 'Billing account label',
+    defaultMessage: 'Billing account',
+  },
+  createWorkspaceSuccessTitle: {
+    id: 'createWorkspaceSuccessTitle',
+    description: 'Create workspace success notification title',
+    defaultMessage: 'Success creating a workspace',
+  },
+  createWorkspaceSuccessDescription: {
+    id: 'createWorkspaceSuccessDescription',
+    description: 'Create workspace success notification description',
+    defaultMessage: 'The workspace was created successfully.',
+  },
+  createWorkspaceErrorTitle: {
+    id: 'createWorkspaceErrorTitle',
+    description: 'Create workspace error notification title',
+    defaultMessage: 'Failed creating a workspace',
+  },
+  createWorkspaceErrorDescription: {
+    id: 'createWorkspaceErrorDescription',
+    description: 'Create workspace error notification description',
+    defaultMessage: 'The workspace was not created successfuly.',
+  },
   workspace: {
     id: 'workspace',
     description: 'Workspace singular label',
     defaultMessage: 'Workspace',
+  },
+  parentWorkspace: {
+    id: 'parentWorkspace',
+    description: 'Parent workspace label',
+    defaultMessage: 'Parent workspace',
   },
   workspaces: {
     id: 'workspaces',
@@ -1083,6 +1113,61 @@ export default defineMessages({
     id: 'workspacesDetailBreadcrumbTitle',
     description: 'Workspace detail breadcrumb title',
     defaultMessage: 'Workspace hierarchy: ',
+  },
+  createWorkspace: {
+    id: 'createWorkspace',
+    description: 'Create workspace action label',
+    defaultMessage: 'Create workspace',
+  },
+  createNewWorkspace: {
+    id: 'createNewWorkspace',
+    description: 'Create newworkspace action label',
+    defaultMessage: 'Create new workspace',
+  },
+  workspaceDetails: {
+    id: 'workspaceDetails',
+    description: 'Workspace details label',
+    defaultMessage: 'Workspace details',
+  },
+  workspaceName: {
+    id: 'workspaceName',
+    description: 'Workspace name label',
+    defaultMessage: 'Workspace name',
+  },
+  workspaceDescription: {
+    id: 'workspaceDescription',
+    description: 'Create newworkspace action label',
+    defaultMessage: 'Workspace description',
+  },
+  setEarmark: {
+    id: 'setEarmark',
+    description: 'Set ear mark step label',
+    defaultMessage: 'Set ear mark for {bundle} features',
+  },
+  selectFeatures: {
+    id: 'selectFeatures',
+    description: 'Select features label',
+    defaultMessage: 'Select feature(s)',
+  },
+  availableFeatures: {
+    id: 'availableFeatures',
+    description: 'Available features label',
+    defaultMessage: 'Available feature(s)',
+  },
+  earMark: {
+    id: 'earMark',
+    description: 'Ear mark label',
+    defaultMessage: 'Ear mark',
+  },
+  earMarkOfFeatures: {
+    id: 'earMarkOfFeatures',
+    description: 'Ear mark of features label',
+    defaultMessage: 'Ear mark of feature(s)',
+  },
+  reviewNewWorkspace: {
+    id: 'reviewNewWorkspace',
+    description: 'Review new workspace label',
+    defaultMessage: 'Review new workspace',
   },
   viewGroupsBtn: {
     id: 'viewGroupsBtn',
