@@ -6,7 +6,7 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { ActionsColumn, TableVariant } from '@patternfly/react-table';
+import { ActionsColumn } from '@patternfly/react-table';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
@@ -17,9 +17,8 @@ import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
-import { ResponsiveAction, ResponsiveActions, SkeletonTable, SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
 import AddGroupWizard from '../group/add-group/add-group-wizard';
-import { Loading } from '@patternfly/quickstarts';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
