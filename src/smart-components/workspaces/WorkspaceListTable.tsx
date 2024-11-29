@@ -1,15 +1,21 @@
-import React, { useEffect, useState } from 'react';
+import React, { Suspense, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { Outlet } from 'react-router-dom';
+import { useIntl } from 'react-intl';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue, ResponsiveAction, ResponsiveActions } from '@patternfly/react-component-groups';
 import { DataView, DataViewTable, DataViewTh, DataViewToolbar, DataViewTrTree, useDataViewSelection } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import messages from '../../Messages';
+import useAppNavigate from '../../hooks/useAppNavigate';
 
 const WorkspaceListTable = () => {
+  const intl = useIntl();
   const dispatch = useDispatch();
+  const navigate = useAppNavigate();
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
   const { isLoading, workspaces, error } = useSelector((state: RBACStore) => state.workspacesReducer);
@@ -72,7 +78,7 @@ const WorkspaceListTable = () => {
 
   const rows: DataViewTrTree[] = buildRows(hierarchicalWorkspaces);
 
-  const columns: DataViewTh[] = ['Name', 'Description'];
+  const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && selection.onSelect(false);
@@ -95,10 +101,34 @@ const WorkspaceListTable = () => {
                 onSelect={handleBulkSelect}
               />
             }
+            actions={
+              <ResponsiveActions>
+                <ResponsiveAction
+                  ouiaId="create-workspace-button"
+                  isPinned
+                  onClick={() => navigate({ pathname: pathnames['create-workspace'].link })}
+                >
+                  {intl.formatMessage(messages.createWorkspace)}
+                </ResponsiveAction>
+              </ResponsiveActions>
+            }
           />
           <DataViewTable isTreeTable aria-label="Workspaces list table" ouiaId={'ouiaId'} columns={columns} rows={rows} />
         </DataView>
       )}
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['create-workspace'].path]: {
+              afterSubmit: () => {
+                fetchWorkspaces();
+                navigate({ pathname: pathnames.workspaces.link });
+              },
+              onCancel: () => navigate({ pathname: pathnames.workspaces.link }),
+            },
+          }}
+        />
+      </Suspense>
     </React.Fragment>
   );
 };
