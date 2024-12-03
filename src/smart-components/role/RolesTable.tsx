@@ -32,7 +32,6 @@ const PER_PAGE = [
 
 interface RoleFilters {
   display_name: string;
-  description: string;
 }
 
 const ouiaId = 'RolesTable';
@@ -59,24 +58,24 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   };
 
   const COLUMNHEADERS = [
-    { label: intl.formatMessage(messages.name), key: 'display_name', index: 0 },
-    { label: intl.formatMessage(messages.description), key: 'description', index: 1 },
-    { label: intl.formatMessage(messages.permissions), key: 'accessCount', index: 2 },
-    { label: intl.formatMessage(messages.workspaces), key: 'workspaces', index: 3 },
-    { label: intl.formatMessage(messages.userGroups), key: 'user_groups', index: 4 },
-    { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 5 },
+    { label: intl.formatMessage(messages.name), key: 'display_name', index: 0, isSortable: true },
+    { label: intl.formatMessage(messages.description), key: 'description', index: 1, isSortable: false },
+    { label: intl.formatMessage(messages.permissions), key: 'accessCount', index: 2, isSortable: false },
+    { label: intl.formatMessage(messages.workspaces), key: 'workspaces', index: 3, isSortable: false },
+    { label: intl.formatMessage(messages.userGroups), key: 'user_groups', index: 4, isSortable: false },
+    { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 5, isSortable: true },
   ];
 
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
-    initialFilters: { display_name: '', description: '' },
+    initialFilters: { display_name: '' },
     searchParams,
     setSearchParams,
   });
 
   const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
-  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => item.key === sortBy), [sortBy]);
+  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
 
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
@@ -85,9 +84,9 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
-      const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchRolesWithPolicies({ ...mappedProps({ count, limit, offset, orderBy }) }));
+    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters: RoleFilters }) => {
+      const { count, limit, offset, orderBy, filters } = apiProps;
+      dispatch(fetchRolesWithPolicies({ ...mappedProps({ count, limit, offset, orderBy, filters }) }));
     },
     [dispatch]
   );
@@ -96,10 +95,11 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: 'display_name',
+      orderBy: sortBy || '',
       count: totalCount || 0,
+      filters: filters,
     });
-  }, [fetchData, page, perPage]);
+  }, [fetchData, page, perPage, filters, onSetFilters, sortBy, direction]);
 
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
     sortBy: {
@@ -111,44 +111,17 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     columnIndex,
   });
 
-  const sortData = (data: Role[], sortBy: string | undefined, direction: 'asc' | 'desc' | undefined) =>
-    sortBy && direction
-      ? [...data].sort((a, b) =>
-          direction === 'asc'
-            ? a[sortBy as keyof Role] < b[sortBy as keyof Role]
-              ? -1
-              : a[sortBy as keyof Role] > b[sortBy as keyof Role]
-              ? 1
-              : 0
-            : a[sortBy as keyof Role] > b[sortBy as keyof Role]
-            ? -1
-            : a[sortBy as keyof Role] < b[sortBy as keyof Role]
-            ? 1
-            : 0
-        )
-      : data;
-
   const columns: DataViewTh[] = COLUMNHEADERS.map((column, index) => ({
     cell: column.label,
-    props: { sort: getSortParams(index) },
+    props: column.isSortable ? { sort: getSortParams(index) } : {},
   }));
-
-  const filteredData = useMemo(
-    () =>
-      roles.filter(
-        (role) =>
-          (!filters.display_name || role.display_name?.toLocaleLowerCase().includes(filters.display_name?.toLocaleLowerCase())) &&
-          (!filters.description || role.description?.toLocaleLowerCase().includes(filters.description?.toLocaleLowerCase()))
-      ),
-    [filters, roles]
-  );
 
   const rows: DataViewTr[] = useMemo(() => {
     const handleRowClick = (event: any, role: Role | undefined) => {
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
     };
 
-    return sortData(filteredData, sortBy, direction).map((role: Role) => ({
+    return roles.map((role: Role) => ({
       id: role.uuid,
       row: Object.values({
         display_name: role.display_name,
@@ -179,7 +152,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
-  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, direction, filteredData]);
+  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, onSort, direction, filters, onSetFilters]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -268,7 +241,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             filters={
               <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters} ouiaId={`${ouiaId}-filters`}>
                 <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" ouiaId={`${ouiaId}-name-filter`} />
-                <DataViewTextFilter filterId="description" title="Description" placeholder="Filter by description" ouiaId={`${ouiaId}-desc-filter`} />
               </DataViewFilters>
             }
           />

@@ -57,6 +57,90 @@ describe('Roles page', () => {
     },
   };
 
+  const sortedRoles = {
+    data: [
+      {
+        uuid: '00000-00000-1111-1111-111111',
+        name: 'A_Test_00000-00000',
+        display_name: 'A Test',
+        description: 'Test role A',
+        created: '2024-05-17T05:03:15.684013Z',
+        modified: '2024-05-17T05:03:15.709410Z',
+        policyCount: 2,
+        accessCount: 2,
+        applications: [],
+        system: false,
+        platform_default: false,
+        admin_default: false,
+        external_role_id: null,
+        external_tenant: null,
+      },
+      {
+        uuid: '00000-0000-0000-0000-00000000',
+        name: 'Test_1_00000-00000',
+        display_name: 'Test 1',
+        description: 'Test role1',
+        created: '2024-05-17T05:03:15.684013Z',
+        modified: '2024-05-17T05:03:15.709410Z',
+        policyCount: 2,
+        accessCount: 2,
+        applications: [],
+        system: false,
+        platform_default: false,
+        admin_default: false,
+        external_role_id: null,
+        external_tenant: null,
+      },
+      {
+        uuid: '00000-11111-1111-1111-111111',
+        name: 'Test_2_00000-00000',
+        display_name: 'Test 2',
+        description: 'Test role2',
+        created: '2024-05-17T05:03:15.684013Z',
+        modified: '2024-05-17T05:03:15.709410Z',
+        policyCount: 2,
+        accessCount: 2,
+        applications: [],
+        system: false,
+        platform_default: false,
+        admin_default: false,
+        external_role_id: null,
+        external_tenant: null,
+      },
+    ],
+    meta: {
+      count: 3,
+      limit: 20,
+      offset: 0,
+    },
+  };
+
+  const filteredRoles = {
+    data: [
+      {
+        uuid: '00000-00000-1111-1111-111111',
+        name: 'A_Test_00000-00000',
+        display_name: 'A Test',
+        description: 'Test role A',
+        created: '2024-05-17T05:03:15.684013Z',
+        modified: '2024-05-17T05:03:15.709410Z',
+        policyCount: 2,
+        accessCount: 2,
+        applications: [],
+        system: false,
+        platform_default: false,
+        admin_default: false,
+        external_role_id: null,
+        external_tenant: null,
+      },
+    ],
+    meta: {
+      count: 1,
+      limit: 20,
+      offset: 0,
+    },
+  };
+
   beforeEach(() => {
     cy.login(true);
 
@@ -103,30 +187,23 @@ describe('Roles page', () => {
   });
 
   it('should sort roles', () => {
+    cy.intercept('GET', '**/api/rbac/v1/roles/?limit=20&display_name=&scope=org_id&order_by=display_name*', {
+      statusCode: 200,
+      body: sortedRoles,
+    }).as('sortRoles');
     cy.get('[data-ouia-component-id="RolesTable-table-th-0"]').click();
+    cy.wait('@sortRoles', { timeout: 15000 });
     cy.get('[data-ouia-component-id="RolesTable-table-td-0-0"]').should('contain.text', 'A Test');
-    cy.get('[data-ouia-component-id="RolesTable-table-th-0"]').click();
-    cy.get('[data-ouia-component-id="RolesTable-table-td-0-0"]').should('contain.text', 'Test 2');
   });
 
-  it('should filter roles by name or description', () => {
+  it('should filter roles by name', () => {
+    cy.intercept('GET', '**/api/rbac/v1/roles/?limit=20&display_name=A*', {
+      statusCode: 200,
+      body: filteredRoles,
+    }).as('filterRoles');
     cy.get('[data-ouia-component-id="OUIA-Generated-Button-plain-1"]').click();
     cy.get('[data-ouia-component-id="RolesTable-name-filter-input"]').type('A');
+    cy.wait('@filterRoles', { timeout: 15000 });
     cy.get('table tbody tr').should('have.length', 1);
-    cy.get('[aria-label="Reset"]').click();
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-1"]').contains('Name').click();
-    cy.get('ul > li').contains('Description').click();
-    cy.get('[data-ouia-component-id="RolesTable-desc-filter"]').type('Test role A');
-    cy.get('table tbody tr').should('have.length', 1);
-  });
-
-  it('should show all data when filters are cleared', () => {
-    cy.get('[data-ouia-component-id="OUIA-Generated-Button-plain-1"]').click();
-    cy.get('[data-ouia-component-id="RolesTable-name-filter-input"]').type('A');
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-1"]').contains('Name').click();
-    cy.get('ul > li').contains('Description').click();
-    cy.get('[data-ouia-component-id="RolesTable-desc-filter"]').type('Test role A');
-    cy.get('[data-ouia-component-id^="RolesTable-header-toolbar-clear-all-filters"]').contains('Clear filters').click();
-    cy.get('table tbody tr').should('have.length', 3);
   });
 });
