@@ -1,3 +1,10 @@
+## [1.15.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.3...v1.15.4) (2024-12-03)
+
+
+### Bug Fixes
+
+* **konflux:** remove duplicate name of task ([#1723](https://github.com/RedHatInsights/insights-rbac-ui/issues/1723)) ([991729a](https://github.com/RedHatInsights/insights-rbac-ui/commit/991729a25b0121bda9802c762cb707e3a4757aa2))
+
 ## [1.15.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.2...v1.15.3) (2024-12-03)
 
 
