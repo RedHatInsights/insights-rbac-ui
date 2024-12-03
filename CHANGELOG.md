@@ -1,3 +1,10 @@
+## [1.15.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.2...v1.15.3) (2024-12-03)
+
+
+### Bug Fixes
+
+* **konflux:** remove sbom json check ([#1722](https://github.com/RedHatInsights/insights-rbac-ui/issues/1722)) ([9fe1bce](https://github.com/RedHatInsights/insights-rbac-ui/commit/9fe1bcefd693fa180631164c10c9bd28f51d91d3))
+
 ## [1.15.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.1...v1.15.2) (2024-11-28)
 
 
