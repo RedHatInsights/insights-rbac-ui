@@ -20,7 +20,6 @@ import { useSearchParams } from 'react-router-dom';
 import RolesDetails from './RolesTableDetails';
 import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
 import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 
 const PER_PAGE = [
   { title: '5', value: 5 },
@@ -95,7 +94,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: sortBy || '',
+      orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}` || '',
       count: totalCount || 0,
       filters: filters,
     });
@@ -107,7 +106,10 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       direction,
       defaultDirection: 'asc',
     },
-    onSort: (_event, index, direction) => onSort(_event, COLUMNHEADERS[index].key, direction),
+    onSort: (_event, index, direction) => {
+      onSetPage(_event, 1);
+      onSort(_event, COLUMNHEADERS[index].key, direction);
+    },
     columnIndex,
   });
 
@@ -239,9 +241,14 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               />
             }
             filters={
-              <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters} ouiaId={`${ouiaId}-filters`}>
-                <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" ouiaId={`${ouiaId}-name-filter`} />
-              </DataViewFilters>
+              <DataViewTextFilter
+                filterId="display_name"
+                title="Name"
+                placeholder="Filter by name"
+                ouiaId={`${ouiaId}-name-filter`}
+                onChange={(_e, value) => onSetFilters({ display_name: value })}
+                value={filters['display_name']}
+              />
             }
           />
           <DataViewTable columns={columns} rows={rows} ouiaId={`${ouiaId}-table`} />
