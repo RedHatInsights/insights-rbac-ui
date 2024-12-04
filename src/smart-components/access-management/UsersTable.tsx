@@ -33,6 +33,25 @@ const PER_PAGE_OPTIONS = [
   { title: '100', value: 100 },
 ];
 
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
+const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
+
 const OUIA_ID = 'iam-users-table';
 
 interface UsersTableProps {
@@ -159,23 +178,6 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     />
   );
 
-  const empty = (
-    <EmptyState>
-      <EmptyStateHeader titleText={intl.formatMessage(messages.usersEmptyStateTitle)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['usersEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-
-  const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
-
   return (
     <Fragment>
       {isDeleteModalOpen && (
@@ -241,7 +243,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           columns={COLUMNS}
           rows={rows}
           headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: empty }}
+          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}
         />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>

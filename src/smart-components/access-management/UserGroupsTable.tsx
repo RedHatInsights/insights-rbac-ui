@@ -30,6 +30,25 @@ const PER_PAGE_OPTIONS = [
   { title: '100', value: 100 },
 ];
 
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
+const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
+
 interface UserGroupsTableProps {
   defaultPerPage?: number;
   useUrlParams?: boolean;
@@ -207,27 +226,6 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     />
   );
 
-  const empty = (
-    <EmptyState>
-      <EmptyStateHeader
-        titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)}
-        headingLevel="h4"
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-      />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['userGroupsEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-
-  const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
-  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
-
   return (
     <Fragment>
       {isAddGroupWizardOpen && (
@@ -304,7 +302,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           columns={COLUMNS}
           rows={rows}
           headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: empty }}
+          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} /> }}
         />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
