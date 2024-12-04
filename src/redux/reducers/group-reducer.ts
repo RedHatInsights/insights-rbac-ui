@@ -36,7 +36,7 @@ export interface GroupStore {
     filters: any;
     pagination: { count: number };
   };
-  selectedGroup: {
+  selectedGroup: Group & {
     addRoles: any;
     members: { meta: PaginationDefaultI; data?: any[] };
     serviceAccounts: { meta: PaginationDefaultI; data?: any[] };
