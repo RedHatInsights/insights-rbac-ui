@@ -107,8 +107,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       defaultDirection: 'asc',
     },
     onSort: (_event, index, direction) => {
-      onSetPage(_event, 1);
       onSort(_event, COLUMNHEADERS[index].key, direction);
+      onSetPage(_event, 1);
     },
     columnIndex,
   });
