@@ -201,7 +201,6 @@ describe('Roles page', () => {
       statusCode: 200,
       body: filteredRoles,
     }).as('filterRoles');
-    cy.get('[data-ouia-component-id="OUIA-Generated-Button-plain-1"]').click();
     cy.get('[data-ouia-component-id="RolesTable-name-filter-input"]').type('A');
     cy.wait('@filterRoles', { timeout: 15000 });
     cy.get('table tbody tr').should('have.length', 1);
