@@ -246,7 +246,10 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
                 title="Name"
                 placeholder="Filter by name"
                 ouiaId={`${ouiaId}-name-filter`}
-                onChange={(_e, value) => onSetFilters({ display_name: value })}
+                onChange={(_e, value) => {
+                  onSetFilters({ display_name: value });
+                  onSetPage(undefined, 1);
+                }}
                 value={filters['display_name']}
               />
             }
