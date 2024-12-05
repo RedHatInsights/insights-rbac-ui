@@ -13,7 +13,7 @@ import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHe
 import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { mappedProps } from '../../helpers/shared/helpers';
+import { debouncedFetch, mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
@@ -94,11 +94,26 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}` || '',
+      orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
       count: totalCount || 0,
       filters: filters,
     });
-  }, [fetchData, page, perPage, filters, onSetFilters, sortBy, direction]);
+  }, [fetchData, page, perPage, sortBy, direction]);
+
+  useEffect(() => {
+    debouncedFetch(
+      () =>
+        fetchData({
+          limit: perPage,
+          offset: (page - 1) * perPage,
+          orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
+          count: totalCount || 0,
+          filters: filters,
+        }),
+      800
+    );
+    return () => {};
+  }, [debouncedFetch, filters, onSetFilters]);
 
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
     sortBy: {
@@ -108,7 +123,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     },
     onSort: (_event, index, direction) => {
       onSort(_event, COLUMNHEADERS[index].key, direction);
-      onSetPage(_event, 1);
+      onSetPage(undefined, 1);
     },
     columnIndex,
   });
