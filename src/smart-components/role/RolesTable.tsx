@@ -83,9 +83,9 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters: RoleFilters }) => {
-      const { count, limit, offset, orderBy, filters } = apiProps;
-      dispatch(fetchRolesWithPolicies({ ...mappedProps({ count, limit, offset, orderBy, filters }) }));
+    (apiProps: { limit: number; offset: number; orderBy: string; filters: RoleFilters }) => {
+      const { limit, offset, orderBy, filters } = apiProps;
+      dispatch(fetchRolesWithPolicies({ ...mappedProps({ limit, offset, orderBy, filters }) }));
     },
     [dispatch]
   );
@@ -95,7 +95,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       limit: perPage,
       offset: (page - 1) * perPage,
       orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
-      count: totalCount || 0,
       filters: filters,
     });
   }, [fetchData, page, perPage, sortBy, direction]);
@@ -107,12 +106,10 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           limit: perPage,
           offset: (page - 1) * perPage,
           orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
-          count: totalCount || 0,
           filters: filters,
         }),
       800
     );
-    return () => {};
   }, [debouncedFetch, filters, onSetFilters]);
 
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
