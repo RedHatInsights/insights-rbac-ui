@@ -1,6 +1,6 @@
 import * as ActionTypes from '../action-types';
 import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
-import { WorkspacesBasicWorkspace } from '@redhat-cloud-services/rbac-client/dist/v2/types';
+import { WorkspaceCreateBody } from '../reducers/workspaces-reducer';
 import { createIntl, createIntlCache } from 'react-intl';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
@@ -16,7 +16,7 @@ export const fetchWorkspace = (ws: string) => ({
   payload: WorkspacesHelper.getWorkspace(ws),
 });
 
-export const createWorkspace = (config: WorkspacesBasicWorkspace) => {
+export const createWorkspace = (config: WorkspaceCreateBody) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -25,8 +25,7 @@ export const createWorkspace = (config: WorkspacesBasicWorkspace) => {
     payload: WorkspacesHelper.createWorkspace(config),
     meta: {
       notifications: {
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        rejected: (payload: any) => ({
+        rejected: (payload?: { detail: string }) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.createWorkspaceErrorTitle),
           dismissDelay: 8000,

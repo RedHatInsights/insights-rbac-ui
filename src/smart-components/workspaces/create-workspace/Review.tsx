@@ -22,7 +22,7 @@ const ReviewStep = () => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.parentWorkspace)}</DescriptionListTerm>
-          <DescriptionListDescription>{values[WORKSPACE_PARENT] ?? 'XXX'}</DescriptionListDescription>
+          <DescriptionListDescription>{values[WORKSPACE_PARENT].name}</DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.workspaceDetails)}</DescriptionListTerm>
@@ -30,7 +30,7 @@ const ReviewStep = () => {
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.billingAccount)}</DescriptionListTerm>
-          <DescriptionListDescription>{values[WORKSPACE_ACCOUNT] ?? 'XXX'}</DescriptionListDescription>
+          <DescriptionListDescription>{values[WORKSPACE_ACCOUNT]}</DescriptionListDescription>
         </DescriptionListGroup>
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.availableFeatures)}</DescriptionListTerm>
