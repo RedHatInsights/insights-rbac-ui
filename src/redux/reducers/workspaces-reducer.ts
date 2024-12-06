@@ -1,12 +1,17 @@
 import { FETCH_WORKSPACES, FETCH_WORKSPACE } from '../action-types';
 
-export interface Workspace {
-  id: string;
+export interface WorkspaceCreateBody {
+  id?: string;
   name: string;
   description: string;
   children?: Workspace[];
   parent_id?: string;
 }
+
+export interface Workspace extends WorkspaceCreateBody {
+  id: string;
+}
+
 export interface WorkspacesStore {
   isLoading: boolean;
   workspaces: Workspace[];

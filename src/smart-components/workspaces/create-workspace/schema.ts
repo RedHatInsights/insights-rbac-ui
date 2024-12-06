@@ -2,6 +2,7 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
+import { Workspace } from '../../../redux/reducers/workspaces-reducer';
 import providerMessages from '../../../locales/data.json';
 import messages from '../../../Messages';
 
@@ -31,11 +32,11 @@ export interface CreateWorkspaceFormValues {
   [WORKSPACE_NAME]: string;
   [WORKSPACE_DESCRIPTION]: string;
   [WORKSPACE_FEATURES]: string[];
-  [WORKSPACE_PARENT]: string;
+  [WORKSPACE_PARENT]: Workspace;
   [WORKSPACE_ACCOUNT]: string;
 }
 
-export const schemaBuilder = (enableFeatures: boolean) => {
+export const schemaBuilder = (enableBillingFeatures: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
 
@@ -54,7 +55,7 @@ export const schemaBuilder = (enableFeatures: boolean) => {
           {
             title: intl.formatMessage(messages.workspaceDetails),
             name: 'details',
-            nextStep: () => (enableFeatures ? 'select-features' : 'review'),
+            nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
             fields: [
               {
                 name: 'details-description',
@@ -81,7 +82,6 @@ export const schemaBuilder = (enableFeatures: boolean) => {
               {
                 name: 'workspace-details',
                 component: 'SetDetails',
-                hideField: !enableFeatures,
                 fields: [
                   {
                     name: WORKSPACE_PARENT,

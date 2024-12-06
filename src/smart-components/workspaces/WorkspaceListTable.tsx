@@ -121,7 +121,7 @@ const WorkspaceListTable = () => {
           context={{
             [pathnames['create-workspace'].path]: {
               afterSubmit: () => {
-                fetchWorkspaces();
+                dispatch(fetchWorkspaces());
                 navigate({ pathname: pathnames.workspaces.link });
               },
               onCancel: () => navigate({ pathname: pathnames.workspaces.link }),
