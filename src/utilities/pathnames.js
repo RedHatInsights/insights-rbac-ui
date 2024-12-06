@@ -13,6 +13,11 @@ const pathnames = {
     path: '/workspaces/*',
     title: 'Workspaces',
   },
+  'create-workspace': {
+    link: '/workspaces/create-workspace',
+    path: 'create-workspace',
+    title: 'Create workspace',
+  },
   'workspace-detail': {
     link: '/workspaces/:workspaceId',
     path: '/workspaces/:workspaceId/*',

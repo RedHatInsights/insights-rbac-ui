@@ -411,6 +411,10 @@
     "defaultMessage": "Create group",
     "description": "Create group wizard title"
   },
+  "createNewWorkspace": {
+    "defaultMessage": "Create new workspace",
+    "description": "Create newworkspace action label"
+  },
   "createRole": {
     "defaultMessage": "Create role",
     "description": "Create role label"
@@ -426,6 +430,14 @@
   "createRoleFromScratch": {
     "defaultMessage": "Create a role from scratch",
     "description": "Create role from scratch option"
+  },
+  "createUserGroup": {
+    "defaultMessage": "Create user group",
+    "description": "create user group button label"
+  },
+  "createWorkspace": {
+    "defaultMessage": "Create workspace",
+    "description": "Create workspace action label"
   },
   "creatingGroup": {
     "defaultMessage": "Creating a group",
@@ -488,7 +500,7 @@
     "description": "Delete button text"
   },
   "deleteCustomRoleModalBody": {
-    "defaultMessage": "Deleting the <strong>{name}</strong> may remove acess to certain user groups in your organization",
+    "defaultMessage": "Deleting the {count, plural, one {the <b>{name}</b> role} other {{count} roles}} may remove acess to certain user groups in your organization",
     "description": "Modal body text for deleting custom role"
   },
   "deleteCustomRoleModalHeader": {
@@ -523,6 +535,18 @@
     "defaultMessage": "Delete role?",
     "description": "Delete role question message"
   },
+  "deleteRolesAction": {
+    "defaultMessage": "Delete Roles",
+    "description": "delete roles"
+  },
+  "deleteUserGroupModalBody": {
+    "defaultMessage": "Deleting {count, plural, one {the <b>{name}</b> user group} other {{count} user groups}} will impact user access configuration.",
+    "description": "Modal body text for delete user group"
+  },
+  "deleteUserGroupModalTitle": {
+    "defaultMessage": "Delete user {count, plural, one {group} other {groups}}?",
+    "description": "Title for delete user group modal"
+  },
   "deleteUserModalBody": {
     "defaultMessage": "will lose all the roles associated with the user groups it belongs to.",
     "description": "Modal body text for delete user"
@@ -550,6 +574,10 @@
   "discardedInputsWarning": {
     "defaultMessage": "All inputs will be discarded",
     "description": "Warning saying that all inputs will be discarded"
+  },
+  "earMark": {
+    "defaultMessage": "Ear mark",
+    "description": "Ear mark label"
   },
   "edit": {
     "defaultMessage": "Edit",
@@ -1446,6 +1474,10 @@
     "defaultMessage": "Review details",
     "description": "Review details label"
   },
+  "reviewNewWorkspace": {
+    "defaultMessage": "Review new workspace",
+    "description": "Review new workspace label"
+  },
   "reviewRoleDetails": {
     "defaultMessage": "Review and confirm the details for your role, or click Back to revise.",
     "description": "Review role details text"
@@ -1510,6 +1542,10 @@
     "defaultMessage": "Select applications to view your personal permissions.",
     "description": "Select applications to view your personal permissions message"
   },
+  "selectFeatures": {
+    "defaultMessage": "Select feature(s)",
+    "description": "Select features label"
+  },
   "selectGroups": {
     "defaultMessage": "Select groups",
     "description": "Select groups label"
@@ -1558,6 +1594,10 @@
     "defaultMessage": "Service Accounts admin page",
     "description": "Service accounts page message"
   },
+  "setEarmark": {
+    "defaultMessage": "Set ear mark for {bundle} features",
+    "description": "Set ear mark step label"
+  },
   "status": {
     "defaultMessage": "Status",
     "description": "Status label"
@@ -1602,10 +1642,6 @@
     "defaultMessage": "user",
     "description": "User label"
   },
-  "user-groups": {
-    "defaultMessage": "User group",
-    "description": "User group singular"
-  },
   "userAccessAdmin": {
     "defaultMessage": "User Access Admin",
     "description": "User Access Admin name"
@@ -1617,6 +1653,14 @@
   "userDescription": {
     "defaultMessage": "{username}'s roles, groups and permissions.",
     "description": "User description text"
+  },
+  "userGroup": {
+    "defaultMessage": "User group",
+    "description": "User group singular"
+  },
+  "userGroups": {
+    "defaultMessage": "User groups",
+    "description": "User groups plural"
   },
   "userGroupsEmptyStateSubtitle": {
     "defaultMessage": "This filter criteria matches no user groups.{br}Try changing your filter input.",
@@ -1757,6 +1801,18 @@
   "workspaceAssignment": {
     "defaultMessage": "Workspace assignment (TBD)",
     "description": "column header for assigned user groups table"
+  },
+  "workspaceDescription": {
+    "defaultMessage": "Workspace description",
+    "description": "Create newworkspace action label"
+  },
+  "workspaceDetails": {
+    "defaultMessage": "Workspace details",
+    "description": "Workspace details label"
+  },
+  "workspaceName": {
+    "defaultMessage": "Workspace name",
+    "description": "Workspace name label"
   },
   "workspaces": {
     "defaultMessage": "Workspaces",
