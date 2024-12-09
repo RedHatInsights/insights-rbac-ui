@@ -1,10 +1,13 @@
+import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
+import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
 import { locale } from '../../../AppEntry';
-import { createIntl, createIntlCache } from 'react-intl';
+import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import { Workspace } from '../../../redux/reducers/workspaces-reducer';
 import providerMessages from '../../../locales/data.json';
 import messages from '../../../Messages';
+import { Button, Text } from '@patternfly/react-core';
 
 // hardcoded for now
 export const BUNDLES = [
@@ -54,21 +57,49 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
         fields: [
           {
             title: intl.formatMessage(messages.workspaceDetails),
+            showTitle: false,
             name: 'details',
             nextStep: () => (enableBillingFeatures ? 'select-features' : 'review'),
             fields: [
               {
+                name: 'details-title',
+                component: componentTypes.PLAIN_TEXT,
+                className: 'pf-v5-c-title pf-m-xl',
+                label: intl.formatMessage(messages.workspaceDetailsTitle),
+              },
+              {
                 name: 'details-description',
                 component: componentTypes.PLAIN_TEXT,
                 className: 'pf-v5-u-my-md',
-                label:
-                  'Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.',
+                label: intl.formatMessage(messages.workspaceDetailsDescription),
               },
               {
                 name: 'workspace-name',
                 component: componentTypes.TEXT_FIELD,
                 label: intl.formatMessage(messages.workspaceName),
                 isRequired: true,
+                FormGroupProps: {
+                  labelIcon: (
+                    <InputHelpPopover
+                      bodyContent={
+                        <Text>
+                          <FormattedMessage
+                            id={messages.workspaceNamingGuidelines.id}
+                            defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
+                            values={{
+                              link: (
+                                <Button variant="link" href="#" isInline>
+                                  {intl.formatMessage(messages.learnMore)}
+                                </Button>
+                              ),
+                            }}
+                          />
+                        </Text>
+                      }
+                      field="workspace name"
+                    />
+                  ),
+                },
                 validate: [
                   {
                     type: validatorTypes.REQUIRED,
@@ -111,6 +142,20 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                 name: 'workspace-description',
                 component: componentTypes.TEXTAREA,
                 label: intl.formatMessage(messages.workspaceDescription),
+                FormGroupProps: {
+                  labelIcon: (
+                    <InputHelpPopover
+                      bodyContent={<Text>{intl.formatMessage(messages.workspaceDescriptionMaxLength, { count: 255 })}</Text>}
+                      field="workspace description"
+                    />
+                  ),
+                },
+                validate: [
+                  {
+                    type: validatorTypes.MAX_LENGTH,
+                    threshold: 255,
+                  },
+                ],
               },
             ],
           },

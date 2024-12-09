@@ -1,4 +1,5 @@
 import React from 'react';
+import { useFlag } from '@unleash/proxy-client-react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { Title, DescriptionListGroup, DescriptionList, DescriptionListTerm, DescriptionListDescription, Text } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
@@ -9,12 +10,14 @@ const ReviewStep = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
+  const enableBillingFeatures = useFlag('platform.rbac.workspaces-billing-features');
 
   return (
     <div className="rbac">
       <Title headingLevel="h1" size="xl" className="pf-v5-u-mb-lg">
         {intl.formatMessage(messages.reviewNewWorkspace)}
       </Title>
+      <Text className="pf-v5-u-mb-xl">{intl.formatMessage(messages.reviewWorkspaceDescription)}</Text>
       <DescriptionList isHorizontal termWidth="25%">
         <DescriptionListGroup>
           <DescriptionListTerm>{intl.formatMessage(messages.workspaceName)}</DescriptionListTerm>
@@ -28,20 +31,24 @@ const ReviewStep = () => {
           <DescriptionListTerm>{intl.formatMessage(messages.workspaceDetails)}</DescriptionListTerm>
           <DescriptionListDescription>{values[WORKSPACE_DESCRIPTION] ?? '-'}</DescriptionListDescription>
         </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTerm>{intl.formatMessage(messages.billingAccount)}</DescriptionListTerm>
-          <DescriptionListDescription>{values[WORKSPACE_ACCOUNT]}</DescriptionListDescription>
-        </DescriptionListGroup>
-        <DescriptionListGroup>
-          <DescriptionListTerm>{intl.formatMessage(messages.availableFeatures)}</DescriptionListTerm>
-          <DescriptionListDescription>
-            {values[WORKSPACE_FEATURES]?.length > 0 ? (
-              values[WORKSPACE_FEATURES].map((item: string) => <Text key={item}>{BUNDLES.find((bundle) => bundle.value === item)?.label}</Text>)
-            ) : (
-              <Text>-</Text>
-            )}
-          </DescriptionListDescription>
-        </DescriptionListGroup>
+        {enableBillingFeatures && (
+          <>
+            <DescriptionListGroup>
+              <DescriptionListTerm>{intl.formatMessage(messages.billingAccount)}</DescriptionListTerm>
+              <DescriptionListDescription>{values[WORKSPACE_ACCOUNT]}</DescriptionListDescription>
+            </DescriptionListGroup>
+            <DescriptionListGroup>
+              <DescriptionListTerm>{intl.formatMessage(messages.availableFeatures)}</DescriptionListTerm>
+              <DescriptionListDescription>
+                {values[WORKSPACE_FEATURES]?.length > 0 ? (
+                  values[WORKSPACE_FEATURES].map((item: string) => <Text key={item}>{BUNDLES.find((bundle) => bundle.value === item)?.label}</Text>)
+                ) : (
+                  <Text>-</Text>
+                )}
+              </DescriptionListDescription>
+            </DescriptionListGroup>
+          </>
+        )}
         {values[WORKSPACE_FEATURES]?.length > 0 ? (
           <DescriptionListGroup>
             <DescriptionListTerm>{intl.formatMessage(messages.earMarkOfFeatures)}</DescriptionListTerm>

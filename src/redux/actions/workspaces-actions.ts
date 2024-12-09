@@ -27,15 +27,14 @@ export const createWorkspace = (config: WorkspaceCreateBody) => {
       notifications: {
         rejected: (payload?: { detail: string }) => ({
           variant: 'danger',
-          title: intl.formatMessage(messages.createWorkspaceErrorTitle),
+          title: intl.formatMessage(messages.createWorkspaceErrorTitle, { name: config.name }),
           dismissDelay: 8000,
           description: payload?.detail || intl.formatMessage(messages.createWorkspaceErrorDescription),
         }),
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.createWorkspaceSuccessTitle),
+          title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: config.name }),
           dismissDelay: 8000,
-          description: intl.formatMessage(messages.createWorkspaceSuccessDescription),
         },
       },
     },

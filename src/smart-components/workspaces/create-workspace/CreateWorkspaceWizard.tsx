@@ -1,5 +1,6 @@
 import React from 'react';
 import { useDispatch } from 'react-redux';
+import { useFlag } from '@unleash/proxy-client-react';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -9,7 +10,6 @@ import { createWorkspace } from '../../../redux/actions/workspaces-actions';
 import SetEarMark from './SetEarMark';
 import Review from './Review';
 import SetDetails from './SetDetails';
-import { useFlag } from '@unleash/proxy-client-react';
 
 interface CreateWorkspaceWizardProps {
   afterSubmit: () => void;
