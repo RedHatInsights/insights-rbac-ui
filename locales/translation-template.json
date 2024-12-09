@@ -295,6 +295,10 @@
     "defaultMessage": "Associating service accounts",
     "description": "Adding service accounts label"
   },
+  "availableFeatures": {
+    "defaultMessage": "Available feature(s)",
+    "description": "Available features label"
+  },
   "backToPreviousPage": {
     "defaultMessage": "Back to previous page",
     "description": "Back to previous page label"
@@ -306,6 +310,10 @@
   "beginQuickStartLink": {
     "defaultMessage": "Begin Quick start",
     "description": "Begin Quick start link"
+  },
+  "billingAccount": {
+    "defaultMessage": "Billing account",
+    "description": "Billing account label"
   },
   "bindingsServiceCardDescription": {
     "defaultMessage": "Grant access to your workspaces. This connects roles and user groups to specific workspaces. These bindings determine who can access what, and the actions they're allowed to perform.",
@@ -395,6 +403,10 @@
     "defaultMessage": "Copy to all",
     "description": "Copy to all label"
   },
+  "cores": {
+    "defaultMessage": "Cores",
+    "description": "Cores label"
+  },
   "createAnotherGroup": {
     "defaultMessage": "Create another group",
     "description": "Create another group message"
@@ -438,6 +450,18 @@
   "createWorkspace": {
     "defaultMessage": "Create workspace",
     "description": "Create workspace action label"
+  },
+  "createWorkspaceErrorDescription": {
+    "defaultMessage": "The workspace was not created successfuly.",
+    "description": "Create workspace error notification description"
+  },
+  "createWorkspaceErrorTitle": {
+    "defaultMessage": "Failed creating {name} workspace",
+    "description": "Create workspace error notification title"
+  },
+  "createWorkspaceSuccessTitle": {
+    "defaultMessage": "New {name} workspace have been successfully created",
+    "description": "Create workspace success notification title"
   },
   "creatingGroup": {
     "defaultMessage": "Creating a group",
@@ -578,6 +602,10 @@
   "earMark": {
     "defaultMessage": "Ear mark",
     "description": "Ear mark label"
+  },
+  "earMarkOfFeatures": {
+    "defaultMessage": "Ear mark of feature(s)",
+    "description": "Ear mark of features label"
   },
   "edit": {
     "defaultMessage": "Edit",
@@ -1162,6 +1190,10 @@
     "defaultMessage": "Page you are looking for does not exist.",
     "description": "Placeholder text for non existing page"
   },
+  "parentWorkspace": {
+    "defaultMessage": "Parent workspace",
+    "description": "Parent workspace label"
+  },
   "permission": {
     "defaultMessage": "Permission",
     "description": "Permission label"
@@ -1482,6 +1514,10 @@
     "defaultMessage": "Review and confirm the details for your role, or click Back to revise.",
     "description": "Review role details text"
   },
+  "reviewWorkspaceDescription": {
+    "defaultMessage": "Review the information below to make sure everything is correct before creating a new workspace.",
+    "description": "Review workspace description"
+  },
   "role": {
     "defaultMessage": "role",
     "description": "Role singular"
@@ -1617,6 +1653,10 @@
   "toManageUsersText": {
     "defaultMessage": "To manage users, go to your",
     "description": "To manage users text"
+  },
+  "totalAccountAvailability": {
+    "defaultMessage": "Total availability from {billingAccount}: {count} Cores",
+    "description": "Total account availability text"
   },
   "triggerMyCatalog": {
     "defaultMessage": "Trigger my catalog",
@@ -1802,17 +1842,41 @@
     "defaultMessage": "Workspace assignment (TBD)",
     "description": "column header for assigned user groups table"
   },
+  "workspaceBillingAccountHelperText": {
+    "defaultMessage": "The default billing account is based on the parent workspace's billing account. You can switch to a different billing account as needed. This change is independent of the workspace hierarchy.",
+    "description": "Workspace billing account field helper text"
+  },
   "workspaceDescription": {
     "defaultMessage": "Workspace description",
     "description": "Create newworkspace action label"
+  },
+  "workspaceDescriptionMaxLength": {
+    "defaultMessage": "The first {count} characters will appear in the description field.",
+    "description": "Workspace description max length helper text"
   },
   "workspaceDetails": {
     "defaultMessage": "Workspace details",
     "description": "Workspace details label"
   },
+  "workspaceDetailsDescription": {
+    "defaultMessage": "Complete the fields to create a workspace.",
+    "description": "Workspace details step description"
+  },
+  "workspaceDetailsTitle": {
+    "defaultMessage": "Provide details for a workspace",
+    "description": "Workspace details step title"
+  },
   "workspaceName": {
     "defaultMessage": "Workspace name",
     "description": "Workspace name label"
+  },
+  "workspaceNamingGuidelines": {
+    "defaultMessage": "{link} about the guidelines for naming your workspaces.",
+    "description": "Workspace naming guidelines hint"
+  },
+  "workspaceParentHelperText": {
+    "defaultMessage": "This workspace will inherit access control settings, such as user groups and associated roles, from its parent workspace.",
+    "description": "Workspace parent field helper text"
   },
   "workspaces": {
     "defaultMessage": "Workspaces",

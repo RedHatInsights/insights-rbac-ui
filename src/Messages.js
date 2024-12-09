@@ -1041,17 +1041,12 @@ export default defineMessages({
   createWorkspaceSuccessTitle: {
     id: 'createWorkspaceSuccessTitle',
     description: 'Create workspace success notification title',
-    defaultMessage: 'Success creating a workspace',
-  },
-  createWorkspaceSuccessDescription: {
-    id: 'createWorkspaceSuccessDescription',
-    description: 'Create workspace success notification description',
-    defaultMessage: 'The workspace was created successfully.',
+    defaultMessage: 'New {name} workspace have been successfully created',
   },
   createWorkspaceErrorTitle: {
     id: 'createWorkspaceErrorTitle',
     description: 'Create workspace error notification title',
-    defaultMessage: 'Failed creating a workspace',
+    defaultMessage: 'Failed creating {name} workspace',
   },
   createWorkspaceErrorDescription: {
     id: 'createWorkspaceErrorDescription',
@@ -1139,6 +1134,37 @@ export default defineMessages({
     description: 'Workspace details label',
     defaultMessage: 'Workspace details',
   },
+  workspaceDetailsTitle: {
+    id: 'workspaceDetailsTitle',
+    description: 'Workspace details step title',
+    defaultMessage: 'Provide details for a workspace',
+  },
+  workspaceDetailsDescription: {
+    id: 'workspaceDetailsDescription',
+    description: 'Workspace details step description',
+    defaultMessage: 'Complete the fields to create a workspace.',
+  },
+  workspaceNamingGuidelines: {
+    id: 'workspaceNamingGuidelines',
+    description: 'Workspace naming guidelines hint',
+    defaultMessage: '{link} about the guidelines for naming your workspaces.',
+  },
+  workspaceDescriptionMaxLength: {
+    id: 'workspaceDescriptionMaxLength',
+    description: 'Workspace description max length helper text',
+    defaultMessage: 'The first {count} characters will appear in the description field.',
+  },
+  workspaceParentHelperText: {
+    id: 'workspaceParentHelperText',
+    description: 'Workspace parent field helper text',
+    defaultMessage: 'This workspace will inherit access control settings, such as user groups and associated roles, from its parent workspace.',
+  },
+  workspaceBillingAccountHelperText: {
+    id: 'workspaceBillingAccountHelperText',
+    description: 'Workspace billing account field helper text',
+    defaultMessage:
+      "The default billing account is based on the parent workspace's billing account. You can switch to a different billing account as needed. This change is independent of the workspace hierarchy.",
+  },
   workspaceName: {
     id: 'workspaceName',
     description: 'Workspace name label',
@@ -1178,6 +1204,11 @@ export default defineMessages({
     id: 'reviewNewWorkspace',
     description: 'Review new workspace label',
     defaultMessage: 'Review new workspace',
+  },
+  reviewWorkspaceDescription: {
+    id: 'reviewWorkspaceDescription',
+    description: 'Review workspace description',
+    defaultMessage: 'Review the information below to make sure everything is correct before creating a new workspace.',
   },
   viewGroupsBtn: {
     id: 'viewGroupsBtn',
