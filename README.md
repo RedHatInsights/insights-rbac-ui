@@ -10,9 +10,6 @@ This repository is now using experimental workflow checks. Your commits must use
 
 ## Getting Started
 
-
-
-
 ### Running dev server
 
 ```bash
