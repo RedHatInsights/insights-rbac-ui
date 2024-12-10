@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { List, ListItem, Stack, StackItem, Title, Card, CardTitle, CardBody } from '@patternfly/react-core';
+import { List, ListItem, Stack, StackItem, Title, Card, CardTitle, CardBody, CardHeader } from '@patternfly/react-core';
 
 import { bundleData } from './bundles';
 import useSearchParams from '../../hooks/useSearchParams';
@@ -11,6 +11,12 @@ import './MUACard.scss';
 
 const MUACard = ({ header, entitlements, isDisabled }) => {
   const { bundle: bundleParam } = useSearchParams('bundle');
+  const [, setIsChecked] = React.useState('');
+
+  const onChange = (event) => {
+    setIsChecked(event.currentTarget.id);
+  };
+
   return (
     <React.Fragment>
       {header && (
@@ -36,6 +42,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
                   to={{ pathname: '', search: `bundle=${key}` }}
                 >
                   <Card
+                    ouiaId={`${data.title}-card`}
                     key={data.title}
                     isFlat={isDisabled || key !== bundleParam}
                     isSelectable={!isDisabled}
@@ -44,8 +51,20 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
                       'pf-v5-u-background-color-disabled-color-300': isDisabled,
                     })}
                   >
-                    <CardTitle className="pf-v5-u-font-weight-light"> {data.title}</CardTitle>
-                    <CardBody>
+                    <CardHeader
+                      selectableActions={{
+                        selectableActionId: '',
+                        name: data.title,
+                        variant: 'single',
+                        onChange,
+                      }}
+                    >
+                      <CardTitle className="pf-v5-u-font-weight-light" data-ouia-component-id={`${data.title}-card-title`}>
+                        {data.title}
+                      </CardTitle>
+                    </CardHeader>
+
+                    <CardBody data-ouia-component-id={`${data.title}-card-body`}>
                       <List className="pf-v5-u-color-400 pf-v5-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
                         {Object.entries(data.apps || {}).map(([appName]) => (
                           <ListItem key={appName}> {appName} </ListItem>
