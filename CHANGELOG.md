@@ -1,3 +1,38 @@
+## [1.15.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.3...v1.15.4) (2024-12-03)
+
+
+### Bug Fixes
+
+* **konflux:** remove duplicate name of task ([#1723](https://github.com/RedHatInsights/insights-rbac-ui/issues/1723)) ([991729a](https://github.com/RedHatInsights/insights-rbac-ui/commit/991729a25b0121bda9802c762cb707e3a4757aa2))
+
+## [1.15.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.2...v1.15.3) (2024-12-03)
+
+
+### Bug Fixes
+
+* **konflux:** remove sbom json check ([#1722](https://github.com/RedHatInsights/insights-rbac-ui/issues/1722)) ([9fe1bce](https://github.com/RedHatInsights/insights-rbac-ui/commit/9fe1bcefd693fa180631164c10c9bd28f51d91d3))
+
+## [1.15.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.1...v1.15.2) (2024-11-28)
+
+
+### Bug Fixes
+
+* **konflux:** update oci-ta and rpms scan image dependencies ([#1720](https://github.com/RedHatInsights/insights-rbac-ui/issues/1720)) ([1b2cf81](https://github.com/RedHatInsights/insights-rbac-ui/commit/1b2cf8171fb64ce0f3417335dbfda54b4e988973))
+
+## [1.15.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.0...v1.15.1) (2024-11-28)
+
+
+### Bug Fixes
+
+* **konflux:** update buildah image sha ([#1719](https://github.com/RedHatInsights/insights-rbac-ui/issues/1719)) ([7d637b8](https://github.com/RedHatInsights/insights-rbac-ui/commit/7d637b801e731a7f5a88fb97e4d9062b18412d7c))
+
+# [1.15.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.14.0...v1.15.0) (2024-11-27)
+
+
+### Features
+
+* **common-auth:** add it api to invite and edit users ([#1718](https://github.com/RedHatInsights/insights-rbac-ui/issues/1718)) ([0ac978c](https://github.com/RedHatInsights/insights-rbac-ui/commit/0ac978c95903f6a1a79cd82899f15cc405e56089))
+
 # [1.14.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.13.0...v1.14.0) (2024-11-20)
 
 
