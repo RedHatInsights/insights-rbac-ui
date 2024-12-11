@@ -208,6 +208,11 @@ const pathnames = {
     path: '/users-and-user-groups',
     title: 'Users & User Groups',
   },
+  'users-and-user-groups-edit-group': {
+    link: '/users-and-user-groups/edit-group/:groupId',
+    path: '/users-and-user-groups/edit-group/:groupId',
+    title: 'Edit group',
+  },
   'invite-group-users': {
     link: '/users-and-user-groups/invite',
     path: '/users-and-user-groups/invite',
