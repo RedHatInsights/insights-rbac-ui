@@ -1,3 +1,10 @@
+## [1.15.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.4...v1.15.5) (2024-12-11)
+
+
+### Bug Fixes
+
+* **release:** fix release ([04b5593](https://github.com/RedHatInsights/insights-rbac-ui/commit/04b55936a99c38324af6458877da86265185b2eb))
+
 ## [1.15.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.3...v1.15.4) (2024-12-03)
 
 
