@@ -37,3 +37,30 @@ spec:
             TEST_OUTPUT=$(jq -rc --arg date $(date -u --iso-8601=seconds) --arg RESULT "${RESULT}" --null-input \
               '{result: $RESULT, timestamp: $date, failures: 0, successes: 1, warnings: 0}')
             echo -n "${TEST_OUTPUT}" | tee $(results.TEST_OUTPUT.path)
+    - name: cypress-e2e-run
+      description: Run Cypress E2E tests
+      taskRef:
+        name: cypress-e2e
+      params:
+        - name: SNAPSHOT
+          value: $(params.SNAPSHOT)
+        - name: BONFIRE_IMAGE
+          type: string
+          description: The container Bonfire image to use for the tekton tasks
+          default: quay.io/redhat-services-prod/hcm-eng-prod-tenant/cicd-tools:latest
+      taskSpec:
+        params:
+          - name: SNAPSHOT
+          - name: BONFIRE_IMAGE
+        finally:
+          - name: ephemeral-cleanup
+            taskSpec:
+              steps:
+                - name: release-namespace
+                  image: "$(params.BONFIRE_IMAGE)"
+                  script: |
+                    #!/bin/bash
+                    set -e
+                    echo "Releasing ephemeral namespace"
+                    # this will fail as we don't have credentials to do this for now
+                    release-ns.sh "foo" "bar"
