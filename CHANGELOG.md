@@ -1,3 +1,10 @@
+## [1.15.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.5...v1.15.6) (2024-12-13)
+
+
+### Bug Fixes
+
+* **UserAccess:** make user access cards look selected ([#1727](https://github.com/RedHatInsights/insights-rbac-ui/issues/1727)) ([2e58c45](https://github.com/RedHatInsights/insights-rbac-ui/commit/2e58c458ec9d9e529a1c953a7f8b5b941871165e))
+
 ## [1.15.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.4...v1.15.5) (2024-12-11)
 
 
