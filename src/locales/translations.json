@@ -111,10 +111,13 @@
   "createRoleErrorTitle": "Failed adding role",
   "createRoleFromScratch": "Create a role from scratch",
   "createUserGroup": "Create user group",
+<<<<<<< Updated upstream
   "createWorkspace": "Create workspace",
   "createWorkspaceErrorDescription": "The workspace was not created successfuly.",
   "createWorkspaceErrorTitle": "Failed creating {name} workspace",
   "createWorkspaceSuccessTitle": "New {name} workspace have been successfully created",
+=======
+>>>>>>> Stashed changes
   "creatingGroup": "Creating a group",
   "creatingRoleCanceled": "Creating role was canceled by the user",
   "deactivateUsersButton": "Deactivate users",
@@ -434,7 +437,7 @@
   "usersAndUserGroups": "Users and User Groups",
   "usersAndUserGroupsActive": "Active",
   "usersAndUserGroupsAdd": "Add",
-  "usersAndUserGroupsAddToGroup": "Remove from user group",
+  "usersAndUserGroupsAddToGroup": "Add to user group",
   "usersAndUserGroupsAddUserDescription": "Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.",
   "usersAndUserGroupsCancel": "Cancel",
   "usersAndUserGroupsDeleteUserGroup": "Delete user group",
@@ -443,6 +446,7 @@
   "usersAndUserGroupsInactive": "Inactive",
   "usersAndUserGroupsNo": "No",
   "usersAndUserGroupsNoDescription": "No description",
+  "usersAndUserGroupsRemoveFromGroup": "Remove from user group",
   "usersAndUserGroupsYes": "Yes",
   "usersDescription": "These are all of the users in your Red Hat organization.",
   "usersEmptyStateSubtitle": "This filter criteria matches no users.{br}Try changing your filter input.",

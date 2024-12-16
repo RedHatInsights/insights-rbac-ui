@@ -2386,7 +2386,7 @@ export default defineMessages({
     defaultMessage: 'Delete user group',
   },
   usersAndUserGroupsRemoveFromGroup: {
-    id: 'usersAndUserGroupsAddToGroup',
+    id: 'usersAndUserGroupsRemoveFromGroup',
     description: 'Remove from user group label',
     defaultMessage: 'Remove from user group',
   },

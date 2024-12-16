@@ -246,6 +246,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       <Suspense>
         <Outlet
           context={{
+            bar: 'foo',
             fetchData: () => {
               appNavigate(paths['users-and-user-groups'].link);
             },

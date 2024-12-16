@@ -51,9 +51,25 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
     childRoutes: [
-      isCommonAuthModel && {
-        path: pathnames['invite-group-users'].path,
-        element: InviteUsersModalCommonAuth,
+      {
+        path: pathnames['users-new'].path,
+        element: AddGroupWizard,
+        childRoutes: [
+          isCommonAuthModel && {
+            path: pathnames['invite-group-users'].path,
+            element: InviteUsersModalCommonAuth,
+          },
+        ],
+      },
+      {
+        path: pathnames['user-groups'].path,
+        element: AddGroupWizard,
+        childRoutes: [
+          {
+            path: pathnames['create-user-group'].path,
+            element: AddGroupWizard,
+          },
+        ],
       },
     ],
   },

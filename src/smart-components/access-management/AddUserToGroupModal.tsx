@@ -6,13 +6,13 @@ import { addMembersToGroup } from '../../redux/actions/group-actions';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 
-interface AddUserGroupModalProps {
+interface AddUserToGroupModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
   selectedUsers: any[];
 }
 
-export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
+export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
   const [selectedGroups, setSelectedGroups] = React.useState<any[]>([]);
   const handleUserGroupsChange = (groups: any[]) => setSelectedGroups(groups);
   const dispatch = useDispatch();
@@ -62,4 +62,4 @@ export const AddUserGroupModal: React.FunctionComponent<AddUserGroupModalProps> 
   );
 };
 
-export default AddUserGroupModal;
+export default AddUserToGroupModal;

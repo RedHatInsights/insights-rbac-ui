@@ -128,7 +128,10 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   };
 
   const fetchAddGroupRoles = (groupId) => dispatch(fetchAddRolesForGroup(groupId, {}, {}));
-  const fetchGroupData = (customId) => dispatch(fetchGroup(customId ?? groupId));
+  const fetchGroupData = (customId) => {
+    console.log('ggg', customId ?? groupId, customId, groupId);
+    dispatch(fetchGroup(customId ?? groupId));
+  };
   const fetchSystGroup = () => dispatch(fetchSystemGroup({ chrome }));
   const removeRoles = (groupId, roles, callback) => dispatch(reloadWrapper(removeRolesFromGroup(groupId, roles), callback));
   const fetchGroupRoles = (pagination) => (groupId, options) => dispatch(fetchRolesForGroup(groupId, pagination, options));
@@ -141,8 +144,10 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
 
   useEffect(() => {
     if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
+      console.log('QQQ1', groupId);
       fetchGroupRoles({ ...pagination, offset: 0 })(groupId);
     } else {
+      console.log('QQQ2', systemGroupUuid);
       systemGroupUuid && fetchGroupRoles({ ...pagination, offset: 0 })(systemGroupUuid);
     }
   }, [systemGroupUuid]);
@@ -150,8 +155,10 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
   useEffect(() => {
     if (roles.length > 0) {
       if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
+        console.log('QQQ3', groupId);
         fetchAddGroupRoles(groupId);
       } else {
+        console.log('QQQ4', systemGroupUuid);
         systemGroupUuid && fetchAddGroupRoles(systemGroupUuid);
       }
     }
@@ -329,11 +336,14 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
             [pathnames['group-add-roles'].path]: {
               afterSubmit: () => {
                 if (isPlatformDefault || isAdminDefault) {
+                  console.log('AAA');
                   fetchSystGroup().then(({ value: { data } }) => {
+                    console.log('aaaa', data[0].uuid);
                     fetchGroupRoles(pagination)(data[0].uuid);
                     fetchGroupData(data[0].uuid);
                   });
                 } else {
+                  console.log('BBB', groupId);
                   fetchGroupRoles(pagination)(groupId);
                   fetchGroupData();
                 }

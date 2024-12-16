@@ -58,7 +58,7 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles = true, setIsWizardOpen }) => {
+const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles = true, setIsWizardOpen, ...rest }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const container = useRef(document.createElement('div'));
@@ -74,6 +74,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
     error: undefined,
     hideForm: false,
   });
+  console.log('pagination', pagination, enableRoles, rest);
 
   const redirectToGroups = () => {
     dispatch(
