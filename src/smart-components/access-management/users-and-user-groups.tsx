@@ -1,27 +1,27 @@
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
-import { PageSection, PageSectionVariants, Tab, TabContent, Tabs } from '@patternfly/react-core';
+import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import Messages from '../../Messages';
-import UsersTable from './UsersTable';
-import UserGroupsTable from './UserGroupsTable';
-import { useLocation, useNavigate } from 'react-router-dom';
-import AddUserGroupModal from './AddUserGroupModal';
+// import UsersTable from './UsersTable';
+// import UserGroupsTable from './UserGroupsTable';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { User } from '../../redux/reducers/user-reducer';
-import { Group } from '../../redux/reducers/group-reducer';
-import GroupDetailsDrawer from './GroupDetailsDrawer';
-import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import UserDetailsDrawer from './UserDetailsDrawer';
+// import { Group } from '../../redux/reducers/group-reducer';
+// import GroupDetailsDrawer from './GroupDetailsDrawer';
+// import { DataViewEventsProvider } from '@patternfly/react-data-view';
+// import UserDetailsDrawer from './UserDetailsDrawer';
+import AddUserToGroupModal from './AddUserToGroupModal';
 
 const TAB_NAMES = ['users', 'user-groups'];
 
 const UsersAndUserGroups: React.FunctionComponent = () => {
   const intl = useIntl();
   const [activeTabKey, setActiveTabKey] = React.useState<number>(0);
-  const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = React.useState<boolean>(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<User[]>([]);
-  const [focusedUser, setFocusedUser] = React.useState<User | undefined>(undefined);
-  const [focusedGroup, setFocusedGroup] = React.useState<Group | undefined>(undefined);
+  const [isAddUserToGroupModalOpen, setIsAddUserToGroupModalOpen] = React.useState<boolean>(false);
+  const [selectedUsers] = React.useState<User[]>([]);
+  // const [focusedUser, setFocusedUser] = React.useState<User | undefined>(undefined);
+  // const [focusedGroup, setFocusedGroup] = React.useState<Group | undefined>(undefined);
   const usersRef = React.createRef<HTMLElement>();
   const groupsRef = React.createRef<HTMLElement>();
 
@@ -40,12 +40,12 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
     updateURL(TAB_NAMES[activeTab]);
   };
 
-  const handleOpenAddUserModal = (selected: User[]) => {
-    if (selected.length > 0) {
-      setSelectedUsers(selected);
-      setIsAddUserGroupModalOpen(true);
-    }
-  };
+  // const handleOpenAddUserToGroupModal = (selected: User[]) => {
+  //   if (selected.length > 0) {
+  //     setSelectedUsers(selected);
+  //     setIsAddUserToGroupModalOpen(true);
+  //   }
+  // };
 
   useEffect(() => {
     const params = new URLSearchParams(location.search);
@@ -55,7 +55,7 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <AddUserGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsers} />
+      <AddUserToGroupModal isOpen={isAddUserToGroupModalOpen} setIsOpen={setIsAddUserToGroupModalOpen} selectedUsers={selectedUsers} />
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroups)} subtitle={intl.formatMessage(Messages.usersAndUserGroupsDescription)} />
       <PageSection type="tabs" variant={PageSectionVariants.light} isWidthLimited>
         <Tabs
@@ -80,11 +80,11 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
         </Tabs>
       </PageSection>
       <PageSection padding={{ default: 'noPadding' }}>
-        {activeTabKey === 0 && (
+        {/* {activeTabKey === 0 && (
           <DataViewEventsProvider>
             <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setFocusedUser} focusedUser={focusedUser}>
               <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
-                <UsersTable onAddUserClick={handleOpenAddUserModal} focusedUser={focusedUser} />
+                <UsersTable onAddUserClick={handleOpenAddUserToGroupModal} focusedUser={focusedUser} />
               </TabContent>
             </UserDetailsDrawer>
           </DataViewEventsProvider>
@@ -97,7 +97,8 @@ const UsersAndUserGroups: React.FunctionComponent = () => {
               </TabContent>
             </GroupDetailsDrawer>
           </DataViewEventsProvider>
-        )}
+        )} */}
+        <Outlet />
       </PageSection>
     </React.Fragment>
   );

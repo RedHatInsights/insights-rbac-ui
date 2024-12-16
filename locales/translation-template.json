@@ -1739,8 +1739,8 @@
     "description": "Add label"
   },
   "usersAndUserGroupsAddToGroup": {
-    "defaultMessage": "Remove from user group",
-    "description": "Remove from user group label"
+    "defaultMessage": "Add to user group",
+    "description": "Add to user group label"
   },
   "usersAndUserGroupsAddUserDescription": {
     "defaultMessage": "Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.",
@@ -1773,6 +1773,10 @@
   "usersAndUserGroupsNoDescription": {
     "defaultMessage": "No description",
     "description": "No description label"
+  },
+  "usersAndUserGroupsRemoveFromGroup": {
+    "defaultMessage": "Remove from user group",
+    "description": "Remove from user group label"
   },
   "usersAndUserGroupsYes": {
     "defaultMessage": "Yes",

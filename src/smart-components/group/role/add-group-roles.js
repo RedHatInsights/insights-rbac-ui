@@ -59,11 +59,13 @@ const AddGroupRoles = ({
 
   const onSubmit = () => {
     const rolesList = selectedRoles.map((role) => role.uuid);
-    if (isDefault && !isChanged) {
-      onDefaultGroupChanged(true);
-      dispatch(invalidateSystemGroup());
-    }
-    addRolesToGroup(groupId, rolesList).then(afterSubmit);
+    addRolesToGroup(groupId, rolesList).then(() => {
+      if (isDefault && !isChanged) {
+        onDefaultGroupChanged(true);
+        dispatch(invalidateSystemGroup());
+      }
+      afterSubmit();
+    });
     setSelectedRoles([]);
     return navigate(closeUrl);
   };

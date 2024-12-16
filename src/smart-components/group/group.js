@@ -73,9 +73,11 @@ const Group = () => {
   const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
 
   useEffect(() => {
+    console.log('AAA2');
     dispatch(fetchSystemGroup({ chrome }));
     const currId = !isPlatformDefault ? groupId : systemGroupUuid;
     if (currId) {
+      console.log('BBB2', isPlatformDefault, currId, groupId, systemGroupUuid);
       dispatch(fetchGroup(currId));
       chrome.appObjectId(currId);
     }
