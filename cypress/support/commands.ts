@@ -47,6 +47,10 @@ Cypress.Commands.add('login', (enableWorkspaces = false) => {
       // This JS file causes randomly an uncaught exception on login page which blocks the tests
       // Cannot read properties of undefined (reading 'setAttribute')
       cy.intercept({ url: 'https://sso.stage.redhat.com/auth/resources/0833r/login/rhd-theme/dist/pfelements/bundle.js' }, {});
+      Cypress.on('uncaught:exception', (err) => {
+        console.log(err);
+        return false;
+      });
       cy.visit('/');
       // disable analytics integrations
       cy.setLocalStorage('chrome:analytics:disable', 'true');

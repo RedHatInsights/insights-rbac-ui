@@ -2518,6 +2518,11 @@ export default defineMessages({
     description: 'confirm button for deleting role',
     defaultMessage: 'Delete role',
   },
+  nameFilterPlaceholder: {
+    id: 'nameFilterPlaceholder',
+    description: 'placeholder for name filter',
+    defaultMessage: 'Filter by name',
+  },
   deleteRolesAction: {
     id: 'deleteRolesAction',
     description: 'delete roles',
