@@ -255,8 +255,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             filters={
               <DataViewTextFilter
                 filterId="display_name"
-                title="Name"
-                placeholder="Filter by name"
+                title={intl.formatMessage(messages.name)}
+                placeholder={intl.formatMessage(messages.nameFilterPlaceholder)}
                 ouiaId={`${ouiaId}-name-filter`}
                 onChange={(_e, value) => {
                   onSetFilters({ display_name: value });
