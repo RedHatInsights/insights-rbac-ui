@@ -16,7 +16,7 @@ import { User } from '../../redux/reducers/user-reducer';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
+import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import paths from '../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import useAppNavigate from '../../hooks/useAppNavigate';
@@ -32,6 +32,25 @@ const PER_PAGE_OPTIONS = [
   { title: '50', value: 50 },
   { title: '100', value: 100 },
 ];
+
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
+const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
 
 const OUIA_ID = 'iam-users-table';
 
@@ -159,22 +178,6 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     />
   );
 
-  const empty = (
-    <EmptyState>
-      <EmptyStateHeader titleText={intl.formatMessage(messages.usersEmptyStateTitle)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['usersEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-
-  const loading = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length + 1} isSelectable />;
-
   return (
     <Fragment>
       {isDeleteModalOpen && (
@@ -239,7 +242,8 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           ouiaId={`${OUIA_ID}-table`}
           columns={COLUMNS}
           rows={rows}
-          bodyStates={{ empty, loading }}
+          headStates={{ loading: loadingHeader }}
+          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}
         />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>

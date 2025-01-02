@@ -17,7 +17,7 @@ import messages from '../../Messages';
 import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
-import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import AddGroupWizard from '../group/add-group/add-group-wizard';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
@@ -29,6 +29,25 @@ const PER_PAGE_OPTIONS = [
   { title: '50', value: 50 },
   { title: '100', value: 100 },
 ];
+
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
+const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
+const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
 
 interface UserGroupsTableProps {
   defaultPerPage?: number;
@@ -207,26 +226,6 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     />
   );
 
-  const empty = (
-    <EmptyState>
-      <EmptyStateHeader
-        titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)}
-        headingLevel="h4"
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-      />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['userGroupsEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-
-  const loading = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length + 1} isSelectable />;
-
   return (
     <Fragment>
       {isAddGroupWizardOpen && (
@@ -302,7 +301,8 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           ouiaId={`${ouiaId}-table`}
           columns={COLUMNS}
           rows={rows}
-          bodyStates={{ empty, loading }}
+          headStates={{ loading: loadingHeader }}
+          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} /> }}
         />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
