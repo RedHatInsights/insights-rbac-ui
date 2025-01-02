@@ -2318,7 +2318,7 @@ export default defineMessages({
     defaultMessage: 'Access Management',
   },
   workspacesOverviewSubtitle: {
-    id: 'workspacesSubtitle',
+    id: 'workspacesOverviewSubtitle',
     description: 'Securely manage user access and organize assets within your organization using workspaces.',
     defaultMessage:
       'Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.',
@@ -2370,11 +2370,6 @@ export default defineMessages({
     description: 'Add label',
     defaultMessage: 'Add',
   },
-  usersAndUserGroupsAddToGroup: {
-    id: 'usersAndUserGroupsAddToGroup',
-    description: 'Add to user group label',
-    defaultMessage: 'Add to user group',
-  },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',
     description: 'Edit user group label',
@@ -2386,7 +2381,7 @@ export default defineMessages({
     defaultMessage: 'Delete user group',
   },
   usersAndUserGroupsRemoveFromGroup: {
-    id: 'usersAndUserGroupsAddToGroup',
+    id: 'usersAndUserGroupsRemoveFromGroup',
     description: 'Remove from user group label',
     defaultMessage: 'Remove from user group',
   },
