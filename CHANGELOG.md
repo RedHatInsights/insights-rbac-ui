@@ -1,3 +1,16 @@
+# [1.16.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.6...v1.16.0) (2025-01-02)
+
+
+### Bug Fixes
+
+* lint ([516279f](https://github.com/RedHatInsights/insights-rbac-ui/commit/516279f3aa346dcd01d8a66cd3aa0aa15a77f04b))
+* localize name filter strings ([0832973](https://github.com/RedHatInsights/insights-rbac-ui/commit/0832973c09fe7962a3c09c638510fefb9b3b2f8c))
+
+
+### Features
+
+* **RolesTable:** add sorting and filtering ([0558e6e](https://github.com/RedHatInsights/insights-rbac-ui/commit/0558e6ef4908da00ff6bc0a3a8f07305003327cf))
+
 ## [1.15.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.15.5...v1.15.6) (2024-12-13)
 
 
