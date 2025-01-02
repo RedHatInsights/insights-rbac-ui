@@ -1,11 +1,11 @@
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import React, { useCallback, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { mappedProps } from '../../helpers/shared/helpers';
-import { fetchGroups } from '../../redux/actions/group-actions';
-import { RBACStore } from '../../redux/store';
-import messages from '../../Messages';
+import { DataView, DataViewTable } from '@patternfly/react-data-view';
+import { mappedProps } from '../../../../../helpers/shared/helpers';
+import { fetchGroups } from '../../../../../redux/actions/group-actions';
+import { RBACStore } from '../../../../../redux/store';
+import messages from '../../../../../Messages';
 
 interface UserGroupsViewProps {
   userId: string;

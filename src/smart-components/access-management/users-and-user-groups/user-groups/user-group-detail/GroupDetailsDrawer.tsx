@@ -16,8 +16,8 @@ import {
 import React, { useEffect } from 'react';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { useIntl } from 'react-intl';
-import messages from '../../Messages';
-import { Group } from '../../redux/reducers/group-reducer';
+import messages from '../../../../../Messages';
+import { Group } from '../../../../../redux/reducers/group-reducer';
 import GroupDetailsRolesView from './GroupDetailsRolesView';
 import GroupDetailsServiceAccountsView from './GroupDetailsServiceAccountsView';
 import GroupDetailsUsersView from './GroupDetailsUsersView';

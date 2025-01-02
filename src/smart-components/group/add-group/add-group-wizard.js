@@ -2,6 +2,7 @@ import React, { useState, createContext, useRef } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
 import { Wizard } from '@patternfly/react-core/deprecated';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
@@ -58,15 +59,17 @@ export const onCancel = (emptyCallback, nonEmptyCallback, setGroupData) => (form
   }
 };
 
-const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles = true, setIsWizardOpen }) => {
+const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const container = useRef(document.createElement('div'));
   const { isBeta } = useChrome();
+  const enableWorkspaces = useFlag('platform.rbac.workspaces');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
-  const schema = useRef(schemaBuilder(container.current, enableServiceAccounts, enableRoles));
+  const schema = useRef(schemaBuilder(container.current, enableServiceAccounts, !enableWorkspaces));
   const navigate = useAppNavigate();
+  const search = useSearchParams();
   const [groupData, setGroupData] = useState({});
   const [wizardContextValue, setWizardContextValue] = useState({
     success: false,
@@ -84,12 +87,17 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
         description: intl.formatMessage(messages.addingGroupCanceledDescription),
       })
     );
-    setIsWizardOpen
-      ? setIsWizardOpen(false)
-      : navigate({
-          pathname: paths.groups.link,
-          search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
-        });
+    navigate(
+      enableWorkspaces
+        ? {
+            pathname: paths['user-groups'].link,
+            search: search.toString(),
+          }
+        : {
+            pathname: paths.groups.link,
+            search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+          }
+    );
   };
 
   const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
@@ -104,7 +112,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
       name: formData['group-name'],
       description: formData['group-description'],
       user_list: formData['users-list'].map((user) => ({ username: user.label })),
-      roles_list: enableRoles ? formData['roles-list'].map((role) => role.uuid) : [],
+      roles_list: enableWorkspaces ? [] : formData['roles-list'].map((role) => role.uuid),
     };
     dispatch(addGroup(groupData)).then(({ value }) => {
       setWizardContextValue((prev) => ({
@@ -126,12 +134,17 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
   const onClose = () => {
     setWizardContextValue((prev) => ({ ...prev, success: false, hideForm: false }));
     postMethod({ limit: pagination.limit, offset: 0, orderBy, filters: {} });
-    setIsWizardOpen
-      ? setIsWizardOpen(false)
-      : navigate({
-          pathname: paths.groups.link,
-          search: createQueryParams({ page: 1, per_page: pagination.limit }),
-        });
+    navigate(
+      enableWorkspaces
+        ? {
+            pathname: paths['user-groups'].link,
+            search: search.toString(),
+          }
+        : {
+            pathname: paths.groups.link,
+            search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
+          }
+    );
   };
 
   return (
@@ -149,7 +162,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
         {intl.formatMessage(messages.discardedInputsWarning)}
       </WarningModal>
       {wizardContextValue.hideForm ? (
-        wizardContextValue.success ? (
+        wizardContextValue.success && (
           <Wizard
             isOpen
             title={intl.formatMessage(messages.createGroup)}
@@ -162,7 +175,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy, enableRoles 
               },
             ]}
           />
-        ) : null
+        )
       ) : (
         <FormRenderer
           schema={schema.current}
@@ -193,8 +206,6 @@ AddGroupWizard.propTypes = {
   }).isRequired,
   filters: PropTypes.object.isRequired,
   orderBy: PropTypes.string,
-  enableRoles: PropTypes.bool.isRequired,
-  setIsWizardOpen: PropTypes.func,
 };
 
 export default AddGroupWizard;

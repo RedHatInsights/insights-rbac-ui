@@ -1,11 +1,11 @@
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import React, { useCallback, useEffect } from 'react';
+import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../redux/store';
-import messages from '../../Messages';
 import { useIntl } from 'react-intl';
-import { fetchRoles } from '../../redux/actions/role-actions';
-import { mappedProps } from '../../helpers/shared/helpers';
+import { RBACStore } from '../../../../../redux/store';
+import messages from '../../../../../Messages';
+import { fetchRoles } from '../../../../../redux/actions/role-actions';
+import { mappedProps } from '../../../../../helpers/shared/helpers';
 
 interface UserRolesViewProps {
   userId: string;

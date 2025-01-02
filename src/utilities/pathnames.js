@@ -205,12 +205,27 @@ const pathnames = {
   },
   'users-and-user-groups': {
     link: '/users-and-user-groups',
-    path: '/users-and-user-groups',
+    path: '/users-and-user-groups/*',
+    title: 'Users & User Groups',
+  },
+  'users-new': {
+    link: '/users-and-user-groups/users',
+    path: 'users/*',
+    title: 'Users & User Groups',
+  },
+  'user-groups': {
+    link: '/users-and-user-groups/user-groups',
+    path: 'user-groups/*',
     title: 'Users & User Groups',
   },
   'invite-group-users': {
-    link: '/users-and-user-groups/invite',
-    path: '/users-and-user-groups/invite',
+    link: '/users-and-user-groups/users/invite',
+    path: 'invite',
+    title: 'Users & User Groups',
+  },
+  'create-user-group': {
+    link: '/users-and-user-groups/user-groups/create-user-group',
+    path: 'create-user-group',
     title: 'Users & User Groups',
   },
 };
