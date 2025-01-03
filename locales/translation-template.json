@@ -1738,10 +1738,6 @@
     "defaultMessage": "Add",
     "description": "Add label"
   },
-  "usersAndUserGroupsAddToGroup": {
-    "defaultMessage": "Remove from user group",
-    "description": "Remove from user group label"
-  },
   "usersAndUserGroupsAddUserDescription": {
     "defaultMessage": "Select a user group to add <b>{numUsers} {plural}</b> to. These are all the user groups in your account. To manage user groups, go to user groups.",
     "description": "Description within add user to user group modal"
@@ -1773,6 +1769,10 @@
   "usersAndUserGroupsNoDescription": {
     "defaultMessage": "No description",
     "description": "No description label"
+  },
+  "usersAndUserGroupsRemoveFromGroup": {
+    "defaultMessage": "Remove from user group",
+    "description": "Remove from user group label"
   },
   "usersAndUserGroupsYes": {
     "defaultMessage": "Yes",
@@ -1949,13 +1949,17 @@
     "defaultMessage": "Get started with workspaces",
     "description": "workspaces page section title"
   },
+  "workspacesOverviewSubtitle": {
+    "defaultMessage": "Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.",
+    "description": "Securely manage user access and organize assets within your organization using workspaces."
+  },
   "workspacesServiceCardDescription": {
     "defaultMessage": "Configure workspaces to fit your organizational structure. They can be structured in a heirarchy (parent-child relationships). Permissions assigned to a parent workspace are automatically inherited by its child workspaces, saving you congfiguration time.",
     "description": "workspaces service card description"
   },
   "workspacesSubtitle": {
-    "defaultMessage": "Securely manage user access and organize assets within your organization using workspaces. Implement granular access controls to streamline permission management and ensure efficient, secure access to resources. View assets and roles organization diagram.",
-    "description": "Securely manage user access and organize assets within your organization using workspaces."
+    "defaultMessage": "Workspaces provide a flexible, hierarchical, approach to organizing your assets and streamlining access management. Configure workspaces to fit your organizational structure.",
+    "description": "Workspaces subtitle"
   },
   "workspacesSuccessAlertTitle": {
     "defaultMessage": "Your workspace migration is complete and ready to manage!",

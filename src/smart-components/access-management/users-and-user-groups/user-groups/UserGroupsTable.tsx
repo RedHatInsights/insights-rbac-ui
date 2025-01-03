@@ -1,24 +1,25 @@
-import React, { useEffect, useCallback, useMemo, useState, Fragment } from 'react';
+import React, { useEffect, useCallback, useMemo, useState, Fragment, Suspense } from 'react';
+import { formatDistanceToNow } from 'date-fns';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useSelector, useDispatch } from 'react-redux';
+import { Outlet, useSearchParams } from 'react-router-dom';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { ActionsColumn } from '@patternfly/react-table';
-import { mappedProps } from '../../helpers/shared/helpers';
-import { RBACStore } from '../../redux/store';
-import { useSearchParams } from 'react-router-dom';
-import { fetchGroups, removeGroups } from '../../redux/actions/group-actions';
-import { formatDistanceToNow } from 'date-fns';
-import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../Messages';
-import { Group } from '../../redux/reducers/group-reducer';
 import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
+import { ActionsColumn } from '@patternfly/react-table';
 import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
-import AddGroupWizard from '../group/add-group/add-group-wizard';
+import { mappedProps } from '../../../../helpers/shared/helpers';
+import { RBACStore } from '../../../../redux/store';
+import { fetchGroups, removeGroups } from '../../../../redux/actions/group-actions';
+import { Group } from '../../../../redux/reducers/group-reducer';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
+import pathnames from '../../../../utilities/pathnames';
+import messages from '../../../../Messages';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
 
@@ -67,11 +68,12 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   focusedGroup,
 }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [isAddGroupWizardOpen, setIsAddGroupWizardOpen] = React.useState(false);
   const [currentGroups, setCurrentGroups] = React.useState<Group[]>([]);
   const dispatch = useDispatch();
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const intl = useIntl();
+  const navigate = useAppNavigate();
+  const search = useSearchParams();
   const { trigger } = useDataViewEventsContext();
 
   const handleDeleteModalToggle = (groups: Group[]) => {
@@ -228,11 +230,6 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
 
   return (
     <Fragment>
-      {isAddGroupWizardOpen && (
-        <div data-ouia-component-id="add-group-wizard">
-          <AddGroupWizard pagination={{ limit: 20 }} filters={{}} enableRoles={false} setIsWizardOpen={setIsAddGroupWizardOpen} />
-        </div>
-      )}
       {isDeleteModalOpen && (
         <WarningModal
           ouiaId={`${ouiaId}-remove-user-modal`}
@@ -274,7 +271,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           }
           actions={
             <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-              <ResponsiveAction isPinned isPersistent onClick={() => setIsAddGroupWizardOpen(true)}>
+              <ResponsiveAction isPinned isPersistent onClick={() => navigate(pathnames['create-user-group'].link)}>
                 {intl.formatMessage(messages.createUserGroup)}
               </ResponsiveAction>
               <ResponsiveAction
@@ -306,6 +303,26 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['create-user-group'].path]: {
+              afterSubmit: () => {
+                navigate({ pathname: pathnames['user-groups'].link });
+              },
+              onCancel: () =>
+                navigate({
+                  pathname: pathnames['user-groups'].link,
+                  search: search.toString(),
+                }),
+              enableRoles: false,
+              pagination: { limit: perPage },
+              filters: {},
+              postMethod: fetchData,
+            },
+          }}
+        />
+      </Suspense>
     </Fragment>
   );
 };

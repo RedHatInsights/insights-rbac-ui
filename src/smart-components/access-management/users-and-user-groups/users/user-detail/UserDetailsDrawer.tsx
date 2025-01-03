@@ -1,3 +1,5 @@
+import React, { useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import {
   Drawer,
   DrawerActions,
@@ -15,14 +17,12 @@ import {
   TextContent,
   Title,
 } from '@patternfly/react-core';
-import React, { useEffect } from 'react';
-import { User } from '../../redux/reducers/user-reducer';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { useIntl } from 'react-intl';
-import messages from '../../Messages';
+import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { User } from '../../../../../redux/reducers/user-reducer';
+import messages from '../../../../../Messages';
 import UserDetailsGroupsView from './UserDetailsGroupsView';
 import UserDetailsRolesView from './UserDetailsRolesView';
-import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 
 interface UserDetailsProps {
   focusedUser?: User;

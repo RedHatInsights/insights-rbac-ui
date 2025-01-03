@@ -1,5 +1,8 @@
 import React, { useEffect, useCallback, useState, Fragment, useMemo, Suspense } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useSelector, useDispatch } from 'react-redux';
+import { Outlet, useSearchParams } from 'react-router-dom';
+import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
@@ -9,19 +12,16 @@ import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataVi
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { ButtonVariant, Pagination, EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
-import { fetchUsers } from '../../redux/actions/user-actions';
-import { mappedProps } from '../../helpers/shared/helpers';
-import { RBACStore } from '../../redux/store';
-import { User } from '../../redux/reducers/user-reducer';
-import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../Messages';
-import { Outlet, useSearchParams } from 'react-router-dom';
-import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
-import paths from '../../utilities/pathnames';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import useAppNavigate from '../../hooks/useAppNavigate';
 import { DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
+import { fetchUsers } from '../../../../redux/actions/user-actions';
+import { mappedProps } from '../../../../helpers/shared/helpers';
+import { RBACStore } from '../../../../redux/store';
+import { User } from '../../../../redux/reducers/user-reducer';
+import messages from '../../../../Messages';
+import paths from '../../../../utilities/pathnames';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -142,7 +142,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
             <ActionsColumn
               items={[
                 {
-                  title: intl.formatMessage(messages['usersAndUserGroupsAddToGroup']),
+                  title: intl.formatMessage(messages['addToUserGroup']),
                   onClick: () => onAddUserClick([user]),
                 },
                 {
@@ -223,11 +223,12 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                 isDisabled={selected.length === 0}
                 ouiaId={`${OUIA_ID}-add-user-button`}
               >
-                {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
+                {intl.formatMessage(messages['addToUserGroup'])}
               </ResponsiveAction>
               <ResponsiveAction
                 variant="primary"
                 onClick={() => {
+                  console.log('fooo');
                   appNavigate(paths['invite-group-users'].link);
                 }}
               >
@@ -250,6 +251,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       <Suspense>
         <Outlet
           context={{
+            bar: 'foo',
             fetchData: () => {
               appNavigate(paths['users-and-user-groups'].link);
             },

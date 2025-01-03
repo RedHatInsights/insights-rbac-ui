@@ -44,16 +44,34 @@ const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/serv
 const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
-const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups'));
+const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups/users-and-user-groups'));
+const UsersView = lazy(() => import('./smart-components/access-management/users-and-user-groups/users/UsersView'));
+const UserGroupsView = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/UserGroupsView'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel }: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
     childRoutes: [
-      isCommonAuthModel && {
-        path: pathnames['invite-group-users'].path,
-        element: InviteUsersModalCommonAuth,
+      {
+        path: pathnames['users-new'].path,
+        element: UsersView,
+        childRoutes: [
+          isCommonAuthModel && {
+            path: pathnames['invite-group-users'].path,
+            element: InviteUsersModalCommonAuth,
+          },
+        ],
+      },
+      {
+        path: pathnames['user-groups'].path,
+        element: UserGroupsView,
+        childRoutes: [
+          {
+            path: pathnames['create-user-group'].path,
+            element: AddGroupWizard,
+          },
+        ],
       },
     ],
   },
