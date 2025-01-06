@@ -22,6 +22,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
         inModal: true,
         showTitles: true,
         title: intl.formatMessage(messages.createGroup),
+        'data-ouia-component-id': 'add-group-wizard',
         container,
         fields: [
           {
