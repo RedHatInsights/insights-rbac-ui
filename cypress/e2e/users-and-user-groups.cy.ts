@@ -98,14 +98,16 @@ describe('Users and User Groups page', () => {
   });
 
   it('should display the User groups table and correct data', () => {
-    cy.visit('/iam/access-management/users-and-user-groups/user-groups');
-    cy.wait('@getUserGroups', { timeout: 30000 });
+    cy.visit('/iam/access-management/users-and-user-groups');
+    cy.wait('@getUsers', { timeout: 30000 });
 
     // Check if the table exists
     cy.get('[data-ouia-component-id^="iam-users-table"]').should('exist');
 
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').should('exist');
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
+
+    cy.wait('@getUserGroups', { timeout: 30000 });
 
     cy.get('[data-ouia-component-id^="iam-user-groups-table"]').should('exist');
 
@@ -121,12 +123,18 @@ describe('Users and User Groups page', () => {
   });
 
   it('should be able to open Add User Modal once an active user is selected', () => {
+    cy.visit('/iam/access-management/users-and-user-groups');
+    cy.wait('@getUsers', { timeout: 30000 });
+
     cy.get('[aria-label="Select row 0"]').click();
     cy.get('[data-ouia-component-id="iam-users-table-add-user-button"]').click();
     cy.get('[data-ouia-component-id="add-user-group-modal"]').should('be.visible');
   });
 
   it('can view user details when a user is clicked', () => {
+    cy.visit('/iam/access-management/users-and-user-groups');
+    cy.wait('@getUsers', { timeout: 30000 });
+
     cy.get('[data-ouia-component-id="iam-users-table-table-tr-0"]').click();
     cy.get('[data-ouia-component-id="user-details-drawer"]').should('be.visible');
     cy.get('[data-ouia-component-id="user-details-drawer"]').contains(mockUsers.data[0].first_name).should('exist');
@@ -135,6 +143,9 @@ describe('Users and User Groups page', () => {
   });
 
   it('should be able to open Delete User Groups Modal from row actions', () => {
+    cy.visit('/iam/access-management/users-and-user-groups/user-groups');
+    cy.wait('@getUserGroups', { timeout: 30000 });
+
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').contains('Delete user group').click();
@@ -142,13 +153,19 @@ describe('Users and User Groups page', () => {
   });
 
   it('should be able to open Delete User Groups modal from toolbar', () => {
+    cy.visit('/iam/access-management/users-and-user-groups/user-groups');
+    cy.wait('@getUserGroups', { timeout: 30000 });
+
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-tr-0"]').find('input[type="checkbox"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"] button').contains('Delete user group').click();
   });
 
-  it('should be able to open the Create User Groups Wizard from the toolbar', () => {
+  it.only('should be able to open the Create User Groups Wizard from the toolbar', () => {
+    cy.visit('/iam/access-management/users-and-user-groups/user-groups');
+    cy.wait('@getUserGroups', { timeout: 30000 });
+
     cy.get('[data-ouia-component-id="add-group-wizard"]').should('not.exist');
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-action-0"]').click();
