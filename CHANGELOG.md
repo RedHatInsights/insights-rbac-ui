@@ -1,3 +1,10 @@
+## [1.16.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.0...v1.16.1) (2025-01-06)
+
+
+### Bug Fixes
+
+* fix users-and-user-groups E2E ([14dcf89](https://github.com/RedHatInsights/insights-rbac-ui/commit/14dcf89a4ca61c4ae99255c328a62d74bc046b88))
+
 # 1.0.0 (2025-01-06)
 
 
