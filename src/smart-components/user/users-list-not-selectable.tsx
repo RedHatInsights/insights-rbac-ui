@@ -43,6 +43,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
   // use for text filter to focus
   const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
+  const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   const pagination = useSelector(({ userReducer: { users } }) => ({
@@ -136,7 +137,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         isCompact={false}
         borders={false}
         columns={columns}
-        rows={createRows(userLinks, users, intl)}
+        rows={createRows(userLinks, users, intl, undefined, undefined, advancedPermissions)}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
           const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;

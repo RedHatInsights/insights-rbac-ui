@@ -106,7 +106,7 @@ export async function updateUserIsOrgAdminStatus(user, config) {
     return fetch(currURL, {
       method: user.is_org_admin ? 'POST' : 'DELETE',
       body: JSON.stringify({
-        roles: ['organization_administrator'],
+        role: 'organization_administrator',
       }),
       headers: new Headers({
         'Content-Type': 'application/json',
