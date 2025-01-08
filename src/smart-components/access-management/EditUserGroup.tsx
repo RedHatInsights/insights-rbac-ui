@@ -1,6 +1,6 @@
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { PageSection, PageSectionVariants } from '@patternfly/react-core';
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
@@ -74,6 +74,7 @@ export const EditUserGroup: React.FunctionComponent = () => {
       dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
       console.log(`Dispatched update group with name: ${values.name} and description: ${values.description}`);
     }
+    console.log("submitted values:", values);
     if (values['users-and-service-accounts']) {
       const { users, serviceAccounts } = values['users-and-service-accounts'];
       if (users.added.length > 0) {
@@ -92,6 +93,25 @@ export const EditUserGroup: React.FunctionComponent = () => {
     }
   };
 
+  const initialValues = useMemo(() => {
+    const values = {
+      name: group?.name,
+      description: group?.description,
+      'users-and-service-accounts': {
+        serviceAccounts: {
+          added: [],
+          removed: [],
+        },
+        users: {
+          added: [],
+          removed: [],
+        },
+      },
+    };
+    console.log('initial values:', values);
+    return values;
+  }, [group]);
+
   return (
     <React.Fragment>
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup)} subtitle={''} />
@@ -105,6 +125,10 @@ export const EditUserGroup: React.FunctionComponent = () => {
           onSubmit={handleSubmit}
           onCancel={returnToPreviousPage}
           FormTemplate={FormTemplate}
+          initialValues={initialValues}
+          FormTemplateProps={{
+            disableSubmit: ['pristine', 'invalid'],
+          }}
         />
       </PageSection>
     </React.Fragment>
