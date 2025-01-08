@@ -7,6 +7,8 @@ import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups';
 import { Diff } from './EditUserGroupUsersAndServiceAccounts';
+import { useIntl } from 'react-intl';
+import Messages from '../../Messages';
 
 interface EditGroupUsersTableUsersTableProps {
   onChange: (userDiff: Diff) => void;
@@ -26,6 +28,19 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
   const pagination = useDataViewPagination({ perPage: 20 });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
   const initialUserIds = useRef<string[]>([]);
+  const intl = useIntl();
+
+  const columns = useMemo(
+    () => [
+      intl.formatMessage(Messages.orgAdmin),
+      intl.formatMessage(Messages.username),
+      intl.formatMessage(Messages.email),
+      intl.formatMessage(Messages.firstName),
+      intl.formatMessage(Messages.lastName),
+      intl.formatMessage(Messages.status),
+    ],
+    [intl]
+  );
 
   const selection = useDataViewSelection({
     matchOption: (a, b) => a.id === b.id,
@@ -49,7 +64,14 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
     () =>
       users.map((user) => ({
         id: user.username,
-        row: [user.is_org_admin ? 'Yes' : 'No', user.username, user.email, user.first_name, user.last_name, user.is_active ? 'Active' : 'Inactive'],
+        row: [
+          user.is_org_admin ? intl.formatMessage(Messages.yes) : intl.formatMessage(Messages.no),
+          user.username,
+          user.email,
+          user.first_name,
+          user.last_name,
+          user.is_active ? intl.formatMessage(Messages.active) : intl.formatMessage(Messages.inactive),
+        ],
       })),
     [users, groupId]
   );
@@ -123,7 +145,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
           />
         }
       />
-      <DataViewTable variant="compact" columns={['Org Admin', 'Username', 'Email', 'First name', 'Last name', 'Status']} rows={rows} />
+      <DataViewTable variant="compact" columns={columns} rows={rows} />
     </DataView>
   );
 };

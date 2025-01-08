@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
 import EditGroupServiceAccountsTable from './EditUserGroupServiceAccounts';
 import EditGroupUsersTable from './EditUserGroupUsers';
+import { useIntl } from 'react-intl';
+import Messages from '../../Messages';
 
 export interface Diff {
   added: string[];
@@ -14,6 +16,7 @@ export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<UseFieldA
   const formOptions = useFormApi();
   const { input, groupId } = useFieldApi(props);
   const values = formOptions.getState().values[input.name];
+  const intl = useIntl();
 
   const handleUserChange = (users: Diff) => {
     input.onChange({
@@ -35,12 +38,12 @@ export const EditGroupUsersAndServiceAccounts: React.FunctionComponent<UseFieldA
 
   return (
     <React.Fragment>
-      <FormGroup label="Select users and/or service accounts">
+      <FormGroup label={intl.formatMessage(Messages.selectUsersAndOrServiceAccounts)}>
         <Tabs activeKey={activeTabKey} onSelect={handleTabSelect}>
-          <Tab eventKey={0} title="Users">
+          <Tab eventKey={0} title={intl.formatMessage(Messages.users)}>
             <EditGroupUsersTable groupId={groupId} onChange={handleUserChange} />
           </Tab>
-          <Tab eventKey={1} title="Service accounts">
+          <Tab eventKey={1} title={intl.formatMessage(Messages.serviceAccounts)}>
             <EditGroupServiceAccountsTable groupId={groupId} onChange={handleServiceAccountsChange} />
           </Tab>
         </Tabs>
