@@ -54,12 +54,11 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   }, []);
 
   const { serviceAccounts, status } = useSelector(reducer);
-  const calculateTotalCount = () => {
+  const totalCount = useMemo(() => {
     if (!serviceAccounts) return 0;
     const currentCount = (page - 1) * perPage + serviceAccounts.length;
     return status === LAST_PAGE ? currentCount : currentCount + 1;
-  };
-  const totalCount = calculateTotalCount();
+  }, [serviceAccounts, page, perPage, status]);
 
   const { groupServiceAccounts: groupServiceAccounts } = useSelector((state: RBACStore) => ({
     groupServiceAccounts: state.groupReducer?.selectedGroup?.serviceAccounts?.data || [],
