@@ -1,6 +1,6 @@
-import { Pagination } from '@patternfly/react-core';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { DataView, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchServiceAccountsForGroup } from '../../redux/actions/group-actions';
 import { RBACStore } from '../../redux/store';
@@ -9,9 +9,28 @@ import { fetchServiceAccounts } from '../../redux/actions/service-account-action
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { ServiceAccountsState } from '../../redux/reducers/service-account-reducer';
 import { LAST_PAGE, ServiceAccount } from '../../helpers/service-account/service-account-helper';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { Diff } from './EditUserGroupUsersAndServiceAccounts';
+import Messages from '../../Messages';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { SearchIcon } from '@patternfly/react-icons';
+
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...Messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
 
 interface EditGroupServiceAccountsTableProps {
   groupId?: string;
@@ -40,6 +59,19 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
   const { auth, getEnvironmentDetails } = useChrome();
   const initialServiceAccountIds = useRef<string[]>([]);
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
+  const intl = useIntl();
+
+  const columns = useMemo(
+    () => [
+      intl.formatMessage(Messages.name),
+      intl.formatMessage(Messages.description),
+      intl.formatMessage(Messages.clientId),
+      intl.formatMessage(Messages.owner),
+      intl.formatMessage(Messages.timeCreated),
+    ],
+    [intl]
+  );
 
   const selection = useDataViewSelection({
     matchOption: (a, b) => a.id === b.id,
@@ -53,12 +85,20 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
     };
   }, []);
 
-  const { serviceAccounts, status } = useSelector(reducer);
+  const { serviceAccounts, status, isLoading } = useSelector(reducer);
   const totalCount = useMemo(() => {
     if (!serviceAccounts) return 0;
     const currentCount = (page - 1) * perPage + serviceAccounts.length;
     return status === LAST_PAGE ? currentCount : currentCount + 1;
   }, [serviceAccounts, page, perPage, status]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      setActiveState(serviceAccounts.length === 0 ? DataViewState.empty : undefined);
+    }
+  }, [serviceAccounts.length, isLoading]);
 
   const { groupServiceAccounts: groupServiceAccounts } = useSelector((state: RBACStore) => ({
     groupServiceAccounts: state.groupReducer?.selectedGroup?.serviceAccounts?.data || [],
@@ -169,7 +209,18 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
           />
         }
       />
-      <DataViewTable variant="compact" columns={['Name', 'Description', 'Client ID', 'Owner', 'Time created']} rows={rows} />
+      <DataViewTable
+        variant="compact"
+        columns={columns}
+        rows={rows}
+        headStates={{
+          loading: <SkeletonTableHead columns={columns} />,
+        }}
+        bodyStates={{
+          loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+          empty: <EmptyTable titleText={intl.formatMessage(Messages.usersEmptyStateTitle)} />,
+        }}
+      />
     </DataView>
   );
 };

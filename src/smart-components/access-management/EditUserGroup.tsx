@@ -1,5 +1,5 @@
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { PageSection, PageSectionVariants } from '@patternfly/react-core';
+import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-core';
 import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../Messages';
@@ -21,12 +21,21 @@ export const EditUserGroup: React.FunctionComponent = () => {
 
   const group = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup);
   const allGroups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
+  const [isLoading, setIsLoading] = React.useState(true);
+  const [isTableLoading, setIsTableLoading] = React.useState(true);
 
   useEffect(() => {
-    dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true }));
-    if (groupId) {
-      dispatch(fetchGroup(groupId));
-    }
+    const fetchData = async () => {
+      try {
+        await Promise.all([
+          dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true })),
+          groupId ? dispatch(fetchGroup(groupId)) : Promise.resolve(),
+        ]);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchData();
   }, [dispatch, groupId]);
 
   const schema = {
@@ -60,6 +69,8 @@ export const EditUserGroup: React.FunctionComponent = () => {
       {
         name: 'users-and-service-accounts',
         component: 'users-and-service-accounts',
+        initializeOnMount: true,
+        setTableLoaded: (value: boolean) => setIsTableLoading(value),
         groupId: groupId,
       },
     ],
@@ -116,20 +127,26 @@ export const EditUserGroup: React.FunctionComponent = () => {
     <React.Fragment>
       <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup)} subtitle={''} />
       <PageSection data-ouia-component-id="edit-user-group-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>
-        <FormRenderer
-          schema={schema}
-          componentMapper={{
-            ...componentMapper,
-            'users-and-service-accounts': EditGroupUsersAndServiceAccounts,
-          }}
-          onSubmit={handleSubmit}
-          onCancel={returnToPreviousPage}
-          FormTemplate={FormTemplate}
-          initialValues={initialValues}
-          FormTemplateProps={{
-            disableSubmit: ['pristine', 'invalid'],
-          }}
-        />
+        {isLoading ? (
+          <div style={{ textAlign: 'center' }}>
+            <Spinner />
+          </div>
+        ) : (
+          <FormRenderer
+            schema={schema}
+            componentMapper={{
+              ...componentMapper,
+              'users-and-service-accounts': EditGroupUsersAndServiceAccounts,
+            }}
+            onSubmit={handleSubmit}
+            onCancel={returnToPreviousPage}
+            FormTemplate={FormTemplate}
+            FormTemplateProps={{
+              initialValues,
+              disableSubmit: ['pristine', 'invalid'],
+            }}
+          />
+        )}
       </PageSection>
     </React.Fragment>
   );

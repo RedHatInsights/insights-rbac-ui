@@ -1,14 +1,31 @@
-import { Pagination } from '@patternfly/react-core';
-import React, { useCallback, useEffect, useMemo, useRef } from 'react';
-import { DataView, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { useDispatch, useSelector } from 'react-redux';
 import { RBACStore } from '../../redux/store';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { Diff } from './EditUserGroupUsersAndServiceAccounts';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import Messages from '../../Messages';
+import { SearchIcon } from '@patternfly/react-icons';
+
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...Messages['usersEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
 
 interface EditGroupUsersTableUsersTableProps {
   onChange: (userDiff: Diff) => void;
@@ -29,6 +46,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
   const initialUserIds = useRef<string[]>([]);
   const intl = useIntl();
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
 
   const columns = useMemo(
     () => [
@@ -54,10 +72,11 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
     };
   }, []);
 
-  const { users, groupUsers, totalCount } = useSelector((state: RBACStore) => ({
+  const { users, groupUsers, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     users: state.userReducer?.users?.data || [],
     groupUsers: state.groupReducer?.selectedGroup?.members?.data || [],
     totalCount: state.userReducer?.users?.meta?.count,
+    isLoading: state.userReducer?.isUserDataLoading,
   }));
 
   const rows = useMemo(
@@ -83,6 +102,14 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
     },
     [dispatch]
   );
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      setActiveState(users.length === 0 ? DataViewState.empty : undefined);
+    }
+  }, [users.length, isLoading]);
 
   useEffect(() => {
     fetchData({
@@ -121,7 +148,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
   };
 
   return (
-    <DataView selection={{ ...selection }}>
+    <DataView selection={{ ...selection }} activeState={activeState}>
       <DataViewToolbar
         pagination={
           <Pagination
@@ -145,7 +172,18 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableUsersTable
           />
         }
       />
-      <DataViewTable variant="compact" columns={columns} rows={rows} />
+      <DataViewTable
+        variant="compact"
+        columns={columns}
+        rows={rows}
+        headStates={{
+          loading: <SkeletonTableHead columns={columns} />,
+        }}
+        bodyStates={{
+          loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+          empty: <EmptyTable titleText={intl.formatMessage(Messages.usersEmptyStateTitle)} />,
+        }}
+      />
     </DataView>
   );
 };
