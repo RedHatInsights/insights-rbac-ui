@@ -1,14 +1,5 @@
 export const bundleData = [
   {
-    entitlement: 'application_services',
-    title: 'Application Services',
-    apps: {
-      'Streams for Apache Kafka (beta)': '/',
-      'API Management (beta)': '/',
-      'Data Science (private beta)': '/',
-    },
-  },
-  {
     entitlement: 'openshift',
     title: 'OpenShift',
     apps: {
@@ -35,6 +26,8 @@ export const bundleData = [
       repositories: '/content',
       provisioning: '/provisioning',
       tasks: '/tasks',
+      ros: '/ros',
+      'malware detection': '/malware-detection',
     },
     appsIds: [
       'dashboard',
@@ -52,6 +45,8 @@ export const bundleData = [
       'content-sources',
       'provisioning',
       'tasks',
+      'ros',
+      'malware-detection',
     ],
   },
   {
@@ -63,5 +58,14 @@ export const bundleData = [
       insights: '/automation-analytics',
     },
     appsIds: ['catalog', 'approval', 'automation-analytics', 'automation-hub'],
+  },
+  {
+    entitlement: 'settings',
+    title: 'Settings and User Access',
+    apps: {
+      rbac: '/rbac',
+      sources: '/sources',
+    },
+    appsIds: ['rbac', 'sources'],
   },
 ];

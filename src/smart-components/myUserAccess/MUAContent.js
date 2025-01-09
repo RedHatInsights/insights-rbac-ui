@@ -15,9 +15,7 @@ import messages from '../../Messages';
 
 const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
   const intl = useIntl();
-  const entitledBundles = Object.entries(entitlements).filter(
-    ([entitlement, { is_entitled }]) => is_entitled && entitlement !== 'application_services'
-  );
+  const entitledBundles = Object.entries(entitlements).filter(([, { is_entitled }]) => is_entitled);
   const { bundle } = useSearchParams('bundle');
   const hasAdminAccess = isOrgAdmin || isUserAccessAdmin;
 
@@ -32,13 +30,11 @@ const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
           </Stack>
         </GridItem>
         <GridItem className="pf-m-9-col-on-md rbac-l-myUserAccess-section__table">
-          {bundle !== 'application_services' && (
-            <Title headingLevel="h3" size="xl">
-              {intl.formatMessage(hasAdminAccess ? messages.yourRoles : messages.yourPermissions, {
-                name: bundleData.find(({ entitlement }) => entitlement === bundle)?.title,
-              })}
-            </Title>
-          )}
+          <Title headingLevel="h3" size="xl">
+            {intl.formatMessage(hasAdminAccess ? messages.yourRoles : messages.yourPermissions, {
+              name: bundleData.find(({ entitlement }) => entitlement === bundle)?.title,
+            })}
+          </Title>
           <MuaBundleRoute />
         </GridItem>
       </Grid>

@@ -16,7 +16,7 @@ describe('useBundleApps', () => {
     const { result } = renderHook(() => useBundleApps('rhel'), {
       wrapper: MemoryRouter,
     });
-    expect(result.current).toEqual(bundleData[2].appsIds);
+    expect(result.current).toEqual(bundleData[1].appsIds);
   });
 
   it('should retrieve an empty array apps from incorrect bundle', () => {

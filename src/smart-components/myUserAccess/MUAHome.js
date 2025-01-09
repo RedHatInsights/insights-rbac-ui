@@ -27,7 +27,6 @@ const MyUserAccess = () => {
   }, []);
   const enhancedEntitlements = {
     ...user.entitlements,
-    application_services: { is_entitled: true, is_trial: false },
   };
 
   const entitledBundles = Object.entries(enhancedEntitlements).filter(([, { is_entitled }]) => is_entitled);
