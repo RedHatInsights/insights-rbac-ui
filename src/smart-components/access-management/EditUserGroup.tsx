@@ -22,7 +22,6 @@ export const EditUserGroup: React.FunctionComponent = () => {
   const group = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup);
   const allGroups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
   const [isLoading, setIsLoading] = React.useState(true);
-  const [isTableLoading, setIsTableLoading] = React.useState(true);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +69,6 @@ export const EditUserGroup: React.FunctionComponent = () => {
         name: 'users-and-service-accounts',
         component: 'users-and-service-accounts',
         initializeOnMount: true,
-        setTableLoaded: (value: boolean) => setIsTableLoading(value),
         groupId: groupId,
       },
     ],
@@ -85,7 +83,7 @@ export const EditUserGroup: React.FunctionComponent = () => {
       dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
       console.log(`Dispatched update group with name: ${values.name} and description: ${values.description}`);
     }
-    console.log("submitted values:", values);
+    console.log('submitted values:', values);
     if (values['users-and-service-accounts']) {
       const { users, serviceAccounts } = values['users-and-service-accounts'];
       if (users.added.length > 0) {

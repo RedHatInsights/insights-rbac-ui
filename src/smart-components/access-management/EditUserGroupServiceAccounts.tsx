@@ -172,7 +172,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   const pagePartiallySelected = !pageSelected && rows.some((row) => selection.isSelected(row));
 
   return (
-    <DataView selection={{ ...selection }}>
+    <DataView selection={{ ...selection }} activeState={activeState}>
       <DataViewToolbar
         pagination={
           <Pagination
