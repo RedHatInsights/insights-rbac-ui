@@ -2528,4 +2528,9 @@ export default defineMessages({
     description: 'create user group button label',
     defaultMessage: 'Create user group',
   },
+  selectUsersAndOrServiceAccounts: {
+    id: 'selectUsersAndOrServiceAccounts',
+    description: 'select users and/or service accounts label',
+    defaultMessage: 'Select users and/or service accounts',
+  },
 });
