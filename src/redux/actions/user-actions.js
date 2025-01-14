@@ -81,12 +81,12 @@ export const updateUserIsOrgAdminStatus = (user, config) => {
  * @param { isProd: boolean, token: string } config config object with env and token.
  * @returns action to be dispatched
  */
-export const chageUsersStatus = (userList, config) => {
+export const changeUsersStatus = (userList, config) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages }, cache);
   return {
     type: ActionTypes.CHANGE_USERS_STATUS,
-    payload: UserHelper.chageUsersStatus(userList, config),
+    payload: UserHelper.changeUsersStatus(userList, config),
     meta: {
       notifications: {
         fulfilled: {

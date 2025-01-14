@@ -1,27 +1,37 @@
-import React, { useEffect, useCallback, useState, Fragment, useMemo, Suspense } from 'react';
+import React, { useEffect, useCallback, useState, Fragment, useMemo, useContext } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
-import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { ButtonVariant, Pagination, EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import {
+  Button,
+  Pagination,
+  ButtonVariant,
+  Switch,
+  Dropdown,
+  DropdownList,
+  DropdownItem,
+  MenuToggle,
+  MenuToggleElement,
+  Split,
+  SplitItem,
+  List,
+  ListItem,
+} from '@patternfly/react-core';
 import { ActionsColumn } from '@patternfly/react-table';
-import { fetchUsers } from '../../redux/actions/user-actions';
+import { changeUsersStatus, fetchUsers } from '../../redux/actions/user-actions';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { RBACStore } from '../../redux/store';
 import { User } from '../../redux/reducers/user-reducer';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { Outlet, useSearchParams } from 'react-router-dom';
-import { SkeletonTableBody, WarningModal } from '@patternfly/react-component-groups';
-import paths from '../../utilities/pathnames';
+import { useSearchParams } from 'react-router-dom';
+import { WarningModal } from '@patternfly/react-component-groups';
+import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import PermissionsContext from '../../utilities/permissions-context';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import useAppNavigate from '../../hooks/useAppNavigate';
-import { DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { SearchIcon } from '@patternfly/react-icons';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
 
@@ -41,24 +51,54 @@ interface UsersTableProps {
 }
 
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
-  const { getBundle, getApp } = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const dispatch = useDispatch();
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
-  const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
+
+  // activate/deactivate
+  const [isOpen, setIsOpen] = useState(false);
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const onStatusSelect = () => {
+    setIsStatusModalOpen(!isStatusModalOpen);
+    setIsOpen(false);
+  };
+
+  const { orgAdmin } = useContext(PermissionsContext);
+  const { auth, isProd } = useChrome();
+  const [token, setToken] = useState<string | null>(null);
+  useEffect(() => {
+    const getToken = async () => {
+      setToken((await auth.getToken()) as string);
+    };
+    getToken();
+  }, [auth]);
+
+  const handleToggle = (_event) => {
+    const newUserList = users.map((user) => {
+      return { id: user?.uuid || user?.external_source_id, is_active: user.is_active };
+    });
+    try {
+      dispatch(changeUsersStatus({ newUserList }, { isProd: isProd(), token }));
+    } catch (error) {
+      console.error('Failed to update status:', error);
+    }
+
+    setToken(token);
+  };
 
   const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, user: User) => {
     setCurrentUser(user);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const { users, totalCount, isLoading } = useSelector((state: RBACStore) => ({
+  const { users, totalCount } = useSelector((state: RBACStore) => ({
     users: state.userReducer.users.data || [],
     totalCount: state.userReducer.users.meta.count,
-    isLoading: state.userReducer.isUserDataLoading,
   }));
 
   const [searchParams, setSearchParams] = useSearchParams();
@@ -85,14 +125,6 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     });
   }, [fetchData, page, perPage]);
 
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else {
-      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
-    }
-  }, [totalCount, isLoading]);
-
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
       onSelect(false);
@@ -116,7 +148,19 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
         user.email,
         user.first_name,
         user.last_name,
-        user.is_active ? intl.formatMessage(messages['usersAndUserGroupsActive']) : intl.formatMessage(messages['usersAndUserGroupsInactive']),
+        [
+          <Switch
+            id="active-toggle"
+            key="status"
+            isDisabled={!orgAdmin}
+            isChecked={user.is_active}
+            onChange={(checked, _event) => {
+              handleToggle(checked, _event);
+            }}
+            label={intl.formatMessage(messages['usersAndUserGroupsActive'])}
+            labelOff={intl.formatMessage(messages['usersAndUserGroupsInactive'])}
+          ></Switch>,
+        ],
         user.is_org_admin ? intl.formatMessage(messages['usersAndUserGroupsYes']) : intl.formatMessage(messages['usersAndUserGroupsNo']),
         {
           cell: (
@@ -159,22 +203,6 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     />
   );
 
-  const empty = (
-    <EmptyState>
-      <EmptyStateHeader titleText={intl.formatMessage(messages.usersEmptyStateTitle)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['usersEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-
-  const loading = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length + 1} isSelectable />;
-
   return (
     <Fragment>
       {isDeleteModalOpen && (
@@ -194,7 +222,32 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           {`${currentUser?.username} ${intl.formatMessage(messages.deleteUserModalBody)}`}
         </WarningModal>
       )}
-      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }} activeState={activeState}>
+      {isStatusModalOpen && (
+        <WarningModal
+          ouiaId={`${OUIA_ID}-update-status`}
+          isOpen={isStatusModalOpen}
+          title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
+          confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
+          confirmButtonVariant={ButtonVariant.danger}
+          onClose={() => setIsStatusModalOpen(false)}
+          onConfirm={() => {
+            console.log(`Deleting ${currentUser?.username} from user groups`);
+            //add delete user api call here when v2 is ready
+            setIsStatusModalOpen(false);
+          }}
+          withCheckbox
+          checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
+        >
+          {intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
+
+          <List isPlain isBordered>
+            {selected.map((user) => (
+              <ListItem key={user.id}>{user}</ListItem>
+            ))}
+          </List>
+        </WarningModal>
+      )}
+      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }}>
         <DataViewToolbar
           ouiaId={`${OUIA_ID}-header-toolbar`}
           bulkSelect={
@@ -210,48 +263,44 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
           actions={
-            <ResponsiveActions breakpoint="lg" ouiaId="example-actions">
-              <ResponsiveAction
-                isPersistent
-                onClick={() => {
-                  onAddUserClick(selected);
-                }}
-                variant="primary"
-                isDisabled={selected.length === 0}
-                ouiaId={`${OUIA_ID}-add-user-button`}
-              >
-                {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
-              </ResponsiveAction>
-              <ResponsiveAction
-                variant="primary"
-                onClick={() => {
-                  appNavigate(paths['invite-group-users'].link);
-                }}
-              >
-                {intl.formatMessage(messages.inviteUsers)}
-              </ResponsiveAction>
-            </ResponsiveActions>
+            <Split hasGutter>
+              <SplitItem>
+                <Button
+                  variant="primary"
+                  onClick={() => {
+                    onAddUserClick(selected);
+                  }}
+                  isDisabled={selected.length === 0}
+                  ouiaId={`${OUIA_ID}-add-user-button`}
+                >
+                  {intl.formatMessage(messages['usersAndUserGroupsAddToGroup'])}
+                </Button>
+              </SplitItem>
+              <SplitItem>
+                <Dropdown
+                  isOpen={isOpen}
+                  onSelect={onStatusSelect}
+                  onOpenChange={(isOpen: boolean) => setIsOpen(isOpen)}
+                  toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
+                    <MenuToggle isDisabled={selected.length === 0} ref={toggleRef} onClick={onToggleClick} isExpanded={isOpen}>
+                      {intl.formatMessage(messages.activateUsersButton)}
+                    </MenuToggle>
+                  )}
+                  ouiaId="status-dropdown"
+                  shouldFocusToggleOnSelect
+                >
+                  <DropdownList>
+                    <DropdownItem> {intl.formatMessage(messages.activateUsersButton)}</DropdownItem>
+                    <DropdownItem> {intl.formatMessage(messages.deactivateUsersButton)}</DropdownItem>
+                  </DropdownList>
+                </Dropdown>
+              </SplitItem>
+            </Split>
           }
         />
-        <DataViewTable
-          variant="compact"
-          aria-label="Users Table"
-          ouiaId={`${OUIA_ID}-table`}
-          columns={COLUMNS}
-          rows={rows}
-          bodyStates={{ empty, loading }}
-        />
+        <DataViewTable variant="compact" aria-label="Users Table" ouiaId={`${OUIA_ID}-table`} columns={COLUMNS} rows={rows} />
         <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
-      <Suspense>
-        <Outlet
-          context={{
-            fetchData: () => {
-              appNavigate(paths['users-and-user-groups'].link);
-            },
-          }}
-        />
-      </Suspense>
     </Fragment>
   );
 };
