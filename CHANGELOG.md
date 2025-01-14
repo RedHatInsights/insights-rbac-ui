@@ -1,3 +1,10 @@
+## [1.16.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.1...v1.16.2) (2025-01-14)
+
+
+### Bug Fixes
+
+* **konflux:** failing konflux build by removing JAVA references ([#1743](https://github.com/RedHatInsights/insights-rbac-ui/issues/1743)) ([76bc417](https://github.com/RedHatInsights/insights-rbac-ui/commit/76bc4171ac08ab2ecbae61b52634ce868c7d2c97))
+
 ## [1.16.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.0...v1.16.1) (2025-01-06)
 
 
