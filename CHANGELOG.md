@@ -1,3 +1,10 @@
+# [1.17.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.2...v1.17.0) (2025-01-15)
+
+
+### Features
+
+* **common auth model:** add dropdown to make user an org admin ([#1740](https://github.com/RedHatInsights/insights-rbac-ui/issues/1740)) ([ac1b0f6](https://github.com/RedHatInsights/insights-rbac-ui/commit/ac1b0f6fb6ed1a46c68a36177d231ade9b729a71))
+
 ## [1.16.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.1...v1.16.2) (2025-01-14)
 
 
