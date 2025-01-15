@@ -19,8 +19,8 @@ const pathnames = {
     title: 'Create workspace',
   },
   'workspace-detail': {
-    link: '/workspaces/:workspaceId',
-    path: '/workspaces/:workspaceId/*',
+    link: '/workspaces/detail/:workspaceId',
+    path: '/workspaces/detail/:workspaceId/*',
     title: 'Workspace detail',
   },
   groups: {
