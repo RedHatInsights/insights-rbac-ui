@@ -11,9 +11,9 @@ export const fetchWorkspaces = () => ({
   payload: WorkspacesHelper.getWorkspaces(),
 });
 
-export const fetchWorkspace = (ws: string) => ({
+export const fetchWorkspace = (workspaceId: string) => ({
   type: ActionTypes.FETCH_WORKSPACE,
-  payload: WorkspacesHelper.getWorkspace(ws),
+  payload: WorkspacesHelper.getWorkspace(workspaceId),
 });
 
 export const createWorkspace = (config: WorkspaceCreateBody) => {

@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import messages from '../../Messages';
 import { pickBy } from 'lodash';
 import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
-import { calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
+import { calculateOffset, calculatePage, defaultSettings, PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
 
 export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '', paginationProps) => ({
   ...paginationProps,
@@ -20,13 +20,7 @@ export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', 
       orderBy: sortBy,
     });
   },
-  perPageOptions: [
-    { title: '5', value: 5 },
-    { title: '10', value: 10 },
-    { title: '20', value: 20 },
-    { title: '50', value: 50 },
-    { title: '100', value: 100 },
-  ],
+  perPageOptions: PER_PAGE_OPTIONS,
   onPerPageSelect: (_event, perPage) => {
     fetchData({
       offset: 0,

@@ -28,20 +28,7 @@ axiosInstance.interceptors.response.use(null, errorInterceptor);
 const workspacesApi = new APIFactory(
   RBAC_API_BASE_2,
   {
-    getWorkspace: async (...args) => {
-      const getWs = await getWorkspace(...args);
-      return {
-        ...getWs,
-        options: {
-          ...getWs.options,
-          transformResponse: () => {
-            return {
-              // TODO: return normal data
-            };
-          },
-        },
-      };
-    },
+    getWorkspace,
     createWorkspace: async (...args) => {
       const createWs = await createWorkspace(...args);
       return {

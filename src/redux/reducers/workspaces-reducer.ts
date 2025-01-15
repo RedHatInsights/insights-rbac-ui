@@ -10,6 +10,8 @@ export interface WorkspaceCreateBody {
 
 export interface Workspace extends WorkspaceCreateBody {
   id: string;
+  type: 'standard' | 'default' | 'root';
+  parent_id: string;
 }
 
 export interface WorkspacesStore {
@@ -38,7 +40,7 @@ const setWorkspaces = (state: WorkspacesStore, { payload }: { payload: { data: W
 
 const setWorkspace = (state: WorkspacesStore, { payload }: { payload: { data: Workspace } }) => ({
   ...state,
-  selectedWorkspace: payload.data,
+  selectedWorkspace: payload,
   isLoading: false,
 });
 
