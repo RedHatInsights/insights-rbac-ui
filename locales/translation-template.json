@@ -1,4 +1,8 @@
 {
+  "accessOrigin": {
+    "defaultMessage": "Access origin",
+    "description": "Access origin modified column label"
+  },
   "actionsOnClustersPermissions": {
     "defaultMessage": "Only Org. Administrators and cluster owners can perform actions on clusters.",
     "description": "Actions on clusters permissions message"
@@ -266,6 +270,10 @@
   "applyWorkspacesRolePermission": {
     "defaultMessage": "Specify which workspaces you'd like to give access for these permissions",
     "description": "Permissions for Workspaces"
+  },
+  "assets": {
+    "defaultMessage": "Assets",
+    "description": "Assets label"
   },
   "assignAtLeastOneGroup": {
     "defaultMessage": "You need to assign at least one inventory group to each permission.",
@@ -755,6 +763,10 @@
     "defaultMessage": "Exit {item} creation?",
     "description": "Exit item creation modal title"
   },
+  "featuresManagement": {
+    "defaultMessage": "Features management",
+    "description": "Features management label"
+  },
   "filterByKey": {
     "defaultMessage": "Filter by {key}",
     "description": "Filter by data key label"
@@ -1029,6 +1041,10 @@
   "nameAndDescription": {
     "defaultMessage": "Name and description",
     "description": "Name and description wizard step title"
+  },
+  "nameFilterPlaceholder": {
+    "defaultMessage": "Filter by name",
+    "description": "placeholder for name filter"
   },
   "no": {
     "defaultMessage": "No",
@@ -1521,6 +1537,10 @@
   "role": {
     "defaultMessage": "role",
     "description": "Role singular"
+  },
+  "roleAssignments": {
+    "defaultMessage": "Role assignments",
+    "description": "Rola assignments label"
   },
   "roleCreatedSuccessfully": {
     "defaultMessage": "You have successfully created a new role",

@@ -1,5 +1,6 @@
 {
   "en": {
+    "accessOrigin": "Access origin",
     "actionsOnClustersPermissions": "Only Org. Administrators and cluster owners can perform actions on clusters.",
     "activateUsersButton": "Activate users",
     "active": "Active",
@@ -67,6 +68,7 @@
     "applyCostPermissionText": "Specify where you would like to apply each cost permission selected in the previous step, using the dropdown below.",
     "applyInventoryGroupsRolePermission": "Specify which inventory groups you'd like to give access for these permissions",
     "applyWorkspacesRolePermission": "Specify which workspaces you'd like to give access for these permissions",
+    "assets": "Assets",
     "assignAtLeastOneGroup": "You need to assign at least one inventory group to each permission.",
     "assignAtLeastOneResource": "You need to assign at least one resource to each permission.",
     "assignedRoles": "Assigned roles",
@@ -189,6 +191,7 @@
     "exitEditResourceDefinitions": "Exit edit resource definitions?",
     "exitItemAdding": "Exit {item} adding?",
     "exitItemCreation": "Exit {item} creation?",
+    "featuresManagement": "Features management",
     "filterByKey": "Filter by {key}",
     "filterByResource": "Filter by resource...",
     "filterMatchesNoFilters": "This filter criteria matches no {items}.",
@@ -258,6 +261,7 @@
     "name": "Name",
     "nameAlreadyTaken": "Name has already been taken.",
     "nameAndDescription": "Name and description",
+    "nameFilterPlaceholder": "Filter by name",
     "no": "No",
     "noAccountsInDefaultAccess": "In adherence to security guidelines, service accounts are not automatically included in the default access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
     "noAccountsInDefaultAdminAccess": "In adherence to security guidelines, service accounts are not automatically included in the default admin access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
@@ -381,6 +385,7 @@
     "reviewRoleDetails": "Review and confirm the details for your role, or click Back to revise.",
     "reviewWorkspaceDescription": "Review the information below to make sure everything is correct before creating a new workspace.",
     "role": "role",
+    "roleAssignments": "Role assignments",
     "roleCreatedSuccessfully": "You have successfully created a new role",
     "roleDescription": "Role description",
     "roleName": "Role name",
