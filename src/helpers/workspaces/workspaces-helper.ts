@@ -4,7 +4,7 @@ import { getWorkspacesApi } from './api';
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces() {
-  return await workspacesApi.listWorkspaces();
+  return await workspacesApi.listWorkspaces({ limit: 200 });
 }
 
 export async function getWorkspace(ws: string) {
