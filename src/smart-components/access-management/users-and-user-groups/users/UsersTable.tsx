@@ -20,18 +20,11 @@ import { fetchUsers } from '../../../../redux/actions/user-actions';
 import { mappedProps } from '../../../../helpers/shared/helpers';
 import { RBACStore } from '../../../../redux/store';
 import { User } from '../../../../redux/reducers/user-reducer';
+import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
 import messages from '../../../../Messages';
 import paths from '../../../../utilities/pathnames';
 
 const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
-
-const PER_PAGE_OPTIONS = [
-  { title: '5', value: 5 },
-  { title: '10', value: 10 },
-  { title: '20', value: 20 },
-  { title: '50', value: 50 },
-  { title: '100', value: 100 },
-];
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
