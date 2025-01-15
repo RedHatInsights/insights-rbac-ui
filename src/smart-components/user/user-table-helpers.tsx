@@ -1,10 +1,11 @@
 import React, { Fragment } from 'react';
 import { Label } from '@patternfly/react-core';
 import { IntlShape } from 'react-intl';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import AppLink from '../../presentational-components/shared/AppLink';
+import OrgAdminDropdown from './OrgAdminDropdown';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 
 export interface UserProps {
   email: string;
@@ -14,6 +15,7 @@ export interface UserProps {
   last_name: string;
   username: string;
   uuid: string;
+  external_source_id?: number;
 }
 
 export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement>; props?: { 'data-is-active': boolean } };
@@ -29,47 +31,62 @@ export interface RowProps {
     CellObject // status
   ];
   selected: boolean;
+  authModel?: boolean;
+  orgAdmin?: boolean;
 }
 
-export const createRows = (userLinks: boolean, data: UserProps[] = [], intl: IntlShape, checkedRows = [], isSelectable = false): RowProps[] =>
-  data?.reduce<RowProps[]>((acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }) => {
-    const newEntry: RowProps = {
-      uuid: username,
-      cells: [
-        isOrgAdmin ? (
-          <Fragment>
-            <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
-            <span key="yes">{intl.formatMessage(messages.yes)}</span>
-          </Fragment>
-        ) : (
-          <Fragment>
-            <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />
-            <span key="no">{intl.formatMessage(messages.no)}</span>
-          </Fragment>
-        ),
-        {
-          title: userLinks ? (
-            <AppLink to={pathnames['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
+export const createRows = (
+  userLinks: boolean,
+  data: UserProps[] = [],
+  intl: IntlShape,
+  checkedRows = [],
+  isSelectable = false,
+  authModel?: boolean,
+  orgAdmin?: boolean
+): RowProps[] =>
+  data?.reduce<RowProps[]>(
+    (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id }) => {
+      const newEntry: RowProps = {
+        uuid: username,
+        cells: [
+          authModel && orgAdmin ? (
+            <OrgAdminDropdown key={`dropdown-${username}`} isOrgAdmin={isOrgAdmin} username={username} intl={intl} userId={external_source_id} />
+          ) : isOrgAdmin ? (
+            <Fragment>
+              <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
+              <span key="yes">{intl.formatMessage(messages.yes)}</span>
+            </Fragment>
           ) : (
-            username.toString()
+            <Fragment>
+              <CloseIcon key="no-icon" className="pf-v5-u-mr-sm" />
+              <span key="no">{intl.formatMessage(messages.no)}</span>
+            </Fragment>
           ),
-        },
-        email,
-        firstName,
-        lastName,
-        {
-          title: (
-            <Label key="status" color={isActive ? 'green' : 'grey'}>
-              {intl.formatMessage(isActive ? messages.active : messages.inactive)}
-            </Label>
-          ),
-          props: {
-            'data-is-active': isActive,
+          {
+            title: userLinks ? (
+              <AppLink to={pathnames['user-detail'].link.replace(':username', username)}>{username.toString()}</AppLink>
+            ) : (
+              username.toString()
+            ),
           },
-        },
-      ],
-      selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
-    };
+          email,
+          firstName,
+          lastName,
+          {
+            title: (
+              <Label key="status" color={isActive ? 'green' : 'grey'}>
+                {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+              </Label>
+            ),
+            props: {
+              'data-is-active': isActive,
+            },
+          },
+        ],
+        selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
+      };
 
-    return [...acc, newEntry];
-  }, []);
+      return [...acc, newEntry];
+    },
+    []
+  );
