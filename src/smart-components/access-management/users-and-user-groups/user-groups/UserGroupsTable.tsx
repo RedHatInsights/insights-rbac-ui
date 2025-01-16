@@ -17,19 +17,12 @@ import { mappedProps } from '../../../../helpers/shared/helpers';
 import { RBACStore } from '../../../../redux/store';
 import { fetchGroups, removeGroups } from '../../../../redux/actions/group-actions';
 import { Group } from '../../../../redux/reducers/group-reducer';
+import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
 
 const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
-
-const PER_PAGE_OPTIONS = [
-  { title: '5', value: 5 },
-  { title: '10', value: 10 },
-  { title: '20', value: 20 },
-  { title: '50', value: 50 },
-  { title: '100', value: 100 },
-];
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (

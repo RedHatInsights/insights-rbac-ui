@@ -13,7 +13,7 @@ const Overview = lazy(() => import('./smart-components/overview/overview'));
 const WorkspacesOverview = lazy(() => import('./smart-components/workspaces/overview/about-access-tab'));
 const WorkspaceList = lazy(() => import('./smart-components/workspaces/WorkspaceList'));
 const CreateWorkspaceWizard = lazy(() => import('./smart-components/workspaces/create-workspace/CreateWorkspaceWizard'));
-const WorkspaceDetail = lazy(() => import('./smart-components/workspaces/WorkspaceDetail'));
+const WorkspaceDetail = lazy(() => import('./smart-components/workspaces/workspace-detail/WorkspaceDetail'));
 const Users = lazy(() => import('./smart-components/user/users'));
 const UserDetail = lazy(() => import('./smart-components/user/user'));
 const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));

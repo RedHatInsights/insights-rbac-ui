@@ -816,6 +816,11 @@ export default defineMessages({
     description: 'Last modified column label',
     defaultMessage: 'Last modified',
   },
+  accessOrigin: {
+    id: 'accessOrigin',
+    description: 'Access origin modified column label',
+    defaultMessage: 'Access origin',
+  },
   roleName: {
     id: 'roleName',
     description: 'Role name filter placeholder',
@@ -1053,6 +1058,21 @@ export default defineMessages({
     description: 'Create workspace error notification description',
     defaultMessage: 'The workspace was not created successfuly.',
   },
+  roleAssignments: {
+    id: 'roleAssignments',
+    description: 'Rola assignments label',
+    defaultMessage: 'Role assignments',
+  },
+  assets: {
+    id: 'assets',
+    description: 'Assets label',
+    defaultMessage: 'Assets',
+  },
+  featuresManagement: {
+    id: 'featuresManagement',
+    description: 'Features management label',
+    defaultMessage: 'Features management',
+  },
   workspace: {
     id: 'workspace',
     description: 'Workspace singular label',
@@ -1117,7 +1137,7 @@ export default defineMessages({
   workspacesDetailBreadcrumbTitle: {
     id: 'workspacesDetailBreadcrumbTitle',
     description: 'Workspace detail breadcrumb title',
-    defaultMessage: 'Workspace hierarchy: ',
+    defaultMessage: 'Workspace hierarchy:',
   },
   createWorkspace: {
     id: 'createWorkspace',
@@ -2430,6 +2450,11 @@ export default defineMessages({
     id: 'usersEmptyStateSubtitle',
     description: 'Empty state subtitle Users',
     defaultMessage: 'This filter criteria matches no users.{br}Try changing your filter input.',
+  },
+  roleAssignmentsEmptyStateSubtitle: {
+    id: 'roleAssignmentsEmptyStateSubtitle',
+    description: 'Empty state subtitle role bindings',
+    defaultMessage: 'This filter criteria matches no role assignments.{br}Try changing your filter input.',
   },
   userGroupsEmptyStateTitle: {
     id: 'userGroupsEmptyStateTitle',

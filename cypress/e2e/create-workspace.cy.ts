@@ -2,7 +2,7 @@ describe('Workspaces page', () => {
   it('Displays create workspace button', () => {
     cy.login();
 
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
       statusCode: 200,
       body: { data: [], meta: {} },
     }).as('getWorkspaces');
@@ -19,7 +19,7 @@ describe('Workspaces page', () => {
   it('Opens the create workspace wizard', () => {
     cy.login();
 
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
       statusCode: 200,
       body: { data: [], meta: {} },
     }).as('getWorkspaces');
@@ -39,7 +39,7 @@ describe('Workspaces page', () => {
   it('Closes the create workspace wizard on cancel', () => {
     cy.login();
 
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
       statusCode: 200,
       body: { data: [], meta: {} },
     }).as('getWorkspaces');
