@@ -47,6 +47,7 @@ const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quicks
 const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups/users-and-user-groups'));
 const UsersView = lazy(() => import('./smart-components/access-management/users-and-user-groups/users/UsersView'));
 const UserGroupsView = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/UserGroupsView'));
+const EditUserGroup = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel }: Record<string, boolean>) => [
   {
@@ -74,6 +75,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         ],
       },
     ],
+  },
+  {
+    path: pathnames['users-and-user-groups-edit-group'].path,
+    element: EditUserGroup,
   },
   {
     path: pathnames.overview.path,
