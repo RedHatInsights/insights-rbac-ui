@@ -53,37 +53,68 @@ interface UsersTableProps {
 const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | undefined>();
+  const [accountId, setAccountId] = useState<number | undefined>();
   const dispatch = useDispatch();
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
 
-  // activate/deactivate
-  const [isOpen, setIsOpen] = useState(false);
-  const onToggleClick = () => {
-    setIsOpen(!isOpen);
-  };
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const onStatusSelect = () => {
-    setIsStatusModalOpen(!isStatusModalOpen);
-    setIsOpen(false);
-  };
+  const { users, totalCount } = useSelector((state: RBACStore) => ({
+    users: state.userReducer.users.data || [],
+    totalCount: state.userReducer.users.meta.count,
+  }));
 
+  // activate/deactivate
   const { orgAdmin } = useContext(PermissionsContext);
   const { auth, isProd } = useChrome();
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
     const getToken = async () => {
       setToken((await auth.getToken()) as string);
+      setAccountId((await auth.getUser())?.identity.account_number as unknown as number);
     };
     getToken();
   }, [auth]);
 
-  const handleToggle = (_event) => {
-    const newUserList = users.map((user) => {
-      return { id: user?.uuid || user?.external_source_id, is_active: user.is_active };
-    });
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({}); // Track individual user toggle states
+  const [isOpen, setIsOpen] = useState(false);
+  const onToggleClick = () => {
+    setIsOpen(!isOpen);
+  };
+  const onStatusSelect = () => {
+    setIsStatusModalOpen(!isStatusModalOpen);
+    setIsOpen(false);
+  };
+
+  useEffect(() => {
+    if (users?.length) {
+      const initialCheckedStates = users.reduce((acc, user) => {
+        acc[user.external_source_id] = user.is_active;
+        return acc;
+      }, {} as Record<string, boolean>);
+      setCheckedStates(initialCheckedStates);
+    }
+  }, [users]);
+
+  const handleToggle = (_ev: unknown, isActive: boolean, updatedUser: User) => {
     try {
-      dispatch(changeUsersStatus({ newUserList }, { isProd: isProd(), token }));
+      dispatch(
+        changeUsersStatus(
+          [
+            {
+              ...updatedUser,
+              id: updatedUser.external_source_id,
+              is_active: isActive,
+            },
+          ],
+          { isProd: isProd(), token, accountId }
+        )
+      );
+
+      setCheckedStates((prevState) => ({
+        ...prevState,
+        [updatedUser.external_source_id]: isActive,
+      }));
     } catch (error) {
       console.error('Failed to update status:', error);
     }
@@ -91,15 +122,20 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     setToken(token);
   };
 
+  const handleBulkDeactivate = () => {
+    // Call handleToggle for each selected user
+    selected.forEach((user) => {
+      handleToggle(null, false, user); // Set each user's is_active to false
+    });
+
+    // Close modal after action
+    setIsStatusModalOpen(false);
+  };
+
   const handleModalToggle = (_event: KeyboardEvent | React.MouseEvent, user: User) => {
     setCurrentUser(user);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
-
-  const { users, totalCount } = useSelector((state: RBACStore) => ({
-    users: state.userReducer.users.data || [],
-    totalCount: state.userReducer.users.meta.count,
-  }));
 
   const [searchParams, setSearchParams] = useSearchParams();
   const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
@@ -150,13 +186,11 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
         user.last_name,
         [
           <Switch
-            id="active-toggle"
-            key="status"
+            id={user.username}
+            key={user.uuid}
             isDisabled={!orgAdmin}
-            isChecked={user.is_active}
-            onChange={(checked, _event) => {
-              handleToggle(checked, _event);
-            }}
+            isChecked={checkedStates[user.external_source_id]}
+            onChange={(e, value) => handleToggle(e, value, user)}
             label={intl.formatMessage(messages['usersAndUserGroupsActive'])}
             labelOff={intl.formatMessage(messages['usersAndUserGroupsInactive'])}
           ></Switch>,
@@ -230,19 +264,17 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsStatusModalOpen(false)}
-          onConfirm={() => {
-            console.log(`Deleting ${currentUser?.username} from user groups`);
-            //add delete user api call here when v2 is ready
-            setIsStatusModalOpen(false);
-          }}
+          onConfirm={handleBulkDeactivate}
           withCheckbox
           checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
         >
           {intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
 
-          <List isPlain isBordered>
+          <List isPlain isBordered className="pf-u-p-md">
             {selected.map((user) => (
-              <ListItem key={user.id}>{user}</ListItem>
+              <>
+                <ListItem key={user.id}>{user.id}</ListItem>
+              </>
             ))}
           </List>
         </WarningModal>
