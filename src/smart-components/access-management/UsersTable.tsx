@@ -76,7 +76,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
   }, [auth]);
 
   const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
-  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({}); // Track individual user toggle states
+  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({});
   const [isOpen, setIsOpen] = useState(false);
   const onToggleClick = () => {
     setIsOpen(!isOpen);
@@ -123,12 +123,10 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
   };
 
   const handleBulkDeactivate = () => {
-    // Call handleToggle for each selected user
     selected.forEach((user) => {
-      handleToggle(null, false, user); // Set each user's is_active to false
+      handleToggle(null, false, user);
     });
 
-    // Close modal after action
     setIsStatusModalOpen(false);
   };
 
