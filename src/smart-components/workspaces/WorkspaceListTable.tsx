@@ -1,16 +1,30 @@
 import React, { Suspense, useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet } from 'react-router-dom';
+import { Outlet, useSearchParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import { BulkSelect, BulkSelectValue, ErrorState, ResponsiveAction, ResponsiveActions, SkeletonTableBody } from '@patternfly/react-component-groups';
-import { DataView, DataViewTable, DataViewTh, DataViewToolbar, DataViewTrTree, useDataViewSelection } from '@patternfly/react-data-view';
+import {
+  DataView,
+  DataViewTable,
+  DataViewTextFilter,
+  DataViewTh,
+  DataViewToolbar,
+  DataViewTrTree,
+  useDataViewFilters,
+  useDataViewSelection,
+} from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+
+interface WorkspaceFilters {
+  name: string;
+}
 
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
   const idMap = new Map();
@@ -46,6 +60,32 @@ const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
       : {}),
   }));
 
+const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
+  const matches: Workspace[] = [];
+  if (!Array.isArray(workspaceTree)) {
+    return matches;
+  }
+
+  workspaceTree.forEach((obj) => {
+    if (obj.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) {
+      if (obj.type !== 'root') {
+        matches.push(Object.assign({}, obj, { children: [] }));
+      } else {
+        matches.push(obj);
+      }
+    } else {
+      let childResults: Workspace[] = [];
+      if (obj.children) {
+        childResults = search(obj.children, filter);
+      }
+      if (childResults.length) {
+        matches.push(Object.assign({}, obj, { children: childResults }));
+      }
+    }
+  });
+  return matches;
+};
+
 const WorkspaceListTable = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -53,9 +93,16 @@ const WorkspaceListTable = () => {
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
   const { isLoading, workspaces, error } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<WorkspaceFilters>({
+    initialFilters: { name: '' },
+    searchParams,
+    setSearchParams,
+  });
 
   const workspacesTree = useMemo(() => mapWorkspacesToHierarchy(workspaces), [workspaces]);
-  const rows = useMemo(() => (workspacesTree ? buildRows([workspacesTree]) : []), [workspacesTree]);
+  const filteredTree = useMemo(() => (workspacesTree ? search([workspacesTree], filters.name) : []), [workspacesTree, filters]);
+  const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
   useEffect(() => {
@@ -82,6 +129,12 @@ const WorkspaceListTable = () => {
               selectedCount={selection.selected.length}
               onSelect={handleBulkSelect}
             />
+          }
+          clearAllFilters={clearAllFilters}
+          filters={
+            <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
+              <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
+            </DataViewFilters>
           }
           actions={
             <ResponsiveActions>
