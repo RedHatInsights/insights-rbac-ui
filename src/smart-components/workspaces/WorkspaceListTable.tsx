@@ -20,7 +20,6 @@ import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 
 interface WorkspaceFilters {
   name: string;
@@ -132,9 +131,16 @@ const WorkspaceListTable = () => {
           }
           clearAllFilters={clearAllFilters}
           filters={
-            <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
-            </DataViewFilters>
+            <DataViewTextFilter
+              filterId="name"
+              title="Name"
+              placeholder="Filter by name"
+              ouiaId={`workspace-name-filter`}
+              onChange={(_e, value) => {
+                onSetFilters({ name: value });
+              }}
+              value={filters['name']}
+            />
           }
           actions={
             <ResponsiveActions>

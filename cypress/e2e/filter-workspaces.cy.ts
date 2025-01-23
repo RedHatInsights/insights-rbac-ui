@@ -67,15 +67,13 @@ describe('Filter workspaces', () => {
 
   it('should filter workspaces', () => {
     // filter to hide entire tree and check if 'xyc' workspace is hidden
-    cy.get('[aria-label="Show Filters"]').click();
-    cy.get('[data-ouia-component-id="DataViewTextFilter-input"]').type('asdf');
+    cy.get('[data-ouia-component-id="workspace-name-filter"]').type('asdf');
     cy.get('[data-ouia-component-id="workspaces-list-tr-2"]').should('not.exist');
   });
 
   it('should not show children of filtered workspaces', () => {
     // filter to show 'AAA' workspace and check if 'xyc' is hidden
-    cy.get('[aria-label="Show Filters"]').click();
-    cy.get('[data-ouia-component-id="DataViewTextFilter-input"]').type('AAA');
+    cy.get('[data-ouia-component-id="workspace-name-filter"]').type('AAA');
     cy.get('[data-ouia-component-id="workspaces-list-tr-1"]').should('exist');
     cy.get('[data-ouia-component-id="workspaces-list-tr-2"]').should('not.exist');
   });
