@@ -2,13 +2,24 @@ import React, { useEffect, useCallback, useState, useRef, useMemo } from 'react'
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
+import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
 import { useDataViewSort } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import { ButtonVariant, Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
-import { ActionsColumn, ThProps } from '@patternfly/react-table';
+import {
+  ButtonVariant,
+  Drawer,
+  DrawerContent,
+  DrawerContentBody,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  PageSection,
+  Pagination,
+} from '@patternfly/react-core';
+import { ActionsColumn, TableVariant, ThProps } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -18,9 +29,33 @@ import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import RolesDetails from './RolesTableDetails';
-import { ResponsiveAction, ResponsiveActions, WarningModal } from '@patternfly/react-component-groups';
+import {
+  ResponsiveAction,
+  ResponsiveActions,
+  SkeletonTable,
+  SkeletonTableBody,
+  SkeletonTableHead,
+  WarningModal,
+} from '@patternfly/react-component-groups';
 import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
 import { PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
+import { SearchIcon } from '@patternfly/react-icons';
+
+const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['rolesEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
 
 interface RoleFilters {
   display_name: string;
@@ -35,9 +70,10 @@ interface RolesTableProps {
 const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
-  const { roles, totalCount } = useSelector((state: RBACStore) => ({
+  const { roles, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     roles: state.roleReducer.roles.data || [],
     totalCount: state.roleReducer.roles.meta.count,
+    isLoading: state.roleReducer.isLoading,
   }));
 
   const { trigger } = useDataViewEventsContext();
@@ -60,6 +96,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
     initialFilters: { display_name: '' },
     searchParams,
@@ -91,6 +128,14 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       filters: filters,
     });
   }, [fetchData, page, perPage, sortBy, direction]);
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+    }
+  }, [totalCount, isLoading]);
 
   useEffect(() => {
     debouncedFetch(
@@ -208,7 +253,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             />
           </WarningModal>
         )}
-        <DataView ouiaId={ouiaId} selection={selection}>
+        <DataView ouiaId={ouiaId} selection={selection} activeState={activeState}>
           <DataViewToolbar
             ouiaId={`${ouiaId}-header-toolbar`}
             clearAllFilters={clearAllFilters}
@@ -259,7 +304,20 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               />
             }
           />
-          <DataViewTable columns={columns} rows={rows} ouiaId={`${ouiaId}-table`} />
+          {isLoading ? (
+            <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
+          ) : (
+            <DataViewTable
+              columns={columns}
+              rows={rows}
+              ouiaId={`${ouiaId}-table`}
+              headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
+              bodyStates={{
+                loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+                empty: <EmptyTable titleText={intl.formatMessage(messages.rolesEmptyStateTitle)} />,
+              }}
+            />
+          )}
           <DataViewToolbar
             ouiaId={`${ouiaId}-footer-toolbar`}
             pagination={
