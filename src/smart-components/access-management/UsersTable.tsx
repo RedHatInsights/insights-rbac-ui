@@ -256,7 +256,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       )}
       {isStatusModalOpen && (
         <WarningModal
-          ouiaId={`${OUIA_ID}-update-status`}
+          ouiaId={`${OUIA_ID}-deactivate-status-modal`}
           isOpen={isStatusModalOpen}
           title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
@@ -316,7 +316,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                       {intl.formatMessage(messages.activateUsersButton)}
                     </MenuToggle>
                   )}
-                  ouiaId="status-dropdown"
+                  ouiaId={`${OUIA_ID}-status-dropdown`}
                   shouldFocusToggleOnSelect
                 >
                   <DropdownList>
