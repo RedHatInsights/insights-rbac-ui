@@ -1,16 +1,36 @@
-import React, { Suspense, useEffect, useMemo } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
-import { BulkSelect, BulkSelectValue, ErrorState, ResponsiveAction, ResponsiveActions, SkeletonTableBody } from '@patternfly/react-component-groups';
-import { DataView, DataViewTable, DataViewTh, DataViewToolbar, DataViewTrTree, useDataViewSelection } from '@patternfly/react-data-view';
+import {
+  BulkSelect,
+  BulkSelectValue,
+  ErrorState,
+  ResponsiveAction,
+  ResponsiveActions,
+  SkeletonTable,
+  SkeletonTableBody,
+  SkeletonTableHead,
+} from '@patternfly/react-component-groups';
+import {
+  DataView,
+  DataViewState,
+  DataViewTable,
+  DataViewTh,
+  DataViewToolbar,
+  DataViewTrTree,
+  useDataViewSelection,
+} from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons';
+import { TableVariant } from '@patternfly/react-table';
 
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
   const idMap = new Map();
@@ -46,17 +66,47 @@ const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
       : {}),
   }));
 
+const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['workspaceEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
+
 const WorkspaceListTable = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
-  const { isLoading, workspaces, error } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const { isLoading, workspaces, error } = useSelector((state: RBACStore) => ({
+    workspaces: state.workspacesReducer.workspaces || [],
+    error: state.workspacesReducer.error,
+    isLoading: state.workspacesReducer.isLoading,
+  }));
+
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
 
   const workspacesTree = useMemo(() => mapWorkspacesToHierarchy(workspaces), [workspaces]);
   const rows = useMemo(() => (workspacesTree ? buildRows([workspacesTree]) : []), [workspacesTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      workspaces.length === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+    }
+  }, [workspaces, isLoading]);
 
   useEffect(() => {
     dispatch(fetchWorkspaces());
@@ -72,7 +122,7 @@ const WorkspaceListTable = () => {
 
   return (
     <React.Fragment>
-      <DataView selection={selection} activeState={isLoading ? 'loading' : undefined}>
+      <DataView selection={selection} activeState={activeState}>
         <DataViewToolbar
           bulkSelect={
             <BulkSelect
@@ -91,14 +141,22 @@ const WorkspaceListTable = () => {
             </ResponsiveActions>
           }
         />
-        <DataViewTable
-          isTreeTable
-          aria-label="Workspaces list table"
-          ouiaId="workspaces-list"
-          columns={columns}
-          rows={rows}
-          bodyStates={{ loading: <SkeletonTableBody rowsCount={10} columnsCount={2} /> }}
-        />
+        {isLoading ? (
+          <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
+        ) : (
+          <DataViewTable
+            isTreeTable
+            aria-label="Workspaces list table"
+            ouiaId="workspaces-list"
+            columns={columns}
+            rows={rows}
+            headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
+            bodyStates={{
+              loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+              empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
+            }}
+          />
+        )}
       </DataView>
       <Suspense>
         <Outlet

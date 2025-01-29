@@ -1195,6 +1195,16 @@ export default defineMessages({
     description: 'Create newworkspace action label',
     defaultMessage: 'Workspace description',
   },
+  workspaceEmptyStateTitle: {
+    id: 'workspaceEmptyStateTitle',
+    description: 'Empty State Title Workspaces',
+    defaultMessage: 'No workspaces found',
+  },
+  workspaceEmptyStateSubtitle: {
+    id: 'workspaceEmptyStateSubtitle',
+    description: 'Empty State Subtitle Workspaces',
+    defaultMessage: 'This filter criteria matches no workspaces.{br}Try changing your filter input.',
+  },
   setEarmark: {
     id: 'setEarmark',
     description: 'Set ear mark step label',
