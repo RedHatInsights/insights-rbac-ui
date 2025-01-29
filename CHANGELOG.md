@@ -1,3 +1,11 @@
+# [1.18.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.17.0...v1.18.0) (2025-01-29)
+
+
+### Features
+
+* add empty and leading states for Roles table ([#1750](https://github.com/RedHatInsights/insights-rbac-ui/issues/1750)) ([c0d3ef4](https://github.com/RedHatInsights/insights-rbac-ui/commit/c0d3ef4d3227308860de2b6f97aa67972900fd2a))
+* create edit user group page ([#1732](https://github.com/RedHatInsights/insights-rbac-ui/issues/1732)) ([6ee38d3](https://github.com/RedHatInsights/insights-rbac-ui/commit/6ee38d35da0edbc97ab34126de3349db2421e7fc))
+
 # [1.17.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.16.2...v1.17.0) (2025-01-15)
 
 
