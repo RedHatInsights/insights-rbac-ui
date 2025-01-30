@@ -9,7 +9,6 @@ import {
   ErrorState,
   ResponsiveAction,
   ResponsiveActions,
-  SkeletonTable,
   SkeletonTableBody,
   SkeletonTableHead,
 } from '@patternfly/react-component-groups';
@@ -30,7 +29,6 @@ import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
-import { TableVariant } from '@patternfly/react-table';
 
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
   const idMap = new Map();
@@ -141,22 +139,18 @@ const WorkspaceListTable = () => {
             </ResponsiveActions>
           }
         />
-        {isLoading ? (
-          <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
-        ) : (
-          <DataViewTable
-            isTreeTable
-            aria-label="Workspaces list table"
-            ouiaId="workspaces-list"
-            columns={columns}
-            rows={rows}
-            headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
-            bodyStates={{
-              loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-              empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
-            }}
-          />
-        )}
+        <DataViewTable
+          isTreeTable
+          aria-label="Workspaces list table"
+          ouiaId="workspaces-list"
+          columns={columns}
+          rows={rows}
+          headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
+          bodyStates={{
+            loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+            empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
+          }}
+        />
       </DataView>
       <Suspense>
         <Outlet
