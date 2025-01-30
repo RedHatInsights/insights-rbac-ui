@@ -15,6 +15,8 @@ import {
 import {
   DataView,
   DataViewState,
+  DataViewTextFilter,
+  useDataViewFilters,
   DataViewTable,
   DataViewTh,
   DataViewToolbar,
