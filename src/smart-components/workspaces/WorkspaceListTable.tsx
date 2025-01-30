@@ -82,7 +82,7 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
       </EmptyStateBody>
     </EmptyState>
   );
-
+};
 const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
   const matches: Workspace[] = [];
   if (!Array.isArray(workspaceTree)) {
