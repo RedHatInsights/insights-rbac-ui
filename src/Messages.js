@@ -2466,6 +2466,16 @@ export default defineMessages({
     description: 'Empty state subtitle role bindings',
     defaultMessage: 'This filter criteria matches no role assignments.{br}Try changing your filter input.',
   },
+  rolesEmptyStateTitle: {
+    id: 'rolesEmptyStateTitle',
+    description: 'Empty state title Roles',
+    defaultMessage: 'No roles found',
+  },
+  rolesEmptyStateSubtitle: {
+    id: 'rolesEmptyStateSubtitle',
+    description: 'Empty state subtitle Roles',
+    defaultMessage: 'This filter criteria matches no roles.{br}Try changing your filter input.',
+  },
   userGroupsEmptyStateTitle: {
     id: 'userGroupsEmptyStateTitle',
     description: 'Empty state title User groups',
@@ -2562,5 +2572,10 @@ export default defineMessages({
     id: 'createUserGroup',
     description: 'create user group button label',
     defaultMessage: 'Create user group',
+  },
+  selectUsersAndOrServiceAccounts: {
+    id: 'selectUsersAndOrServiceAccounts',
+    description: 'select users and/or service accounts label',
+    defaultMessage: 'Select users and/or service accounts',
   },
 });

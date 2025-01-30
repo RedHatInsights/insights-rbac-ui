@@ -30,6 +30,10 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 
+interface WorkspaceFilters {
+  name: string;
+}
+
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
   const idMap = new Map();
   let root = undefined;
@@ -78,6 +82,31 @@ const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ 
       </EmptyStateBody>
     </EmptyState>
   );
+
+const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
+  const matches: Workspace[] = [];
+  if (!Array.isArray(workspaceTree)) {
+    return matches;
+  }
+
+  workspaceTree.forEach((obj) => {
+    if (obj.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) {
+      if (obj.type !== 'root') {
+        matches.push(Object.assign({}, obj, { children: [] }));
+      } else {
+        matches.push(obj);
+      }
+    } else {
+      let childResults: Workspace[] = [];
+      if (obj.children) {
+        childResults = search(obj.children, filter);
+      }
+      if (childResults.length) {
+        matches.push(Object.assign({}, obj, { children: childResults }));
+      }
+    }
+  });
+  return matches;
 };
 
 const WorkspaceListTable = () => {
@@ -93,9 +122,16 @@ const WorkspaceListTable = () => {
   }));
 
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<WorkspaceFilters>({
+    initialFilters: { name: '' },
+    searchParams,
+    setSearchParams,
+  });
 
   const workspacesTree = useMemo(() => mapWorkspacesToHierarchy(workspaces), [workspaces]);
-  const rows = useMemo(() => (workspacesTree ? buildRows([workspacesTree]) : []), [workspacesTree]);
+  const filteredTree = useMemo(() => (workspacesTree ? search([workspacesTree], filters.name) : []), [workspacesTree, filters]);
+  const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
   useEffect(() => {
@@ -129,6 +165,19 @@ const WorkspaceListTable = () => {
               totalCount={workspaces.length}
               selectedCount={selection.selected.length}
               onSelect={handleBulkSelect}
+            />
+          }
+          clearAllFilters={clearAllFilters}
+          filters={
+            <DataViewTextFilter
+              filterId="name"
+              title="Name"
+              placeholder="Filter by name"
+              ouiaId={`workspace-name-filter`}
+              onChange={(_e, value) => {
+                onSetFilters({ name: value });
+              }}
+              value={filters['name']}
             />
           }
           actions={
