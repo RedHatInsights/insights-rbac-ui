@@ -1,17 +1,26 @@
-import React, { Suspense, useEffect, useMemo } from 'react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
-import { BulkSelect, BulkSelectValue, ErrorState, ResponsiveAction, ResponsiveActions, SkeletonTableBody } from '@patternfly/react-component-groups';
+import {
+  BulkSelect,
+  BulkSelectValue,
+  ErrorState,
+  ResponsiveAction,
+  ResponsiveActions,
+  SkeletonTableBody,
+  SkeletonTableHead,
+} from '@patternfly/react-component-groups';
 import {
   DataView,
-  DataViewTable,
+  DataViewState,
   DataViewTextFilter,
+  useDataViewFilters,
+  DataViewTable,
   DataViewTh,
   DataViewToolbar,
   DataViewTrTree,
-  useDataViewFilters,
   useDataViewSelection,
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
@@ -20,6 +29,8 @@ import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons';
 
 interface WorkspaceFilters {
   name: string;
@@ -59,6 +70,21 @@ const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
       : {}),
   }));
 
+const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
+  return (
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        <FormattedMessage
+          {...messages['workspaceEmptyStateSubtitle']}
+          values={{
+            br: <br />,
+          }}
+        />
+      </EmptyStateBody>
+    </EmptyState>
+  );
+};
 const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
   const matches: Workspace[] = [];
   if (!Array.isArray(workspaceTree)) {
@@ -91,7 +117,13 @@ const WorkspaceListTable = () => {
   const navigate = useAppNavigate();
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
-  const { isLoading, workspaces, error } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const { isLoading, workspaces, error } = useSelector((state: RBACStore) => ({
+    workspaces: state.workspacesReducer.workspaces || [],
+    error: state.workspacesReducer.error,
+    isLoading: state.workspacesReducer.isLoading,
+  }));
+
+  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const [searchParams, setSearchParams] = useSearchParams();
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<WorkspaceFilters>({
     initialFilters: { name: '' },
@@ -103,6 +135,14 @@ const WorkspaceListTable = () => {
   const filteredTree = useMemo(() => (workspacesTree ? search([workspacesTree], filters.name) : []), [workspacesTree, filters]);
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
   const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
+
+  useEffect(() => {
+    if (isLoading) {
+      setActiveState(DataViewState.loading);
+    } else {
+      workspaces.length === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+    }
+  }, [workspaces, isLoading]);
 
   useEffect(() => {
     dispatch(fetchWorkspaces());
@@ -118,7 +158,7 @@ const WorkspaceListTable = () => {
 
   return (
     <React.Fragment>
-      <DataView selection={selection} activeState={isLoading ? 'loading' : undefined}>
+      <DataView selection={selection} activeState={activeState}>
         <DataViewToolbar
           bulkSelect={
             <BulkSelect
@@ -156,7 +196,11 @@ const WorkspaceListTable = () => {
           ouiaId="workspaces-list"
           columns={columns}
           rows={rows}
-          bodyStates={{ loading: <SkeletonTableBody rowsCount={10} columnsCount={2} /> }}
+          headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
+          bodyStates={{
+            loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+            empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
+          }}
         />
       </DataView>
       <Suspense>
