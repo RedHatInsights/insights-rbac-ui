@@ -1,3 +1,10 @@
+# [1.19.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.18.0...v1.19.0) (2025-01-31)
+
+
+### Features
+
+* **WS:** add loading and empty state to workspace list table ([#1751](https://github.com/RedHatInsights/insights-rbac-ui/issues/1751)) ([b2e8f1d](https://github.com/RedHatInsights/insights-rbac-ui/commit/b2e8f1d7eade80b826dbf202b085e78c96a483fc))
+
 # [1.18.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.17.0...v1.18.0) (2025-01-29)
 
 
