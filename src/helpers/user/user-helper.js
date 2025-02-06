@@ -135,7 +135,7 @@ export async function updateUserIsOrgAdminStatus(user, config) {
   return promise;
 }
 
-export async function chageUsersStatus(users, config) {
+export async function changeUsersStatus(users, config) {
   if (config) {
     return users.map((user) => {
       const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
