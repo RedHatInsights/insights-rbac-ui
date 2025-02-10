@@ -1,3 +1,10 @@
+# [1.20.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.19.0...v1.20.0) (2025-02-10)
+
+
+### Features
+
+* **Workspaces:** add ability to delete workspaces on details page ([c969f0f](https://github.com/RedHatInsights/insights-rbac-ui/commit/c969f0f4086a26820af2e753fdfc55c6fcb595fc))
+
 # 1.0.0 (2025-02-05)
 
 
