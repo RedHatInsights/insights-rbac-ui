@@ -1,8 +1,21 @@
 import React, { useState } from 'react';
-import { Divider, DrilldownMenu, Menu, MenuContainer, MenuContent, MenuItem, MenuItemAction, MenuList, MenuToggle } from '@patternfly/react-core';
+import {
+  ButtonVariant,
+  Divider,
+  DrilldownMenu,
+  Menu,
+  MenuContainer,
+  MenuContent,
+  MenuItem,
+  MenuItemAction,
+  MenuList,
+  MenuToggle,
+} from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
-import { useIntl } from 'react-intl';
-import Messages from '../../Messages';
+import { FormattedMessage, useIntl } from 'react-intl';
+import messages from '../../Messages';
+import { WarningModal } from '@patternfly/react-component-groups';
+import { Workspace } from '../../redux/reducers/workspaces-reducer';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
@@ -16,9 +29,11 @@ enum ActionType {
 
 interface WorkspaceActionsProps {
   isDisabled?: boolean;
+  currentWorkspace: Workspace;
+  hasAssets: boolean;
 }
 
-const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
+const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false, currentWorkspace, hasAssets }) => {
   const [isOpen, setIsOpen] = useState(false);
   const menuRef = React.useRef<HTMLDivElement>(null);
   const toggleRef = React.useRef<HTMLButtonElement>(null);
@@ -26,10 +41,12 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
   const [drilldownPath, setDrilldownPath] = React.useState<string[]>([]);
   const [menuHeights, setMenuHeights] = React.useState<Record<string, number>>({});
   const [activeMenu, setActiveMenu] = React.useState<string>('workspaceActions-rootMenu');
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
   const intl = useIntl();
 
   const toggle = (
-    <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={props.isDisabled} variant="default">
+    <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">
       Actions
     </MenuToggle>
   );
@@ -57,6 +74,9 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
   const dispatchAction = (action: ActionType) => {
     console.log('Dispatched action: ', action);
     setIsOpen(!isOpen);
+    if (action === ActionType.DELETE_WORKSPACE) {
+      setIsDeleteModalOpen(true);
+    }
   };
 
   const menu = (
@@ -74,16 +94,16 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
       <MenuContent menuHeight={`${menuHeights[activeMenu]}px`}>
         <MenuList>
           <MenuItem onClick={() => dispatchAction(ActionType.EDIT_WORKSPACE)} itemId="edit_workspace">
-            {intl.formatMessage(Messages.workspacesActionEditWorkspace)}
+            {intl.formatMessage(messages.workspacesActionEditWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.GRANT_ACCESS)} itemId="grant_access">
-            {intl.formatMessage(Messages.workspacesActionGrantAccessToWorkspace)}
+            {intl.formatMessage(messages.workspacesActionGrantAccessToWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.CREATE_SUBWORKSPACE)} itemId="create_subworkspace">
-            {intl.formatMessage(Messages.workspacesActionCreateSubWorkspace)}
+            {intl.formatMessage(messages.workspacesActionCreateSubWorkspace)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.VIEW_TENANT)} itemId="view_tenant">
-            {intl.formatMessage(Messages.workspacesActionViewTenant)}
+            {intl.formatMessage(messages.workspacesActionViewTenant)}
           </MenuItem>
           <MenuItem
             itemId="group:manage_integrations"
@@ -91,7 +111,7 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
             drilldownMenu={
               <DrilldownMenu id="drilldown-drilldownMenuStart">
                 <MenuItem itemId="group:manage_integrations_breadcrumb" direction="up">
-                  {intl.formatMessage(Messages.workspacesActionManageIntegrations)}
+                  {intl.formatMessage(messages.workspacesActionManageIntegrations)}
                 </MenuItem>
                 <Divider component="li" />
                 <MenuItem
@@ -129,7 +149,7 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
               </DrilldownMenu>
             }
           >
-            {intl.formatMessage(Messages.workspacesActionManageIntegrations)}
+            {intl.formatMessage(messages.workspacesActionManageIntegrations)}
           </MenuItem>
           <MenuItem
             onClick={() => dispatchAction(ActionType.MANAGE_NOTIFICATIONS)}
@@ -142,10 +162,10 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
             }
             itemId="manage_notifications"
           >
-            {intl.formatMessage(Messages.workspacesActionManageNotifications)}
+            {intl.formatMessage(messages.workspacesActionManageNotifications)}
           </MenuItem>
           <MenuItem onClick={() => dispatchAction(ActionType.DELETE_WORKSPACE)} itemId="delete_workspace">
-            {intl.formatMessage(Messages.workspacesActionDeleteWorkspace)}
+            {intl.formatMessage(messages.workspacesActionDeleteWorkspace)}
           </MenuItem>
         </MenuList>
       </MenuContent>
@@ -153,15 +173,46 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = (props) => {
   );
 
   return (
-    <MenuContainer
-      isOpen={isOpen}
-      onOpenChange={(isOpen) => setIsOpen(isOpen)}
-      menu={menu}
-      menuRef={menuRef}
-      toggle={toggle}
-      toggleRef={toggleRef}
-      popperProps={{ position: 'end' }}
-    />
+    <React.Fragment>
+      {isDeleteModalOpen && (
+        <WarningModal
+          ouiaId={'remove-workspaces-modal'}
+          isOpen={isDeleteModalOpen}
+          title={intl.formatMessage(messages.deleteWorkspaceModalHeader)}
+          confirmButtonLabel={!hasAssets ? intl.formatMessage(messages.delete) : intl.formatMessage(messages.gotItButtonLabel)}
+          confirmButtonVariant={!hasAssets ? ButtonVariant.danger : ButtonVariant.primary}
+          withCheckbox={!hasAssets}
+          checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            !hasAssets ? console.log('deleting workspaces') : null;
+            setIsDeleteModalOpen(false);
+          }}
+          cancelButtonLabel={!hasAssets ? 'Cancel' : ''}
+        >
+          {hasAssets ? (
+            intl.formatMessage(messages.workspaceNotEmptyWarning)
+          ) : (
+            <FormattedMessage
+              {...messages.deleteWorkspaceModalBody}
+              values={{
+                b: (text) => <b>{text}</b>,
+                name: currentWorkspace.name,
+              }}
+            />
+          )}
+        </WarningModal>
+      )}
+      <MenuContainer
+        isOpen={isOpen}
+        onOpenChange={(isOpen) => setIsOpen(isOpen)}
+        menu={menu}
+        menuRef={menuRef}
+        toggle={toggle}
+        toggleRef={toggleRef}
+        popperProps={{ position: 'end' }}
+      />
+    </React.Fragment>
   );
 };
 

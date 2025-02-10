@@ -2568,6 +2568,33 @@ export default defineMessages({
     description: 'delete roles',
     defaultMessage: 'Delete Roles',
   },
+  deleteWorkspacesAction: {
+    id: 'deleteWorkspaceAction',
+    description: 'delete workspaces',
+    defaultMessage: 'Delete Workspaces',
+  },
+  deleteWorkspaceModalHeader: {
+    id: 'deleteWorkspaceModalHeader',
+    description: 'Modal header text for deleting a workspace',
+    defaultMessage: 'Delete workspace?',
+  },
+  deleteWorkspaceModalBody: {
+    id: 'deleteWorkspaceModalBody',
+    description: 'Modal body text for deleting a workspace',
+    defaultMessage:
+      '<b>{name}</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+  },
+  workspaceNotEmptyWarning: {
+    id: 'workspaceNotEmptyWarning',
+    description: 'Display text in delete modal when workspace is not empty',
+    defaultMessage:
+      'Workspace must be empty to delete and must not have any children workspaces. You must move assets in this workspace to other workspaces in order to proceed.',
+  },
+  gotItButtonLabel: {
+    id: 'gotItButtonLabel',
+    description: 'got it button label',
+    defaultMessage: 'Got it',
+  },
   createUserGroup: {
     id: 'createUserGroup',
     description: 'create user group button label',

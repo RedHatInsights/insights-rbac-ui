@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchWorkspace, fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
@@ -11,6 +11,7 @@ import messages from '../../../Messages';
 import AssetsCards from './AssetsCards';
 import RoleAssignmentsTable from './RoleAssignmentsTable';
 import { useFlag } from '@unleash/proxy-client-react';
+import { Workspace } from '../../../redux/reducers/workspaces-reducer';
 
 interface WorkspaceData {
   name: string;
@@ -55,18 +56,21 @@ const WorkspaceDetail = () => {
     }
   }, [workspaces, workspaceId]);
 
-  const buildWorkspacesHierarchy = (workspaces: any[], workspaceId: string): WorkspaceData[] => {
+  const buildWorkspacesHierarchy = (workspaces: Workspace[], workspaceId: string): WorkspaceData[] => {
     let currentWorkspace = workspaces.find((ws) => ws.id === workspaceId);
 
     const hierarchy: WorkspaceData[] = currentWorkspace ? [currentWorkspace] : [];
-    while (currentWorkspace?.parent_id?.length > 0) {
+    while (currentWorkspace?.parent_id?.length && currentWorkspace?.parent_id?.length > 0) {
       currentWorkspace = workspaces.find((ws) => ws.id === currentWorkspace?.parent_id);
       if (!currentWorkspace) break;
       hierarchy.unshift({ name: currentWorkspace.name, id: currentWorkspace.id });
     }
-
     return hierarchy;
   };
+
+  const hasAssets = useMemo(() => {
+    return workspaces.filter((ws) => ws.parent_id === workspaceId).length > 0 ? true : false;
+  }, [selectedWorkspace, workspaces, workspaceId]);
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
     const selectedTabKey = Object.keys(WORKSPACE_TABS).find(
@@ -82,7 +86,7 @@ const WorkspaceDetail = () => {
       <ContentHeader
         title={isLoading ? <Skeleton width="170px" /> : selectedWorkspace?.name}
         subtitle={isLoading ? <Skeleton width="250px" /> : selectedWorkspace?.description}
-        actionMenu={<WorkspaceActions />}
+        actionMenu={<WorkspaceActions currentWorkspace={selectedWorkspace} hasAssets={hasAssets} />}
       >
         <div className="pf-v5-u-mt-md">
           <span className="pf-v5-u-font-weight-bold pf-v5-u-mr-sm">{intl.formatMessage(messages.workspacesDetailBreadcrumbTitle)}</span>
