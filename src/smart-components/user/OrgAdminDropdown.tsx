@@ -49,7 +49,7 @@ const OrgAdminDropdown: React.FC<{
     setLoading(true);
 
     try {
-      await dispatch(updateUserIsOrgAdminStatus({ userId, is_org_admin: newStatus }, { isProd: isProd(), token, accountId }));
+      await dispatch(updateUserIsOrgAdminStatus({ id: userId, is_org_admin: newStatus }, { isProd: isProd(), token, accountId }));
       await dispatch(fetchUsers());
     } catch (error) {
       console.error('Failed to update org admin status:', error);
