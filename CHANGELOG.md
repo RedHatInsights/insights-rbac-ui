@@ -1,3 +1,10 @@
+## [1.20.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.0...v1.20.1) (2025-02-11)
+
+
+### Bug Fixes
+
+* **org admin:** marking user org admin with correct ID ([#1756](https://github.com/RedHatInsights/insights-rbac-ui/issues/1756)) ([31606bb](https://github.com/RedHatInsights/insights-rbac-ui/commit/31606bb17750cb2bbcbd2d84a85b7ea7aa60d0fa))
+
 # [1.20.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.19.0...v1.20.0) (2025-02-10)
 
 
