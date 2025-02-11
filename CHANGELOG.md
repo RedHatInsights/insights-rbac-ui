@@ -1,3 +1,10 @@
+## [1.20.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.1...v1.20.2) (2025-02-11)
+
+
+### Bug Fixes
+
+* **common-auth:** use org ID ([#1757](https://github.com/RedHatInsights/insights-rbac-ui/issues/1757)) ([5ecb079](https://github.com/RedHatInsights/insights-rbac-ui/commit/5ecb079d46538f74c10a0ad0848ab533bf0b6695))
+
 ## [1.20.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.0...v1.20.1) (2025-02-11)
 
 
