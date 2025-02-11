@@ -50,7 +50,7 @@ const InviteUsers = () => {
 
   React.useEffect(() => {
     const getToken = async () => {
-      setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+      setAccountId((await auth.getUser())?.identity?.org_id as string);
       setToken((await auth.getToken()) as string);
     };
     getToken();
