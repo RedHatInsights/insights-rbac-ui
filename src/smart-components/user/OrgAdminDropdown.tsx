@@ -4,14 +4,15 @@ import { IntlShape } from 'react-intl';
 import messages from '../../Messages';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useDispatch } from 'react-redux';
-import { fetchUsers, updateUserIsOrgAdminStatus } from '../../redux/actions/user-actions';
+import { updateUserIsOrgAdminStatus } from '../../redux/actions/user-actions';
 
 const OrgAdminDropdown: React.FC<{
   isOrgAdmin: boolean;
   username: string;
   intl: IntlShape;
   userId: number | undefined;
-}> = ({ isOrgAdmin, username, intl, userId }) => {
+  fetchData?: () => void;
+}> = ({ isOrgAdmin, username, intl, userId, fetchData }) => {
   const { auth, isProd } = useChrome();
   const [isOpen, setIsOpen] = useState(false);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -23,7 +24,7 @@ const OrgAdminDropdown: React.FC<{
 
   useEffect(() => {
     const getToken = async () => {
-      setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+      setAccountId((await auth.getUser())?.identity?.org_id as string);
       setAccountUsername((await auth.getUser())?.identity?.user?.username as string);
       setToken((await auth.getToken()) as string);
     };
@@ -50,7 +51,7 @@ const OrgAdminDropdown: React.FC<{
 
     try {
       await dispatch(updateUserIsOrgAdminStatus({ id: userId, is_org_admin: newStatus }, { isProd: isProd(), token, accountId }));
-      await dispatch(fetchUsers());
+      fetchData?.();
     } catch (error) {
       console.error('Failed to update org admin status:', error);
     } finally {

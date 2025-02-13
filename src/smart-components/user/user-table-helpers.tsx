@@ -33,6 +33,7 @@ export interface RowProps {
   selected: boolean;
   authModel?: boolean;
   orgAdmin?: boolean;
+  fetchData?: () => void;
 }
 
 export const createRows = (
@@ -42,7 +43,8 @@ export const createRows = (
   checkedRows = [],
   isSelectable = false,
   authModel?: boolean,
-  orgAdmin?: boolean
+  orgAdmin?: boolean,
+  fetchData?: () => void
 ): RowProps[] =>
   data?.reduce<RowProps[]>(
     (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id }) => {
@@ -50,7 +52,14 @@ export const createRows = (
         uuid: username,
         cells: [
           authModel && orgAdmin ? (
-            <OrgAdminDropdown key={`dropdown-${username}`} isOrgAdmin={isOrgAdmin} username={username} intl={intl} userId={external_source_id} />
+            <OrgAdminDropdown
+              key={`dropdown-${username}`}
+              isOrgAdmin={isOrgAdmin}
+              username={username}
+              intl={intl}
+              userId={external_source_id}
+              fetchData={fetchData}
+            />
           ) : isOrgAdmin ? (
             <Fragment>
               <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />

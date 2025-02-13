@@ -94,7 +94,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
   useEffect(() => {
     const getToken = async () => {
       setToken((await auth.getToken()) as string);
-      setAccountId((await auth.getUser())?.identity.account_number as unknown as number);
+      setAccountId((await auth.getUser())?.identity.org_id as unknown as number);
     };
     getToken();
   }, [auth]);
