@@ -124,7 +124,12 @@ export default defineMessages({
     description: 'Invite users button text',
     defaultMessage: 'Invite new users',
   },
-  inviteUsersErrorTitle: {
+  inviteUsersConflictDescription: {
+    id: 'inviteUsersConflictDescription',
+    description: 'Invite users conflict notification description',
+    defaultMessage: 'User email already exists.',
+  },
+ inviteUsersErrorTitle: {
     id: 'inviteUsersErrorTitle',
     description: 'Invite users error notification title',
     defaultMessage: 'Failed inviting all users',
