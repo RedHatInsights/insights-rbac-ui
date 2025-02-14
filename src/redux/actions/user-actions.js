@@ -19,6 +19,10 @@ export const addUsers = (usersData, config) => {
     payload: UserHelper.addUsers(usersData, config),
     meta: {
       notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: 'Invitation sent successfully',
+        },
         rejected: (payload) => {
           if (!payload.status) {
             return {

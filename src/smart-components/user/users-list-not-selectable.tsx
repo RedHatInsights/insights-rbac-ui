@@ -137,7 +137,9 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         isCompact={false}
         borders={false}
         columns={columns}
-        rows={createRows(userLinks, users, intl, undefined, undefined, authModel, orgAdmin)}
+        rows={createRows(userLinks, users, intl, undefined, undefined, authModel, orgAdmin, () =>
+          fetchData({ ...pagination, filters, usesMetaInURL })
+        )}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
           const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index].key}`;
