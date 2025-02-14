@@ -1,3 +1,10 @@
+## [1.20.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.2...v1.20.3) (2025-02-14)
+
+
+### Bug Fixes
+
+* **invite:** by adding locale ([#1759](https://github.com/RedHatInsights/insights-rbac-ui/issues/1759)) ([c11e179](https://github.com/RedHatInsights/insights-rbac-ui/commit/c11e179995b5476b5a8730c80bb1866a20aaa8ba))
+
 ## [1.20.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.1...v1.20.2) (2025-02-11)
 
 
