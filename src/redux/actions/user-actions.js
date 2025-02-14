@@ -33,6 +33,15 @@ export const addUsers = (usersData, config) => {
               description: payload,
             };
           }
+          if (payload.status === 409) {
+            return {
+              variant: 'danger',
+              title: intl.formatMessage(messages.inviteUsersErrorTitle),
+              dismissDelay: 8000,
+              dismissable: true,
+              description: intl.formatMessage(messages.inviteUsersConflictDescription),
+            };
+          }
           return {
             variant: 'danger',
             title: intl.formatMessage(messages.inviteUsersErrorTitle),
