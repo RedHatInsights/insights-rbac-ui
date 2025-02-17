@@ -26,13 +26,13 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
-interface UsersListNotSelectableI {
+interface UsersListNotSelectable {
   userLinks: boolean;
   usesMetaInURL: boolean;
   props: Record<string, unknown>;
 }
 
-const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNotSelectableI) => {
+const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNotSelectable) => {
   const intl = useIntl();
   const navigate = useNavigate();
   const location = useLocation();
@@ -71,6 +71,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
 
   const columns = [
+    { title: '', key: 'select' },
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
     { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
     { title: intl.formatMessage(messages.email) },

@@ -1,12 +1,12 @@
 import React, { Fragment } from 'react';
-import { Label } from '@patternfly/react-core';
 import { IntlShape } from 'react-intl';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import AppLink from '../../presentational-components/shared/AppLink';
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-
+import ActivateToggle from './ActivateToggle';
+import { Td } from '@patternfly/react-table';
 export interface UserProps {
   email: string;
   first_name: string;
@@ -23,12 +23,13 @@ export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement
 export interface RowProps {
   uuid: string; // username
   cells: [
+    React.ReactNode, // select
     React.ReactNode, // yes or no for isOrgAdmin
     CellObject, // link to user or just username
     string, // email
     string, // firstName
     string, // lastName
-    CellObject // status
+    React.ReactNode // status
   ];
   selected: boolean;
   authModel?: boolean;
@@ -45,12 +46,47 @@ export const createRows = (
   authModel?: boolean,
   orgAdmin?: boolean,
   fetchData?: () => void
-): RowProps[] =>
-  data?.reduce<RowProps[]>(
-    (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id }) => {
+): RowProps[] => {
+  const [selectedUserNames, setSelectedUsernames] = React.useState<UserProps[]>([]);
+  const setUserSelected = (user: UserProps, isSelecting = true) => {
+    setSelectedUsernames((prevSelected: UserProps[]) => {
+      const otherSelectedUserNames = prevSelected.filter((r) => r.username !== user.username);
+      console.log('selected: ', isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames);
+      return isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames;
+    });
+  };
+  const isUserSelected = (user: UserProps) => selectedUserNames.some((r) => r.username === user.username);
+  const onSelectUser = (user: UserProps, isSelecting: boolean) => {
+    setUserSelected(user, isSelecting);
+  };
+
+  return data?.reduce<RowProps[]>(
+    (
+      acc,
+      { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id },
+      rowIndex
+    ) => {
+      const user = {
+        username,
+        is_active: isActive,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        is_org_admin: isOrgAdmin,
+        external_source_id,
+        uuid: username,
+      };
       const newEntry: RowProps = {
         uuid: username,
         cells: [
+          <Td
+            key="select"
+            select={{
+              rowIndex,
+              onSelect: (_event, isSelecting) => onSelectUser(user, isSelecting),
+              isSelected: isUserSelected(user),
+            }}
+          />,
           authModel && orgAdmin ? (
             <OrgAdminDropdown
               key={`dropdown-${username}`}
@@ -81,16 +117,7 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          {
-            title: (
-              <Label key="status" color={isActive ? 'green' : 'grey'}>
-                {intl.formatMessage(isActive ? messages.active : messages.inactive)}
-              </Label>
-            ),
-            props: {
-              'data-is-active': isActive,
-            },
-          },
+          <ActivateToggle key="active-toggle" user={user} intl={intl} />,
         ],
         selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
       };
@@ -99,3 +126,4 @@ export const createRows = (
     },
     []
   );
+};
