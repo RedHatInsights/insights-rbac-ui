@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { TableVariant, Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
@@ -54,7 +54,7 @@ interface MainTableProps {
   setFilterValue: (value: FilterProps) => void;
   pagination: { limit?: number; offset?: number; count?: number; noBottom?: boolean };
   fetchData: (config: FetchDataProps) => void;
-  toolbarButtons?: () => (React.JSX.Element | React.ReactNode)[];
+  toolbarButtons?: () => (React.JSX.Element | { label: string; props: {}; onClick: () => void; })[];
   filterPlaceholder?: string;
   filters: Array<{
     value: string | number | Array<unknown>;
@@ -272,7 +272,7 @@ export const TableComposableToolbarView = ({
             intl.formatMessage(messages.toConfigureUserAccess),
             intl.formatMessage(messages.createAtLeastOneItem, { item: title.singular }),
           ]}
-          actions={toolbarButtons ? toolbarButtons()[0] : false}
+          actions={toolbarButtons ? toolbarButtons()[0] as ReactNode : false}
           {...(typeof emptyProps === 'object' ? emptyProps : {})}
         />
       ) : (

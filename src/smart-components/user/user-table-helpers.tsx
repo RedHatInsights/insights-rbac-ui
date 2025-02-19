@@ -8,6 +8,7 @@ import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import ActivateToggle from './ActivateToggle';
 import { Td } from '@patternfly/react-table';
 export interface UserProps {
+  isSelected: boolean;
   email: string;
   first_name: string;
   is_active: boolean;
@@ -40,6 +41,9 @@ export interface RowProps {
 export const createRows = (
   userLinks: boolean,
   data: UserProps[] = [],
+  onSelectUser: (user: UserProps, isSelecting: boolean) => void,
+  checkedStates: Record<string, boolean>,
+  handleToggle: (_ev: unknown, isActive: boolean, updatedUser: UserProps) => void,
   intl: IntlShape,
   checkedRows = [],
   isSelectable = false,
@@ -47,26 +51,14 @@ export const createRows = (
   orgAdmin?: boolean,
   fetchData?: () => void
 ): RowProps[] => {
-  const [selectedUserNames, setSelectedUsernames] = React.useState<UserProps[]>([]);
-  const setUserSelected = (user: UserProps, isSelecting = true) => {
-    setSelectedUsernames((prevSelected: UserProps[]) => {
-      const otherSelectedUserNames = prevSelected.filter((r) => r.username !== user.username);
-      console.log('selected: ', isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames);
-      return isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames;
-    });
-  };
-  const isUserSelected = (user: UserProps) => selectedUserNames.some((r) => r.username === user.username);
-  const onSelectUser = (user: UserProps, isSelecting: boolean) => {
-    setUserSelected(user, isSelecting);
-  };
-
   return data?.reduce<RowProps[]>(
     (
       acc,
-      { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id },
+      { isSelected, username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id },
       rowIndex
     ) => {
       const user = {
+        isSelected,
         username,
         is_active: isActive,
         email,
@@ -84,7 +76,7 @@ export const createRows = (
             select={{
               rowIndex,
               onSelect: (_event, isSelecting) => onSelectUser(user, isSelecting),
-              isSelected: isUserSelected(user),
+              isSelected: (isSelected),
             }}
           />,
           authModel && orgAdmin ? (
@@ -117,7 +109,7 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          <ActivateToggle key="active-toggle" user={user} intl={intl} />,
+          <ActivateToggle key="active-toggle" user={user} checkedStates={checkedStates} handleToggle={handleToggle} intl={intl} />,
         ],
         selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
       };

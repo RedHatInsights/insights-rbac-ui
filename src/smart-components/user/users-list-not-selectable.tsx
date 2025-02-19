@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
-import { fetchUsers, updateUsersFilters } from '../../redux/actions/user-actions';
+import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/actions/user-actions';
 import UsersRow from '../../presentational-components/shared/UsersRow';
 import paths from '../../utilities/pathnames';
 import {
@@ -17,14 +17,15 @@ import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } 
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import PermissionsContext from '../../utilities/permissions-context';
-import { createRows } from './user-table-helpers';
+import { createRows, UserProps } from './user-table-helpers';
 import { ISortBy } from '@patternfly/react-table';
 import { UserFilters } from '../../redux/reducers/user-reducer';
 import AppLink from '../../presentational-components/shared/AppLink';
-import { Button } from '@patternfly/react-core';
+import { Button, ButtonVariant, List, ListItem } from '@patternfly/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { WarningModal } from '@patternfly/react-component-groups';
 
 interface UsersListNotSelectable {
   userLinks: boolean;
@@ -44,6 +45,22 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   // use for text filter to focus
   const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const authModel = useFlag('platform.rbac.common-auth-model');
+  const { auth, isProd } = useChrome();
+  const [loading, setLoading] = useState(false);
+  const [token, setToken] = useState<string | null>(null);
+  const [accountId, setAccountId] = useState<string | null>(null);
+  const [accountUsername, setAccountUsername] = useState<string | null>(null);
+  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({});
+
+  useEffect(() => {
+      const getToken = async () => {
+        setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+        setAccountUsername((await auth.getUser())?.identity?.user?.username as string);
+        setToken((await auth.getToken()) as string);
+      };
+      getToken();
+    }, [auth]);
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   const pagination = useSelector(({ userReducer: { users } }) => ({
@@ -66,6 +83,18 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
     })
   );
+
+  // useEffect(() => {
+  //   if (users?.length) {
+  //     const initialCheckedStates = users.reduce((acc: Record<string, boolean>, user: UserProps) => {
+  //       if (user.external_source_id) {
+  //         acc[user.external_source_id] = user.is_active;
+  //       }
+  //       return acc;  
+  //     }, {} as Record<string, boolean>);
+  //     setCheckedStates(initialCheckedStates);
+  //   }
+  // }, [users]);
 
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
@@ -122,23 +151,109 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setFilters({ username: '', ...payload });
   };
 
-  const toolbarButtons = () => [
-    <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
-      <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
-        {intl.formatMessage(messages.inviteUsers)}
-      </Button>
-    </AppLink>,
-  ];
+  const toolbarButtons = () =>
+    orgAdmin && isCommonAuthModel
+      ?
+      [
+        <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+          <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+            {intl.formatMessage(messages.inviteUsers)}
+          </Button>
+        </AppLink>,
+        {
+          label: 'Toggle Status',
+          props: {},
+          onClick: () => setIsStatusModalOpen(true),
+        }
+      ]
+      : [];
+
+  const [selectedUsers, setSelectedUsernames] = React.useState<UserProps[]>([]);
+  const onSelectUser = (user: UserProps, isSelecting: boolean) => {
+    setUserSelected(user, isSelecting);
+  };
+  const setUserSelected = (user: UserProps, isSelecting = true) => {
+    setSelectedUsernames((prevSelected: UserProps[]) => {
+      const otherSelectedUserNames = prevSelected.filter((r) => r.username !== user.username);
+      user.isSelected = isSelecting;
+      console.log('selected: ', isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames);
+      return isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames;
+    });
+  };
+  const isUserSelected = (user: UserProps) => selectedUsers.some((r) => r.username === user.username);
+
+  const handleToggle = (ev: unknown, isActive: boolean, updatedUser: UserProps) => {
+    if (loading) return;    
+    setLoading(true);
+
+    try {
+      dispatch(
+        changeUsersStatus(
+          [
+            {
+              ...updatedUser,
+              id: updatedUser.external_source_id,
+              is_active: isActive,
+            },
+          ],
+          { isProd: isProd(), token, accountId }
+        )
+      );
+      // if (updatedUser.external_source_id) {
+      //   setCheckedStates((prevState) => ({
+      //     ...prevState,
+      //     [updatedUser.external_source_id]: isActive,
+      //   }));
+      // }
+    } catch (error) {
+      console.error('Failed to update status: ', error);
+    } finally {
+      setLoading(false);
+    }
+
+    setToken(token);
+  };
+
+  const handleBulkDeactivate = () => {
+    selectedUsers.forEach((user) => {
+      handleToggle(null, false, user);
+    });
+
+    setIsStatusModalOpen(false);
+  };
 
   return (
     <React.Fragment>
+      {isStatusModalOpen && (
+        <WarningModal
+          ouiaId={`toggle-status-modal`}
+          isOpen={isStatusModalOpen}
+          title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
+          confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
+          confirmButtonVariant={ButtonVariant.danger}
+          onClose={() => setIsStatusModalOpen(false)}
+          onConfirm={handleBulkDeactivate}
+          withCheckbox
+          checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
+        >
+          {intl.formatMessage(messages.deactivateUsersConfirmationModalDescription)}
+
+          <List isPlain isBordered className="pf-u-p-md">
+            {selectedUsers.map((user) => (
+              <>
+                <ListItem key={user.uuid}>{user.uuid}</ListItem>
+              </>
+            ))}
+          </List>
+        </WarningModal>
+      )}
       <TableComposableToolbarView
-        toolbarButtons={orgAdmin && isCommonAuthModel ? toolbarButtons : () => [] as React.ReactNode[]}
+        toolbarButtons={toolbarButtons}
         isSelectable={false}
         isCompact={false}
         borders={false}
         columns={columns}
-        rows={createRows(userLinks, users, intl, undefined, undefined, authModel, orgAdmin, () =>
+        rows={createRows(userLinks, users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })), onSelectUser, checkedStates, handleToggle, intl, undefined, undefined, authModel, orgAdmin, () =>
           fetchData({ ...pagination, filters, usesMetaInURL })
         )}
         sortBy={sortByState}
