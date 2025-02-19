@@ -162,7 +162,7 @@ export default defineMessages({
   deactivateUsersConfirmationModalCheckboxText: {
     id: 'deactivateUsersConfirmationModalCheckboxText',
     description: 'deactivate users confirmation modal checkbox text',
-    defaultMessage: 'Yes, I confirm that I want to remove these users',
+    defaultMessage: 'Yes, I confirm that I want to deactivate these users',
   },
   deactivateUsersConfirmationButton: {
     id: 'deactivateUsersConfirmationButton',
