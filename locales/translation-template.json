@@ -488,7 +488,7 @@
     "description": "deactivate users confirmation button text"
   },
   "deactivateUsersConfirmationModalCheckboxText": {
-    "defaultMessage": "Yes, I confirm that I want to remove these users",
+    "defaultMessage": "Yes, I confirm that I want to deactivate these users",
     "description": "deactivate users confirmation modal checkbox text"
   },
   "deactivateUsersConfirmationModalDescription": {

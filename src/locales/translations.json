@@ -121,7 +121,7 @@
   "creatingRoleCanceled": "Creating role was canceled by the user",
   "deactivateUsersButton": "Deactivate users",
   "deactivateUsersConfirmationButton": "Deactivate user(s)",
-  "deactivateUsersConfirmationModalCheckboxText": "Yes, I confirm that I want to remove these users",
+  "deactivateUsersConfirmationModalCheckboxText": "Yes, I confirm that I want to deactivate these users",
   "deactivateUsersConfirmationModalDescription": "Are you sure you want to deactivate the user(s) below from your Red Hat organization?",
   "deactivateUsersConfirmationModalTitle": "Deactivate users",
   "defaultAccessGroupChanged": "Default access group has changed",
