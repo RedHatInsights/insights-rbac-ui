@@ -1,3 +1,10 @@
+## [1.20.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.3...v1.20.4) (2025-02-20)
+
+
+### Bug Fixes
+
+* **admin-group:** when we don't have admin group do not break ([#1765](https://github.com/RedHatInsights/insights-rbac-ui/issues/1765)) ([881e1da](https://github.com/RedHatInsights/insights-rbac-ui/commit/881e1dad988d8e624a7eb4f245ffa1e2b1a5cd66))
+
 ## [1.20.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.2...v1.20.3) (2025-02-14)
 
 
