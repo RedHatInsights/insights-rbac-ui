@@ -50,7 +50,8 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const [token, setToken] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
-  const [isStatusModalOpen, setIsStatusModalOpen] = useState(false);
+  const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
+  const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({});
 
   useEffect(() => {
@@ -83,18 +84,6 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
     })
   );
-
-  // useEffect(() => {
-  //   if (users?.length) {
-  //     const initialCheckedStates = users.reduce((acc: Record<string, boolean>, user: UserProps) => {
-  //       if (user.external_source_id) {
-  //         acc[user.external_source_id] = user.is_active;
-  //       }
-  //       return acc;  
-  //     }, {} as Record<string, boolean>);
-  //     setCheckedStates(initialCheckedStates);
-  //   }
-  // }, [users]);
 
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
@@ -161,9 +150,14 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           </Button>
         </AppLink>,
         {
-          label: 'Toggle Status',
+          label: intl.formatMessage(messages.activateUsersButton),
           props: {},
-          onClick: () => setIsStatusModalOpen(true),
+          onClick: () => setIsActivateModalOpen(true),
+        },
+        {
+          label: intl.formatMessage(messages.deactivateUsersButton),
+          props: {},
+          onClick: () => setIsDeactivateModalOpen(true),
         }
       ]
       : [];
@@ -182,12 +176,12 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   };
   const isUserSelected = (user: UserProps) => selectedUsers.some((r) => r.username === user.username);
 
-  const handleToggle = (ev: unknown, isActive: boolean, updatedUser: UserProps) => {
+  const handleToggle = async (ev: unknown, isActive: boolean, updatedUser: UserProps) => {
     if (loading) return;    
     setLoading(true);
 
     try {
-      dispatch(
+      await dispatch(
         changeUsersStatus(
           [
             {
@@ -199,12 +193,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           { isProd: isProd(), token, accountId }
         )
       );
-      // if (updatedUser.external_source_id) {
-      //   setCheckedStates((prevState) => ({
-      //     ...prevState,
-      //     [updatedUser.external_source_id]: isActive,
-      //   }));
-      // }
+      fetchData({ ...pagination, filters, usesMetaInURL });
     } catch (error) {
       console.error('Failed to update status: ', error);
     } finally {
@@ -214,24 +203,55 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setToken(token);
   };
 
+  const handleBulkActivate = () => {
+    selectedUsers.forEach((user) => {
+      handleToggle(null, true, user);
+    });
+
+    setIsActivateModalOpen(false);
+  };
+
   const handleBulkDeactivate = () => {
     selectedUsers.forEach((user) => {
       handleToggle(null, false, user);
     });
 
-    setIsStatusModalOpen(false);
+    setIsDeactivateModalOpen(false);
   };
 
   return (
     <React.Fragment>
-      {isStatusModalOpen && (
+      {isActivateModalOpen && (
         <WarningModal
           ouiaId={`toggle-status-modal`}
-          isOpen={isStatusModalOpen}
+          isOpen={isActivateModalOpen}
+          title={intl.formatMessage(messages.activateUsersConfirmationModalTitle)}
+          confirmButtonLabel={intl.formatMessage(messages.activateUsersConfirmationButton)}
+          confirmButtonVariant={ButtonVariant.danger}
+          onClose={() => setIsActivateModalOpen(false)}
+          onConfirm={handleBulkActivate}
+          withCheckbox
+          checkboxLabel={intl.formatMessage(messages.activateUsersConfirmationModalCheckboxText)}
+        >
+          {intl.formatMessage(messages.activateUsersConfirmationModalDescription)}
+
+          <List isPlain isBordered className="pf-u-p-md">
+            {selectedUsers.map((user) => (
+              <>
+                <ListItem key={user.uuid}>{user.uuid}</ListItem>
+              </>
+            ))}
+          </List>
+        </WarningModal>
+      )}
+      {isDeactivateModalOpen && (
+        <WarningModal
+          ouiaId={`toggle-status-modal`}
+          isOpen={isDeactivateModalOpen}
           title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
           confirmButtonVariant={ButtonVariant.danger}
-          onClose={() => setIsStatusModalOpen(false)}
+          onClose={() => setIsDeactivateModalOpen(false)}
           onConfirm={handleBulkDeactivate}
           withCheckbox
           checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
@@ -253,7 +273,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         isCompact={false}
         borders={false}
         columns={columns}
-        rows={createRows(userLinks, users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })), onSelectUser, checkedStates, handleToggle, intl, undefined, undefined, authModel, orgAdmin, () =>
+        rows={createRows(userLinks, users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })), onSelectUser, handleToggle, intl, undefined, undefined, authModel, orgAdmin, () =>
           fetchData({ ...pagination, filters, usesMetaInURL })
         )}
         sortBy={sortByState}

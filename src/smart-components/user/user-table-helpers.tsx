@@ -42,7 +42,6 @@ export const createRows = (
   userLinks: boolean,
   data: UserProps[] = [],
   onSelectUser: (user: UserProps, isSelecting: boolean) => void,
-  checkedStates: Record<string, boolean>,
   handleToggle: (_ev: unknown, isActive: boolean, updatedUser: UserProps) => void,
   intl: IntlShape,
   checkedRows = [],
@@ -109,7 +108,7 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          <ActivateToggle key="active-toggle" user={user} checkedStates={checkedStates} handleToggle={handleToggle} intl={intl} />,
+          <ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />,
         ],
         selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
       };
