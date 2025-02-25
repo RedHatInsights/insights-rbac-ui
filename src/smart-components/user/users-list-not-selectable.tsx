@@ -30,7 +30,10 @@ import { WarningModal } from '@patternfly/react-component-groups';
 interface UsersListNotSelectable {
   userLinks: boolean;
   usesMetaInURL: boolean;
-  props: Record<string, unknown>;
+  props: {
+    isSelectable: boolean;
+    isCompact: boolean;
+  };
 }
 
 const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNotSelectable) => {
@@ -52,16 +55,16 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
-  const [checkedStates, setCheckedStates] = useState<Record<string, boolean>>({});
+  const [checkedStates, setCheckedStates] = useState(false);
 
   useEffect(() => {
-      const getToken = async () => {
-        setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
-        setAccountUsername((await auth.getUser())?.identity?.user?.username as string);
-        setToken((await auth.getToken()) as string);
-      };
-      getToken();
-    }, [auth]);
+    const getToken = async () => {
+      setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
+      setAccountUsername((await auth.getUser())?.identity?.user?.username as string);
+      setToken((await auth.getToken()) as string);
+    };
+    getToken();
+  }, [auth]);
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
   const pagination = useSelector(({ userReducer: { users } }) => ({
@@ -142,8 +145,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
 
   const toolbarButtons = () =>
     orgAdmin && isCommonAuthModel
-      ?
-      [
+      ? [
         <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
           <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
             {intl.formatMessage(messages.inviteUsers)}
@@ -170,14 +172,17 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setSelectedUsernames((prevSelected: UserProps[]) => {
       const otherSelectedUserNames = prevSelected.filter((r) => r.username !== user.username);
       user.isSelected = isSelecting;
-      console.log('selected: ', isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames);
       return isSelecting ? [...otherSelectedUserNames, user] : otherSelectedUserNames;
     });
   };
   const isUserSelected = (user: UserProps) => selectedUsers.some((r) => r.username === user.username);
+  const setCheckedItems = () => {
+    users?.forEach((user: UserProps) => setUserSelected(user, !checkedStates));
+    setCheckedStates(!checkedStates);
+  };
 
   const handleToggle = async (ev: unknown, isActive: boolean, updatedUser: UserProps) => {
-    if (loading) return;    
+    if (loading) return;
     setLoading(true);
 
     try {
@@ -268,13 +273,22 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         </WarningModal>
       )}
       <TableComposableToolbarView
+        setCheckedItems={setCheckedItems}
         toolbarButtons={toolbarButtons}
-        isSelectable={false}
-        isCompact={false}
         borders={false}
         columns={columns}
-        rows={createRows(userLinks, users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })), onSelectUser, handleToggle, intl, undefined, undefined, authModel, orgAdmin, () =>
-          fetchData({ ...pagination, filters, usesMetaInURL })
+        checkedRows={selectedUsers}
+        rows={createRows(
+          userLinks,
+          users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })),
+          onSelectUser,
+          handleToggle,
+          intl,
+          undefined,
+          undefined,
+          authModel,
+          orgAdmin,
+          () => fetchData({ ...pagination, filters, usesMetaInURL })
         )}
         sortBy={sortByState}
         onSort={(e, index, direction) => {

@@ -20,18 +20,18 @@ export interface UserProps {
 }
 
 export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement>; props?: { 'data-is-active': boolean } };
+export type SelectCell = {
+  select: {
+    rowIndex: number;
+    onSelect: (_event: unknown, isSelecting: boolean) => void;
+    isSelected: boolean;
+  };
+};
+export type CellType = SelectCell | React.ReactNode | CellObject | string;
 
 export interface RowProps {
   uuid: string; // username
-  cells: [
-    React.ReactNode, // select
-    React.ReactNode, // yes or no for isOrgAdmin
-    CellObject, // link to user or just username
-    string, // email
-    string, // firstName
-    string, // lastName
-    React.ReactNode // status
-  ];
+  cells: CellType[];
   selected: boolean;
   authModel?: boolean;
   orgAdmin?: boolean;
@@ -70,14 +70,13 @@ export const createRows = (
       const newEntry: RowProps = {
         uuid: username,
         cells: [
-          <Td
-            key="select"
-            select={{
+          {
+            select: {
               rowIndex,
               onSelect: (_event, isSelecting) => onSelectUser(user, isSelecting),
-              isSelected: (isSelected),
-            }}
-          />,
+              isSelected: isSelected,
+            },
+          },
           authModel && orgAdmin ? (
             <OrgAdminDropdown
               key={`dropdown-${username}`}

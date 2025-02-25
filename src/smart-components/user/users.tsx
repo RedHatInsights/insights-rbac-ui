@@ -28,7 +28,7 @@ const Users = () => {
   const usersListProps = {
     userLinks: activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
     props: {
-      isSelectable: !isITLess ? false : activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
+      isSelectable: !isITLess && !isCommonAuthModel ? false : activeUserPermissions.userAccessAdministrator || activeUserPermissions.orgAdmin,
       isCompact: false,
     },
     usesMetaInURL: isITLess || isCommonAuthModel ? !location.pathname.includes(paths['invite-users'].link) : true,
