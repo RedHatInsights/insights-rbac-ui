@@ -2405,6 +2405,11 @@ export default defineMessages({
     description: 'Add label',
     defaultMessage: 'Add',
   },
+  usersAndUserGroupsCreateUserGroup: {
+    id: 'usersAndUserGroupsCreateUserGroup',
+    description: 'Create user group label',
+    defaultMessage: 'Create user group',
+  },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',
     description: 'Edit user group label',

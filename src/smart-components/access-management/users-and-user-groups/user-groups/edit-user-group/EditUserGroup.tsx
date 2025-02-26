@@ -7,7 +7,7 @@ import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
+import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
 import { RBACStore } from '../../../../../redux/store';
 import { useNavigate, useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
@@ -15,12 +15,20 @@ import RbacBreadcrumbs from '../../../../../presentational-components/shared/bre
 import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
 import pathnames from '../../../../../utilities/pathnames';
 
-export const EditUserGroup: React.FunctionComponent = () => {
+interface EditUserGroupProps {
+  createNewGroup?: boolean;
+}
+
+export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ createNewGroup }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const params = useParams();
   const groupId = params.groupId;
   const navigate = useNavigate();
+
+  const pageTitle = createNewGroup
+    ? intl.formatMessage(Messages.usersAndUserGroupsCreateUserGroup)
+    : intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup);
 
   const [isLoading, setIsLoading] = useState(true);
   const [initialFormData, setInitialFormData] = useState<{
@@ -42,7 +50,7 @@ export const EditUserGroup: React.FunctionComponent = () => {
         to: mergeToBasename(pathnames['users-and-user-groups'].link),
       },
       {
-        title: intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup),
+        title: pageTitle,
         isActive: true,
       },
     ],
@@ -100,7 +108,6 @@ export const EditUserGroup: React.FunctionComponent = () => {
           label: intl.formatMessage(Messages.description),
           component: componentTypes.TEXTAREA,
           initialValue: initialFormData?.description,
-          isRequired: true,
         },
         {
           name: 'users-and-service-accounts',
@@ -129,7 +136,9 @@ export const EditUserGroup: React.FunctionComponent = () => {
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
-    if (values.name !== group?.name || values.description !== group?.description) {
+    if (createNewGroup) {
+      dispatch(addGroup({ name: values.name, description: values.description }));
+    } else if (values.name !== group?.name || values.description !== group?.description) {
       dispatch(updateGroup({ uuid: groupId, name: values.name, description: values.description }));
     }
 
@@ -154,7 +163,7 @@ export const EditUserGroup: React.FunctionComponent = () => {
       <section className="pf-v5-c-page__main-breadcrumb">
         <RbacBreadcrumbs {...breadcrumbsList} />
       </section>
-      <ContentHeader title={intl.formatMessage(Messages.usersAndUserGroupsEditUserGroup)} subtitle={''} />
+      <ContentHeader title={pageTitle} />
       <PageSection data-ouia-component-id="edit-user-group-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>
         {isLoading || !initialFormData ? (
           <div style={{ textAlign: 'center' }}>
