@@ -52,7 +52,6 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
-  const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [checkedStates, setCheckedStates] = useState(false);
@@ -60,7 +59,6 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   useEffect(() => {
     const getToken = async () => {
       setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
-      setAccountUsername((await auth.getUser())?.identity?.user?.username as string);
       setToken((await auth.getToken()) as string);
     };
     getToken();
@@ -146,22 +144,22 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const toolbarButtons = () =>
     orgAdmin && isCommonAuthModel
       ? [
-        <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
-          <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
-            {intl.formatMessage(messages.inviteUsers)}
-          </Button>
-        </AppLink>,
-        {
-          label: intl.formatMessage(messages.activateUsersButton),
-          props: {},
-          onClick: () => setIsActivateModalOpen(true),
-        },
-        {
-          label: intl.formatMessage(messages.deactivateUsersButton),
-          props: {},
-          onClick: () => setIsDeactivateModalOpen(true),
-        }
-      ]
+          <AppLink to={paths['invite-users'].link} key="invite-users" className="rbac-m-hide-on-sm">
+            <Button ouiaId="invite-users-button" variant="primary" aria-label="Invite users">
+              {intl.formatMessage(messages.inviteUsers)}
+            </Button>
+          </AppLink>,
+          {
+            label: intl.formatMessage(messages.activateUsersButton),
+            props: {},
+            onClick: () => setIsActivateModalOpen(true),
+          },
+          {
+            label: intl.formatMessage(messages.deactivateUsersButton),
+            props: {},
+            onClick: () => setIsDeactivateModalOpen(true),
+          },
+        ]
       : [];
 
   const [selectedUsers, setSelectedUsernames] = React.useState<UserProps[]>([]);
@@ -181,23 +179,13 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setCheckedStates(!checkedStates);
   };
 
-  const handleToggle = async (ev: unknown, isActive: boolean, updatedUser: UserProps) => {
+  const handleToggle = async (ev: unknown, isActive: boolean, updatedUsers: any[]) => {
     if (loading) return;
     setLoading(true);
 
+    const usersList = updatedUsers.map((user) => ({ ...user, id: user.external_source_id, is_active: isActive }));
     try {
-      await dispatch(
-        changeUsersStatus(
-          [
-            {
-              ...updatedUser,
-              id: updatedUser.external_source_id,
-              is_active: isActive,
-            },
-          ],
-          { isProd: isProd(), token, accountId }
-        )
-      );
+      await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }));
       fetchData({ ...pagination, filters, usesMetaInURL });
     } catch (error) {
       console.error('Failed to update status: ', error);
@@ -208,20 +196,9 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     setToken(token);
   };
 
-  const handleBulkActivate = () => {
-    selectedUsers.forEach((user) => {
-      handleToggle(null, true, user);
-    });
-
-    setIsActivateModalOpen(false);
-  };
-
-  const handleBulkDeactivate = () => {
-    selectedUsers.forEach((user) => {
-      handleToggle(null, false, user);
-    });
-
-    setIsDeactivateModalOpen(false);
+  const handleBulkActivation = (userStatus: boolean) => {
+    handleToggle(null, userStatus, selectedUsers);
+    userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
   };
 
   return (
@@ -234,7 +211,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           confirmButtonLabel={intl.formatMessage(messages.activateUsersConfirmationButton)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsActivateModalOpen(false)}
-          onConfirm={handleBulkActivate}
+          onConfirm={() => handleBulkActivation(true)}
           withCheckbox
           checkboxLabel={intl.formatMessage(messages.activateUsersConfirmationModalCheckboxText)}
         >
@@ -257,7 +234,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeactivateModalOpen(false)}
-          onConfirm={handleBulkDeactivate}
+          onConfirm={() => handleBulkActivation(false)}
           withCheckbox
           checkboxLabel={intl.formatMessage(messages.deactivateUsersConfirmationModalCheckboxText)}
         >

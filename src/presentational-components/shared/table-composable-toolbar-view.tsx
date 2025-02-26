@@ -176,7 +176,7 @@ const MainTable = ({
             {rows?.length > 0 ? (
               rows?.map((row, i) => (
                 <Tr key={i}>
-                 {row.cells.map((cell: CellType, j: number) => (
+                  {row.cells.map((cell: CellType, j: number) => (
                     <Td key={j} dataLabel={columns[j].title} {...(isSelectCell(cell) && cell)}>
                       {/* TODO: make more general */}
                       {isCellObject(cell) ? (cell.title as string) : isSelectCell(cell) ? null : (cell as unknown as React.ReactNode)}

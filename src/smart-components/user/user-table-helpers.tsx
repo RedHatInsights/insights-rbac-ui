@@ -6,7 +6,6 @@ import AppLink from '../../presentational-components/shared/AppLink';
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import ActivateToggle from './ActivateToggle';
-import { Td } from '@patternfly/react-table';
 export interface UserProps {
   isSelected: boolean;
   email: string;
@@ -42,7 +41,7 @@ export const createRows = (
   userLinks: boolean,
   data: UserProps[] = [],
   onSelectUser: (user: UserProps, isSelecting: boolean) => void,
-  handleToggle: (_ev: unknown, isActive: boolean, updatedUser: UserProps) => void,
+  handleToggle: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
   intl: IntlShape,
   checkedRows = [],
   isSelectable = false,
