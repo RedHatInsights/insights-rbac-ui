@@ -100,10 +100,9 @@ objects:
                   href: /iam/user-access/groups
                   icon: PlaceholderIcon
                   product: Identity & Access Management
-                - id: accessRequests
-                  title: Red Hat Access Requests
-                  href: /iam/user-access/access-requests
-                  notifier: chrome.accessRequests.hasUnseen
+                - segmentRef:
+                    frontendName: access-requests
+                    segmentId: iam-access-requests
           position: 100
       module:
         manifestLocation: /apps/rbac/fed-mods.json
