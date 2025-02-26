@@ -1,3 +1,10 @@
+# [1.21.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.4...v1.21.0) (2025-02-26)
+
+
+### Features
+
+* **build-tools:** migrate to build tools ([#1769](https://github.com/RedHatInsights/insights-rbac-ui/issues/1769)) ([cca1d2f](https://github.com/RedHatInsights/insights-rbac-ui/commit/cca1d2f8f1466217f91c5f66063fd8a6f7bbb92a))
+
 ## [1.20.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.3...v1.20.4) (2025-02-20)
 
 
