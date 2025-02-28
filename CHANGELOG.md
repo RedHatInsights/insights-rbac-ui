@@ -1,3 +1,10 @@
+# [1.22.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.21.0...v1.22.0) (2025-02-28)
+
+
+### Features
+
+* create user group page ([#1770](https://github.com/RedHatInsights/insights-rbac-ui/issues/1770)) ([55f911e](https://github.com/RedHatInsights/insights-rbac-ui/commit/55f911e3870176d663594b432d66a0dbe84ef2e7))
+
 # [1.21.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.4...v1.21.0) (2025-02-26)
 
 
