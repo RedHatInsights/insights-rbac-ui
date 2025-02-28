@@ -264,7 +264,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           }
           actions={
             <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-              <ResponsiveAction isPinned isPersistent onClick={() => navigate(pathnames['create-user-group'].link)}>
+              <ResponsiveAction isPinned isPersistent onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link)}>
                 {intl.formatMessage(messages.createUserGroup)}
               </ResponsiveAction>
               <ResponsiveAction
