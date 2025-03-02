@@ -183,7 +183,7 @@ export default defineMessages({
   deactivateUsersConfirmationModalCheckboxText: {
     id: 'deactivateUsersConfirmationModalCheckboxText',
     description: 'deactivate users confirmation modal checkbox text',
-    defaultMessage: 'Yes, I confirm that I want to remove these users',
+    defaultMessage: 'Yes, I confirm that I want to deactivate these users',
   },
   deactivateUsersConfirmationButton: {
     id: 'deactivateUsersConfirmationButton',
@@ -2425,6 +2425,11 @@ export default defineMessages({
     id: 'usersAndUserGroupsAdd',
     description: 'Add label',
     defaultMessage: 'Add',
+  },
+  usersAndUserGroupsCreateUserGroup: {
+    id: 'usersAndUserGroupsCreateUserGroup',
+    description: 'Create user group label',
+    defaultMessage: 'Create user group',
   },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',

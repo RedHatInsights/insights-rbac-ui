@@ -1,3 +1,24 @@
+# [1.22.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.21.0...v1.22.0) (2025-02-28)
+
+
+### Features
+
+* create user group page ([#1770](https://github.com/RedHatInsights/insights-rbac-ui/issues/1770)) ([55f911e](https://github.com/RedHatInsights/insights-rbac-ui/commit/55f911e3870176d663594b432d66a0dbe84ef2e7))
+
+# [1.21.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.4...v1.21.0) (2025-02-26)
+
+
+### Features
+
+* **build-tools:** migrate to build tools ([#1769](https://github.com/RedHatInsights/insights-rbac-ui/issues/1769)) ([cca1d2f](https://github.com/RedHatInsights/insights-rbac-ui/commit/cca1d2f8f1466217f91c5f66063fd8a6f7bbb92a))
+
+## [1.20.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.3...v1.20.4) (2025-02-20)
+
+
+### Bug Fixes
+
+* **admin-group:** when we don't have admin group do not break ([#1765](https://github.com/RedHatInsights/insights-rbac-ui/issues/1765)) ([881e1da](https://github.com/RedHatInsights/insights-rbac-ui/commit/881e1dad988d8e624a7eb4f245ffa1e2b1a5cd66))
+
 ## [1.20.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.20.2...v1.20.3) (2025-02-14)
 
 

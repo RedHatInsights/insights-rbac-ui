@@ -136,7 +136,7 @@ const User = () => {
                             group.description,
                             {
                               title:
-                                adminGroup.uuid === group.uuid ? null : (
+                                adminGroup?.uuid === group.uuid ? null : (
                                   <AppLink
                                     to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid)}
                                     state={{ name: group.name }}

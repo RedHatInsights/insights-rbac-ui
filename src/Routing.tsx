@@ -81,6 +81,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     element: EditUserGroup,
   },
   {
+    path: pathnames['users-and-user-groups-create-group'].path,
+    element: (() => <EditUserGroup createNewGroup />) as React.FC,
+  },
+  {
     path: pathnames.overview.path,
     element: isWorkspacesFlag ? WorkspacesOverview : Overview,
   },
