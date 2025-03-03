@@ -104,6 +104,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
     usesMetaInURL && updateStateFilters(payload);
     setFilters({ username: '', ...payload });
   };
+
   return (
     <TableToolbarView
       isCompact

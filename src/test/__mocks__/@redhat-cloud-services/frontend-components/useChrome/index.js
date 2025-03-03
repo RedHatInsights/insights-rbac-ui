@@ -4,7 +4,7 @@ const useChrome = () => ({
   appAction: () => undefined,
   isProd: () => true,
   getEnvironment: () => undefined,
-  auth: { getUser: () => undefined },
+  auth: { getUser: () => undefined, getToken: () => Promise.resolve('') },
   getBundle: () => 'iam',
   getApp: () => 'user-access',
 });

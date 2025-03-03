@@ -258,11 +258,11 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         rows={createRows(
           userLinks,
           users?.map((user: UserProps) => ({ ...user, isSelected: isUserSelected(user) })),
-          onSelectUser,
-          handleToggle,
           intl,
           undefined,
           undefined,
+          onSelectUser,
+          handleToggle,
           authModel,
           orgAdmin,
           () => fetchData({ ...pagination, filters, usesMetaInURL })

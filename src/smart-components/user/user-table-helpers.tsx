@@ -6,6 +6,7 @@ import AppLink from '../../presentational-components/shared/AppLink';
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import ActivateToggle from './ActivateToggle';
+import { Label } from '@patternfly/react-core';
 export interface UserProps {
   isSelected: boolean;
   email: string;
@@ -40,11 +41,11 @@ export interface RowProps {
 export const createRows = (
   userLinks: boolean,
   data: UserProps[] = [],
-  onSelectUser: (user: UserProps, isSelecting: boolean) => void,
-  handleToggle: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
   intl: IntlShape,
   checkedRows = [],
   isSelectable = false,
+  onSelectUser?: (user: UserProps, isSelecting: boolean) => void,
+  handleToggle?: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
   authModel?: boolean,
   orgAdmin?: boolean,
   fetchData?: () => void
@@ -69,13 +70,17 @@ export const createRows = (
       const newEntry: RowProps = {
         uuid: username,
         cells: [
-          {
-            select: {
-              rowIndex,
-              onSelect: (_event, isSelecting) => onSelectUser(user, isSelecting),
-              isSelected: isSelected,
-            },
-          },
+          ...(onSelectUser && isOrgAdmin
+            ? [
+                {
+                  select: {
+                    rowIndex,
+                    onSelect: (_event: unknown, isSelecting: boolean) => onSelectUser(user, isSelecting),
+                    isSelected: isSelected,
+                  },
+                },
+              ]
+            : []),
           authModel && orgAdmin ? (
             <OrgAdminDropdown
               key={`dropdown-${username}`}
@@ -106,7 +111,20 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          <ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />,
+          ...(handleToggle && isOrgAdmin
+            ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />]
+            : [
+                {
+                  title: (
+                    <Label key="status" color={isActive ? 'green' : 'grey'}>
+                      {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+                    </Label>
+                  ),
+                  props: {
+                    'data-is-active': isActive,
+                  },
+                },
+              ]),
         ],
         selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
       };

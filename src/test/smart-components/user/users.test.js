@@ -121,7 +121,7 @@ describe('<Users />', () => {
       limit: 20,
       offset: 0,
       redirected: undefined,
-      orderBy: '-username',
+      orderBy: 'username',
       filters: {
         status: ['Active'],
         email: undefined,
@@ -157,7 +157,7 @@ describe('<Users />', () => {
     expect(fetchUsersSpy).toHaveBeenCalledTimes(2);
     expect(fetchUsersSpy).toHaveBeenLastCalledWith({
       limit: 20,
-      orderBy: 'username',
+      orderBy: 'org-admin',
       filters: { status: ['Active'], username: 'something', email: '' },
       usesMetaInURL: true,
     });
