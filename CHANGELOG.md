@@ -1,3 +1,10 @@
+# [1.23.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.22.0...v1.23.0) (2025-03-04)
+
+
+### Features
+
+* **codeowners:** update codeowners to experience-ui ([#1773](https://github.com/RedHatInsights/insights-rbac-ui/issues/1773)) ([2cf1f08](https://github.com/RedHatInsights/insights-rbac-ui/commit/2cf1f08977d62af8c20459dcb5d4202eee19eaa3))
+
 # [1.22.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.21.0...v1.22.0) (2025-02-28)
 
 
