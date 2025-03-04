@@ -1,3 +1,10 @@
+## [1.24.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.24.0...v1.24.1) (2025-03-04)
+
+
+### Bug Fixes
+
+* **common-auth:** org admins in users table ([#1774](https://github.com/RedHatInsights/insights-rbac-ui/issues/1774)) ([32997a0](https://github.com/RedHatInsights/insights-rbac-ui/commit/32997a0b3e37aa0f925c4877ba3030c0247aa77d))
+
 # [1.24.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.23.0...v1.24.0) (2025-03-04)
 
 
