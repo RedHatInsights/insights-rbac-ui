@@ -90,7 +90,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
 
   const columns = [
-    ...isCommonAuthModel ? [{ title: '', key: 'select' }] : [],
+    ...(isCommonAuthModel ? [{ title: '', key: 'select' }] : []),
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
     { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
     { title: intl.formatMessage(messages.email) },
