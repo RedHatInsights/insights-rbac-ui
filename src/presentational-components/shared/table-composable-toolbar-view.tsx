@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { TableVariant, Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
@@ -10,12 +10,16 @@ import Toolbar, { paginationBuilder } from './toolbar';
 import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
 import { ISortBy, OnSort } from '@patternfly/react-table';
-import { CellObject } from '../../smart-components/user/user-table-helpers';
+import { CellObject, CellType, SelectCell } from '../../smart-components/user/user-table-helpers';
 
 interface FilterProps {
   username?: string;
   email?: string;
   status?: string[];
+}
+
+function isSelectCell(cell: any): cell is SelectCell {
+  return typeof cell === 'object' && typeof cell.select !== 'undefined';
 }
 
 interface FetchDataProps {
@@ -54,7 +58,9 @@ interface MainTableProps {
   setFilterValue: (value: FilterProps) => void;
   pagination: { limit?: number; offset?: number; count?: number; noBottom?: boolean };
   fetchData: (config: FetchDataProps) => void;
-  toolbarButtons?: () => (React.JSX.Element | React.ReactNode)[];
+  toolbarButtons?: () => (React.JSX.Element | { label: string; props: unknown; onClick: () => void })[];
+  setCheckedItems?: (callback: (selected: unknown[]) => void) => void;
+  checkedRows?: unknown[];
   filterPlaceholder?: string;
   filters: Array<{
     value: string | number | Array<unknown>;
@@ -90,13 +96,14 @@ const MainTable = ({
   isSelectable,
   isLoading,
   noData,
-  data,
   title,
   filterValue,
   setFilterValue,
   pagination,
   fetchData,
   toolbarButtons,
+  setCheckedItems,
+  checkedRows,
   filterPlaceholder,
   filters,
   isFilterable,
@@ -125,10 +132,12 @@ const MainTable = ({
       <Toolbar
         isSelectable={isSelectable}
         isLoading={isLoading || noData}
-        data={data}
+        data={rows}
         titleSingular={title.singular}
         filterValue={filterValue}
         setFilterValue={setFilterValue}
+        setCheckedItems={setCheckedItems}
+        checkedRows={checkedRows}
         sortBy={orderBy}
         pagination={pagination}
         fetchData={fetchData}
@@ -167,10 +176,10 @@ const MainTable = ({
             {rows?.length > 0 ? (
               rows?.map((row, i) => (
                 <Tr key={i}>
-                  {row.cells.map((cell: CellObject, j: number) => (
-                    <Td key={j} dataLabel={columns[j].title}>
+                  {row.cells.map((cell: CellType, j: number) => (
+                    <Td key={j} dataLabel={columns[j].title} {...(isSelectCell(cell) && cell)}>
                       {/* TODO: make more general */}
-                      {isCellObject(cell) ? (cell.title as string) : (cell as unknown as React.ReactNode)}
+                      {isCellObject(cell) ? (cell.title as string) : isSelectCell(cell) ? null : (cell as unknown as React.ReactNode)}
                     </Td>
                   ))}
                 </Tr>
@@ -240,6 +249,8 @@ export const TableComposableToolbarView = ({
   isLoading,
   emptyFilters,
   setFilterValue,
+  setCheckedItems,
+  checkedRows,
   isSelectable = false,
   fetchData,
   emptyProps,
@@ -272,11 +283,12 @@ export const TableComposableToolbarView = ({
             intl.formatMessage(messages.toConfigureUserAccess),
             intl.formatMessage(messages.createAtLeastOneItem, { item: title.singular }),
           ]}
-          actions={toolbarButtons ? toolbarButtons()[0] : false}
+          actions={toolbarButtons ? (toolbarButtons()[0] as ReactNode) : false}
           {...(typeof emptyProps === 'object' ? emptyProps : {})}
         />
       ) : (
         <MainTable
+          setCheckedItems={setCheckedItems}
           columns={columns}
           isSelectable={isSelectable}
           isLoading={isLoading}
@@ -307,6 +319,7 @@ export const TableComposableToolbarView = ({
           ouiaId={ouiaId}
           noDataDescription={noDataDescription}
           emptyFilters={emptyFilters}
+          checkedRows={checkedRows}
         />
       )}
     </Fragment>

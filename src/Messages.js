@@ -144,6 +144,27 @@ export default defineMessages({
     description: 'activate users button text',
     defaultMessage: 'Activate users',
   },
+  activateUsersConfirmationModalTitle: {
+    id: 'activateUsersConfirmationModalTitle',
+    description: 'activate users confirmation modal title text',
+    defaultMessage: 'Activate users',
+  },
+  activateUsersConfirmationModalDescription: {
+    id: 'activateUsersConfirmationModalDescription',
+    description: 'activate users confirmation modal description text',
+    defaultMessage: 'Are you sure you want to activate the user(s) below for your Red Hat organization?',
+  },
+  activateUsersConfirmationModalCheckboxText: {
+    id: 'activateUsersConfirmationModalCheckboxText',
+    description: 'activate users confirmation modal checkbox text',
+    defaultMessage: 'Yes, I confirm that I want to add these users',
+  },
+  activateUsersConfirmationButton: {
+    id: 'activateUsersConfirmationButton',
+    description: 'activate users confirmation button text',
+    defaultMessage: 'Activate user(s)',
+  },
+
   deactivateUsersButton: {
     id: 'deactivateUsersButton',
     description: 'deactivate users button text',
