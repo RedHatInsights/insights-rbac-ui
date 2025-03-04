@@ -70,7 +70,7 @@ export const createRows = (
       const newEntry: RowProps = {
         uuid: username,
         cells: [
-          ...(onSelectUser && isOrgAdmin
+          ...(onSelectUser && isOrgAdmin && authModel
             ? [
                 {
                   select: {
