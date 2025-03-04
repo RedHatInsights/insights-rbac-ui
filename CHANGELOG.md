@@ -1,3 +1,10 @@
+# [1.24.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.23.0...v1.24.0) (2025-03-04)
+
+
+### Features
+
+* **common-auth:** add multi-select and active toggle to Users Table ([#1764](https://github.com/RedHatInsights/insights-rbac-ui/issues/1764)) ([6ff9f18](https://github.com/RedHatInsights/insights-rbac-ui/commit/6ff9f18cc7eb5274f67db781b3c6c0d068c325fb))
+
 # [1.23.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.22.0...v1.23.0) (2025-03-04)
 
 
