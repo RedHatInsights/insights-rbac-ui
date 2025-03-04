@@ -41,8 +41,9 @@ import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
 import messages from '../../../../Messages';
 import paths from '../../../../utilities/pathnames';
 import PermissionsContext from '../../../../utilities/permissions-context';
+import OrgAdminDropdown from '../../../user/OrgAdminDropdown';
 
-const COLUMNS: string[] = ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
+const COLUMNS: string[] = ['Org admin', 'Username', 'Email', 'First name', 'Last name', 'Status'];
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -210,6 +211,23 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       id: user.username,
       is_active: user.is_active,
       row: [
+        [
+          <OrgAdminDropdown
+            key={`dropdown-${user.username}`}
+            isOrgAdmin={user.is_org_admin}
+            username={user.username}
+            intl={intl}
+            userId={user.uuid}
+            fetchData={() => {
+              fetchData({
+                limit: perPage,
+                offset: (page - 1) * perPage,
+                orderBy: 'username',
+                count: totalCount || 0,
+              });
+            }}
+          />,
+        ],
         user.username,
         user.email,
         user.first_name,
@@ -225,7 +243,6 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
             labelOff={intl.formatMessage(messages['usersAndUserGroupsInactive'])}
           ></Switch>,
         ],
-        user.is_org_admin ? intl.formatMessage(messages['usersAndUserGroupsYes']) : intl.formatMessage(messages['usersAndUserGroupsNo']),
         {
           cell: (
             <ActionsColumn
