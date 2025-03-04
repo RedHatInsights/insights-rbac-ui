@@ -111,7 +111,7 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          ...(handleToggle && isOrgAdmin
+          ...(handleToggle && isOrgAdmin && authModel
             ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />]
             : [
                 {
