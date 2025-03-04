@@ -121,7 +121,7 @@ describe('<Users />', () => {
       limit: 20,
       offset: 0,
       redirected: undefined,
-      orderBy: 'username',
+      orderBy: '-username',
       filters: {
         status: ['Active'],
         email: undefined,
