@@ -70,7 +70,7 @@ export const createRows = (
       const newEntry: RowProps = {
         uuid: username,
         cells: [
-          ...(onSelectUser && isOrgAdmin && authModel
+          ...(onSelectUser && orgAdmin && authModel
             ? [
                 {
                   select: {
@@ -111,7 +111,7 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          ...(handleToggle && isOrgAdmin && authModel
+          ...(handleToggle && orgAdmin && authModel
             ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />]
             : [
                 {
