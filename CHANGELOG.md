@@ -1,3 +1,10 @@
+# [1.25.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.24.1...v1.25.0) (2025-03-05)
+
+
+### Features
+
+* add dropdown to make user an org admin workspaces ([#1771](https://github.com/RedHatInsights/insights-rbac-ui/issues/1771)) ([b73a7f2](https://github.com/RedHatInsights/insights-rbac-ui/commit/b73a7f2a3ba221cf8cf31b1b3848b0f1b9bf0f5b))
+
 ## [1.24.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.24.0...v1.24.1) (2025-03-04)
 
 
