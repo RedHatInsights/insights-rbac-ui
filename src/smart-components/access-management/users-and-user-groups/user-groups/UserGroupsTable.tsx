@@ -3,16 +3,28 @@ import { formatDistanceToNow } from 'date-fns';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import {
+  useDataViewSelection,
+  useDataViewPagination,
+  useDataViewSort,
+  useDataViewFilters,
+  useDataViewEventsContext,
+  DataViewState,
+  EventTypes,
+  DataViewTrObject,
+  DataViewTh,
+  DataViewTextFilter,
+} from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { DataViewTrObject, DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
-import { ActionsColumn } from '@patternfly/react-table';
+import { ActionsColumn, ThProps } from '@patternfly/react-table';
 import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
+
 import { mappedProps } from '../../../../helpers/shared/helpers';
 import { RBACStore } from '../../../../redux/store';
 import { fetchGroups, removeGroups } from '../../../../redux/actions/group-actions';
@@ -22,26 +34,18 @@ import useAppNavigate from '../../../../hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
 
-const COLUMNS: string[] = ['User group name', 'Description', 'Users', 'Service accounts', 'Roles', 'Workspaces', 'Last modified'];
+const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
+  <EmptyState>
+    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+    <EmptyStateBody>
+      <FormattedMessage {...messages['usersEmptyStateSubtitle']} values={{ br: <br /> }} />
+    </EmptyStateBody>
+  </EmptyState>
+);
 
-const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
-  return (
-    <EmptyState>
-      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['usersEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-};
-
-const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
-const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
+interface UserGroupsFilters {
+  name: string;
+}
 
 interface UserGroupsTableProps {
   defaultPerPage?: number;
@@ -52,7 +56,7 @@ interface UserGroupsTableProps {
   focusedGroup?: Group;
 }
 
-const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
+const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   defaultPerPage = 20,
   useUrlParams = true,
   enableActions = true,
@@ -60,19 +64,14 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   onChange,
   focusedGroup,
 }) => {
-  const [isDeleteModalOpen, setIsDeleteModalOpen] = React.useState(false);
-  const [currentGroups, setCurrentGroups] = React.useState<Group[]>([]);
-  const dispatch = useDispatch();
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentGroups, setCurrentGroups] = useState<Group[]>([]);
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
+  const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useAppNavigate();
-  const search = useSearchParams();
   const { trigger } = useDataViewEventsContext();
-
-  const handleDeleteModalToggle = (groups: Group[]) => {
-    setCurrentGroups(groups);
-    setIsDeleteModalOpen(!isDeleteModalOpen);
-  };
+  const [searchParams, setSearchParams] = useSearchParams();
 
   const { groups, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer?.groups?.data || [],
@@ -80,18 +79,58 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     isLoading: state.groupReducer?.isLoading,
   }));
 
-  let pagination;
+  const columns = [
+    { label: intl.formatMessage(messages.name), key: 'name', index: 0, sort: true },
+    { label: intl.formatMessage(messages.description), key: 'description', index: 1, sort: false },
+    { label: intl.formatMessage(messages.users), key: 'principalCount', index: 2, sort: true },
+    { label: intl.formatMessage(messages.serviceAccounts), key: 'serviceAccountCount', index: 3, sort: false },
+    { label: intl.formatMessage(messages.roles), key: 'roleCount', index: 4, sort: false },
+    { label: intl.formatMessage(messages.workspaces), key: 'workspaceCount', index: 5, sort: false },
+    { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 6, sort: true },
+  ];
 
+  const { sortBy, direction, onSort } = useDataViewSort({
+    searchParams,
+    setSearchParams,
+    initialSort: {
+      sortBy: 'name',
+      direction: 'asc',
+    },
+  });
+
+  const sortByIndex = useMemo(() => columns.findIndex((column) => column.key === sortBy), [sortBy, columns]);
+
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: sortByIndex,
+      direction,
+      defaultDirection: 'asc',
+    },
+    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
+    columnIndex,
+  });
+
+  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
+    cell: column.label,
+    props: column.sort ? { sort: getSortParams(index) } : {},
+  }));
+
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UserGroupsFilters>({
+    initialFilters: { name: '' },
+    searchParams,
+    setSearchParams,
+  });
+
+  let pagination;
   if (useUrlParams) {
-    const [searchParams, setSearchParams] = useSearchParams();
     pagination = useDataViewPagination({
       perPage: defaultPerPage,
-      searchParams: searchParams,
-      setSearchParams: setSearchParams,
+      searchParams,
+      setSearchParams,
     });
   } else {
-    const [perPage, setPerPage] = React.useState(defaultPerPage);
-    const [page, setPage] = React.useState(1);
+    const [perPage, setPerPage] = useState(defaultPerPage);
+    const [page, setPage] = useState(1);
     pagination = {
       page,
       perPage,
@@ -104,34 +143,45 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
+  const loadingHeader = <SkeletonTableHead columns={columns.map((group) => group.label)} />;
+  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
+
   const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
-      const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchGroups({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true, system: false }));
+    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters: UserGroupsFilters }) => {
+      const { count, limit, offset, orderBy, filters } = apiProps;
+      const orderDirection = direction === 'desc' ? '-' : '';
+      dispatch(
+        fetchGroups({
+          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          usesMetaInURL: true,
+          system: false,
+        })
+      );
     },
-    [dispatch]
+    [dispatch, direction]
   );
 
   useEffect(() => {
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: 'name',
+      orderBy: sortBy || 'name',
       count: totalCount || 0,
+      filters,
     });
-  }, [fetchData, page, perPage]);
+  }, [fetchData, page, perPage, sortBy, direction, filters, totalCount]);
 
   useEffect(() => {
     if (isLoading) {
       setActiveState(DataViewState.loading);
     } else {
-      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+      setActiveState(totalCount === 0 ? DataViewState.empty : undefined);
     }
   }, [totalCount, isLoading]);
 
   useEffect(() => {
     onChange?.(selected);
-  }, [selected]);
+  }, [selected, onChange]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     if (value === BulkSelectValue.none) {
@@ -143,9 +193,28 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
     }
   };
 
+  const handleDeleteModalToggle = (groups: Group[]) => {
+    setCurrentGroups(groups);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+
+  const handleDeleteGroups = async (groupsToDelete: Group[]) => {
+    await dispatch(removeGroups(groupsToDelete.map((group) => group.uuid)));
+    setIsDeleteModalOpen(false);
+    fetchData({
+      limit: perPage,
+      offset: (page - 1) * perPage,
+      orderBy: sortBy || 'name',
+      count: totalCount || 0,
+      filters,
+    });
+  };
+
   const rows = useMemo(() => {
     const handleRowClick = (event: any, group: Group | undefined) => {
-      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, group);
+      if (event.target.matches('td') || event.target.matches('tr')) {
+        trigger(EventTypes.rowClick, group);
+      }
     };
 
     return groups.map((group: Group) => ({
@@ -154,7 +223,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         group.name,
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
-            <span>{group.description.length > 23 ? group.description.slice(0, 20) + '...' : group.description}</span>
+            <span>{group.description.length > 23 ? `${group.description.slice(0, 20)}...` : group.description}</span>
           </Tooltip>
         ) : (
           <div className="pf-v5-u-color-400">{intl.formatMessage(messages['usersAndUserGroupsNoDescription'])}</div>
@@ -190,24 +259,13 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
         isRowSelected: focusedGroup?.uuid === group.uuid,
       },
     }));
-  }, [groups, focusedGroup]);
+  }, [groups, focusedGroup, intl, navigate, trigger, enableActions]);
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
   const isRowSystemOrPlatformDefault = (selectedRow: any) => {
     const group = groups.find((group) => group.uuid === selectedRow.id);
     return group?.platform_default || group?.system;
-  };
-
-  const handleDeleteGroups = async (groupsToDelete: Group[]) => {
-    await dispatch(removeGroups(groupsToDelete.map((group) => group.uuid)));
-    setIsDeleteModalOpen(false);
-    fetchData({
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      orderBy: 'name',
-      count: totalCount || 0,
-    });
   };
 
   const paginationComponent = (
@@ -233,9 +291,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
           confirmButtonLabel={intl.formatMessage(messages.remove)}
           confirmButtonVariant={ButtonVariant.danger}
           onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            handleDeleteGroups(currentGroups);
-          }}
+          onConfirm={() => handleDeleteGroups(currentGroups)}
         >
           <FormattedMessage
             {...messages.deleteUserGroupModalBody}
@@ -276,7 +332,8 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
               <ResponsiveAction
                 isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
                 onClick={() => {
-                  handleDeleteModalToggle(groups.filter((group) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === group.uuid)));
+                  const selectedGroups = groups.filter((group) => selected.some((selectedRow: DataViewTrObject) => selectedRow.id === group.uuid));
+                  handleDeleteModalToggle(selectedGroups);
                 }}
               >
                 {intl.formatMessage(messages.usersAndUserGroupsDeleteUserGroup)}
@@ -284,15 +341,24 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
             </ResponsiveActions>
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+          filters={
+            <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
+              <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
+            </DataViewFilters>
+          }
+          clearAllFilters={clearAllFilters}
         />
         <DataViewTable
           variant="compact"
           aria-label="Users Table"
           ouiaId={`${ouiaId}-table`}
-          columns={COLUMNS}
+          columns={sortableColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} /> }}
+          bodyStates={{
+            loading: loadingBody,
+            empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />,
+          }}
         />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
@@ -306,7 +372,7 @@ const UserGroupsTable: React.FunctionComponent<UserGroupsTableProps> = ({
               onCancel: () =>
                 navigate({
                   pathname: pathnames['user-groups'].link,
-                  search: search.toString(),
+                  searchParams: searchParams.toString(),
                 }),
               enableRoles: false,
               pagination: { limit: perPage },
