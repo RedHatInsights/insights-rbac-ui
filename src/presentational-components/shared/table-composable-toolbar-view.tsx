@@ -240,7 +240,7 @@ export const TableComposableToolbarView = ({
   isLoading,
   emptyFilters,
   setFilterValue,
-  isSelectable = false,
+  isSelectable = true,
   fetchData,
   emptyProps,
   filterPlaceholder,
