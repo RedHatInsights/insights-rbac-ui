@@ -124,6 +124,11 @@ export default defineMessages({
     description: 'Invite users button text',
     defaultMessage: 'Invite new users',
   },
+  inviteUsersConflictDescription: {
+    id: 'inviteUsersConflictDescription',
+    description: 'Invite users conflict notification description',
+    defaultMessage: 'User email already exists.',
+  },
   inviteUsersErrorTitle: {
     id: 'inviteUsersErrorTitle',
     description: 'Invite users error notification title',
@@ -139,6 +144,27 @@ export default defineMessages({
     description: 'activate users button text',
     defaultMessage: 'Activate users',
   },
+  activateUsersConfirmationModalTitle: {
+    id: 'activateUsersConfirmationModalTitle',
+    description: 'activate users confirmation modal title text',
+    defaultMessage: 'Activate users',
+  },
+  activateUsersConfirmationModalDescription: {
+    id: 'activateUsersConfirmationModalDescription',
+    description: 'activate users confirmation modal description text',
+    defaultMessage: 'Are you sure you want to activate the user(s) below for your Red Hat organization?',
+  },
+  activateUsersConfirmationModalCheckboxText: {
+    id: 'activateUsersConfirmationModalCheckboxText',
+    description: 'activate users confirmation modal checkbox text',
+    defaultMessage: 'Yes, I confirm that I want to add these users',
+  },
+  activateUsersConfirmationButton: {
+    id: 'activateUsersConfirmationButton',
+    description: 'activate users confirmation button text',
+    defaultMessage: 'Activate user(s)',
+  },
+
   deactivateUsersButton: {
     id: 'deactivateUsersButton',
     description: 'deactivate users button text',
@@ -157,7 +183,7 @@ export default defineMessages({
   deactivateUsersConfirmationModalCheckboxText: {
     id: 'deactivateUsersConfirmationModalCheckboxText',
     description: 'deactivate users confirmation modal checkbox text',
-    defaultMessage: 'Yes, I confirm that I want to remove these users',
+    defaultMessage: 'Yes, I confirm that I want to deactivate these users',
   },
   deactivateUsersConfirmationButton: {
     id: 'deactivateUsersConfirmationButton',
@@ -2399,6 +2425,11 @@ export default defineMessages({
     id: 'usersAndUserGroupsAdd',
     description: 'Add label',
     defaultMessage: 'Add',
+  },
+  usersAndUserGroupsCreateUserGroup: {
+    id: 'usersAndUserGroupsCreateUserGroup',
+    description: 'Create user group label',
+    defaultMessage: 'Create user group',
   },
   usersAndUserGroupsEditUserGroup: {
     id: 'usersAndUserGroupsEditUserGroup',

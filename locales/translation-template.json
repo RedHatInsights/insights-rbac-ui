@@ -488,7 +488,7 @@
     "description": "deactivate users confirmation button text"
   },
   "deactivateUsersConfirmationModalCheckboxText": {
-    "defaultMessage": "Yes, I confirm that I want to remove these users",
+    "defaultMessage": "Yes, I confirm that I want to deactivate these users",
     "description": "deactivate users confirmation modal checkbox text"
   },
   "deactivateUsersConfirmationModalDescription": {
@@ -586,6 +586,18 @@
   "deleteUserModalTitle": {
     "defaultMessage": "Remove from user groups?",
     "description": "Title for delete user modal "
+  },
+  "deleteWorkspaceAction": {
+    "defaultMessage": "Delete Workspaces",
+    "description": "delete workspaces"
+  },
+  "deleteWorkspaceModalBody": {
+    "defaultMessage": "<b>{name}</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
+    "description": "Modal body text for deleting a workspace"
+  },
+  "deleteWorkspaceModalHeader": {
+    "defaultMessage": "Delete workspace?",
+    "description": "Modal header text for deleting a workspace"
   },
   "deletingGroupRemovesRoles": {
     "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
@@ -791,6 +803,10 @@
     "defaultMessage": "The following permissions can not be added to a custom role and were removed from the copied role:",
     "description": "Following permissions cannot be added message"
   },
+  "gotItButtonLabel": {
+    "defaultMessage": "Got it",
+    "description": "got it button label"
+  },
   "granularPermissionsWillBeCopied": {
     "defaultMessage": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
     "description": "Granular permissions will be copied message"
@@ -889,6 +905,10 @@
   "inviteUsersCancelled": {
     "defaultMessage": "Invite users process was canceled by the user.",
     "description": "Invite users cancelled notification description"
+  },
+  "inviteUsersConflictDescription": {
+    "defaultMessage": "User email already exists.",
+    "description": "Invite users conflict notification description"
   },
   "inviteUsersCustomerPortalPermissions": {
     "defaultMessage": "Customer Portal access permissions",
@@ -1542,6 +1562,10 @@
     "defaultMessage": "Role assignments",
     "description": "Rola assignments label"
   },
+  "roleAssignmentsEmptyStateSubtitle": {
+    "defaultMessage": "This filter criteria matches no role assignments.{br}Try changing your filter input.",
+    "description": "Empty state subtitle role bindings"
+  },
   "roleCreatedSuccessfully": {
     "defaultMessage": "You have successfully created a new role",
     "description": "Role created successfully message"
@@ -1577,6 +1601,14 @@
   "roles": {
     "defaultMessage": "Roles",
     "description": "Roles plural"
+  },
+  "rolesEmptyStateSubtitle": {
+    "defaultMessage": "This filter criteria matches no roles.{br}Try changing your filter input.",
+    "description": "Empty state subtitle Roles"
+  },
+  "rolesEmptyStateTitle": {
+    "defaultMessage": "No roles found",
+    "description": "Empty state title Roles"
   },
   "save": {
     "defaultMessage": "Save",
@@ -1629,6 +1661,10 @@
   "selectState": {
     "defaultMessage": "Select a state",
     "description": "Select state label"
+  },
+  "selectUsersAndOrServiceAccounts": {
+    "defaultMessage": "Select users and/or service accounts",
+    "description": "select users and/or service accounts label"
   },
   "selectWorkspaces": {
     "defaultMessage": "Select workspaces",
@@ -1886,6 +1922,14 @@
     "defaultMessage": "Provide details for a workspace",
     "description": "Workspace details step title"
   },
+  "workspaceEmptyStateSubtitle": {
+    "defaultMessage": "This filter criteria matches no workspaces.{br}Try changing your filter input.",
+    "description": "Empty State Subtitle Workspaces"
+  },
+  "workspaceEmptyStateTitle": {
+    "defaultMessage": "No workspaces found",
+    "description": "Empty State Title Workspaces"
+  },
   "workspaceName": {
     "defaultMessage": "Workspace name",
     "description": "Workspace name label"
@@ -1893,6 +1937,10 @@
   "workspaceNamingGuidelines": {
     "defaultMessage": "{link} about the guidelines for naming your workspaces.",
     "description": "Workspace naming guidelines hint"
+  },
+  "workspaceNotEmptyWarning": {
+    "defaultMessage": "Workspace must be empty to delete and must not have any children workspaces. You must move assets in this workspace to other workspaces in order to proceed.",
+    "description": "Display text in delete modal when workspace is not empty"
   },
   "workspaceParentHelperText": {
     "defaultMessage": "This workspace will inherit access control settings, such as user groups and associated roles, from its parent workspace.",

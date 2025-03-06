@@ -19,6 +19,10 @@ export const addUsers = (usersData, config) => {
     payload: UserHelper.addUsers(usersData, config),
     meta: {
       notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: 'Invitation sent successfully',
+        },
         rejected: (payload) => {
           if (!payload.status) {
             return {
@@ -27,6 +31,15 @@ export const addUsers = (usersData, config) => {
               dismissDelay: 8000,
               dismissable: true,
               description: payload,
+            };
+          }
+          if (payload.status === 409) {
+            return {
+              variant: 'danger',
+              title: intl.formatMessage(messages.inviteUsersErrorTitle),
+              dismissDelay: 8000,
+              dismissable: true,
+              description: intl.formatMessage(messages.inviteUsersConflictDescription),
             };
           }
           return {

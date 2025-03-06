@@ -1,3 +1,4 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/RedHatInsights/frontend-components/refs/heads/master/packages/config-utils/src/feo/spec/frontend-crd.schema.json
 ---
 apiVersion: v1
 kind: Template
@@ -19,43 +20,112 @@ objects:
         paths:
           - /apps/rbac
       image: ${IMAGE}:${IMAGE_TAG}
-      navItems:
-        - appId: 'rbac'
-          title: 'My User Access'
-          href: '/iam/my-user-access'
-          description: 'View your account permissions for Red Hat Hybrid Cloud Console services.'
-        - title: 'User Access'
-          expandable: true
-          permissions:
-            - method: 'isEntitled'
-          routes:
-            - appId: 'rbac'
-              title: 'Users'
-              href: '/iam/user-access/users'
-            - appId: 'rbac'
-              title: 'Roles'
-              href: '/iam/user-access/roles'
-            - appId: 'rbac'
-              title: 'Groups'
-              href: '/iam/user-access/groups'
-            - appId: 'accessRequests'
-              title: 'Red Hat Access Requests'
-              href: '//iam/user-access/access-requests'
-              notifier: 'chrome.accessRequests.hasUnseen'
+      feoConfigEnabled: true
+      serviceTiles:
+        - section: iam
+          group: iam
+          id: users
+          href: /iam/user-access/users
+          title: Users
+          description: Manage your organization's role-based access control (RBAC) to services.
+          icon: PlaceholderIcon
+        - section: iam
+          group: iam
+          id: groups
+          href: /iam/user-access/groups
+          title: Groups
+          description: ""
+          icon: PlaceholderIcon
+        - section: iam
+          group: iam
+          id: authFactors
+          href: /iam/authentication-policy/authentication-factors
+          title: Authentication Factors
+          description: Manage how your organization authenticates to Red Hat services.
+          icon: authFactors
+        - section: iam
+          group: iam
+          id: serviceAccounts
+          href: /iam/service-accounts
+          title: Service Accounts
+          description: Authenticate and connect securely to APIs from multiple services.
+          icon: ServicesIcon
+        - section: iam
+          group: iam
+          id: idpIntegration
+          href: /iam/authentication-policy/identity-provider-integration
+          title: Identity Provider Integration
+          description: Manage identity provider integration for your organization.
+          icon: PlaceholderIcon
+      bundleSegments:
+        - segmentId: module-rbac-ui
+          bundleId: iam
+          navItems:
+            - id: my-user-access
+              title: My User Access
+              href: /iam/my-user-access
+            - id: user-access
+              title: User Access
+              expandable: true
+              permissions:
+                - method: loosePermissions
+                  args:
+                    - - 'rbac:*:*'
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces
+                    - false
+              routes:
+                - id: overview
+                  title: Overview
+                  href: /iam/user-access/overview
+                  permissions:
+                    - method: featureFlag
+                      args:
+                        - platform.rbac.overview
+                        - true
+                  product: Identity & Access Management
+                - id: users
+                  title: Users
+                  href: /iam/user-access/users
+                  icon: PlaceholderIcon
+                  product: Identity & Access Management
+
+                - id: roles
+                  title: Roles
+                  href: /iam/user-access/roles
+                  product: Identity & Access Management
+                - id: groups
+                  title: Groups
+                  href: /iam/user-access/groups
+                  icon: PlaceholderIcon
+                  product: Identity & Access Management
+                - segmentRef:
+                    frontendName: access-requests
+                    segmentId: iam-access-requests
+          position: 100
       module:
-        'manifestLocation': '/apps/rbac/fed-mods.json'
-        'isFedramp': true
-        'defaultDocumentTitle': 'User Access | Identity & Access Management'
+        manifestLocation: /apps/rbac/fed-mods.json
+        defaultDocumentTitle: User Access | Identity & Access Management
+        config:
+          ssoScopes:
+            - api.console
+            - api.iam.service_accounts
         modules:
-          - id: 'my-user-access'
-            module: './MyUserAccess'
+          - id: my-user-access
+            module: ./MyUserAccess
             routes:
               - pathname: /iam
               - pathname: /iam/my-user-access
-          - id: 'iam-user-access'
-            module: './IamUserAccess'
+          - id: settings-user-access
+            module: ./SettingsUserAccess
             routes:
-              - pathname: /iam/user-acces
+              - pathname: /settings/rbac
+          - id: iam-user-access
+            module: ./IamUserAccess
+            routes:
+              - pathname: /iam/user-access
+              - pathname: /iam/access-management
 
 parameters:
   - name: ENV_NAME

@@ -1,13 +1,14 @@
 import React, { Fragment } from 'react';
-import { Label } from '@patternfly/react-core';
 import { IntlShape } from 'react-intl';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import AppLink from '../../presentational-components/shared/AppLink';
 import OrgAdminDropdown from './OrgAdminDropdown';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-
+import ActivateToggle from './ActivateToggle';
+import { Label } from '@patternfly/react-core';
 export interface UserProps {
+  isSelected: boolean;
   email: string;
   first_name: string;
   is_active: boolean;
@@ -19,20 +20,22 @@ export interface UserProps {
 }
 
 export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement>; props?: { 'data-is-active': boolean } };
+export type SelectCell = {
+  select: {
+    rowIndex: number;
+    onSelect: (_event: unknown, isSelecting: boolean) => void;
+    isSelected: boolean;
+  };
+};
+export type CellType = SelectCell | React.ReactNode | CellObject | string;
 
 export interface RowProps {
   uuid: string; // username
-  cells: [
-    React.ReactNode, // yes or no for isOrgAdmin
-    CellObject, // link to user or just username
-    string, // email
-    string, // firstName
-    string, // lastName
-    CellObject // status
-  ];
+  cells: CellType[];
   selected: boolean;
   authModel?: boolean;
   orgAdmin?: boolean;
+  fetchData?: () => void;
 }
 
 export const createRows = (
@@ -41,16 +44,52 @@ export const createRows = (
   intl: IntlShape,
   checkedRows = [],
   isSelectable = false,
+  onSelectUser?: (user: UserProps, isSelecting: boolean) => void,
+  handleToggle?: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
   authModel?: boolean,
-  orgAdmin?: boolean
-): RowProps[] =>
-  data?.reduce<RowProps[]>(
-    (acc, { username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id }) => {
+  orgAdmin?: boolean,
+  fetchData?: () => void
+): RowProps[] => {
+  return data?.reduce<RowProps[]>(
+    (
+      acc,
+      { isSelected, username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id },
+      rowIndex
+    ) => {
+      const user = {
+        isSelected,
+        username,
+        is_active: isActive,
+        email,
+        first_name: firstName,
+        last_name: lastName,
+        is_org_admin: isOrgAdmin,
+        external_source_id,
+        uuid: username,
+      };
       const newEntry: RowProps = {
         uuid: username,
         cells: [
+          ...(onSelectUser && orgAdmin && authModel
+            ? [
+                {
+                  select: {
+                    rowIndex,
+                    onSelect: (_event: unknown, isSelecting: boolean) => onSelectUser(user, isSelecting),
+                    isSelected: isSelected,
+                  },
+                },
+              ]
+            : []),
           authModel && orgAdmin ? (
-            <OrgAdminDropdown key={`dropdown-${username}`} isOrgAdmin={isOrgAdmin} username={username} intl={intl} userId={external_source_id} />
+            <OrgAdminDropdown
+              key={`dropdown-${username}`}
+              isOrgAdmin={isOrgAdmin}
+              username={username}
+              intl={intl}
+              userId={external_source_id}
+              fetchData={fetchData}
+            />
           ) : isOrgAdmin ? (
             <Fragment>
               <CheckIcon key="yes-icon" className="pf-v5-u-mr-sm" />
@@ -72,16 +111,20 @@ export const createRows = (
           email,
           firstName,
           lastName,
-          {
-            title: (
-              <Label key="status" color={isActive ? 'green' : 'grey'}>
-                {intl.formatMessage(isActive ? messages.active : messages.inactive)}
-              </Label>
-            ),
-            props: {
-              'data-is-active': isActive,
-            },
-          },
+          ...(handleToggle && orgAdmin && authModel
+            ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />]
+            : [
+                {
+                  title: (
+                    <Label key="status" color={isActive ? 'green' : 'grey'}>
+                      {intl.formatMessage(isActive ? messages.active : messages.inactive)}
+                    </Label>
+                  ),
+                  props: {
+                    'data-is-active': isActive,
+                  },
+                },
+              ]),
         ],
         selected: isSelectable ? Boolean(checkedRows?.find?.(({ uuid }) => uuid === username)) : false,
       };
@@ -90,3 +133,4 @@ export const createRows = (
     },
     []
   );
+};
