@@ -88,6 +88,63 @@ describe('Users and User Groups page', () => {
     });
   });
 
+  it('should be able to filter the Users table', () => {
+    cy.visit('/iam/access-management/users-and-user-groups');
+    cy.wait('@getUsers', { timeout: 30000 });
+    cy.intercept('GET', '**/api/rbac/v1/principals/*usernames=test-user-1*', {
+      statusCode: 200,
+      body: {
+        data: [mockUsers.data[0]],
+        meta: {
+          count: 1,
+          limit: 20,
+          offset: 0,
+        },
+      },
+    }).as('getFilteredUsers');
+
+    cy.get('[data-ouia-component-id="iam-users-table-filters"]').click();
+    cy.get('[data-ouia-component-id="iam-users-table-username-filter"]').find('input').type('test-user-1');
+    cy.wait('@getFilteredUsers', { timeout: 30000 });
+
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-0"]').within(() => {
+      cy.get('td').eq(2).should('contain', 'test-user-1');
+    });
+  });
+
+  it('should be able to sort the Users table', () => {
+    cy.visit('/iam/access-management/users-and-user-groups');
+    cy.wait('@getUsers', { timeout: 30000 });
+    cy.intercept('GET', '**/api/rbac/v1/principals/*sort_order=desc*', {
+      statusCode: 200,
+      body: {
+        data: [mockUsers.data[1], mockUsers.data[0]],
+        meta: {
+          count: 2,
+          limit: 20,
+          offset: 0,
+        },
+      },
+    }).as('getSortedUsers');
+
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-0"]').within(() => {
+      cy.get('td').eq(2).should('contain', 'test-user-1');
+    });
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-1"]').within(() => {
+      cy.get('td').eq(2).should('contain', 'test-user-2');
+    });
+
+    cy.get('[data-ouia-component-id="iam-users-table-table-th-1"]').click();
+    cy.wait('@getSortedUsers', { timeout: 30000 });
+
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-0"]').within(() => {
+      cy.get('td').eq(2).should('contain', 'test-user-2');
+    });
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-1"]').within(() => {
+      cy.get('td').eq(2).should('contain', 'test-user-1');
+    });
+  });
+
   it('should display warning modal when removing user', () => {
     cy.visit('/iam/access-management/users-and-user-groups');
     cy.wait('@getUsers', { timeout: 30000 });
@@ -162,14 +219,14 @@ describe('Users and User Groups page', () => {
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-menu-control"] button').contains('Delete user group').click();
   });
 
-  it.only('should be able to open the Create User Groups Wizard from the toolbar', () => {
+  it('should be able to open the Create User Groups Wizard from the toolbar', () => {
     cy.visit('/iam/access-management/users-and-user-groups/user-groups');
     cy.wait('@getUserGroups', { timeout: 30000 });
 
-    cy.get('[data-ouia-component-id="add-group-wizard"]').should('not.exist');
+    cy.get('[data-ouia-component-id="edit-user-group-form"]').should('not.exist');
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-action-0"]').click();
-    cy.get('[data-ouia-component-id="add-group-wizard"]').should('exist');
+    cy.get('[data-ouia-component-id="edit-user-group-form"]').should('exist');
   });
 
   it('should be able to open Edit User Group page from row actions', () => {
