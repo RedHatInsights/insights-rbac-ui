@@ -424,16 +424,18 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
           filters={
-            <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
+            <DataViewFilters ouiaId={`${ouiaId}-filters`} onChange={(_e, values) => onSetFilters(values)} values={filters}>
               <DataViewTextFilter
                 filterId="username"
                 title={intl.formatMessage(messages.username)}
                 placeholder={intl.formatMessage(messages.filterByUsername)}
+                ouiaId={`${ouiaId}-username-filter`}
               />
               <DataViewTextFilter
                 filterId="email"
                 title={intl.formatMessage(messages.email)}
                 placeholder={intl.formatMessage(messages.filterByUsername)}
+                ouiaId={`${ouiaId}-email-filter`}
               />
             </DataViewFilters>
           }
