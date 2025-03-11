@@ -2613,13 +2613,13 @@ export default defineMessages({
     id: 'deleteWorkspaceModalBody',
     description: 'Modal body text for deleting a workspace',
     defaultMessage:
-      '<b>{name}</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
+      '{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.',
   },
   workspaceNotEmptyWarning: {
     id: 'workspaceNotEmptyWarning',
     description: 'Display text in delete modal when workspace is not empty',
     defaultMessage:
-      'Workspace must be empty to delete and must not have any children workspaces. You must move assets in this workspace to other workspaces in order to proceed.',
+      '{count, plural, one {Workspace} other {Workspaces}} must be empty to delete and must not have any children workspaces. You must move assets in {count, plural, one {this workspace} other {these workspaces}} to other workspaces in order to proceed.',
   },
   gotItButtonLabel: {
     id: 'gotItButtonLabel',

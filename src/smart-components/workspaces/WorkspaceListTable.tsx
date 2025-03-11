@@ -11,6 +11,7 @@ import {
   ResponsiveActions,
   SkeletonTableBody,
   SkeletonTableHead,
+  WarningModal,
 } from '@patternfly/react-component-groups';
 import {
   DataView,
@@ -22,6 +23,7 @@ import {
   DataViewToolbar,
   DataViewTrTree,
   useDataViewSelection,
+  DataViewTrObject,
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
@@ -29,8 +31,9 @@ import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody } from '@patternfly/react-core';
+import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
+import { ActionsColumn } from '@patternfly/react-table';
 
 interface WorkspaceFilters {
   name: string;
@@ -49,26 +52,6 @@ const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undef
 
   return root;
 };
-
-const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
-  workspaces.map((workspace) => ({
-    row: [
-      <AppLink
-        to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
-        key={`${workspace.id}-detail`}
-        className="rbac-m-hide-on-sm"
-      >
-        {workspace.name}
-      </AppLink>,
-      workspace.description,
-    ],
-    id: workspace.id,
-    ...(workspace.children && workspace.children.length > 0
-      ? {
-          children: buildRows(workspace.children),
-        }
-      : {}),
-  }));
 
 const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -116,6 +99,50 @@ const WorkspaceListTable = () => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
+
+  const handleModalToggle = (workspaces: Workspace[]) => {
+    setCurrentWorkspaces(workspaces);
+    setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+
+  const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
+    workspaces.map((workspace) => ({
+      row: Object.values({
+        name: (
+          <AppLink
+            to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
+            key={`${workspace.id}-detail`}
+            className="rbac-m-hide-on-sm"
+          >
+            {workspace.name}
+          </AppLink>
+        ),
+        description: workspace.description,
+        rowActions: {
+          cell: (
+            <ActionsColumn
+              items={[
+                {
+                  title: 'Delete workspace',
+                  onClick: () => {
+                    handleModalToggle([workspace]);
+                  },
+                },
+              ]}
+            />
+          ),
+          props: { isActionCell: true },
+        },
+      }),
+      id: workspace.id,
+      ...(workspace.children && workspace.children.length > 0
+        ? {
+            children: buildRows(workspace.children),
+          }
+        : {}),
+    }));
 
   const { isLoading, workspaces, error } = useSelector((state: RBACStore) => ({
     workspaces: state.workspacesReducer.workspaces || [],
@@ -152,12 +179,55 @@ const WorkspaceListTable = () => {
     selection.onSelect(value === BulkSelectValue.all, value === BulkSelectValue.all ? workspaces : []);
   };
 
+  const hasAssets = useMemo(() => {
+    return selection.selected.filter((ws) => ws.children && ws.children?.length > 0).length > 0 ? true : false;
+  }, [selection.selected, workspaces]);
+
   if (error) {
     return <ErrorState errorDescription={error} />;
   }
 
   return (
     <React.Fragment>
+      {isDeleteModalOpen && (
+        <WarningModal
+          ouiaId={'remove-workspaces-modal'}
+          isOpen={isDeleteModalOpen}
+          title={intl.formatMessage(messages.deleteWorkspaceModalHeader)}
+          confirmButtonLabel={!hasAssets ? intl.formatMessage(messages.delete) : intl.formatMessage(messages.gotItButtonLabel)}
+          confirmButtonVariant={!hasAssets ? ButtonVariant.danger : ButtonVariant.primary}
+          withCheckbox={!hasAssets}
+          checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
+          onClose={() => setIsDeleteModalOpen(false)}
+          onConfirm={() => {
+            !hasAssets ? console.log('deleting workspaces') : null;
+            setIsDeleteModalOpen(false);
+          }}
+          cancelButtonLabel={!hasAssets ? 'Cancel' : ''}
+        >
+          {hasAssets ? (
+            <FormattedMessage
+              {...messages.workspaceNotEmptyWarning}
+              values={{
+                b: (text) => <b>{text}</b>,
+                count: currentWorkspaces.length,
+                plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
+                name: currentWorkspaces[0]?.name,
+              }}
+            />
+          ) : (
+            <FormattedMessage
+              {...messages.deleteWorkspaceModalBody}
+              values={{
+                b: (text) => <b>{text}</b>,
+                count: currentWorkspaces.length,
+                plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
+                name: currentWorkspaces[0]?.name,
+              }}
+            />
+          )}
+        </WarningModal>
+      )}
       <DataView selection={selection} activeState={activeState}>
         <DataViewToolbar
           bulkSelect={
@@ -186,6 +256,17 @@ const WorkspaceListTable = () => {
             <ResponsiveActions>
               <ResponsiveAction ouiaId="create-workspace-button" isPinned onClick={() => navigate({ pathname: pathnames['create-workspace'].link })}>
                 {intl.formatMessage(messages.createWorkspace)}
+              </ResponsiveAction>
+              <ResponsiveAction
+                ouiaId="delete-workspace-button"
+                isDisabled={selection.selected.length === 0}
+                onClick={() => {
+                  handleModalToggle(
+                    workspaces.filter((workspace) => selection.selected.some((selectedRow: DataViewTrObject) => selectedRow.id === workspace.id))
+                  );
+                }}
+              >
+                {intl.formatMessage(messages.workspacesActionDeleteWorkspace)}
               </ResponsiveAction>
             </ResponsiveActions>
           }
