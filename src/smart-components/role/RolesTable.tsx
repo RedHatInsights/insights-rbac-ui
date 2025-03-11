@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useCallback, useState, useRef, useMemo, Suspense } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
@@ -27,7 +27,8 @@ import messages from '../../Messages';
 import { debouncedFetch, mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
-import { useSearchParams } from 'react-router-dom';
+import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesTableDetails';
 import {
   ResponsiveAction,
@@ -40,6 +41,8 @@ import {
 import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
 import { PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
 import { SearchIcon } from '@patternfly/react-icons';
+import { mergeToBasename } from '../../presentational-components/shared/AppLink';
+import pathnames from '../../utilities/pathnames';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -102,6 +105,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     searchParams,
     setSearchParams,
   });
+
+  const navigate = useNavigate();
 
   const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
   const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
@@ -270,6 +275,9 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             }
             actions={
               <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(mergeToBasename(paths['add-role'].link))} isPinned>
+                  {intl.formatMessage(messages.createRole)}
+                </ResponsiveAction>
                 <ResponsiveAction
                   isDisabled={selected.length === 0 || selected.some(isRowSystemOrPlatformDefault)}
                   onClick={() => {
@@ -332,6 +340,16 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             }
           />
         </DataView>
+        <Suspense>
+          <Outlet
+            context={{
+              [pathnames['add-role'].path]: {
+                pagination,
+                filters: { display_name: filters.display_name },
+              },
+            }}
+          />
+        </Suspense>
       </PageSection>
     </React.Fragment>
   );

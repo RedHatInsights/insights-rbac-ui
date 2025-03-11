@@ -154,11 +154,17 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
     ],
   },
-  ...(isWorkspacesFlag
+  ...(!isWorkspacesFlag
     ? [
         {
           path: pathnames.roles.path,
           element: newRolesTable,
+          childRoutes: [
+            {
+              path: pathnames['add-role'].path,
+              element: AddRoleWizard,
+            },
+          ],
         },
       ]
     : [
