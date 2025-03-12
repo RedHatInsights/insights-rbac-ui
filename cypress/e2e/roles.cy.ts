@@ -205,4 +205,17 @@ describe('Roles page', () => {
     cy.wait('@filterRoles', { timeout: 15000 });
     cy.get('table tbody tr').should('have.length', 1);
   });
+
+  it('should open the add roles wizard', () => {
+    cy.get('button[data-ouia-component-id="add-role-button"]').click();
+    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('exist');
+    cy.contains('Create Role').should('be.visible');
+  });
+
+  it('should close the add role wizard on cancel', () => {
+    cy.get('button[data-ouia-component-id="add-role-button"]').click();
+    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('exist');
+    cy.contains('Cancel').click();
+    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('not.exist');
+  });
 });

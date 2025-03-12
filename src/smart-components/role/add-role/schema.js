@@ -27,6 +27,7 @@ export const schemaBuilder = (container, featureFlag) => {
         inModal: true,
         showTitles: true,
         crossroads: ['role-type'],
+        'data-ouia-component-id': 'add-role-wizard',
         title: intl.formatMessage(messages.createRole),
         style: { overflow: 'hidden' },
         container,
