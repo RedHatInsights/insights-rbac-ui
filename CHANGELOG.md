@@ -1,3 +1,15 @@
+# [1.27.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.26.0...v1.27.0) (2025-03-12)
+
+
+### Bug Fixes
+
+* **role wizard:** unflip workspace flag ([9807831](https://github.com/RedHatInsights/insights-rbac-ui/commit/9807831ab82e75ab12e29b14fc688124a53b6931))
+
+
+### Features
+
+* **role wizard:** include add role wizard to new role page ([18b0aab](https://github.com/RedHatInsights/insights-rbac-ui/commit/18b0aabc54effb0e6f158bb18e38ee50814f8e8b))
+
 # [1.26.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.25.0...v1.26.0) (2025-03-11)
 
 
