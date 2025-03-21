@@ -3,13 +3,24 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { useSelector, useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
-import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import {
+  useDataViewSelection,
+  useDataViewPagination,
+  useDataViewSort,
+  useDataViewFilters,
+  useDataViewEventsContext,
+  DataViewState,
+  EventTypes,
+  DataViewTh,
+  DataViewTextFilter,
+} from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
 import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import {
   ButtonVariant,
   Pagination,
@@ -28,8 +39,7 @@ import {
   Split,
   SplitItem,
 } from '@patternfly/react-core';
-import { ActionsColumn } from '@patternfly/react-table';
-import { DataViewState, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { ActionsColumn, ThProps } from '@patternfly/react-table';
 import { SearchIcon } from '@patternfly/react-icons';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -44,38 +54,29 @@ import PermissionsContext from '../../../../utilities/permissions-context';
 import OrgAdminDropdown from '../../../user/OrgAdminDropdown';
 import { useFlag } from '@unleash/proxy-client-react';
 
-const authModel = useFlag('platform.rbac.common-auth-model');
-const COLUMNS: string[] = authModel
-  ? ['Org admin', 'Username', 'Email', 'First name', 'Last name', 'Status']
-  : ['Username', 'Email', 'First name', 'Last name', 'Status', 'Org admin'];
+interface UsersFilters {
+  username: string;
+  email: string;
+}
 
-const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
-  return (
-    <EmptyState>
-      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['usersEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-};
-
-const loadingHeader = <SkeletonTableHead columns={COLUMNS} />;
-const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={COLUMNS.length} />;
-
-const OUIA_ID = 'iam-users-table';
+const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
+  <EmptyState>
+    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+    <EmptyStateBody>
+      <FormattedMessage {...messages['usersEmptyStateSubtitle']} values={{ br: <br /> }} />
+    </EmptyStateBody>
+  </EmptyState>
+);
 
 interface UsersTableProps {
   onAddUserClick: (selected: User[]) => void;
   focusedUser?: User;
+  defaultPerPage?: number;
+  ouiaId?: string;
 }
 
-const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, focusedUser }) => {
+const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, defaultPerPage = 20, ouiaId = 'iam-users-table' }) => {
+  const authModel = useFlag('platform.rbac.common-auth-model');
   const { getBundle, getApp } = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
@@ -83,6 +84,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
   const dispatch = useDispatch();
   const intl = useIntl();
   const { trigger } = useDataViewEventsContext();
+  const [searchParams, setSearchParams] = useSearchParams();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
 
   const { users, totalCount, isLoading } = useSelector((state: RBACStore) => ({
@@ -164,35 +166,104 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const [searchParams, setSearchParams] = useSearchParams();
-  const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
+  // Define columns based on authModel flag
+  const columns = useMemo(() => {
+    if (authModel) {
+      return [
+        { label: intl.formatMessage(messages.orgAdmin), key: 'is_org_admin', index: 0, sort: false },
+        { label: intl.formatMessage(messages.username), key: 'username', index: 1, sort: true },
+        { label: intl.formatMessage(messages.email), key: 'email', index: 2, sort: false },
+        { label: intl.formatMessage(messages.firstName), key: 'first_name', index: 3, sort: false },
+        { label: intl.formatMessage(messages.lastName), key: 'last_name', index: 4, sort: false },
+        { label: intl.formatMessage(messages.status), key: 'is_active', index: 5, sort: false },
+      ];
+    } else {
+      return [
+        { label: intl.formatMessage(messages.username), key: 'username', index: 0, sort: true },
+        { label: intl.formatMessage(messages.email), key: 'email', index: 1, sort: false },
+        { label: intl.formatMessage(messages.firstName), key: 'first_name', index: 2, sort: false },
+        { label: intl.formatMessage(messages.lastName), key: 'last_name', index: 3, sort: false },
+        { label: intl.formatMessage(messages.status), key: 'is_active', index: 4, sort: false },
+        { label: intl.formatMessage(messages.orgAdmin), key: 'is_org_admin', index: 5, sort: false },
+      ];
+    }
+  }, [authModel, intl]);
+
+  const { sortBy, direction, onSort } = useDataViewSort({
+    searchParams,
+    setSearchParams,
+    initialSort: {
+      sortBy: 'username',
+      direction: 'asc',
+    },
+  });
+
+  const sortByIndex = useMemo(() => columns.findIndex((column) => column.key === sortBy), [sortBy, columns]);
+
+  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
+    sortBy: {
+      index: sortByIndex,
+      direction,
+      defaultDirection: 'asc',
+    },
+    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
+    columnIndex,
+  });
+
+  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
+    cell: column.label,
+    props: column.sort ? { sort: getSortParams(index) } : {},
+  }));
+
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UsersFilters>({
+    initialFilters: { username: '', email: '' },
+    searchParams,
+    setSearchParams,
+  });
+
+  const pagination = useDataViewPagination({
+    perPage: defaultPerPage,
+    searchParams,
+    setSearchParams,
+  });
+
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
+  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.label)} />;
+  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
+
   const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
-      const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchUsers({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true }));
+    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters?: UsersFilters }) => {
+      const { count, limit, offset, orderBy, filters } = apiProps;
+      const orderDirection = direction === 'desc' ? '-' : '';
+      dispatch(
+        fetchUsers({
+          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          usesMetaInURL: true,
+        })
+      );
     },
-    [dispatch]
+    [dispatch, direction]
   );
 
   useEffect(() => {
     fetchData({
       limit: perPage,
       offset: (page - 1) * perPage,
-      orderBy: 'username',
+      orderBy: sortBy || 'username',
       count: totalCount || 0,
+      filters,
     });
-  }, [fetchData, page, perPage]);
+  }, [fetchData, page, perPage, sortBy, direction, filters, totalCount]);
 
   useEffect(() => {
     if (isLoading) {
       setActiveState(DataViewState.loading);
     } else {
-      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
+      setActiveState(totalCount === 0 ? DataViewState.empty : undefined);
     }
   }, [totalCount, isLoading]);
 
@@ -208,7 +279,9 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
 
   const rows = useMemo(() => {
     const handleRowClick = (event: any, user: User | undefined) => {
-      (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, user);
+      if (event.target.matches('td') || event.target.matches('tr')) {
+        trigger(EventTypes.rowClick, user);
+      }
     };
 
     return users.map((user: User) => ({
@@ -228,6 +301,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                 offset: (page - 1) * perPage,
                 orderBy: 'username',
                 count: totalCount || 0,
+                filters,
               });
             }}
           />
@@ -278,7 +352,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
         isRowSelected: focusedUser?.username === user.username,
       },
     }));
-  }, [users, intl, onAddUserClick, handleModalToggle, trigger, focusedUser?.username]);
+  }, [users, intl, onAddUserClick, handleModalToggle, trigger, focusedUser?.username, filters]);
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);
   const pagePartiallySelected = !pageSelected && rows.some(isSelected);
@@ -298,7 +372,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
     <Fragment>
       {isDeleteModalOpen && (
         <WarningModal
-          ouiaId={`${OUIA_ID}-remove-user-modal`}
+          ouiaId={`${ouiaId}-remove-user-modal`}
           isOpen={isDeleteModalOpen}
           title={intl.formatMessage(messages.deleteUserModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.remove)}
@@ -315,7 +389,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
       )}
       {isStatusModalOpen && (
         <WarningModal
-          ouiaId={`${OUIA_ID}-deactivate-status-modal`}
+          ouiaId={`${ouiaId}-deactivate-status-modal`}
           isOpen={isStatusModalOpen}
           title={intl.formatMessage(messages.deactivateUsersConfirmationModalTitle)}
           confirmButtonLabel={intl.formatMessage(messages.deactivateUsersConfirmationButton)}
@@ -329,16 +403,14 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
 
           <List isPlain isBordered className="pf-u-p-md">
             {selected.map((user) => (
-              <>
-                <ListItem key={user.id}>{user.id}</ListItem>
-              </>
+              <ListItem key={user.id}>{user.id}</ListItem>
             ))}
           </List>
         </WarningModal>
       )}
-      <DataView ouiaId={OUIA_ID} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }} activeState={activeState}>
+      <DataView ouiaId={ouiaId} selection={{ ...selection, isSelectDisabled: (row) => !row.is_active }} activeState={activeState}>
         <DataViewToolbar
-          ouiaId={`${OUIA_ID}-header-toolbar`}
+          ouiaId={`${ouiaId}-header-toolbar`}
           bulkSelect={
             <BulkSelect
               isDataPaginated
@@ -351,6 +423,23 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
             />
           }
           pagination={React.cloneElement(paginationComponent, { isCompact: true })}
+          filters={
+            <DataViewFilters ouiaId={`${ouiaId}-filters`} onChange={(_e, values) => onSetFilters(values)} values={filters}>
+              <DataViewTextFilter
+                filterId="username"
+                title={intl.formatMessage(messages.username)}
+                placeholder={intl.formatMessage(messages.filterByUsername)}
+                ouiaId={`${ouiaId}-username-filter`}
+              />
+              <DataViewTextFilter
+                filterId="email"
+                title={intl.formatMessage(messages.email)}
+                placeholder={intl.formatMessage(messages.filterByUsername)}
+                ouiaId={`${ouiaId}-email-filter`}
+              />
+            </DataViewFilters>
+          }
+          clearAllFilters={clearAllFilters}
           actions={
             <>
               <Split hasGutter>
@@ -364,7 +453,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                         {intl.formatMessage(messages.activateUsersButton)}
                       </MenuToggle>
                     )}
-                    ouiaId={`${OUIA_ID}-status-dropdown`}
+                    ouiaId={`${ouiaId}-status-dropdown`}
                     shouldFocusToggleOnSelect
                   >
                     <DropdownList>
@@ -373,7 +462,7 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                     </DropdownList>
                   </Dropdown>
                 </SplitItem>
-                <ResponsiveActions breakpoint="lg" ouiaId={`${OUIA_ID}-table-actions`}>
+                <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-table-actions`}>
                   <ResponsiveAction
                     isPersistent
                     onClick={() => {
@@ -381,14 +470,13 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
                     }}
                     variant="primary"
                     isDisabled={selected.length === 0}
-                    ouiaId={`${OUIA_ID}-add-user-button`}
+                    ouiaId={`${ouiaId}-add-user-button`}
                   >
                     {intl.formatMessage(messages['addToUserGroup'])}
                   </ResponsiveAction>
                   <ResponsiveAction
                     variant="primary"
                     onClick={() => {
-                      console.log('fooo');
                       appNavigate(paths['invite-group-users'].link);
                     }}
                   >
@@ -402,13 +490,13 @@ const UsersTable: React.FunctionComponent<UsersTableProps> = ({ onAddUserClick, 
         <DataViewTable
           variant="compact"
           aria-label="Users Table"
-          ouiaId={`${OUIA_ID}-table`}
-          columns={COLUMNS}
+          ouiaId={`${ouiaId}-table`}
+          columns={sortableColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
           bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}
         />
-        <DataViewToolbar ouiaId={`${OUIA_ID}-footer-toolbar`} pagination={paginationComponent} />
+        <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>
       <Suspense>
         <Outlet

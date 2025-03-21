@@ -391,6 +391,16 @@ export default defineMessages({
     description: 'Filter by data key label',
     defaultMessage: 'Filter by {key}',
   },
+  filterByUsername: {
+    id: 'filterByUsername',
+    description: 'Filter by username label',
+    defaultMessage: 'Filter by username',
+  },
+  filterByEmail: {
+    id: 'filterByEmail',
+    description: 'Filter by email label',
+    defaultMessage: 'Filter by email',
+  },
   editGroupSuccessTitle: {
     id: 'editGroupSuccessTitle',
     description: 'Edit group success notification title',
