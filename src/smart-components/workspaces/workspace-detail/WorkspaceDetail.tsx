@@ -128,7 +128,9 @@ const WorkspaceDetail = () => {
           ouiaId="assets-tab-button"
         />
       </Tabs>
-      <PageSection>{activeTabString === 'assets' ? <AssetsCards /> : enableRoles && <RoleAssignmentsTable />}</PageSection>
+      <PageSection>
+        {activeTabString === 'assets' ? <AssetsCards workspaceName={selectedWorkspace?.name} /> : enableRoles && <RoleAssignmentsTable />}
+      </PageSection>
     </>
   );
 };
