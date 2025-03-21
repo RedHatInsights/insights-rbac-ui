@@ -1,3 +1,10 @@
+## [1.27.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.0...v1.27.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* handle case of undefined group ([#1782](https://github.com/RedHatInsights/insights-rbac-ui/issues/1782)) ([f4021f1](https://github.com/RedHatInsights/insights-rbac-ui/commit/f4021f170d990aa07f375e4527f929becfccaaa2))
+
 # [1.27.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.26.0...v1.27.0) (2025-03-12)
 
 
