@@ -1,12 +1,12 @@
 import {
   Brand,
+  Button,
   Card,
   CardBody,
   CardFooter,
   CardHeader,
   CardTitle,
   Gallery,
-  Icon,
   Panel,
   PanelHeader,
   PanelMain,
@@ -49,12 +49,9 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
               <CardTitle>{intl.formatMessage(Messages.assetManagementInsights)}</CardTitle>
               <CardBody>{intl.formatMessage(Messages.assetManagementInsightsOverview)}</CardBody>
               <CardFooter>
-                <a href={InsightsNavURL}>
+                <Button variant="link" component="a" href={InsightsNavURL} icon={<ArrowRightIcon />} iconPosition="end" isInline>
                   {intl.formatMessage(Messages.assetManagementInsightsNav)}
-                  <Icon className="pf-v5-u-ml-sm" isInline>
-                    <ArrowRightIcon />
-                  </Icon>
-                </a>
+                </Button>
               </CardFooter>
             </Card>
             <Card>
@@ -64,12 +61,9 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
               <CardTitle>{intl.formatMessage(Messages.assetManagementOpenShift)}</CardTitle>
               <CardBody>{intl.formatMessage(Messages.assetManagementOpenShiftOverview)}</CardBody>
               <CardFooter>
-                <a href={OpenShiftNavURL}>
+                <Button variant="link" component="a" href={OpenShiftNavURL} icon={<ArrowRightIcon />} iconPosition="end" isInline>
                   {intl.formatMessage(Messages.assetManagementOpenShiftNav)}
-                  <Icon className="pf-v5-u-ml-sm" isInline>
-                    <ArrowRightIcon />
-                  </Icon>
-                </a>
+                </Button>
               </CardFooter>
             </Card>
           </Gallery>
