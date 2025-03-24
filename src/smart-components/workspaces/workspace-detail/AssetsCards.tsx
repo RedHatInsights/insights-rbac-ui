@@ -32,20 +32,17 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
     lg: '150px',
     xl: '200px',
     '2xl': '300px',
-  }
-  const AssetsCardsIconWidths = { 
+  };
+  const AssetsCardsIconWidths = {
     default: '48px',
-  }
+  };
 
   return (
     <Panel>
       <PanelHeader>{intl.formatMessage(Messages.assetManagementOverview)}</PanelHeader>
       <PanelMain>
         <PanelMainBody>
-          <Gallery
-            hasGutter
-            minWidths={AssetsCardsWidths}
-          >
+          <Gallery hasGutter minWidths={AssetsCardsWidths}>
             <Card>
               <CardHeader>
                 <Brand src={InsightsIcon} alt="Insights logo" widths={AssetsCardsIconWidths} />
