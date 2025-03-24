@@ -27,6 +27,15 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
   const InsightsNavURL = `/insights/inventory?workspace=${workspaceName}`;
   const OpenShiftNavURL = `/openshift/?workspace=${workspaceName}`;
   const intl = useIntl();
+  const AssetsCardsWidths = {
+    md: '100px',
+    lg: '150px',
+    xl: '200px',
+    '2xl': '300px',
+  }
+  const AssetsCardsIconWidths = { 
+    default: '48px',
+  }
 
   return (
     <Panel>
@@ -35,16 +44,11 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
         <PanelMainBody>
           <Gallery
             hasGutter
-            minWidths={{
-              md: '100px',
-              lg: '150px',
-              xl: '200px',
-              '2xl': '300px',
-            }}
+            minWidths={AssetsCardsWidths}
           >
             <Card>
               <CardHeader>
-                <Brand src={InsightsIcon} alt="Insights logo" style={{ width: '48px' }} />
+                <Brand src={InsightsIcon} alt="Insights logo" widths={AssetsCardsIconWidths} />
               </CardHeader>
               <CardTitle>{intl.formatMessage(Messages.assetManagementInsights)}</CardTitle>
               <CardBody>{intl.formatMessage(Messages.assetManagementInsightsOverview)}</CardBody>
@@ -56,7 +60,7 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
             </Card>
             <Card>
               <CardHeader>
-                <Brand src={OpenShiftIcon} alt="OpenShift logo" style={{ width: '48px' }} />
+                <Brand src={OpenShiftIcon} alt="OpenShift logo" widths={AssetsCardsIconWidths} />
               </CardHeader>
               <CardTitle>{intl.formatMessage(Messages.assetManagementOpenShift)}</CardTitle>
               <CardBody>{intl.formatMessage(Messages.assetManagementOpenShiftOverview)}</CardBody>
