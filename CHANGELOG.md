@@ -1,3 +1,10 @@
+# [1.28.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.1...v1.28.0) (2025-03-25)
+
+
+### Features
+
+* enable sorting and filtering for users table ([#1777](https://github.com/RedHatInsights/insights-rbac-ui/issues/1777)) ([70507bb](https://github.com/RedHatInsights/insights-rbac-ui/commit/70507bb8c57e4126ab361b6da8dd659649bf90ea))
+
 ## [1.27.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.0...v1.27.1) (2025-03-21)
 
 
