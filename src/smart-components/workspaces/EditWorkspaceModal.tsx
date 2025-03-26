@@ -19,7 +19,6 @@ const EditWorkspaceModal: React.FC = () => {
   const dispatch = useDispatch();
   const params = useParams();
   const workspaceId = params.workspaceId;
-  const [isLoading, setIsLoading] = useState(true);
   const [initialFormData, setInitialFormData] = useState<{
     name?: string;
     description?: string;
@@ -38,7 +37,6 @@ const EditWorkspaceModal: React.FC = () => {
             description: workspace.description,
           });
         }
-        setIsLoading(false);
       }
     };
     fetchData();
