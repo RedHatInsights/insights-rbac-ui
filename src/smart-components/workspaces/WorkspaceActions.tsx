@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { Suspense, useState } from 'react';
 import {
   ButtonVariant,
   Divider,
@@ -16,6 +16,10 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
+import { Outlet, useNavigate } from 'react-router-dom';
+import pathnames from '../../utilities/pathnames';
+import paths from '../../utilities/pathnames';
+import { mergeToBasename } from '../../presentational-components/shared/AppLink';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
@@ -44,6 +48,7 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const intl = useIntl();
+  const navigate = useNavigate();
 
   const toggle = (
     <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">
@@ -76,6 +81,9 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
     setIsOpen(!isOpen);
     if (action === ActionType.DELETE_WORKSPACE) {
       setIsDeleteModalOpen(true);
+    }
+    if (action === ActionType.EDIT_WORKSPACE) {
+      navigate(mergeToBasename(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id)));
     }
   };
 
@@ -212,6 +220,20 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
         toggleRef={toggleRef}
         popperProps={{ position: 'end' }}
       />
+      <Suspense>
+        <Outlet
+          context={{
+            [pathnames['edit-workspace'].path]: {
+              afterSubmit: () => {
+                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+              },
+              onCancel: () => {
+                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+              },
+            },
+          }}
+        />
+      </Suspense>
     </React.Fragment>
   );
 };
