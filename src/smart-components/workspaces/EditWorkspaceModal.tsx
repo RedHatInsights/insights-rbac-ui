@@ -11,6 +11,7 @@ import { RBACStore } from '../../redux/store';
 import { fetchWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import { useParams } from 'react-router-dom';
 import { updateWorkspace } from '../../redux/actions/workspaces-actions';
+import paths from '../../utilities/pathnames';
 
 const EditWorkspaceModal: React.FC = () => {
   const intl = useIntl();
@@ -75,22 +76,21 @@ const EditWorkspaceModal: React.FC = () => {
   );
 
   const returnToPreviousPage = () => {
-    navigate(-1);
+    navigate(paths['workspace-detail'].link.replace(':workspaceId', workspaceId ?? ''));
   };
 
   const onCancel = () => {
     dispatch(
       addNotification({
         variant: 'warning',
-        title: intl.formatMessage(messages.editingRoleTitle),
-        description: intl.formatMessage(messages.editingRoleCanceledDescription),
+        title: intl.formatMessage(messages.editingWorkspaceTitle),
+        description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
       })
     );
-    navigate(-1);
+    returnToPreviousPage();
   };
 
   const handleSubmit = async (data: Record<string, any>) => {
-    console.log(data);
     dispatch(updateWorkspace({ uuid: workspaceId as string, workspacesPatchWorkspaceRequest: { name: data.name, description: data.description } }));
     returnToPreviousPage();
   };

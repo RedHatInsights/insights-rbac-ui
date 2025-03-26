@@ -83,8 +83,6 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
       setIsDeleteModalOpen(true);
     }
     if (action === ActionType.EDIT_WORKSPACE) {
-      console.log(`editing workspace ${currentWorkspace.name}`);
-      console.log(currentWorkspace);
       navigate(mergeToBasename(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id)));
     }
   };
@@ -225,7 +223,14 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
       <Suspense>
         <Outlet
           context={{
-            [pathnames['edit-workspace'].path]: {},
+            [pathnames['edit-workspace'].path]: {
+              afterSubmit: () => {
+                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+              },
+              onCancel: () => {
+                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+              },
+            },
           }}
         />
       </Suspense>

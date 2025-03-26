@@ -1,6 +1,6 @@
 import * as ActionTypes from '../action-types';
 import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
-import { WorkspaceCreateBody, WorkspaceUpdateBody } from '../reducers/workspaces-reducer';
+import { WorkspaceCreateBody } from '../reducers/workspaces-reducer';
 import { createIntl, createIntlCache } from 'react-intl';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
@@ -53,10 +53,10 @@ export const updateWorkspace = (workspaceData: WorkspacesPatchParams) => {
       notifications: {
         fulfilled: {
           variant: 'success',
-          title: intl.formatMessage(messages.updateWorkspaceSuccessTitle),
+          title: intl.formatMessage(messages.editWorkspaceSuccessTitle),
           dismissDelay: 8000,
           dismissable: true,
-          description: intl.formatMessage(messages.updateWorkspaceSuccessDescription),
+          description: intl.formatMessage(messages.editWorkspaceSuccessDescription),
         },
         rejected: {
           variant: 'danger',

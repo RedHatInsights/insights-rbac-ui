@@ -1085,15 +1085,25 @@ export default defineMessages({
     description: 'Create workspace error notification description',
     defaultMessage: 'The workspace was not created successfuly.',
   },
-  updateWorkspaceSuccessTitle: {
-    id: 'updateWorkspaceSuccessTitle',
+  editWorkspaceSuccessTitle: {
+    id: 'editWorkspaceSuccessTitle',
     description: 'Update workspace success notification title',
     defaultMessage: 'Success updating workspace',
   },
-  updateWorkspaceSuccessDescription: {
-    id: 'updateWorkspaceSuccessTitle',
+  editWorkspaceSuccessDescription: {
+    id: 'editWorkspaceSuccessDescription',
     description: 'Update workspace success notification description',
     defaultMessage: 'The workspace was updated successfully.',
+  },
+  editingWorkspaceTitle: {
+    id: 'editingWorkspaceTitle',
+    description: 'Editing workspace notification title',
+    defaultMessage: 'Editing workspace',
+  },
+  editingWorkspaceCanceledDescription: {
+    id: 'editingWorkspaceCanceledDescription',
+    description: 'Edit workspace canceled notification description',
+    defaultMessage: 'Edit workspace was canceled by the user.',
   },
   roleAssignments: {
     id: 'roleAssignments',
