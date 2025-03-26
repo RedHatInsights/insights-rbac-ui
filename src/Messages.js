@@ -1079,10 +1079,21 @@ export default defineMessages({
     description: 'Create workspace error notification title',
     defaultMessage: 'Failed creating {name} workspace',
   },
+
   createWorkspaceErrorDescription: {
     id: 'createWorkspaceErrorDescription',
     description: 'Create workspace error notification description',
     defaultMessage: 'The workspace was not created successfuly.',
+  },
+  updateWorkspaceSuccessTitle: {
+    id: 'updateWorkspaceSuccessTitle',
+    description: 'Update workspace success notification title',
+    defaultMessage: 'Success updating workspace',
+  },
+  updateWorkspaceSuccessDescription: {
+    id: 'updateWorkspaceSuccessTitle',
+    description: 'Update workspace success notification description',
+    defaultMessage: 'The workspace was updated successfully.',
   },
   roleAssignments: {
     id: 'roleAssignments',

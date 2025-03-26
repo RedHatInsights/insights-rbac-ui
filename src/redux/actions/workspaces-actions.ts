@@ -1,6 +1,6 @@
 import * as ActionTypes from '../action-types';
 import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
-import { WorkspaceCreateBody } from '../reducers/workspaces-reducer';
+import { WorkspaceCreateBody, WorkspaceUpdateBody } from '../reducers/workspaces-reducer';
 import { createIntl, createIntlCache } from 'react-intl';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
@@ -35,6 +35,34 @@ export const createWorkspace = (config: WorkspaceCreateBody) => {
           variant: 'success',
           title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: config.name }),
           dismissDelay: 8000,
+        },
+      },
+    },
+  };
+};
+
+export const updateWorkspace = (workspaceData: WorkspaceUpdateBody) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  return {
+    type: ActionTypes.PATCH_WORKSPACE,
+    payload: WorkspacesHelper.updateWorkspace(workspaceData),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.updateWorkspaceSuccessTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.updateWorkspaceSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.editGroupErrorTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editGroupErrorDescription),
         },
       },
     },
