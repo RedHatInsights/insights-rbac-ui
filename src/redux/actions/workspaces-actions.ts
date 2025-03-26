@@ -5,6 +5,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
 import messages from '../../Messages';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 
 export const fetchWorkspaces = () => ({
   type: ActionTypes.FETCH_WORKSPACES,
@@ -41,7 +42,7 @@ export const createWorkspace = (config: WorkspaceCreateBody) => {
   };
 };
 
-export const updateWorkspace = (workspaceData: WorkspaceUpdateBody) => {
+export const updateWorkspace = (workspaceData: WorkspacesPatchParams) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
 

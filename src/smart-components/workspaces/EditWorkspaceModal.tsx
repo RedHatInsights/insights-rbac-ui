@@ -91,7 +91,7 @@ const EditWorkspaceModal: React.FC = () => {
 
   const handleSubmit = async (data: Record<string, any>) => {
     console.log(data);
-    dispatch(updateWorkspace({ uuid: workspaceId, name: data.name, description: data.description }));
+    dispatch(updateWorkspace({ uuid: workspaceId as string, workspacesPatchWorkspaceRequest: { name: data.name, description: data.description } }));
     returnToPreviousPage();
   };
 

@@ -1,6 +1,7 @@
 import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesList';
-import { WorkspaceCreateBody, WorkspaceUpdateBody } from '../../redux/reducers/workspaces-reducer';
+import { WorkspaceCreateBody } from '../../redux/reducers/workspaces-reducer';
 import { getWorkspacesApi } from './api';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 
 const workspacesApi = getWorkspacesApi();
 
@@ -16,6 +17,6 @@ export async function createWorkspace(config: WorkspaceCreateBody) {
   return await workspacesApi.createWorkspace(config);
 }
 
-export async function updateWorkspace(config: WorkspaceUpdateBody) {
-  return await workspacesApi.updateWorkspace(config);
+export async function updateWorkspace(config: WorkspacesPatchParams) {
+  return await workspacesApi.updateWorkspace(config.uuid, config.workspacesPatchWorkspaceRequest);
 }
