@@ -34,6 +34,7 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ActionsColumn } from '@patternfly/react-table';
+import { useFlag } from '@unleash/proxy-client-react';
 
 interface WorkspaceFilters {
   name: string;
@@ -102,6 +103,8 @@ const WorkspaceListTable = () => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
 
+  const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
+
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
     setIsDeleteModalOpen(!isDeleteModalOpen);
@@ -110,7 +113,9 @@ const WorkspaceListTable = () => {
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
       row: Object.values({
-        name: (
+        name: hideWorkspaceDetails ? (
+          workspace.name
+        ) : (
           <AppLink
             to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
             key={`${workspace.id}-detail`}
