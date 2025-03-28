@@ -74,15 +74,15 @@ describe('Users and User Groups page', () => {
     // Verify the data in the table matches the mock data
     mockUsers.data.forEach((user, index) => {
       cy.get(`[data-ouia-component-id^="iam-users-table-table-tr-${index}"]`).within(() => {
-        cy.get('td').eq(1).should('contain', user.username);
-        cy.get('td').eq(2).should('contain', user.email);
-        cy.get('td').eq(3).should('contain', user.first_name);
-        cy.get('td').eq(4).should('contain', user.last_name);
-        cy.get('td')
-          .eq(5)
-          .should('contain', user.is_active ? 'Active' : 'Inactive');
+        cy.get('td').eq(2).should('contain', user.username);
+        cy.get('td').eq(3).should('contain', user.email);
+        cy.get('td').eq(4).should('contain', user.first_name);
+        cy.get('td').eq(5).should('contain', user.last_name);
         cy.get('td')
           .eq(6)
+          .should('contain', user.is_active ? 'Active' : 'Inactive');
+        cy.get('td')
+          .eq(1)
           .should('contain', user.is_org_admin ? 'Yes' : 'No');
       });
     });
@@ -149,7 +149,9 @@ describe('Users and User Groups page', () => {
     cy.visit('/iam/access-management/users-and-user-groups');
     cy.wait('@getUsers', { timeout: 30000 });
 
-    cy.get('[data-ouia-component-id^="iam-users-table-table-td-0-6"]').click();
+    cy.get('[data-ouia-component-id^="iam-users-table-table-tr-0"]').within(() => {
+      cy.get('td').eq(8).click();
+    });
     cy.get('[data-ouia-component-id^="OUIA-Generated-DropdownItem-2"]').click();
     cy.get('[data-ouia-component-id^="iam-users-table-remove-user-modal"]').should('be.visible');
   });
@@ -230,10 +232,13 @@ describe('Users and User Groups page', () => {
   });
 
   it('should be able to open Edit User Group page from row actions', () => {
+    cy.visit('/iam/access-management/users-and-user-groups/user-groups');
+    cy.wait('@getUserGroups', { timeout: 30000 });
+
     cy.get('[data-ouia-component-id="user-groups-tab-button"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"]').click();
     cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').contains('Edit user group').click();
-    cy.url().should('include', '/iam/access-management/users-and-user-groups/edit-group');
+    cy.url().should('include', '/iam/user-access/users-and-user-groups/edit-group');
     cy.get('[data-ouia-component-id="edit-user-group-form"]').should('be.visible');
   });
 });
