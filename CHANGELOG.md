@@ -1,3 +1,10 @@
+## [1.28.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.0...v1.28.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* add sast tasks ([#1787](https://github.com/RedHatInsights/insights-rbac-ui/issues/1787)) ([9442e25](https://github.com/RedHatInsights/insights-rbac-ui/commit/9442e2568bbd2536885bfbc4e71a7c9cb772a3ab))
+
 # [1.28.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.1...v1.28.0) (2025-03-25)
 
 
