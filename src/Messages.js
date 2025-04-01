@@ -1561,6 +1561,11 @@ export default defineMessages({
     description: 'Message warning that only roles in given role has been filtered',
     defaultMessage: 'This role list has been filtered to only show roles that are not currently in your group.',
   },
+  editCustomRole: {
+    id: 'editCustomRole',
+    description: 'Edit custom role label',
+    defaultMessage: 'Edit custom role',
+  },
   defaultAccessGroupEditWarning: {
     id: 'defaultAccessGroupEditWarning',
     description: 'Message warning that editing a Default access group will rename it',
