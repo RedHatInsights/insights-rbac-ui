@@ -29,6 +29,7 @@ const AddRolePermissionWizard = lazy(() => import('./smart-components/role/add-r
 const ResourceDefinitions = lazy(() => import('./smart-components/role/role-resource-definitions'));
 const EditResourceDefinitionsModal = lazy(() => import('./smart-components/role/edit-resource-definitions-modal'));
 const newRolesTable = lazy(() => import('./smart-components/role/RolesTable'));
+const newEditRole = lazy(() => import('./smart-components/role/edit-role/edit-role'));
 
 const Groups = lazy(() => import('./smart-components/group/groups'));
 const Group = lazy(() => import('./smart-components/group/group'));
@@ -165,6 +166,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
               element: AddRoleWizard,
             },
           ],
+        },
+        {
+          path: pathnames['edit-role'].path,
+          element: newEditRole,
         },
       ]
     : [
