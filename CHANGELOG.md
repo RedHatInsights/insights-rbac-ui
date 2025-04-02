@@ -1,3 +1,10 @@
+# [1.29.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.1...v1.29.0) (2025-04-02)
+
+
+### Features
+
+* **workspaceDetails:** should be hidden when platform.rbac.workspaces-list flag is on ([#1784](https://github.com/RedHatInsights/insights-rbac-ui/issues/1784)) ([5a68258](https://github.com/RedHatInsights/insights-rbac-ui/commit/5a68258a666d5f206c29f8bcbd705bd7a6b707a2))
+
 ## [1.28.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.0...v1.28.1) (2025-04-01)
 
 
