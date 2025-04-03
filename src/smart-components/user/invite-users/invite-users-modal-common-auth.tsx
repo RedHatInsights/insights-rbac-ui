@@ -24,7 +24,6 @@ const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SubmitValues = {
   'email-addresses': string;
-  'invite-message'?: string;
   'customer-portal-permissions'?: {
     'is-org-admin'?: boolean;
     'manage-support-cases'?: boolean;
@@ -59,7 +58,6 @@ const InviteUsers = () => {
     const action = addUsers(
       {
         emails: values['email-addresses']?.split(/[\s,]+/),
-        message: values['invite-message'],
         isAdmin: values['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: values['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: values['customer-portal-permissions']?.['download-software-updates'],
@@ -111,12 +109,6 @@ const InviteUsers = () => {
                 ? undefined
                 : intl.formatMessage(messages.inviteUsersFormEmailsFieldError),
           ],
-        },
-        {
-          component: componentTypes.TEXTAREA,
-          label: intl.formatMessage(messages.inviteUsersMessageTitle),
-          name: 'invite-message',
-          rows: 3,
         },
         {
           component: ExpandableCheckboxComponent,
