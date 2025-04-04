@@ -391,6 +391,16 @@ export default defineMessages({
     description: 'Filter by data key label',
     defaultMessage: 'Filter by {key}',
   },
+  filterByUsername: {
+    id: 'filterByUsername',
+    description: 'Filter by username label',
+    defaultMessage: 'Filter by username',
+  },
+  filterByEmail: {
+    id: 'filterByEmail',
+    description: 'Filter by email label',
+    defaultMessage: 'Filter by email',
+  },
   editGroupSuccessTitle: {
     id: 'editGroupSuccessTitle',
     description: 'Edit group success notification title',
@@ -2655,5 +2665,40 @@ export default defineMessages({
     id: 'selectUsersAndOrServiceAccounts',
     description: 'select users and/or service accounts label',
     defaultMessage: 'Select users and/or service accounts',
+  },
+  assetManagementOverview: {
+    id: 'assetManagementOverview',
+    description: 'navigate to a service to manage your assets',
+    defaultMessage: 'Navigate to a service to manage your assets',
+  },
+  assetManagementInsights: {
+    id: 'assetManagementInsights',
+    description: 'Red Hat Insights',
+    defaultMessage: 'Red Hat Insights',
+  },
+  assetManagementInsightsOverview: {
+    id: 'assetManagementInsightsOverview',
+    description: 'manage your RHEL Systems',
+    defaultMessage: 'Manage your RHEL Systems',
+  },
+  assetManagementInsightsNav: {
+    id: 'assetManagementInsightsNav',
+    description: 'take me to Red Hat Insights',
+    defaultMessage: 'Take me to Red Hat Insights',
+  },
+  assetManagementOpenShift: {
+    id: 'assetManagementOpenShift',
+    description: 'Red Hat OpenShift',
+    defaultMessage: 'Red Hat OpenShift',
+  },
+  assetManagementOpenShiftOverview: {
+    id: 'assetManagementOpenShiftOverview',
+    description: 'manage your clusters',
+    defaultMessage: 'Manage your Clusters',
+  },
+  assetManagementOpenShiftNav: {
+    id: 'assetManagementOpenShiftNav',
+    description: 'take me to Red Hat OpenShift',
+    defaultMessage: 'Take me to Red Hat OpenShift',
   },
 });

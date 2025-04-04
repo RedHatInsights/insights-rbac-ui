@@ -1,3 +1,38 @@
+## [1.29.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.29.0...v1.29.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* **common-auth:** remove invite message ([#1789](https://github.com/RedHatInsights/insights-rbac-ui/issues/1789)) ([5d808c5](https://github.com/RedHatInsights/insights-rbac-ui/commit/5d808c5ba27458798fda0cb081a9c70b5ec7676b))
+
+# [1.29.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.1...v1.29.0) (2025-04-02)
+
+
+### Features
+
+* **workspaceDetails:** should be hidden when platform.rbac.workspaces-list flag is on ([#1784](https://github.com/RedHatInsights/insights-rbac-ui/issues/1784)) ([5a68258](https://github.com/RedHatInsights/insights-rbac-ui/commit/5a68258a666d5f206c29f8bcbd705bd7a6b707a2))
+
+## [1.28.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.0...v1.28.1) (2025-04-01)
+
+
+### Bug Fixes
+
+* add sast tasks ([#1787](https://github.com/RedHatInsights/insights-rbac-ui/issues/1787)) ([9442e25](https://github.com/RedHatInsights/insights-rbac-ui/commit/9442e2568bbd2536885bfbc4e71a7c9cb772a3ab))
+
+# [1.28.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.1...v1.28.0) (2025-03-25)
+
+
+### Features
+
+* enable sorting and filtering for users table ([#1777](https://github.com/RedHatInsights/insights-rbac-ui/issues/1777)) ([70507bb](https://github.com/RedHatInsights/insights-rbac-ui/commit/70507bb8c57e4126ab361b6da8dd659649bf90ea))
+
+## [1.27.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.27.0...v1.27.1) (2025-03-21)
+
+
+### Bug Fixes
+
+* handle case of undefined group ([#1782](https://github.com/RedHatInsights/insights-rbac-ui/issues/1782)) ([f4021f1](https://github.com/RedHatInsights/insights-rbac-ui/commit/f4021f170d990aa07f375e4527f929becfccaaa2))
+
 # [1.27.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.26.0...v1.27.0) (2025-03-12)
 
 

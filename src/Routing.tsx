@@ -50,7 +50,7 @@ const UsersView = lazy(() => import('./smart-components/access-management/users-
 const UserGroupsView = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/UserGroupsView'));
 const EditUserGroup = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
 
-const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel }: Record<string, boolean>) => [
+const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails }: Record<string, boolean>) => [
   {
     path: pathnames['users-and-user-groups'].path,
     element: UsersAndUserGroups,
@@ -99,7 +99,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
     ],
   },
-  {
+  !hideWorkspaceDetails && {
     path: pathnames['workspace-detail'].path,
     element: WorkspaceDetail,
     childRoutes: [
@@ -325,6 +325,7 @@ const Routing = () => {
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
+  const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
 
   useEffect(() => {
     const currPath = Object.values(pathnames).find(
@@ -342,7 +343,7 @@ const Routing = () => {
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel });
+  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 
   const { getBundle, getApp } = useChrome();

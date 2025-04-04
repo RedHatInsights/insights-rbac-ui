@@ -130,24 +130,28 @@ const User = () => {
                         aria-label="Simple Table"
                         variant={TableVariant.compact}
                         cells={[intl.formatMessage(messages.name), intl.formatMessage(messages.description), ' ']}
-                        rows={groups_in.map((group) => ({
-                          cells: [
-                            { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> },
-                            group.description,
-                            {
-                              title:
-                                adminGroup?.uuid === group.uuid ? null : (
-                                  <AppLink
-                                    to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid)}
-                                    state={{ name: group.name }}
-                                  >
-                                    {intl.formatMessage(messages.addRoleToThisGroup)}
-                                  </AppLink>
-                                ),
-                              props: { className: 'pf-v5-u-text-align-right' },
-                            },
-                          ],
-                        }))}
+                        rows={groups_in.map((group) => {
+                          if (!group) return null;
+
+                          return {
+                            cells: [
+                              { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> },
+                              group.description,
+                              {
+                                title:
+                                  !adminGroup || !group.uuid || adminGroup.uuid === group.uuid ? null : (
+                                    <AppLink
+                                      to={pathnames['user-add-group-roles'].link.replace(':username', username).replace(':groupId', group.uuid)}
+                                      state={{ name: group.name }}
+                                    >
+                                      {intl.formatMessage(messages.addRoleToThisGroup)}
+                                    </AppLink>
+                                  ),
+                                props: { className: 'pf-v5-u-text-align-right' },
+                              },
+                            ],
+                          };
+                        })}
                       >
                         <TableHeader />
                         <TableBody />
