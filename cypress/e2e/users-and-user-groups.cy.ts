@@ -217,8 +217,6 @@ describe('Users and User Groups page', () => {
       cy.get('span[class$="modal-box__title-text"]').contains('Invite New Users').should('exist');
       // Add the address of one of our test users to the email field
       cy.get(SELECTORS.inviteUsersModalEmailField).type(mockUsers.data[0].email);
-      // Add a message to the invite
-      cy.get(SELECTORS.inviteUsersModalMessageField).type('TEST message');
       // Send the invite
       cy.get(SELECTORS.inviteUsersModalInviteButton).click();
       // Check the invite code
