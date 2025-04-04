@@ -1,3 +1,10 @@
+## [1.29.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.29.0...v1.29.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* **common-auth:** remove invite message ([#1789](https://github.com/RedHatInsights/insights-rbac-ui/issues/1789)) ([5d808c5](https://github.com/RedHatInsights/insights-rbac-ui/commit/5d808c5ba27458798fda0cb081a9c70b5ec7676b))
+
 # [1.29.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.28.1...v1.29.0) (2025-04-02)
 
 
