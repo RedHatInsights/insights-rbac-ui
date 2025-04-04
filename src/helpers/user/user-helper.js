@@ -68,7 +68,6 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
       body: JSON.stringify({
         emails: usersData.emails,
         localeCode: 'en',
-        message: usersData.message,
         ...(usersData.isAdmin && { roles: ['organization_administrator'] }),
       }),
       method: 'POST',
