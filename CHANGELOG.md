@@ -1,3 +1,10 @@
+# [1.30.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.29.1...v1.30.0) (2025-04-04)
+
+
+### Features
+
+* **EditWorkspace:** add edit workspace modal ([#1783](https://github.com/RedHatInsights/insights-rbac-ui/issues/1783)) ([f7a46e4](https://github.com/RedHatInsights/insights-rbac-ui/commit/f7a46e4c4b1b0ef2d84c44caf247ada8af947009))
+
 ## [1.29.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.29.0...v1.29.1) (2025-04-04)
 
 
