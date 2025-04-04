@@ -8,12 +8,6 @@ export interface WorkspaceCreateBody {
   parent_id?: string;
 }
 
-export interface WorkspaceUpdateBody {
-  uuid?: string;
-  name: string;
-  description: string;
-}
-
 export interface Workspace extends WorkspaceCreateBody {
   id: string;
   type: 'standard' | 'default' | 'root';

@@ -1079,7 +1079,6 @@ export default defineMessages({
     description: 'Create workspace error notification title',
     defaultMessage: 'Failed creating {name} workspace',
   },
-
   createWorkspaceErrorDescription: {
     id: 'createWorkspaceErrorDescription',
     description: 'Create workspace error notification description',
