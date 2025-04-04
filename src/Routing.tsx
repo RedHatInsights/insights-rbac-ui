@@ -7,6 +7,7 @@ import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
 import ElementWrapper from './smart-components/common/ElementWrapper';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { useFlag } from '@unleash/proxy-client-react';
+import EditWorkspaceModal from './smart-components/workspaces/EditWorkspaceModal';
 
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
@@ -101,6 +102,12 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
   !hideWorkspaceDetails && {
     path: pathnames['workspace-detail'].path,
     element: WorkspaceDetail,
+    childRoutes: [
+      {
+        path: pathnames['edit-workspace'].path,
+        element: EditWorkspaceModal,
+      },
+    ],
   },
   {
     path: pathnames['user-detail'].path,

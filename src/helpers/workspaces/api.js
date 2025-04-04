@@ -43,20 +43,7 @@ const workspacesApi = new APIFactory(
         },
       };
     },
-    updateWorkspace: async (...args) => {
-      const updateWs = await updateWorkspace(...args);
-      return {
-        ...updateWs,
-        options: {
-          ...updateWs.options,
-          transformResponse: () => {
-            return {
-              // TODO: return normal data
-            };
-          },
-        },
-      };
-    },
+    updateWorkspace,
     deleteWorkspace: async (...args) => {
       const deleteWs = await deleteWorkspace(...args);
       return {

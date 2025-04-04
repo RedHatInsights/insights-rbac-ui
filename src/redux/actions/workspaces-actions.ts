@@ -5,6 +5,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
 import messages from '../../Messages';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 
 export const fetchWorkspaces = () => ({
   type: ActionTypes.FETCH_WORKSPACES,
@@ -35,6 +36,34 @@ export const createWorkspace = (config: WorkspaceCreateBody) => {
           variant: 'success',
           title: intl.formatMessage(messages.createWorkspaceSuccessTitle, { name: config.name }),
           dismissDelay: 8000,
+        },
+      },
+    },
+  };
+};
+
+export const updateWorkspace = (workspaceData: WorkspacesPatchParams) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  return {
+    type: ActionTypes.PATCH_WORKSPACE,
+    payload: WorkspacesHelper.updateWorkspace(workspaceData),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.editWorkspaceSuccessTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editWorkspaceSuccessDescription),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.editGroupErrorTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.editGroupErrorDescription),
         },
       },
     },
