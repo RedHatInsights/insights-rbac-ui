@@ -1,0 +1,44 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: run-unit-tests
+spec:
+  params:
+  - description: The Trusted Artifact URI pointing to the artifact with the application source code.
+    name: SOURCE_ARTIFACT
+    type: string
+  volumes:
+  # New volume to store a copy of the source code accessible only to this Task.
+  - name: workdir
+    emptyDir: {}
+  stepTemplate:
+    volumeMounts:
+    - mountPath: /var/workdir
+      name: workdir
+      readOnly: false
+  sidecars:
+  steps:
+  - name: use-trusted-artifact
+    image: quay.io/redhat-appstudio/build-trusted-artifacts:latest@sha256:9b180776a41d9a22a1c51539f1647c60defbbd55b44bbebdd4130e33512d8b0d
+    args:
+    - use
+    - $(params.SOURCE_ARTIFACT)=/var/workdir
+  - image: registry.access.redhat.com/ubi8/nodejs-18
+    workingDir: /var/workdir
+    name: unit-tests
+    computeResources:
+      requests:
+        memory: 4Gi
+        cpu: 2000m
+      limits:
+        memory: 4Gi
+        cpu: 2000m
+    securityContext:
+      runAsUser: 0
+    script: |
+      #!/bin/bash
+      set -ex
+      
+      npm install
+      npm run lint
+      npm test --  --runInBand --no-cache
