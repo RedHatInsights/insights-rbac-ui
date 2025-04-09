@@ -1,3 +1,10 @@
+# [1.31.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.30.0...v1.31.0) (2025-04-09)
+
+
+### Features
+
+* **konflux:** introduce remote Konflux pipeline ([#1793](https://github.com/RedHatInsights/insights-rbac-ui/issues/1793)) ([b75e11b](https://github.com/RedHatInsights/insights-rbac-ui/commit/b75e11b20f51685b2f1c01514c90b8be8a5ac8ae))
+
 # [1.30.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.29.1...v1.30.0) (2025-04-04)
 
 
