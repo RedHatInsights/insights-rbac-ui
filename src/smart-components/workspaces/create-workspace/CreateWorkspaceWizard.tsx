@@ -10,6 +10,8 @@ import { createWorkspace } from '../../../redux/actions/workspaces-actions';
 import SetEarMark from './SetEarMark';
 import Review from './Review';
 import SetDetails from './SetDetails';
+import { Store } from 'redux';
+import { Provider } from 'react-redux';
 
 interface CreateWorkspaceWizardProps {
   afterSubmit: () => void;
@@ -52,4 +54,14 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   );
 };
 
-export default CreateWorkspaceWizard;
+const CreateWorkspaceWizardWrapper: React.FC<{ store?: Store } & CreateWorkspaceWizardProps> = ({ store, ...props }) => {
+  return store ? (
+    <Provider store={store}>
+      <CreateWorkspaceWizard {...props} />
+    </Provider>
+  ) : (
+    <CreateWorkspaceWizard {...props} />
+  );
+};
+
+export default CreateWorkspaceWizardWrapper;
