@@ -15,11 +15,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { EditRolePermissions } from './edit-role-permissions';
 
-interface EditRoleProps {
-  createNewRole?: boolean; // to be used in the future for Create new role page
-}
-
-export const EditRole: FunctionComponent<EditRoleProps> = ({ createNewRole }) => {
+export const EditRole: FunctionComponent = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const { roleId } = useParams();
@@ -90,6 +86,7 @@ export const EditRole: FunctionComponent<EditRoleProps> = ({ createNewRole }) =>
             name: 'role-permissions',
             component: 'role-permissions',
             roleId: roleId,
+            initialValue: initialFormData?.access,
           },
         ],
       }),
