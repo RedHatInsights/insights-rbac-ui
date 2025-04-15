@@ -90,7 +90,6 @@ objects:
                   href: /iam/user-access/users
                   icon: PlaceholderIcon
                   product: Identity & Access Management
-
                 - id: roles
                   title: Roles
                   href: /iam/user-access/roles
@@ -99,6 +98,16 @@ objects:
                   title: Groups
                   href: /iam/user-access/groups
                   icon: PlaceholderIcon
+                  product: Identity & Access Management
+                - id: workspaces
+                  title: Workspaces
+                  href: /iam/user-access/workspaces
+                  icon: PlaceholderIcon
+                  permissions:
+                    - method: featureFlag
+                      args:
+                        - platform.rbac.workspaces-list
+                        - true
                   product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests
