@@ -1680,7 +1680,8 @@ export default defineMessages({
   orgAdminInheritedRoles: {
     id: 'orgAdminInheritedRoles',
     description: 'Org. Admin inherited roles message',
-    defaultMessage: 'This group contains the roles that all org admin users inherit by default.',
+    defaultMessage:
+      'This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.',
   },
   usersInheritedRoles: {
     id: 'usersInheritedRoles',
