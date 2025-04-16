@@ -140,9 +140,7 @@ const WorkspaceListTable = () => {
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    console.log('hello???? Where are you going???');
                     setEditWorkspace(workspace);
-                    console.log(workspace.id);
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                 },
@@ -313,11 +311,9 @@ const WorkspaceListTable = () => {
             [pathnames['edit-workspaces-list'].path]: {
               afterSubmit: () => {
                 dispatch(fetchWorkspaces());
-                console.log(editWorkspace);
                 navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
               },
               onCancel: () => {
-                console.log(editWorkspace);
                 navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
               },
             },
