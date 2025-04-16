@@ -27,8 +27,9 @@ import {
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
-import AppLink from '../../presentational-components/shared/AppLink';
+import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import paths from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant } from '@patternfly/react-core';
@@ -102,6 +103,7 @@ const WorkspaceListTable = () => {
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
+  const [editWorkspace, setEditWorkspace] = useState<Workspace>();
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
 
@@ -133,6 +135,15 @@ const WorkspaceListTable = () => {
                   title: 'Delete workspace',
                   onClick: () => {
                     handleModalToggle([workspace]);
+                  },
+                },
+                {
+                  title: 'Edit workspace',
+                  onClick: () => {
+                    console.log('hello???? Where are you going???');
+                    setEditWorkspace(workspace);
+                    console.log(workspace.id);
+                    navigate(mergeToBasename(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id)));
                   },
                 },
               ]}
@@ -298,6 +309,17 @@ const WorkspaceListTable = () => {
                 navigate({ pathname: pathnames.workspaces.link });
               },
               onCancel: () => navigate({ pathname: pathnames.workspaces.link }),
+            },
+            [pathnames['edit-workspaces-list'].path]: {
+              afterSubmit: () => {
+                dispatch(fetchWorkspaces());
+                console.log(editWorkspace);
+                navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
+              },
+              onCancel: () => {
+                console.log(editWorkspace);
+                navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
+              },
             },
           }}
         />
