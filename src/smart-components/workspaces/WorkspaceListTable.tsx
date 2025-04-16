@@ -143,7 +143,7 @@ const WorkspaceListTable = () => {
                     console.log('hello???? Where are you going???');
                     setEditWorkspace(workspace);
                     console.log(workspace.id);
-                    navigate(mergeToBasename(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id)));
+                    navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                 },
               ]}
