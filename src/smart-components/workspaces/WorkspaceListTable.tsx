@@ -27,7 +27,7 @@ import {
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
-import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
+import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
 import messages from '../../Messages';
@@ -103,7 +103,6 @@ const WorkspaceListTable = () => {
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
-  const [editWorkspace, setEditWorkspace] = useState<Workspace>();
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
 
@@ -140,7 +139,6 @@ const WorkspaceListTable = () => {
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    setEditWorkspace(workspace);
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                 },
