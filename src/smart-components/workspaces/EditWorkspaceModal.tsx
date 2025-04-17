@@ -13,7 +13,12 @@ import { useParams } from 'react-router-dom';
 import { updateWorkspace } from '../../redux/actions/workspaces-actions';
 import paths from '../../utilities/pathnames';
 
-const EditWorkspaceModal: React.FC = () => {
+interface EditWorkspaceModalProps {
+  afterSubmit: () => void;
+  onCancel: () => void;
+}
+
+const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ afterSubmit, onCancel }) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
   const dispatch = useDispatch();
@@ -77,7 +82,7 @@ const EditWorkspaceModal: React.FC = () => {
     navigate(paths['workspace-detail'].link.replace(':workspaceId', workspaceId ?? ''));
   };
 
-  const onCancel = () => {
+  const handleCancel = () => {
     dispatch(
       addNotification({
         variant: 'warning',
@@ -85,12 +90,13 @@ const EditWorkspaceModal: React.FC = () => {
         description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
       })
     );
-    returnToPreviousPage();
+    onCancel();
   };
 
   const handleSubmit = async (data: Record<string, any>) => {
     dispatch(updateWorkspace({ uuid: workspaceId as string, workspacesPatchWorkspaceRequest: { name: data.name, description: data.description } }));
     returnToPreviousPage();
+    afterSubmit();
   };
 
   return (
@@ -99,7 +105,7 @@ const EditWorkspaceModal: React.FC = () => {
       componentMapper={{ ...componentMapper }}
       initialValues={workspace}
       onSubmit={handleSubmit}
-      onCancel={onCancel}
+      onCancel={handleCancel}
       FormTemplate={(props: any) => (
         <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: 'Edit workspace information' }} />
       )}

@@ -97,6 +97,10 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
         path: pathnames['create-workspace'].path,
         element: CreateWorkspaceWizard,
       },
+      {
+        path: pathnames['edit-workspaces-list'].path,
+        element: EditWorkspaceModal,
+      },
     ],
   },
   !hideWorkspaceDetails && {
