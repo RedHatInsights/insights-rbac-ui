@@ -311,10 +311,10 @@ const WorkspaceListTable = () => {
             [pathnames['edit-workspaces-list'].path]: {
               afterSubmit: () => {
                 dispatch(fetchWorkspaces());
-                navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
+                navigate({ pathname: pathnames.workspaces.link });
               },
               onCancel: () => {
-                navigate(mergeToBasename(paths.workspaces.link.replace(':workspaceId', editWorkspace?.id ?? '')));
+                navigate({ pathname: pathnames.workspaces.link });
               },
             },
           }}
