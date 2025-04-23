@@ -4,8 +4,6 @@ import { Outlet, useSearchParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import {
-  BulkSelect,
-  BulkSelectValue,
   ErrorState,
   ResponsiveAction,
   ResponsiveActions,
@@ -23,7 +21,6 @@ import {
   DataViewToolbar,
   DataViewTrTree,
   useDataViewSelection,
-  DataViewTrObject,
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
@@ -128,6 +125,7 @@ const WorkspaceListTable = () => {
         rowActions: {
           cell: (
             <ActionsColumn
+              isDisabled={workspace.children && workspace.children.length > 0}
               items={[
                 {
                   title: 'Delete workspace',
@@ -180,10 +178,6 @@ const WorkspaceListTable = () => {
     dispatch(fetchWorkspaces());
   }, [dispatch]);
 
-  const handleBulkSelect = (value: BulkSelectValue) => {
-    selection.onSelect(value === BulkSelectValue.all, value === BulkSelectValue.all ? workspaces : []);
-  };
-
   const hasAssets = useMemo(() => {
     return selection.selected.filter((ws) => ws.children && ws.children?.length > 0).length > 0 ? true : false;
   }, [selection.selected, workspaces]);
@@ -235,15 +229,6 @@ const WorkspaceListTable = () => {
       )}
       <DataView selection={selection} activeState={activeState}>
         <DataViewToolbar
-          bulkSelect={
-            <BulkSelect
-              canSelectAll
-              isDataPaginated={false}
-              totalCount={workspaces.length}
-              selectedCount={selection.selected.length}
-              onSelect={handleBulkSelect}
-            />
-          }
           clearAllFilters={clearAllFilters}
           filters={
             <DataViewTextFilter
@@ -261,17 +246,6 @@ const WorkspaceListTable = () => {
             <ResponsiveActions>
               <ResponsiveAction ouiaId="create-workspace-button" isPinned onClick={() => navigate({ pathname: pathnames['create-workspace'].link })}>
                 {intl.formatMessage(messages.createWorkspace)}
-              </ResponsiveAction>
-              <ResponsiveAction
-                ouiaId="delete-workspace-button"
-                isDisabled={selection.selected.length === 0}
-                onClick={() => {
-                  handleModalToggle(
-                    workspaces.filter((workspace) => selection.selected.some((selectedRow: DataViewTrObject) => selectedRow.id === workspace.id))
-                  );
-                }}
-              >
-                {intl.formatMessage(messages.workspacesActionDeleteWorkspace)}
               </ResponsiveAction>
             </ResponsiveActions>
           }
