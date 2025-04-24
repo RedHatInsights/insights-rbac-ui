@@ -8,6 +8,7 @@ export type RBACStore = {
   groupReducer: GroupStore;
   roleReducer: RoleStore;
   workspacesReducer: WorkspacesStore;
+  permissionReducer: any;
 };
 
 declare module 'react-redux' {
