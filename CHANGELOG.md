@@ -1,3 +1,10 @@
+# [1.33.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.32.0...v1.33.0) (2025-04-24)
+
+
+### Features
+
+* **editworkspace:** add the edit workspace wizard to list view ([#1799](https://github.com/RedHatInsights/insights-rbac-ui/issues/1799)) ([d314f48](https://github.com/RedHatInsights/insights-rbac-ui/commit/d314f4828144bbc4eaad4973f4c69f2e407143e9))
+
 # [1.32.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.31.0...v1.32.0) (2025-04-24)
 
 
