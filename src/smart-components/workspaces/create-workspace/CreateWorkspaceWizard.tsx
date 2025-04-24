@@ -10,8 +10,12 @@ import { createWorkspace } from '../../../redux/actions/workspaces-actions';
 import SetEarMark from './SetEarMark';
 import Review from './Review';
 import SetDetails from './SetDetails';
-import { Store } from 'redux';
 import { Provider } from 'react-redux';
+import registry, { RegistryContext } from '../../../utilities/store';
+import { IntlProvider } from 'react-intl';
+import messages from '../../../locales/data.json';
+
+export const locale = 'en';
 
 interface CreateWorkspaceWizardProps {
   afterSubmit: () => void;
@@ -54,13 +58,19 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
   );
 };
 
-const CreateWorkspaceWizardWrapper: React.FC<{ store?: Store } & CreateWorkspaceWizardProps> = ({ store, ...props }) => {
-  return store ? (
-    <Provider store={store}>
-      <CreateWorkspaceWizard {...props} />
-    </Provider>
-  ) : (
-    <CreateWorkspaceWizard {...props} />
+const CreateWorkspaceWizardWrapper: React.FC<CreateWorkspaceWizardProps> = ({ ...props }) => {
+  return (
+    <IntlProvider locale={locale} messages={messages[locale]}>
+      <RegistryContext.Provider
+        value={{
+          getRegistry: () => registry,
+        }}
+      >
+        <Provider store={registry.getStore()}>
+          <CreateWorkspaceWizard {...props} />
+        </Provider>
+      </RegistryContext.Provider>
+    </IntlProvider>
   );
 };
 
