@@ -1,3 +1,10 @@
+# [1.32.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.31.0...v1.32.0) (2025-04-24)
+
+
+### Features
+
+* delete workspace disable when non empty ([2fdb4fe](https://github.com/RedHatInsights/insights-rbac-ui/commit/2fdb4fe54ddab5b99ccc62ac0dfb903efa34c748))
+
 # [1.31.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.30.0...v1.31.0) (2025-04-09)
 
 
