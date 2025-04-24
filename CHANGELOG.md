@@ -1,3 +1,10 @@
+# [1.34.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.33.0...v1.34.0) (2025-04-24)
+
+
+### Features
+
+* add empty new edit role page ([#1795](https://github.com/RedHatInsights/insights-rbac-ui/issues/1795)) ([2276b4f](https://github.com/RedHatInsights/insights-rbac-ui/commit/2276b4f310a75aed91d3e4920b5ace273ff619ed))
+
 # [1.33.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.32.0...v1.33.0) (2025-04-24)
 
 
