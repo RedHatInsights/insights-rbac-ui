@@ -26,6 +26,7 @@ import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import AppLink from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import paths from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant } from '@patternfly/react-core';
@@ -131,6 +132,12 @@ const WorkspaceListTable = () => {
                   title: 'Delete workspace',
                   onClick: () => {
                     handleModalToggle([workspace]);
+                  },
+                },
+                {
+                  title: 'Edit workspace',
+                  onClick: () => {
+                    navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                 },
               ]}
@@ -272,6 +279,15 @@ const WorkspaceListTable = () => {
                 navigate({ pathname: pathnames.workspaces.link });
               },
               onCancel: () => navigate({ pathname: pathnames.workspaces.link }),
+            },
+            [pathnames['edit-workspaces-list'].path]: {
+              afterSubmit: () => {
+                dispatch(fetchWorkspaces());
+                navigate({ pathname: pathnames.workspaces.link });
+              },
+              onCancel: () => {
+                navigate({ pathname: pathnames.workspaces.link });
+              },
             },
           }}
         />
