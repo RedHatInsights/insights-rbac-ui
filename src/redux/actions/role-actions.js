@@ -102,12 +102,6 @@ export const updateRole = (roleId, data, useCustomAccess) => {
     payload: RoleHelper.updateRole(roleId, data, useCustomAccess),
     meta: {
       notifications: {
-        fulfilled: {
-          variant: 'success',
-          title: intl.formatMessage(messages.editRoleSuccessTitle),
-          dismissDelay: 8000,
-          description: intl.formatMessage(messages.editRoleSuccessDescription),
-        },
         rejected: (payload) => ({
           variant: 'danger',
           title: intl.formatMessage(messages.editRoleErrorTitle),
