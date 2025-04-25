@@ -11,7 +11,7 @@ import SetEarMark from './SetEarMark';
 import Review from './Review';
 import SetDetails from './SetDetails';
 
-interface CreateWorkspaceWizardProps {
+export interface CreateWorkspaceWizardProps {
   afterSubmit: () => void;
   onCancel: () => void;
 }
