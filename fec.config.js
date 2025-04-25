@@ -20,7 +20,7 @@ module.exports = {
     exposes: {
       './MyUserAccess': path.resolve(__dirname, './src/entries/MyUserAccess.js'),
       './IamUserAccess': path.resolve(__dirname, './src/entries/IamUserAccess.js'),
-      './CreateWorkspaceWizard': path.resolve(__dirname, './src/smart-components/workspaces/create-workspace/CreateWorkspaceWizard.tsx'),
+      './CreateWorkspaceWizardModule': path.resolve(__dirname, './src/smart-components/workspaces/create-workspace/CreateWorkspaceWizardModule.tsx'),
     },
     exclude: ['react-router-dom'],
     shared: [{ 'react-router-dom': { singleton: true, version: '^6.18.0', requiredVersion: '*' } }],
