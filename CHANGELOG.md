@@ -1,3 +1,10 @@
+# [1.35.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.2...v1.35.0) (2025-04-25)
+
+
+### Features
+
+* **workspacewizard:** expose workspace wizard through fec ([#1794](https://github.com/RedHatInsights/insights-rbac-ui/issues/1794)) ([b61d172](https://github.com/RedHatInsights/insights-rbac-ui/commit/b61d1724fca00eae2af91bcc26728f3bd8c389fb))
+
 ## [1.34.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.1...v1.34.2) (2025-04-25)
 
 
