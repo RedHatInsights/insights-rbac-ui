@@ -1,3 +1,10 @@
+## [1.34.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.1...v1.34.2) (2025-04-25)
+
+
+### Reverts
+
+* Revert "feat: add empty new edit role page ([#1795](https://github.com/RedHatInsights/insights-rbac-ui/issues/1795))" ([#1812](https://github.com/RedHatInsights/insights-rbac-ui/issues/1812)) ([e86b412](https://github.com/RedHatInsights/insights-rbac-ui/commit/e86b412deca0c34c99e447e71de8fd255c41e23d))
+
 ## [1.34.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.0...v1.34.1) (2025-04-25)
 
 
