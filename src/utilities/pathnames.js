@@ -145,7 +145,7 @@ const pathnames = {
   },
   'edit-role': {
     link: '/roles/edit/:roleId',
-    path: '/roles/edit/:roleId',
+    path: 'edit/:roleId',
     title: 'Edit role',
   },
   'role-detail': {

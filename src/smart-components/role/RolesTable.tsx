@@ -108,13 +108,6 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const navigate = useNavigate();
 
-  const handleEditRole = useCallback((role: Role) => {
-    if (!role) {
-      return;
-    }
-    navigate(mergeToBasename(paths['edit-role'].link.replace(':roleId', role.uuid)));
-  }, []);
-
   const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
   const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
 
@@ -198,7 +191,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           cell: (
             <ActionsColumn
               items={[
-                { title: 'Edit role', onClick: () => handleEditRole(role) },
+                { title: 'Edit role', onClick: () => console.log('Editing role') },
                 {
                   title: 'Delete role',
                   isDisabled: role.system,
