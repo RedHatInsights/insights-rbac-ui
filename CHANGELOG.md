@@ -1,3 +1,10 @@
+## [1.34.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.0...v1.34.1) (2025-04-25)
+
+
+### Bug Fixes
+
+* **dependabot:** disable dependabot for weekly npm updates ([#1811](https://github.com/RedHatInsights/insights-rbac-ui/issues/1811)) ([e55e7ee](https://github.com/RedHatInsights/insights-rbac-ui/commit/e55e7ee237856e7c5202872de9a760d477b650e6))
+
 # [1.34.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.33.0...v1.34.0) (2025-04-24)
 
 
