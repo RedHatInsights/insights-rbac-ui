@@ -7,7 +7,7 @@ const useAppNavigate = (linkBasename) => {
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
 
   return (to, options) => {
-    return navigate(mergeToBasename(to, linkBasename || isWorkspacesFlag ? '/iam/access-management' : undefined), options);
+    return navigate(mergeToBasename(to, linkBasename || (isWorkspacesFlag ? '/iam/access-management' : undefined)), options);
   };
 };
 
