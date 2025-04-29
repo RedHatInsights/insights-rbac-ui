@@ -9,11 +9,12 @@ import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { useDispatch, useSelector } from 'react-redux';
 import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
 import { RBACStore } from '../../../../../redux/store';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
 import RbacBreadcrumbs from '../../../../../presentational-components/shared/breadcrumbs';
 import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
 import pathnames from '../../../../../utilities/pathnames';
+import useAppNavigate from '../../../../../hooks/useAppNavigate';
 
 interface EditUserGroupProps {
   createNewGroup?: boolean;
@@ -24,7 +25,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const dispatch = useDispatch();
   const params = useParams();
   const groupId = params.groupId;
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const pageTitle = createNewGroup
     ? intl.formatMessage(Messages.usersAndUserGroupsCreateUserGroup)
@@ -132,7 +133,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   );
 
   const returnToPreviousPage = () => {
-    navigate(-1);
+    navigate(pathnames['user-groups'].link);
   };
 
   const handleSubmit = async (values: Record<string, any>) => {

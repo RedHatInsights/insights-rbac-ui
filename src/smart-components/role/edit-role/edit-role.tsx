@@ -3,45 +3,30 @@ import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-cor
 import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../../Messages';
-import RbacBreadcrumbs from '../../../presentational-components/shared/breadcrumbs';
-import { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import pathnames from '../../../utilities/pathnames';
 import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { fetchRole, updateRole } from '../../../redux/actions/role-actions';
 import { RBACStore } from '../../../redux/store';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { EditRolePermissions } from './edit-role-permissions';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 
 export const EditRole: FunctionComponent = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const { roleId } = useParams();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const pageTitle = intl.formatMessage(Messages.editCustomRole);
+  const pageTitle = intl.formatMessage(Messages.edit);
   const [initialFormData, setInitialFormData] = useState<any>(null);
   const { selectedRole } = useSelector((state: RBACStore) => state.roleReducer);
 
-  const breadcrumbsList = useMemo(
-    () => [
-      {
-        title: intl.formatMessage(Messages.roles),
-        to: mergeToBasename(pathnames['roles'].link),
-      },
-      {
-        title: pageTitle,
-        isActive: true,
-      },
-    ],
-    [intl, pageTitle]
-  );
-
   const navigateToRoles = () => {
     dispatch(fetchRole(roleId));
-    navigate(mergeToBasename(pathnames['roles'].link), { replace: true });
+    navigate(pathnames['roles'].link, { replace: true });
   };
 
   const handleSubmit = async (values: any) => {
@@ -124,10 +109,7 @@ export const EditRole: FunctionComponent = () => {
 
   return (
     <React.Fragment>
-      <section className="pf-v5-c-page__main-breadcrumb">
-        <RbacBreadcrumbs {...breadcrumbsList} />
-      </section>
-      <ContentHeader title={pageTitle} />
+      <ContentHeader title={`${pageTitle} ${selectedRole?.display_name || ''}`} />
       <PageSection data-ouia-component-id="edit-role-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>
         {isLoading || !initialFormData ? (
           <div style={{ textAlign: 'center' }}>

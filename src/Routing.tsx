@@ -179,7 +179,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
           ],
         },
         {
-          path: pathnames['edit-role'].path,
+          path: `${pathnames.roles.link}/${pathnames['edit-role'].path}`,
           element: newEditRole,
         },
       ]
