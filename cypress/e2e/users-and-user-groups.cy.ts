@@ -203,7 +203,7 @@ describe('Users and User Groups page', () => {
       });
     });
 
-    it.only('should be able to invite a user to the organization from the users table', () => {
+    it('should be able to invite a user to the organization from the users table', () => {
       // Set up the spying so we can check the response
 
       cy.intercept('**/account/v1/accounts/*/users/invite', {
