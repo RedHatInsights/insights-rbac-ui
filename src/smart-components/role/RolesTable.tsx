@@ -27,7 +27,7 @@ import messages from '../../Messages';
 import { debouncedFetch, mappedProps } from '../../helpers/shared/helpers';
 import { Role } from '../../redux/reducers/role-reducer';
 import { RBACStore } from '../../redux/store';
-import { Outlet, useNavigate, useSearchParams } from 'react-router-dom';
+import { Outlet, useSearchParams } from 'react-router-dom';
 import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesTableDetails';
 import {
@@ -41,8 +41,8 @@ import {
 import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
 import { PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
 import { SearchIcon } from '@patternfly/react-icons';
-import { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
+import useAppNavigate from '../../hooks/useAppNavigate';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -106,7 +106,14 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     setSearchParams,
   });
 
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
+
+  const handleEditRole = useCallback((role: Role) => {
+    if (!role) {
+      return;
+    }
+    navigate(paths['edit-role'].path.replace(':roleId', role.uuid));
+  }, []);
 
   const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
   const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
@@ -191,7 +198,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           cell: (
             <ActionsColumn
               items={[
-                { title: 'Edit role', onClick: () => console.log('Editing role') },
+                { title: 'Edit role', onClick: () => handleEditRole(role) },
                 {
                   title: 'Delete role',
                   isDisabled: role.system,
@@ -275,7 +282,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             }
             actions={
               <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(mergeToBasename(paths['add-role'].link))} isPinned>
+                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(paths['add-role'].path)} isPinned>
                   {intl.formatMessage(messages.createRole)}
                 </ResponsiveAction>
                 <ResponsiveAction

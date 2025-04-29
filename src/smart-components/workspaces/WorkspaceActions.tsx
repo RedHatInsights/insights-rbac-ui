@@ -16,10 +16,11 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
-import { Outlet, useNavigate } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
 import { mergeToBasename } from '../../presentational-components/shared/AppLink';
+import useAppNavigate from '../../hooks/useAppNavigate';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',
@@ -48,7 +49,7 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
   const intl = useIntl();
-  const navigate = useNavigate();
+  const navigate = useAppNavigate();
 
   const toggle = (
     <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">
@@ -83,7 +84,7 @@ const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled = false,
       setIsDeleteModalOpen(true);
     }
     if (action === ActionType.EDIT_WORKSPACE) {
-      navigate(mergeToBasename(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id)));
+      navigate(paths['edit-workspace'].link.replace(':workspaceId', currentWorkspace.id));
     }
   };
 
