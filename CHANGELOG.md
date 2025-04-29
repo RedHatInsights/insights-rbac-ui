@@ -1,3 +1,10 @@
+# [1.36.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.35.0...v1.36.0) (2025-04-29)
+
+
+### Features
+
+* **role:** edit role feature ([f581690](https://github.com/RedHatInsights/insights-rbac-ui/commit/f581690bf451e22abf8f2e19f21bdb0180b95e7f)), closes [#1795](https://github.com/RedHatInsights/insights-rbac-ui/issues/1795) [#1812](https://github.com/RedHatInsights/insights-rbac-ui/issues/1812)
+
 # [1.35.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.34.2...v1.35.0) (2025-04-25)
 
 
