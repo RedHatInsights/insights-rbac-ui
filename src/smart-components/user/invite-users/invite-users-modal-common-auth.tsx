@@ -24,6 +24,7 @@ const EMAIL_REGEXP = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 type SubmitValues = {
   'email-addresses': string;
+  'invite-message'?: string;
   'customer-portal-permissions'?: {
     'is-org-admin'?: boolean;
     'manage-support-cases'?: boolean;
@@ -58,6 +59,7 @@ const InviteUsers = () => {
     const action = addUsers(
       {
         emails: values['email-addresses']?.split(/[\s,]+/),
+        message: values['invite-message'],
         isAdmin: values['customer-portal-permissions']?.['is-org-admin'],
         portal_manage_cases: values['customer-portal-permissions']?.['manage-support-cases'],
         portal_download: values['customer-portal-permissions']?.['download-software-updates'],
@@ -66,15 +68,16 @@ const InviteUsers = () => {
       { isProd: isProd(), token, accountId }
     );
     action.payload.then(async (response) => {
-      if (response.status === 200) {
+      if (response.status === 200 || response.status === 204) {
         fetchData(true);
+      } else {
+        const data = await response.json();
+        setResponseError({
+          title: data.title,
+          description: data.detail,
+          url: data.type,
+        });
       }
-      const data = await response.json();
-      setResponseError({
-        title: data.title,
-        description: data.detail,
-        url: data.type,
-      });
     });
     dispatch(action);
   };
@@ -109,6 +112,12 @@ const InviteUsers = () => {
                 ? undefined
                 : intl.formatMessage(messages.inviteUsersFormEmailsFieldError),
           ],
+        },
+        {
+          component: componentTypes.TEXTAREA,
+          label: intl.formatMessage(messages.inviteUsersMessageTitle),
+          name: 'invite-message',
+          rows: 3,
         },
         {
           component: ExpandableCheckboxComponent,
