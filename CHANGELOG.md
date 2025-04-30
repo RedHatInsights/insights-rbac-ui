@@ -1,3 +1,10 @@
+## [1.36.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.0...v1.36.1) (2025-04-30)
+
+
+### Bug Fixes
+
+* **delete-ws:** fix delete workspace by styling it and properly sending request ([#1817](https://github.com/RedHatInsights/insights-rbac-ui/issues/1817)) ([b8b6d13](https://github.com/RedHatInsights/insights-rbac-ui/commit/b8b6d1311d6832994e3f56373b96a7b25ccf7a1d))
+
 # [1.36.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.35.0...v1.36.0) (2025-04-29)
 
 
