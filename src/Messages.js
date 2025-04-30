@@ -421,6 +421,16 @@ export default defineMessages({
     description: 'Edit group error notification description',
     defaultMessage: 'The group was not updated successfuly.',
   },
+  deleteWorkspaceErrorTitle: {
+    id: 'deleteWorkspaceErrorTitle',
+    description: 'Delete workspace error notification title',
+    defaultMessage: 'Failed deleting workspace',
+  },
+  deleteWorkspaceErrorDescription: {
+    id: 'deleteWorkspaceErrorDescription',
+    description: 'Delete workspace error notification description',
+    defaultMessage: 'The workspace {workspace} was not deleted successfuly.',
+  },
   editUserSuccessTitle: {
     id: 'editUserSuccessTitle',
     description: 'Edit user success notification title',
@@ -1113,6 +1123,26 @@ export default defineMessages({
     id: 'editingWorkspaceCanceledDescription',
     description: 'Edit workspace canceled notification description',
     defaultMessage: 'Edit workspace was canceled by the user.',
+  },
+  deleteWorkspaceSuccessTitle: {
+    id: 'deleteWorkspaceSuccessTitle',
+    description: 'Delete workspace success notification title',
+    defaultMessage: 'Success deleting workspace',
+  },
+  deleteWorkspaceSuccessDescription: {
+    id: 'deleteWorkspaceSuccessDescription',
+    description: 'Delete workspace success notification description',
+    defaultMessage: 'The workspace {workspace} was deleted successfully.',
+  },
+  deletingWorkspaceTitle: {
+    id: 'deletingWorkspaceTitle',
+    description: 'Deleting workspace notification title',
+    defaultMessage: 'Deleting workspace',
+  },
+  deletingWorkspaceCanceledDescription: {
+    id: 'deletingWorkspaceCanceledDescription',
+    description: 'Delete workspace canceled notification description',
+    defaultMessage: 'Delete workspace was canceled by the user.',
   },
   roleAssignments: {
     id: 'roleAssignments',

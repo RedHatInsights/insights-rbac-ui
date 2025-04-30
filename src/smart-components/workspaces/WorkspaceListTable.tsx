@@ -2,7 +2,7 @@ import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { fetchWorkspaces } from '../../redux/actions/workspaces-actions';
+import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import {
   ErrorState,
   ResponsiveAction,
@@ -20,7 +20,6 @@ import {
   DataViewTh,
   DataViewToolbar,
   DataViewTrTree,
-  useDataViewSelection,
 } from '@patternfly/react-data-view';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
@@ -29,7 +28,7 @@ import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
 import messages from '../../Messages';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant } from '@patternfly/react-core';
+import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant, Divider } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ActionsColumn } from '@patternfly/react-table';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -97,7 +96,6 @@ const WorkspaceListTable = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
 
@@ -126,19 +124,21 @@ const WorkspaceListTable = () => {
         rowActions: {
           cell: (
             <ActionsColumn
-              isDisabled={workspace.children && workspace.children.length > 0}
               items={[
-                {
-                  title: 'Delete workspace',
-                  onClick: () => {
-                    handleModalToggle([workspace]);
-                  },
-                },
                 {
                   title: 'Edit workspace',
                   onClick: () => {
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
+                },
+                { title: <Divider component="li" key="divider" /> },
+                {
+                  title: 'Delete workspace',
+                  onClick: () => {
+                    handleModalToggle([workspace]);
+                  },
+                  isDisabled: workspace.children && workspace.children.length > 0,
+                  isDanger: !(workspace.children && workspace.children.length > 0),
                 },
               ]}
             />
@@ -185,10 +185,6 @@ const WorkspaceListTable = () => {
     dispatch(fetchWorkspaces());
   }, [dispatch]);
 
-  const hasAssets = useMemo(() => {
-    return selection.selected.filter((ws) => ws.children && ws.children?.length > 0).length > 0 ? true : false;
-  }, [selection.selected, workspaces]);
-
   if (error) {
     return <ErrorState errorDescription={error} />;
   }
@@ -200,41 +196,30 @@ const WorkspaceListTable = () => {
           ouiaId={'remove-workspaces-modal'}
           isOpen={isDeleteModalOpen}
           title={intl.formatMessage(messages.deleteWorkspaceModalHeader)}
-          confirmButtonLabel={!hasAssets ? intl.formatMessage(messages.delete) : intl.formatMessage(messages.gotItButtonLabel)}
-          confirmButtonVariant={!hasAssets ? ButtonVariant.danger : ButtonVariant.primary}
-          withCheckbox={!hasAssets}
+          confirmButtonLabel={intl.formatMessage(messages.delete)}
+          confirmButtonVariant={ButtonVariant.danger}
+          withCheckbox={true}
           checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
           onClose={() => setIsDeleteModalOpen(false)}
-          onConfirm={() => {
-            !hasAssets ? console.log('deleting workspaces') : null;
+          onConfirm={async () => {
+            await Promise.all(currentWorkspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ uuid: id }, { name }))));
+            dispatch(fetchWorkspaces());
             setIsDeleteModalOpen(false);
           }}
-          cancelButtonLabel={!hasAssets ? 'Cancel' : ''}
+          cancelButtonLabel={intl.formatMessage(messages.cancel)}
         >
-          {hasAssets ? (
-            <FormattedMessage
-              {...messages.workspaceNotEmptyWarning}
-              values={{
-                b: (text) => <b>{text}</b>,
-                count: currentWorkspaces.length,
-                plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
-                name: currentWorkspaces[0]?.name,
-              }}
-            />
-          ) : (
-            <FormattedMessage
-              {...messages.deleteWorkspaceModalBody}
-              values={{
-                b: (text) => <b>{text}</b>,
-                count: currentWorkspaces.length,
-                plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
-                name: currentWorkspaces[0]?.name,
-              }}
-            />
-          )}
+          <FormattedMessage
+            {...messages.deleteWorkspaceModalBody}
+            values={{
+              b: (text) => <b>{text}</b>,
+              count: currentWorkspaces.length,
+              plural: currentWorkspaces.length > 1 ? intl.formatMessage(messages.workspaces) : intl.formatMessage(messages.workspace),
+              name: currentWorkspaces[0]?.name,
+            }}
+          />
         </WarningModal>
       )}
-      <DataView selection={selection} activeState={activeState}>
+      <DataView activeState={activeState}>
         <DataViewToolbar
           clearAllFilters={clearAllFilters}
           filters={
