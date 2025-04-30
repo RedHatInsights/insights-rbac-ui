@@ -44,20 +44,7 @@ const workspacesApi = new APIFactory(
       };
     },
     updateWorkspace,
-    deleteWorkspace: async (...args) => {
-      const deleteWs = await deleteWorkspace(...args);
-      return {
-        ...deleteWs,
-        options: {
-          ...deleteWs.options,
-          transformResponse: () => {
-            return {
-              // TODO: return normal data
-            };
-          },
-        },
-      };
-    },
+    deleteWorkspace,
     listWorkspaces,
   },
   { axios: axiosInstance }

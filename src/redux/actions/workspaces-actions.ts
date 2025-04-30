@@ -6,6 +6,7 @@ import providerMessages from '../../locales/data.json';
 import { locale } from '../../AppEntry';
 import messages from '../../Messages';
 import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
+import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
 
 export const fetchWorkspaces = () => ({
   type: ActionTypes.FETCH_WORKSPACES,
@@ -64,6 +65,34 @@ export const updateWorkspace = (workspaceData: WorkspacesPatchParams) => {
           dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.editGroupErrorDescription),
+        },
+      },
+    },
+  };
+};
+
+export const deleteWorkspace = (workspaceData: WorkspacesDeleteParams, { name }: { name: string }) => {
+  const cache = createIntlCache();
+  const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+
+  return {
+    type: ActionTypes.DELETE_WORKSPACE,
+    payload: WorkspacesHelper.deleteWorkspace(workspaceData),
+    meta: {
+      notifications: {
+        fulfilled: {
+          variant: 'success',
+          title: intl.formatMessage(messages.deleteWorkspaceSuccessTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.deleteWorkspaceSuccessDescription, { workspace: name }),
+        },
+        rejected: {
+          variant: 'danger',
+          title: intl.formatMessage(messages.deleteWorkspaceErrorTitle),
+          dismissDelay: 8000,
+          dismissable: true,
+          description: intl.formatMessage(messages.deleteWorkspaceErrorDescription, { workspace: name }),
         },
       },
     },
