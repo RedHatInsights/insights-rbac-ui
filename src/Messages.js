@@ -422,12 +422,12 @@ export default defineMessages({
     defaultMessage: 'The group was not updated successfuly.',
   },
   deleteWorkspaceErrorTitle: {
-    id: 'deleteGroupErrorTitle',
+    id: 'deleteWorkspaceErrorTitle',
     description: 'Delete workspace error notification title',
     defaultMessage: 'Failed deleting workspace',
   },
   deleteWorkspaceErrorDescription: {
-    id: 'deleteGroupErrorDescription',
+    id: 'deleteWorkspaceErrorDescription',
     description: 'Delete workspace error notification description',
     defaultMessage: 'The workspace {workspace} was not deleted successfuly.',
   },
