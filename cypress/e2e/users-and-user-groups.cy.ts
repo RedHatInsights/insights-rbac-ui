@@ -51,6 +51,8 @@ describe('Users and User Groups page', () => {
 
   const SELECTORS = {
     usersTable: '[data-ouia-component-id^="iam-users-table"]',
+    usersTableActionsDropdown: '[data-ouia-component-id="iam-users-table-table-actions-menu-dropdown"]',
+    usersTableActionsDropdownToggle: '[data-ouia-component-id="iam-users-table-table-actions-menu-dropdown-toggle"]',
     userGroupsTable: '[data-ouia-component-id^="iam-user-groups-table"]',
     userGroupsTab: '[data-ouia-component-id="user-groups-tab-button"]',
     userDetailsDrawer: '[data-ouia-component-id="user-details-drawer"]',
@@ -58,6 +60,9 @@ describe('Users and User Groups page', () => {
     removeUserModal: '[data-ouia-component-id^="iam-users-table-remove-user-modal"]',
     removeUserGroupModal: '[data-ouia-component-id="iam-user-groups-table-remove-user-modal"]',
     editUserGroupForm: '[data-ouia-component-id="edit-user-group-form"]',
+    inviteUsersModalEmailField: 'textarea[id="email-addresses"]',
+    inviteUsersModalMessageField: 'textarea[id="invite-message"]',
+    inviteUsersModalInviteButton: '[data-ouia-component-id="primary-save-button"]',
   };
 
   const API_TIMEOUT = 30000;
@@ -196,6 +201,30 @@ describe('Users and User Groups page', () => {
           cy.get('td').eq(5).should('contain', group.roleCount);
         });
       });
+    });
+
+    it('should be able to invite a user to the organization from the users table', () => {
+      // Set up the spying so we can check the response
+
+      cy.intercept('**/account/v1/accounts/*/users/invite', {
+        statusCode: 204,
+        body: { data: [], meta: {} },
+      }).as('getInviteStatus');
+
+      // Open the actions dropdown
+      cy.get(SELECTORS.usersTableActionsDropdownToggle).click();
+      // Click the "Invite users" button
+      cy.get(SELECTORS.usersTableActionsDropdown).within(() => {
+        cy.get('button[role="menuitem"]').contains('Invite users').click();
+      });
+      // Make sure the modal is open via the header bc no good OUIA ID for the modal yet
+      cy.get('span[class$="modal-box__title-text"]').contains('Invite New Users').should('exist');
+      // Add the address of one of our test users to the email field
+      cy.get(SELECTORS.inviteUsersModalEmailField).type(mockUsers.data[0].email);
+      // Send the invite
+      cy.get(SELECTORS.inviteUsersModalInviteButton).click();
+      // Check the invite code
+      cy.wait('@getInviteStatus').its('response.statusCode').should('eq', 204);
     });
   });
 
