@@ -84,19 +84,26 @@ objects:
                       args:
                         - platform.rbac.overview
                         - true
+                    - method: isOrgAdmin
                   product: Identity & Access Management
                 - id: users
                   title: Users
                   href: /iam/user-access/users
+                  permissions:
+                    - method: isOrgAdmin
                   icon: PlaceholderIcon
                   product: Identity & Access Management
                 - id: roles
                   title: Roles
                   href: /iam/user-access/roles
+                  permissions:
+                    - method: isOrgAdmin
                   product: Identity & Access Management
                 - id: groups
                   title: Groups
                   href: /iam/user-access/groups
+                  permissions:
+                    - method: isOrgAdmin
                   icon: PlaceholderIcon
                   product: Identity & Access Management
                 - id: workspaces
@@ -108,6 +115,7 @@ objects:
                       args:
                         - platform.rbac.workspaces-list
                         - true
+                    - method: isOrgAdmin
                   product: Identity & Access Management
                 - segmentRef:
                     frontendName: access-requests
