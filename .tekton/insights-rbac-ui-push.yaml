@@ -30,13 +30,14 @@ spec:
     value: |
       #!/bin/bash
       set -ex
-      
+
       npm install
       npm run lint
       npm test --  --runInBand --no-cache
   pipelineRef:
     name: docker-build
-  taskRunTemplate: {}
+  taskRunTemplate:
+    serviceAccountName: build-pipeline-insights-rbac-ui
   workspaces:
   - name: workspace
     volumeClaimTemplate:
