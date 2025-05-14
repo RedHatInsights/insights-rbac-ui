@@ -1,3 +1,10 @@
+# [1.37.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.2...v1.37.0) (2025-05-14)
+
+
+### Features
+
+* add cypress test Make user an org admin ([#1796](https://github.com/RedHatInsights/insights-rbac-ui/issues/1796)) ([4bf69cc](https://github.com/RedHatInsights/insights-rbac-ui/commit/4bf69ccfa5ce0f039f4484614dd6792bb60a0965))
+
 ## [1.36.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.1...v1.36.2) (2025-05-14)
 
 
