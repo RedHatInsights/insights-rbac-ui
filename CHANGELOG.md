@@ -1,3 +1,10 @@
+## [1.36.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.1...v1.36.2) (2025-05-14)
+
+
+### Bug Fixes
+
+* **permissions:** view WS list for users with groups read ([#1821](https://github.com/RedHatInsights/insights-rbac-ui/issues/1821)) ([9bc20af](https://github.com/RedHatInsights/insights-rbac-ui/commit/9bc20afd7ed7868dea79df7e7366dd0073bf0d9a))
+
 ## [1.36.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.0...v1.36.1) (2025-04-30)
 
 
