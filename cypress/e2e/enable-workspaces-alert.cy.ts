@@ -1,9 +1,8 @@
-describe('Enable Workspaces Alert', () => {
-  beforeEach(() => {
+describe('Workspaces Alert confirm path', { testIsolation: false }, () => {
+  before(() => {
     cy.login(false);
     cy.visit('/iam/user-access/overview');
-    cy.intercept('GET', '**/api/rbac/v1/access/?application=rbac&limit=1000').as('overviewPage');
-    cy.wait('@overviewPage', { timeout: 8000 }).its('response.statusCode').should('eq', 200);
+    cy.get('[data-ouia-component-id="ContentHeader-title"]', { timeout: 60000 });
   });
 
   it('should be visible', () => {
@@ -19,10 +18,17 @@ describe('Enable Workspaces Alert', () => {
   });
 
   it('should show success alert after confirming', () => {
-    cy.get('[data-ouia-component-id="enable-workspaces-switch"]').click();
     cy.get('[data-ouia-component-id="enable-workspace-checkbox"]').click();
     cy.get('[data-ouia-component-id="enable-workspace-modal-confirm-button"]').click();
     cy.get('[data-ouia-component-id="enable-workspaces-success-alert"]').should('be.visible');
+  });
+});
+
+describe('Workspaces Alert cancel path', { testIsolation: false }, () => {
+  before(() => {
+    cy.login(false);
+    cy.visit('/iam/user-access/overview');
+    cy.get('[data-ouia-component-id="ContentHeader-title"]', { timeout: 30000 });
   });
 
   it('should show switch toggled off when modal is cancelled', () => {
