@@ -45,9 +45,12 @@ const SetDetails = () => {
       );
   }, [workspaces.length]);
 
+  const defaultWorkspace = workspaces.find((workspace) => workspace.name === 'Default Workspace');
+  formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
+
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle isFullWidth style={{ maxWidth: '100%' }} ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen}>
-      {values[WORKSPACE_PARENT]?.name}
+    <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen}>
+      {defaultWorkspace?.name}
     </MenuToggle>
   );
 
@@ -77,13 +80,9 @@ const SetDetails = () => {
             <Select
               ouiaId="SetDetails-parent-select"
               isOpen={isOpen}
-              selected={values[WORKSPACE_PARENT]?.id}
+              selected={defaultWorkspace?.id}
               onSelect={(_e, value) => {
-                value &&
-                  formOptions.change(
-                    WORKSPACE_PARENT,
-                    workspaces.find((item) => item.id === value)
-                  );
+                value && formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
                 setIsOpen(false);
               }}
               onOpenChange={(isOpen) => setIsOpen(isOpen)}
@@ -91,11 +90,9 @@ const SetDetails = () => {
               shouldFocusToggleOnSelect
             >
               <SelectList>
-                {workspaces.map((item, idx) => (
-                  <SelectOption key={`${item.name}-${idx}`} value={item.id}>
-                    {item.name}
-                  </SelectOption>
-                ))}
+                <SelectOption key={`${defaultWorkspace?.name}-${defaultWorkspace?.id}`} isSelected value={defaultWorkspace?.id}>
+                  {defaultWorkspace?.name}
+                </SelectOption>
               </SelectList>
             </Select>
           )}
