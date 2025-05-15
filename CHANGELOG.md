@@ -1,3 +1,10 @@
+# [1.38.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.37.1...v1.38.0) (2025-05-15)
+
+
+### Features
+
+* add workspaces to iam section of services dropdown ([#1833](https://github.com/RedHatInsights/insights-rbac-ui/issues/1833)) ([5dd5fd9](https://github.com/RedHatInsights/insights-rbac-ui/commit/5dd5fd98a023667e185587eefb2941281c94f98b))
+
 ## [1.37.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.37.0...v1.37.1) (2025-05-15)
 
 
