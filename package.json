@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "@babel/compat-data": "^7.23.3",
-    "@babel/runtime": "^7.23.2",
+    "@babel/runtime": "^7.26.10",
     "@babel/types": "^7.23.3",
     "@data-driven-forms/pf4-component-mapper": "^3.23.5",
     "@data-driven-forms/react-form-renderer": "^3.23.5",
