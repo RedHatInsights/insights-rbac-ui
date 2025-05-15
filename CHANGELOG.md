@@ -1,3 +1,10 @@
+## [1.37.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.37.0...v1.37.1) (2025-05-15)
+
+
+### Reverts
+
+* Revert "chore(deps): bump http-proxy-middleware from 2.0.6 to 2.0.9 ([#1814](https://github.com/RedHatInsights/insights-rbac-ui/issues/1814))" ([#1831](https://github.com/RedHatInsights/insights-rbac-ui/issues/1831)) ([daabcc3](https://github.com/RedHatInsights/insights-rbac-ui/commit/daabcc32b0a2db120703b7c8ea76e21e91941cde))
+
 # [1.37.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.36.2...v1.37.0) (2025-05-14)
 
 
