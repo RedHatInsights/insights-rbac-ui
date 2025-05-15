@@ -38,6 +38,13 @@ objects:
           icon: PlaceholderIcon
         - section: iam
           group: iam
+          id: workspaces
+          href: /iam/user-access/workspaces
+          title: Workspaces
+          description: ""
+          icon: PlaceholderIcon
+        - section: iam
+          group: iam
           id: authFactors
           href: /iam/authentication-policy/authentication-factors
           title: Authentication Factors
