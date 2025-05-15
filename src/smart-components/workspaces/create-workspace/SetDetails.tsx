@@ -45,8 +45,13 @@ const SetDetails = () => {
       );
   }, [workspaces.length]);
 
-  const defaultWorkspace = workspaces.find((workspace) => workspace.name === 'Default Workspace');
-  formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
+  const defaultWorkspace = workspaces.find((workspace) => workspace.type === 'default');
+
+  useEffect(() => {
+    if (defaultWorkspace) {
+      formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
+    }
+  }, [defaultWorkspace, formOptions.change]);
 
   const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
     <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen}>
