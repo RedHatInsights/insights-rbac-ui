@@ -1,3 +1,10 @@
+# [1.39.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.38.0...v1.39.0) (2025-05-15)
+
+
+### Features
+
+* **workspacewizard:** disable ws parent select ([#1832](https://github.com/RedHatInsights/insights-rbac-ui/issues/1832)) ([a237733](https://github.com/RedHatInsights/insights-rbac-ui/commit/a23773346e8a6cd090512b56de0885e69d0f5fcf))
+
 # [1.38.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.37.1...v1.38.0) (2025-05-15)
 
 
