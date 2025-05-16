@@ -1,3 +1,10 @@
+## [1.39.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.39.0...v1.39.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* handle empty responses from Akamai for the potentially optional cost API ([#1834](https://github.com/RedHatInsights/insights-rbac-ui/issues/1834)) ([4f6afcf](https://github.com/RedHatInsights/insights-rbac-ui/commit/4f6afcf45482597a8fdbe57c9a4a8cc2881db3d1))
+
 # [1.39.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.38.0...v1.39.0) (2025-05-15)
 
 
