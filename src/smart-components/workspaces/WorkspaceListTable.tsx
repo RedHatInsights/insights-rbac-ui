@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import {
@@ -110,7 +110,9 @@ const WorkspaceListTable = () => {
     workspaces.map((workspace) => ({
       row: Object.values({
         name: hideWorkspaceDetails ? (
-          workspace.name
+          <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
+            {workspace.name}
+          </Link>
         ) : (
           <AppLink
             to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
