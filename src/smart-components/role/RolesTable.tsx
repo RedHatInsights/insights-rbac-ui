@@ -282,7 +282,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             }
             actions={
               <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
-                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(paths['add-role'].path)} isPinned>
+                <ResponsiveAction ouiaId="add-role-button" onClick={() => navigate(`roles/${paths['add-role'].path}`)} isPinned>
                   {intl.formatMessage(messages.createRole)}
                 </ResponsiveAction>
                 <ResponsiveAction
