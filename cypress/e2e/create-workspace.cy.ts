@@ -11,6 +11,7 @@ describe('Workspaces page', { testIsolation: false }, () => {
   });
 
   it('Opens the create workspace wizard', () => {
+    cy.get('[data-ouia-component-id="SkeletonTable-tbody"]', { timeout: 30000 }).should('not.exist');
     cy.get('button[data-ouia-component-id="create-workspace-button"]').click();
 
     cy.contains('Create new workspace').should('be.visible');
@@ -19,6 +20,7 @@ describe('Workspaces page', { testIsolation: false }, () => {
   });
 
   it('Closes the create workspace wizard on cancel', () => {
+    cy.get('[data-ouia-component-id="SkeletonTable-tbody"]', { timeout: 30000 }).should('not.exist');
     cy.contains('Cancel').click();
     cy.get('div[data-ouia-component-id="create-workspace-wizard"]').should('not.exist');
   });

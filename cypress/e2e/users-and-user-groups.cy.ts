@@ -2,6 +2,7 @@ describe('Users and User Groups page', () => {
   const mockUsers = {
     data: [
       {
+        uuid: 'test-user-1',
         username: 'test-user-1',
         email: 'test1@example.com',
         first_name: 'Test',
@@ -10,6 +11,7 @@ describe('Users and User Groups page', () => {
         is_org_admin: false,
       },
       {
+        uuid: 'test-user-2',
         username: 'test-user-2',
         email: 'test2@example.com',
         first_name: 'Test',
@@ -28,6 +30,7 @@ describe('Users and User Groups page', () => {
   const mockUserGroups = {
     data: [
       {
+        uuid: 'test-group-1',
         name: 'test-group-1',
         description: 'Test Group 1',
         principalCount: 1,
@@ -35,6 +38,7 @@ describe('Users and User Groups page', () => {
         modified: '2021-09-01T00:00:00Z',
       },
       {
+        uuid: 'test-group-2',
         name: 'test-group-2',
         description: 'Test Group 2',
         principalCount: 3,
@@ -83,7 +87,7 @@ describe('Users and User Groups page', () => {
 
   describe('Users page', () => {
     beforeEach(() => {
-      cy.visit('/iam/access-management/users-and-user-groups');
+      cy.visit('/iam/access-management/users-and-user-groups/users');
       cy.wait('@getUsers', { timeout: API_TIMEOUT });
     });
 
@@ -184,25 +188,6 @@ describe('Users and User Groups page', () => {
       cy.get(SELECTORS.userDetailsDrawer).contains(mockUsers.data[0].email).should('exist');
     });
 
-    it('should be able to navigate to the User groups table and display correct data', () => {
-      cy.get(SELECTORS.usersTable).should('exist');
-
-      cy.get(SELECTORS.userGroupsTab).should('exist');
-      cy.get(SELECTORS.userGroupsTab).click();
-      cy.wait('@getUserGroups', { timeout: API_TIMEOUT });
-
-      cy.get(SELECTORS.userGroupsTable).should('exist');
-
-      mockUserGroups.data.forEach((group, index) => {
-        cy.get(`[data-ouia-component-id^="iam-user-groups-table-table-tr-${index}"]`).within(() => {
-          cy.get('td').eq(1).should('contain', group.name);
-          cy.get('td').eq(2).should('contain', group.description);
-          cy.get('td').eq(3).should('contain', group.principalCount);
-          cy.get('td').eq(5).should('contain', group.roleCount);
-        });
-      });
-    });
-
     it('should be able to invite a user to the organization from the users table', () => {
       // Set up the spying so we can check the response
 
@@ -231,7 +216,21 @@ describe('Users and User Groups page', () => {
   describe('User Groups page', () => {
     beforeEach(() => {
       cy.visit('/iam/access-management/users-and-user-groups/user-groups');
+      cy.get(SELECTORS.userGroupsTab, { timeout: 20000 }).click();
       cy.wait('@getUserGroups', { timeout: API_TIMEOUT });
+    });
+
+    it('should be able to navigate to the User groups table and display correct data', () => {
+      cy.get(SELECTORS.userGroupsTable).should('exist');
+
+      mockUserGroups.data.forEach((group, index) => {
+        cy.get(`[data-ouia-component-id^="iam-user-groups-table-table-tr-${index}"]`).within(() => {
+          cy.get('td').eq(1).should('contain', group.name);
+          cy.get('td').eq(2).should('contain', group.description);
+          cy.get('td').eq(3).should('contain', group.principalCount);
+          cy.get('td').eq(5).should('contain', group.roleCount);
+        });
+      });
     });
 
     it('should be able to open Delete User Groups Modal from row actions', () => {
@@ -252,15 +251,15 @@ describe('Users and User Groups page', () => {
 
       cy.get('[data-ouia-component-id="iam-user-groups-table-actions-dropdown-action-0"]').click();
 
-      cy.get(SELECTORS.editUserGroupForm).should('exist');
+      cy.get(SELECTORS.editUserGroupForm, { timeout: 8000 }).should('exist');
     });
 
     it('should be able to open Edit User Group page from row actions', () => {
-      cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"]').click();
-      cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').contains('Edit user group').click();
+      cy.get('[data-ouia-component-id^="iam-user-groups-table-table-td-0-7"] button').click();
 
-      cy.url().should('include', '/iam/user-access/users-and-user-groups/edit-group');
-      cy.get(SELECTORS.editUserGroupForm).should('be.visible');
+      cy.contains('button', 'Edit user group').click();
+      cy.url().should('include', '/iam/access-management/users-and-user-groups/edit-group/test-group-1');
+      cy.get(SELECTORS.editUserGroupForm, { timeout: 8000 }).should('be.visible');
     });
   });
 });

@@ -19,7 +19,7 @@ describe('Workspaces page', () => {
   };
 
   beforeEach(() => {
-    cy.login();
+    cy.login(true);
 
     // mock the workspaces
     cy.intercept('GET', '**/api/rbac/v2/workspaces/?limit=100', {
@@ -41,7 +41,7 @@ describe('Workspaces page', () => {
     // check if Workspaces heading exists on the page
     cy.contains('Workspaces').should('exist');
 
-    cy.contains('Root Workspace').click();
+    cy.contains('a', 'Root Workspace').click();
 
     cy.wait('@getWorkspace', { timeout: 30000 });
 

@@ -100,6 +100,7 @@ const WorkspaceListTable = () => {
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
+  const globalWs = useFlag('platform.rbac.workspaces');
 
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
@@ -109,7 +110,7 @@ const WorkspaceListTable = () => {
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
       row: Object.values({
-        name: hideWorkspaceDetails ? (
+        name: hideWorkspaceDetails && !globalWs ? (
           <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
             {workspace.name}
           </Link>

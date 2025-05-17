@@ -334,7 +334,8 @@ const Routing = () => {
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
-  const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
+  const wsList = useFlag('platform.rbac.workspaces-list');
+  const hideWorkspaceDetails = wsList && !isWorkspacesFlag;
 
   useEffect(() => {
     const currPath = Object.values(pathnames).find(
