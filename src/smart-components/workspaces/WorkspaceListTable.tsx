@@ -1,6 +1,6 @@
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import {
@@ -110,18 +110,19 @@ const WorkspaceListTable = () => {
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
       row: Object.values({
-        name:
-          hideWorkspaceDetails && !globalWs ? (
-            workspace.name
-          ) : (
-            <AppLink
-              to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
-              key={`${workspace.id}-detail`}
-              className="rbac-m-hide-on-sm"
-            >
-              {workspace.name}
-            </AppLink>
-          ),
+        name: hideWorkspaceDetails && !globalWs ? (
+          <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
+            {workspace.name}
+          </Link>
+        ) : (
+          <AppLink
+            to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
+            key={`${workspace.id}-detail`}
+            className="rbac-m-hide-on-sm"
+          >
+            {workspace.name}
+          </AppLink>
+        ),
         description: workspace.description,
         rowActions: {
           cell: (

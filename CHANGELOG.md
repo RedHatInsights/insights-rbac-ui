@@ -1,3 +1,17 @@
+# [1.40.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.39.1...v1.40.0) (2025-05-17)
+
+
+### Features
+
+* **workspaces:** redirect to inventory ws table ([#1836](https://github.com/RedHatInsights/insights-rbac-ui/issues/1836)) ([ce0d204](https://github.com/RedHatInsights/insights-rbac-ui/commit/ce0d204b5b20cfb87bba0e7e525b5d59de80917b))
+
+## [1.39.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.39.0...v1.39.1) (2025-05-16)
+
+
+### Bug Fixes
+
+* handle empty responses from Akamai for the potentially optional cost API ([#1834](https://github.com/RedHatInsights/insights-rbac-ui/issues/1834)) ([4f6afcf](https://github.com/RedHatInsights/insights-rbac-ui/commit/4f6afcf45482597a8fdbe57c9a4a8cc2881db3d1))
+
 # [1.39.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.38.0...v1.39.0) (2025-05-15)
 
 
