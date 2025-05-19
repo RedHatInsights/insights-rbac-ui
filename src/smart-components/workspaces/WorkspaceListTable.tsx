@@ -110,19 +110,20 @@ const WorkspaceListTable = () => {
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
       row: Object.values({
-        name: hideWorkspaceDetails && !globalWs ? (
-          <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
-            {workspace.name}
-          </Link>
-        ) : (
-          <AppLink
-            to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
-            key={`${workspace.id}-detail`}
-            className="rbac-m-hide-on-sm"
-          >
-            {workspace.name}
-          </AppLink>
-        ),
+        name:
+          hideWorkspaceDetails && !globalWs ? (
+            <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
+              {workspace.name}
+            </Link>
+          ) : (
+            <AppLink
+              to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
+              key={`${workspace.id}-detail`}
+              className="rbac-m-hide-on-sm"
+            >
+              {workspace.name}
+            </AppLink>
+          ),
         description: workspace.description,
         rowActions: {
           cell: (
