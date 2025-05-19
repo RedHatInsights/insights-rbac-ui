@@ -112,9 +112,18 @@ const WorkspaceListTable = () => {
       row: Object.values({
         name:
           hideWorkspaceDetails && !globalWs ? (
-            <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
-              {workspace.name}
-            </Link>
+            workspace?.type === 'standard' ? (
+              <Link
+                replace
+                to={`/insights/inventory/workspaces/${workspace.id}`}
+                key={`${workspace.id}-inventory-link`}
+                className="rbac-m-hide-on-sm"
+              >
+                {workspace.name}
+              </Link>
+            ) : (
+              workspace.name
+            )
           ) : (
             <AppLink
               to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
