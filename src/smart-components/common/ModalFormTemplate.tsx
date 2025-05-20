@@ -1,22 +1,25 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
+import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 
 import FormSpy from '@data-driven-forms/react-form-renderer/form-spy';
-import FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ActionGroup, Form, FormProps } from '@patternfly/react-core/dist/dynamic/components/Form';
 
-import { Modal } from '@patternfly/react-core/dist/js/components/Modal';
-import { ActionGroup } from '@patternfly/react-core/dist/js/components/Form/ActionGroup';
-import { Button } from '@patternfly/react-core/dist/js/components/Button';
-import { Form } from '@patternfly/react-core/dist/js/components/Form/Form';
+import { Modal, ModalProps } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import React from 'react';
 
 /**
  * This id is requried to submit form by a button outside of the form element
  */
 const MODAL_FORM_IDENTIFIER = 'modal-form';
-const CustomFormWrapper = (props) => <Form {...props} id={MODAL_FORM_IDENTIFIER} />;
+const CustomFormWrapper: React.FC<FormProps> = (props) => <Form {...props} id={MODAL_FORM_IDENTIFIER} />;
 
-const CustomButtons = ({ saveLabel, cancelLabel }) => {
+type CustomButtonsProps = {
+  saveLabel?: React.ReactNode;
+  cancelLabel?: React.ReactNode;
+};
+const CustomButtons: React.FC<CustomButtonsProps> = ({ saveLabel = 'Save', cancelLabel = 'Cancel' }) => {
   const { onCancel } = useFormApi();
 
   return (
@@ -43,26 +46,16 @@ const CustomButtons = ({ saveLabel, cancelLabel }) => {
   );
 };
 
-CustomButtons.propTypes = {
-  saveLabel: PropTypes.node,
-  cancelLabel: PropTypes.node,
-};
+type ModalFormTemplateProps = {
+  ModalProps: Omit<ModalProps, 'ref' | 'children'>;
+} & CustomButtonsProps &
+  FormTemplateCommonProps;
 
-CustomButtons.defaultProps = {
-  saveLabel: 'Save',
-  cancelLabel: 'Cancel',
-};
-
-const ModalFormTemplate = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => (
+const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => (
   <Modal role="dialog" {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
     {alert?.()}
     <FormTemplate {...props} showFormControls={false} FormWrapper={CustomFormWrapper} />
   </Modal>
 );
-
-ModalFormTemplate.propTypes = {
-  ModalProps: PropTypes.object,
-  ...CustomButtons.propTypes,
-};
 
 export default ModalFormTemplate;
