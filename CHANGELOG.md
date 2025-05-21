@@ -1,3 +1,10 @@
+## [1.40.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.40.0...v1.40.1) (2025-05-21)
+
+
+### Bug Fixes
+
+* **cypress:** failing tests ([#1835](https://github.com/RedHatInsights/insights-rbac-ui/issues/1835)) ([5c4bef8](https://github.com/RedHatInsights/insights-rbac-ui/commit/5c4bef8f5a085bb6a928dbf33ef48c653573ff53))
+
 # [1.40.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.39.1...v1.40.0) (2025-05-17)
 
 
