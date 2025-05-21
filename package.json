@@ -87,7 +87,7 @@
     "@commitlint/cli": "^19.5.0",
     "@commitlint/config-conventional": "^19.5.0",
     "@redhat-cloud-services/eslint-config-redhat-cloud-services": "^2.0.3",
-    "@redhat-cloud-services/frontend-components-config": "^6.4.4",
+    "@redhat-cloud-services/frontend-components-config": "^6.5.0",
     "@redhat-cloud-services/tsc-transform-imports": "^1.0.4",
     "@semantic-release/changelog": "^6.0.3",
     "@semantic-release/commit-analyzer": "^13.0.0",

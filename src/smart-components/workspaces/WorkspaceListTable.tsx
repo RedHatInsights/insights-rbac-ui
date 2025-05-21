@@ -100,6 +100,7 @@ const WorkspaceListTable = () => {
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
+  const globalWs = useFlag('platform.rbac.workspaces');
 
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
@@ -109,19 +110,29 @@ const WorkspaceListTable = () => {
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
     workspaces.map((workspace) => ({
       row: Object.values({
-        name: hideWorkspaceDetails ? (
-          <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
-            {workspace.name}
-          </Link>
-        ) : (
-          <AppLink
-            to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
-            key={`${workspace.id}-detail`}
-            className="rbac-m-hide-on-sm"
-          >
-            {workspace.name}
-          </AppLink>
-        ),
+        name:
+          hideWorkspaceDetails && !globalWs ? (
+            workspace?.type === 'standard' ? (
+              <Link
+                replace
+                to={`/insights/inventory/workspaces/${workspace.id}`}
+                key={`${workspace.id}-inventory-link`}
+                className="rbac-m-hide-on-sm"
+              >
+                {workspace.name}
+              </Link>
+            ) : (
+              workspace.name
+            )
+          ) : (
+            <AppLink
+              to={pathnames['workspace-detail'].link.replace(':workspaceId', workspace.id)}
+              key={`${workspace.id}-detail`}
+              className="rbac-m-hide-on-sm"
+            >
+              {workspace.name}
+            </AppLink>
+          ),
         description: workspace.description,
         rowActions: {
           cell: (

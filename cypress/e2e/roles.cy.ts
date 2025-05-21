@@ -208,14 +208,14 @@ describe('Roles page', () => {
 
   it('should open the add roles wizard', () => {
     cy.get('button[data-ouia-component-id="add-role-button"]').click();
-    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('exist');
-    cy.contains('Create Role').should('be.visible');
+    cy.get('div[data-ouia-component-type="PF5/ModalContent"]').should('exist');
+    cy.contains('Create role').should('be.visible');
   });
 
   it('should close the add role wizard on cancel', () => {
     cy.get('button[data-ouia-component-id="add-role-button"]').click();
-    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('exist');
+    cy.get('div[data-ouia-component-type="PF5/ModalContent"]').should('exist');
     cy.contains('Cancel').click();
-    cy.get('div[data-ouia-component-id="add-role-wizard"]').should('not.exist');
+    cy.get('div[data-ouia-component-type="PF5/ModalContent"]').should('not.exist');
   });
 });

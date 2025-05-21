@@ -5,6 +5,7 @@ module.exports = {
   debug: true,
   useProxy: true,
   proxyVerbose: true,
+  frontendCRDPath: path.resolve(__dirname, './deploy/frontend.yaml'),
   /**
    * Change to false after your app is registered in configuration files
    */
