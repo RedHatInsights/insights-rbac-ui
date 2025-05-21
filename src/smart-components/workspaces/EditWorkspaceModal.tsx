@@ -56,11 +56,13 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
-            (value: string) => {
+            (value: string, { id }: any) => {
               if (value === initialFormData?.name) {
                 return undefined;
               }
-              const isDuplicate = allWorkspaces.some((existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase());
+              const isDuplicate = allWorkspaces.some(
+                (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
+              );
               return isDuplicate ? intl.formatMessage(messages.groupNameTakenTitle) : undefined;
             },
           ],
