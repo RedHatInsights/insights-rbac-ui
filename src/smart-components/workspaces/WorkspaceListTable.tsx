@@ -112,7 +112,7 @@ const WorkspaceListTable = () => {
       row: Object.values({
         name:
           hideWorkspaceDetails && !globalWs ? (
-            workspace?.type === 'standard' ? (
+            ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
               <Link
                 replace
                 to={`/insights/inventory/workspaces/${workspace.id}`}
