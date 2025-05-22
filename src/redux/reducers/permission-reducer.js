@@ -1,9 +1,9 @@
 import {
-  LIST_PERMISSIONS,
-  LIST_APPLICATION_OPTIONS,
-  LIST_RESOURCE_OPTIONS,
-  LIST_OPERATION_OPTIONS,
   EXPAND_SPLATS,
+  LIST_APPLICATION_OPTIONS,
+  LIST_OPERATION_OPTIONS,
+  LIST_PERMISSIONS,
+  LIST_RESOURCE_OPTIONS,
   RESET_EXPAND_SPLATS,
 } from '../action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
@@ -39,8 +39,14 @@ const setApplicationOptions = (state, { payload }) => ({
   ...state,
   options: { ...state.options, application: payload, isLoadingApplication: false },
 });
-const setResourceOptions = (state, { payload }) => ({ ...state, options: { ...state.options, resource: payload, isLoadingResource: false } });
-const setOperationOptions = (state, { payload }) => ({ ...state, options: { ...state.options, operation: payload, isLoadingOperation: false } });
+const setResourceOptions = (state, { payload }) => ({
+  ...state,
+  options: { ...state.options, resource: payload, isLoadingResource: false },
+});
+const setOperationOptions = (state, { payload }) => ({
+  ...state,
+  options: { ...state.options, operation: payload, isLoadingOperation: false },
+});
 
 const setLoadingExpandSplats = (state) => ({ ...state, isLoadingExpandSplats: true });
 const setExpandSplats = (state, { payload }) => ({ ...state, expandSplats: payload, isLoadingExpandSplats: false });

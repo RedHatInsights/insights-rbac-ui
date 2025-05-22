@@ -1,11 +1,11 @@
+import { DataView, DataViewTable } from '@patternfly/react-data-view';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { useCallback, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import { mappedProps } from '../../../../../helpers/shared/helpers';
-import { fetchGroups } from '../../../../../redux/actions/group-actions';
-import { RBACStore } from '../../../../../redux/store';
 import messages from '../../../../../Messages';
+import { fetchGroups } from '../../../../../redux/actions/group-actions';
 
 interface UserGroupsViewProps {
   userId: string;
@@ -16,11 +16,12 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   const dispatch = useDispatch();
   const intl = useIntl();
   const columns: string[] = [intl.formatMessage(messages.userGroup), intl.formatMessage(messages.users)];
+  const chrome = useChrome();
 
   const groups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
 
   const fetchData = useCallback(() => {
-    dispatch(fetchGroups({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false }));
+    dispatch(fetchGroups({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false, chrome }));
   }, [dispatch, userId]);
 
   useEffect(() => {

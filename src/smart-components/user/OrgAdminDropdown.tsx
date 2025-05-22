@@ -1,16 +1,16 @@
 import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { useEffect, useState } from 'react';
 import { IntlShape } from 'react-intl';
-import messages from '../../Messages';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useDispatch } from 'react-redux';
-import { updateUserIsOrgAdminStatus } from '../../redux/actions/user-actions';
+import messages from '../../Messages';
+import { useUserActions } from '../../redux/actions/user-actions';
 
 const OrgAdminDropdown: React.FC<{
   isOrgAdmin: boolean;
   username: string;
   intl: IntlShape;
-  userId: number | undefined;
+  userId: string | undefined;
   fetchData?: () => void;
 }> = ({ isOrgAdmin, username, intl, userId, fetchData }) => {
   const { auth, isProd } = useChrome();
@@ -21,6 +21,7 @@ const OrgAdminDropdown: React.FC<{
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const { updateUserIsOrgAdminStatus } = useUserActions();
 
   useEffect(() => {
     const getToken = async () => {
@@ -42,7 +43,7 @@ const OrgAdminDropdown: React.FC<{
   };
 
   const onSelect = async (_event: React.MouseEvent<Element, MouseEvent> | undefined, value: string | number | undefined) => {
-    if (loading) return;
+    if (loading || !userId) return;
 
     const newStatus = value === 'true';
     if (newStatus === isOrgAdmin) return;
@@ -50,7 +51,16 @@ const OrgAdminDropdown: React.FC<{
     setLoading(true);
 
     try {
-      await dispatch(updateUserIsOrgAdminStatus({ id: userId, is_org_admin: newStatus }, { isProd: isProd(), token, accountId }));
+      await dispatch(
+        updateUserIsOrgAdminStatus(
+          { id: userId, is_org_admin: newStatus },
+          {
+            isProd: isProd(),
+            token,
+            accountId,
+          }
+        )
+      );
       fetchData?.();
     } catch (error) {
       console.error('Failed to update org admin status:', error);

@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import EditResourceDefinitionsModal from '../../smart-components/role/edit-resource-definitions-modal';
-import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE, FETCH_INVENTORY_GROUPS } from '../../redux/action-types';
+import { FETCH_INVENTORY_GROUPS, FETCH_RESOURCE, FETCH_RESOURCE_DEFINITIONS } from '../../redux/action-types';
 
 import * as CostManagementActions from '../../redux/actions/cost-management-actions';
 import * as InventoryActions from '../../redux/actions/inventory-actions';
@@ -81,8 +81,14 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
   });
 
   it('should render edit resource definitions modal', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementation(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE_DEFINITIONS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
+    getResourceSpy.mockImplementation(() => ({
+      type: FETCH_RESOURCE,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -99,8 +105,14 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
 
   it('should show warning modal on cancel with changes and close it', async () => {
     jest.useFakeTimers();
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE_DEFINITIONS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
+    getResourceSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -132,8 +144,14 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
   });
 
   it('should not show warning modal on cancel without changes', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE_DEFINITIONS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
+    getResourceSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -156,8 +174,14 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
   });
 
   it('should show warning modal on close with changes', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE_DEFINITIONS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
+    getResourceSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -184,8 +208,14 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
   });
 
   it('should show alert on removing last resource and cancel', async () => {
-    getResourceDefinitionsSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE_DEFINITIONS, payload: Promise.resolve({ data: 'something' }) }));
-    getResourceSpy.mockImplementationOnce(() => ({ type: FETCH_RESOURCE, payload: Promise.resolve({ data: 'something' }) }));
+    getResourceDefinitionsSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE_DEFINITIONS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
+    getResourceSpy.mockImplementationOnce(() => ({
+      type: FETCH_RESOURCE,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
     await act(async () => {
       render(
         <Provider store={mockStore(initialState)}>
@@ -263,7 +293,10 @@ describe('EditResourceDefinitionsModal - Inventory', () => {
   });
 
   it('should render edit resource definitions modal', async () => {
-    getInventoryGroupsSpy.mockImplementationOnce(() => ({ type: FETCH_INVENTORY_GROUPS, payload: Promise.resolve({ data: 'something' }) }));
+    getInventoryGroupsSpy.mockImplementationOnce(() => ({
+      type: FETCH_INVENTORY_GROUPS,
+      payload: Promise.resolve({ data: 'something' }),
+    }));
 
     await act(async () => {
       render(

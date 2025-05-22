@@ -1,17 +1,15 @@
+import { ContentHeader } from '@patternfly/react-component-groups';
+import { Breadcrumb, BreadcrumbItem, Divider, PageSection, Skeleton, Tab, Tabs } from '@patternfly/react-core';
+import { useFlag } from '@unleash/proxy-client-react';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWorkspace, fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
-import { ContentHeader } from '@patternfly/react-component-groups';
-import { Breadcrumb, BreadcrumbItem, Divider, PageSection, Skeleton, Tab, Tabs } from '@patternfly/react-core';
-import { RBACStore } from '../../../redux/store';
 import { useParams, useSearchParams } from 'react-router-dom';
-import WorkspaceActions from '../WorkspaceActions';
 import messages from '../../../Messages';
+import { fetchWorkspace, fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
+import WorkspaceActions from '../WorkspaceActions';
 import AssetsCards from './AssetsCards';
 import RoleAssignmentsTable from './RoleAssignmentsTable';
-import { useFlag } from '@unleash/proxy-client-react';
-import { Workspace } from '../../../redux/reducers/workspaces-reducer';
 
 interface WorkspaceData {
   name: string;

@@ -1,7 +1,7 @@
 import groupReducer, { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_GROUPS, FETCH_GROUP, FETCH_ROLES_FOR_GROUP, FETCH_MEMBERS_FOR_GROUP, FETCH_ADD_ROLES_FOR_GROUP } from '../../../redux/action-types';
+import { FETCH_ADD_ROLES_FOR_GROUP, FETCH_GROUP, FETCH_GROUPS, FETCH_MEMBERS_FOR_GROUP, FETCH_ROLES_FOR_GROUP } from '../../../redux/action-types';
 
 describe('Group reducer', () => {
   let initialState;
@@ -27,7 +27,11 @@ describe('Group reducer', () => {
   });
 
   it('should set loading state for single group', () => {
-    const expectedState = { ...initialState, isRecordLoading: true, selectedGroup: { ...initialState.selectedGroup, loaded: false } };
+    const expectedState = {
+      ...initialState,
+      isRecordLoading: true,
+      selectedGroup: { ...initialState.selectedGroup, loaded: false },
+    };
     expect(reducer(initialState, { type: `${FETCH_GROUP}_PENDING` })).toEqual(expectedState);
   });
 
@@ -86,7 +90,10 @@ describe('Group reducer', () => {
   });
 
   it('should set loading state for roles in group', () => {
-    const expectedState = { ...initialState, selectedGroup: { ...initialState.selectedGroup, error: undefined, roles: { isLoading: true } } };
+    const expectedState = {
+      ...initialState,
+      selectedGroup: { ...initialState.selectedGroup, error: undefined, roles: { isLoading: true } },
+    };
     expect(reducer(initialState, { type: `${FETCH_ROLES_FOR_GROUP}_PENDING` })).toEqual(expectedState);
   });
 
@@ -100,7 +107,10 @@ describe('Group reducer', () => {
   });
 
   it('should set loading state for members in group', () => {
-    const expectedState = { ...initialState, selectedGroup: { ...initialState.selectedGroup, members: { isLoading: true } } };
+    const expectedState = {
+      ...initialState,
+      selectedGroup: { ...initialState.selectedGroup, members: { isLoading: true } },
+    };
     expect(reducer(initialState, { type: `${FETCH_MEMBERS_FOR_GROUP}_PENDING` })).toEqual(expectedState);
   });
   it('should set members for selected group and loading state to false', () => {

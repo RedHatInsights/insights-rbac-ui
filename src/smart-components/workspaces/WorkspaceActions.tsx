@@ -1,4 +1,4 @@
-import React, { Suspense, useState } from 'react';
+import { WarningModal } from '@patternfly/react-component-groups';
 import {
   ButtonVariant,
   Divider,
@@ -12,15 +12,14 @@ import {
   MenuToggle,
 } from '@patternfly/react-core';
 import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import React, { Suspense, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../Messages';
-import { WarningModal } from '@patternfly/react-component-groups';
-import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { Outlet } from 'react-router-dom';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import messages from '../../Messages';
+import { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
-import { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import useAppNavigate from '../../hooks/useAppNavigate';
 
 enum ActionType {
   EDIT_WORKSPACE = 'EDIT_WORKSPACE',

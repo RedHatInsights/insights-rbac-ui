@@ -1,6 +1,6 @@
-import { getPermissionApi } from '../shared/user-login';
+import { getAccessApi } from '../shared/user-login';
 
-const accessApi = getPermissionApi();
+const accessApi = getAccessApi();
 
 const disallowedPermissions = ['inventory:staleness'];
 

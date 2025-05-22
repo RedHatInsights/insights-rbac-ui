@@ -1,22 +1,38 @@
+import { Principal } from '@redhat-cloud-services/rbac-client/types';
+import { isInt, isITLessProd, isStage } from '../../itLessConfig';
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import { isInt, isStage, isITLessProd } from '../../itLessConfig';
+
+export type ActionConfig = {
+  isProd: boolean;
+  token?: string | null;
+  accountId?: string | null;
+};
 
 export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view-edit-user';
 export const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view-all';
 export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL = 'view-edit-all';
 
-const getITApiUrl = (isProd) => `https://api.access${isProd ? '' : '.stage'}.redhat.com`;
+interface EnvUrls {
+  int: string;
+  stage: string;
+  prod: string;
+
+  [key: string]: string;
+}
+
+interface FetchResponse {
+  meta?: {
+    count: number;
+  };
+  data: User[];
+}
+
+const getITApiUrl = (isProd: boolean): string => `https://api.access${isProd ? '' : '.stage'}.redhat.com`;
 
 const principalApi = getPrincipalApi();
 
-const principalStatusApiMap = {
-  Active: 'enabled',
-  Inactive: 'disabled',
-  All: 'all',
-};
-
-const getBaseUrl = (url) => {
+const getBaseUrl = (url: EnvUrls): string => {
   if (isInt) {
     return url.int;
   } else if (isStage) {
@@ -28,7 +44,7 @@ const getBaseUrl = (url) => {
   }
 };
 
-async function fetchBaseUrl() {
+async function fetchBaseUrl(): Promise<EnvUrls> {
   try {
     // TODO move to env var defined in cluster surfaced through chrome service
     const response = await fetch('/apps/rbac/env.json');
@@ -36,16 +52,17 @@ async function fetchBaseUrl() {
     return jsonData;
   } catch (error) {
     console.log(error);
+    throw error;
   }
 }
 
-const getHeaders = (token) => ({
+const getHeaders = (token: string | undefined = 'unknown'): HeadersInit => ({
   'Content-Type': 'application/json',
   Accept: 'application/json',
   Authorization: `Bearer ${token}`,
 });
 
-function handleResponse(response, resolve, reject) {
+function handleResponse(response: Response, resolve: (value: Response) => void, reject: (reason?: any) => void): void {
   if (response.ok && response.status !== 206) {
     resolve(response);
   } else if (response.ok && response.status === 206) {
@@ -57,11 +74,31 @@ function handleResponse(response, resolve, reject) {
   }
 }
 
-function handleError(error, reject) {
+function handleError(error: Error, reject: (reason?: any) => void): void {
   reject(new Error(error.message));
 }
 
-export async function addUsers(usersData = { emails: [], isAdmin: undefined, message: undefined }, config) {
+export type AddUsersData = {
+  emails: string[];
+  isAdmin?: boolean;
+  message?: string;
+  portal_manage_cases?: boolean;
+  portal_download?: boolean;
+  portal_manage_subscriptions?:
+    | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER
+    | typeof MANAGE_SUBSCRIPTIONS_VIEW_ALL
+    | typeof MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL;
+};
+
+export async function addUsers(
+  usersData: AddUsersData = {
+    emails: [],
+    isAdmin: undefined,
+    message: undefined,
+  },
+  getToken: () => Promise<string | undefined>,
+  config?: ActionConfig
+): Promise<Response> {
   if (config) {
     const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/invite`;
     return fetch(currURL, {
@@ -77,7 +114,7 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
       }),
     });
   }
-  const token = await insights.chrome.auth.getToken();
+  const token = await getToken();
   const requestOpts = {
     method: 'POST',
     headers: getHeaders(token),
@@ -88,7 +125,8 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
   };
   const url = await fetchBaseUrl();
   const baseUrl = getBaseUrl(url);
-  let promise = new Promise((resolve, reject) => {
+
+  return new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
@@ -96,11 +134,18 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
       )
       .catch((error) => handleError(error, reject));
   });
-
-  return promise;
 }
 
-export async function updateUserIsOrgAdminStatus(user, config) {
+export type UpdateUserOrgAdmin = {
+  id: string;
+  is_org_admin: boolean;
+};
+
+export async function updateUserIsOrgAdminStatus(
+  user: UpdateUserOrgAdmin,
+  getToken: () => Promise<string | undefined>,
+  config?: ActionConfig
+): Promise<Response | any> {
   if (config) {
     const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/roles`;
     return fetch(currURL, {
@@ -114,8 +159,8 @@ export async function updateUserIsOrgAdminStatus(user, config) {
       }),
     });
   }
-  const token = await insights.chrome.auth.getToken();
-  let requestOpts = {
+  const token = await getToken();
+  const requestOpts = {
     method: 'PUT',
     headers: getHeaders(token),
   };
@@ -123,7 +168,7 @@ export async function updateUserIsOrgAdminStatus(user, config) {
   const url = await fetchBaseUrl();
   const baseUrl = getBaseUrl(url);
 
-  let promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
@@ -131,11 +176,18 @@ export async function updateUserIsOrgAdminStatus(user, config) {
       )
       .catch((error) => handleError(error, reject));
   });
-
-  return promise;
 }
 
-export async function changeUsersStatus(users, config) {
+export type UpdateUserStatus = {
+  id: string;
+  is_active: boolean;
+};
+
+export async function changeUsersStatus(
+  users: UpdateUserStatus[],
+  getToken: () => Promise<string | undefined>,
+  config: ActionConfig
+): Promise<Response[] | any> {
   if (config) {
     return users.map((user) => {
       const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${config.accountId}/users/${user.id}/status`;
@@ -151,8 +203,8 @@ export async function changeUsersStatus(users, config) {
       });
     });
   }
-  const token = await insights.chrome.auth.getToken();
-  let requestOpts = {
+  const token = await getToken();
+  const requestOpts = {
     method: 'PUT',
     headers: getHeaders(token),
     body: JSON.stringify({ users: users }),
@@ -161,7 +213,7 @@ export async function changeUsersStatus(users, config) {
   const url = await fetchBaseUrl();
   const baseUrl = getBaseUrl(url);
 
-  let promise = new Promise((resolve, reject) => {
+  return new Promise((resolve, reject) => {
     return fetch(`${baseUrl}/change-users-status`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
@@ -169,42 +221,77 @@ export async function changeUsersStatus(users, config) {
       )
       .catch((error) => handleError(error, reject));
   });
-
-  return promise;
 }
 
-export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, usesMetaInURL, matchCriteria = 'partial' }) {
+export interface FetchUsersParams {
+  limit: number;
+  offset?: number;
+  orderBy?: string;
+  filters?: UserFilters;
+  usesMetaInURL?: boolean;
+  matchCriteria?: 'partial' | 'exact';
+}
+
+export async function fetchUsers({
+  limit,
+  offset = 0,
+  orderBy,
+  filters = {},
+  usesMetaInURL,
+  matchCriteria = 'partial',
+}: FetchUsersParams): Promise<FetchResponse> {
   const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
+  const principalStatusApiMap = {
+    All: 'all' as const,
+    Active: 'enabled' as const,
+    Inactive: 'disabled' as const,
+  };
+
   const mappedStatus =
-    typeof status === 'string'
-      ? principalStatusApiMap[status]
-      : status.length === 2
+    status.length === 2
       ? principalStatusApiMap.All
-      : principalStatusApiMap[status[0]] || principalStatusApiMap.All;
-  const response = await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
-  const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
-  offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);
-  const { data, meta } = isPaginationValid
+      : principalStatusApiMap[status[0] as keyof typeof principalStatusApiMap] ?? principalStatusApiMap.All;
+
+  const response = await principalApi.listPrincipals({
+    limit,
+    offset,
+    matchCriteria,
+    usernames: username,
+    sortOrder,
+    email,
+    status: mappedStatus,
+  });
+  const isPaginationValid = isOffsetValid(offset, response?.data.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(response.data?.meta?.count ?? 0, limit);
+  const {
+    data: { meta, data },
+  } = isPaginationValid
     ? response
-    : await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
+    : await principalApi.listPrincipals({
+        limit,
+        offset,
+        matchCriteria,
+        usernames: username,
+        sortOrder,
+        email,
+        status: mappedStatus,
+      });
+  const users = data as Principal[];
+  if (usesMetaInURL) {
+    return {
+      data: users,
+      // TODO
+      // filters,
+      // pagination: {
+      //   ...meta,
+      //   offset,
+      //   limit,
+      //   redirected: !isPaginationValid,
+      // },
+    };
+  }
   return {
-    data,
-    meta: {
-      ...meta,
-      offset,
-      limit,
-    },
-    ...(usesMetaInURL
-      ? {
-          filters,
-          pagination: {
-            ...meta,
-            offset,
-            limit,
-            redirected: !isPaginationValid,
-          },
-        }
-      : {}),
+    data: users,
   };
 }

@@ -1,27 +1,26 @@
-import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
+import { useFieldApi, UseFieldApiConfig, useFormApi } from '@data-driven-forms/react-form-renderer';
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, FormGroup, Pagination } from '@patternfly/react-core';
 import {
   DataView,
-  DataViewTable,
-  DataViewToolbar,
-  DataViewTh,
   DataViewState,
+  DataViewTable,
   DataViewTextFilter,
+  DataViewTh,
+  DataViewToolbar,
   useDataViewFilters,
   useDataViewPagination,
   useDataViewSelection,
 } from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { SearchIcon } from '@patternfly/react-icons';
-import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../redux/store';
 import { useSearchParams } from 'react-router-dom';
-import messages from '../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../helpers/shared/pagination';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import messages from '../../../Messages';
 import { listPermissions } from '../../../redux/actions/permission-action';
 
 interface PermissionsFilters {
@@ -201,7 +200,12 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
                 />
                 <DataViewTextFilter
                   filterId="resourceType"
-                  title={intl.formatMessage(messages.resourceType || { id: 'resourceType', defaultMessage: 'Resource Type' })}
+                  title={intl.formatMessage(
+                    messages.resourceType || {
+                      id: 'resourceType',
+                      defaultMessage: 'Resource Type',
+                    }
+                  )}
                   placeholder={intl.formatMessage(messages.searchByResourceTypePlaceholder)}
                   ouiaId="resource-type-filter"
                 />

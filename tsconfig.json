@@ -14,11 +14,17 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["src/redux/store.d.ts"]
   },
   "include": [
     "src/**/*.ts",
     "src/**/*.tsx",
-    "src/presentational-components/shared/AppLink.js", "src/presentational-components/shared/AppLink.js", "src/smart-components/role/RolesTable.js"  ],
-  "exclude": ["node_modules", "cypress/**/*.ts", "**/*.cy.tsx"]
+    "src/presentational-components/shared/AppLink.js",
+    "src/presentational-components/shared/AppLink.js",
+    "src/smart-components/role/RolesTable.js"
+  ],
+  "exclude": [
+    "node_modules",
+    "cypress/**/*.ts",
+    "**/*.cy.tsx"
+  ]
 }

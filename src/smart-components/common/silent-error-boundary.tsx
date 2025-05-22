@@ -1,17 +1,25 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 
-class SilentErrorBoundary extends React.Component {
-  constructor(props) {
+interface SilentErrorBoundaryProps {
+  children: React.ReactNode;
+  silentErrorString: string;
+}
+
+interface SilentErrorBoundaryState {
+  hasError: boolean;
+}
+
+class SilentErrorBoundary extends React.Component<SilentErrorBoundaryProps, SilentErrorBoundaryState> {
+  constructor(props: SilentErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
   }
 
-  static getDerivedStateFromError() {
+  static getDerivedStateFromError(): SilentErrorBoundaryState {
     return { hasError: true };
   }
 
-  componentDidCatch(error) {
+  componentDidCatch(error: Error): void {
     /**
      * Propagate error if it does not match the configuration
      */
@@ -21,7 +29,7 @@ class SilentErrorBoundary extends React.Component {
     }
   }
 
-  render() {
+  render(): React.ReactNode {
     if (this.state.hasError) {
       // Silently fail
       return null;
@@ -30,10 +38,5 @@ class SilentErrorBoundary extends React.Component {
     return this.props.children;
   }
 }
-
-SilentErrorBoundary.propTypes = {
-  children: PropTypes.node.isRequired,
-  silentErrorString: PropTypes.string.isRequired,
-};
 
 export default SilentErrorBoundary;

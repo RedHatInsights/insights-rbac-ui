@@ -1,22 +1,23 @@
-import React from 'react';
-import FormRenderer from '../../common/form-renderer';
-import ModalFormTemplate from '../../common/ModalFormTemplate';
-import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
-import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import AccordionCheckbox from '../../common/expandable-checkbox';
-import InlineError from '../../common/inline-error';
-import { addUsers } from '../../../redux/actions/user-actions';
-import { useDispatch } from 'react-redux';
+import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
+import { FormTemplateRenderProps } from '@data-driven-forms/react-form-renderer/common-types/form-template-render-props';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
+import React from 'react';
+import { useIntl } from 'react-intl';
+import { useDispatch } from 'react-redux';
+import { useOutletContext } from 'react-router-dom';
 import {
   MANAGE_SUBSCRIPTIONS_VIEW_ALL,
   MANAGE_SUBSCRIPTIONS_VIEW_EDIT_ALL,
   MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
 } from '../../../helpers/user/user-helper';
-import { useOutletContext } from 'react-router-dom';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import messages from '../../../Messages';
+import { useUserActions } from '../../../redux/actions/user-actions';
+import AccordionCheckbox from '../../common/expandable-checkbox';
+import FormRenderer from '../../common/form-renderer';
+import InlineError from '../../common/inline-error';
+import ModalFormTemplate from '../../common/ModalFormTemplate';
 
 const ExpandableCheckboxComponent = 'expandable-checkbox';
 const InlineErrorComponent = 'inline-error';
@@ -41,9 +42,14 @@ const InviteUsers = () => {
   const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
   const [token, setToken] = React.useState<string | null>(null);
   const [accountId, setAccountId] = React.useState<string | null>(null);
-  const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
+  const [responseError, setResponseError] = React.useState<{
+    title: string;
+    description: string;
+    url?: string;
+  } | null>(null);
   const { auth, isProd } = useChrome();
   const dispatch = useDispatch();
+  const { addUsers } = useUserActions();
   const onCancel = () => {
     fetchData(false);
   };
@@ -171,9 +177,9 @@ const InviteUsers = () => {
     [responseError]
   );
   return (
-    <FormRenderer
+    <FormRenderer<SubmitValues>
       schema={schema}
-      formFields={[]}
+      // formFields={[]} // TODO check this
       componentMapper={{
         ...componentMapper,
         [InlineErrorComponent]: InlineError,
@@ -181,13 +187,18 @@ const InviteUsers = () => {
       }}
       onCancel={onCancel}
       onSubmit={onSubmit}
-      FormTemplate={(props: unknown[]) => (
+      FormTemplate={(props: FormTemplateRenderProps) => (
         <ModalFormTemplate
           saveLabel={intl.formatMessage(messages.inviteUsersTitle)}
           cancelLabel={intl.formatMessage(messages.cancel)}
           alert={undefined}
           {...props}
-          ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: intl.formatMessage(messages.inviteUsersTitle) }}
+          ModalProps={{
+            onClose: onCancel,
+            isOpen: true,
+            variant: 'medium',
+            title: intl.formatMessage(messages.inviteUsersTitle),
+          }}
         />
       )}
     />

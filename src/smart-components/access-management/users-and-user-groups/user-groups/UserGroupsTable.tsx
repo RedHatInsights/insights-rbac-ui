@@ -1,38 +1,37 @@
-import React, { useEffect, useCallback, useMemo, useState, Fragment, Suspense } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useSearchParams } from 'react-router-dom';
-import {
-  useDataViewSelection,
-  useDataViewPagination,
-  useDataViewSort,
-  useDataViewFilters,
-  useDataViewEventsContext,
-  DataViewState,
-  EventTypes,
-  DataViewTrObject,
-  DataViewTh,
-  DataViewTextFilter,
-} from '@patternfly/react-data-view';
+import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { ButtonVariant, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
+import {
+  DataViewState,
+  DataViewTextFilter,
+  DataViewTh,
+  DataViewTrObject,
+  EventTypes,
+  useDataViewEventsContext,
+  useDataViewFilters,
+  useDataViewPagination,
+  useDataViewSelection,
+  useDataViewSort,
+} from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ActionsColumn, ThProps } from '@patternfly/react-table';
-import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { formatDistanceToNow } from 'date-fns';
+import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { Outlet, useSearchParams } from 'react-router-dom';
 
 import { mappedProps } from '../../../../helpers/shared/helpers';
-import { RBACStore } from '../../../../redux/store';
-import { fetchGroups, removeGroups } from '../../../../redux/actions/group-actions';
-import { Group } from '../../../../redux/reducers/group-reducer';
 import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import pathnames from '../../../../utilities/pathnames';
 import messages from '../../../../Messages';
+import { fetchGroups, useGroupActions } from '../../../../redux/actions/group-actions';
+import pathnames from '../../../../utilities/pathnames';
 
 const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
   <EmptyState>
@@ -52,7 +51,7 @@ interface UserGroupsTableProps {
   useUrlParams?: boolean;
   enableActions?: boolean;
   ouiaId?: string;
-  onChange?: (selectedGroups: any[]) => void;
+  onChange?: (selectedGroups: Group[]) => void;
   focusedGroup?: Group;
 }
 
@@ -72,6 +71,8 @@ const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   const navigate = useAppNavigate();
   const { trigger } = useDataViewEventsContext();
   const [searchParams, setSearchParams] = useSearchParams();
+  const chrome = useChrome();
+  const { removeGroups } = useGroupActions();
 
   const { groups, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer?.groups?.data || [],
@@ -152,9 +153,11 @@ const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
       const orderDirection = direction === 'desc' ? '-' : '';
       dispatch(
         fetchGroups({
-          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          ...mappedProps({ count, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          limit,
           usesMetaInURL: true,
           system: false,
+          chrome,
         })
       );
     },

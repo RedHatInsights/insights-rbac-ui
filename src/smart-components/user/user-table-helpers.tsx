@@ -1,12 +1,13 @@
+import { Label } from '@patternfly/react-core';
+import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import React, { Fragment } from 'react';
 import { IntlShape } from 'react-intl';
 import messages from '../../Messages';
-import pathnames from '../../utilities/pathnames';
 import AppLink from '../../presentational-components/shared/AppLink';
-import OrgAdminDropdown from './OrgAdminDropdown';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import pathnames from '../../utilities/pathnames';
 import ActivateToggle from './ActivateToggle';
-import { Label } from '@patternfly/react-core';
+import OrgAdminDropdown from './OrgAdminDropdown';
+
 export interface UserProps {
   isSelected: boolean;
   email: string;
@@ -16,10 +17,13 @@ export interface UserProps {
   last_name: string;
   username: string;
   uuid: string;
-  external_source_id?: number;
+  external_source_id?: string;
 }
 
-export type CellObject = { title: string | React.RefAttributes<HTMLAnchorElement>; props?: { 'data-is-active': boolean } };
+export type CellObject = {
+  title: string | React.RefAttributes<HTMLAnchorElement>;
+  props?: { 'data-is-active': boolean };
+};
 export type SelectCell = {
   select: {
     rowIndex: number;

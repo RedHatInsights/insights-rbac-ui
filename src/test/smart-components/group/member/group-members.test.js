@@ -51,7 +51,10 @@ describe('<GroupMembers />', () => {
   });
 
   it('should render correctly loader', async () => {
-    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({
+      type: FETCH_MEMBERS_FOR_GROUP,
+      payload: Promise.resolve({}),
+    }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
@@ -81,7 +84,10 @@ describe('<GroupMembers />', () => {
   });
 
   it('should render correctly with empty members', async () => {
-    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({
+      type: FETCH_MEMBERS_FOR_GROUP,
+      payload: Promise.resolve({}),
+    }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore({
       ...initialState,
@@ -113,7 +119,10 @@ describe('<GroupMembers />', () => {
   });
 
   it('should render correctly with org admin rights', async () => {
-    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({
+      type: FETCH_MEMBERS_FOR_GROUP,
+      payload: Promise.resolve({}),
+    }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore({
       groupReducer: {
@@ -144,7 +153,10 @@ describe('<GroupMembers />', () => {
   });
 
   it('should render correctly with default group', async () => {
-    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({
+      type: FETCH_MEMBERS_FOR_GROUP,
+      payload: Promise.resolve({}),
+    }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore({
       groupReducer: {
@@ -173,7 +185,10 @@ describe('<GroupMembers />', () => {
   });
 
   it('should render correctly with data', async () => {
-    fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_MEMBERS_FOR_GROUP, payload: Promise.resolve({}) }));
+    fetchMembersForGroupSpy.mockImplementationOnce(() => ({
+      type: FETCH_MEMBERS_FOR_GROUP,
+      payload: Promise.resolve({}),
+    }));
     fetchMembersForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let container;

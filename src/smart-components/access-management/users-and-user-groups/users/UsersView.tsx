@@ -1,10 +1,9 @@
-import React from 'react';
-import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core';
+import { DataViewEventsProvider } from '@patternfly/react-data-view';
+import React from 'react';
+import AddUserToGroupModal from './add-user-to-group/AddUserToGroupModal';
 import UserDetailsDrawer from './user-detail/UserDetailsDrawer';
 import UsersTable from './UsersTable';
-import { User } from '../../../../redux/reducers/user-reducer';
-import AddUserToGroupModal from './add-user-to-group/AddUserToGroupModal';
 
 interface UsersViewProps {
   usersRef?: React.Ref<HTMLElement>;
