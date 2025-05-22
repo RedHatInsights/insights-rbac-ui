@@ -2,11 +2,11 @@ export {};
 declare global {
   interface User {
     email: string;
-    external_source_id: string;
-    first_name: string;
-    is_active: boolean;
-    is_org_admin: boolean;
-    last_name: string;
+    external_source_id?: number | string;
+    first_name?: string;
+    is_active?: boolean;
+    is_org_admin?: boolean;
+    last_name?: string;
     username: string;
     uuid?: string;
   }
@@ -14,7 +14,7 @@ declare global {
   interface UserFilters {
     username?: string;
     email?: string;
-    status?: ('enabled' | 'disabled' | 'all')[];
+    status?: string[];
   }
 
   interface UserStore extends Record<string, unknown> {

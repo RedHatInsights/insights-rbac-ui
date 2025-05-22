@@ -177,9 +177,9 @@ const InviteUsers = () => {
     [responseError]
   );
   return (
-    <FormRenderer
+    <FormRenderer<SubmitValues>
       schema={schema}
-      formFields={[]}
+      // formFields={[]} // TODO check this
       componentMapper={{
         ...componentMapper,
         [InlineErrorComponent]: InlineError,

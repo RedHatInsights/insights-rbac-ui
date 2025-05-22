@@ -21,7 +21,13 @@ export const mappedProps = <T extends object>(apiProps: T): Partial<T> =>
     {}
   ) as Partial<T>;
 
-export const debouncedFetch = debouncePromise((callback: () => Promise<any>) => callback());
+export const debouncedFetch = <T>(callback: () => Promise<T>, debounceTime?: number): Promise<T> => {
+  const wrappedDebounce = debouncePromise((...args: unknown[]) => {
+    const fn = args[0] as () => Promise<T>;
+    return fn() as Promise<T>;
+  }, debounceTime);
+  return wrappedDebounce(callback) as Promise<T>;
+};
 
 interface Row {
   uuid: string;

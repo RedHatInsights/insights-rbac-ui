@@ -7,7 +7,7 @@ import {
 } from '@redhat-cloud-services/frontend-components-utilities/interceptors';
 import { GroupsApi, ResourceTypesApi } from '@redhat-cloud-services/host-inventory-client';
 
-import { APIFactory, BaseAPI } from '@redhat-cloud-services/javascript-clients-shared';
+import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
 import addPrincipalToGroup, { AddPrincipalToGroupReturnType } from '@redhat-cloud-services/rbac-client/AddPrincipalToGroup';
 import addRoleToGroup, { AddRoleToGroupReturnType } from '@redhat-cloud-services/rbac-client/AddRoleToGroup';
 import createGroup, { CreateGroupReturnType } from '@redhat-cloud-services/rbac-client/CreateGroup';
@@ -32,7 +32,7 @@ import listPermissions, { ListPermissionsReturnType } from '@redhat-cloud-servic
 
 import listPolicies from '@redhat-cloud-services/rbac-client/ListPolicies';
 
-import listPrincipals from '@redhat-cloud-services/rbac-client/ListPrincipals';
+import listPrincipals, { ListPrincipalsReturnType } from '@redhat-cloud-services/rbac-client/ListPrincipals';
 import listRoles, { ListRolesReturnType } from '@redhat-cloud-services/rbac-client/ListRoles';
 import listRolesForGroup, { ListRolesForGroupReturnType } from '@redhat-cloud-services/rbac-client/ListRolesForGroup';
 import patchRole, { PatchRoleReturnType } from '@redhat-cloud-services/rbac-client/PatchRole';
@@ -64,13 +64,17 @@ axiosInstance.interceptors.response.use(null, interceptor403);
 axiosInstance.interceptors.response.use(null, interceptor500);
 axiosInstance.interceptors.response.use(null, errorInterceptor);
 
-const principalApi = APIFactory(
-  RBAC_API_BASE,
-  {
-    listPrincipals,
-  },
-  { axios: axiosInstance }
-);
+const principalApiEndpoints = {
+  listPrincipals,
+};
+
+type principalApiEndpointsReturnTypes = {
+  listPrincipals: ListPrincipalsReturnType;
+};
+
+const principalApi = APIFactory<typeof principalApiEndpoints, principalApiEndpointsReturnTypes>(RBAC_API_BASE, principalApiEndpoints, {
+  axios: axiosInstance,
+});
 
 const groupApiEndpoints = {
   listGroups,
@@ -157,7 +161,6 @@ type accessApiEndpointsReturnTypes = {
 
 const accessApi = APIFactory<typeof accessApiEndpoints, accessApiEndpointsReturnTypes>(RBAC_API_BASE, accessApiEndpoints, { axios: axiosInstance });
 
-const costApi = new BaseAPI(COST_API_BASE);
 const inventoryResourceTypesApi = new ResourceTypesApi(undefined, INVENTORY_API_BASE);
 const inventoryGroupsApi = new GroupsApi(undefined, INVENTORY_API_BASE);
 

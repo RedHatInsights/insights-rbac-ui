@@ -30,7 +30,7 @@ import { mappedProps } from '../../../../helpers/shared/helpers';
 import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
-import { fetchGroups } from '../../../../redux/actions/group-actions';
+import { fetchGroups, useGroupActions } from '../../../../redux/actions/group-actions';
 import pathnames from '../../../../utilities/pathnames';
 
 const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
@@ -72,6 +72,7 @@ const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   const { trigger } = useDataViewEventsContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const chrome = useChrome();
+  const { removeGroups } = useGroupActions();
 
   const { groups, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer?.groups?.data || [],

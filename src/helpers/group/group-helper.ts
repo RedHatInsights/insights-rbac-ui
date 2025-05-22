@@ -18,7 +18,8 @@ interface GroupResponse extends GroupPagination {
   };
 }
 
-export interface FetchGroupsParams extends Omit<ListGroupsParams, 'name'> {
+export interface FetchGroupsParams extends Omit<ListGroupsParams, 'name' | 'orderBy'> {
+  orderBy?: string;
   filters?: GroupFilters;
   usesMetaInURL?: boolean;
   chrome: ChromeAPI;
@@ -57,7 +58,7 @@ export async function fetchGroups({
       uuid,
       roleNames,
       roleDiscriminator,
-      orderBy,
+      orderBy: orderBy as ListGroupsParams['orderBy'],
       platformDefault,
       adminDefault,
       system,
@@ -79,7 +80,7 @@ export async function fetchGroups({
         uuid,
         roleNames,
         roleDiscriminator,
-        orderBy,
+        orderBy: orderBy as ListGroupsParams['orderBy'],
         options,
         system,
         platformDefault,
@@ -261,7 +262,7 @@ export interface FetchMembersOptions {
   orderBy?: 'username';
 }
 
-export async function fetchMembersForGroup(groupId: string, usernames: string, options: FetchMembersOptions = {}) {
+export async function fetchMembersForGroup(groupId: string, usernames?: string, options: FetchMembersOptions = {}) {
   return groupApi.getPrincipalsFromGroup({
     uuid: groupId,
     principalUsername: usernames,

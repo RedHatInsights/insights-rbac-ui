@@ -3,6 +3,7 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import { componentTypes, FormRenderer, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-core';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
@@ -11,7 +12,7 @@ import useAppNavigate from '../../../../../hooks/useAppNavigate';
 import Messages from '../../../../../Messages';
 import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
 import RbacBreadcrumbs from '../../../../../presentational-components/shared/breadcrumbs';
-import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
+import { addGroup, fetchGroup, fetchGroups, useGroupActions } from '../../../../../redux/actions/group-actions';
 import pathnames from '../../../../../utilities/pathnames';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
 
@@ -25,6 +26,8 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   const params = useParams();
   const groupId = params.groupId;
   const navigate = useAppNavigate();
+  const { updateGroup } = useGroupActions();
+  const chrome = useChrome();
 
   const pageTitle = createNewGroup
     ? intl.formatMessage(Messages.usersAndUserGroupsCreateUserGroup)
@@ -61,7 +64,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     const fetchData = async () => {
       try {
         await Promise.all([
-          dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true })),
+          dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true, chrome })),
           groupId ? dispatch(fetchGroup(groupId)) : Promise.resolve(),
         ]);
       } finally {
@@ -136,6 +139,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   };
 
   const handleSubmit = async (values: Record<string, any>) => {
+    if (!groupId) return;
     if (createNewGroup) {
       dispatch(addGroup({ name: values.name, description: values.description }));
     } else if (values.name !== group?.name || values.description !== group?.description) {

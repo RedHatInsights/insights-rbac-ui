@@ -13,8 +13,8 @@ interface AddUserToGroupModalProps {
 }
 
 export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
-  const [selectedGroups, setSelectedGroups] = React.useState<string[]>([]);
-  const handleUserGroupsChange = (groups: string[]) => setSelectedGroups(groups);
+  const [selectedGroups, setSelectedGroups] = React.useState<Group[]>([]);
+  const handleUserGroupsChange = (groups: Group[]) => setSelectedGroups(groups);
   const dispatch = useDispatch();
   const intl = useIntl();
   const { addMembersToGroup } = useGroupActions();
@@ -22,9 +22,8 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
   const handleCloseModal = () => setIsOpen(false);
 
   const handleAddUsers = () => {
-    const selectedUsernames = selectedUsers.map((user) => ({ username: user.id }));
     selectedGroups.forEach((group) => {
-      dispatch(addMembersToGroup(group.id, selectedUsernames));
+      dispatch(addMembersToGroup(group.uuid, selectedUsers));
     });
     setIsOpen(false);
   };

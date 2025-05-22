@@ -22,7 +22,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
   const serviceAccounts = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.members?.data || []);
 
   const fetchData = useCallback(() => {
-    dispatch(fetchMembersForGroup(groupId, { limit: 1000 }));
+    dispatch(fetchMembersForGroup(groupId, undefined, { limit: 1000 }));
   }, [dispatch, groupId]);
 
   useEffect(() => {

@@ -321,7 +321,7 @@ export const fetchRolesForExpandedGroup = (
   meta: { groupId, isPlatformDefault: options.isPlatformDefault, isAdminDefault: options.isAdminDefault },
 });
 
-export const fetchMembersForGroup = (groupId: string, usernames: string, options: FetchMembersOptions) => ({
+export const fetchMembersForGroup = (groupId: string, usernames?: string, options?: FetchMembersOptions) => ({
   type: ActionTypes.FETCH_MEMBERS_FOR_GROUP,
   payload: GroupHelper.fetchMembersForGroup(groupId, usernames, options).catch(handleUuidError),
 });

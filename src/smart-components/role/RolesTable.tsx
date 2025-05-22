@@ -124,7 +124,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   const fetchData = useCallback(
     (apiProps: { limit: number; offset: number; orderBy: string; filters: RoleFilters }) => {
       const { limit, offset, orderBy, filters } = apiProps;
-      dispatch(fetchRolesWithPolicies({ ...mappedProps({ limit, offset, orderBy, filters }) }));
+      return dispatch(fetchRolesWithPolicies({ ...mappedProps({ limit, offset, orderBy, filters }) }));
     },
     [dispatch]
   );
@@ -154,7 +154,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           offset: (page - 1) * perPage,
           orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
           filters: filters,
-        }),
+        }).payload,
       800
     );
   }, [debouncedFetch, filters, onSetFilters]);

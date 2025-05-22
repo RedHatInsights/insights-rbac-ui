@@ -1,4 +1,5 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { ValidatorMapper } from '@data-driven-forms/react-form-renderer';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { Skeleton } from '@patternfly/react-core';
@@ -36,6 +37,14 @@ interface EditGroupModalProps {
   group?: Group;
   onClose?: () => void;
 }
+
+const validatorMapper: ValidatorMapper = {
+  'validate-group-name': (options) => {
+    const { idKey, id } = options as { idKey: string; id: string };
+
+    return (value: string) => debouncedAsyncValidator(value, idKey, id);
+  },
+};
 
 const EditGroupModal: React.FC<EditGroupModalProps> = ({
   postMethod,
@@ -135,13 +144,6 @@ const EditGroupModal: React.FC<EditGroupModalProps> = ({
         ],
       },
     ],
-  };
-
-  const validatorMapper = {
-    'validate-group-name':
-      ({ idKey, id }: { idKey: string; id: string }) =>
-      (value: string) =>
-        debouncedAsyncValidator(value, idKey, id),
   };
 
   return (

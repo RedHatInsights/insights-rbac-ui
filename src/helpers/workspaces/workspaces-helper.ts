@@ -1,6 +1,6 @@
-import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
-import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesList';
-import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
+import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
+import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { getWorkspacesApi } from './api';
 
 const workspacesApi = getWorkspacesApi();

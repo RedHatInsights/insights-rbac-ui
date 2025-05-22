@@ -1,3 +1,4 @@
+import { Principal } from '@redhat-cloud-services/rbac-client/types';
 import { isInt, isITLessProd, isStage } from '../../itLessConfig';
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
@@ -21,7 +22,7 @@ interface EnvUrls {
 }
 
 interface FetchResponse {
-  meta: {
+  meta?: {
     count: number;
   };
   data: User[];
@@ -241,7 +242,16 @@ export async function fetchUsers({
 }: FetchUsersParams): Promise<FetchResponse> {
   const { username, email, status = [] } = filters;
   const sortOrder = orderBy === '-username' ? 'desc' : 'asc';
-  const mappedStatus = status.length === 2 ? principalStatusApiMap.All : principalStatusApiMap[status[0]] || principalStatusApiMap.All;
+  const principalStatusApiMap = {
+    All: 'all' as const,
+    Active: 'enabled' as const,
+    Inactive: 'disabled' as const,
+  };
+
+  const mappedStatus =
+    status.length === 2
+      ? principalStatusApiMap.All
+      : principalStatusApiMap[status[0] as keyof typeof principalStatusApiMap] ?? principalStatusApiMap.All;
 
   const response = await principalApi.listPrincipals({
     limit,
@@ -252,29 +262,36 @@ export async function fetchUsers({
     email,
     status: mappedStatus,
   });
-  const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
-  offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);
-  const { data, meta } = isPaginationValid
+  const isPaginationValid = isOffsetValid(offset, response?.data.meta?.count);
+  offset = isPaginationValid ? offset : getLastPageOffset(response.data?.meta?.count ?? 0, limit);
+  const {
+    data: { meta, data },
+  } = isPaginationValid
     ? response
-    : await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
-
+    : await principalApi.listPrincipals({
+        limit,
+        offset,
+        matchCriteria,
+        usernames: username,
+        sortOrder,
+        email,
+        status: mappedStatus,
+      });
+  const users = data as Principal[];
+  if (usesMetaInURL) {
+    return {
+      data: users,
+      // TODO
+      // filters,
+      // pagination: {
+      //   ...meta,
+      //   offset,
+      //   limit,
+      //   redirected: !isPaginationValid,
+      // },
+    };
+  }
   return {
-    data,
-    meta: {
-      ...meta,
-      offset,
-      limit,
-    },
-    ...(usesMetaInURL
-      ? {
-          filters,
-          pagination: {
-            ...meta,
-            offset,
-            limit,
-            redirected: !isPaginationValid,
-          },
-        }
-      : {}),
+    data: users,
   };
 }
