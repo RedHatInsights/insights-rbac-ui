@@ -4,10 +4,12 @@ import InputHelpPopover from '../../../presentational-components/InputHelpPopove
 import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
-import { Workspace } from '../../../redux/reducers/workspaces-reducer';
+import { isWorkspace, Workspace } from '../../../redux/reducers/workspaces-reducer';
 import providerMessages from '../../../locales/data.json';
 import messages from '../../../Messages';
 import { Button, Text } from '@patternfly/react-core';
+import { useSelector } from 'react-redux';
+import { RBACStore } from '../../../redux/store';
 
 // hardcoded for now
 export const BUNDLES = [
@@ -42,6 +44,7 @@ export interface CreateWorkspaceFormValues {
 export const schemaBuilder = (enableBillingFeatures: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const allWorkspaces = useSelector((state: RBACStore) => state.workspacesReducer.workspaces || []);
 
   return {
     fields: [
@@ -103,6 +106,15 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                 validate: [
                   {
                     type: validatorTypes.REQUIRED,
+                  },
+                  (value: string, currData: unknown | undefined) => {
+                    if (isWorkspace(currData)) {
+                      const { id } = currData as Workspace;
+                      const isDuplicate = allWorkspaces.some(
+                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
+                      );
+                      return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                    }
                   },
                   {
                     type: validatorTypes.MAX_LENGTH,

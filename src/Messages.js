@@ -1276,6 +1276,11 @@ export default defineMessages({
     description: 'Workspace name label',
     defaultMessage: 'Workspace name',
   },
+  workspaceNameTaken: {
+    id: 'workspaceNameTaken',
+    description: 'Workspace name taken error title',
+    defaultMessage: 'Workspace name already taken',
+  },
   workspaceDescription: {
     id: 'workspaceDescription',
     description: 'Create newworkspace action label',
