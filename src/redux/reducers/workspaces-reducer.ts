@@ -44,6 +44,10 @@ const setWorkspace = (state: WorkspacesStore, { payload }: { payload: { data: Wo
   isLoading: false,
 });
 
+export const isWorkspace = (data: unknown): data is Workspace => {
+  return typeof data === 'object' && data !== null && 'id' in data && 'parent_id' in data && 'type' in data;
+};
+
 export default {
   [`${FETCH_WORKSPACES}_PENDING`]: setLoadingState,
   [`${FETCH_WORKSPACES}_FULFILLED`]: setWorkspaces,

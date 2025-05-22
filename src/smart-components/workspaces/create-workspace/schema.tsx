@@ -4,7 +4,7 @@ import InputHelpPopover from '../../../presentational-components/InputHelpPopove
 import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
-import { Workspace } from '../../../redux/reducers/workspaces-reducer';
+import { isWorkspace, Workspace } from '../../../redux/reducers/workspaces-reducer';
 import providerMessages from '../../../locales/data.json';
 import messages from '../../../Messages';
 import { Button, Text } from '@patternfly/react-core';
@@ -107,11 +107,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   {
                     type: validatorTypes.REQUIRED,
                   },
-                  (value: string, { id }: any) => {
-                    const isDuplicate = allWorkspaces.some(
-                      (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
-                    );
-                    return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                  (value: string, currData: unknown | undefined) => {
+                    if (isWorkspace(currData)) {
+                      const { id } = currData as Workspace;
+                      const isDuplicate = allWorkspaces.some(
+                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
+                      );
+                      return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                    }
                   },
                   {
                     type: validatorTypes.MAX_LENGTH,

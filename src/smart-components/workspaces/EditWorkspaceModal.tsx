@@ -12,6 +12,7 @@ import { fetchWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-
 import { useParams } from 'react-router-dom';
 import { updateWorkspace } from '../../redux/actions/workspaces-actions';
 import paths from '../../utilities/pathnames';
+import { isWorkspace, Workspace } from '../../redux/reducers/workspaces-reducer';
 
 interface EditWorkspaceModalProps {
   afterSubmit: () => void;
@@ -56,14 +57,17 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
           component: componentTypes.TEXT_FIELD,
           validate: [
             { type: validatorTypes.REQUIRED },
-            (value: string, { id }: any) => {
-              if (value === initialFormData?.name) {
-                return undefined;
+            (value: string, currData: unknown | undefined) => {
+              if (isWorkspace(currData)) {
+                const { id } = currData as Workspace;
+                if (value === initialFormData?.name) {
+                  return undefined;
+                }
+                const isDuplicate = allWorkspaces.some(
+                  (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
+                );
+                return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
               }
-              const isDuplicate = allWorkspaces.some(
-                (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
-              );
-              return isDuplicate ? intl.formatMessage(messages.groupNameTakenTitle) : undefined;
             },
           ],
           initialValue: initialFormData?.name,
