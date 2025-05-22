@@ -1,5 +1,3 @@
-import React, { useEffect } from 'react';
-import { useIntl } from 'react-intl';
 import {
   Drawer,
   DrawerActions,
@@ -11,15 +9,16 @@ import {
   Icon,
   Popover,
   Tab,
-  TabTitleText,
   Tabs,
+  TabTitleText,
   Text,
   TextContent,
   Title,
 } from '@patternfly/react-core';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { User } from '../../../../../redux/reducers/user-reducer';
+import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
+import React, { useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import messages from '../../../../../Messages';
 import UserDetailsGroupsView from './UserDetailsGroupsView';
 import UserDetailsRolesView from './UserDetailsRolesView';

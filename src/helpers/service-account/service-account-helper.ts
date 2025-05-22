@@ -23,7 +23,7 @@ export interface ServiceAccount {
   name: string;
   description: string;
   createdBy: string;
-  createdAt: number;
+  createdAt: string;
   assignedToSelectedGroup: boolean;
 }
 

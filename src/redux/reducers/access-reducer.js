@@ -1,4 +1,4 @@
-import { GET_PRINCIPAL_ACCESS } from '../../redux/action-types';
+import { GET_PRINCIPAL_ACCESS } from '../action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State

@@ -1,23 +1,23 @@
-import React, { useEffect, useCallback, useMemo, useState } from 'react';
-import { formatDistanceToNow } from 'date-fns';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useSelector, useDispatch } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
-import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
 import { DataViewState } from '@patternfly/react-data-view';
+import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { SearchIcon } from '@patternfly/react-icons';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import messages from '../../../Messages';
-import { Group } from '../../../redux/reducers/group-reducer';
-import { RBACStore } from '../../../redux/store';
-import { PER_PAGE_OPTIONS } from '../../../helpers/shared/pagination';
-import { fetchGroups } from '../../../redux/actions/group-actions';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { formatDistanceToNow } from 'date-fns';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
+import { FetchGroupsParams } from '../../../helpers/group/group-helper';
 import { mappedProps } from '../../../helpers/shared/helpers';
+import { PER_PAGE_OPTIONS } from '../../../helpers/shared/pagination';
+import messages from '../../../Messages';
+import { fetchGroups } from '../../../redux/actions/group-actions';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -52,6 +52,7 @@ const RoleAssignmentsTable: React.FunctionComponent<RoleAssignmentsTableProps> =
   const dispatch = useDispatch();
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
   const intl = useIntl();
+  const chrome = useChrome();
 
   const COLUMNS: string[] = [
     intl.formatMessage(messages['userGroup']),
@@ -80,9 +81,17 @@ const RoleAssignmentsTable: React.FunctionComponent<RoleAssignmentsTableProps> =
   const { selected, onSelect, isSelected } = selection;
 
   const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
-      const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchGroups({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true, system: false }));
+    (apiProps: Pick<FetchGroupsParams, 'limit' | 'offset' | 'orderBy'>) => {
+      const { limit, offset, orderBy } = apiProps;
+      dispatch(
+        fetchGroups({
+          ...mappedProps({ offset, orderBy }),
+          limit,
+          usesMetaInURL: true,
+          system: false,
+          chrome,
+        })
+      );
     },
     [dispatch]
   );
@@ -92,7 +101,6 @@ const RoleAssignmentsTable: React.FunctionComponent<RoleAssignmentsTableProps> =
       limit: perPage,
       offset: (page - 1) * perPage,
       orderBy: 'name',
-      count: totalCount || 0,
     });
   }, [fetchData, page, perPage]);
 

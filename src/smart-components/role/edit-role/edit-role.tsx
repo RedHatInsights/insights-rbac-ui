@@ -1,18 +1,17 @@
+import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { componentTypes, FormRenderer, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-core';
 import React, { FunctionComponent, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../Messages';
-import pathnames from '../../../utilities/pathnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { fetchRole, updateRole } from '../../../redux/actions/role-actions';
-import { RBACStore } from '../../../redux/store';
-import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
-import { EditRolePermissions } from './edit-role-permissions';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import Messages from '../../../Messages';
+import { fetchRole, updateRole } from '../../../redux/actions/role-actions';
+import pathnames from '../../../utilities/pathnames';
+import { EditRolePermissions } from './edit-role-permissions';
 
 export const EditRole: FunctionComponent = () => {
   const intl = useIntl();

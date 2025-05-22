@@ -1,12 +1,12 @@
-import React, { useState, Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, ModalVariant, ExpandableSection, Form, FormGroup, TextArea, Checkbox } from '@patternfly/react-core';
+import { Button, Checkbox, ExpandableSection, Form, FormGroup, Modal, ModalVariant, TextArea } from '@patternfly/react-core';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import messages from '../../../Messages';
-import { addUsers } from '../../../redux/actions/user-actions';
+import { useUserActions } from '../../../redux/actions/user-actions';
 import PropTypes from 'prop-types';
 import paths from '../../../utilities/pathnames';
 import { mergeToBasename } from '../../../presentational-components/shared/AppLink';
@@ -15,6 +15,7 @@ const InviteUsersModal = ({ fetchData }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useNavigate();
+  const { addUsers } = useUserActions();
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);

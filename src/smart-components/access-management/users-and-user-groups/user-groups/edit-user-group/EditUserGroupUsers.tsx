@@ -1,15 +1,14 @@
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
-import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../../../redux/store';
-import { fetchUsers } from '../../../../../redux/actions/user-actions';
-import { mappedProps } from '../../../../../helpers/shared/helpers';
 import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { TableState } from './EditUserGroupUsersAndServiceAccounts';
-import { FormattedMessage, useIntl } from 'react-intl';
-import Messages from '../../../../../Messages';
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { mappedProps } from '../../../../../helpers/shared/helpers';
+import Messages from '../../../../../Messages';
+import { fetchUsers } from '../../../../../redux/actions/user-actions';
+import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -96,7 +95,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
   const fetchData = useCallback(
     (apiProps: { count: number; limit: number; offset: number; orderBy: string }) => {
       const { count, limit, offset, orderBy } = apiProps;
-      dispatch(fetchUsers({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true }));
+      dispatch(fetchUsers({ ...mappedProps({ count, offset, orderBy }), limit, usesMetaInURL: true }));
     },
     [dispatch]
   );

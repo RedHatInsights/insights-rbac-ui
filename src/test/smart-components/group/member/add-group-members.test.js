@@ -120,7 +120,12 @@ describe('<AddGroupMembers />', () => {
 
   test('should fetchUsers on load correctly', async () => {
     const store = mockStore(initialState);
-    fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: FETCH_USERS, payload: Promise.resolve(responseBody) }));
+    fetchUsersSpy.mockImplementationOnce(() =>
+      Promise.resolve({
+        type: FETCH_USERS,
+        payload: Promise.resolve(responseBody),
+      })
+    );
 
     render(
       <Provider store={store}>

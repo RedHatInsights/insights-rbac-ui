@@ -49,7 +49,15 @@ describe('<User />', () => {
 
   beforeEach(() => {
     enhanceState = {
-      data: [{ username: 'epacific-insights', email: 'user@redhat.com', first_name: 'User', last_name: 'User', is_active: true }],
+      data: [
+        {
+          username: 'epacific-insights',
+          email: 'user@redhat.com',
+          first_name: 'User',
+          last_name: 'User',
+          is_active: true,
+        },
+      ],
       meta: {
         count: 39,
         limit: 10,

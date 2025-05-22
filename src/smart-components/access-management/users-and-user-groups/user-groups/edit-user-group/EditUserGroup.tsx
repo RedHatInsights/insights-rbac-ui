@@ -1,20 +1,19 @@
+import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { componentTypes, FormRenderer, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-core';
 import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
-import Messages from '../../../../../Messages';
-import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
 import { useDispatch, useSelector } from 'react-redux';
-import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
-import { RBACStore } from '../../../../../redux/store';
 import { useParams } from 'react-router-dom';
-import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
-import RbacBreadcrumbs from '../../../../../presentational-components/shared/breadcrumbs';
-import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
-import pathnames from '../../../../../utilities/pathnames';
 import useAppNavigate from '../../../../../hooks/useAppNavigate';
+import Messages from '../../../../../Messages';
+import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
+import RbacBreadcrumbs from '../../../../../presentational-components/shared/breadcrumbs';
+import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/actions/group-actions';
+import pathnames from '../../../../../utilities/pathnames';
+import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
 
 interface EditUserGroupProps {
   createNewGroup?: boolean;

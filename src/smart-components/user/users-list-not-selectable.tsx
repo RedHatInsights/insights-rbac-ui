@@ -1,31 +1,30 @@
-import React, { useEffect, useState, useContext, useRef, useCallback, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { mappedProps } from '../../helpers/shared/helpers';
-import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
-import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/actions/user-actions';
-import UsersRow from '../../presentational-components/shared/UsersRow';
-import paths from '../../utilities/pathnames';
-import {
-  defaultSettings,
-  defaultAdminSettings,
-  syncDefaultPaginationWithUrl,
-  applyPaginationToUrl,
-  isPaginationPresentInUrl,
-} from '../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import { WarningModal } from '@patternfly/react-component-groups';
+import { Button, ButtonVariant, List, ListItem } from '@patternfly/react-core';
+import { ISortBy } from '@patternfly/react-table';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
+import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
+import { mappedProps } from '../../helpers/shared/helpers';
+import {
+  applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
+  isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
+} from '../../helpers/shared/pagination';
+import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
+import AppLink from '../../presentational-components/shared/AppLink';
+import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
+import UsersRow from '../../presentational-components/shared/UsersRow';
+import { fetchUsers, updateUsersFilters, useUserActions } from '../../redux/actions/user-actions';
+import paths from '../../utilities/pathnames';
 import PermissionsContext from '../../utilities/permissions-context';
 import { createRows, UserProps } from './user-table-helpers';
-import { ISortBy } from '@patternfly/react-table';
-import { UserFilters } from '../../redux/reducers/user-reducer';
-import AppLink from '../../presentational-components/shared/AppLink';
-import { Button, ButtonVariant, List, ListItem } from '@patternfly/react-core';
-import { useFlag } from '@unleash/proxy-client-react';
-import useAppNavigate from '../../hooks/useAppNavigate';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { WarningModal } from '@patternfly/react-component-groups';
 
 interface UsersListNotSelectable {
   userLinks: boolean;
@@ -44,6 +43,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const { orgAdmin } = useContext(PermissionsContext);
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const { getBundle, getApp } = useChrome();
+  const { changeUsersStatus } = useUserActions();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
   // use for text filter to focus
   const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
@@ -82,7 +82,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
     }) => ({
       users: data?.map?.((data: any) => ({ ...data, uuid: data.username })),
       isLoading: isUserDataLoading,
-      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
+      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['enabled' as const] },
     })
   );
 
@@ -107,7 +107,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
       : {
           username: '',
           email: '',
-          status: [intl.formatMessage(messages.active)],
+          status: ['enabled' as const],
         }
   );
 
@@ -124,7 +124,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
       newFilters.status = [newFilters.status];
     }
     setFilters(newFilters);
-    fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+    fetchData({ ...mappedProps({ offset, filters: newFilters }), limit, usesMetaInURL });
   }, []);
 
   useEffect(() => {
@@ -275,17 +275,28 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         }}
         ouiaId="users-table"
         fetchData={(config) => {
-          const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
+          const status = Object.prototype.hasOwnProperty.call(config, 'status')
+            ? (config.status as unknown as UserFilters['status'])
+            : (filters.status as unknown as UserFilters['status']);
           const { username, email, count, limit, offset, orderBy } = config;
 
-          Promise.resolve(fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL })).then(
-            () => {
-              if (innerRef !== null && innerRef.current !== null) {
-                innerRef.current.focus();
-              }
+          Promise.resolve(
+            fetchData({
+              ...mappedProps({
+                count,
+                offset,
+                orderBy,
+                filters: { username, email, status },
+              }),
+              limit: limit ?? 0,
+              usesMetaInURL,
+            })
+          ).then(() => {
+            if (innerRef !== null && innerRef.current !== null) {
+              innerRef.current.focus();
             }
-          );
-          applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
+          });
+          applyPaginationToUrl(location, navigate, limit ?? 0, offset ?? 0);
           usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
         }}
         emptyFilters={{ username: '', email: '', status: [] }}
@@ -299,7 +310,10 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
         isLoading={isLoading}
         pagination={pagination}
         rowWrapper={UsersRow}
-        title={{ singular: intl.formatMessage(messages.user), plural: intl.formatMessage(messages.users).toLowerCase() }}
+        title={{
+          singular: intl.formatMessage(messages.user),
+          plural: intl.formatMessage(messages.users).toLowerCase(),
+        }}
         filters={[
           {
             key: 'username',

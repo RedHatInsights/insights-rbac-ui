@@ -1,15 +1,15 @@
+import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import { useParams } from 'react-router-dom';
 import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
+import messages from '../../../Messages';
 import AppLink from '../../../presentational-components/shared/AppLink';
-import { ServiceAccountsList } from '../add-group/service-accounts-list';
+import { useGroupActions } from '../../../redux/actions/group-actions';
 import { ServiceAccountsState } from '../../../redux/reducers/service-account-reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
-import { addServiceAccountsToGroup } from '../../../redux/actions/group-actions';
-import messages from '../../../Messages';
+import { ServiceAccountsList } from '../add-group/service-accounts-list';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {
@@ -43,15 +43,22 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
   const { groupId } = useParams();
   const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>([]);
   const { systemGroupUuid } = useSelector(reducer);
+  const { addServiceAccountsToGroup } = useGroupActions();
 
   const onCancel = () => {
     postMethod();
   };
 
   const onSubmit = () => {
-    const action = addServiceAccountsToGroup(groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId, selectedAccounts);
-    dispatch(action);
-    postMethod(action.payload);
+    const uuid = groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId;
+    if (uuid) {
+      const action = addServiceAccountsToGroup(
+        uuid,
+        selectedAccounts.map((a) => ({ uuid: a.uuid, username: a.name }))
+      );
+      dispatch(action);
+      postMethod(action.payload);
+    }
   };
 
   return (

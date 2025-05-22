@@ -1,29 +1,29 @@
-import React, { useEffect, Fragment, useState, useContext, useRef, useCallback, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
-import { fetchUsers, updateUsersFilters, changeUsersStatus, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
-import { Button, Switch as PF4Switch, Label, Modal, ModalVariant, List, ListItem, Checkbox, Stack, StackItem } from '@patternfly/react-core';
+import { fetchUsers, updateUsersFilters, useUserActions } from '../../../redux/actions/user-actions';
+import { Button, Checkbox, Label, List, ListItem, Modal, ModalVariant, Stack, StackItem, Switch as PF4Switch } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/deprecated';
-import { sortable, nowrap } from '@patternfly/react-table';
+import { nowrap, sortable } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
+import { isExternalIdp, mappedProps } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
-  defaultSettings,
-  defaultAdminSettings,
-  syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
   isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
 } from '../../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
-import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import { isSmallScreen, useScreenSize } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
@@ -103,6 +103,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
   const navigate = useNavigate();
   const location = useLocation();
   const dispatch = useDispatch();
+  const { updateUserIsOrgAdminStatus, changeUsersStatus } = useUserActions();
   const [selectedRows, setSelectedRows] = useState([]);
   const [isDeactivateConfirmationModalOpen, setIsDeactivateConfirmationModalOpen] = useState(false);
   const [isDeactivateConfirmationChecked, setIsDeactivateConfirmationChecked] = useState(false);
@@ -329,7 +330,11 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
 
   const updateStateFilters = useCallback((filters) => dispatch(updateUsersFilters(filters)), [dispatch]);
   const columns = [
-    { title: intl.formatMessage(displayNarrow ? messages.orgAdmin : messages.orgAdministrator), key: 'org-admin', transforms: [nowrap] },
+    {
+      title: intl.formatMessage(displayNarrow ? messages.orgAdmin : messages.orgAdministrator),
+      key: 'org-admin',
+      transforms: [nowrap],
+    },
     { title: intl.formatMessage(messages.username), key: 'username', transforms: [sortable] },
     { title: intl.formatMessage(messages.email) },
     { title: intl.formatMessage(messages.firstName), transforms: [nowrap] },
@@ -467,7 +472,10 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
           const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
           const { username, email, count, limit, offset, orderBy } = config;
 
-          fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL }).then(() => {
+          fetchData({
+            ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }),
+            usesMetaInURL,
+          }).then(() => {
             innerRef?.current?.focus();
           });
           usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });

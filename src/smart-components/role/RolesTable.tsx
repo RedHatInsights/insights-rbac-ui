@@ -1,12 +1,13 @@
-import React, { useEffect, useCallback, useState, useRef, useMemo, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import {
+  ResponsiveAction,
+  ResponsiveActions,
+  SkeletonTable,
+  SkeletonTableBody,
+  SkeletonTableHead,
+  WarningModal,
+} from '@patternfly/react-component-groups';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
-import { useDataViewSort } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import {
   ButtonVariant,
   Drawer,
@@ -19,30 +20,26 @@ import {
   PageSection,
   Pagination,
 } from '@patternfly/react-core';
-import { ActionsColumn, TableVariant, ThProps } from '@patternfly/react-table';
-import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
-import { FormattedMessage, useIntl } from 'react-intl';
-import messages from '../../Messages';
-import { debouncedFetch, mappedProps } from '../../helpers/shared/helpers';
-import { Role } from '../../redux/reducers/role-reducer';
-import { RBACStore } from '../../redux/store';
-import { Outlet, useSearchParams } from 'react-router-dom';
-import paths from '../../utilities/pathnames';
-import RolesDetails from './RolesTableDetails';
-import {
-  ResponsiveAction,
-  ResponsiveActions,
-  SkeletonTable,
-  SkeletonTableBody,
-  SkeletonTableHead,
-  WarningModal,
-} from '@patternfly/react-component-groups';
 import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
-import { PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
+import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
+import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import { useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { SearchIcon } from '@patternfly/react-icons';
-import pathnames from '../../utilities/pathnames';
+import { ActionsColumn, TableVariant, ThProps } from '@patternfly/react-table';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { Outlet, useSearchParams } from 'react-router-dom';
+import { debouncedFetch, mappedProps } from '../../helpers/shared/helpers';
+import { PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import messages from '../../Messages';
+import { fetchRolesWithPolicies, removeRole } from '../../redux/actions/role-actions';
+import paths from '../../utilities/pathnames';
+import pathnames from '../../utilities/pathnames';
+import RolesDetails from './RolesTableDetails';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (

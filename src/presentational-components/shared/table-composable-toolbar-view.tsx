@@ -1,16 +1,15 @@
+import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
+import { Button, EmptyStateActions, Pagination } from '@patternfly/react-core';
+import { PlusCircleIcon } from '@patternfly/react-icons';
+import { ISortBy, OnSort, Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import React, { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { TableVariant, Table, Thead, Tr, Th, Tbody, Td } from '@patternfly/react-table';
-import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
-import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
-import { Button, Pagination, EmptyStateActions } from '@patternfly/react-core';
-import { PlusCircleIcon } from '@patternfly/react-icons';
-import Toolbar, { paginationBuilder } from './toolbar';
+import { CellObject, CellType, SelectCell } from '../../smart-components/user/user-table-helpers';
 import EmptyWithAction from './empty-state';
 import './table-toolbar-view.scss';
-import { ISortBy, OnSort } from '@patternfly/react-table';
-import { CellObject, CellType, SelectCell } from '../../smart-components/user/user-table-helpers';
+import Toolbar, { paginationBuilder } from './toolbar';
 
 interface FilterProps {
   username?: string;

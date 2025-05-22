@@ -1,11 +1,4 @@
-import { NavigateFunction, Location } from 'react-router-dom';
-
-export interface PaginationDefaultI {
-  limit?: number;
-  offset?: number;
-  count?: number; // from API
-  itemCount?: number; // for PF pagination
-}
+import { Location, NavigateFunction } from 'react-router-dom';
 
 export const defaultSettings: Required<PaginationDefaultI> = {
   limit: 20,

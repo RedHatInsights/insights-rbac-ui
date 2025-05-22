@@ -1,22 +1,23 @@
-import React from 'react';
 import { Button, Modal, ModalVariant } from '@patternfly/react-core';
+import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import UserGroupsTable from '../../user-groups/UserGroupsTable';
 import { useDispatch } from 'react-redux';
-import { addMembersToGroup } from '../../../../../redux/actions/group-actions';
 import messages from '../../../../../Messages';
+import { useGroupActions } from '../../../../../redux/actions/group-actions';
+import UserGroupsTable from '../../user-groups/UserGroupsTable';
 
 interface AddUserToGroupModalProps {
   isOpen: boolean;
   setIsOpen: (isOpen: boolean) => void;
-  selectedUsers: any[];
+  selectedUsers: string[];
 }
 
 export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalProps> = ({ isOpen, setIsOpen, selectedUsers }) => {
-  const [selectedGroups, setSelectedGroups] = React.useState<any[]>([]);
-  const handleUserGroupsChange = (groups: any[]) => setSelectedGroups(groups);
+  const [selectedGroups, setSelectedGroups] = React.useState<string[]>([]);
+  const handleUserGroupsChange = (groups: string[]) => setSelectedGroups(groups);
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { addMembersToGroup } = useGroupActions();
 
   const handleCloseModal = () => setIsOpen(false);
 

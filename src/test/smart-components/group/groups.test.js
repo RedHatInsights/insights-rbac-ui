@@ -3,14 +3,14 @@ import { act } from 'react-dom/test-utils';
 import thunk from 'redux-thunk';
 import { MemoryRouter as Router } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
-import { screen, render, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import Groups from '../../../smart-components/group/groups';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import * as GroupActions from '../../../redux/actions/group-actions';
-import { FETCH_GROUPS, FETCH_ADMIN_GROUP, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+import { FETCH_ADMIN_GROUP, FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
 
 jest.mock('react-router-dom', () => ({

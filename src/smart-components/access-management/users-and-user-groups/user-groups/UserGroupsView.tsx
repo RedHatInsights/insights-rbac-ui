@@ -1,9 +1,8 @@
+import { TabContent } from '@patternfly/react-core';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import React from 'react';
 import GroupDetailsDrawer from './user-group-detail/GroupDetailsDrawer';
-import { TabContent } from '@patternfly/react-core';
 import UserGroupsTable from './UserGroupsTable';
-import { Group } from '../../../../redux/reducers/group-reducer';
 
 interface UserGroupsViewProps {
   groupsRef?: React.Ref<HTMLElement>;

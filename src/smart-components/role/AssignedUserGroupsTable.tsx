@@ -1,5 +1,4 @@
 import React, { useMemo } from 'react';
-import { Role, RoleGroup } from '../../redux/reducers/role-reducer';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { useIntl } from 'react-intl';

@@ -11,12 +11,13 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import MUARolesTable from '../../../smart-components/myUserAccess/MUARolesTable';
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import * as RoleActions from '../../../redux/actions/role-actions';
-import { FETCH_ROLES, FETCH_ROLE_FOR_PRINCIPAL } from '../../../redux/action-types';
+import { FETCH_ROLE_FOR_PRINCIPAL, FETCH_ROLES } from '../../../redux/action-types';
 
 /**
  * Mock debounce to remove tomers shenanigans
  */
 import debouce from 'lodash/debounce';
+
 jest.mock('lodash/debounce');
 debouce.mockImplementation((fn) => fn);
 
@@ -225,7 +226,17 @@ describe('<MUARolesTable />', () => {
     expect(fetchRolesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesSpy.mock.calls).toEqual([
       [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal', orderBy: 'display_name' }],
-      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: undefined, scope: 'principal', orderBy: 'display_name' }],
+      [
+        {
+          application: 'app2',
+          limit: undefined,
+          name: '',
+          offset: 0,
+          permission: undefined,
+          scope: 'principal',
+          orderBy: 'display_name',
+        },
+      ],
     ]);
   });
 });

@@ -1,12 +1,12 @@
-import React, { useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useSearchParams } from 'react-router-dom';
-import { ButtonVariant } from '@patternfly/react-core';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
+import { ButtonVariant } from '@patternfly/react-core';
+import React, { useMemo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
 import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
-import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
+import { useGroupActions } from '../../../redux/actions/group-actions';
 
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
@@ -37,6 +37,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
   const accountsCount = useMemo(() => params.getAll('name').length, [params]);
   const dispatch = useDispatch();
   const intl = useIntl();
+  const { removeServiceAccountFromGroup } = useGroupActions();
 
   return (
     <WarningModal

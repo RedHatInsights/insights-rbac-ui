@@ -1,58 +1,56 @@
-import React, { useEffect, useCallback, useState, Fragment, useMemo, Suspense, useContext } from 'react';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useSelector, useDispatch } from 'react-redux';
-import { Outlet, useSearchParams } from 'react-router-dom';
 import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
-import {
-  useDataViewSelection,
-  useDataViewPagination,
-  useDataViewSort,
-  useDataViewFilters,
-  useDataViewEventsContext,
-  DataViewState,
-  EventTypes,
-  DataViewTh,
-  DataViewTextFilter,
-} from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
 import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
-import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
-import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import {
   ButtonVariant,
-  Pagination,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateBody,
-  Switch,
-  List,
-  ListItem,
   Dropdown,
   DropdownItem,
   DropdownList,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  List,
+  ListItem,
   MenuToggle,
   MenuToggleElement,
+  Pagination,
   Split,
   SplitItem,
+  Switch,
 } from '@patternfly/react-core';
-import { ActionsColumn, ThProps } from '@patternfly/react-table';
+import {
+  DataViewState,
+  DataViewTextFilter,
+  DataViewTh,
+  EventTypes,
+  useDataViewEventsContext,
+  useDataViewFilters,
+  useDataViewPagination,
+  useDataViewSelection,
+  useDataViewSort,
+} from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { SearchIcon } from '@patternfly/react-icons';
+import { ActionsColumn, ThProps } from '@patternfly/react-table';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { changeUsersStatus, fetchUsers } from '../../../../redux/actions/user-actions';
+import { useFlag } from '@unleash/proxy-client-react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { Outlet, useSearchParams } from 'react-router-dom';
 import { mappedProps } from '../../../../helpers/shared/helpers';
-import { RBACStore } from '../../../../redux/store';
-import { User } from '../../../../redux/reducers/user-reducer';
 import { PER_PAGE_OPTIONS } from '../../../../helpers/shared/pagination';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
+import { fetchUsers, useUserActions } from '../../../../redux/actions/user-actions';
 import paths from '../../../../utilities/pathnames';
 import PermissionsContext from '../../../../utilities/permissions-context';
 import OrgAdminDropdown from '../../../user/OrgAdminDropdown';
-import { useFlag } from '@unleash/proxy-client-react';
 
 interface UsersFilters {
   username: string;
@@ -86,6 +84,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
   const { trigger } = useDataViewEventsContext();
   const [searchParams, setSearchParams] = useSearchParams();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
+  const { changeUsersStatus } = useUserActions();
 
   const { users, totalCount, isLoading } = useSelector((state: RBACStore) => ({
     users: state.userReducer.users.data || [],
@@ -94,14 +93,14 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
   }));
 
   // activate/deactivate
-  const [accountId, setAccountId] = useState<number | undefined>();
+  const [accountId, setAccountId] = useState<string | undefined>();
   const { orgAdmin } = useContext(PermissionsContext);
   const { auth, isProd } = useChrome();
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
     const getToken = async () => {
       setToken((await auth.getToken()) as string);
-      setAccountId((await auth.getUser())?.identity.org_id as unknown as number);
+      setAccountId((await auth.getUser())?.identity.org_id);
     };
     getToken();
   }, [auth]);
@@ -241,7 +240,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
       const orderDirection = direction === 'desc' ? '-' : '';
       dispatch(
         fetchUsers({
-          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          ...mappedProps({ count, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
+          limit,
           usesMetaInURL: true,
         })
       );
@@ -494,7 +494,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
           columns={sortableColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}
+          bodyStates={{
+            loading: loadingBody,
+            empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} />,
+          }}
         />
         <DataViewToolbar ouiaId={`${ouiaId}-footer-toolbar`} pagination={paginationComponent} />
       </DataView>

@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
-import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+import { FETCH_GROUP, FETCH_ROLE, FETCH_SYSTEM_GROUP, UPDATE_ROLE } from '../../redux/action-types';
 
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
@@ -109,9 +109,18 @@ describe('role', () => {
           },
         },
       });
-      fetchSystemGroupSpy.mockImplementationOnce(() => ({ type: FETCH_SYSTEM_GROUP, payload: Promise.resolve({ data: 'something' }) }));
-      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
-      fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({ data: 'something' }) }));
+      fetchSystemGroupSpy.mockImplementationOnce(() => ({
+        type: FETCH_SYSTEM_GROUP,
+        payload: Promise.resolve({ data: 'something' }),
+      }));
+      fetchRoleSpy.mockImplementationOnce(() => ({
+        type: FETCH_ROLE,
+        payload: Promise.resolve({ data: 'something' }),
+      }));
+      fetchGroupSpy.mockImplementationOnce(() => ({
+        type: FETCH_GROUP,
+        payload: Promise.resolve({ data: 'something' }),
+      }));
       let container;
       await act(async () => {
         const { container: ci } = render(
@@ -174,7 +183,10 @@ describe('role', () => {
         groupReducer: { error: undefined },
         roleReducer: {},
       });
-      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+      fetchRoleSpy.mockImplementationOnce(() => ({
+        type: FETCH_ROLE,
+        payload: Promise.resolve({ data: 'something' }),
+      }));
 
       let container;
       await act(async () => {
@@ -200,7 +212,10 @@ describe('role', () => {
     });
 
     it('should render correctly with router and redux store', async () => {
-      fetchRoleSpy.mockImplementationOnce(() => ({ type: FETCH_ROLE, payload: Promise.resolve({ data: 'something' }) }));
+      fetchRoleSpy.mockImplementationOnce(() => ({
+        type: FETCH_ROLE,
+        payload: Promise.resolve({ data: 'something' }),
+      }));
       let container;
       await act(async () => {
         const { container: ci } = render(

@@ -1,8 +1,7 @@
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
-import { useIntl } from 'react-intl';
 import React, { useCallback, useEffect } from 'react';
+import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../../../redux/store';
 import messages from '../../../../../Messages';
 import { fetchServiceAccountsForGroup } from '../../../../../redux/actions/group-actions';
 

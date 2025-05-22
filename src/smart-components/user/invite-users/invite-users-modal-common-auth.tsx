@@ -13,7 +13,7 @@ import {
   MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER,
 } from '../../../helpers/user/user-helper';
 import messages from '../../../Messages';
-import { addUsers } from '../../../redux/actions/user-actions';
+import { useUserActions } from '../../../redux/actions/user-actions';
 import AccordionCheckbox from '../../common/expandable-checkbox';
 import FormRenderer from '../../common/form-renderer';
 import InlineError from '../../common/inline-error';
@@ -49,6 +49,7 @@ const InviteUsers = () => {
   } | null>(null);
   const { auth, isProd } = useChrome();
   const dispatch = useDispatch();
+  const { addUsers } = useUserActions();
   const onCancel = () => {
     fetchData(false);
   };

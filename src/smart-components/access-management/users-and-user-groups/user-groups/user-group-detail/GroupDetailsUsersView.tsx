@@ -1,9 +1,8 @@
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
 import React, { useCallback, useEffect } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../../../redux/store';
-import messages from '../../../../../Messages';
 import { useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import messages from '../../../../../Messages';
 import { fetchMembersForGroup } from '../../../../../redux/actions/group-actions';
 
 interface GroupDetailsUsersViewProps {
