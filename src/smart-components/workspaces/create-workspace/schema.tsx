@@ -107,11 +107,10 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   {
                     type: validatorTypes.REQUIRED,
                   },
-                  (value: string, currData: unknown | undefined) => {
+                  (value: string, currData: unknown | Workspace) => {
                     if (isWorkspace(currData)) {
-                      const { id } = currData as Workspace;
                       const isDuplicate = allWorkspaces.some(
-                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== id
+                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id
                       );
                       return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
                     }

@@ -44,8 +44,8 @@ const setWorkspace = (state: WorkspacesStore, { payload }: { payload: { data: Wo
   isLoading: false,
 });
 
-export const isWorkspace = (data: unknown): data is Workspace => {
-  return typeof data === 'object' && data !== null && 'id' in data && 'parent_id' in data && 'type' in data;
+export const isWorkspace = (data: unknown | Workspace): data is Workspace => {
+  return (data as Workspace).id !== undefined && (data as Workspace).parent_id !== undefined && (data as Workspace).type !== undefined; 
 };
 
 export default {
