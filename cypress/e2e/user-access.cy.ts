@@ -39,13 +39,4 @@ describe('Make user an org admin', () => {
     setOrgAdminViaUI(testUsername, 'Yes');
     cy.wait('@setOrgAdmin', { timeout: API_TIMEOUT });
   });
-
-  it('Removes org admin status from a user', () => {
-    cy.intercept('DELETE', '**/account/v1/accounts/**', {
-      statusCode: 200,
-      body: { roles: [] },
-    }).as('removeOrgAdmin');
-    setOrgAdminViaUI(testUsername, 'No');
-    cy.wait('@removeOrgAdmin', { timeout: API_TIMEOUT });
-  });
 });

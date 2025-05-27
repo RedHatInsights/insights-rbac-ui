@@ -1,3 +1,24 @@
+## [1.41.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.0...v1.41.1) (2025-05-27)
+
+
+### Bug Fixes
+
+* **WS:** raise WS limit to 10k ([#1841](https://github.com/RedHatInsights/insights-rbac-ui/issues/1841)) ([c7f50d7](https://github.com/RedHatInsights/insights-rbac-ui/commit/c7f50d75d62b01a98d288a407993755059ac6502))
+
+# [1.41.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.40.1...v1.41.0) (2025-05-22)
+
+
+### Features
+
+* **workspaces:** allow ungrouped ws to have inventory detail ([#1839](https://github.com/RedHatInsights/insights-rbac-ui/issues/1839)) ([d631ac0](https://github.com/RedHatInsights/insights-rbac-ui/commit/d631ac0b79c305429738b4e2f26ed13d718e5cec))
+
+## [1.40.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.40.0...v1.40.1) (2025-05-21)
+
+
+### Bug Fixes
+
+* **cypress:** failing tests ([#1835](https://github.com/RedHatInsights/insights-rbac-ui/issues/1835)) ([5c4bef8](https://github.com/RedHatInsights/insights-rbac-ui/commit/5c4bef8f5a085bb6a928dbf33ef48c653573ff53))
+
 # [1.40.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.39.1...v1.40.0) (2025-05-17)
 
 

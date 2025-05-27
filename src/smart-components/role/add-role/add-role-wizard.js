@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
@@ -26,12 +26,7 @@ import SilentErrorBoundary from '../../common/silent-error-boundary';
 import messages from '../../../Messages';
 import paths from '../../../utilities/pathnames';
 import './add-role-wizard.scss';
-
-export const AddRoleWizardContext = createContext({
-  success: false,
-  submitting: false,
-  error: undefined,
-});
+import { AddRoleWizardContext } from './add-role-wizard-context';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 

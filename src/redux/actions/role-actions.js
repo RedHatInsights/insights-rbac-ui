@@ -4,7 +4,8 @@ import { BAD_UUID } from '../../helpers/shared/helpers';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
-import { locale } from '../../AppEntry';
+
+import { locale } from '../../locales/locale';
 
 export const createRole = (roleData) => {
   const cache = createIntlCache();

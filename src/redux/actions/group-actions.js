@@ -4,7 +4,8 @@ import { createIntl, createIntlCache } from 'react-intl';
 import { BAD_UUID } from '../../helpers/shared/helpers';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
-import { locale } from '../../AppEntry';
+
+import { locale } from '../../locales/locale';
 
 const handleUuidError = (err) => {
   const error = err?.errors?.[0] || {};

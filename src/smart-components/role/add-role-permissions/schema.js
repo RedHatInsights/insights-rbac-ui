@@ -1,12 +1,12 @@
 import React from 'react';
 import AddPermissionTemplate from '../add-role/add-permissions-template';
 import ReviewTemplate from './review-template';
-import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from '../add-role/inventory-groups-role-template';
+import { locale } from '../../../locales/locale';
 
 export const schemaBuilder = (container, featureFlag) => {
   const cache = createIntlCache();
