@@ -7,7 +7,7 @@ import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return await workspacesApi.listWorkspaces({ limit: 100, ...config });
+  return await workspacesApi.listWorkspaces({ limit: 10000, ...config });
 }
 
 export async function getWorkspace(workspaceId: string) {
