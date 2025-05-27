@@ -1,12 +1,12 @@
-import * as ActionTypes from '../action-types';
-import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
-import { WorkspaceCreateBody } from '../reducers/workspaces-reducer';
-import { createIntl, createIntlCache } from 'react-intl';
-import providerMessages from '../../locales/data.json';
-import { locale } from '../../AppEntry';
-import messages from '../../Messages';
-import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
 import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
+import { createIntl, createIntlCache } from 'react-intl';
+import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
+import providerMessages from '../../locales/data.json';
+import { locale } from '../../locales/locale';
+import messages from '../../Messages';
+import * as ActionTypes from '../action-types';
+import { WorkspaceCreateBody } from '../reducers/workspaces-reducer';
 
 export const fetchWorkspaces = () => ({
   type: ActionTypes.FETCH_WORKSPACES,

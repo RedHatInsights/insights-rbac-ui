@@ -3,11 +3,11 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import ReviewTemplate from './review-template';
 import ReviewStepButtons from '../../common/review-step-buttons';
-import { AddGroupWizardContext } from './add-group-wizard';
-import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
+import { locale } from '../../../locales/locale';
+import { AddGroupWizardContext } from './add-group-wizard-context';
 
 export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();

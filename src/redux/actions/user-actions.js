@@ -3,7 +3,8 @@ import * as UserHelper from '../../helpers/user/user-helper';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
-import { locale } from '../../AppEntry';
+
+import { locale } from '../../locales/locale';
 
 /**
  * An action creator function to invite new users to CRC.

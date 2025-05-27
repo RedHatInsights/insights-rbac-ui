@@ -1,9 +1,9 @@
+import { Button, EmptyState, EmptyStateActions, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from '@patternfly/react-core';
+import { CheckCircleIcon } from '@patternfly/react-icons';
 import React, { useContext } from 'react';
 import { useIntl } from 'react-intl';
-import { Button, EmptyState, EmptyStateVariant, EmptyStateIcon, EmptyStateActions, EmptyStateHeader, EmptyStateFooter } from '@patternfly/react-core';
-import { CheckCircleIcon } from '@patternfly/react-icons';
-import { AddGroupWizardContext } from './add-group-wizard';
 import messages from '../../../Messages';
+import { AddGroupWizardContext } from './add-group-wizard-context';
 
 interface AddGroupSuccessProps {
   onClose: () => void;

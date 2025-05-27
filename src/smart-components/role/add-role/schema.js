@@ -6,13 +6,13 @@ import ReviewTemplate from './review-template';
 import CostResourcesTemplate from './cost-resources-template';
 import { debouncedAsyncValidator, ValidatorReset } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
-import { AddRoleWizardContext } from './add-role-wizard';
-import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { validateNextAddRolePermissionStep } from '../permission-wizard-helper';
 import InventoryGroupsRoleTemplate from './inventory-groups-role-template';
+import { locale } from '../../../locales/locale';
+import { AddRoleWizardContext } from './add-role-wizard-context';
 
 export const schemaBuilder = (container, featureFlag) => {
   const cache = createIntlCache();

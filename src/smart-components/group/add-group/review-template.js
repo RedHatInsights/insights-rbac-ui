@@ -15,13 +15,13 @@ import {
   Title,
 } from '@patternfly/react-core';
 import { InProgressIcon } from '@patternfly/react-icons';
-import { AddGroupWizardContext } from './add-group-wizard';
 import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import WizardError from '../../common/wizard-error';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
 import './review-step.scss';
+import { AddGroupWizardContext } from './add-group-wizard-context';
 
 const ReviewTemplate = ({ formFields }) => {
   const intl = useIntl();
