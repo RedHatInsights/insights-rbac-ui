@@ -2,20 +2,20 @@ import React, { useContext } from 'react';
 import {
   Button,
   EmptyState,
-  EmptyStateVariant,
-  EmptyStateIcon,
-  EmptyStateBody,
   EmptyStateActions,
-  EmptyStateHeader,
+  EmptyStateBody,
   EmptyStateFooter,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  EmptyStateVariant,
 } from '@patternfly/react-core';
 import { CheckCircleIcon } from '@patternfly/react-icons';
-import { AddRoleWizardContext } from './add-role-wizard';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import messages from '../../../Messages';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import pathnames from '../../../utilities/pathnames';
+import { AddRoleWizardContext } from './add-role-wizard-context';
 
 const AddRoleSuccess = ({ onClose }) => {
   const { setHideForm, setWizardSuccess } = useContext(AddRoleWizardContext);

@@ -3,7 +3,8 @@ import * as PolicyHelper from '../../helpers/policy/policy-helper';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
-import { locale } from '../../AppEntry';
+
+import { locale } from '../../locales/locale';
 
 export const fetchGroupPolicies = (options = {}) => ({
   type: ActionTypes.FETCH_GROUP_POLICIES,

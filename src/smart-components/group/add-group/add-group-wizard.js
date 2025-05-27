@@ -1,4 +1,4 @@
-import React, { useState, createContext, useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
@@ -23,16 +23,7 @@ import paths from '../../../utilities/pathnames';
 import messages from '../../../Messages';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
-
-export const AddGroupWizardContext = createContext({
-  success: false,
-  submitting: false,
-  error: undefined,
-  // eslint-disable-next-line no-unused-vars
-  setHideForm: (newValue) => null,
-  // eslint-disable-next-line no-unused-vars
-  setWizardSuccess: (newValue) => null,
-});
+import { AddGroupWizardContext } from './add-group-wizard-context';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -107,7 +98,12 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
 
   const onSubmit = (formData) => {
     const serviceAccountsAdded = formData['service-accounts-list']?.length > 0;
-    setWizardContextValue((prev) => ({ ...prev, submitting: true, submittingGroup: true, submittingServiceAccounts: serviceAccountsAdded }));
+    setWizardContextValue((prev) => ({
+      ...prev,
+      submitting: true,
+      submittingGroup: true,
+      submittingServiceAccounts: serviceAccountsAdded,
+    }));
     const groupData = {
       name: formData['group-name'],
       description: formData['group-description'],
@@ -125,7 +121,13 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
       serviceAccountsAdded &&
         dispatch(addServiceAccountsToGroup(value.uuid, formData['service-accounts-list']))
           .then(() => {
-            setWizardContextValue((prev) => ({ ...prev, submitting: false, submittingServiceAccounts: false, success: true, hideForm: true }));
+            setWizardContextValue((prev) => ({
+              ...prev,
+              submitting: false,
+              submittingServiceAccounts: false,
+              success: true,
+              hideForm: true,
+            }));
           })
           .catch(() => setWizardError(true));
     });

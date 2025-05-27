@@ -1,8 +1,8 @@
 import React, { useContext } from 'react';
 import PropTypes from 'prop-types';
 import { Bullseye, Spinner } from '@patternfly/react-core';
-import { AddRolePermissionWizardContext } from './add-role-permission-wizard';
 import '../add-role/review.scss';
+import { AddRolePermissionWizardContext } from './add-role-permission-wizard-context';
 
 const ReviewTemplate = ({ formFields }) => {
   const { submitting } = useContext(AddRolePermissionWizardContext);

@@ -1,13 +1,13 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { Bullseye, Spinner, Text, TextContent, Title } from '@patternfly/react-core';
-import { AddRoleWizardContext } from './add-role-wizard';
 import { asyncValidator } from './validators';
 import './review.scss';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import WizardError from '../../common/wizard-error';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
+import { AddRoleWizardContext } from './add-role-wizard-context';
 
 const ReviewTemplate = ({ formFields }) => {
   const intl = useIntl();

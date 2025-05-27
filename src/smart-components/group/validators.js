@@ -1,9 +1,9 @@
 import { fetchGroups } from '../../helpers/group/group-helper';
 import asyncDebounce from '../../utilities/async-debounce';
-import { locale } from '../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
+import { locale } from '../../locales/locale';
 
 export const asyncValidator = async (groupName, idKey, id) => {
   const cache = createIntlCache();
@@ -16,7 +16,12 @@ export const asyncValidator = async (groupName, idKey, id) => {
     throw intl.formatMessage(messages.maxCharactersWarning, { number: 150 });
   }
 
-  const response = await fetchGroups({ limit: 10, offset: 0, filters: { name: groupName }, nameMatch: 'exact' }).catch((error) => {
+  const response = await fetchGroups({
+    limit: 10,
+    offset: 0,
+    filters: { name: groupName },
+    nameMatch: 'exact',
+  }).catch((error) => {
     console.error(error);
     return undefined;
   });

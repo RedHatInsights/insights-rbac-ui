@@ -4,8 +4,7 @@ import registry, { RegistryContext } from './utilities/store';
 import App from './App';
 import { IntlProvider } from 'react-intl';
 import messages from './locales/data.json';
-
-export const locale = 'en';
+import { locale } from './locales/locale';
 
 const InsightsRbac = () => (
   <IntlProvider locale={locale} messages={messages[locale]}>

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef, createContext, useMemo } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
@@ -18,6 +18,7 @@ import { schemaBuilder } from './schema';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
+import { AddRolePermissionWizardContext } from './add-role-permission-wizard-context';
 
 const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
@@ -27,12 +28,6 @@ export const mapperExtension = {
   'cost-resources': CostResources,
   review: AddRolePermissionSummaryContent,
 };
-
-export const AddRolePermissionWizardContext = createContext({
-  success: false,
-  submitting: false,
-  error: undefined,
-});
 
 const AddRolePermissionWizard = ({ role }) => {
   const intl = useIntl();

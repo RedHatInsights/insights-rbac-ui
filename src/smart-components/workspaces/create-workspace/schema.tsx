@@ -1,13 +1,13 @@
-import React from 'react';
-import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
-import { locale } from '../../../AppEntry';
-import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
-import { Workspace } from '../../../redux/reducers/workspaces-reducer';
-import providerMessages from '../../../locales/data.json';
-import messages from '../../../Messages';
+import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { Button, Text } from '@patternfly/react-core';
+import React from 'react';
+import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
+import providerMessages from '../../../locales/data.json';
+import { locale } from '../../../locales/locale';
+import messages from '../../../Messages';
+import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
+import { Workspace } from '../../../redux/reducers/workspaces-reducer';
 
 // hardcoded for now
 export const BUNDLES = [

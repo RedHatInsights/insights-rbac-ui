@@ -1,6 +1,5 @@
 import { RESULTS, ServiceAccount, ServiceAccountsPayload } from '../../helpers/service-account/service-account-helper';
 import { defaultCompactSettings } from '../../helpers/shared/pagination';
-import { PaginationProps } from '../../smart-components/group/service-account/add-group-service-accounts';
 import { FETCH_SERVICE_ACCOUNTS } from '../action-types';
 
 export interface ServiceAccountsState {
@@ -25,7 +24,16 @@ const setLoadingState = (state: ServiceAccountsState) => ({
   isLoading: true,
 });
 
-const setServiceAccounts = (state: ServiceAccountsState, { payload, meta }: { payload: ServiceAccountsPayload; meta: PaginationProps }) => ({
+const setServiceAccounts = (
+  state: ServiceAccountsState,
+  {
+    payload,
+    meta,
+  }: {
+    payload: ServiceAccountsPayload;
+    meta: Pick<ServiceAccountsState, 'limit' | 'offset'>;
+  }
+) => ({
   ...state,
   limit: meta.limit,
   offset: meta.offset,

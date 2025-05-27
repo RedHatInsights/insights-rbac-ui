@@ -3,10 +3,10 @@ import PropTypes from 'prop-types';
 import { fetchRoles } from '../../../helpers/role/role-helper';
 import asyncDebounce from '../../../utilities/async-debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { locale } from '../../../AppEntry';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
+import { locale } from '../../../locales/locale';
 
 export const asyncValidator = async (roleName) => {
   const cache = createIntlCache();
@@ -21,7 +21,12 @@ export const asyncValidator = async (roleName) => {
   });
 
   // it has to be here twice because API is using AND instead of OR
-  const responseName = await fetchRoles({ limit: 10, offset: 0, displayName: roleName, nameMatch: 'exact' }).catch((error) => {
+  const responseName = await fetchRoles({
+    limit: 10,
+    offset: 0,
+    displayName: roleName,
+    nameMatch: 'exact',
+  }).catch((error) => {
     console.error(error);
     return undefined;
   });
