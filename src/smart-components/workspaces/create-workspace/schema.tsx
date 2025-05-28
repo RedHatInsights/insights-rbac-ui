@@ -7,7 +7,9 @@ import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
-import { Workspace } from '../../../redux/reducers/workspaces-reducer';
+import { isWorkspace, Workspace } from '../../../redux/reducers/workspaces-reducer';
+import { useSelector } from 'react-redux';
+import { RBACStore } from '../../../redux/store';
 
 // hardcoded for now
 export const BUNDLES = [
@@ -42,6 +44,7 @@ export interface CreateWorkspaceFormValues {
 export const schemaBuilder = (enableBillingFeatures: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
+  const allWorkspaces = useSelector((state: RBACStore) => state.workspacesReducer.workspaces || []);
 
   return {
     fields: [
@@ -103,6 +106,14 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                 validate: [
                   {
                     type: validatorTypes.REQUIRED,
+                  },
+                  (value: string, currData: unknown | Workspace) => {
+                    if (isWorkspace(currData)) {
+                      const isDuplicate = allWorkspaces.some(
+                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id
+                      );
+                      return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
+                    }
                   },
                   {
                     type: validatorTypes.MAX_LENGTH,

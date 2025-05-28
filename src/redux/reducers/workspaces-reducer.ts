@@ -44,6 +44,10 @@ const setWorkspace = (state: WorkspacesStore, { payload }: { payload: { data: Wo
   isLoading: false,
 });
 
+export const isWorkspace = (data: unknown | Workspace): data is Workspace => {
+  return (data as Workspace).id !== undefined && (data as Workspace).parent_id !== undefined && (data as Workspace).type !== undefined;
+};
+
 export default {
   [`${FETCH_WORKSPACES}_PENDING`]: setLoadingState,
   [`${FETCH_WORKSPACES}_FULFILLED`]: setWorkspaces,
