@@ -79,7 +79,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
           variant: 'warning',
           title: intl.formatMessage(messages.creatingRoleCanceled),
           dismissDelay: 8000,
-        })
+        }),
       );
     }
 
@@ -138,7 +138,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
             };
           }),
         ],
-        []
+        [],
       ),
     };
 

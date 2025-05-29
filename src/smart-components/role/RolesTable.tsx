@@ -1,6 +1,6 @@
-import React, { useEffect, useCallback, useState, useRef, useMemo, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
-import { useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
@@ -129,7 +129,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       const { limit, offset, orderBy, filters } = apiProps;
       dispatch(fetchRolesWithPolicies({ ...mappedProps({ limit, offset, orderBy, filters }) }));
     },
-    [dispatch]
+    [dispatch],
   );
 
   useEffect(() => {
@@ -158,7 +158,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
           orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
           filters: filters,
         }),
-      800
+      800,
     );
   }, [debouncedFetch, filters, onSetFilters]);
 

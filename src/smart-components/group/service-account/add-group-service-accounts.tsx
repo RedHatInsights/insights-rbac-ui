@@ -1,15 +1,16 @@
+import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import { useParams } from 'react-router-dom';
-import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
+
+import { ServiceAccount } from '../../../helpers/service-account/types';
+import messages from '../../../Messages';
 import AppLink from '../../../presentational-components/shared/AppLink';
-import { ServiceAccountsList } from '../add-group/service-accounts-list';
+import { addServiceAccountsToGroup } from '../../../redux/actions/group-actions';
 import { ServiceAccountsState } from '../../../redux/reducers/service-account-reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
-import { addServiceAccountsToGroup } from '../../../redux/actions/group-actions';
-import messages from '../../../Messages';
+import { ServiceAccountsList } from '../add-group/service-accounts-list';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {

@@ -1,10 +1,10 @@
-import React, { useEffect, useState, useContext, Fragment, Suspense } from 'react';
+import React, { Fragment, Suspense, useContext, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { TableVariant, compoundExpand } from '@patternfly/react-table';
-import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
@@ -21,7 +21,7 @@ import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
-import { fetchRoles, fetchRoleForUser } from '../../redux/actions/role-actions';
+import { fetchRoleForUser, fetchRoles } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
 import { addRolesToGroup, fetchAdminGroup } from '../../redux/actions/group-actions';
@@ -74,7 +74,7 @@ const User = () => {
     fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(() => setLoadingRolesTemp(false));
     debouncedFetch = debounce(
       (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
-      500
+      500,
     );
     return () => chrome.appObjectId(undefined);
   }, []);
@@ -194,7 +194,7 @@ const User = () => {
               ],
             },
           ],
-          []
+          [],
         )
       : [];
 

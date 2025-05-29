@@ -41,7 +41,7 @@ const SetDetails = () => {
     !values[WORKSPACE_PARENT] &&
       formOptions.change(
         WORKSPACE_PARENT,
-        workspaces.find((workspace) => workspace.parent_id === null)
+        workspaces.find((workspace) => workspace.parent_id === null),
       );
   }, [workspaces.length]);
 

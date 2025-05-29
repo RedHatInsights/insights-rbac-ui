@@ -1,12 +1,12 @@
-import React, { Fragment, useState, useEffect } from 'react';
-import { Alert, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { Alert, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
+import { ServiceAccount } from '../../../helpers/service-account/types';
 import messages from '../../../Messages';
 import AppLink from '../../../presentational-components/shared/AppLink';
 import ServiceAccountsList from './service-accounts-list';
-import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
 
 interface SetServiceAccountProps {
   name: string;

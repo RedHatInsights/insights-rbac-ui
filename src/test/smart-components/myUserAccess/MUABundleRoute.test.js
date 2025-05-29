@@ -3,10 +3,17 @@ import { act } from 'react-dom/test-utils';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import MuaBundleRoute from '../../../smart-components/myUserAccess/MUABundleRoute';
+import PropTypes from 'prop-types';
 
 jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
 
 const ComponentWrapper = ({ children, initialEntries }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
+
+ComponentWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  initialEntries: PropTypes.arrayOf(PropTypes.string).isRequired,
+};
+
 describe('<MUABundleRoute />', () => {
   it('should render placeholder component when no bundle is found', () => {
     /**
@@ -15,7 +22,7 @@ describe('<MUABundleRoute />', () => {
     const { container } = render(
       <ComponentWrapper initialEntries={['/foo?bundle=nonsense']}>
         <MuaBundleRoute />
-      </ComponentWrapper>
+      </ComponentWrapper>,
     );
 
     expect(container).toMatchSnapshot();
@@ -27,7 +34,7 @@ describe('<MUABundleRoute />', () => {
       const { container: ci } = render(
         <ComponentWrapper initialEntries={['/foo?bundle=rhel']}>
           <MuaBundleRoute />
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
       container = ci;
     });

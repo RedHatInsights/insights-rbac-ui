@@ -1,18 +1,17 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import useAppNavigate from '../../hooks/useAppNavigate';
-import ModalFormTemplate from '../common/ModalFormTemplate';
-import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import messages from '../../Messages';
-import { RBACStore } from '../../redux/store';
-import { fetchWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import { useParams } from 'react-router-dom';
-import { updateWorkspace } from '../../redux/actions/workspaces-actions';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import messages from '../../Messages';
+import { fetchWorkspace, fetchWorkspaces, updateWorkspace } from '../../redux/actions/workspaces-actions';
+import { Workspace, isWorkspace } from '../../redux/reducers/workspaces-reducer';
+import { RBACStore } from '../../redux/store';
 import paths from '../../utilities/pathnames';
-import { isWorkspace, Workspace } from '../../redux/reducers/workspaces-reducer';
+import ModalFormTemplate from '../common/ModalFormTemplate';
 
 interface EditWorkspaceModalProps {
   afterSubmit: () => void;
@@ -63,7 +62,7 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
                   return undefined;
                 }
                 const isDuplicate = allWorkspaces.some(
-                  (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id
+                  (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id,
                 );
                 return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
               }
@@ -80,7 +79,7 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
         },
       ],
     }),
-    [initialFormData, workspaceId, intl]
+    [initialFormData, workspaceId, intl],
   );
 
   const returnToPreviousPage = () => {
@@ -93,13 +92,18 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
         variant: 'warning',
         title: intl.formatMessage(messages.editingWorkspaceTitle),
         description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
-      })
+      }),
     );
     onCancel();
   };
 
   const handleSubmit = async (data: Record<string, any>) => {
-    dispatch(updateWorkspace({ uuid: workspaceId as string, workspacesPatchWorkspaceRequest: { name: data.name, description: data.description } }));
+    dispatch(
+      updateWorkspace({
+        id: workspaceId!,
+        workspacesPatchWorkspaceRequest: { name: data.name, description: data.description },
+      }),
+    );
     returnToPreviousPage();
     afterSubmit();
   };
@@ -112,7 +116,15 @@ const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps> = ({ 
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       FormTemplate={(props: any) => (
-        <ModalFormTemplate {...props} ModalProps={{ onClose: onCancel, isOpen: true, variant: 'medium', title: 'Edit workspace information' }} />
+        <ModalFormTemplate
+          {...props}
+          ModalProps={{
+            onClose: onCancel,
+            isOpen: true,
+            variant: 'medium',
+            title: 'Edit workspace information',
+          }}
+        />
       )}
       FormTemplateProps={{
         disableSubmit: ['pristine', 'invalid'],

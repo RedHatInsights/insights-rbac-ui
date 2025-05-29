@@ -56,7 +56,7 @@ describe('<GroupServiceAccounts />', () => {
             <Route path="/groups/detail/:groupId/service-accounts" element={<GroupServiceAccounts />} {...initialProps} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(screen.getByText('Add service account')).toBeVisible();
     expect(container.baseElement).toMatchSnapshot();

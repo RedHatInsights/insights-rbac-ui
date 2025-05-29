@@ -64,6 +64,6 @@ Cypress.Commands.add('login', (enableWorkspaces = false) => {
       cy.get('#rh-password-verification-submit-button').click();
       // cy.url().should('eq', `${Cypress.config().baseUrl}/`);
     },
-    { cacheAcrossSpecs: true }
+    { cacheAcrossSpecs: true },
   );
 });

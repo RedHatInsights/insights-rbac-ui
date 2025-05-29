@@ -1,15 +1,15 @@
 import { nowrap } from '@patternfly/react-table';
-import React, { Fragment, useState, useEffect, useContext, useRef, Suspense } from 'react';
+import React, { Fragment, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
-import { Button, Card, CardBody, Text, TextVariants, Bullseye, TextContent, ButtonVariant } from '@patternfly/react-core';
+import { Bullseye, Button, ButtonVariant, Card, CardBody, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { createRows } from './member-table-helpers';
-import { fetchMembersForGroup, removeMembersFromGroup, fetchGroups, fetchGroup } from '../../../redux/actions/group-actions';
+import { fetchGroup, fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../redux/actions/group-actions';
 import { getBackRoute } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import PermissionsContext from '../../../utilities/permissions-context';
@@ -51,7 +51,7 @@ const GroupMembers = () => {
   const { groupId } = useParams();
   const { members, pagination, groupsPagination, groupsFilters, isLoading, adminDefault, platformDefault, group } = useSelector(
     selector,
-    shallowEqual
+    shallowEqual,
   );
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
@@ -143,7 +143,7 @@ const GroupMembers = () => {
                 text: removeModalText(
                   multipleMembersSelected ? selectedMembers.length : selectedMembers[0].uuid,
                   group.name,
-                  multipleMembersSelected
+                  multipleMembersSelected,
                 ),
               });
               setShowRemoveModal(true);

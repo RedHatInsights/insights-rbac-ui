@@ -11,6 +11,7 @@ import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 
 import * as RoleHelper from '../../helpers/role/role-helper';
 import * as RoleActions from '../../redux/actions/role-actions';
+import PropTypes from 'prop-types';
 
 jest.mock('../../helpers/role/role-helper', () => {
   const actual = jest.requireActual('../../helpers/role/role-helper');
@@ -55,7 +56,10 @@ describe('<RemoveRoleModal />', () => {
       </MemoryRouter>
     </Provider>
   );
-
+  ComponentWrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+    store: PropTypes.object.isRequired,
+  };
   it('should mount and call remove role action without fetching data from API', async () => {
     const store = mockStore({
       roleReducer: {
@@ -70,7 +74,7 @@ describe('<RemoveRoleModal />', () => {
     render(
       <ComponentWrapper store={store}>
         <RemoveRoleModal {...initialProps} />
-      </ComponentWrapper>
+      </ComponentWrapper>,
     );
 
     await act(async () => {
@@ -101,7 +105,7 @@ describe('<RemoveRoleModal />', () => {
       render(
         <ComponentWrapper store={store}>
           <RemoveRoleModal {...initialProps} />
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
     });
 

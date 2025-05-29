@@ -22,7 +22,7 @@ import {
 import messages from '../../../Messages';
 import CustomDataListItem from './custom-data-list-item';
 import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Tr, Td } from '@patternfly/react-table';
+import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 

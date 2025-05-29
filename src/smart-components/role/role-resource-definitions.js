@@ -1,7 +1,7 @@
 import React, { Fragment, Suspense, useEffect, useMemo, useState } from 'react';
-import { TextContent, Text, TextVariants, Level, LevelItem, Button } from '@patternfly/react-core';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { useParams, Outlet } from 'react-router-dom';
+import { Button, Level, LevelItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { Outlet, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows, isInventoryPermission } from './role-resource-definitions-table-helpers';
 import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
@@ -48,7 +48,7 @@ const ResourceDefinitions = () => {
       inventoryGroupsDetails: state.inventoryReducer?.inventoryGroupsDetails,
       isLoadingInventoryDetails: state.inventoryReducer?.isLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const fetchInventoryGroupNames = (inventoryGroupsIds) => dispatch(fetchInventoryGroupsDetails(inventoryGroupsIds));
@@ -92,15 +92,15 @@ const ResourceDefinitions = () => {
       (!isRoleLoading &&
         !isLoadingInventoryDetails &&
         processResourceDefinitions(permission.resourceDefinitions).map((item) =>
-          !isInventory || item == null ? item : inventoryGroupsDetails?.[item]?.name
+          !isInventory || item == null ? item : inventoryGroupsDetails?.[item]?.name,
         )) ||
       [],
-    [permissionId, isRoleLoading, isLoadingInventoryDetails]
+    [permissionId, isRoleLoading, isLoadingInventoryDetails],
   );
   const filteredData = useMemo(() => allData.filter((value) => (filter ? value?.includes(filter) || value === null : true)), [allData, filter]);
   const data = useMemo(
     () => filteredData.slice(pagination.offset, pagination.offset + pagination.limit),
-    [filteredData, pagination.offset, pagination.offset]
+    [filteredData, pagination.offset, pagination.offset],
   );
 
   return (

@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useContext, useRef, Suspense } from 'react';
+import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
-import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import { isSmallScreen, useScreenSize } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { createRows } from './role-table-helpers';
@@ -14,13 +14,13 @@ import { TopToolbar, TopToolbarTitle } from '../../presentational-components/sha
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import PermissionsContext from '../../utilities/permissions-context';
 import {
-  syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
-  isPaginationPresentInUrl,
   defaultAdminSettings,
   defaultSettings,
+  isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
 } from '../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import RoleRowWrapper from './role-row-wrapper';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import messages from '../../Messages';
@@ -59,7 +59,7 @@ const Roles = () => {
       },
       isLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const columns = [
@@ -159,9 +159,9 @@ const Roles = () => {
                 mergeToBasename(
                   paths['remove-role'].link.replace(
                     ':roleId',
-                    selectedRows.map(({ uuid }) => uuid)
-                  )
-                )
+                    selectedRows.map(({ uuid }) => uuid),
+                  ),
+                ),
               );
             },
           },
@@ -172,7 +172,7 @@ const Roles = () => {
     setSelectedRows((rows) =>
       newSelection(rows)
         .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault, system }) => !(isPlatformDefault || isAdminDefault || system))
-        .map(({ uuid, name }) => ({ uuid, label: name }))
+        .map(({ uuid, name }) => ({ uuid, label: name })),
     );
   };
 
@@ -230,7 +230,7 @@ const Roles = () => {
                   offset: 0,
                   orderBy,
                   filters: { display_name: filterValue },
-                })
+                }),
               );
             }}
           />

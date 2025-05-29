@@ -7,7 +7,7 @@ import configureStore from 'redux-mock-store';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
 import Role from '../../smart-components/role/role';
-import { FETCH_GROUP, FETCH_SYSTEM_GROUP, FETCH_ROLE, UPDATE_ROLE } from '../../redux/action-types';
+import { FETCH_GROUP, FETCH_ROLE, FETCH_SYSTEM_GROUP, UPDATE_ROLE } from '../../redux/action-types';
 
 import * as RoleActions from '../../redux/actions/role-actions';
 import * as GroupActions from '../../redux/actions/group-actions';
@@ -121,7 +121,7 @@ describe('role', () => {
                 <Route path="/groups/detail/:groupId/roles/detail/:roleId/*" element={<Role />} />
               </Routes>
             </MemoryRouter>
-          </Provider>
+          </Provider>,
         );
 
         container = ci;
@@ -159,7 +159,7 @@ describe('role', () => {
                 <Route path="/groups/detail/:groupId/roles/detail/:roleId/*" element={<Role />} />
               </Routes>
             </MemoryRouter>
-          </Provider>
+          </Provider>,
         );
 
         container = ci;
@@ -185,7 +185,7 @@ describe('role', () => {
                 <Route path="/roles/detail/:roleId/*" element={<Role />} />
               </Routes>
             </MemoryRouter>
-          </Provider>
+          </Provider>,
         );
         container = ci;
       });
@@ -210,7 +210,7 @@ describe('role', () => {
                 <Route path="/roles/detail/:roleId/*" element={<Role />} />
               </Routes>
             </MemoryRouter>
-          </Provider>
+          </Provider>,
         );
 
         container = ci;
@@ -236,7 +236,7 @@ describe('role', () => {
               <Route path="/roles/detail/:roleId/*" element={<Role />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(screen.getByLabelText('Loading')).toBeInTheDocument();
@@ -255,7 +255,7 @@ describe('role', () => {
               <Route path="/roles/detail/:roleId/*" element={<Role />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
 
       container = ci;
@@ -274,7 +274,7 @@ describe('role', () => {
               <Route path="/roles/detail/:roleId/*" element={<Role />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -303,7 +303,7 @@ describe('role', () => {
               <Route path="/roles/detail/:roleId/*" element={<Role />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
 
       container = ci;
@@ -340,7 +340,7 @@ describe('role', () => {
               </Route>
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(() => screen.getByText('Delete role?')).toThrow();
@@ -383,7 +383,7 @@ describe('role', () => {
               </Route>
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(() => screen.getByText('Remove permission?')).toThrow();
@@ -423,7 +423,7 @@ describe('role', () => {
               </Route>
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
 

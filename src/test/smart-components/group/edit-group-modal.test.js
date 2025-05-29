@@ -12,6 +12,7 @@ import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import * as GroupActions from '../../../redux/actions/group-actions';
 import { FETCH_GROUP } from '../../../redux/action-types';
 import { defaultSettings } from '../../../helpers/shared/pagination';
+import PropTypes from 'prop-types';
 
 jest.mock('../../../redux/actions/group-actions', () => {
   const actual = jest.requireActual('../../../redux/actions/group-actions');
@@ -41,7 +42,11 @@ describe('<EditGroupModal />', () => {
       <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
     </Provider>
   );
-
+  GroupWrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+    store: PropTypes.object.isRequired,
+    initialEntries: PropTypes.arrayOf(PropTypes.string),
+  };
   beforeEach(() => {
     initialProps = {
       cancelRoute: '/groups',
@@ -73,7 +78,7 @@ describe('<EditGroupModal />', () => {
     const { container } = render(
       <Provider store={store}>
         <EditGroupModal {...initialProps} />
-      </Provider>
+      </Provider>,
     );
     expect(container).toMatchSnapshot();
   });
@@ -87,7 +92,7 @@ describe('<EditGroupModal />', () => {
           <Provider store={store}>
             <EditGroupModal {...initialProps} />
           </Provider>
-        </GroupWrapper>
+        </GroupWrapper>,
       );
     });
 

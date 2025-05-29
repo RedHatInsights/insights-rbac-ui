@@ -223,7 +223,7 @@ export const addServiceAccountsToGroup = (groupId, serviceAccounts) => {
           dismissDelay: 8000,
           description: intl.formatMessage(
             Number(payload?.errors?.[0]?.status) === 404 ? messages.groupDoesNotExist : messages.addGroupServiceAccountsErrorDescription,
-            { count: serviceAccounts.length, id: groupId }
+            { count: serviceAccounts.length, id: groupId },
           ),
         }),
       },

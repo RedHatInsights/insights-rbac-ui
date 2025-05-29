@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment, useContext, useRef, Suspense } from 'react';
+import React, { Fragment, Suspense, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
@@ -10,13 +10,13 @@ import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import {
-  removeRolesFromGroup,
   addRolesToGroup,
-  fetchRolesForGroup,
   fetchAddRolesForGroup,
-  fetchSystemGroup,
   fetchGroup,
   fetchGroups,
+  fetchRolesForGroup,
+  fetchSystemGroup,
+  removeRolesFromGroup,
 } from '../../../redux/actions/group-actions';
 import RemoveRole from './remove-role-modal';
 import { getBackRoute, getDateFormat } from '../../../helpers/shared/helpers';
@@ -49,7 +49,7 @@ const createRows = (groupId, roles, checkedRows = []) =>
         selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
       },
     ],
-    []
+    [],
   ) || [];
 
 const generateOuiaID = (name) => {
@@ -240,8 +240,8 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
                   removeRoles(
                     fetchUuid,
                     selectedRoles.map((role) => role.uuid),
-                    removeRolesCallback
-                  )
+                    removeRolesCallback,
+                  ),
               );
               setDeleteInfo({
                 title: intl.formatMessage(multipleRolesSelected ? messages.removeRolesQuestion : messages.removeRoleQuestion),
@@ -249,7 +249,7 @@ const GroupRoles = ({ onDefaultGroupChanged }) => {
                 text: removeModalText(
                   name,
                   multipleRolesSelected ? selectedRoles.length : roles.find((role) => role.uuid === selectedRoles[0].uuid).name,
-                  multipleRolesSelected
+                  multipleRolesSelected,
                 ),
               });
 

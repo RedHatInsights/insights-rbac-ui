@@ -1,17 +1,17 @@
-import React, { Fragment, useCallback, useEffect, useState, lazy, Suspense } from 'react';
+import React, { Fragment, Suspense, lazy, useCallback, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { fetchRoles, fetchRoleForPrincipal } from '../../redux/actions/role-actions';
+import { fetchRoleForPrincipal, fetchRoles } from '../../redux/actions/role-actions';
 import messages from '../../Messages';
 
 const ResourceDefinitionsModal = lazy(() => import('./ResourceDefinitionsModal'));
 
-import { TableVariant, compoundExpand, cellWidth, sortable } from '@patternfly/react-table';
-import { Table, TableHeader, TableBody } from '@patternfly/react-table/deprecated';
+import { TableVariant, cellWidth, compoundExpand, sortable } from '@patternfly/react-table';
+import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import ResourceDefinitionsLink from '../../presentational-components/myUserAccess/ResourceDefinitionsLink';
 
 const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) => {
@@ -45,7 +45,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
       isLoading,
       rolesWithAccess,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const [sortByState, setSortByState] = useState({ index: 0, direction: 'asc' });
@@ -114,7 +114,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
           ],
         },
       ],
-      []
+      [],
     );
   };
 
@@ -123,7 +123,7 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
       const applicationParam = application?.length > 0 ? application : apps;
       return dispatch(fetchRoles({ limit, offset, scope: 'principal', orderBy, name, application: applicationParam.join(','), permission }));
     }, 800),
-    []
+    [],
   );
 
   const onExpand = (_event, _rowIndex, colIndex, isOpen, rowData) => {
@@ -167,11 +167,11 @@ const MUARolesTable = ({ filters, setFilters, apps, showResourceDefinitions }) =
                         ...acc,
                         [curr.key]: curr.value,
                       }),
-                      {}
+                      {},
                     ),
                   }
                 : { name: '', application: [] }),
-            })
+            }),
           );
         }}
         emptyFilters={{ name: '', application: [] }}

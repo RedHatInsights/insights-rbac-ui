@@ -1,22 +1,22 @@
-import React, { useEffect, useState, useContext, useRef, useCallback } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import PropTypes from 'prop-types';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { sortable, nowrap } from '@patternfly/react-table';
+import { nowrap, sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import PermissionsContext from '../../../utilities/permissions-context';
 import {
-  defaultSettings,
-  defaultAdminSettings,
-  syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
   isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
 } from '../../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
 import { createRows } from '../../user/user-table-helpers';
 
@@ -47,7 +47,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
       users: data?.map?.((data) => ({ ...data, uuid: data.username })),
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
-    })
+    }),
   );
 
   const fetchData = useCallback((apiProps) => dispatch(fetchUsers(apiProps)), [dispatch]);
@@ -69,7 +69,7 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
           username: '',
           email: '',
           status: [intl.formatMessage(messages.active)],
-        }
+        },
   );
 
   useEffect(() => {

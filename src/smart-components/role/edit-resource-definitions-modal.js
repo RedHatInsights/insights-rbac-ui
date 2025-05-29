@@ -5,14 +5,14 @@ import FormRenderer from '../common/form-renderer';
 import flatten from 'lodash/flattenDeep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
-import { updateRole, fetchRole } from '../../redux/actions/role-actions';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { fetchRole, updateRole } from '../../redux/actions/role-actions';
 import { fetchResource, fetchResourceDefinitions } from '../../redux/actions/cost-management-actions';
 import { fetchInventoryGroups, fetchInventoryGroupsDetails } from '../../redux/actions/inventory-actions';
 import { processResourceDefinitions } from '../../helpers/role/inventory-helper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { Spinner, Modal, ModalVariant, Bullseye } from '@patternfly/react-core';
+import { Bullseye, Modal, ModalVariant, Spinner } from '@patternfly/react-core';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';
@@ -40,7 +40,7 @@ const createOptions = (resources, permissionId) =>
             label: r.value,
           })),
         ],
-        []
+        [],
       );
 
 const initialState = {
@@ -91,7 +91,7 @@ const selector = (
     costReducer: { resourceTypes, isLoading, loadingResources, resources },
     inventoryReducer: { resourceTypes: inventoryGroups, isLoading: isLoadingInventory },
   },
-  resourcesPath
+  resourcesPath,
 ) => ({
   resourceTypes: resourceTypes.data,
   resources: resources[resourcesPath] ? { resourcesPath: resources[resourcesPath] } : resources,
@@ -102,7 +102,7 @@ const selector = (
 });
 
 const validatorMapper = {
-  'validate-resources': () => (value) => value && value.length > 0 ? undefined : 'At least one resource must be defined for this permission',
+  'validate-resources': () => (value) => (value && value.length > 0 ? undefined : 'At least one resource must be defined for this permission'),
 };
 
 const EditResourceDefinitionsModal = ({ cancelRoute }) => {
@@ -118,7 +118,7 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
 
   const { resourceTypes, isLoading, isLoadingResources, resources, isLoadingInventory, inventoryGroups } = useSelector(
     (props) => selector(props, state.resourcesPath),
-    shallowEqual
+    shallowEqual,
   );
 
   const { definedResources, role } = useSelector(
@@ -135,13 +135,13 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
                     return Array.isArray(value) ? value.map((value) => String(value)) : String(value);
                   }
                   return resource.attributeFilter.value;
-                })
-              )
+                }),
+              ),
           )
         : [],
       isRecordLoading: state.roleReducer.isRecordLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   useEffect(() => {
@@ -195,12 +195,12 @@ const EditResourceDefinitionsModal = ({ cancelRoute }) => {
           isInventory &&
             dispatch(
               fetchInventoryGroupsDetails(
-                processResourceDefinitions(value?.access?.find((item) => item.permission === permissionId)?.resourceDefinitions)
-              )
+                processResourceDefinitions(value?.access?.find((item) => item.permission === permissionId)?.resourceDefinitions),
+              ),
             );
         });
         navigate(cancelRoute);
-      }
+      },
     );
   };
 

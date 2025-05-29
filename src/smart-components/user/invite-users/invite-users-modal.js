@@ -1,7 +1,7 @@
-import React, { useState, Fragment, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Modal, Button, ModalVariant, ExpandableSection, Form, FormGroup, TextArea, Checkbox } from '@patternfly/react-core';
+import { Button, Checkbox, ExpandableSection, Form, FormGroup, Modal, ModalVariant, TextArea } from '@patternfly/react-core';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -57,7 +57,7 @@ const InviteUsersModal = ({ fetchData }) => {
         title: intl.formatMessage(messages.inviteUsers),
         dismissDelay: 8000,
         description: intl.formatMessage(messages.inviteUsersCancelled),
-      })
+      }),
     );
     navigate(mergeToBasename(paths.users.link));
   };

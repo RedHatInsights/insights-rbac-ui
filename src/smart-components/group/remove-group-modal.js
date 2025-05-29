@@ -23,7 +23,7 @@ const RemoveGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = c
       group: selectedGroup,
       isLoading: (groupId || groupsToRemove.length === 1) && !selectedGroup.loaded,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   useEffect(() => {

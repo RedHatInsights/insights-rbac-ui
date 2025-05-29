@@ -1,29 +1,29 @@
-import React, { useEffect, Fragment, useState, useContext, useRef, useCallback, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
-import { useLocation, useNavigate, Outlet } from 'react-router-dom';
+import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
-import { fetchUsers, updateUsersFilters, changeUsersStatus, updateUserIsOrgAdminStatus } from '../../../redux/actions/user-actions';
-import { Button, Switch as PF4Switch, Label, Modal, ModalVariant, List, ListItem, Checkbox, Stack, StackItem } from '@patternfly/react-core';
+import { changeUsersStatus, fetchUsers, updateUserIsOrgAdminStatus, updateUsersFilters } from '../../../redux/actions/user-actions';
+import { Button, Checkbox, Label, List, ListItem, Modal, ModalVariant, Switch as PF4Switch, Stack, StackItem } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/deprecated';
-import { sortable, nowrap } from '@patternfly/react-table';
+import { nowrap, sortable } from '@patternfly/react-table';
 import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { mappedProps, isExternalIdp } from '../../../helpers/shared/helpers';
+import { isExternalIdp, mappedProps } from '../../../helpers/shared/helpers';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import {
-  defaultSettings,
-  defaultAdminSettings,
-  syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
   isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
 } from '../../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../../helpers/shared/filters';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../../helpers/shared/filters';
 import messages from '../../../Messages';
 import PermissionsContext from '../../../utilities/permissions-context';
-import { useScreenSize, isSmallScreen } from '@redhat-cloud-services/frontend-components/useScreenSize';
+import { isSmallScreen, useScreenSize } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import paths from '../../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
@@ -134,7 +134,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
       users: data?.map?.((data) => ({ ...data, uuid: data.external_source_id })),
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
-    })
+    }),
   );
 
   const fetchData = useCallback((apiProps) => dispatch(fetchUsers(apiProps)), [dispatch]);
@@ -254,7 +254,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
       ? data.reduce(
           (
             acc,
-            { external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin }
+            { external_source_id, username, is_active: is_active, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin },
           ) => [
             ...acc,
             {
@@ -322,7 +322,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
               disableSelection: displayNarrow ? undefined : !isUserSelectable(external_source_id),
             },
           ],
-          []
+          [],
         )
       : [];
   };
@@ -345,7 +345,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
           username: '',
           email: '',
           status: [intl.formatMessage(messages.active)],
-        }
+        },
   );
 
   useEffect(() => {

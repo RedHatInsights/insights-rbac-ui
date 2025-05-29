@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
-import { List, ListItem, Stack, StackItem, Title, Card, CardTitle, CardBody, CardHeader } from '@patternfly/react-core';
+import { Card, CardBody, CardHeader, CardTitle, List, ListItem, Stack, StackItem, Title } from '@patternfly/react-core';
 
 import { bundleData } from './bundles';
 import useSearchParams from '../../hooks/useSearchParams';

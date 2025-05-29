@@ -26,6 +26,6 @@ export const createRows = (data, checkedRows = []) => {
         selected: checkedRows.find((row) => row.uuid === username),
       },
     ],
-    []
+    [],
   );
 };

@@ -49,8 +49,8 @@ describe('<AddGroupRoles />', () => {
   });
 
   test('should render AddGroupRoles modal', async () => {
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = { selectedRoles: [], setSelectedRoles: jest.fn() };
 
@@ -61,7 +61,7 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     expect(screen.getByText('Add roles to the {name} group')).toBeInTheDocument();
@@ -73,8 +73,8 @@ describe('<AddGroupRoles />', () => {
   });
 
   test('should cancel adding roles', async () => {
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
       closeUrl: '/roles',
@@ -85,9 +85,11 @@ describe('<AddGroupRoles />', () => {
     const expectedPayload = [
       expect.objectContaining({
         type: 'FETCH_GROUP',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
@@ -107,7 +109,7 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     fireEvent.click(screen.getByText('Cancel'));
@@ -115,8 +117,8 @@ describe('<AddGroupRoles />', () => {
   });
 
   test('should close AddGroupRoles modal', async () => {
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let initialProps = {
       closeUrl: '/roles',
@@ -127,9 +129,11 @@ describe('<AddGroupRoles />', () => {
     const expectedPayload = [
       expect.objectContaining({
         type: 'FETCH_GROUP',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
@@ -149,7 +153,7 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     fireEvent.click(screen.getByLabelText('Close'));
@@ -158,16 +162,18 @@ describe('<AddGroupRoles />', () => {
 
   test('should submit AddGroupRoles modal', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
 
     const expectedPayload = [
       expect.objectContaining({
         type: 'FETCH_GROUP',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
+        payload: expect.any(Promise),
       }),
     ];
 
@@ -178,7 +184,7 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...initialProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     fireEvent.click(screen.getByRole('checkbox'));
     fireEvent.click(screen.getByText('Add to group'));
@@ -189,8 +195,8 @@ describe('<AddGroupRoles />', () => {
 
   test('should submit AddGroupRoles modal with a default group', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let enhancedProps = {
       ...initialProps,
@@ -209,15 +215,17 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...enhancedProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     const expectedPayload = [
       expect.objectContaining({
         type: 'FETCH_GROUP',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'INVALIDATE_SYSTEM_GROUP',
@@ -231,9 +239,9 @@ describe('<AddGroupRoles />', () => {
     waitFor(() =>
       expect(
         screen.getByText(
-          'Once you edit the Default access group, the system will no longer update it with new default access roles. The group name will change to Custom default access.'
-        )
-      ).toBeInTheDocument()
+          'Once you edit the Default access group, the system will no longer update it with new default access roles. The group name will change to Custom default access.',
+        ),
+      ).toBeInTheDocument(),
     );
     waitFor(() => expect(screen.getByText('I understand, and I want to continue')).toBeInTheDocument());
     fireEvent.click(screen.getByRole('checkbox'));
@@ -246,8 +254,8 @@ describe('<AddGroupRoles />', () => {
 
   test('should cancel default group warning modal', async () => {
     addRolesToGroupSpy.mockImplementationOnce(() => Promise.resolve({ then: jest.fn() }));
-    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
-    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchAddRolesForGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUP, payload: Promise.resolve({}) }));
+    fetchGroupSpy.mockImplementationOnce(() => ({ type: FETCH_GROUPS, payload: Promise.resolve({}) }));
     const store = mockStore(initialState);
     let enhancedProps = {
       ...initialProps,
@@ -261,9 +269,11 @@ describe('<AddGroupRoles />', () => {
     const expectedPayload = [
       expect.objectContaining({
         type: 'FETCH_GROUP',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: 'FETCH_GROUPS',
+        payload: expect.any(Promise),
       }),
       expect.objectContaining({
         type: '@@INSIGHTS-CORE/NOTIFICATIONS/ADD_NOTIFICATION',
@@ -283,7 +293,7 @@ describe('<AddGroupRoles />', () => {
             <Route path="/groups/detail/:groupId" element={<AddGroupRoles {...enhancedProps} />} />
           </Routes>
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     fireEvent.click(screen.getByRole('checkbox'));

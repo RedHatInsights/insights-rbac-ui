@@ -76,7 +76,7 @@ const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) 
   };
 
   const uniqueNameValidator = asyncDebounce((value, idKey, id, validationPromise) =>
-    !value || value.length === 0 ? Promise.reject(intl.formatMessage(messages.required)) : validationPromise(value, idKey, id)
+    !value || value.length === 0 ? Promise.reject(intl.formatMessage(messages.required)) : validationPromise(value, idKey, id),
   );
 
   const validatorMapper = {
@@ -93,7 +93,7 @@ const EditRoleModal = ({ cancelRoute, submitRoute = cancelRoute, afterSubmit }) 
         dismissDelay: 8000,
         title: intl.formatMessage(messages.editingRoleTitle),
         description: intl.formatMessage(messages.editingRoleCanceledDescription),
-      })
+      }),
     );
     navigate(cancelRoute, { replace: true });
   };

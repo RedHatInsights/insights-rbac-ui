@@ -18,7 +18,7 @@ export const mappedProps = (apiProps) =>
       ...acc,
       ...(value && { [key]: value }),
     }),
-    {}
+    {},
   );
 
 export const debouncedFetch = debouncePromise((callback) => callback());
@@ -62,7 +62,7 @@ export const removeQueryParams = (location, navigate) => {
     },
     {
       replace: true,
-    }
+    },
   );
 };
 

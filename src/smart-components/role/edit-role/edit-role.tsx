@@ -46,7 +46,7 @@ export const EditRole: FunctionComponent = () => {
               permission,
               resourceDefinitions: [],
             })),
-          })
+          }),
         ),
       ]);
       await Promise.all([roleId ? dispatch(fetchRole(roleId)) : Promise.resolve()]);
@@ -104,7 +104,7 @@ export const EditRole: FunctionComponent = () => {
         },
       ],
     }),
-    [initialFormData, roleId, intl]
+    [initialFormData, roleId, intl],
   );
 
   return (

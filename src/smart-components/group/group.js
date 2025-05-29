@@ -1,11 +1,11 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { useLocation, useParams, Outlet, useNavigationType } from 'react-router-dom';
+import { Outlet, useLocation, useNavigationType, useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
-import { Alert, AlertActionCloseButton, Popover, PopoverPosition, Split, SplitItem, Button } from '@patternfly/react-core';
-import { DropdownItem, Dropdown, KebabToggle } from '@patternfly/react-core/deprecated';
+import { Alert, AlertActionCloseButton, Button, Popover, PopoverPosition, Split, SplitItem } from '@patternfly/react-core';
+import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import SkeletonTable from '@patternfly/react-component-groups/dist/esm/SkeletonTable';
 import AppTabs from '../app-tabs/app-tabs';
@@ -57,7 +57,7 @@ const Group = () => {
       groupExists: error !== BAD_UUID,
       systemGroupUuid: systemGroup?.uuid,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const { group, isGroupLoading } = useSelector(
@@ -65,7 +65,7 @@ const Group = () => {
       group: selectedGroup,
       isGroupLoading: isRecordLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const [isResetWarningVisible, setResetWarningVisible] = useState(false);
@@ -142,7 +142,7 @@ const Group = () => {
           onClick={() => setDropdownOpen(false)}
           to={(location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group']).link.replace(
             ':groupId',
-            isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId
+            isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId,
           )}
         >
           {intl.formatMessage(messages.edit)}
@@ -155,7 +155,7 @@ const Group = () => {
         <AppLink
           to={(location.pathname.includes('members') ? pathnames['group-members-remove-group'] : pathnames['group-roles-remove-group']).link.replace(
             ':groupId',
-            groupId
+            groupId,
           )}
         >
           {intl.formatMessage(messages.delete)}
@@ -178,7 +178,7 @@ const Group = () => {
             dispatch(removeGroups([systemGroupUuid])).then(() =>
               dispatch(fetchSystemGroup({ chrome })).then(() => {
                 setShowDefaultGroupChangedInfo(false);
-              })
+              }),
             );
             setResetWarningVisible(false);
             navigate(pathnames['group-detail-roles'].link.replace(':groupId', DEFAULT_ACCESS_GROUP_ID));

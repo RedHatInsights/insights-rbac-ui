@@ -1,8 +1,9 @@
-import { RESULTS, ServiceAccount, ServiceAccountsPayload } from '../../helpers/service-account/service-account-helper';
+import { RESULTS } from '../../helpers/service-account/constants';
+import { ServiceAccount, ServiceAccountsPayload } from '../../helpers/service-account/types';
 import { defaultCompactSettings } from '../../helpers/shared/pagination';
 import { FETCH_SERVICE_ACCOUNTS } from '../action-types';
 
-export interface ServiceAccountsState {
+export interface ServiceAccountsState extends Record<string, unknown> {
   isLoading: boolean;
   status: string;
   serviceAccounts: ServiceAccount[];
@@ -19,7 +20,7 @@ export const serviceAccountsInitialState: ServiceAccountsState = {
   status: RESULTS,
 };
 
-const setLoadingState = (state: ServiceAccountsState) => ({
+const setLoadingState = (state: ServiceAccountsState): ServiceAccountsState => ({
   ...state,
   isLoading: true,
 });
@@ -32,8 +33,8 @@ const setServiceAccounts = (
   }: {
     payload: ServiceAccountsPayload;
     meta: Pick<ServiceAccountsState, 'limit' | 'offset'>;
-  }
-) => ({
+  },
+): ServiceAccountsState => ({
   ...state,
   limit: meta.limit,
   offset: meta.offset,

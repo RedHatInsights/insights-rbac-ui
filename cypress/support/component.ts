@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-namespace */
-/* eslint-disable @typescript-eslint/no-var-requires */
+
 /* eslint-disable prettier/prettier */
 // ***********************************************************
 // This example support/component.ts is processed and

@@ -2,11 +2,11 @@ import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/r
 import { EmptyState, EmptyStateHeader, EmptyStateIcon, FormGroup, Pagination } from '@patternfly/react-core';
 import {
   DataView,
-  DataViewTable,
-  DataViewToolbar,
-  DataViewTh,
   DataViewState,
+  DataViewTable,
   DataViewTextFilter,
+  DataViewTh,
+  DataViewToolbar,
   useDataViewFilters,
   useDataViewPagination,
   useDataViewSelection,
@@ -105,10 +105,10 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
           resourceType: filters?.resourceType || '',
           verb: filters?.operation || '',
           allowed_only: false,
-        })
+        }),
       );
     },
-    [dispatch]
+    [dispatch],
   );
 
   useEffect(() => {
@@ -147,7 +147,7 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
     if (props.initialValue) {
       onSelect(
         true,
-        props.initialValue.map((permission: string) => ({ id: permission }))
+        props.initialValue.map((permission: string) => ({ id: permission })),
       );
     }
   }, [props.initialValue]);

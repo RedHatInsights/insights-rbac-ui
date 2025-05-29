@@ -11,6 +11,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import * as RoleHelper from '../../helpers/role/role-helper';
 import * as RoleActions from '../../redux/actions/role-actions';
 import EditRoleModal from '../../smart-components/role/edit-role-modal';
+import PropTypes from 'prop-types';
 
 jest.mock('../../helpers/role/role-helper', () => {
   const actual = jest.requireActual('../../helpers/role/role-helper');
@@ -53,7 +54,10 @@ describe('<EditRoleModal />', () => {
       <Provider store={store}>{children}</Provider>
     </MemoryRouter>
   );
-
+  ComponentWrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+    store: PropTypes.object.isRequired,
+  };
   it('should mount and call update role action without fethichg data from API', async () => {
     expect.assertions(4);
     jest.useFakeTimers();
@@ -80,7 +84,7 @@ describe('<EditRoleModal />', () => {
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
           </Routes>
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
     });
 
@@ -104,7 +108,11 @@ describe('<EditRoleModal />', () => {
     });
 
     expect(patchRoleSpy).toHaveBeenCalledTimes(1);
-    expect(patchRoleSpy).toHaveBeenCalledWith(ROLE_ID, { description: 'foo', name: 'role-name', display_name: 'role-name' });
+    expect(patchRoleSpy).toHaveBeenCalledWith(ROLE_ID, {
+      description: 'foo',
+      name: 'role-name',
+      display_name: 'role-name',
+    });
     expect(fetchRoleSpy).not.toHaveBeenCalled();
     expect(afterSubmit).toHaveBeenCalledWith();
   });
@@ -126,7 +134,7 @@ describe('<EditRoleModal />', () => {
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} />} />
           </Routes>
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
     });
 
@@ -159,7 +167,7 @@ describe('<EditRoleModal />', () => {
           <Routes>
             <Route path="/role/:roleId" element={<EditRoleModal {...initialProps} afterSubmit={afterSubmit} />} />
           </Routes>
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
     });
 

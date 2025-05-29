@@ -96,7 +96,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
           {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),
-            // eslint-disable-next-line react/display-name
+
             buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
             StepTemplate: ReviewTemplate,
             fields: [

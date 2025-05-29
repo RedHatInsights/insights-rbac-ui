@@ -1,6 +1,6 @@
 import React from 'react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Stack, StackItem, Grid, GridItem, Text, TextVariants } from '@patternfly/react-core';
+import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './review.scss';
@@ -21,7 +21,7 @@ const stickyTable = (columns, rows) => (
           <GridItem span={12 / columns.length} key={cell}>
             {cell}
           </GridItem>
-        ))
+        )),
       )}
     </Grid>
   </div>
@@ -102,7 +102,7 @@ const ReviewStep = () => {
                     intl.formatMessage(messages.permission),
                     intl.formatMessage(enableWorkspacesNameChange ? messages.workspacesDefinition : messages.groupDefinition),
                   ],
-                  groupPermissionsRows
+                  groupPermissionsRows,
                 )}
               </GridItem>
             </Grid>

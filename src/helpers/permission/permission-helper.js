@@ -1,6 +1,6 @@
-import { getPermissionApi } from '../shared/user-login';
+import { getAccessApi } from '../shared/user-login';
 
-const accessApi = getPermissionApi();
+const accessApi = getAccessApi();
 
 const disallowedPermissions = ['inventory:staleness'];
 
@@ -15,7 +15,7 @@ export async function listPermissions(
   excludeGlobals,
   excludeRoles,
   allowedOnly,
-  options
+  options,
 ) {
   const response = await accessApi.listPermissions(
     limit,
@@ -28,7 +28,7 @@ export async function listPermissions(
     excludeGlobals,
     excludeRoles,
     allowedOnly,
-    options
+    options,
   );
 
   return {

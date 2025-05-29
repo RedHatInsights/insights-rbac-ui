@@ -12,6 +12,7 @@ import { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { FETCH_GROUP, FETCH_GROUPS, REMOVE_GROUPS } from '../../../redux/action-types';
 import pathnames from '../../../utilities/pathnames';
 import * as GroupActions from '../../../redux/actions/group-actions';
+import PropTypes from 'prop-types';
 
 jest.mock('../../../redux/actions/group-actions', () => {
   const actions = jest.requireActual('../../../redux/actions/group-actions');
@@ -50,6 +51,9 @@ describe('<RemoveGroupModal />', () => {
       </MemoryRouter>
     </Provider>
   );
+  GroupWrapper.propTypes = {
+    store: PropTypes.object.isRequired,
+  };
 
   beforeEach(() => {
     initialProps = {

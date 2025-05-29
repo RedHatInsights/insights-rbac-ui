@@ -12,12 +12,19 @@ import MUAAccessTable from '../../../smart-components/myUserAccess/MUAAccessTabl
 import * as AccessActions from '../../../redux/actions/access-actions';
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import { GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
+import PropTypes from 'prop-types';
 
 const ContextWrapper = ({ children, store, initialEntries = ['/foo?bundle="bundle"'] }) => (
   <Provider store={store}>
     <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
   </Provider>
 );
+ContextWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  store: PropTypes.object.isRequired,
+  initialEntries: PropTypes.arrayOf(PropTypes.string),
+};
+
 describe('<MUAAccessTable />', () => {
   const mockStore = configureStore([thunk, promiseMiddleware, notificationsMiddleware()]);
 
@@ -81,7 +88,7 @@ describe('<MUAAccessTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
     expect(screen.getAllByRole('row')).toHaveLength(2 + 1); // 2 rows + header
@@ -96,7 +103,7 @@ describe('<MUAAccessTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} showResourceDefinitions />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
 
@@ -116,7 +123,7 @@ describe('<MUAAccessTable />', () => {
     expect(
       screen.getByText('Resource definitions', {
         selector: '.pf-v5-c-modal-box__title-text',
-      })
+      }),
     ).toBeInTheDocument();
 
     act(() => {
@@ -125,7 +132,7 @@ describe('<MUAAccessTable />', () => {
     expect(() =>
       screen.getByText('Resource definitions', {
         selector: '.pf-v5-c-modal-box__title-text',
-      })
+      }),
     ).toThrow();
   });
 
@@ -140,7 +147,7 @@ describe('<MUAAccessTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUAAccessTable filters={filters} {...initialProps} showResourceDefinitions />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
 

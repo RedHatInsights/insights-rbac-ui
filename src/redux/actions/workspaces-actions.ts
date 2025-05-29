@@ -1,5 +1,5 @@
-import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
-import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
+import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { createIntl, createIntlCache } from 'react-intl';
 import * as WorkspacesHelper from '../../helpers/workspaces/workspaces-helper';
 import providerMessages from '../../locales/data.json';

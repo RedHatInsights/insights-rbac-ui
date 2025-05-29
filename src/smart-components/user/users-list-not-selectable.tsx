@@ -1,5 +1,5 @@
-import React, { useEffect, useState, useContext, useRef, useCallback, Suspense } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
+import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../helpers/shared/helpers';
 import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
@@ -7,17 +7,17 @@ import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/a
 import UsersRow from '../../presentational-components/shared/UsersRow';
 import paths from '../../utilities/pathnames';
 import {
-  defaultSettings,
-  defaultAdminSettings,
-  syncDefaultPaginationWithUrl,
   applyPaginationToUrl,
+  defaultAdminSettings,
+  defaultSettings,
   isPaginationPresentInUrl,
+  syncDefaultPaginationWithUrl,
 } from '../../helpers/shared/pagination';
-import { syncDefaultFiltersWithUrl, applyFiltersToUrl, areFiltersPresentInUrl } from '../../helpers/shared/filters';
+import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/shared/filters';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import PermissionsContext from '../../utilities/permissions-context';
-import { createRows, UserProps } from './user-table-helpers';
+import { UserProps, createRows } from './user-table-helpers';
 import { ISortBy } from '@patternfly/react-table';
 import { UserFilters } from '../../redux/reducers/user-reducer';
 import AppLink from '../../presentational-components/shared/AppLink';
@@ -83,7 +83,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
       users: data?.map?.((data: any) => ({ ...data, uuid: data.username })),
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
-    })
+    }),
   );
 
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
@@ -108,7 +108,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           username: '',
           email: '',
           status: [intl.formatMessage(messages.active)],
-        }
+        },
   );
 
   useEffect(() => {
@@ -265,7 +265,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           handleToggle,
           authModel,
           orgAdmin,
-          () => fetchData({ ...pagination, filters, usesMetaInURL })
+          () => fetchData({ ...pagination, filters, usesMetaInURL }),
         )}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
@@ -283,7 +283,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
               if (innerRef !== null && innerRef.current !== null) {
                 innerRef.current.focus();
               }
-            }
+            },
           );
           applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
           usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });

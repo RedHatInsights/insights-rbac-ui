@@ -1,4 +1,4 @@
-import { NavigateFunction, Location } from 'react-router-dom';
+import { Location, NavigateFunction } from 'react-router-dom';
 
 export interface PaginationDefaultI {
   limit?: number;
@@ -61,7 +61,7 @@ export const syncDefaultPaginationWithUrl = (location: Location, navigate: Navig
       pathname: location.pathname,
       search: searchParams.toString(),
     },
-    { replace: true }
+    { replace: true },
   );
   return { ...defaultPagination, limit, offset };
 };
@@ -88,6 +88,6 @@ export const applyPaginationToUrl = (location: Location, navigate: NavigateFunct
     },
     {
       replace: true,
-    }
+    },
   );
 };
