@@ -55,7 +55,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         isActive: true,
       },
     ],
-    [intl]
+    [intl],
   );
 
   useEffect(() => {
@@ -95,7 +95,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
               }
 
               const isDuplicate = allGroups.some(
-                (existingGroup) => existingGroup.name.toLowerCase() === value?.toLowerCase() && existingGroup.uuid !== groupId
+                (existingGroup) => existingGroup.name.toLowerCase() === value?.toLowerCase() && existingGroup.uuid !== groupId,
               );
 
               return isDuplicate ? intl.formatMessage(Messages.groupNameTakenTitle) : undefined;
@@ -129,7 +129,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
         },
       ],
     }),
-    [initialFormData, allGroups, groupId, intl]
+    [initialFormData, allGroups, groupId, intl],
   );
 
   const returnToPreviousPage = () => {

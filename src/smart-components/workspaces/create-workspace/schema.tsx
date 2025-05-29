@@ -2,13 +2,13 @@ import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import { Button, Text } from '@patternfly/react-core';
 import React from 'react';
-import { createIntl, createIntlCache, FormattedMessage } from 'react-intl';
+import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
+import { useSelector } from 'react-redux';
 import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
-import { isWorkspace, Workspace } from '../../../redux/reducers/workspaces-reducer';
-import { useSelector } from 'react-redux';
+import { Workspace, isWorkspace } from '../../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../../redux/store';
 
 // hardcoded for now
@@ -110,7 +110,7 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                   (value: string, currData: unknown | Workspace) => {
                     if (isWorkspace(currData)) {
                       const isDuplicate = allWorkspaces.some(
-                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id
+                        (existingWorkspace) => existingWorkspace.name.toLowerCase() === value?.toLowerCase() && existingWorkspace.id !== currData.id,
                       );
                       return isDuplicate ? intl.formatMessage(messages.workspaceNameTaken) : undefined;
                     }

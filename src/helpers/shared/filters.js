@@ -32,7 +32,7 @@ export const syncDefaultFiltersWithUrl = (location, navigate, keys, defaults = {
     },
     {
       replace: true,
-    }
+    },
   );
   return filters;
 };
@@ -63,6 +63,6 @@ export const applyFiltersToUrl = (location, navigate, newValues) => {
     },
     {
       replace: true,
-    }
+    },
   );
 };

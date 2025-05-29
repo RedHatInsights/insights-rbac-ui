@@ -1,4 +1,6 @@
 import awesomeDebouncePromise from 'awesome-debounce-promise';
 
-export default (asyncFunction: (...args: any[]) => Promise<any>, debounceTime = 250, options = { onlyResolvesLast: false }) =>
+const customDebouncePromise: typeof awesomeDebouncePromise = (asyncFunction, debounceTime = 250, options = { onlyResolvesLast: false }) =>
   awesomeDebouncePromise(asyncFunction, debounceTime, options);
+
+export default customDebouncePromise;

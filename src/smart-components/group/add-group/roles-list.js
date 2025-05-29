@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { useDispatch, useSelector, shallowEqual } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { sortable } from '@patternfly/react-table';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
@@ -22,7 +22,7 @@ const createRows = (data, checkedRows = []) => {
             selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
           },
         ],
-        []
+        [],
       )
     : [];
 };
@@ -68,7 +68,7 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded, groupId: gr
   const fetchRoles = useCallback(
     (groupId, config) =>
       rolesExcluded ? dispatch(fetchAddRolesForGroup(groupId, config)) : dispatch(fetchRolesWithPolicies(mappedProps({ ...config, chrome }))),
-    [rolesExcluded]
+    [rolesExcluded],
   );
   const fetchTableData = (groupId, config) => {
     const { name, count, limit, offset, orderBy } = config;
@@ -103,7 +103,7 @@ const RolesList = ({ selectedRoles, setSelectedRoles, rolesExcluded, groupId: gr
                     ...acc,
                     [curr.key]: curr.value,
                   }),
-                  {}
+                  {},
                 ),
               }
             : { name: filterValue }),

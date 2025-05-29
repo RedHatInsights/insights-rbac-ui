@@ -1,5 +1,5 @@
 import React from 'react';
-import { EmptyState, EmptyStateBody, EmptyStateIcon, EmptyStateVariant, EmptyStateHeader, EmptyStateFooter } from '@patternfly/react-core';
+import { EmptyState, EmptyStateBody, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon, EmptyStateVariant } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 
 interface EmptyWithActionProps {

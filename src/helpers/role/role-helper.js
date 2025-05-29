@@ -34,7 +34,7 @@ export function fetchRoles({
     username,
     application,
     permission,
-    options
+    options,
   );
 }
 
@@ -66,7 +66,7 @@ export async function fetchRolesWithPolicies({
     username,
     application,
     permission,
-    options
+    options,
   );
 
   const isPaginationValid = isOffsetValid(offset, roles?.meta?.count);
@@ -86,7 +86,7 @@ export async function fetchRolesWithPolicies({
         username,
         application,
         permission,
-        options
+        options,
       );
 
   return {

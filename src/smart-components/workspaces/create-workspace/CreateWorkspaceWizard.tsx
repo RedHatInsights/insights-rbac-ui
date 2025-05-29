@@ -1,15 +1,15 @@
+import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
+import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
+import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
+import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
+import { useFlag } from '@unleash/proxy-client-react';
 import React from 'react';
 import { useDispatch } from 'react-redux';
-import { useFlag } from '@unleash/proxy-client-react';
-import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
-import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
-import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
-import FormTemplateCommonProps from '@data-driven-forms/common/form-template';
-import { schemaBuilder, WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT } from './schema';
 import { createWorkspace } from '../../../redux/actions/workspaces-actions';
-import SetEarMark from './SetEarMark';
 import Review from './Review';
+import { WORKSPACE_DESCRIPTION, WORKSPACE_NAME, WORKSPACE_PARENT, schemaBuilder } from './schema';
 import SetDetails from './SetDetails';
+import SetEarMark from './SetEarMark';
 
 export interface CreateWorkspaceWizardProps {
   afterSubmit: () => void;
@@ -36,7 +36,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
         name: values[WORKSPACE_NAME],
         description: values[WORKSPACE_DESCRIPTION],
         parent_id: values[WORKSPACE_PARENT].id,
-      })
+      }),
     );
     afterSubmit();
   };

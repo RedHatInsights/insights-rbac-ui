@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import PropTypes from 'prop-types';
-import { Text, TextContent, TextVariants, Flex, FlexItem } from '@patternfly/react-core';
+import { Flex, FlexItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
 import RbacBreadcrumbs from './breadcrumbs';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';

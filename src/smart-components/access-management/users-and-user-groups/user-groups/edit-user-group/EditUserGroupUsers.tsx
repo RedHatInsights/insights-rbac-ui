@@ -57,7 +57,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
       intl.formatMessage(Messages.lastName),
       intl.formatMessage(Messages.status),
     ],
-    [intl]
+    [intl],
   );
 
   const selection = useDataViewSelection({
@@ -90,7 +90,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
           user.is_active ? intl.formatMessage(Messages.active) : intl.formatMessage(Messages.inactive),
         ],
       })),
-    [users, groupId]
+    [users, groupId],
   );
 
   const fetchData = useCallback(
@@ -98,7 +98,7 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
       const { count, limit, offset, orderBy } = apiProps;
       dispatch(fetchUsers({ ...mappedProps({ count, limit, offset, orderBy }), usesMetaInURL: true }));
     },
-    [dispatch]
+    [dispatch],
   );
 
   useEffect(() => {

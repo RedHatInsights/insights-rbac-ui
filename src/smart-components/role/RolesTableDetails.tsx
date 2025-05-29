@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { Role } from '../../redux/reducers/role-reducer';
-import { DrawerActions, DrawerCloseButton, DrawerHead, DrawerPanelContent, Popover, Title, Tabs, TabTitleText, Tab } from '@patternfly/react-core';
+import { DrawerActions, DrawerCloseButton, DrawerHead, DrawerPanelContent, Popover, Tab, TabTitleText, Tabs, Title } from '@patternfly/react-core';
 import { EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
 import Messages from '../../Messages';

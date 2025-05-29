@@ -85,7 +85,7 @@ ResourceDefinitionsModal.propTypes = {
       attributeFilter: PropTypes.shape({
         value: PropTypes.string.isRequired,
       }).isRequired,
-    })
+    }),
   ).isRequired,
 };
 

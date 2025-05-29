@@ -10,6 +10,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import AddGroupWizard, { onCancel } from '../../../../smart-components/group/add-group/add-group-wizard';
 import { defaultSettings } from '../../../../helpers/shared/pagination';
+import PropTypes from 'prop-types';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {
   return {
@@ -38,7 +39,10 @@ describe('<AddGroupWizard />', () => {
       </MemoryRouter>
     </Provider>
   );
-
+  GroupWrapper.propTypes = {
+    children: PropTypes.node.isRequired,
+    store: PropTypes.object.isRequired,
+  };
   beforeEach(() => {
     initialProps = {
       uuid: '123',
@@ -81,7 +85,7 @@ describe('<AddGroupWizard />', () => {
       const { container: ci } = render(
         <GroupWrapper store={store}>
           <AddGroupWizard {...initialProps} />
-        </GroupWrapper>
+        </GroupWrapper>,
       );
       container = ci;
     });

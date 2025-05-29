@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useContext, useRef, Suspense, Fragment, useCallback } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { Outlet, createSearchParams, useParams } from 'react-router-dom';
@@ -35,7 +35,7 @@ const createRows = (data = [], checkedRows = []) =>
         selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
       },
     ],
-    []
+    [],
   );
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({

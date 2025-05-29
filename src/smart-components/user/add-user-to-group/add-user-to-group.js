@@ -1,8 +1,8 @@
-import React, { useRef, useContext, useState, useEffect, Fragment } from 'react';
+import React, { Fragment, useContext, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Modal, Button, ModalVariant, Alert } from '@patternfly/react-core';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { Alert, Button, Modal, ModalVariant } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -27,7 +27,7 @@ const AddUserToGroup = ({ username }) => {
       filters: groups?.filters || '',
       isLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const textFilterRef = useRef(null);
@@ -59,7 +59,7 @@ const AddUserToGroup = ({ username }) => {
           selected: Boolean(selectedRows && selectedRows.find((row) => row.uuid === uuid)),
         },
       ],
-      []
+      [],
     );
 
   const fetchData = (options) => dispatch(fetchGroups({ ...options, excludeUsername: username, chrome }));
@@ -85,7 +85,7 @@ const AddUserToGroup = ({ username }) => {
         title: intl.formatMessage(messages.addingGroupMemberTitle),
         dismissDelay: 8000,
         description: intl.formatMessage(messages.addingGroupMemberCancelled),
-      })
+      }),
     );
     navigate({ pathname: pathnames['user-detail'].link.replace(':username', username) });
   };

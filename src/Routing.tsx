@@ -1,13 +1,13 @@
-import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
-import React, { lazy, Suspense, useEffect, useMemo } from 'react';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
+import React, { Suspense, lazy, useEffect, useMemo } from 'react';
+import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
+import { mergeToBasename } from './presentational-components/shared/AppLink';
 import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
+import ElementWrapper from './smart-components/common/ElementWrapper';
+import EditWorkspaceModal from './smart-components/workspaces/EditWorkspaceModal';
 import pathnames from './utilities/pathnames';
 import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
-import ElementWrapper from './smart-components/common/ElementWrapper';
-import { mergeToBasename } from './presentational-components/shared/AppLink';
-import { useFlag } from '@unleash/proxy-client-react';
-import EditWorkspaceModal from './smart-components/workspaces/EditWorkspaceModal';
 
 const Overview = lazy(() => import('./smart-components/overview/overview'));
 
@@ -218,7 +218,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     childRoutes: [
       {
         path: pathnames['group-detail'].path,
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+
         // @ts-ignore
         element: (({ groupId }) => <Navigate to={mergeToBasename(pathnames['group-detail-roles'].link).replace(':groupId', groupId)} />) as React.FC,
       },
@@ -301,7 +301,14 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     ],
   },
 
-  ...(localStorage.getItem('quickstarts:enabled') === 'true' ? [{ path: pathnames['quickstarts-test'].path, element: QuickstartsTest }] : []),
+  ...(localStorage.getItem('quickstarts:enabled') === 'true'
+    ? [
+        {
+          path: pathnames['quickstarts-test'].path,
+          element: QuickstartsTest,
+        },
+      ]
+    : []),
 ];
 
 interface RouteType {
@@ -345,15 +352,21 @@ const Routing = () => {
             path: item.path,
             end: true,
           },
-          location.pathname
-        )
+          location.pathname,
+        ),
     );
     if (currPath?.title) {
       updateDocumentTitle(`${currPath.title} - User Access`);
     }
   }, [location.pathname, updateDocumentTitle]);
 
-  const routes = getRoutes({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails });
+  const routes = getRoutes({
+    enableServiceAccounts,
+    isITLess,
+    isWorkspacesFlag,
+    isCommonAuthModel,
+    hideWorkspaceDetails,
+  });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 
   const { getBundle, getApp } = useChrome();

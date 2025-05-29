@@ -19,7 +19,7 @@ const RbacBreadcrumbs = (breadcrumbs) => {
           </BreadcrumbItem>
         ) : (
           <BreadcrumbPlaceholder key={index} />
-        )
+        ),
       )}
     </Breadcrumb>
   ) : null;

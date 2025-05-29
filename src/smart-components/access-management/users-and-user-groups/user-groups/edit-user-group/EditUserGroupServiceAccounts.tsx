@@ -1,19 +1,20 @@
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
-import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
-import { useDispatch, useSelector } from 'react-redux';
-import { fetchServiceAccountsForGroup } from '../../../../../redux/actions/group-actions';
-import { mappedProps } from '../../../../../helpers/shared/helpers';
-import { fetchServiceAccounts } from '../../../../../redux/actions/service-account-actions';
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { ServiceAccountsState } from '../../../../../redux/reducers/service-account-reducer';
-import { LAST_PAGE, ServiceAccount } from '../../../../../helpers/service-account/service-account-helper';
 import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { TableState } from './EditUserGroupUsersAndServiceAccounts';
-import Messages from '../../../../../Messages';
-import { FormattedMessage, useIntl } from 'react-intl';
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { SearchIcon } from '@patternfly/react-icons';
+import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { LAST_PAGE } from '../../../../../helpers/service-account/constants';
+import { ServiceAccount } from '../../../../../helpers/service-account/types';
+import { mappedProps } from '../../../../../helpers/shared/helpers';
+import Messages from '../../../../../Messages';
+import { fetchServiceAccountsForGroup } from '../../../../../redux/actions/group-actions';
+import { fetchServiceAccounts } from '../../../../../redux/actions/service-account-actions';
+import { ServiceAccountsState } from '../../../../../redux/reducers/service-account-reducer';
+import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
@@ -73,7 +74,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
       intl.formatMessage(Messages.owner),
       intl.formatMessage(Messages.timeCreated),
     ],
-    [intl]
+    [intl],
   );
 
   const selection = useDataViewSelection({
@@ -112,7 +113,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
         dispatch(fetchServiceAccountsForGroup(groupId, {}));
       }
     },
-    [dispatch, groupId]
+    [dispatch, groupId],
   );
 
   useEffect(() => {
@@ -137,7 +138,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
           <DateFormat key={`${account.name}-date`} date={account.createdAt} />,
         ],
       })),
-    [processedServiceAccounts, groupId]
+    [processedServiceAccounts, groupId],
   );
 
   useEffect(() => {

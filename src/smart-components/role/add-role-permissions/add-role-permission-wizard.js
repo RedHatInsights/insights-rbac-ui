@@ -92,20 +92,20 @@ const AddRolePermissionWizard = ({ role }) => {
                       },
                     ]
                   : permission.includes('cost-management')
-                  ? [
-                      {
-                        attributeFilter: {
-                          key: `cost-management.${permission.split(':')[1]}`,
-                          operation: 'in',
-                          value: costResources?.find((r) => r.permission === permission).resources,
+                    ? [
+                        {
+                          attributeFilter: {
+                            key: `cost-management.${permission.split(':')[1]}`,
+                            operation: 'in',
+                            value: costResources?.find((r) => r.permission === permission).resources,
+                          },
                         },
-                      },
-                    ]
-                  : []
+                      ]
+                    : []
                 : [],
             })),
           ],
-          role.access
+          role.access,
         ),
       ],
       accessCount: role.accessCount + selectedPermissions.length,

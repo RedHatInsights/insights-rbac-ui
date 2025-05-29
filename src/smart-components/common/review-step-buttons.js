@@ -1,5 +1,5 @@
 import { Button } from '@patternfly/react-core';
-import React, { useContext, Fragment } from 'react';
+import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
@@ -8,7 +8,7 @@ const selectNext = (nextStep, getState) =>
   ({
     string: nextStep,
     function: nextStep({ values: getState().values }),
-  }?.[typeof nextStep] || nextStep.stepMapper?.[get(getState().values, nextStep.when)]);
+  })?.[typeof nextStep] || nextStep.stepMapper?.[get(getState().values, nextStep.when)];
 
 const NextButton = ({ nextStep, valid, handleNext, nextLabel, getState, handleSubmit, submitLabel }) => (
   <Button

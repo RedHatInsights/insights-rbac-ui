@@ -2,7 +2,7 @@ import React from 'react';
 import { Route, MemoryRouter as Router, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import { act } from 'react-dom/test-utils';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
@@ -52,7 +52,7 @@ describe('<Users />', () => {
             <Route path="/users/*" element={<Users />} />
           </Routes>
         </Router>
-      </Provider>
+      </Provider>,
     );
     expect(screen.getAllByText('Username')).toHaveLength(2);
     expect(fetchUsersSpy).toHaveBeenCalledWith({
@@ -77,7 +77,7 @@ describe('<Users />', () => {
           </Routes>
         </Router>
         ,
-      </Provider>
+      </Provider>,
     );
     const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
     expect(store.getActions()).toEqual(expectedPayload);
@@ -107,7 +107,7 @@ describe('<Users />', () => {
               <Route path="/users/*" element={<Users />} />
             </Routes>
           </Router>
-        </Provider>
+        </Provider>,
       );
     });
     store.clearActions();
@@ -143,7 +143,7 @@ describe('<Users />', () => {
             <Route path="/users/*" element={<Users />} />
           </Routes>
         </Router>
-      </Provider>
+      </Provider>,
     );
     const target = screen.getByRole('textbox');
 

@@ -11,12 +11,14 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import MUARolesTable from '../../../smart-components/myUserAccess/MUARolesTable';
 import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
 import * as RoleActions from '../../../redux/actions/role-actions';
-import { FETCH_ROLES, FETCH_ROLE_FOR_PRINCIPAL } from '../../../redux/action-types';
+import { FETCH_ROLE_FOR_PRINCIPAL, FETCH_ROLES } from '../../../redux/action-types';
 
 /**
  * Mock debounce to remove tomers shenanigans
  */
 import debouce from 'lodash/debounce';
+import PropTypes from 'prop-types';
+
 jest.mock('lodash/debounce');
 debouce.mockImplementation((fn) => fn);
 
@@ -25,6 +27,15 @@ const ContextWrapper = ({ children, store, initialEntries = ['/foo?bundle="bundl
     <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>
   </Provider>
 );
+ContextWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  store: PropTypes.object.isRequired,
+  initialEntries: PropTypes.arrayOf(PropTypes.string),
+};
+
+ContextWrapper.defaultProps = {
+  initialEntries: ['/foo?bundle="bundle"'],
+};
 
 describe('<MUARolesTable />', () => {
   const mockStore = configureStore([thunk, promiseMiddleware, notificationsMiddleware()]);
@@ -104,7 +115,7 @@ describe('<MUARolesTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
 
@@ -119,7 +130,7 @@ describe('<MUARolesTable />', () => {
       await render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
 
@@ -151,7 +162,7 @@ describe('<MUARolesTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} showResourceDefinitions />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
 
@@ -166,7 +177,7 @@ describe('<MUARolesTable />', () => {
     expect(() =>
       screen.getByText('Resource definitions', {
         selector: '.pf-v5-c-modal-box__title-text',
-      })
+      }),
     ).toThrow();
     await act(async () => {
       fireEvent.click(screen.getByText(1, { selector: 'a' }));
@@ -180,7 +191,7 @@ describe('<MUARolesTable />', () => {
     expect(
       screen.getByText('Resource definitions', {
         selector: '.pf-v5-c-modal-box__title-text',
-      })
+      }),
     ).toBeInTheDocument();
     await act(async () => {
       fireEvent.click(screen.getByText('Close'));
@@ -188,7 +199,7 @@ describe('<MUARolesTable />', () => {
     expect(() =>
       screen.getByText('Resource definitions', {
         selector: '.pf-v5-c-modal-box__title-text',
-      })
+      }),
     ).toThrow();
   });
 
@@ -200,7 +211,7 @@ describe('<MUARolesTable />', () => {
       render(
         <ContextWrapper store={mockStore(initialState)}>
           <MUARolesTable filters={filters} {...initialProps} />
-        </ContextWrapper>
+        </ContextWrapper>,
       );
     });
     await act(async () => {
@@ -225,7 +236,17 @@ describe('<MUARolesTable />', () => {
     expect(fetchRolesSpy).toHaveBeenCalledTimes(2);
     expect(fetchRolesSpy.mock.calls).toEqual([
       [{ application: 'app1,app2', limit: 20, offset: 0, scope: 'principal', orderBy: 'display_name' }],
-      [{ application: 'app2', limit: undefined, name: '', offset: 0, permission: undefined, scope: 'principal', orderBy: 'display_name' }],
+      [
+        {
+          application: 'app2',
+          limit: undefined,
+          name: '',
+          offset: 0,
+          permission: undefined,
+          scope: 'principal',
+          orderBy: 'display_name',
+        },
+      ],
     ]);
   });
 });

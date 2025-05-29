@@ -1,6 +1,6 @@
 import React, { Fragment, Suspense, useEffect, useRef, useState } from 'react';
 import PropTypes from 'prop-types';
-import { useSelector, useDispatch, shallowEqual } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
@@ -26,7 +26,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
       permissions: state.accessReducer.access,
       isLoading: state.accessReducer.isLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const fetchData = ({ application, ...apiProps }) => {
@@ -71,7 +71,7 @@ const MUAAccessTable = ({ filters, setFilters, apps, hasActiveFilters, showResou
                       ...acc,
                       [curr.key]: curr.value,
                     }),
-                    {}
+                    {},
                   ),
                 }
               : { name: '', application: [] }),

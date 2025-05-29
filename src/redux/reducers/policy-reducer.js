@@ -1,4 +1,4 @@
-import { FETCH_POLICY, FETCH_GROUP_POLICIES } from '../../redux/action-types';
+import { FETCH_GROUP_POLICIES, FETCH_POLICY } from '../../redux/action-types';
 
 // Initial State
 export const policiesInitialState = {

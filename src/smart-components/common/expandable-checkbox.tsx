@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFormApi } from '@data-driven-forms/react-form-renderer';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
-import { ExpandableSection, Checkbox, FormGroup, Radio, Tooltip } from '@patternfly/react-core';
+import { Checkbox, ExpandableSection, FormGroup, Radio, Tooltip } from '@patternfly/react-core';
 import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/dynamic/icons/outlined-question-circle-icon';
 
 export type ExpandableCheckboxItemType = {

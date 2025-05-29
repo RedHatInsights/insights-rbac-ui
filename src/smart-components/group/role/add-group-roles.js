@@ -52,7 +52,7 @@ const AddGroupRoles = ({
         title: intl.formatMessage(messages.addingGroupRolesTitle),
         dismissDelay: 8000,
         description: intl.formatMessage(messages.addingGroupRolesCancelled),
-      })
+      }),
     );
     navigate(closeUrl);
   };

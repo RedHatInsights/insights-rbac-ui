@@ -1,5 +1,5 @@
 import GithubIcon from '@patternfly/react-icons/dist/js/icons/github-icon';
-import React from 'react'; //eslint-disable-line
+import React from 'react';
 // importing due to web-pack config not defined error
 
 const monitorSampleAppQuickStart = {

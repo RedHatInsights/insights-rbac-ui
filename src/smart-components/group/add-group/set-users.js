@@ -1,4 +1,4 @@
-import React, { Fragment, useState, useEffect } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';

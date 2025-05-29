@@ -54,7 +54,7 @@ describe('RoleResourceDefinitions - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(screen.getByLabelText('resources table')).toMatchSnapshot();
@@ -71,7 +71,7 @@ describe('RoleResourceDefinitions - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     const expectedActions = [
@@ -97,7 +97,7 @@ describe('RoleResourceDefinitions - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     const expectedActions = [
@@ -168,7 +168,7 @@ describe('RoleResourceDefinitions - Inventory', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId" element={<ResourceDefinitions />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(screen.getByText('Ungrouped systems')).toBeInTheDocument();

@@ -1,7 +1,7 @@
 import groupReducer, { groupsInitialState } from '../../../redux/reducers/group-reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_GROUPS, FETCH_GROUP, FETCH_ROLES_FOR_GROUP, FETCH_MEMBERS_FOR_GROUP, FETCH_ADD_ROLES_FOR_GROUP } from '../../../redux/action-types';
+import { FETCH_ADD_ROLES_FOR_GROUP, FETCH_GROUP, FETCH_GROUPS, FETCH_MEMBERS_FOR_GROUP, FETCH_ROLES_FOR_GROUP } from '../../../redux/action-types';
 
 describe('Group reducer', () => {
   let initialState;

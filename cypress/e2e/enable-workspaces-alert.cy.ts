@@ -8,7 +8,7 @@ describe('Workspaces Alert confirm path', { testIsolation: false }, () => {
   it('should be visible', () => {
     cy.get('[data-ouia-component-id="enable-workspaces-alert"]').should(
       'include.text',
-      'You are qualified to opt into the workspace user access model for your organization.'
+      'You are qualified to opt into the workspace user access model for your organization.',
     );
   });
 

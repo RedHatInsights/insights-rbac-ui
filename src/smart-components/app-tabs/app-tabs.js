@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tabs, Tab } from '@patternfly/react-core';
+import { Tab, Tabs } from '@patternfly/react-core';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './app-tabs.scss';
 

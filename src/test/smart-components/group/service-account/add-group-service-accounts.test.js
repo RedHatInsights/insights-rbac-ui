@@ -10,6 +10,7 @@ import * as ServiceAccountsHelper from '../../../../helpers/service-account/serv
 import AddGroupServiceAccounts from '../../../../smart-components/group/service-account/add-group-service-accounts';
 import { serviceAccountsInitialState } from '../../../../redux/reducers/service-account-reducer';
 import * as useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { RESULTS } from '../../../../helpers/service-account/constants';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {
   return {
@@ -50,7 +51,7 @@ describe('<AddGroupServiceAccounts />', () => {
       data: [],
       limit: 1,
       offset: 0,
-      status: ServiceAccountsHelper.RESULTS,
+      status: RESULTS,
     };
     mockStore = configureStore(middlewares);
   });
@@ -71,7 +72,7 @@ describe('<AddGroupServiceAccounts />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/service-accounts/add-service-account']}>
           <AddGroupServiceAccounts />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(container.baseElement).toMatchSnapshot();
     expect(screen.getByText('No service accounts found')).toBeInTheDocument();
@@ -104,7 +105,7 @@ describe('<AddGroupServiceAccounts />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/service-accounts/add-service-account']}>
           <AddGroupServiceAccounts />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(container.baseElement).toMatchSnapshot();
     expect(screen.getAllByText('just-created')).toHaveLength(2);

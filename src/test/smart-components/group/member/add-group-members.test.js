@@ -100,7 +100,7 @@ describe('<AddGroupMembers />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(container.baseElement).toMatchSnapshot();
   });
@@ -113,7 +113,7 @@ describe('<AddGroupMembers />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(container.baseElement).toMatchSnapshot();
   });
@@ -127,7 +127,7 @@ describe('<AddGroupMembers />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     const expectedPayload = [expect.objectContaining({ type: 'FETCH_USERS_PENDING' })];
     expect(store.getActions()).toEqual(expectedPayload);
@@ -147,7 +147,7 @@ describe('<AddGroupMembers />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     const expectedPayload = [
@@ -174,7 +174,7 @@ describe('<AddGroupMembers />', () => {
         <MemoryRouter initialEntries={['/groups/detail/test-group/members/add-members']}>
           <AddGroupMembers />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
 
     const expectedPayload = [

@@ -1,5 +1,5 @@
 import { RBAC_API_BASE } from '../../utilities/constants';
-import { getPolicyApi, getAxiosInstance } from '../shared/user-login';
+import { getAxiosInstance, getPolicyApi } from '../shared/user-login';
 
 const policyApi = getPolicyApi();
 const axiosInstance = getAxiosInstance();

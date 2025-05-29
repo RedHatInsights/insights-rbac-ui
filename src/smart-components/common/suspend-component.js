@@ -1,11 +1,11 @@
-import React, { Suspense, Fragment } from 'react';
+import React, { Fragment, Suspense } from 'react';
 import PropTypes from 'prop-types';
 
 const asyncComponent = (asyncFunction, callback, props) =>
   React.lazy(() =>
     asyncFunction().then((data) => ({
       default: () => callback(data, props),
-    }))
+    })),
   );
 
 const SuspendComponent = ({ asyncFunction, callback, fallback, ...props }) => {

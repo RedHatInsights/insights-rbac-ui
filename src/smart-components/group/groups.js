@@ -1,18 +1,18 @@
-import React, { Suspense, useContext, useEffect, useRef, useCallback, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { nowrap, sortable, compoundExpand } from '@patternfly/react-table';
+import { compoundExpand, nowrap, sortable } from '@patternfly/react-table';
 import { Button, Stack, StackItem } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows } from './group-table-helpers';
 import {
   fetchAdminGroup,
   fetchGroups,
-  fetchRolesForExpandedGroup,
   fetchMembersForExpandedGroup,
+  fetchRolesForExpandedGroup,
   fetchSystemGroup,
 } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
@@ -82,7 +82,7 @@ const Groups = () => {
       isLoading,
       systemGroup,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const [filterValue, setFilterValue] = useState(filters?.name || '');
@@ -120,7 +120,7 @@ const Groups = () => {
     setSelectedRows((rows) =>
       newSelection(rows)
         .filter(({ platform_default: isPlatformDefault, admin_default: isAdminDefault }) => !(isPlatformDefault || isAdminDefault))
-        .map(({ uuid, name }) => ({ uuid, name }))
+        .map(({ uuid, name }) => ({ uuid, name })),
     );
   };
 
@@ -175,9 +175,9 @@ const Groups = () => {
                 mergeToBasename(
                   pathnames['remove-group'].link.replace(
                     ':groupId',
-                    selectedRows.map(({ uuid }) => uuid)
-                  )
-                )
+                    selectedRows.map(({ uuid }) => uuid),
+                  ),
+                ),
               );
             },
           },
@@ -186,7 +186,7 @@ const Groups = () => {
   ];
 
   const data = groups.map((group) =>
-    group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group
+    group.platform_default || group.admin_default ? { ...group, principalCount: `All${group.admin_default ? ' org admins' : ''}` } : group,
   );
 
   const fetchExpandedRoles = useCallback((uuid, flags) => dispatch(fetchRolesForExpandedGroup(uuid, { limit: 100 }, flags)), [dispatch]);

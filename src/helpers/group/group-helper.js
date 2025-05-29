@@ -38,7 +38,7 @@ export async function fetchGroups({
       platformDefault,
       adminDefault,
       system,
-      options
+      options,
     ),
     chrome?.auth?.getUser(),
   ]);
@@ -60,7 +60,7 @@ export async function fetchGroups({
         options,
         system,
         platformDefault,
-        adminDefault
+        adminDefault,
       );
   return {
     ...response,
@@ -127,7 +127,7 @@ export async function fetchRolesForGroup(groupId, excluded, { limit, offset, nam
     limit || undefined,
     offset || undefined,
     'display_name',
-    options
+    options,
   );
 }
 
@@ -153,7 +153,7 @@ export async function fetchAccountsForGroup(groupId, options = {}) {
     options.serviceAccountClientIds ? undefined : 'service-account',
     options.serviceAccountClientIds,
     options.description,
-    options.name
+    options.name,
   );
 }
 

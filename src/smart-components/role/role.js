@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Button, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
@@ -42,7 +42,7 @@ const Role = ({ onDelete }) => {
       groupsPagination: state.groupReducer?.groups?.pagination || defaultSettings,
       groupsFilters: state.groupReducer?.groups?.filters || {},
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const roleExists = useSelector((state) => {
@@ -111,8 +111,8 @@ const Role = ({ onDelete }) => {
           ]
         : [undefined]
       : groupExists || !groupId
-      ? []
-      : [{ title: intl.formatMessage(messages.invalidGroup), isActive: true }]),
+        ? []
+        : [{ title: intl.formatMessage(messages.invalidGroup), isActive: true }]),
 
     ...(groupExists || !groupId
       ? [

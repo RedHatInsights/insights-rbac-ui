@@ -1,6 +1,6 @@
 import React, { Fragment, useRef, useState } from 'react';
-import { OutlinedQuestionCircleIcon, CheckIcon, CloseIcon } from '@patternfly/react-icons';
-import { Popover, TextContent, Label, Text } from '@patternfly/react-core';
+import { CheckIcon, CloseIcon, OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
+import { Label, Popover, Text, TextContent } from '@patternfly/react-core';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { useIntl } from 'react-intl';
@@ -78,7 +78,7 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         isLoadingRoles,
         isLoadingMembers,
       },
-      i
+      i,
     ) => {
       const compoundRolesId = `compound-roles-${uuid}`;
       const compoundMembersId = `compound-members-${uuid}`;
@@ -216,6 +216,6 @@ export const createRows = (isAdmin, data, selectedRows, expanded = []) => {
         },
       ];
     },
-    []
+    [],
   );
 };

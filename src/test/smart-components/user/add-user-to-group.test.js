@@ -7,7 +7,7 @@ import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import * as groupActions from '../../../redux/actions/group-actions';
 import AddUserToGroup from '../../../smart-components/user/add-user-to-group/add-user-to-group';
-import { FETCH_GROUPS, ADD_MEMBERS_TO_GROUP } from '../../../redux/action-types.js';
+import { ADD_MEMBERS_TO_GROUP, FETCH_GROUPS } from '../../../redux/action-types.js';
 import PermissionsContext from '../../../utilities/permissions-context';
 import messages from '../../../Messages';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -35,7 +35,7 @@ const renderComponent = (userName = 'testuser', store, isAdmin = true) => {
           <AddUserToGroup username={userName} />
         </PermissionsContext.Provider>
       </MemoryRouter>
-    </Provider>
+    </Provider>,
   );
 };
 
@@ -153,7 +153,7 @@ describe('Add User to Group Wizard', () => {
         title: messages.addingGroupMemberTitle.defaultMessage,
         dismissDelay: 8000,
         description: messages.addingGroupMemberCancelled.defaultMessage,
-      })
+      }),
     );
   });
 

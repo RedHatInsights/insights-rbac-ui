@@ -1,13 +1,13 @@
-import React, { useCallback, useState, useEffect, useMemo } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import PropTypes from 'prop-types';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
-import { listPermissions, listPermissionOptions, expandSplats, resetExpandSplats } from '../../../redux/actions/permission-action';
+import { expandSplats, listPermissionOptions, listPermissions, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { fetchResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';
 import { DisabledRowWrapper } from './DisabledRowWrapper';
@@ -76,7 +76,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         ...apiProps,
         ...(existingRoleId ? { exclude_roles: existingRoleId } : {}),
         allowed_only: true,
-      })
+      }),
     );
   const fetchOptions = (apiProps) => dispatch(listPermissionOptions({ ...apiProps, allowedOnly: true }));
   const {
@@ -141,9 +141,9 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      2000
+      2000,
     ),
-    []
+    [],
   );
   const debouncedGetResourceOptions = useCallback(
     debouncePromise(
@@ -155,17 +155,17 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           resourceType: resources.join(),
           verb: operations.join(),
         }),
-      2000
+      2000,
     ),
-    []
+    [],
   );
   const debouncedGetOperationOptions = useCallback(
     debouncePromise(
       ({ applications, resources, operations }) =>
         fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
-      2000
+      2000,
     ),
-    []
+    [],
   );
 
   useEffect(() => {
@@ -232,7 +232,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
       }) || [];
     formOptions.change(
       'not-allowed-permissions',
-      notAllowed.map(({ permission }) => permission)
+      notAllowed.map(({ permission }) => permission),
     );
     if (expandedPermissions.length === 0 && typeof isLoadingExpandSplats === 'undefined') {
       const applications = [...new Set(basePermissions.map(({ permission }) => permission.split(':')[0]))];
@@ -243,7 +243,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
         expandedPermissions
           .filter((p) => p.split(':')[0] !== 'cost-management' || (getResourceType(p) || { count: 0 }).count !== 0) // filter disabled rows
           .filter((p) => patterns.some((f) => p.match(f))) // filter permissions with unresolved splats
-          .map((permission) => ({ uuid: permission }))
+          .map((permission) => ({ uuid: permission })),
       );
       formOptions.change('base-permissions-loaded', true);
     }
@@ -265,7 +265,7 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           [curr]: true,
         },
       }),
-      { '': {} }
+      { '': {} },
     );
 
   const preparedFilterItems = {

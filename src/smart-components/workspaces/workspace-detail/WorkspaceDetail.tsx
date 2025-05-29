@@ -74,7 +74,7 @@ const WorkspaceDetail = () => {
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
     const selectedTabKey = Object.keys(WORKSPACE_TABS).find(
-      (tab): tab is keyof typeof WORKSPACE_TABS => WORKSPACE_TABS[tab as keyof typeof WORKSPACE_TABS] === key
+      (tab): tab is keyof typeof WORKSPACE_TABS => WORKSPACE_TABS[tab as keyof typeof WORKSPACE_TABS] === key,
     );
     if (selectedTabKey && selectedTabKey !== activeTabString) {
       setSearchParams({ activeTab: selectedTabKey });

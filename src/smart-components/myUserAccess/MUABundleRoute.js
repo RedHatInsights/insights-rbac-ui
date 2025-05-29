@@ -11,9 +11,7 @@ const MuaBundleRoute = () => {
 
   useEffect(() => {
     if (!Object.prototype.hasOwnProperty.call(bundleComponents, bundle)) {
-      import(`./bundles/${bundle}`)
-        .then((module) => setBundleComponents((prev) => ({ ...prev, [bundle]: module.default })))
-        .catch(console.log);
+      import(`./bundles/${bundle}`).then((module) => setBundleComponents((prev) => ({ ...prev, [bundle]: module.default }))).catch(console.log);
     }
   }, [bundle]);
 
