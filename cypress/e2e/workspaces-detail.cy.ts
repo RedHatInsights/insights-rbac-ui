@@ -2,7 +2,7 @@ describe('Workspaces page', () => {
   const mockWorkspaces = {
     meta: {
       count: 1,
-      limit: 100,
+      limit: 10000,
       offset: 0,
     },
     data: [
@@ -22,13 +22,13 @@ describe('Workspaces page', () => {
     cy.login(true);
 
     // mock the workspaces
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/?limit=100', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
       statusCode: 200,
       body: mockWorkspaces,
     }).as('getWorkspaces');
 
     // mock the workspace
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/asd-sda-asd-dsa-asd', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/asd-sda-asd-dsa-asd/*', {
       statusCode: 200,
       body: mockWorkspaces.data[0],
     }).as('getWorkspace');
