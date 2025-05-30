@@ -2,7 +2,7 @@ describe('Filter workspaces', () => {
   const mockWorkspaces = {
     meta: {
       count: 3,
-      limit: 100,
+      limit: 10000,
       offset: 0,
     },
     data: [
@@ -40,7 +40,7 @@ describe('Filter workspaces', () => {
     cy.login();
 
     // mock the workspaces
-    cy.intercept('GET', '**/api/rbac/v2/workspaces/?limit=100', {
+    cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
       statusCode: 200,
       body: mockWorkspaces,
     }).as('getWorkspaces');

@@ -11,7 +11,7 @@ export async function getWorkspaces(config: WorkspacesListParams = {}) {
 }
 
 export async function getWorkspace(workspaceId: string) {
-  return workspacesApi.getWorkspace({ id: workspaceId });
+  return workspacesApi.getWorkspace(workspaceId, false, {});
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
@@ -25,9 +25,9 @@ export async function createWorkspace(config: WorkspaceCreateBody) {
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
-  return workspacesApi.updateWorkspace(config);
+  return workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
 }
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
-  return workspacesApi.deleteWorkspace(config);
+  return workspacesApi.deleteWorkspace(config.id, {});
 }
