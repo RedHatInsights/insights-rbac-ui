@@ -1,5 +1,5 @@
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import Workspace from './Workspace';
+import Workspace, { isWorkspace } from './Workspace';
 
 /**
  * Extends the TreeViewDataItem to add the underlying workspace that the data
@@ -17,7 +17,7 @@ interface TreeViewWorkspaceItem extends TreeViewDataItem {
  * @returns whether the given element is a TreeViewWorkspaceItem.
  */
 function instanceOfTreeViewWorkspaceItem(treeViewDataItem: TreeViewDataItem): treeViewDataItem is TreeViewWorkspaceItem {
-  return 'workspace' in treeViewDataItem;
+  return 'workspace' in treeViewDataItem && isWorkspace(treeViewDataItem.workspace);
 }
 
 export { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem };

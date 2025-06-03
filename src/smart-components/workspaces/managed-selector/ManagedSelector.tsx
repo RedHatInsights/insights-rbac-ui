@@ -7,9 +7,9 @@ const ManagedSelector = () => {
   return (
     <WorkspacesStoreProvider>
       <div>
-        <h1>Managed Selector</h1>
-        <p>{JSON.stringify(store)}</p>
+        <p>{isFetchingWorkspacesFromRBAC ? 'fetching' : 'not fetching'}</p>
         <button onClick={() => setIsFetchingWorkspacesFromRBAC(!isFetchingWorkspacesFromRBAC)}>Toggle Fetching Workspaces</button>
+        <p>{JSON.stringify(store)}</p>
       </div>
     </WorkspacesStoreProvider>
   );

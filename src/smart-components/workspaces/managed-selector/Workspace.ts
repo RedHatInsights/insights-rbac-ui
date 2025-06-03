@@ -13,4 +13,20 @@ interface Workspace {
   updated?: string;
 }
 
+export const isWorkspace = (obj: unknown): obj is Workspace => {
+  if (typeof obj !== 'object' || obj === null) {
+    return false;
+  }
+  if (!('id' in obj) || typeof (obj as Workspace).id !== 'string') {
+    return false;
+  }
+  if (!('type' in obj) || !((obj as Workspace).type in WorkspaceType)) {
+    return false;
+  }
+  if (!('name' in obj) || typeof (obj as Workspace).name !== 'string') {
+    return false;
+  }
+  return true;
+}
+
 export default Workspace;
