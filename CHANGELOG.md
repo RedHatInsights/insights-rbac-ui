@@ -1,3 +1,10 @@
+## [1.41.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.1...v1.41.2) (2025-06-04)
+
+
+### Bug Fixes
+
+* use inline style when calling workspaces api ([#1845](https://github.com/RedHatInsights/insights-rbac-ui/issues/1845)) ([3cdae15](https://github.com/RedHatInsights/insights-rbac-ui/commit/3cdae15d1e51a476ee5bee1361ac78c191279857))
+
 ## [1.41.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.0...v1.41.1) (2025-05-27)
 
 
