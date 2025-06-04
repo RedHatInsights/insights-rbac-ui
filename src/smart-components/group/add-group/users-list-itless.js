@@ -140,7 +140,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
   const fetchData = useCallback((apiProps) => dispatch(fetchUsers(apiProps)), [dispatch]);
 
   const confirmDeactivateUsers = () => {
-    toggleUserActivationStatus(false, selectedRows);
+    toggleUserActivationStatus(false, null, selectedRows);
     setIsDeactivateConfirmationModalOpen(false);
     setIsDeactivateConfirmationChecked(false);
   };
@@ -176,7 +176,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
       if (_event?.target?.id === 'deactivate') {
         setIsDeactivateConfirmationModalOpen(true);
       } else {
-        toggleUserActivationStatus(userActivationStatusMap[_event?.target?.id], selectedRows);
+        toggleUserActivationStatus(userActivationStatusMap[_event?.target?.id], null, selectedRows);
       }
       setIsToolbarDropdownOpen(false);
     };
@@ -218,7 +218,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
         ]
       : []),
   ];
-  const toggleUserActivationStatus = (isActivated, users = []) => {
+  const toggleUserActivationStatus = (isActivated, _event, users = []) => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
     const newFilters = usesMetaInURL
       ? syncDefaultFiltersWithUrl(location, navigate, ['username', 'email', 'status'], filters)
@@ -300,7 +300,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
                         labelOff={intl.formatMessage(messages.inactive)}
                         isChecked={is_active}
                         onChange={(checked, _event) => {
-                          toggleUserActivationStatus(checked, [
+                          toggleUserActivationStatus(checked, _event, [
                             {
                               external_source_id,
                               is_active: is_active,
