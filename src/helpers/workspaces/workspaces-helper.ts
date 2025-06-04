@@ -7,27 +7,28 @@ import { getWorkspacesApi } from './api';
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return await workspacesApi.listWorkspaces({ limit: 10000, ...config });
+  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'default', config.options ?? {});
 }
 
 export async function getWorkspace(workspaceId: string) {
-  return workspacesApi.getWorkspace({ id: workspaceId });
+  return workspacesApi.getWorkspace(workspaceId, false, {});
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  return workspacesApi.createWorkspace({
-    workspacesCreateWorkspaceRequest: {
+  return workspacesApi.createWorkspace(
+    {
       parent_id: config.parent_id,
       name: config.name,
       description: config.description,
     },
-  });
+    {},
+  );
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
-  return workspacesApi.updateWorkspace(config);
+  return workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
 }
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
-  return workspacesApi.deleteWorkspace(config);
+  return workspacesApi.deleteWorkspace(config.id, {});
 }
