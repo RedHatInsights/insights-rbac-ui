@@ -1,3 +1,10 @@
+## [1.41.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.2...v1.41.3) (2025-06-04)
+
+
+### Bug Fixes
+
+* **api-arg:** js clients has broken arguments so we have to use list of args ([#1844](https://github.com/RedHatInsights/insights-rbac-ui/issues/1844)) ([e3f2d4a](https://github.com/RedHatInsights/insights-rbac-ui/commit/e3f2d4a02b78c869bd1dab30048f9f4e4402881d))
+
 ## [1.41.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.1...v1.41.2) (2025-06-04)
 
 
