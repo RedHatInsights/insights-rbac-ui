@@ -7,7 +7,7 @@ import { getWorkspacesApi } from './api';
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'default', config.options ?? {});
+  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'all', config.options ?? {});
 }
 
 export async function getWorkspace(workspaceId: string) {
