@@ -145,7 +145,7 @@ const WorkspaceListTable = () => {
   };
 
   const canModify = (workspace: Workspace, action: 'edit' | 'delete') => {
-    if (userPermissions.resourceDefinitions.length === 0 || userPermissions.resourceDefinitions.includes(workspace.id)) {
+    if (userPermissions.permission === 'inventory:groups:write' && (userPermissions.resourceDefinitions.length === 0 || userPermissions.resourceDefinitions.includes(workspace.id))) {
       if (action === 'edit' && isValidEditType(workspace)) {
         return true;
       } else if (action === 'delete' && isValidDeleteType(workspace)) {
