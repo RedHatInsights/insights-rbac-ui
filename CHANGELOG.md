@@ -1,3 +1,10 @@
+## [1.41.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.3...v1.41.4) (2025-06-04)
+
+
+### Bug Fixes
+
+* fetch all workspaces by default ([#1846](https://github.com/RedHatInsights/insights-rbac-ui/issues/1846)) ([7def691](https://github.com/RedHatInsights/insights-rbac-ui/commit/7def6910925a270d43604b92148ad12e46a470a4))
+
 ## [1.41.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.2...v1.41.3) (2025-06-04)
 
 
