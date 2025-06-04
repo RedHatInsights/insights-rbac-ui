@@ -1,3 +1,10 @@
+## [1.41.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.4...v1.41.5) (2025-06-04)
+
+
+### Bug Fixes
+
+* **bug:** fix circular structure error in user activation toggle ([3b3f983](https://github.com/RedHatInsights/insights-rbac-ui/commit/3b3f9836f2898fe8be6e3ad7d5dcb2a33bf065aa))
+
 ## [1.41.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.3...v1.41.4) (2025-06-04)
 
 
