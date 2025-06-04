@@ -32,9 +32,15 @@ import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 
 interface WorkspaceFilters {
   name: string;
+}
+
+interface PermissionObject {
+  permission: string;
+  resourceDefinitions: string[];
 }
 
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
@@ -96,8 +102,13 @@ const WorkspaceListTable = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const chrome = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
+  const [userPermissions, setUserPermissions] = useState<PermissionObject>({
+    permission: '',
+    resourceDefinitions: [],
+  });
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
   const globalWs = useFlag('platform.rbac.workspaces');
@@ -105,6 +116,44 @@ const WorkspaceListTable = () => {
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
     setIsDeleteModalOpen(!isDeleteModalOpen);
+  };
+
+  const isValidEditType = (workspace: Workspace) => {
+    switch (workspace.type) {
+      case 'root':
+        return false;
+      case 'default':
+        return true;
+      case 'ungrouped-hosts':
+        return false;
+      case 'standard':
+        return true;
+    }
+  };
+
+  const isValidDeleteType = (workspace: Workspace) => {
+    switch (workspace.type) {
+      case 'root':
+        return false;
+      case 'default':
+        return false;
+      case 'ungrouped-hosts':
+        return false;
+      case 'standard':
+        return true;
+    }
+  };
+
+  const canModify = (workspace: Workspace, action: 'edit' | 'delete') => {
+    if (userPermissions.resourceDefinitions.length === 0 || userPermissions.resourceDefinitions.includes(workspace.id)) {
+      if (action === 'edit' && isValidEditType(workspace)) {
+        return true;
+      } else if (action === 'delete' && isValidDeleteType(workspace)) {
+        return true;
+      }
+    } else {
+      return false;
+    }
   };
 
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
@@ -143,14 +192,18 @@ const WorkspaceListTable = () => {
                   onClick: () => {
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
+                  isDisabled: !canModify(workspace, 'edit'),
                 },
-                { title: <Divider component="li" key="divider" /> },
+                {
+                  title: <Divider component="li" key="divider" />,
+                  isSeparator: true,
+                },
                 {
                   title: 'Delete workspace',
                   onClick: () => {
                     handleModalToggle([workspace]);
                   },
-                  isDisabled: workspace.children && workspace.children.length > 0,
+                  isDisabled: workspace.children && workspace.children.length > 0 && !canModify(workspace, 'delete'),
                   isDanger: !(workspace.children && workspace.children.length > 0),
                 },
               ]}
@@ -197,6 +250,16 @@ const WorkspaceListTable = () => {
   useEffect(() => {
     dispatch(fetchWorkspaces());
   }, [dispatch]);
+
+  useEffect(() => {
+    chrome.getUserPermissions().then((permissions) => {
+      setUserPermissions(
+        permissions.find((obj) => {
+          return obj.permission === 'inventory:groups:write';
+        }),
+      );
+    });
+  }, []);
 
   if (error) {
     return <ErrorState errorDescription={error} />;

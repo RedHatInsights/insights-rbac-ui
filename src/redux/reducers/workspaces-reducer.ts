@@ -10,7 +10,7 @@ export interface WorkspaceCreateBody {
 
 export interface Workspace extends WorkspaceCreateBody {
   id: string;
-  type: 'standard' | 'default' | 'root';
+  type: 'standard' | 'default' | 'root' | 'ungrouped-hosts';
   parent_id: string;
 }
 
