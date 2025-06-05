@@ -38,10 +38,46 @@ interface WorkspaceFilters {
   name: string;
 }
 
-interface PermissionObject {
-  permission: string;
-  resourceDefinitions: string[];
+interface PermissionResource {
+  key: string;
+  value: string[];
+  operation: string;
 }
+
+interface PermissionFilter {
+  attributeFilter: PermissionResource;
+}
+
+interface Permission {
+  permission: string;
+  resourceDefinitions: PermissionFilter[];
+}
+
+const isValidEditType = (workspace: Workspace) => {
+  switch (workspace.type) {
+    case 'root':
+      return false;
+    case 'default':
+      return true;
+    case 'ungrouped-hosts':
+      return false;
+    case 'standard':
+      return true;
+  }
+};
+
+const isValidDeleteType = (workspace: Workspace) => {
+  switch (workspace.type) {
+    case 'root':
+      return false;
+    case 'default':
+      return false;
+    case 'ungrouped-hosts':
+      return false;
+    case 'standard':
+      return true;
+  }
+};
 
 const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undefined => {
   const idMap = new Map();
@@ -105,7 +141,7 @@ const WorkspaceListTable = () => {
   const chrome = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
-  const [userPermissions, setUserPermissions] = useState<PermissionObject>({
+  const [userPermissions, setUserPermissions] = useState<Permission>({
     permission: '',
     resourceDefinitions: [],
   });
@@ -118,45 +154,19 @@ const WorkspaceListTable = () => {
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const isValidEditType = (workspace: Workspace) => {
-    switch (workspace.type) {
-      case 'root':
-        return false;
-      case 'default':
-        return true;
-      case 'ungrouped-hosts':
-        return false;
-      case 'standard':
-        return true;
-    }
-  };
-
-  const isValidDeleteType = (workspace: Workspace) => {
-    switch (workspace.type) {
-      case 'root':
-        return false;
-      case 'default':
-        return false;
-      case 'ungrouped-hosts':
-        return false;
-      case 'standard':
-        return true;
-    }
-  };
-
   const canModify = (workspace: Workspace, action: 'edit' | 'delete') => {
     if (
-      userPermissions.permission === 'inventory:groups:write' &&
-      (userPermissions.resourceDefinitions.length === 0 || userPermissions.resourceDefinitions.includes(workspace.id))
+      ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission) &&
+      (userPermissions.resourceDefinitions.length === 0 ||
+        userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id)))
     ) {
       if (action === 'edit' && isValidEditType(workspace)) {
         return true;
       } else if (action === 'delete' && isValidDeleteType(workspace)) {
         return true;
       }
-    } else {
-      return false;
     }
+    return false;
   };
 
   const buildRows = (workspaces: Workspace[]): DataViewTrTree[] =>
@@ -206,7 +216,7 @@ const WorkspaceListTable = () => {
                   onClick: () => {
                     handleModalToggle([workspace]);
                   },
-                  isDisabled: workspace.children && workspace.children.length > 0 && !canModify(workspace, 'delete'),
+                  isDisabled: (workspace.children && workspace.children.length > 0) || !canModify(workspace, 'delete'),
                   isDanger: !(workspace.children && workspace.children.length > 0),
                 },
               ]}
@@ -256,11 +266,7 @@ const WorkspaceListTable = () => {
 
   useEffect(() => {
     chrome.getUserPermissions().then((permissions) => {
-      setUserPermissions(
-        permissions.find((obj) => {
-          return obj.permission === 'inventory:groups:write';
-        }),
-      );
+      setUserPermissions(permissions.find(({ permission }) => ['inventory:groups:write', 'inventory:groups:*'].includes(permission)));
     });
   }, []);
 
