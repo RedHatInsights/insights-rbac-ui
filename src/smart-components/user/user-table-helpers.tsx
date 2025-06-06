@@ -49,6 +49,7 @@ export const createRows = (
   authModel?: boolean,
   orgAdmin?: boolean,
   fetchData?: () => void,
+  currAccountId?: string,
 ): RowProps[] => {
   return data?.reduce<RowProps[]>(
     (
@@ -112,7 +113,7 @@ export const createRows = (
           firstName,
           lastName,
           ...(handleToggle && orgAdmin && authModel
-            ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} />]
+            ? [<ActivateToggle key="active-toggle" user={user} handleToggle={handleToggle} intl={intl} accountId={currAccountId} />]
             : [
                 {
                   title: (
