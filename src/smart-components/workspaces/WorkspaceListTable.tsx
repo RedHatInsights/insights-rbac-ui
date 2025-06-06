@@ -268,7 +268,7 @@ const WorkspaceListTable = () => {
     chrome.getUserPermissions().then((permissions) => {
       setUserPermissions(permissions.find(({ permission }) => ['inventory:groups:write', 'inventory:groups:*'].includes(permission)));
     });
-  }, []);
+  }, [chrome.getUserPermissions]);
 
   if (error) {
     return <ErrorState errorDescription={error} />;
