@@ -13,7 +13,7 @@ export const createRows = (data, selectedRows, intl, expanded, adminGroup) =>
     (
       acc,
       { uuid, access = [], display_name, name, description, system, accessCount, groups_in_count: groupsCount, groups_in: groups, modified },
-      i
+      i,
     ) => [
       ...acc,
       {
@@ -118,5 +118,5 @@ export const createRows = (data, selectedRows, intl, expanded, adminGroup) =>
         ],
       },
     ],
-    []
+    [],
   );

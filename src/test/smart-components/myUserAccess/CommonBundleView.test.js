@@ -11,6 +11,7 @@ import OrgAdminContext from '../../../utilities/org-admin-context';
 import * as RoleActions from '../../../redux/actions/role-actions';
 import * as AccessActions from '../../../redux/actions/access-actions';
 import { FETCH_ROLES, GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
+import PropTypes from 'prop-types';
 
 // TODO: Add permissions back when we support partial matching
 
@@ -21,6 +22,11 @@ const ComponentWrapper = ({ store, isOrgAdmin, children }) => (
     </Provider>
   </MemoryRouter>
 );
+ComponentWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+  store: PropTypes.object.isRequired,
+  isOrgAdmin: PropTypes.arrayOf(PropTypes.bool),
+};
 
 describe('<CommonBundleView />', () => {
   const rolesMock = {
@@ -60,7 +66,7 @@ describe('<CommonBundleView />', () => {
     const { container } = render(
       <ComponentWrapper store={store} isOrgAdmin>
         <CommonBundleView apps={[]} />
-      </ComponentWrapper>
+      </ComponentWrapper>,
     );
     expect(container).toMatchSnapshot();
   });
@@ -69,7 +75,7 @@ describe('<CommonBundleView />', () => {
     const { container } = render(
       <ComponentWrapper store={store} isOrgAdmin={false}>
         <CommonBundleView apps={[]} />
-      </ComponentWrapper>
+      </ComponentWrapper>,
     );
     expect(container).toMatchSnapshot();
   });
@@ -80,7 +86,7 @@ describe('<CommonBundleView />', () => {
       const { container: ci } = render(
         <ComponentWrapper store={store} isOrgAdmin>
           <CommonBundleView apps={[]} />
-        </ComponentWrapper>
+        </ComponentWrapper>,
       );
 
       container = ci;

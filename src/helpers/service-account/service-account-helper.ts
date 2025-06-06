@@ -1,36 +1,10 @@
 import { fetchAccountsForGroup } from '../group/group-helper';
 import { defaultCompactSettings } from '../shared/pagination';
 import { getServiceAccountsApi } from '../shared/user-login';
+import { LAST_PAGE, NO_DATA, RESULTS } from './constants';
+import { ServiceAccountPayloadItem } from './types';
 
 const serviceAccountsApi = getServiceAccountsApi?.();
-
-export const NO_DATA = 'no-data';
-export const LAST_PAGE = 'last-page';
-export const RESULTS = 'results';
-
-export interface ServiceAccountPayloadItem {
-  id: string;
-  clientId: string;
-  name: string;
-  description: string;
-  createdBy: string;
-  createdAt: number;
-}
-
-export interface ServiceAccount {
-  uuid: string;
-  clientId: string;
-  name: string;
-  description: string;
-  createdBy: string;
-  createdAt: number;
-  assignedToSelectedGroup: boolean;
-}
-
-export interface ServiceAccountsPayload {
-  data: (ServiceAccount & { clientId: string })[];
-  status: string;
-}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export async function getServiceAccounts({ limit = defaultCompactSettings.limit, offset = 0, token, sso, groupId }: any) {

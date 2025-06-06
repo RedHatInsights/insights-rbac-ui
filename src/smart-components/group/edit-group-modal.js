@@ -66,7 +66,7 @@ const EditGroupModal = ({ postMethod, pagination, cancelRoute, submitRoute = can
         dismissDelay: 8000,
         title: intl.formatMessage(selectedGroup ? messages.editingGroupTitle : messages.addingGroupTitle),
         description: intl.formatMessage(selectedGroup ? messages.editGroupCanceledDescription : messages.addingGroupCanceledDescription),
-      })
+      }),
     );
     onClose();
     navigate(cancelRoute);

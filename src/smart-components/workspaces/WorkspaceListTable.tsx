@@ -1,8 +1,3 @@
-import React, { Suspense, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { Link, Outlet, useSearchParams } from 'react-router-dom';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import {
   ErrorState,
   ResponsiveAction,
@@ -11,27 +6,32 @@ import {
   SkeletonTableHead,
   WarningModal,
 } from '@patternfly/react-component-groups';
+import { ButtonVariant, Divider, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
 import {
   DataView,
   DataViewState,
-  DataViewTextFilter,
-  useDataViewFilters,
   DataViewTable,
+  DataViewTextFilter,
   DataViewTh,
   DataViewToolbar,
   DataViewTrTree,
+  useDataViewFilters,
 } from '@patternfly/react-data-view';
-import { Workspace } from '../../redux/reducers/workspaces-reducer';
-import { RBACStore } from '../../redux/store';
-import AppLink from '../../presentational-components/shared/AppLink';
-import pathnames from '../../utilities/pathnames';
-import paths from '../../utilities/pathnames';
-import messages from '../../Messages';
-import useAppNavigate from '../../hooks/useAppNavigate';
-import { EmptyState, EmptyStateHeader, EmptyStateIcon, EmptyStateBody, ButtonVariant, Divider } from '@patternfly/react-core';
 import { SearchIcon } from '@patternfly/react-icons';
 import { ActionsColumn } from '@patternfly/react-table';
 import { useFlag } from '@unleash/proxy-client-react';
+import React, { Suspense, useEffect, useMemo, useState } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, Outlet, useSearchParams } from 'react-router-dom';
+import useAppNavigate from '../../hooks/useAppNavigate';
+import messages from '../../Messages';
+import AppLink from '../../presentational-components/shared/AppLink';
+import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
+import { Workspace } from '../../redux/reducers/workspaces-reducer';
+import { RBACStore } from '../../redux/store';
+import pathnames from '../../utilities/pathnames';
+import paths from '../../utilities/pathnames';
 
 interface WorkspaceFilters {
   name: string;
@@ -215,7 +215,7 @@ const WorkspaceListTable = () => {
           checkboxLabel={intl.formatMessage(messages.understandActionIrreversible)}
           onClose={() => setIsDeleteModalOpen(false)}
           onConfirm={async () => {
-            await Promise.all(currentWorkspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ uuid: id }, { name }))));
+            await Promise.all(currentWorkspaces.map(async ({ id, name }) => await dispatch(deleteWorkspace({ id }, { name }))));
             dispatch(fetchWorkspaces());
             setIsDeleteModalOpen(false);
           }}

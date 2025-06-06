@@ -81,7 +81,7 @@ describe('<User />', () => {
               <Route path="/users/detail/:username/*" element={<User />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });

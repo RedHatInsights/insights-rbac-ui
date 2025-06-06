@@ -4,7 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import EditResourceDefinitionsModal from '../../smart-components/role/edit-resource-definitions-modal';
-import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE, FETCH_INVENTORY_GROUPS } from '../../redux/action-types';
+import { FETCH_INVENTORY_GROUPS, FETCH_RESOURCE, FETCH_RESOURCE_DEFINITIONS } from '../../redux/action-types';
 
 import * as CostManagementActions from '../../redux/actions/cost-management-actions';
 import * as InventoryActions from '../../redux/actions/inventory-actions';
@@ -91,7 +91,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(screen.getAllByRole('dialog')[0]).toMatchSnapshot();
@@ -109,7 +109,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(() => screen.getByTestId('warning-modal')).toThrow('');
@@ -142,7 +142,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(() => screen.getByTestId('warning-modal')).toThrow('');
@@ -166,7 +166,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(() => screen.getByTestId('warning-modal')).toThrow('');
@@ -194,7 +194,7 @@ describe('EditResourceDefinitionsModal - Cost management', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     const RDAlertText = 'At least one resource must be defined for this permission';
@@ -273,7 +273,7 @@ describe('EditResourceDefinitionsModal - Inventory', () => {
               <Route path="/roles/detail/:roleId/permission/:permissionId/edit" element={<EditResourceDefinitionsModal {...initialProps} />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     expect(screen.getAllByRole('dialog')[0]).toMatchSnapshot();

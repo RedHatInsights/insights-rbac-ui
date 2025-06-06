@@ -3,26 +3,26 @@ import PropTypes from 'prop-types';
 import { cellWidth, info } from '@patternfly/react-table';
 import { Button, ButtonVariant } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import {
-  createRows,
   INITIALIZE_ROLE,
   INITIATE_REMOVE_PERMISSION,
-  rolePermissionsReducer,
-  rolePermissionsReducerInitialState,
   SELECT_PERMISSIONS,
   SET_FILTERS,
   SET_PAGINATION,
   SET_TOGGLED,
   SHOW_REMOVE_MODAL,
   SUBMIT_REMOVE_MODAL,
+  createRows,
+  rolePermissionsReducer,
+  rolePermissionsReducerInitialState,
 } from './role-permissions-table-helpers';
-import { removeRolePermissions, fetchRole } from '../../redux/actions/role-actions';
+import { fetchRole, removeRolePermissions } from '../../redux/actions/role-actions';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import './role-permissions.scss';
@@ -55,7 +55,7 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
       role: state.roleReducer.selectedRole,
       isRecordLoading: state.roleReducer.isRecordLoading,
     }),
-    shallowEqual
+    shallowEqual,
   );
 
   const navigate = useAppNavigate();
@@ -102,8 +102,8 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
               operations: operations.includes(operation) ? operations : [...operations, operation],
             };
           },
-          { resources: [], operations: [] }
-        )
+          { resources: [], operations: [] },
+        ),
       ).reduce((acc, [key, value]) => ({ ...acc, [key]: value.map((item) => ({ label: item, value: item })) }), {});
       internalDispatch({ type: INITIALIZE_ROLE, resources, operations, count: role.access ? role.access.length : 0 });
     }
@@ -183,7 +183,7 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
                   text: removeModalText(
                     multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
                     role,
-                    selectedPermissions.length > 1
+                    selectedPermissions.length > 1,
                   ),
                   confirmButtonLabel: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
                 },
@@ -200,7 +200,7 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
           [curr]: true,
         },
       }),
-      { '': {} }
+      { '': {} },
     );
 
   const emptyItem = {
@@ -215,7 +215,7 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
   };
 
   const filterItemOverflow = Object.values({ applications: sanitizedRole.applications, operations, resources }).find(
-    (value) => value.length > maxFilterItems
+    (value) => value.length > maxFilterItems,
   );
   const data = filteredRows.slice(pagination.offset, pagination.offset + pagination.limit);
 

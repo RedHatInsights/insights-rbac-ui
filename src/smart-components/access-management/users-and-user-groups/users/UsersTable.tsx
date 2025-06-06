@@ -1,18 +1,18 @@
-import React, { useEffect, useCallback, useState, Fragment, useMemo, Suspense, useContext } from 'react';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
 import {
-  useDataViewSelection,
-  useDataViewPagination,
-  useDataViewSort,
-  useDataViewFilters,
-  useDataViewEventsContext,
   DataViewState,
-  EventTypes,
-  DataViewTh,
   DataViewTextFilter,
+  DataViewTh,
+  EventTypes,
+  useDataViewEventsContext,
+  useDataViewFilters,
+  useDataViewPagination,
+  useDataViewSelection,
+  useDataViewSort,
 } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
@@ -23,21 +23,21 @@ import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataView
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import {
   ButtonVariant,
-  Pagination,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateBody,
-  Switch,
-  List,
-  ListItem,
   Dropdown,
   DropdownItem,
   DropdownList,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  List,
+  ListItem,
   MenuToggle,
   MenuToggleElement,
+  Pagination,
   Split,
   SplitItem,
+  Switch,
 } from '@patternfly/react-core';
 import { ActionsColumn, ThProps } from '@patternfly/react-table';
 import { SearchIcon } from '@patternfly/react-icons';
@@ -119,10 +119,13 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
 
   useEffect(() => {
     if (users?.length) {
-      const initialCheckedStates = users.reduce((acc, user) => {
-        acc[user.external_source_id] = user.is_active;
-        return acc;
-      }, {} as Record<string, boolean>);
+      const initialCheckedStates = users.reduce(
+        (acc, user) => {
+          acc[user.external_source_id] = user.is_active;
+          return acc;
+        },
+        {} as Record<string, boolean>,
+      );
       setCheckedStates(initialCheckedStates);
     }
   }, [users]);
@@ -138,8 +141,8 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
               is_active: isActive,
             },
           ],
-          { isProd: isProd(), token, accountId }
-        )
+          { isProd: isProd(), token, accountId },
+        ),
       );
 
       setCheckedStates((prevState) => ({
@@ -243,10 +246,10 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
         fetchUsers({
           ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
           usesMetaInURL: true,
-        })
+        }),
       );
     },
-    [dispatch, direction]
+    [dispatch, direction],
   );
 
   useEffect(() => {

@@ -26,7 +26,7 @@ export const listPermissions = ({
     exclude_globals,
     exclude_roles,
     allowed_only,
-    options
+    options,
   ),
 });
 

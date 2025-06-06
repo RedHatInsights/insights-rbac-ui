@@ -1,10 +1,10 @@
 import React, { useEffect, useReducer } from 'react';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
-import { Grid, GridItem, Text, TextVariants, FormGroup, Tooltip } from '@patternfly/react-core';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { FormGroup, Grid, GridItem, Text, TextVariants, Tooltip } from '@patternfly/react-core';
 import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { fetchResourceDefinitions, fetchResource } from '../../../redux/actions/cost-management-actions';
+import { fetchResource, fetchResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './cost-resources.scss';
@@ -97,8 +97,8 @@ const CostResources = (props) => {
           isOpen: false,
         },
       }),
-      {}
-    )
+      {},
+    ),
   );
   const onToggle = (key, isOpen) => dispatchLocaly({ type: 'toggle', key, isOpen });
   const clearSelection = (key) => dispatchLocaly({ type: 'clear', key });
@@ -111,8 +111,8 @@ const CostResources = (props) => {
     (formOptions.getState().values['resource-definitions'] || []).map(({ permission, resources }) =>
       resources.map(
         (resource) =>
-          permissions.find((item) => item?.uuid === permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission })
-      )
+          permissions.find((item) => item?.uuid === permission) && dispatchLocaly({ type: 'select', selection: resource, key: permission }),
+      ),
     );
     fetchData();
     formOptions.change('has-cost-resources', true);
@@ -139,7 +139,6 @@ const CostResources = (props) => {
     formOptions.change('resource-definitions', resourceDefinitions);
   }, [state]);
 
-  // eslint-disable-next-line react/prop-types
   const makeRow = ({ uuid: permission }) => {
     const options = state[permission].filteredOptions;
     return (

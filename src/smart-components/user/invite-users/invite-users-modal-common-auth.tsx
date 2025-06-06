@@ -65,7 +65,7 @@ const InviteUsers = () => {
         portal_download: values['customer-portal-permissions']?.['download-software-updates'],
         portal_manage_subscriptions: values['customer-portal-permissions']?.['manage-subscriptions'],
       },
-      { isProd: isProd(), token, accountId }
+      { isProd: isProd(), token, accountId },
     );
     action.payload.then(async (response) => {
       if (response.status === 200 || response.status === 204) {
@@ -168,7 +168,7 @@ const InviteUsers = () => {
         },
       ],
     }),
-    [responseError]
+    [responseError],
   );
   return (
     <FormRenderer

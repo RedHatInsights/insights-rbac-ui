@@ -1,12 +1,12 @@
+import { PaginationDefaultI, defaultSettings } from '../../helpers/shared/pagination';
 import {
   FETCH_ROLE,
   FETCH_ROLES,
-  FETCH_ROLE_FOR_USER,
-  FETCH_ROLE_FOR_PRINCIPAL,
   FETCH_ROLES_FOR_WIZARD,
+  FETCH_ROLE_FOR_PRINCIPAL,
+  FETCH_ROLE_FOR_USER,
   UPDATE_ROLES_FILTERS,
 } from '../action-types';
-import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
 export interface RoleGroup {
   description: string;
@@ -39,7 +39,7 @@ export interface Role {
   system: boolean;
 }
 
-export interface RoleStore {
+export interface RoleStore extends Record<string, unknown> {
   selectedRole: Record<string, unknown>;
   isLoading: boolean;
   isRecordLoading: boolean;
@@ -72,28 +72,43 @@ export const rolesInitialState: RoleStore = {
   selectedRole: {},
 };
 
-const setLoadingState = (state: any) => ({ ...state, isLoading: true, error: undefined });
-const setRecordLoadingState = (state: RoleStore) => ({ ...state, isRecordLoading: true, error: undefined });
-const setRole = (state: RoleStore, { payload }: any) => ({
+const setLoadingState = (state: RoleStore): RoleStore => ({ ...state, isLoading: true, error: undefined });
+const setRecordLoadingState = (state: RoleStore): RoleStore => ({ ...state, isRecordLoading: true, error: undefined });
+const setRole = (state: RoleStore, { payload }: any): RoleStore => ({
   ...state,
   ...(!payload.error ? { selectedRole: payload } : payload),
   isRecordLoading: false,
 });
-const setRoles = (state: RoleStore, { payload }: any) => ({
+const setRoles = (state: RoleStore, { payload }: any): RoleStore => ({
   ...state,
-  ...(!payload.error ? { roles: { pagination: state.roles?.pagination, filters: state.roles?.filters, ...payload } } : payload),
+  ...(!payload.error
+    ? {
+        roles: {
+          pagination: state.roles?.pagination,
+          filters: state.roles?.filters,
+          ...payload,
+        },
+      }
+    : payload),
   isLoading: false,
 });
-const setRolesWithAccess = (state: any, { payload }: any) => ({
+const setRolesWithAccess = (state: any, { payload }: any): RoleStore => ({
   ...state,
   rolesWithAccess: { ...state.rolesWithAccess, [payload.uuid]: payload },
   isRecordLoading: false,
 });
 
-const setRolesForWizard = (state: RoleStore, { payload }: any) => ({ ...state, rolesForWizard: payload, isWizardLoading: false });
-const setWizardLoadingState = (state: RoleStore) => ({ ...state, isWizardLoading: true });
+const setRolesForWizard = (state: RoleStore, { payload }: any): RoleStore => ({
+  ...state,
+  rolesForWizard: payload,
+  isWizardLoading: false,
+});
+const setWizardLoadingState = (state: RoleStore): RoleStore => ({ ...state, isWizardLoading: true });
 
-const setFilters = (state: RoleStore, { payload }: any) => ({ ...state, roles: { ...state.roles, filters: payload } });
+const setFilters = (state: RoleStore, { payload }: any): RoleStore => ({
+  ...state,
+  roles: { ...state.roles, filters: payload },
+});
 
 export default {
   [`${FETCH_ROLE}_FULFILLED`]: setRole,

@@ -4,8 +4,8 @@ import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import messages from '../../Messages';
 import { pickBy } from 'lodash';
-import { selectedRows, calculateChecked, debouncedFetch, firstUpperCase } from '../../helpers/shared/helpers';
-import { calculateOffset, calculatePage, defaultSettings, PER_PAGE_OPTIONS } from '../../helpers/shared/pagination';
+import { calculateChecked, debouncedFetch, firstUpperCase, selectedRows } from '../../helpers/shared/helpers';
+import { PER_PAGE_OPTIONS, calculateOffset, calculatePage, defaultSettings } from '../../helpers/shared/pagination';
 
 export const paginationBuilder = (pagination = {}, fetchData, filterValue = '', sortBy = '', paginationProps) => ({
   ...paginationProps,
@@ -37,7 +37,7 @@ export const bulkSelectBuilder = (
   setCheckedItems = () => undefined,
   data = [],
   tableId,
-  isRowSelectable = () => true
+  isRowSelectable = () => true,
 ) => {
   const intl = useIntl();
   return {
@@ -87,7 +87,7 @@ export const filterConfigBuilder = (
   onChange,
   value,
   sortBy,
-  textFilterRef
+  textFilterRef,
 ) => {
   const intl = useIntl();
   return {
@@ -128,10 +128,10 @@ export const filterConfigBuilder = (
                         ...acc,
                         [curr.key]: curr.value,
                       }),
-                      {}
+                      {},
                     ),
                     [key]: newFilter,
-                  })
+                  }),
                 ).then((data) => {
                   innerRef?.current?.focus();
                   return data;
@@ -162,7 +162,7 @@ export const filterConfigBuilder = (
                       offset: 0,
                       name: value,
                       orderBy: sortBy,
-                    })
+                    }),
                   ).then((data) => {
                     textFilterRef?.current?.focus();
                     return data;
@@ -183,7 +183,7 @@ export const activeFiltersConfigBuilder = (
   pagination = {},
   setFilterValue = () => undefined,
   fetchData = () => undefined,
-  sortBy
+  sortBy,
 ) => ({
   filters:
     filters && filters.length > 0
@@ -195,7 +195,7 @@ export const activeFiltersConfigBuilder = (
                 category: firstUpperCase(type),
                 type,
                 chips: Array.isArray(options) ? options.map((filter) => ({ name: filter })) : [{ name: options }],
-              }
+              },
           )
           .filter(Boolean)
       : [
@@ -287,7 +287,7 @@ const Toolbar = ({
       onChange,
       value,
       sortBy,
-      textFilterRef
+      textFilterRef,
     )}
     actionsConfig={{
       actions: toolbarButtons(),
@@ -319,7 +319,7 @@ Toolbar.propTypes = {
       value: PropTypes.oneOfType([PropTypes.string, PropTypes.number, PropTypes.array]),
       key: PropTypes.string,
       placeholder: PropTypes.string,
-    })
+    }),
   ),
   isFilterable: PropTypes.bool,
   onShowMore: PropTypes.func,

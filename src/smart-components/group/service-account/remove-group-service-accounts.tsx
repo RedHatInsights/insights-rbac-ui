@@ -1,12 +1,13 @@
-import React, { useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { FormattedMessage, useIntl } from 'react-intl';
-import { useSearchParams } from 'react-router-dom';
-import { ButtonVariant } from '@patternfly/react-core';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { ServiceAccount } from '../../../helpers/service-account/service-account-helper';
-import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
+import { ButtonVariant } from '@patternfly/react-core';
+import React, { useMemo } from 'react';
+import { FormattedMessage, useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
+import { useSearchParams } from 'react-router-dom';
+
+import { ServiceAccount } from '../../../helpers/service-account/types';
 import messages from '../../../Messages';
+import { removeServiceAccountFromGroup } from '../../../redux/actions/group-actions';
 
 type AddGroupServiceAccountsProps = {
   cancelRoute: string;
@@ -28,11 +29,11 @@ type RBACStore = {
 
 const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAccountsProps> = ({ postMethod }: AddGroupServiceAccountsProps) => {
   const group = useSelector<RBACStore, { name: string; uuid: string; serviceAccounts?: { data: ServiceAccount[] } }>(
-    ({ groupReducer: { selectedGroup } }) => selectedGroup
+    ({ groupReducer: { selectedGroup } }) => selectedGroup,
   );
   const [params] = useSearchParams();
   const selectedServiceAccounts = useSelector<RBACStore, ServiceAccount[]>(({ groupReducer: { selectedGroup } }) =>
-    (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name))
+    (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name)),
   );
   const accountsCount = useMemo(() => params.getAll('name').length, [params]);
   const dispatch = useDispatch();
@@ -49,7 +50,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       onConfirm={() => {
         const action = removeServiceAccountFromGroup(
           group.uuid,
-          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientId)
+          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientId),
         );
         dispatch(action);
         postMethod(action.payload);

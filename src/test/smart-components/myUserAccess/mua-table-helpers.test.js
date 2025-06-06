@@ -46,7 +46,7 @@ describe('Mua table helpers', () => {
           },
         ],
         true,
-        clickSpy
+        clickSpy,
       );
       expect(rows).toEqual(expectedResult);
       const child = rows[0].cells[3];

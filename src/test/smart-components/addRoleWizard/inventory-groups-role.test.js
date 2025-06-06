@@ -1,5 +1,5 @@
 import React from 'react';
-import { render, fireEvent, screen, waitFor } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
@@ -75,7 +75,7 @@ const renderComponent = (store) => {
           <InventoryGroupsRole />
         </BrowserRouter>
       </Provider>
-    </React.Fragment>
+    </React.Fragment>,
   );
 };
 

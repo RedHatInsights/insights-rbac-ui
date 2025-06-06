@@ -1,6 +1,6 @@
 import { getLastPageOffset, isOffsetValid } from '../shared/pagination';
 import { getPrincipalApi } from '../shared/user-login';
-import { isInt, isStage, isITLessProd } from '../../itLessConfig';
+import { isITLessProd, isInt, isStage } from '../../itLessConfig';
 
 export const MANAGE_SUBSCRIPTIONS_VIEW_EDIT_USER = 'view-edit-user';
 export const MANAGE_SUBSCRIPTIONS_VIEW_ALL = 'view-all';
@@ -92,7 +92,7 @@ export async function addUsers(usersData = { emails: [], isAdmin: undefined, mes
     return fetch(`${baseUrl}/user/invite`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
-        (error) => handleError(error, reject)
+        (error) => handleError(error, reject),
       )
       .catch((error) => handleError(error, reject));
   });
@@ -127,7 +127,7 @@ export async function updateUserIsOrgAdminStatus(user, config) {
     return fetch(`${baseUrl}/user/${user.id}/admin/${user.is_org_admin}`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
-        (error) => handleError(error, reject)
+        (error) => handleError(error, reject),
       )
       .catch((error) => handleError(error, reject));
   });
@@ -165,7 +165,7 @@ export async function changeUsersStatus(users, config) {
     return fetch(`${baseUrl}/change-users-status`, requestOpts)
       .then(
         (response) => handleResponse(response, resolve, reject),
-        (error) => handleError(error, reject)
+        (error) => handleError(error, reject),
       )
       .catch((error) => handleError(error, reject));
   });
@@ -180,8 +180,8 @@ export async function fetchUsers({ limit, offset = 0, orderBy, filters = {}, use
     typeof status === 'string'
       ? principalStatusApiMap[status]
       : status.length === 2
-      ? principalStatusApiMap.All
-      : principalStatusApiMap[status[0]] || principalStatusApiMap.All;
+        ? principalStatusApiMap.All
+        : principalStatusApiMap[status[0]] || principalStatusApiMap.All;
   const response = await principalApi.listPrincipals(limit, offset, matchCriteria, username, sortOrder, email, mappedStatus);
   const isPaginationValid = isOffsetValid(offset, response?.meta?.count);
   offset = isPaginationValid ? offset : getLastPageOffset(response.meta.count, limit);

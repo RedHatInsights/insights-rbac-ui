@@ -130,7 +130,7 @@ describe('<GroupRoles />', () => {
               <Route path="/groups/detail/:uuid/roles" element={<GroupRoles />} {...initialProps} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -147,7 +147,7 @@ describe('<GroupRoles />', () => {
               <Route path="/groups/detail/:uuid/roles" element={<GroupRoles />} {...initialProps} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     const expectedPayload = [

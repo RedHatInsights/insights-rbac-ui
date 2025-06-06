@@ -1,27 +1,34 @@
-import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesList';
+import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
+import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
+import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { WorkspaceCreateBody } from '../../redux/reducers/workspaces-reducer';
 import { getWorkspacesApi } from './api';
-import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesPatch';
-import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/dist/v2/WorkspacesDelete';
 
 const workspacesApi = getWorkspacesApi();
 
 export async function getWorkspaces(config: WorkspacesListParams = {}) {
-  return await workspacesApi.listWorkspaces({ limit: 10000, ...config });
+  return workspacesApi.listWorkspaces(config.limit ?? 10000, config.offset ?? 0, config.type ?? 'all', config.options ?? {});
 }
 
 export async function getWorkspace(workspaceId: string) {
-  return await workspacesApi.getWorkspace(workspaceId);
+  return workspacesApi.getWorkspace(workspaceId, false, {});
 }
 
 export async function createWorkspace(config: WorkspaceCreateBody) {
-  return await workspacesApi.createWorkspace(config);
+  return workspacesApi.createWorkspace(
+    {
+      parent_id: config.parent_id,
+      name: config.name,
+      description: config.description,
+    },
+    {},
+  );
 }
 
 export async function updateWorkspace(config: WorkspacesPatchParams) {
-  return await workspacesApi.updateWorkspace(config.uuid, config.workspacesPatchWorkspaceRequest);
+  return workspacesApi.updateWorkspace(config.id, config.workspacesPatchWorkspaceRequest, {});
 }
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
-  return await workspacesApi.deleteWorkspace(config.uuid);
+  return workspacesApi.deleteWorkspace(config.id, {});
 }

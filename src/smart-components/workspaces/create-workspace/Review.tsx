@@ -1,7 +1,7 @@
 import React from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Title, DescriptionListGroup, DescriptionList, DescriptionListTerm, DescriptionListDescription, Text } from '@patternfly/react-core';
+import { DescriptionList, DescriptionListDescription, DescriptionListGroup, DescriptionListTerm, Text, Title } from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import { BUNDLES, WORKSPACE_ACCOUNT, WORKSPACE_DESCRIPTION, WORKSPACE_FEATURES, WORKSPACE_NAME, WORKSPACE_PARENT } from './schema';
 import messages from '../../../Messages';

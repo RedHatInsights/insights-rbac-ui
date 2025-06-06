@@ -76,7 +76,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
         title: intl.formatMessage(messages.addingGroupTitle),
         dismissDelay: 8000,
         description: intl.formatMessage(messages.addingGroupCanceledDescription),
-      })
+      }),
     );
     navigate(
       enableWorkspaces
@@ -87,7 +87,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
         : {
             pathname: paths.groups.link,
             search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
-          }
+          },
     );
   };
 
@@ -145,7 +145,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
         : {
             pathname: paths.groups.link,
             search: createQueryParams({ page: 1, per_page: pagination.limit, ...filters }),
-          }
+          },
     );
   };
 
@@ -193,7 +193,7 @@ const AddGroupWizard = ({ postMethod, pagination, filters, orderBy }) => {
               container.current.hidden = true;
               setWizardCanceled(true);
             },
-            setGroupData
+            setGroupData,
           )}
         />
       )}

@@ -1,19 +1,19 @@
-import React, { useEffect, useCallback, useMemo, useState, Fragment, Suspense } from 'react';
+import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { useSelector, useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import {
-  useDataViewSelection,
-  useDataViewPagination,
-  useDataViewSort,
-  useDataViewFilters,
-  useDataViewEventsContext,
   DataViewState,
-  EventTypes,
-  DataViewTrObject,
-  DataViewTh,
   DataViewTextFilter,
+  DataViewTh,
+  DataViewTrObject,
+  EventTypes,
+  useDataViewEventsContext,
+  useDataViewFilters,
+  useDataViewPagination,
+  useDataViewSelection,
+  useDataViewSort,
 } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
@@ -155,10 +155,10 @@ const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
           usesMetaInURL: true,
           system: false,
-        })
+        }),
       );
     },
-    [dispatch, direction]
+    [dispatch, direction],
   );
 
   useEffect(() => {

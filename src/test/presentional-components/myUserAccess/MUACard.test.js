@@ -2,12 +2,17 @@ import React from 'react';
 import MUACard from '../../../presentational-components/myUserAccess/MUACard';
 import { MemoryRouter } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
+import PropTypes from 'prop-types';
+
 /**
  * Mock bundle data
  */
 jest.mock('../../../presentational-components/myUserAccess/bundles');
 
 const RouterWrapper = ({ children }) => <MemoryRouter>{children}</MemoryRouter>;
+RouterWrapper.propTypes = {
+  children: PropTypes.node.isRequired,
+};
 const entitlementsMock = [
   ['entitled', { is_entitled: true, is_trial: false }],
   ['not-entitled', { is_entitled: false, is_trial: false }],
@@ -19,7 +24,7 @@ describe('<MUACard />', () => {
     const { container } = render(
       <RouterWrapper>
         <MUACard header={mockHeader} entitlements={entitlementsMock} />
-      </RouterWrapper>
+      </RouterWrapper>,
     );
 
     expect(container.firstChild).toMatchSnapshot();
@@ -30,7 +35,7 @@ describe('<MUACard />', () => {
     const { container } = render(
       <RouterWrapper>
         <MUACard header={mockHeader} entitlements={entitlementsMock} isDisabled />
-      </RouterWrapper>
+      </RouterWrapper>,
     );
 
     expect(container.firstChild).toMatchSnapshot();
@@ -43,7 +48,7 @@ describe('<MUACard />', () => {
     const { container } = render(
       <RouterWrapper>
         <MUACard header={mockHeader} entitlements={[]} />
-      </RouterWrapper>
+      </RouterWrapper>,
     );
 
     expect(container.firstChild).toMatchSnapshot();

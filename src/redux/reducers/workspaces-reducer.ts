@@ -1,11 +1,11 @@
-import { FETCH_WORKSPACES, FETCH_WORKSPACE } from '../action-types';
+import { FETCH_WORKSPACE, FETCH_WORKSPACES } from '../action-types';
 
 export interface WorkspaceCreateBody {
   id?: string;
   name: string;
   description: string;
   children?: Workspace[];
-  parent_id?: string;
+  parent_id: string;
 }
 
 export interface Workspace extends WorkspaceCreateBody {

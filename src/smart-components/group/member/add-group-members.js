@@ -4,10 +4,10 @@ import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { useFlag } from '@unleash/proxy-client-react';
-import { Button, Modal, ModalVariant, StackItem, Stack, TextContent } from '@patternfly/react-core';
+import { Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { addMembersToGroup, fetchMembersForGroup, fetchGroups } from '../../../redux/actions/group-actions';
+import { addMembersToGroup, fetchGroups, fetchMembersForGroup } from '../../../redux/actions/group-actions';
 import UsersList from '../add-group/users-list';
 import UsersListItless from '../add-group/users-list-itless';
 import ActiveUser from '../../../presentational-components/shared/ActiveUsers';
@@ -34,7 +34,7 @@ const AddGroupMembers = ({ cancelRoute }) => {
           title: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
           dismissDelay: 8000,
           description: intl.formatMessage(userList.length > 1 ? messages.addingGroupMembersDescription : messages.addingGroupMemberDescription),
-        })
+        }),
       );
       dispatch(addMembersToGroup(groupId, userList)).then(() => {
         dispatch(fetchMembersForGroup(groupId));
@@ -51,7 +51,7 @@ const AddGroupMembers = ({ cancelRoute }) => {
         title: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersTitle : messages.addingGroupMemberTitle),
         dismissDelay: 8000,
         description: intl.formatMessage(selectedUsers.length > 1 ? messages.addingGroupMembersCancelled : messages.addingGroupMemberCancelled),
-      })
+      }),
     );
     navigate(cancelRoute);
   };

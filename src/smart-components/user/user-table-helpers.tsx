@@ -48,13 +48,13 @@ export const createRows = (
   handleToggle?: (_ev: unknown, isActive: boolean, updatedUsers: any[]) => void,
   authModel?: boolean,
   orgAdmin?: boolean,
-  fetchData?: () => void
+  fetchData?: () => void,
 ): RowProps[] => {
   return data?.reduce<RowProps[]>(
     (
       acc,
       { isSelected, username, is_active: isActive, email, first_name: firstName, last_name: lastName, is_org_admin: isOrgAdmin, external_source_id },
-      rowIndex
+      rowIndex,
     ) => {
       const user = {
         isSelected,
@@ -131,6 +131,6 @@ export const createRows = (
 
       return [...acc, newEntry];
     },
-    []
+    [],
   );
 };

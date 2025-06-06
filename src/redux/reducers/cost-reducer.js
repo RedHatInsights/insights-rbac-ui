@@ -1,4 +1,4 @@
-import { FETCH_RESOURCE_DEFINITIONS, FETCH_RESOURCE } from '../../redux/action-types';
+import { FETCH_RESOURCE, FETCH_RESOURCE_DEFINITIONS } from '../../redux/action-types';
 import { defaultSettings } from '../../helpers/shared/pagination';
 
 // Initial State

@@ -28,7 +28,7 @@ const AppLink: React.FC<React.PropsWithChildren<AppLinkProps & { className?: str
         <Link {...props} to={mergeToBasename(props.to, props.linkBasename || defaultBasename)} />
       </span>
     );
-  }
+  },
 );
 
 AppLink.displayName = 'AppLink';

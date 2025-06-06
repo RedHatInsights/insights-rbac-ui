@@ -21,8 +21,7 @@ export const ToolbarTitlePlaceholder = () => {
   );
 };
 
-// eslint-disable-next-line no-unused-vars
-export const BreadcrumbPlaceholder = ({ showDivider, ...props }) => {
+export const BreadcrumbPlaceholder = () => {
   return (
     <div style={{ width: '200px', height: '18px' }}>
       <PFSkeleton fontSize="sm" />

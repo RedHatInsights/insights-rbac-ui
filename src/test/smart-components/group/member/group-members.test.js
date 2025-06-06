@@ -73,7 +73,7 @@ describe('<GroupMembers />', () => {
               <Route path="/groups/detail/:uuid/members" element={<GroupMembers />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -105,7 +105,7 @@ describe('<GroupMembers />', () => {
               <Route path="/groups/detail/:uuid/members" element={<GroupMembers />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -136,7 +136,7 @@ describe('<GroupMembers />', () => {
               <Route path="/groups/detail/:uuid/members" element={<GroupMembers />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -165,7 +165,7 @@ describe('<GroupMembers />', () => {
               <Route path="/groups/detail/:uuid/members" element={<GroupMembers />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -185,7 +185,7 @@ describe('<GroupMembers />', () => {
               <Route path="/groups/detail/:uuid/members" element={<GroupMembers />} />
             </Routes>
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });

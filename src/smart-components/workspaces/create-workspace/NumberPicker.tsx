@@ -1,6 +1,6 @@
-import React from 'react';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
 import { NumberInput, NumberInputProps } from '@patternfly/react-core';
+import React from 'react';
 
 export interface NumberPickerProps extends Omit<NumberInputProps, 'name'>, UseFieldApiConfig {}
 
@@ -8,6 +8,7 @@ const NumberPicker: React.FC<NumberPickerProps> = (props: NumberPickerProps) => 
   const {
     title,
     disabled,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     input: { onChange, checked, ...input },
   } = useFieldApi({
     name: props.name,

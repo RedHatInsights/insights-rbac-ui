@@ -2,10 +2,10 @@ import React from 'react';
 import { act, render } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import Toolbar, {
-  paginationBuilder,
+  activeFiltersConfigBuilder,
   bulkSelectBuilder,
   filterConfigBuilder,
-  activeFiltersConfigBuilder,
+  paginationBuilder,
 } from '../../../presentational-components/shared/toolbar';
 import { PER_PAGE_OPTIONS } from '../../../helpers/shared/pagination';
 
@@ -85,7 +85,7 @@ describe('<Toolbar>', () => {
             title: 'fff',
           },
         ]}
-      />
+      />,
     );
     expect(container).toMatchSnapshot();
   });
@@ -98,7 +98,7 @@ describe('<Toolbar>', () => {
           limit: 10,
           offset: 0,
         }}
-      />
+      />,
     );
     expect(container).toMatchSnapshot();
   });
@@ -123,7 +123,7 @@ describe('<Toolbar>', () => {
               title: 'fff',
             },
           ]}
-        />
+        />,
       );
       expect(container).toMatchSnapshot();
     });

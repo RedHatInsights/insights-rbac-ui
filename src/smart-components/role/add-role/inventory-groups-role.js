@@ -1,27 +1,27 @@
 import React, { useEffect, useReducer } from 'react';
 import {
+  Badge,
   Button,
+  Chip,
+  ChipGroup,
+  Divider,
+  FormGroup,
   Grid,
   GridItem,
-  Text,
-  TextVariants,
-  FormGroup,
-  Tooltip,
-  Divider,
   MenuToggle,
+  Select,
+  SelectList,
+  SelectOption,
+  Spinner,
+  Text,
   TextInputGroup,
   TextInputGroupMain,
   TextInputGroupUtilities,
-  SelectList,
-  SelectOption,
-  Select,
-  Spinner,
-  Badge,
-  Chip,
-  ChipGroup,
+  TextVariants,
+  Tooltip,
 } from '@patternfly/react-core';
 import { TimesIcon } from '@patternfly/react-icons';
-import { shallowEqual, useSelector, useDispatch } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormattedMessage, useIntl } from 'react-intl';
@@ -164,8 +164,8 @@ const InventoryGroupsRole = (props) => {
           isOpen: false,
         },
       }),
-      {}
-    )
+      {},
+    ),
   );
 
   useEffect(() => {

@@ -21,6 +21,6 @@ export const createRows = (data, permissionId, intl) => {
         cells: [value],
       },
     ],
-    []
+    [],
   );
 };

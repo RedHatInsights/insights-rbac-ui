@@ -82,7 +82,7 @@ describe('<Roles />', () => {
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
       container = ci;
     });
@@ -112,7 +112,7 @@ describe('<Roles />', () => {
         <MemoryRouter initialEntries={['/roles']}>
           <Roles />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(screen.getByLabelText('Loading')).toMatchSnapshot();
   });
@@ -137,7 +137,7 @@ describe('<Roles />', () => {
         <MemoryRouter initialEntries={['/roles']}>
           <Roles />
         </MemoryRouter>
-      </Provider>
+      </Provider>,
     );
     expect(container.querySelector('section')).toMatchSnapshot();
   });
@@ -154,7 +154,7 @@ describe('<Roles />', () => {
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
     });
     store.clearActions();
@@ -172,7 +172,7 @@ describe('<Roles />', () => {
         usesMetaInURL: true,
         limit: 20,
         offset: 0,
-      })
+      }),
     );
     expect(fetchRolesWithPoliciesSpy).toHaveBeenNthCalledWith(
       2,
@@ -183,7 +183,7 @@ describe('<Roles />', () => {
         orderBy: '-display_name',
         usesMetaInURL: true,
         limit: 20,
-      })
+      }),
     );
   });
 
@@ -198,7 +198,7 @@ describe('<Roles />', () => {
           <MemoryRouter initialEntries={['/roles']}>
             <Roles />
           </MemoryRouter>
-        </Provider>
+        </Provider>,
       );
 
       container = ci;

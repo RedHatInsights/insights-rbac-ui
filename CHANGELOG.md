@@ -1,3 +1,31 @@
+## [1.41.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.4...v1.41.5) (2025-06-04)
+
+
+### Bug Fixes
+
+* **bug:** fix circular structure error in user activation toggle ([3b3f983](https://github.com/RedHatInsights/insights-rbac-ui/commit/3b3f9836f2898fe8be6e3ad7d5dcb2a33bf065aa))
+
+## [1.41.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.3...v1.41.4) (2025-06-04)
+
+
+### Bug Fixes
+
+* fetch all workspaces by default ([#1846](https://github.com/RedHatInsights/insights-rbac-ui/issues/1846)) ([7def691](https://github.com/RedHatInsights/insights-rbac-ui/commit/7def6910925a270d43604b92148ad12e46a470a4))
+
+## [1.41.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.2...v1.41.3) (2025-06-04)
+
+
+### Bug Fixes
+
+* **api-arg:** js clients has broken arguments so we have to use list of args ([#1844](https://github.com/RedHatInsights/insights-rbac-ui/issues/1844)) ([e3f2d4a](https://github.com/RedHatInsights/insights-rbac-ui/commit/e3f2d4a02b78c869bd1dab30048f9f4e4402881d))
+
+## [1.41.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.1...v1.41.2) (2025-06-04)
+
+
+### Bug Fixes
+
+* use inline style when calling workspaces api ([#1845](https://github.com/RedHatInsights/insights-rbac-ui/issues/1845)) ([3cdae15](https://github.com/RedHatInsights/insights-rbac-ui/commit/3cdae15d1e51a476ee5bee1361ac78c191279857))
+
 ## [1.41.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.0...v1.41.1) (2025-05-27)
 
 

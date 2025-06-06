@@ -18,7 +18,7 @@ const setResourceTypes = (state, { payload, meta }) => {
         ...acc,
         [curr]: meta?.config?.page > 1 ? { ...(acc?.[curr] || {}), ...data } : data,
       }),
-      state.resourceTypes
+      state.resourceTypes,
     ),
     total: payload.meta.count,
     isLoading: false,

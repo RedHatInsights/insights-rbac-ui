@@ -1,10 +1,9 @@
-/* eslint-disable react/display-name */
 import React from 'react';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import AddPermissionTemplate from './add-permissions-template';
 import ReviewTemplate from './review-template';
 import CostResourcesTemplate from './cost-resources-template';
-import { debouncedAsyncValidator, ValidatorReset } from './validators';
+import { ValidatorReset, debouncedAsyncValidator } from './validators';
 import ReviewStepButtons from '../../common/review-step-buttons';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';

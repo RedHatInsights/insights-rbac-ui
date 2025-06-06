@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Button } from '@patternfly/react-core';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
@@ -35,7 +35,11 @@ const QuickstartsTestButtons = () => {
   }, [quickstartsContext]);
 
   const handleActivateQuickstart = () => {
-    openQuickstart & !!quickstartsContext.activeQuickStartID ? quickStarts.toggle() : quickStarts.toggle('monitor-sampleapp', {});
+    if (openQuickstart && !!quickstartsContext.activeQuickStartID) {
+      quickStarts.toggle();
+    } else {
+      quickStarts.toggle('monitor-sampleapp', {});
+    }
     setOpenQuickstart(!openQuickstart);
   };
 

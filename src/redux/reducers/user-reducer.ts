@@ -1,5 +1,5 @@
+import { PaginationDefaultI, defaultSettings } from '../../helpers/shared/pagination';
 import { FETCH_USERS, UPDATE_USERS_FILTERS } from '../action-types';
-import { defaultSettings, PaginationDefaultI } from '../../helpers/shared/pagination';
 
 export interface User {
   email: string;
@@ -17,7 +17,8 @@ export interface UserFilters {
   email?: string;
   status?: string[];
 }
-export interface UserStore {
+
+export interface UserStore extends Record<string, unknown> {
   selectedUser: Record<string, unknown>;
   isUserDataLoading: boolean;
   users: {
@@ -39,7 +40,7 @@ export const usersInitialState: UserStore = {
   },
 };
 
-const setLoadingState = (state: any) => ({
+const setLoadingState = (state: any): UserStore => ({
   ...state,
   isUserDataLoading: true,
   users: {
@@ -51,7 +52,7 @@ const setLoadingState = (state: any) => ({
   },
 });
 
-const setUsers = (state: UserStore, { payload }: any) => ({
+const setUsers = (state: UserStore, { payload }: any): UserStore => ({
   ...state,
   users: { pagination: state.users?.pagination, filters: state.users?.filters, ...payload },
   isUserDataLoading: false,

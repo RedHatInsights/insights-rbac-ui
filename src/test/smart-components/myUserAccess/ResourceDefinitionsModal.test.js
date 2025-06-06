@@ -44,7 +44,7 @@ describe('<ResourceDefinitionsModal />', () => {
         resourceDefinitions={[...Array(100)].map((_, i) => ({
           attributeFilter: { value: `definition-${i}` },
         }))}
-      />
+      />,
     );
     const preparePaginationTextMatcher = (pageSize) => (_, element) => {
       if (element.tagName === 'BUTTON' && element.textContent) {
