@@ -1,3 +1,10 @@
+## [1.41.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.5...v1.41.6) (2025-06-06)
+
+
+### Bug Fixes
+
+* **common-auth:** current user cannot be disabled ([#1852](https://github.com/RedHatInsights/insights-rbac-ui/issues/1852)) ([e1af3a1](https://github.com/RedHatInsights/insights-rbac-ui/commit/e1af3a1ea7f8fdcec8eab9dca79080742d2a53c9))
+
 ## [1.41.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.4...v1.41.5) (2025-06-04)
 
 
