@@ -43,23 +43,24 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
   const dispatch = useDispatch();
   const { orgAdmin } = useContext(PermissionsContext);
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
-  const { getBundle, getApp } = useChrome();
+  const { getBundle, getApp, isProd, auth } = useChrome();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
   // use for text filter to focus
   const innerRef = useRef<HTMLInputElement | HTMLTextAreaElement>(null);
   const authModel = useFlag('platform.rbac.common-auth-model');
-  const { auth, isProd } = useChrome();
   const [loading, setLoading] = useState(false);
   const [token, setToken] = useState<string | null>(null);
   const [accountId, setAccountId] = useState<string | null>(null);
   const [isActivateModalOpen, setIsActivateModalOpen] = useState(false);
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [checkedStates, setCheckedStates] = useState(false);
+  const [currAccountId, setCurrAccountId] = useState<string | undefined>();
 
   useEffect(() => {
     const getToken = async () => {
       setAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
       setToken((await auth.getToken()) as string);
+      setCurrAccountId((await auth.getUser())?.identity?.internal?.account_id as string);
     };
     getToken();
   }, [auth]);
@@ -266,6 +267,7 @@ const UsersListNotSelectable = ({ userLinks, usesMetaInURL, props }: UsersListNo
           authModel,
           orgAdmin,
           () => fetchData({ ...pagination, filters, usesMetaInURL }),
+          currAccountId,
         )}
         sortBy={sortByState}
         onSort={(e, index, direction) => {
