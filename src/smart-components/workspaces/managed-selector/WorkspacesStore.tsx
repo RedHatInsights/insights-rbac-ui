@@ -1,12 +1,13 @@
 import React, { createContext, PropsWithChildren, useEffect, useMemo, useReducer } from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
+import Workspace from './Workspace';
 
 interface WorkspacesStore {
   isWorkspacesMenuExpanded: boolean;
   isFetchingWorkspacesFromRBAC: boolean;
   isFetchingWorkspacesFromRBACError: boolean;
   selectedWorkspace?: TreeViewWorkspaceItem;
-  fetchedWorkspaces: TreeViewWorkspaceItem[];
+  fetchedWorkspaces: Workspace[];
   workspaceTree?: TreeViewWorkspaceItem;
 }
 
@@ -56,7 +57,7 @@ const createWorkspacesStore = () => {
     notify();
   };
 
-  const setFetchedWorkspaces = (workspaces: TreeViewWorkspaceItem[]) => {
+  const setFetchedWorkspaces = (workspaces: Workspace[]) => {
     store.fetchedWorkspaces = workspaces;
     notify();
   };

@@ -20,7 +20,7 @@ export const isWorkspace = (obj: unknown): obj is Workspace => {
   if (!('id' in obj) || typeof (obj as Workspace).id !== 'string') {
     return false;
   }
-  if (!('type' in obj) || !((obj as Workspace).type in WorkspaceType)) {
+  if (!('type' in obj) || !Object.values(WorkspaceType).includes((obj as Workspace).type)) {
     return false;
   }
   if (!('name' in obj) || typeof (obj as Workspace).name !== 'string') {
