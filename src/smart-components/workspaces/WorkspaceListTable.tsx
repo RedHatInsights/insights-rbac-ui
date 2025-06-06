@@ -217,7 +217,7 @@ const WorkspaceListTable = () => {
                     handleModalToggle([workspace]);
                   },
                   isDisabled: (workspace.children && workspace.children.length > 0) || !canModify(workspace, 'delete'),
-                  isDanger: !(workspace.children && workspace.children.length > 0),
+                  isDanger: !(workspace.children && workspace.children.length > 0) && canModify(workspace, 'delete'),
                 },
               ]}
             />
