@@ -6,7 +6,7 @@ import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 interface WorkspaceTreeViewProps {
   treeElements: TreeViewWorkspaceItem[];
   areElementsFiltered: boolean;
-  selectedWorkspace: TreeViewWorkspaceItem | undefined;
+  selectedWorkspace?: TreeViewWorkspaceItem;
   onSelect: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
   isLoading: boolean;
 }

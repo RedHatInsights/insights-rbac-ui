@@ -27,6 +27,6 @@ export const isWorkspace = (obj: unknown): obj is Workspace => {
     return false;
   }
   return true;
-}
+};
 
 export default Workspace;

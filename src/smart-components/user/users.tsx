@@ -11,7 +11,6 @@ import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import UsersListItless from '../group/add-group/users-list-itless';
 import paths from '../../utilities/pathnames';
-import ManagedSelector from '../workspaces/managed-selector/ManagedSelector';
 
 const Users = () => {
   const intl = useIntl();
@@ -44,7 +43,6 @@ const Users = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id="users">
-          <ManagedSelector />
           {isITLess ? <UsersListItless {...usersListProps} /> : <UsersListNotSelectable {...usersListProps} />}
         </Section>
       </StackItem>

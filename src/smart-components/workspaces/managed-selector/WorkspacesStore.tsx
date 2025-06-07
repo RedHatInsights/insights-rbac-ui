@@ -1,4 +1,4 @@
-import React, { createContext, PropsWithChildren, useEffect, useMemo, useReducer } from 'react';
+import React, { PropsWithChildren, createContext, useEffect, useMemo, useReducer } from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
 
@@ -62,7 +62,7 @@ const createWorkspacesStore = () => {
     notify();
   };
 
-  const setWorkspaceTree = (tree: any) => {
+  const setWorkspaceTree = (tree?: TreeViewWorkspaceItem) => {
     store.workspaceTree = tree;
     notify();
   };
@@ -121,7 +121,7 @@ const useWorkspacesStore = () => {
       selectedWorkspace: store.getStore().selectedWorkspace,
       fetchedWorkspaces: store.getStore().fetchedWorkspaces,
       workspaceTree: store.getStore().workspaceTree,
-    }
+    },
   );
 
   useEffect(() => {
