@@ -26,7 +26,11 @@ const fetchWorkspacesFromRBAC = (): Promise<AxiosResponse<RBACListWorkspacesResp
   });
 };
 
-const WorkspaceSwitcher = () => {
+interface WorkspaceSwitcherProps {
+  onSelect?: (workspace: TreeViewDataItem) => void;
+}
+
+const WorkspaceSwitcher: React.FC<WorkspaceSwitcherProps> = ({ onSelect }) => {
   const {
     isWorkspacesMenuExpanded,
     setIsWorkspacesMenuExpanded,
@@ -156,11 +160,6 @@ const WorkspaceSwitcher = () => {
     }
   };
 
-  /**
-   * Handler which gets called when the user changes the selected workspace.
-   * @param _ the fired event which gets ignored.
-   * @param item the item that was selected.
-   */
   const onSelectTreeViewWorkspaceItem = (_: React.MouseEvent, selectedItem: TreeViewDataItem) => {
     if (!instanceOfTreeViewWorkspaceItem(selectedItem)) {
       return;
@@ -168,6 +167,9 @@ const WorkspaceSwitcher = () => {
 
     // Update the state variable which contains the selected workspace.
     setSelectedWorkspace(selectedItem);
+    if (onSelect) {
+      onSelect(selectedItem);
+    }
   };
 
   const menuToggle = (
