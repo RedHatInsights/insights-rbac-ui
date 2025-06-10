@@ -19,7 +19,7 @@ interface ManagedSelectorProps<T extends TreeViewDataItem> {
   searchInputValue: string;
   setSearchInputValue: (value: string) => void;
   areElementsFiltered: boolean;
-  onSearchFilter: (event: React.FormEvent<HTMLInputElement>, searchInput: string) => void;
+  onSearchFilter: (searchInput: string) => void;
   onSelectItem: (event: React.MouseEvent, selectedItem: TreeViewDataItem) => void;
   onFetchData: () => void;
   renderMenuToggle: (props: {
@@ -89,6 +89,16 @@ const ManagedSelector = <T extends TreeViewDataItem>({
     selectedItem,
   });
 
+  const memoizedTreeView = React.useMemo(() => {
+    return renderTreeView({
+      treeElements: filteredTreeElements,
+      areElementsFiltered,
+      selectedItem,
+      onSelect: onSelectItem,
+      isLoading,
+    });
+  }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
+
   const menu = (
     <Panel ref={menuRef} variant="raised">
       <PanelMain>
@@ -97,21 +107,13 @@ const ManagedSelector = <T extends TreeViewDataItem>({
             <SearchInput
               placeholder={searchPlaceholder}
               value={searchInputValue}
-              onChange={onSearchFilter}
-              onClear={() => onSearchFilter({} as React.FormEvent<HTMLInputElement>, '')}
+              onChange={(_e, value) => onSearchFilter(value)}
+              onClear={() => onSearchFilter('')}
             />
             <Panel>
               <PanelMain>
                 <section>
-                  <PanelMainBody>
-                    {renderTreeView({
-                      treeElements: filteredTreeElements,
-                      areElementsFiltered,
-                      selectedItem,
-                      onSelect: onSelectItem,
-                      isLoading,
-                    })}
-                  </PanelMainBody>
+                  <PanelMainBody>{memoizedTreeView}</PanelMainBody>
                 </section>
               </PanelMain>
             </Panel>

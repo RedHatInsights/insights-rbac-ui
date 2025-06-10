@@ -2,6 +2,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import * as React from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
+import { Bullseye } from '@patternfly/react-core';
 
 interface WorkspaceTreeViewProps {
   treeElements: TreeViewWorkspaceItem[];
@@ -14,9 +15,9 @@ interface WorkspaceTreeViewProps {
 const WorkspaceTreeView = ({ treeElements, areElementsFiltered, selectedWorkspace, onSelect, isLoading }: WorkspaceTreeViewProps) => {
   if (isLoading) {
     return (
-      <div className="pf-v6-u-display-flex pf-v6-u-align-content-center">
+      <Bullseye>
         <Spinner />
-      </div>
+      </Bullseye>
     );
   }
 

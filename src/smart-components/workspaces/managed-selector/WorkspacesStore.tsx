@@ -25,8 +25,13 @@ const createWorkspacesStore = () => {
 
   const subs = new Map<string, () => void>();
 
-  const notify = () => {
-    subs.forEach((sub) => sub());
+  // this function wraps a callback to notify subscribers when called
+  const notify = <A extends unknown[], R>(cb: (...args: A) => R) => {
+    return (...args: A): R => {
+      const cbRes = cb(...args);
+      subs.forEach((sub) => sub());
+      return cbRes;
+    };
   };
 
   const subscribe = (callback: () => void) => {
@@ -37,35 +42,29 @@ const createWorkspacesStore = () => {
     };
   };
 
-  const setIsWorkspacesMenuExpanded = (isExpanded: boolean) => {
+  const setIsWorkspacesMenuExpanded = notify((isExpanded: boolean) => {
     store.isWorkspacesMenuExpanded = isExpanded;
-    notify();
-  };
+  });
 
-  const setIsFetchingWorkspacesFromRBAC = (isFetching: boolean) => {
+  const setIsFetchingWorkspacesFromRBAC = notify((isFetching: boolean) => {
     store.isFetchingWorkspacesFromRBAC = isFetching;
-    notify();
-  };
+  });
 
-  const setIsFetchingWorkspacesFromRBACError = (isError: boolean) => {
+  const setIsFetchingWorkspacesFromRBACError = notify((isError: boolean) => {
     store.isFetchingWorkspacesFromRBACError = isError;
-    notify();
-  };
+  });
 
-  const setSelectedWorkspace = (workspace: TreeViewWorkspaceItem | undefined) => {
+  const setSelectedWorkspace = notify((workspace: TreeViewWorkspaceItem | undefined) => {
     store.selectedWorkspace = workspace;
-    notify();
-  };
+  });
 
-  const setFetchedWorkspaces = (workspaces: Workspace[]) => {
+  const setFetchedWorkspaces = notify((workspaces: Workspace[]) => {
     store.fetchedWorkspaces = workspaces;
-    notify();
-  };
+  });
 
-  const setWorkspaceTree = (tree?: TreeViewWorkspaceItem) => {
+  const setWorkspaceTree = notify((tree?: TreeViewWorkspaceItem) => {
     store.workspaceTree = tree;
-    notify();
-  };
+  });
 
   return {
     getStore: () => store,

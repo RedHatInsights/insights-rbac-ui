@@ -32,8 +32,8 @@ function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined
     // ID, we should just log it to help figure out why an incomplete list of
     // workspaces might be shown.
     if (tvwi.workspace.parent_id === undefined && tvwi.workspace.type !== WorkspaceType.ROOT) {
-      console.log(
-        `WARNING: non-root workspace has no parent ID. It will not be added to the root workspace and might seem like it is missing: ${tvwi.workspace}`,
+      console.warn(
+        `WARNING: non-root workspace has no parent ID. It will not be added to the root workspace and might seem like it is missing: ${JSON.stringify(tvwi.workspace)}`,
       );
     }
   }

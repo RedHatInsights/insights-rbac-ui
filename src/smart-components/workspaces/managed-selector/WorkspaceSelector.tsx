@@ -95,7 +95,7 @@ export const createWorkspaceSearchFilter = (
   setFilteredTreeElements: (elements: TreeViewWorkspaceItem[]) => void,
   setElementsAreFiltered: (filtered: boolean) => void,
 ) => {
-  return (_: React.FormEvent<HTMLInputElement>, searchInput: string) => {
+  return (searchInput: string) => {
     if (searchInput === '') {
       // With an empty input we just reset the tree to the full original tree.
       setFilteredTreeElements(workspaceTree ? [workspaceTree] : []);
