@@ -14,7 +14,7 @@ interface RBACListWorkspacesResponse {
 }
 
 // Exported fetch function
-export const fetchWorkspacesFromRBAC = (): Promise<AxiosResponse<RBACListWorkspacesResponse>> => {
+export const fetchWorkspacesFromRBAC = () => {
   return axios.get<RBACListWorkspacesResponse>('/api/rbac/v2/workspaces/', {
     params: {
       limit: Number.MAX_SAFE_INTEGER,
