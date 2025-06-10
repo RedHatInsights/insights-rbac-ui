@@ -229,7 +229,7 @@
     "inviteUsersCancelled": "Invite users process was canceled by the user.",
     "inviteUsersConflictDescription": "User email already exists.",
     "inviteUsersCustomerPortalPermissions": "Customer Portal access permissions",
-    "inviteUsersDescription": "Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.",
+    "inviteUsersDescription": "Invite users to create a Red Hat login with your organization. Your name will be included in the invite as a point of reference.",
     "inviteUsersErrorDescription": "Failed inviting users.",
     "inviteUsersErrorTitle": "Failed inviting all users",
     "inviteUsersFormDownloadSoftwareUpdatesFieldDescription": "User can download software and updates from the Red Hat Customer Portal.",

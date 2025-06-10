@@ -15,7 +15,7 @@ export default defineMessages({
     id: 'inviteUsersDescription',
     description: 'Invite users modal description',
     defaultMessage:
-      'Invite users to create a Red Hat login with your organization. Your e-mail address will be included in the invite as a point of contact.',
+      'Invite users to create a Red Hat login with your organization. Your name will be included in the invite as a point of reference.',
   },
   inviteUsersFormIsAdminFieldTitle: {
     id: 'inviteUsersFormIsAdminFieldTitle',
