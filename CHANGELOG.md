@@ -1,3 +1,10 @@
+# [1.42.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.6...v1.42.0) (2025-06-10)
+
+
+### Features
+
+* add initial ws selector module ([c44a11e](https://github.com/RedHatInsights/insights-rbac-ui/commit/c44a11edbdfcbe1224c05d50c1e0139cf5d6e12a))
+
 ## [1.41.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.5...v1.41.6) (2025-06-06)
 
 
