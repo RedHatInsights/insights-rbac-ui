@@ -1,3 +1,10 @@
+## [1.42.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.42.0...v1.42.1) (2025-06-10)
+
+
+### Bug Fixes
+
+* update 'user management - invite user' text ([d8753aa](https://github.com/RedHatInsights/insights-rbac-ui/commit/d8753aa1011a8d188437a24fc1c04f9532f5be37))
+
 # [1.42.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.41.6...v1.42.0) (2025-06-10)
 
 
