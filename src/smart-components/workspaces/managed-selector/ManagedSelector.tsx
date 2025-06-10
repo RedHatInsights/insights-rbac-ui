@@ -1,5 +1,5 @@
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import axios, { AxiosResponse } from 'axios';
+import axios from 'axios';
 import * as React from 'react';
 import { TreeViewWorkspaceItem, instanceOfTreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
