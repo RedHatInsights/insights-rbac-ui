@@ -1,3 +1,5 @@
+import omit from 'lodash/omit';
+import { PaginationDefaultI, defaultSettings } from '../../helpers/shared/pagination';
 import {
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_ADMIN_GROUP,
@@ -13,8 +15,6 @@ import {
   RESET_SELECTED_GROUP,
   UPDATE_GROUPS_FILTERS,
 } from '../action-types';
-import omit from 'lodash/omit';
-import { PaginationDefaultI, defaultSettings } from '../../helpers/shared/pagination';
 
 export interface Group {
   uuid: string;
@@ -60,7 +60,12 @@ export const groupsInitialState = {
     filters: {},
     pagination: { count: 0 },
   },
-  selectedGroup: { addRoles: {}, members: { meta: defaultSettings }, serviceAccounts: { meta: defaultSettings }, pagination: defaultSettings },
+  selectedGroup: {
+    addRoles: {},
+    members: { meta: defaultSettings },
+    serviceAccounts: { meta: defaultSettings },
+    pagination: defaultSettings,
+  },
   isLoading: false,
   isRecordLoading: false,
 };
@@ -96,8 +101,16 @@ const setAdminGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   adminGroup: payload?.data?.filter((group: any) => group?.admin_default)?.[0],
 });
-const setSystemGroup = (state: GroupStore, { payload }: any) => ({ ...state, isSystemGroupLoading: false, systemGroup: payload?.data?.[0] });
-const invalidateSystemGroup = (state: GroupStore) => ({ ...state, systemGroup: undefined });
+const setSystemGroup = (state: GroupStore, { payload }: any) => ({
+  ...state,
+  isSystemGroupLoading: false,
+  systemGroup: payload?.data?.[0],
+});
+const invalidateSystemGroup = (state: GroupStore) => ({
+  ...state,
+  systemGroup: undefined,
+  selectedGroup: state.selectedGroup ? { ...state.selectedGroup, platform_default: false } : undefined,
+});
 const setGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   isRecordLoading: false,
@@ -148,7 +161,15 @@ const setRolesForExpandedGroupLoading = (state: GroupStore, { meta }: any) => ({
 const setRolesForExpandedGroup = (state: GroupStore, { payload, meta }: any) => ({
   ...state,
   ...(meta.isAdminDefault ? { adminGroup: { ...state.adminGroup, roles: payload.data, isLoadingRoles: false } } : {}),
-  ...(meta.isPlatformDefault ? { systemGroup: { ...state.systemGroup, roles: payload.data, isLoadingRoles: false } } : {}),
+  ...(meta.isPlatformDefault
+    ? {
+        systemGroup: {
+          ...state.systemGroup,
+          roles: payload.data,
+          isLoadingRoles: false,
+        },
+      }
+    : {}),
   groups: {
     ...state.groups,
     data: state.groups.data.map((group) => ({
@@ -172,7 +193,10 @@ const setAccountsForGroup = (state: GroupStore, { payload }: any) => ({
     serviceAccounts: {
       isLoading: false,
       ...(!payload.error
-        ? { ...payload, data: payload.data.map((item: any) => ({ ...item, uuid: item.name, time_created: item.time_created * 1000 })) }
+        ? {
+            ...payload,
+            data: payload.data.map((item: any) => ({ ...item, uuid: item.name, time_created: item.time_created * 1000 })),
+          }
         : {}),
     },
   },
@@ -227,12 +251,18 @@ const setAddRolesForGroup = (state: GroupStore, { payload }: any) => ({
   ...state,
   selectedGroup: {
     ...state.selectedGroup,
-    addRoles: { ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.selectedGroup.addRoles), loaded: true },
+    addRoles: {
+      ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.selectedGroup.addRoles),
+      loaded: true,
+    },
   },
   ...(payload.error ? payload : {}),
 });
 
-const setFilters = (state: GroupStore, { payload }: any) => ({ ...state, groups: { ...state.groups, filters: payload } });
+const setFilters = (state: GroupStore, { payload }: any) => ({
+  ...state,
+  groups: { ...state.groups, filters: payload },
+});
 
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,

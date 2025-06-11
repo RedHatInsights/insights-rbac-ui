@@ -2,6 +2,7 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
 import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
 import { createContext } from 'react';
+import { compose } from 'redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
 import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
@@ -30,7 +31,12 @@ const middlewares = [
   // reduxLogger,
 ].filter((middleware) => typeof middleware === 'function');
 
-const registry = new ReducerRegistry({}, middlewares);
+const composeEnhancers =
+  typeof window === 'object' && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && window.location.hostname.includes('.foo.redhat.com')
+    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    : compose;
+
+const registry = new ReducerRegistry({}, middlewares, composeEnhancers);
 
 registry.register({
   userReducer: applyReducerHash(userReducer, usersInitialState),
