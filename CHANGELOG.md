@@ -1,3 +1,10 @@
+## [1.43.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.0...v1.43.1) (2025-06-11)
+
+
+### Bug Fixes
+
+* **itless:** fix itless users activate dropdown ([#1856](https://github.com/RedHatInsights/insights-rbac-ui/issues/1856)) ([43b26dc](https://github.com/RedHatInsights/insights-rbac-ui/commit/43b26dc9d3d6523e660a4d6022ce764a966b4d06))
+
 # [1.43.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.42.1...v1.43.0) (2025-06-11)
 
 
