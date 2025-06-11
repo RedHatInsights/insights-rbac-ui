@@ -168,7 +168,7 @@ const UsersListItless = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaI
 
   const toolbarDropdowns = () => {
     const onToggle = () => {
-      setIsToolbarDropdownOpen(!isToolbarDropdownOpen);
+      setIsToolbarDropdownOpen((isToolbarDropdownOpen) => !isToolbarDropdownOpen);
     };
     const onToolbarDropdownSelect = async (_event) => {
       const userActivationStatusMap = { activate: true, deactivate: false };
