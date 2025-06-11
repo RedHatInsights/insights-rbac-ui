@@ -1,3 +1,15 @@
+# [1.43.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.42.1...v1.43.0) (2025-06-11)
+
+
+### Bug Fixes
+
+* flag the selected group as not a plat default after a change ([559c3eb](https://github.com/RedHatInsights/insights-rbac-ui/commit/559c3ebffb0812394f0982c52ffaef48415ac062))
+
+
+### Features
+
+* programmatically enable redux devtools extension support ([b490e60](https://github.com/RedHatInsights/insights-rbac-ui/commit/b490e60214252da9cbc0e1aff7f33543d89096d1))
+
 ## [1.42.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.42.0...v1.42.1) (2025-06-10)
 
 
