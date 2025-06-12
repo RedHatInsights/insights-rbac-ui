@@ -1,3 +1,10 @@
+## [1.43.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.1...v1.43.2) (2025-06-12)
+
+
+### Bug Fixes
+
+* tweak MUA mobile/tablet breakpoints ([1d30265](https://github.com/RedHatInsights/insights-rbac-ui/commit/1d30265e3c58e846d0184c51a5a7c1f4f29c9ec2))
+
 ## [1.43.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.0...v1.43.1) (2025-06-11)
 
 
