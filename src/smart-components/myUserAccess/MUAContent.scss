@@ -1,9 +1,14 @@
-.rbac-l-myUserAccess-section__cards--unentitled {
-  .pf-v5-c-title {
-    border-top: 1px solid var(--pf-v5-global--BorderColor--100);
-    padding-top: var(--pf-v5-global--spacer--md);
+@media only screen and (max-width: 1200px) {
+  .rbac-l-myUserAccess-section__cards {
+    display: none;
   }
-  .rbac-c-mua-cardWrapper {
-    cursor: not-allowed;
+  .rbac-l-myUserAccess-section__cards--unentitled {
+    .pf-v5-c-title {
+      border-top: 1px solid var(--pf-v5-global--BorderColor--100);
+      padding-top: var(--pf-v5-global--spacer--md);
+    }
+    .rbac-c-mua-cardWrapper {
+      cursor: not-allowed;
+    }
   }
 }

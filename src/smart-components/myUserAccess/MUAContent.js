@@ -22,14 +22,14 @@ const MUAContent = ({ entitlements, isOrgAdmin, isUserAccessAdmin }) => {
   return (
     <OrgAdminContext.Provider value={hasAdminAccess}>
       <Grid>
-        <GridItem className="pf-m-3-col-on-md rbac-l-myUserAccess-section__cards rbac-m-hide-on-sm">
+        <GridItem className="pf-m-3-col-on-lg rbac-l-myUserAccess-section__cards">
           <Stack>
             <StackItem data-testid="entitle-section" className="rbac-l-myUserAccess-section__cards--entitled">
               <MUACard entitlements={entitledBundles} />
             </StackItem>
           </Stack>
         </GridItem>
-        <GridItem className="pf-m-9-col-on-md rbac-l-myUserAccess-section__table">
+        <GridItem className="pf-m-12-col pf-m-9-col-on-xl rbac-l-myUserAccess-section__table">
           <Title headingLevel="h3" size="xl">
             {intl.formatMessage(hasAdminAccess ? messages.yourRoles : messages.yourPermissions, {
               name: bundleData.find(({ entitlement }) => entitlement === bundle)?.title,
