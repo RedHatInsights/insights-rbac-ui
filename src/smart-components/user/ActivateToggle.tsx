@@ -13,6 +13,7 @@ const ActivateToggle: React.FC<{
   return user.external_source_id ? (
     <Switch
       id={user.username}
+      data-testid="user-status-toggle"
       key={user.uuid}
       isChecked={user.is_active}
       isDisabled={user.external_source_id + '' === accountId}
