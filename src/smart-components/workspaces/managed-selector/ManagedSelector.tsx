@@ -9,7 +9,7 @@ import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import WorkspaceMenuToggle from './WorkspaceMenuToggle';
 import WorkspaceSelector from './WorkspaceSelector';
 
-interface RBACListWorkspacesResponse {
+export interface RBACListWorkspacesResponse {
   data: Workspace[];
 }
 
