@@ -29,7 +29,7 @@ const WorkspaceTreeView = ({ treeElements, areElementsFiltered, selectedWorkspac
         data={treeElements}
         hasGuides={true}
         onSelect={onSelect}
-        className='workspace-selector-tree-view'
+        className="workspace-selector-tree-view"
       />
     );
   } else {
