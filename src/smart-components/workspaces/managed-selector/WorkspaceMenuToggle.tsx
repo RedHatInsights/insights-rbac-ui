@@ -28,7 +28,13 @@ const WorkspaceMenuToggle = ({ menuToggleRef, onMenuToggleClick, isMenuToggleExp
   }
 
   return (
-    <MenuToggle ref={menuToggleRef} onClick={onMenuToggleClick} isDisabled={isDisabled} isExpanded={isMenuToggleExpanded}>
+    <MenuToggle
+      ref={menuToggleRef}
+      onClick={onMenuToggleClick}
+      isDisabled={isDisabled}
+      isExpanded={isMenuToggleExpanded}
+      className="workspace-selector-toggle"
+    >
       {content}
     </MenuToggle>
   );
