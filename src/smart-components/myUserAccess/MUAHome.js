@@ -22,7 +22,12 @@ const MyUserAccess = () => {
   const [bundleParam, setBundleParam] = useState(bundle);
   const { userAccessAdministrator } = useContext(PermissionsContext);
   useEffect(() => {
-    chrome.auth.getUser().then(({ identity, entitlements }) => setUser({ entitlements, isOrgAdmin: identity?.user?.is_org_admin }));
+    chrome.auth.getUser().then(({ identity, entitlements }) =>
+      setUser({
+        entitlements,
+        isOrgAdmin: identity?.user?.is_org_admin,
+      }),
+    );
     !bundle && setSearchParams({ bundle: DEFAULT_MUA_BUNDLE });
   }, []);
   const enhancedEntitlements = {
@@ -76,7 +81,7 @@ const MyUserAccess = () => {
             </div>
           )}
           <section>
-            <MUAContent entitlements={enhancedEntitlements} isOrgAdmin={user.isOrgAdmin} isUserAccessAdmin={userAccessAdministrator} />
+            <MUAContent entitlements={enhancedEntitlements} isOrgAdmin={user.isOrgAdmin} isUserAccessAdmin={true} />
           </section>
         </React.Fragment>
       ) : (
