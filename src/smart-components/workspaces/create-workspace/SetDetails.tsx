@@ -1,7 +1,4 @@
-import React, { useEffect, useState } from 'react';
-import { useIntl } from 'react-intl';
-import { useDispatch, useSelector } from 'react-redux';
-import { useFlag } from '@unleash/proxy-client-react';
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import {
   Button,
   FormGroup,
@@ -17,12 +14,15 @@ import {
   Skeleton,
   Text,
 } from '@patternfly/react-core';
-import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
-import { RBACStore } from '../../../redux/store';
-import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
+import { useFlag } from '@unleash/proxy-client-react';
+import React, { useEffect, useState } from 'react';
+import { useIntl } from 'react-intl';
+import { useDispatch, useSelector } from 'react-redux';
 import messages from '../../../Messages';
-import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
+import InputHelpPopover from '../../../presentational-components/InputHelpPopover.stories';
+import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
+import { RBACStore } from '../../../redux/store';
+import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
 
 const SetDetails = () => {
   const intl = useIntl();
