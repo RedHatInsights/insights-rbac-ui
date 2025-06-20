@@ -1,4 +1,8 @@
 import type { StorybookConfig } from '@storybook/react-webpack5';
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
   "stories": [
@@ -12,6 +16,18 @@ const config: StorybookConfig = {
   "framework": {
     "name": "@storybook/react-webpack5",
     "options": {}
-  }
+  },
+  webpackFinal: async (config) => {
+    // Mock hooks for Storybook - replace real implementations with our context-aware versions
+    config.resolve = {
+      ...config.resolve,
+      alias: {
+        ...config.resolve?.alias,
+        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(__dirname, '../src/test/storybook-hooks/useChrome'),
+        '@unleash/proxy-client-react': path.resolve(__dirname, '../src/test/storybook-hooks/unleash'),
+      },
+    };
+    return config;
+  },
 };
 export default config;
