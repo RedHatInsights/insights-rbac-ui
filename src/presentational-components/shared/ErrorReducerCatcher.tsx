@@ -1,5 +1,4 @@
-import React, { Fragment, useEffect } from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment, ReactNode, useEffect } from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useLocation } from 'react-router-dom';
@@ -31,13 +30,17 @@ const errorStates = {
   ),
 };
 
-const ErroReducerCatcher = ({ children }) => {
-  const errorCode = useSelector(({ errorReducer: { errorCode } }) => errorCode);
+interface ErrorReducerCatcherProps {
+  children: ReactNode;
+}
+
+const ErrorReducerCatcher: React.FC<ErrorReducerCatcherProps> = ({ children }) => {
+  const errorCode = useSelector(({ errorReducer: { errorCode } }: any) => errorCode);
   const location = useLocation();
   const dispatch = useDispatch();
   const intl = useIntl();
 
-  const sectionTitles = {
+  const sectionTitles: Record<string, string> = {
     '/users': intl.formatMessage(messages.rbacUsers),
     '/groups': intl.formatMessage(messages.rbacGroups),
   };
@@ -46,13 +49,13 @@ const ErroReducerCatcher = ({ children }) => {
     if (errorCode) {
       dispatch({ type: API_ERROR, payload: undefined });
     }
-  }, [location?.pathname]);
+  }, [location?.pathname, dispatch, errorCode]);
 
   if (errorCode) {
-    const State = errorStates[errorCode];
-    const name = sectionTitles[Object.keys(sectionTitles).find((key) => location?.pathname.includes(key))] || 'RBAC';
+    const State = errorStates[errorCode as keyof typeof errorStates];
+    const name = sectionTitles[Object.keys(sectionTitles).find((key) => location?.pathname.includes(key)) || ''] || 'RBAC';
 
-    return <State serviceName={name} />;
+    return State ? <State serviceName={name} /> : null;
   }
 
   return (
@@ -63,8 +66,4 @@ const ErroReducerCatcher = ({ children }) => {
   );
 };
 
-ErroReducerCatcher.propTypes = {
-  children: PropTypes.node.isRequired,
-};
-
-export default ErroReducerCatcher;
+export default ErrorReducerCatcher;

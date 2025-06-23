@@ -1,25 +1,27 @@
 import React from 'react';
 import { RowWrapper } from '@patternfly/react-table';
-import PropTypes from 'prop-types';
 import classNames from 'classnames';
 
-const UsersRow = ({ row, ...props }) => {
+interface UsersRowProps {
+  row: {
+    cells?: any[];
+    status?: {
+      props?: {
+        'data-is-active'?: boolean;
+        data?: {
+          isActive?: boolean;
+        };
+      };
+    };
+    [key: string]: any;
+  };
+  [key: string]: any;
+}
+
+const UsersRow: React.FC<UsersRowProps> = ({ row, ...props }) => {
   const { status } = row;
   const isActive = status?.props?.['data-is-active'];
   return <RowWrapper className={classNames('rbac__user-row', { 'ins-m-inactive': !isActive })} row={row} {...props} />;
-};
-
-UsersRow.propTypes = {
-  row: PropTypes.shape({
-    status: PropTypes.shape({
-      props: PropTypes.shape({
-        'data-is-active': PropTypes.bool,
-        data: PropTypes.shape({
-          isActive: PropTypes.bool,
-        }),
-      }),
-    }),
-  }),
 };
 
 export default UsersRow;

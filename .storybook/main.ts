@@ -27,6 +27,21 @@ const config: StorybookConfig = {
         '@unleash/proxy-client-react': path.resolve(__dirname, '../src/test/storybook-hooks/unleash'),
       },
     };
+
+    // Add SCSS support
+    config.module = config.module || {};
+    config.module.rules = config.module.rules || [];
+    
+    // Add SCSS rule
+    config.module.rules.push({
+      test: /\.s[ac]ss$/i,
+      use: [
+        'style-loader',
+        'css-loader',
+        'sass-loader',
+      ],
+    });
+
     return config;
   },
 };
