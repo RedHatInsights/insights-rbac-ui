@@ -66,12 +66,10 @@ const SetDetails = () => {
       return <ManagedSelector onSelect={handleWorkspaceSelection} />;
     }
 
-    // Render disabled selector with default workspace
     if (isLoading) {
       return <Skeleton width="100%" height="36px" />;
     }
 
-    // Simple disabled MenuToggle - no need for Select wrapper since it never opens
     return (
       <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled onClick={() => {}} isExpanded={false}>
         {defaultWorkspace?.name || 'Default Workspace'}
