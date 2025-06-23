@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -17,21 +17,27 @@ import {
   Skeleton,
   Text,
 } from '@patternfly/react-core';
+import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
 import { RBACStore } from '../../../redux/store';
 import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
+import ManagedSelector from '../managed-selector/ManagedSelector';
+import { instanceOfTreeViewWorkspaceItem } from '../managed-selector/TreeViewWorkspaceItem';
 
 const SetDetails = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const enableBillingFeatures = useFlag('platform.rbac.workspaces-billing-features');
+  const enableWorkspaceHierarchy = useFlag('platform.rbac.workspace-hierarchy');
+  const enableWorkspaces = useFlag('platform.rbac.workspaces');
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
-  const [isOpen, setIsOpen] = useState(false);
   const { isLoading, workspaces } = useSelector((state: RBACStore) => state.workspacesReducer);
+
+  const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy && enableWorkspaces;
 
   useEffect(() => {
     dispatch(fetchWorkspaces());
@@ -48,16 +54,59 @@ const SetDetails = () => {
   const defaultWorkspace = workspaces.find((workspace) => workspace.type === 'default');
 
   useEffect(() => {
-    if (defaultWorkspace) {
+    if (defaultWorkspace && !values[WORKSPACE_PARENT]) {
       formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
     }
-  }, [defaultWorkspace, formOptions.change]);
+  }, [defaultWorkspace, formOptions.change, values[WORKSPACE_PARENT]]);
 
-  const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-    <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen}>
-      {defaultWorkspace?.name}
-    </MenuToggle>
-  );
+  const handleWorkspaceSelection = (selectedWorkspace: TreeViewDataItem) => {
+    if (instanceOfTreeViewWorkspaceItem(selectedWorkspace)) {
+      // Convert the TreeViewWorkspaceItem to a Workspace object for the form
+      const workspaceForForm = {
+        id: selectedWorkspace.workspace.id,
+        parent_id: selectedWorkspace.workspace.parent_id,
+        type: selectedWorkspace.workspace.type,
+        name: selectedWorkspace.workspace.name,
+        description: selectedWorkspace.workspace.description,
+        created: selectedWorkspace.workspace.created,
+        updated: selectedWorkspace.workspace.updated,
+      };
+      formOptions.change(WORKSPACE_PARENT, workspaceForForm);
+    }
+  };
+
+  const renderWorkspaceSelector = () => {
+    if (isWorkspaceSelectorEnabled) {
+      return <ManagedSelector onSelect={handleWorkspaceSelection} />;
+    }
+
+    // Render disabled selector with default workspace if FF are not enabled
+    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
+      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled ref={toggleRef} onClick={() => {}} isExpanded={false}>
+        {defaultWorkspace?.name || 'Default Workspace'}
+      </MenuToggle>
+    );
+
+    return isLoading ? (
+      <Skeleton width="100%" height="36px" />
+    ) : (
+      <Select
+        ouiaId="SetDetails-parent-select-disabled"
+        isOpen={false}
+        selected={defaultWorkspace?.id}
+        onSelect={() => {}}
+        onOpenChange={() => {}}
+        toggle={toggle}
+        shouldFocusToggleOnSelect
+      >
+        <SelectList>
+          <SelectOption key={`${defaultWorkspace?.name}-${defaultWorkspace?.id}`} isSelected value={defaultWorkspace?.id}>
+            {defaultWorkspace?.name || 'Default Workspace'}
+          </SelectOption>
+        </SelectList>
+      </Select>
+    );
+  };
 
   return (
     <Grid hasGutter className="pf-v5-u-my-lg">
@@ -79,28 +128,7 @@ const SetDetails = () => {
             />
           }
         >
-          {isLoading ? (
-            <Skeleton width="100%" height="36px" />
-          ) : (
-            <Select
-              ouiaId="SetDetails-parent-select"
-              isOpen={isOpen}
-              selected={defaultWorkspace?.id}
-              onSelect={(_e, value) => {
-                value && formOptions.change(WORKSPACE_PARENT, defaultWorkspace);
-                setIsOpen(false);
-              }}
-              onOpenChange={(isOpen) => setIsOpen(isOpen)}
-              toggle={toggle}
-              shouldFocusToggleOnSelect
-            >
-              <SelectList>
-                <SelectOption key={`${defaultWorkspace?.name}-${defaultWorkspace?.id}`} isSelected value={defaultWorkspace?.id}>
-                  {defaultWorkspace?.name}
-                </SelectOption>
-              </SelectList>
-            </Select>
-          )}
+          {renderWorkspaceSelector()}
         </FormGroup>
       </GridItem>
       {enableBillingFeatures && (

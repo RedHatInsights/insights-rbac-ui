@@ -100,7 +100,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
   const menu = (
-    <Panel ref={menuRef} variant="raised">
+    <Panel ref={menuRef} variant="raised" style={{ maxWidth: '400px' }}>
       <PanelMain>
         <section>
           <PanelMainBody>
@@ -110,10 +110,17 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
               onChange={(_e, value) => onSearchFilter(value)}
               onClear={() => onSearchFilter('')}
             />
-            <Panel>
+            <Panel
+              style={{
+                maxHeight: '300px',
+                overflowY: 'auto',
+                border: 'none',
+                boxShadow: 'none',
+              }}
+            >
               <PanelMain>
                 <section>
-                  <PanelMainBody>{memoizedTreeView}</PanelMainBody>
+                  <PanelMainBody style={{ padding: '0.5rem 0' }}>{memoizedTreeView}</PanelMainBody>
                 </section>
               </PanelMain>
             </Panel>
