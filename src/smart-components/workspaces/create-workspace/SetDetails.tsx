@@ -19,7 +19,7 @@ import React, { useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import messages from '../../../Messages';
-import InputHelpPopover from '../../../presentational-components/InputHelpPopover.stories';
+import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
 import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
 import { RBACStore } from '../../../redux/store';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';

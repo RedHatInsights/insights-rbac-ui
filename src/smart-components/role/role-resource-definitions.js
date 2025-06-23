@@ -4,7 +4,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import { createRows, isInventoryPermission } from './role-resource-definitions-table-helpers';
-import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar } from '../../presentational-components/shared/TopToolbar';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
 import { defaultSettings } from '../../helpers/shared/pagination';

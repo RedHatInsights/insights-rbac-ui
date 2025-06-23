@@ -5,18 +5,24 @@ import { fileURLToPath } from 'url';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const config: StorybookConfig = {
-  "stories": [
+  stories: [
+    "../src/docs/*.mdx",
     "../src/**/*.mdx",
     "../src/**/*.stories.@(js|jsx|mjs|ts|tsx)"
   ],
-  "addons": [
+  addons: [
     "@storybook/addon-webpack5-compiler-swc",
-    "@storybook/addon-docs"
+    "@storybook/addon-docs",
+    "@storybook/addon-essentials",
   ],
-  "framework": {
-    "name": "@storybook/react-webpack5",
-    "options": {}
+  framework: {
+    name: "@storybook/react-webpack5",
+    options: {}
   },
+  docs: {
+    defaultName: 'Documentation',
+  },
+  staticDirs: ['../static'],
   webpackFinal: async (config) => {
     // Mock hooks for Storybook - replace real implementations with our context-aware versions
     config.resolve = {
@@ -42,7 +48,18 @@ const config: StorybookConfig = {
       ],
     });
 
+
+
     return config;
   },
+  typescript: {
+    check: false,
+    reactDocgen: 'react-docgen-typescript',
+    reactDocgenTypescriptOptions: {
+      shouldExtractLiteralValuesFromEnum: true,
+      propFilter: (prop) => (prop.parent ? !/node_modules/.test(prop.parent.fileName) : true),
+    },
+  },
 };
+
 export default config;

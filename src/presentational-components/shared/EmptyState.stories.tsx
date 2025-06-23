@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { Button } from '@patternfly/react-core';
 import { ExclamationTriangleIcon, LockIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-icons';
-import EmptyWithAction from './empty-state';
+import EmptyWithAction from './EmptyState';
 
 const meta: Meta<typeof EmptyWithAction> = {
   component: EmptyWithAction,

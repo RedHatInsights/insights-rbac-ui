@@ -1,14 +1,20 @@
 import React, { Fragment, ReactNode } from 'react';
 import { Flex, FlexItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
-import RbacBreadcrumbs from './breadcrumbs';
+import RbacBreadcrumbs from './Breadcrumbs';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
-import './top-toolbar.scss';
+import './TopToolbar.scss';
+
+interface BreadcrumbItemProps {
+  title?: string;
+  to?: string;
+  isActive?: boolean;
+}
 
 interface TopToolbarProps {
   children: ReactNode;
-  breadcrumbs?: Record<string, any>;
+  breadcrumbs?: BreadcrumbItemProps[];
 }
 
 export const TopToolbar: React.FC<TopToolbarProps> = ({ children, breadcrumbs }) => (

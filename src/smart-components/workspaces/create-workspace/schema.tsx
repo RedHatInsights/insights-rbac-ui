@@ -7,7 +7,7 @@ import { useSelector } from 'react-redux';
 import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
-import InputHelpPopover from '../../../presentational-components/InputHelpPopover.stories';
+import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
 import { Workspace, isWorkspace } from '../../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../../redux/store';
 

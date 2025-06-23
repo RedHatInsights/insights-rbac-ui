@@ -2,13 +2,19 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
 import { Button, Label } from '@patternfly/react-core';
-import { TopToolbar, TopToolbarTitle } from './top-toolbar';
+import { TopToolbar, TopToolbarTitle } from './TopToolbar';
+
+interface BreadcrumbItemProps {
+  title?: string;
+  to?: string;
+  isActive?: boolean;
+}
 
 // Combined component for showcasing both toolbar components
 const CombinedToolbar: React.FC<{
   title?: React.ReactNode;
   description?: React.ReactNode;
-  breadcrumbs?: Record<string, any>;
+  breadcrumbs?: BreadcrumbItemProps[];
   renderTitleTag?: () => React.ReactNode;
   children?: React.ReactNode;
 }> = ({ title, description, breadcrumbs, renderTitleTag, children }) => (
@@ -94,17 +100,17 @@ export const WithBreadcrumbs: Story = {
   args: {
     title: 'Groups',
     description: 'Manage user groups and their access permissions.',
-    breadcrumbs: {
-      root: {
+    breadcrumbs: [
+      {
         title: 'User Access',
         to: '/',
         isActive: false,
       },
-      current: {
+      {
         title: 'Groups',
         isActive: true,
       },
-    },
+    ],
   },
 };
 
@@ -130,22 +136,22 @@ export const DeepNavigation: Story = {
   args: {
     title: 'Engineering Team',
     description: 'Manage members and permissions for the Engineering team group.',
-    breadcrumbs: {
-      root: {
+    breadcrumbs: [
+      {
         title: 'User Access',
         to: '/',
         isActive: false,
       },
-      groups: {
+      {
         title: 'Groups',
         to: '/groups',
         isActive: false,
       },
-      current: {
+      {
         title: 'Engineering Team',
         isActive: true,
       },
-    },
+    ],
     renderTitleTag: () => (
       <Label color="grey" isCompact>
         12 members
@@ -166,17 +172,17 @@ export const ComplexDescription: Story = {
         <p style={{ marginTop: '8px', fontSize: '14px', color: '#666' }}>Create and manage service accounts for automated integrations.</p>
       </div>
     ),
-    breadcrumbs: {
-      root: {
+    breadcrumbs: [
+      {
         title: 'User Access',
         to: '/',
         isActive: false,
       },
-      current: {
+      {
         title: 'Service Accounts',
         isActive: true,
       },
-    },
+    ],
   },
 };
 
@@ -187,17 +193,17 @@ export const WithActions: Story = {
   args: {
     title: 'Roles',
     description: 'Define custom roles and permissions for your organization.',
-    breadcrumbs: {
-      root: {
+    breadcrumbs: [
+      {
         title: 'User Access',
         to: '/',
         isActive: false,
       },
-      current: {
+      {
         title: 'Roles',
         isActive: true,
       },
-    },
+    ],
     children: (
       <div style={{ marginTop: '16px' }}>
         <Button variant="primary" style={{ marginRight: '8px' }}>
@@ -216,17 +222,17 @@ export const LoadingTitle: Story = {
   args: {
     title: undefined, // Will show ToolbarTitlePlaceholder
     description: 'Loading page information...',
-    breadcrumbs: {
-      root: {
+    breadcrumbs: [
+      {
         title: 'User Access',
         to: '/',
         isActive: false,
       },
-      loading: {
+      {
         // No title - will show placeholder in breadcrumbs too
         isActive: true,
       },
-    },
+    ],
   },
 };
 
@@ -245,10 +251,10 @@ export const Minimal: Story = {
 export const ToolbarOnly: StoryObj<typeof TopToolbar> = {
   render: () => (
     <TopToolbar
-      breadcrumbs={{
-        root: { title: 'User Access', to: '/', isActive: false },
-        current: { title: 'Settings', isActive: true },
-      }}
+      breadcrumbs={[
+        { title: 'User Access', to: '/', isActive: false },
+        { title: 'Settings', isActive: true },
+      ]}
     >
       <div style={{ padding: '16px', background: '#f0f0f0', borderRadius: '4px' }}>Custom toolbar content goes here</div>
     </TopToolbar>

@@ -10,14 +10,14 @@ interface BreadcrumbItemProps {
 }
 
 interface RbacBreadcrumbsProps {
-  breadcrumbs?: Record<string, BreadcrumbItemProps>;
+  breadcrumbs?: BreadcrumbItemProps[];
 }
 
 const RbacBreadcrumbs: React.FC<RbacBreadcrumbsProps> = ({ breadcrumbs }) => {
   return breadcrumbs ? (
     <Breadcrumb>
-      {Object.values(breadcrumbs).map((item, index) =>
-        item.title ? (
+      {breadcrumbs.map((item, index) =>
+        item?.title ? (
           <BreadcrumbItem key={item.title} isActive={item.isActive}>
             {item.to ? (
               <NavLink end to={item.to}>

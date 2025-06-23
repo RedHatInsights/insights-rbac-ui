@@ -16,7 +16,7 @@ import {
   fetchSystemGroup,
 } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import GroupRowWrapper from './group-row-wrapper';
 import {
   applyPaginationToUrl,

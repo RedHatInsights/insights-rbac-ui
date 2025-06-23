@@ -11,7 +11,7 @@ import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 
 const errorStates = {
-  403: ({ serviceName }) => (
+  403: ({ serviceName }: { serviceName: string }) => (
     <NotAuthorized
       serviceName={serviceName}
       description={

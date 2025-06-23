@@ -23,25 +23,68 @@ const AllPlaceholders: React.FC = () => (
 );
 
 const meta: Meta<typeof AllPlaceholders> = {
+  title: 'Design System/Loading Placeholders',
   component: AllPlaceholders,
   tags: ['autodocs'],
   parameters: {
     layout: 'padded',
+    backgrounds: {
+      default: 'console',
+    },
     docs: {
       description: {
         component: `
+<div className="component-badge component-badge--stable">Stable</div>
+
 Collection of loading placeholder components used throughout the RBAC application.
 These components provide skeleton loading states while data is being fetched.
 
-## Available Placeholders
+## 🎯 Purpose
 
-- **AppPlaceholder**: Full app loading state with title and table skeleton
-- **ToolbarTitlePlaceholder**: Small skeleton for toolbar titles
-- **BreadcrumbPlaceholder**: Skeleton for breadcrumb items
-- **FormItemLoader**: Loading state for form fields
-- **PolicyRolesLoader**: Form with multiple loading form items
+Loading placeholders improve perceived performance by showing users that content is loading, rather than displaying a blank screen. They maintain the structure and layout of the final content while data is being fetched.
 
-All placeholders use consistent styling with PatternFly and Red Hat design system.
+## 📋 Available Placeholders
+
+### AppPlaceholder
+Full application loading state with page title and data table skeleton. Use this for main page content.
+
+### ToolbarTitlePlaceholder  
+Compact skeleton for page titles and toolbar headers. Perfect for navigation elements.
+
+### BreadcrumbPlaceholder
+Skeleton for breadcrumb navigation items. Maintains navigation structure during loading.
+
+### FormItemLoader
+Loading state for individual form fields and inputs. Use when form options are being loaded.
+
+### PolicyRolesLoader
+Complete form skeleton with multiple field placeholders. Ideal for complex forms with multiple sections.
+
+## 🎨 Design Principles
+
+- **Consistent Animation**: All placeholders use the same pulsing animation
+- **Proper Sizing**: Placeholders match the dimensions of actual content
+- **PatternFly Integration**: Built with PatternFly design tokens
+- **Accessibility**: Proper ARIA labels for screen readers
+
+## ⚡ Performance
+
+- Lightweight components with minimal DOM impact
+- CSS-only animations for optimal performance
+- No JavaScript dependencies beyond React
+
+## 🔧 Usage Guidelines
+
+### When to Use
+- Data is being fetched from an API
+- Content is being processed or computed
+- User action is being processed
+- Page or component is initializing
+
+### When Not to Use
+- For very quick operations (< 200ms)
+- When you need to show specific loading progress
+- For operations that need user feedback beyond loading state
         `,
       },
     },
