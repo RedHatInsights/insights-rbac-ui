@@ -71,7 +71,7 @@ const SetDetails = () => {
     }
 
     return (
-      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled onClick={() => {}} isExpanded={false}>
+      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled isExpanded={false}>
         {defaultWorkspace?.name || 'Default Workspace'}
       </MenuToggle>
     );
