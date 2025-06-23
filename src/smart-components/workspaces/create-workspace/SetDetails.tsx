@@ -2,21 +2,7 @@ import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';
-import {
-  Button,
-  FormGroup,
-  FormSelect,
-  FormSelectOption,
-  Grid,
-  GridItem,
-  MenuToggle,
-  MenuToggleElement,
-  Select,
-  SelectList,
-  SelectOption,
-  Skeleton,
-  Text,
-} from '@patternfly/react-core';
+import { Button, FormGroup, FormSelect, FormSelectOption, Grid, GridItem, MenuToggle, Skeleton, Text } from '@patternfly/react-core';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
@@ -80,31 +66,16 @@ const SetDetails = () => {
       return <ManagedSelector onSelect={handleWorkspaceSelection} />;
     }
 
-    // Render disabled selector with default workspace if FF are not enabled
-    const toggle = (toggleRef: React.Ref<MenuToggleElement>) => (
-      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled ref={toggleRef} onClick={() => {}} isExpanded={false}>
+    // Render disabled selector with default workspace
+    if (isLoading) {
+      return <Skeleton width="100%" height="36px" />;
+    }
+
+    // Simple disabled MenuToggle - no need for Select wrapper since it never opens
+    return (
+      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled onClick={() => {}} isExpanded={false}>
         {defaultWorkspace?.name || 'Default Workspace'}
       </MenuToggle>
-    );
-
-    return isLoading ? (
-      <Skeleton width="100%" height="36px" />
-    ) : (
-      <Select
-        ouiaId="SetDetails-parent-select-disabled"
-        isOpen={false}
-        selected={defaultWorkspace?.id}
-        onSelect={() => {}}
-        onOpenChange={() => {}}
-        toggle={toggle}
-        shouldFocusToggleOnSelect
-      >
-        <SelectList>
-          <SelectOption key={`${defaultWorkspace?.name}-${defaultWorkspace?.id}`} isSelected value={defaultWorkspace?.id}>
-            {defaultWorkspace?.name || 'Default Workspace'}
-          </SelectOption>
-        </SelectList>
-      </Select>
     );
   };
 
