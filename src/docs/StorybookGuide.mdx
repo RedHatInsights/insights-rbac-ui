@@ -4,7 +4,7 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 # Enhanced Storybook Guide
 
-This guide explains the enhanced Storybook setup for the RBAC UI project and how to make the most of its features.
+This guide explains the enhanced Storybook setup for the RBAC UI project and comprehensive best practices for creating effective component stories.
 
 ## 🎨 What's New
 
@@ -27,6 +27,120 @@ This guide explains the enhanced Storybook setup for the RBAC UI project and how
 - **Context Controls**: Global controls for permissions and feature flags
 - **Source Code**: View component source code directly in Storybook
 - **Enhanced Documentation**: Rich MDX documentation with better formatting
+
+## 🎯 Story Development Best Practices
+
+*Based on learnings from UsersRow and other component story development*
+
+### **Focus on the Component, Not Wrappers**
+- ✅ Stories should document the **actual component** being developed
+- ❌ Don't let stories document complex wrapper components (like `TableToolbarView`)
+- ✅ Use Storybook's **autotitle feature** - don't set custom `title` in meta
+- ✅ Set `component: ActualComponent` in meta object
+
+### **Story Structure Best Practices**
+```typescript
+const meta: Meta<typeof ComponentName> = {
+  component: ComponentName,  // The actual component being documented
+  // No title - let Storybook auto-generate from file path
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `Clear description of what the component does and how it works`
+      }
+    }
+  }
+};
+```
+
+### **Investigation Process - Know Before You Code**
+
+#### **When Working with Existing Components:**
+1. **Check dependency versions** - Look at `package.json` for PatternFly, React, and other library versions to use correct documentation
+2. **Understand the component's role** - Is it a wrapper? What does it wrap?
+3. **Check actual usage** - Look at how it's used in the codebase
+4. **Understand data flow** - What data does it actually read/use?
+5. **Check PatternFly patterns** - What interfaces should it implement? (Use version-specific docs)
+6. **Verify with build/lint** - Ensure changes don't break anything
+
+#### **Version-Specific Documentation Sources:**
+- **PatternFly React**: Check version in `package.json`, then use corresponding docs
+  - Example: `@patternfly/react-table@4.x.x` vs `@patternfly/react-table@5.x.x` have different APIs
+- **Storybook**: Use version-specific documentation for story formats and meta configurations
+- **React**: Ensure patterns match the React version being used
+- **TypeScript**: Check for version-specific type definitions and features
+
+## 🔧 PatternFly Integration Patterns
+
+### **Table Row Wrappers**
+- ✅ Use `RowWrapperProps` interface from PatternFly
+- ✅ Implement as: `({ row, ...props }: RowWrapperProps) => JSX.Element`
+- ✅ Use complete `Table` structure in stories:
+```typescript
+<Table aria-label="Description" cells={columns} rowWrapper={Component} rows={data}>
+  <TableHeader />
+  <TableBody />
+</Table>
+```
+
+### **TypeScript Compatibility**
+- ✅ Import proper PatternFly types: `import { RowWrapperProps } from '@patternfly/react-table'`
+- ✅ Use type assertions when needed: `args.row!` for story arguments
+- ✅ Ensure component return types match PatternFly expectations
+
+### **Data Structure Understanding**
+- ✅ Understand what data the component **actually reads** from props
+- ✅ For table components, understand the expected row structure
+- ✅ Example: `UsersRow` reads `row.status.props['data-is-active']`, not `row.cells`
+- ✅ Use **realistic data structures** that match production usage
+- ✅ Include actual PatternFly components (Labels, Icons, etc.) in cell data
+- ❌ Don't use generic mock data that doesn't reflect real usage
+- ✅ Add `key` props to JSX elements in arrays
+
+## 🚫 Common Pitfalls to Avoid
+
+### **Complex Story Wrappers**
+- ❌ Don't use `TableToolbarView` or similar complex components in stories
+- ❌ Avoid components that cause React hooks issues
+- ✅ Use minimal, focused wrappers that showcase the component
+
+### **TypeScript Issues**
+- ❌ Don't create overly restrictive custom interfaces when PatternFly types exist
+- ❌ Don't ignore TypeScript errors - fix them with proper types
+- ✅ Use PatternFly's provided interfaces and extend them if needed
+
+### **Data Structure Mismatches**
+- ❌ Don't assume component uses `cells` array if it doesn't
+- ❌ Don't create data structures that don't match component expectations
+- ✅ Trace through component code to understand actual data flow
+
+### **Story Titles**
+- ❌ Don't set custom `title` in meta object
+- ✅ Let Storybook auto-generate titles from file path structure
+- ✅ Organize files in logical directory structure for good auto-titles
+
+## ✅ Quality Checklist
+
+### **Before Submitting Stories:**
+- [ ] **Verified dependency versions** in `package.json` and used correct documentation
+- [ ] Stories document the target component, not wrappers
+- [ ] No custom `title` in meta (using autotitle)
+- [ ] All TypeScript errors resolved
+- [ ] `npm run build` passes
+- [ ] `npm run lint:js` passes (no errors, warnings OK)
+- [ ] Realistic data structures used
+- [ ] PatternFly components properly integrated
+- [ ] JSX elements in arrays have `key` props
+- [ ] Stories show different component states/behaviors
+
+### **Component Development:**
+- [ ] **Checked dependency versions** for accurate API usage
+- [ ] Uses appropriate PatternFly interfaces
+- [ ] Handles undefined/missing data gracefully
+- [ ] Returns correct type expected by PatternFly
+- [ ] Follows existing codebase patterns
+- [ ] Properly typed with TypeScript
 
 ## 📖 Documentation Structure
 
