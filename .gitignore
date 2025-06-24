@@ -30,3 +30,6 @@ yarn.lock
 coverage
 # webpack cache
 .cache
+
+*storybook.log
+storybook-static

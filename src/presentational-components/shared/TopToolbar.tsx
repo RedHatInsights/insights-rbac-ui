@@ -1,40 +1,47 @@
-import React, { Fragment } from 'react';
-import PropTypes from 'prop-types';
+import React, { Fragment, ReactNode } from 'react';
 import { Flex, FlexItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { ToolbarTitlePlaceholder } from './loader-placeholders';
-import RbacBreadcrumbs from './breadcrumbs';
+import RbacBreadcrumbs from './Breadcrumbs';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 
-import './top-toolbar.scss';
+import './TopToolbar.scss';
 
-export const TopToolbar = ({ children, breadcrumbs }) => (
+interface BreadcrumbItemProps {
+  title?: string;
+  to?: string;
+  isActive?: boolean;
+}
+
+interface TopToolbarProps {
+  children: ReactNode;
+  breadcrumbs?: BreadcrumbItemProps[];
+}
+
+export const TopToolbar: React.FC<TopToolbarProps> = ({ children, breadcrumbs }) => (
   <Fragment>
     {breadcrumbs && (
       <section className="pf-v5-c-page__main-breadcrumb">
-        <RbacBreadcrumbs {...breadcrumbs} />
+        <RbacBreadcrumbs breadcrumbs={breadcrumbs} />
       </section>
     )}
     <PageHeader className="rbac-page-header">{children}</PageHeader>
   </Fragment>
 );
 
-TopToolbar.propTypes = {
-  children: PropTypes.oneOfType([PropTypes.arrayOf(PropTypes.node), PropTypes.node]).isRequired,
-  breadcrumbs: PropTypes.array,
-  paddingBottom: PropTypes.bool,
-};
+interface TopToolbarTitleProps {
+  title?: ReactNode;
+  renderTitleTag?: () => ReactNode;
+  description?: ReactNode;
+  children?: ReactNode;
+}
 
-TopToolbar.defaultProps = {
-  paddingBottom: false,
-};
-
-export const TopToolbarTitle = ({ title, renderTitleTag, description, children }) => (
+export const TopToolbarTitle: React.FC<TopToolbarTitleProps> = ({ title, renderTitleTag, description, children }) => (
   <Fragment>
     <Flex>
       <FlexItem className="pf-v5-u-mb-sm">
         <PageHeaderTitle title={title || <ToolbarTitlePlaceholder />} className="rbac-page-header__title" />
       </FlexItem>
-      <FlexItem alignSelf={{ modifier: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
+      <FlexItem alignSelf={{ default: 'alignSelfCenter' }}>{renderTitleTag && renderTitleTag()}</FlexItem>
     </Flex>
     {description && (
       <TextContent className="rbac-page-header__description">
@@ -44,10 +51,3 @@ export const TopToolbarTitle = ({ title, renderTitleTag, description, children }
     {children}
   </Fragment>
 );
-
-TopToolbarTitle.propTypes = {
-  title: PropTypes.node,
-  renderTitleTag: PropTypes.func,
-  description: PropTypes.node,
-  children: PropTypes.oneOfType([PropTypes.node, PropTypes.arrayOf(PropTypes.node)]),
-};

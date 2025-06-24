@@ -11,7 +11,7 @@ import { Button, EmptyStateActions, Pagination } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import { selectedRows } from '../../helpers/shared/helpers';
 import Toolbar, { paginationBuilder } from './toolbar';
-import EmptyWithAction from './empty-state';
+import EmptyWithAction from './EmptyState';
 import './table-toolbar-view.scss';
 
 export const TableToolbarView = ({

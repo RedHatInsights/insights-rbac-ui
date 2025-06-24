@@ -11,8 +11,7 @@ import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../r
 import { RBACStore } from '../../../../../redux/store';
 import { useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
-import RbacBreadcrumbs from '../../../../../presentational-components/shared/breadcrumbs';
-import { mergeToBasename } from '../../../../../presentational-components/shared/AppLink';
+import RbacBreadcrumbs from '../../../../../presentational-components/shared/Breadcrumbs';
 import pathnames from '../../../../../utilities/pathnames';
 import useAppNavigate from '../../../../../hooks/useAppNavigate';
 
@@ -48,14 +47,14 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     () => [
       {
         title: intl.formatMessage(Messages.userGroups),
-        to: mergeToBasename(pathnames['users-and-user-groups'].link),
+        to: pathnames['users-and-user-groups'].link,
       },
       {
         title: pageTitle,
         isActive: true,
       },
     ],
-    [intl],
+    [intl, pageTitle],
   );
 
   useEffect(() => {
@@ -162,7 +161,7 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
   return (
     <React.Fragment>
       <section className="pf-v5-c-page__main-breadcrumb">
-        <RbacBreadcrumbs {...breadcrumbsList} />
+        <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
       </section>
       <ContentHeader title={pageTitle} />
       <PageSection data-ouia-component-id="edit-user-group-form" className="pf-v5-u-m-lg-on-lg" variant={PageSectionVariants.light} isWidthLimited>

@@ -1,0 +1,98 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Quick Reference - Story Development Prompts" />
+
+# Quick Reference - Story Development Prompts
+
+*Copy-paste ready prompts for effective Storybook story development with Cursor AI*
+
+## **📋 Essential Prompts**
+
+### **🎨 Creating Storybook Stories**
+
+**For new components:**
+```
+Following the guidelines in CURSOR-CONTEXT.md, create Storybook stories for [ComponentName]
+```
+
+**When you need investigation first:**
+```
+Following the investigation process in CURSOR-CONTEXT.md, analyze [ComponentName] and determine how to create proper stories for it
+```
+
+**For fixing existing stories:**
+```
+Using the patterns in CURSOR-CONTEXT.md, fix the issues with [ComponentName] stories - focus on [specific issue area]
+```
+
+### **🔧 Component Development**
+
+**Table row wrappers:**
+```
+Following CURSOR-CONTEXT.md guidelines, help me implement [ComponentName] as a PatternFly table row wrapper
+```
+
+**General components:**
+```
+Following CURSOR-CONTEXT.md guidelines, help me implement [ComponentName] - it should [describe functionality]
+```
+
+**TypeScript fixes:**
+```
+Using the TypeScript patterns in CURSOR-CONTEXT.md, fix the type issues in [ComponentName]
+```
+
+### **🔍 Investigation & Analysis**
+
+**Check dependency versions:**
+```
+Check package.json for [PatternFly/Storybook/React] version and ensure we use the correct documentation for [ComponentName] work
+```
+
+**Understand components:**
+```
+Following the investigation process in CURSOR-CONTEXT.md, analyze how [ComponentName] works and what data it expects
+```
+
+**Compare with working examples:**
+```
+Using CURSOR-CONTEXT.md patterns, compare [ComponentName] with [WorkingComponent] and identify what needs to be fixed
+```
+
+### **🚀 Quality & Build**
+
+**Pre-submission check:**
+```
+Using the quality checklist in CURSOR-CONTEXT.md, verify that [ComponentName] and its stories are ready for submission
+```
+
+**Build/lint fixes:**
+```
+Following CURSOR-CONTEXT.md patterns, fix the build/lint errors in [ComponentName] - errors: [paste errors]
+```
+
+## **💡 Usage Tips**
+
+### **How to Customize:**
+1. Replace `[ComponentName]` with actual component name
+2. Replace `[specific issue area]` with your focus (TypeScript, data structure, etc.)
+3. Add specific error messages or requirements as needed
+
+### **When to Use Each:**
+- **Create stories** → Starting fresh with a component
+- **Investigate first** → Unsure about component behavior  
+- **Fix issues** → Stories exist but have problems
+- **Component development** → Building/modifying components
+- **Quality check** → Before finalizing work
+
+### **Pro Tips:**
+- **Chain prompts** for complex work: Investigate first, then create stories
+- **Be specific** about the issue area when fixing problems
+- **Include error messages** when asking for build/lint fixes
+- **Reference working components** when comparing patterns
+
+---
+
+## **🔗 Related Documentation**
+- [Storybook Guide](/?path=/docs/documentation-storybook-guide--docs) - Complete guide with enhanced features and story development best practices
+- External files: `CURSOR-CONTEXT.md` and `CURSOR-PROMPTS.md` in project root 

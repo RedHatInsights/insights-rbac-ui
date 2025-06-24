@@ -10,7 +10,7 @@ import Section from '@redhat-cloud-services/frontend-components/Section';
 import { createRows } from './role-table-helpers';
 import { getBackRoute, mappedProps, removeQueryParams } from '../../helpers/shared/helpers';
 import { fetchRolesWithPolicies } from '../../redux/actions/role-actions';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
 import PermissionsContext from '../../utilities/permissions-context';
 import {
