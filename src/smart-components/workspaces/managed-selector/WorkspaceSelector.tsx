@@ -101,7 +101,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
   const menu = (
-    <Panel ref={menuRef} variant="raised" className="workspace-selector-menu">
+    <Panel ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu">
       <PanelMain>
         <section>
           <PanelMainBody>
@@ -111,7 +111,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
               onChange={(_e, value) => onSearchFilter(value)}
               onClear={() => onSearchFilter('')}
             />
-            <Panel className="pf-v6-u-overflow-y-auto pf-v6-u-border-0 pf-v6-u-box-shadow-none workspace-selector-scrollable-panel">
+            <Panel className="pf-v6-u-overflow-y-auto pf-v6-u-border-0 pf-v6-u-box-shadow-none rbac-c-workspace-selector-scrollable-panel">
               <PanelMain>
                 <section>
                   <PanelMainBody className="pf-v6-u-py-sm">{memoizedTreeView}</PanelMainBody>
