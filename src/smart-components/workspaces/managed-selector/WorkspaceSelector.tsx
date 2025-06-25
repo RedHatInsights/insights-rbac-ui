@@ -6,6 +6,7 @@ import { Panel, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dyn
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { SearchInput } from '@patternfly/react-core';
 import * as React from 'react';
+import './WorkspaceSelector.scss';
 
 interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
   isMenuExpanded: boolean;
@@ -100,7 +101,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
   const menu = (
-    <Panel ref={menuRef} variant="raised" style={{ maxWidth: '400px' }}>
+    <Panel ref={menuRef} variant="raised" className="workspace-selector-menu">
       <PanelMain>
         <section>
           <PanelMainBody>
@@ -110,17 +111,10 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
               onChange={(_e, value) => onSearchFilter(value)}
               onClear={() => onSearchFilter('')}
             />
-            <Panel
-              style={{
-                maxHeight: '300px',
-                overflowY: 'auto',
-                border: 'none',
-                boxShadow: 'none',
-              }}
-            >
+            <Panel className="pf-v6-u-overflow-y-auto pf-v6-u-border-0 pf-v6-u-box-shadow-none workspace-selector-scrollable-panel">
               <PanelMain>
                 <section>
-                  <PanelMainBody style={{ padding: '0.5rem 0' }}>{memoizedTreeView}</PanelMainBody>
+                  <PanelMainBody className="pf-v6-u-py-sm">{memoizedTreeView}</PanelMainBody>
                 </section>
               </PanelMain>
             </Panel>

@@ -71,7 +71,7 @@ const SetDetails = () => {
     }
 
     return (
-      <MenuToggle isFullWidth style={{ maxWidth: '100%' }} isDisabled isExpanded={false}>
+      <MenuToggle isFullWidth className="pf-v6-u-max-width-100" isDisabled isExpanded={false}>
         {defaultWorkspace?.name || 'Default Workspace'}
       </MenuToggle>
     );
