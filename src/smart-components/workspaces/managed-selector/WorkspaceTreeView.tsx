@@ -2,7 +2,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import * as React from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
-import { Bullseye } from '@patternfly/react-core';
+import { Alert, AlertVariant, Bullseye } from '@patternfly/react-core';
 
 interface WorkspaceTreeViewProps {
   treeElements: TreeViewWorkspaceItem[];
@@ -10,12 +10,17 @@ interface WorkspaceTreeViewProps {
   selectedWorkspace?: TreeViewWorkspaceItem;
   onSelect: (event: React.MouseEvent, item: TreeViewDataItem, parentItem: TreeViewDataItem) => void;
   isLoading: boolean;
+  isError: boolean;
 }
 
-const WorkspaceTreeView = ({ treeElements, areElementsFiltered, selectedWorkspace, onSelect, isLoading }: WorkspaceTreeViewProps) => {
+const WorkspaceTreeView = ({ treeElements, areElementsFiltered, selectedWorkspace, onSelect, isLoading, isError }: WorkspaceTreeViewProps) => {
+  if (isError) {
+    return <Alert data-testid="workspace-load-error" variant={AlertVariant.danger} title="Failed to load workspaces" />;
+  }
+
   if (isLoading) {
     return (
-      <Bullseye>
+      <Bullseye data-testid="workspace-loading">
         <Spinner />
       </Bullseye>
     );
@@ -27,13 +32,14 @@ const WorkspaceTreeView = ({ treeElements, areElementsFiltered, selectedWorkspac
         activeItems={selectedWorkspace ? [selectedWorkspace] : []}
         allExpanded={areElementsFiltered}
         data={treeElements}
-        hasGuides={true}
+        hasGuides
         onSelect={onSelect}
+        className="workspace-selector-tree-view"
       />
     );
-  } else {
-    return <p>No workspaces to show.</p>;
   }
+
+  return <p data-testid="workspace-empty-message">{areElementsFiltered ? 'No workspaces match your search.' : 'No workspaces to show.'}</p>;
 };
 
 export default WorkspaceTreeView;
