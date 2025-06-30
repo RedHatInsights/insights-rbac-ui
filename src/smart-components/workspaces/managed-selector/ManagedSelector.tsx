@@ -8,6 +8,7 @@ import { WorkspacesStoreProvider, useWorkspacesStore } from './WorkspacesStore';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import WorkspaceMenuToggle from './WorkspaceMenuToggle';
 import WorkspaceSelector from './WorkspaceSelector';
+import { WorkspacePermissionsObject, useWorkspacePermissions } from './WorkspacePermissions';
 
 interface RBACListWorkspacesResponse {
   data: Workspace[];
@@ -54,12 +55,15 @@ export const filterWorkspaceItems = (item: TreeViewDataItem | TreeViewWorkspaceI
 };
 
 // Exported function to create a workspace data fetcher with store integration
-export const createWorkspaceDataFetcher = (storeActions: {
-  setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
-  setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
-  setFetchedWorkspaces: (workspaces: Workspace[]) => void;
-  setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
-}) => {
+export const createWorkspaceDataFetcher = (
+  storeActions: {
+    setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
+    setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
+    setFetchedWorkspaces: (workspaces: Workspace[]) => void;
+    setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
+  },
+  workspacePermissions: WorkspacePermissionsObject | undefined,
+) => {
   return React.useCallback(() => {
     storeActions.setIsFetchingWorkspacesFromRBAC(true);
     storeActions.setIsFetchingWorkspacesFromRBACError(false);
@@ -73,7 +77,7 @@ export const createWorkspaceDataFetcher = (storeActions: {
         storeActions.setFetchedWorkspaces(rbacResponse.data.data);
 
         // Build the tree of workspaces with the fetched results.
-        const tree = buildWorkspaceTree(rbacResponse.data.data);
+        const tree = buildWorkspaceTree(rbacResponse.data.data, workspacePermissions);
         storeActions.setWorkspaceTree(tree);
       })
       .catch((error) => {
@@ -86,6 +90,7 @@ export const createWorkspaceDataFetcher = (storeActions: {
     storeActions.setIsFetchingWorkspacesFromRBACError,
     storeActions.setFetchedWorkspaces,
     storeActions.setWorkspaceTree,
+    workspacePermissions,
   ]);
 };
 
@@ -117,10 +122,11 @@ export const createWorkspaceSearchFilter = (
 
 interface ManagedSelectorProps {
   onSelect?: (workspace: TreeViewDataItem) => void;
+  withPermissions?: boolean;
 }
 
 // Internal component that uses the store
-const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) => {
+const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, withPermissions }) => {
   const {
     isWorkspacesMenuExpanded,
     setIsWorkspacesMenuExpanded,
@@ -138,14 +144,20 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) =
   const [searchInputValue, setSearchInputValue] = React.useState<string>('');
   const [filteredTreeElements, setFilteredTreeElements] = React.useState<TreeViewWorkspaceItem[]>(workspaceTree ? [workspaceTree] : []);
   const [areElementsFiltered, setElementsAreFiltered] = React.useState<boolean>(false);
+  // TODO handle permission load errors
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const [workspacePermissions, _] = useWorkspacePermissions();
 
   // Use the exported data fetcher function
-  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher({
-    setIsFetchingWorkspacesFromRBAC,
-    setIsFetchingWorkspacesFromRBACError,
-    setFetchedWorkspaces,
-    setWorkspaceTree,
-  });
+  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher(
+    {
+      setIsFetchingWorkspacesFromRBAC,
+      setIsFetchingWorkspacesFromRBACError,
+      setFetchedWorkspaces,
+      setWorkspaceTree,
+    },
+    withPermissions ? workspacePermissions : undefined,
+  );
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
@@ -217,10 +229,10 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) =
 };
 
 // Main component that provides the store context
-const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect }) => {
+const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, withPermissions = true }) => {
   return (
     <WorkspacesStoreProvider>
-      <ManagedSelectorInternal onSelect={onSelect} />
+      <ManagedSelectorInternal onSelect={onSelect} withPermissions={withPermissions} />
     </WorkspacesStoreProvider>
   );
 };
