@@ -2,6 +2,13 @@ import React from 'react';
 import ManagedSelector, { RBACListWorkspacesResponse } from '../../src/smart-components/workspaces/managed-selector/ManagedSelector';
 import WorkspaceType from '../../src/smart-components/workspaces/managed-selector/WorkspaceType';
 
+const errorScenarios = [
+  { code: 400, message: 'Bad Request' },
+  { code: 401, message: 'Unauthorized' },
+  { code: 403, message: 'Forbidden' },
+  { code: 500, message: 'Internal Server Error' },
+];
+
 const mockListWorkspacesResponse: RBACListWorkspacesResponse = {
   data: [
     {
@@ -110,5 +117,74 @@ describe('ManagedSelector', () => {
     cy.get('[id]').should('not.exist');
 
     cy.contains('No workspaces to show.').should('exist');
+  });
+
+  errorScenarios.forEach(({ code, message }) => {
+    it(`shows error message on ${code} ${message}`, () => {
+      cy.intercept('GET', '/api/rbac/v2/workspaces/*', {
+        statusCode: code,
+        body: { errors: [{ detail: message }] },
+      }).as('getError');
+
+      cy.mount(<ManagedSelector />);
+      cy.wait('@getError');
+
+      cy.get('.workspace-selector-toggle').should('exist');
+      cy.get('.workspace-selector-toggle').click();
+
+      cy.contains('Failed to load workspaces').should('exist');
+    });
+  });
+
+  it('handles workspaces with identical descriptions/names', () => {
+    const duplicateWorkspacesResponse: RBACListWorkspacesResponse = {
+      data: [
+        {
+          id: 'F',
+          type: WorkspaceType.ROOT,
+          name: 'Root Workspace',
+          description: 'This is a duplicate workspace',
+          created: '2023-01-11T00:00:00Z',
+          updated: '2023-01-12T00:00:00Z',
+        },
+        {
+          id: 'G',
+          parent_id: 'F',
+          type: WorkspaceType.DEFAULT,
+          name: 'Duplicate Workspace',
+          description: 'This is a duplicate workspace',
+          created: '2023-01-13T00:00:00Z',
+          updated: '2023-01-14T00:00:00Z',
+        },
+        {
+          id: 'H',
+          parent_id: 'F',
+          type: WorkspaceType.DEFAULT,
+          name: 'Duplicate Workspace',
+          description: 'This is a duplicate workspace',
+          created: '2023-01-15T00:00:00Z',
+          updated: '2023-01-16T00:00:00Z',
+        },
+      ],
+    };
+
+    cy.intercept('GET', '/api/rbac/v2/workspaces/*', {
+      statusCode: 200,
+      body: duplicateWorkspacesResponse,
+    }).as('getDuplicateWorkspaces');
+
+    cy.mount(<ManagedSelector />);
+
+    cy.wait('@getDuplicateWorkspaces');
+
+    cy.get('.workspace-selector-toggle').should('exist').click();
+
+    cy.get('[id="F"]').should('exist').click();
+
+    cy.get('[id="G"]').should('exist').and('contain.text', 'Duplicate Workspace');
+    cy.get('[id="H"]').should('exist').and('contain.text', 'Duplicate Workspace');
+
+    cy.get('.workspace-selector-tree-view').contains('Duplicate Workspace').should('exist');
+    cy.get('.workspace-selector-tree-view').find('li:contains("Duplicate Workspace")').should('have.length', 3);
   });
 });

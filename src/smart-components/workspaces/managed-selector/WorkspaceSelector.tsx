@@ -35,6 +35,7 @@ interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
     selectedItem: T | null;
     onSelect: (event: React.MouseEvent, selectedItem: TreeViewDataItem) => void;
     isLoading: boolean;
+    isError: boolean;
   }) => React.ReactNode;
   searchPlaceholder?: string;
   buttonText?: string;
@@ -84,7 +85,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   const menuToggle = renderMenuToggle({
     menuToggleRef: toggleRef,
     onMenuToggleClick: () => setIsMenuExpanded(!isMenuExpanded),
-    isDisabled: isError || isLoading,
+    isDisabled: isLoading,
     isMenuToggleExpanded: isMenuExpanded,
     selectedItem,
   });
@@ -96,6 +97,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
       selectedItem,
       onSelect: onSelectItem,
       isLoading,
+      isError,
     });
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
