@@ -117,10 +117,11 @@ export const createWorkspaceSearchFilter = (
 
 interface ManagedSelectorProps {
   onSelect?: (workspace: TreeViewDataItem) => void;
+  initialSelectedWorkspace?: TreeViewWorkspaceItem;
 }
 
 // Internal component that uses the store
-const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) => {
+const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace }) => {
   const {
     isWorkspacesMenuExpanded,
     setIsWorkspacesMenuExpanded,
@@ -149,6 +150,15 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) =
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
+
+  /**
+   * Set initial selected workspace when provided
+   */
+  React.useEffect(() => {
+    if (initialSelectedWorkspace) {
+      setSelectedWorkspace(initialSelectedWorkspace);
+    }
+  }, [initialSelectedWorkspace, setSelectedWorkspace]);
 
   /**
    * Every time the workspaces tree changes, reset the search filter
@@ -217,10 +227,10 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) =
 };
 
 // Main component that provides the store context
-const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect }) => {
+const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace }) => {
   return (
     <WorkspacesStoreProvider>
-      <ManagedSelectorInternal onSelect={onSelect} />
+      <ManagedSelectorInternal onSelect={onSelect} initialSelectedWorkspace={initialSelectedWorkspace} />
     </WorkspacesStoreProvider>
   );
 };

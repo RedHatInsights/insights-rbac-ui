@@ -2,7 +2,7 @@ import { WorkspacesDeleteParams } from '@redhat-cloud-services/rbac-client/v2/Wo
 import { WorkspacesListParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import { WorkspacesPatchParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 import { WorkspaceCreateBody } from '../../redux/reducers/workspaces-reducer';
-import { getWorkspacesApi } from './api';
+import { getWorkspacesApi, WorkspacesMoveParams } from './api';
 
 const workspacesApi = getWorkspacesApi();
 
@@ -31,4 +31,8 @@ export async function updateWorkspace(config: WorkspacesPatchParams) {
 
 export async function deleteWorkspace(config: WorkspacesDeleteParams) {
   return workspacesApi.deleteWorkspace(config.id, {});
+}
+
+export async function moveWorkspace(config: WorkspacesMoveParams) {
+  return workspacesApi.moveWorkspaces(config.id, {});
 }

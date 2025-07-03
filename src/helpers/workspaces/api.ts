@@ -3,6 +3,8 @@ import { APIFactory } from '@redhat-cloud-services/javascript-clients-shared';
 import { WorkspacesDeleteReturnType, WorkspacesUpdateReturnType } from '@redhat-cloud-services/rbac-client/v2';
 import createWorkspace, { WorkspacesCreateReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesCreate';
 import deleteWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesDelete';
+import moveWorkspaces from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
+
 import listWorkspaces, { WorkspacesListReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesList';
 import updateWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 
@@ -46,6 +48,7 @@ const workspacesApiEndpoints = {
   updateWorkspace,
   deleteWorkspace,
   listWorkspaces,
+  moveWorkspaces,
 };
 
 type workspacesApiEndpointsReturnType = {
@@ -54,6 +57,7 @@ type workspacesApiEndpointsReturnType = {
   updateWorkspace: WorkspacesUpdateReturnType;
   deleteWorkspace: WorkspacesDeleteReturnType;
   listWorkspaces: WorkspacesListReturnType;
+  moveWorkspaces: WorkspacesMoveReturnType;
 };
 
 const workspacesApi = APIFactory<typeof workspacesApiEndpoints, workspacesApiEndpointsReturnType>(RBAC_API_BASE_2, workspacesApiEndpoints, {
