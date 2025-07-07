@@ -1,3 +1,17 @@
+# [1.44.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.3...v1.44.0) (2025-06-25)
+
+
+### Features
+
+* use new workspace selector in create workspace wizard ([#1862](https://github.com/RedHatInsights/insights-rbac-ui/issues/1862)) ([c3eeb71](https://github.com/RedHatInsights/insights-rbac-ui/commit/c3eeb7197189a51ff57a3bf970c8e01f36df9cf1))
+
+## [1.43.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.2...v1.43.3) (2025-06-19)
+
+
+### Bug Fixes
+
+* allow users to see the full list of permissions for their own profile ([#1858](https://github.com/RedHatInsights/insights-rbac-ui/issues/1858)) ([0d0d4de](https://github.com/RedHatInsights/insights-rbac-ui/commit/0d0d4de06a05e54e5cca1b6597b176b9ff669bd1))
+
 ## [1.43.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.1...v1.43.2) (2025-06-12)
 
 
