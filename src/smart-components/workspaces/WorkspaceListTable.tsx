@@ -6,7 +6,17 @@ import {
   SkeletonTableHead,
   WarningModal,
 } from '@patternfly/react-component-groups';
-import { ButtonVariant, Divider, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Modal, ModalVariant, Button } from '@patternfly/react-core';
+import {
+  Button,
+  ButtonVariant,
+  Divider,
+  EmptyState,
+  EmptyStateBody,
+  EmptyStateHeader,
+  EmptyStateIcon,
+  Modal,
+  ModalVariant,
+} from '@patternfly/react-core';
 import {
   DataView,
   DataViewState,
@@ -191,7 +201,7 @@ const WorkspaceListTable = () => {
       setInitialSelectedWorkspace(null);
     } else {
       // Find and set the parent workspace as the initial selection
-      const parentWorkspace = workspaces.find(ws => ws.id === workspace.parent_id);
+      const parentWorkspace = workspaces.find((ws) => ws.id === workspace.parent_id);
       if (parentWorkspace) {
         const parentTreeViewItem = convertWorkspaceToTreeViewItem(parentWorkspace);
         setSelectedDestinationWorkspace(parentTreeViewItem);
@@ -375,43 +385,43 @@ const WorkspaceListTable = () => {
                   console.log('No destination workspace selected');
                   return;
                 }
-                
+
                 // TODO: Implement move workspace API call
                 console.log('Moving workspace:', currentMoveWorkspace.name);
                 console.log('To destination:', selectedDestinationWorkspace.name);
-                
+
                 // Here you would call your move workspace API
                 // await dispatch(moveWorkspace(currentMoveWorkspace.id, selectedDestinationWorkspace.id));
                 // dispatch(fetchWorkspaces());
-                
+
                 handleMoveModalToggle(null);
               }}
               isDisabled={!selectedDestinationWorkspace}
             >
               Submit
             </Button>,
-            <Button
-              key="cancel"
-              variant="link"
-              onClick={() => handleMoveModalToggle(null)}
-            >
+            <Button key="cancel" variant="link" onClick={() => handleMoveModalToggle(null)}>
               {intl.formatMessage(messages.cancel)}
             </Button>,
           ]}
         >
           <div>
-            <p>Moving a workspace may change who is able to access it and their permissions. Make sure you review the differences between each workspaces' user groups and roles before clicking Submit.</p>
+            <p>
+              Moving a workspace may change who is able to access it and their permissions. Make sure you review the differences between each
+              workspaces&apos; user groups and roles before clicking Submit.
+            </p>
 
             <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
               <h4 style={{ marginBottom: '0.5rem' }}>Parent workspace</h4>
-              <ManagedSelector 
-                onSelect={setSelectedDestinationWorkspace} 
-                initialSelectedWorkspace={initialSelectedWorkspace || undefined}
-              />
+              <ManagedSelector onSelect={setSelectedDestinationWorkspace} initialSelectedWorkspace={initialSelectedWorkspace || undefined} />
             </div>
 
             {selectedDestinationWorkspace && initialSelectedWorkspace && selectedDestinationWorkspace.id !== initialSelectedWorkspace.id && (
-              <p>This will move {currentMoveWorkspace.name} from under <strong>{workspaces.find(ws => ws.id === currentMoveWorkspace.parent_id)?.name}</strong> to under <strong>{selectedDestinationWorkspace.name}</strong>.</p>
+              <p>
+                This will move {currentMoveWorkspace.name} from under{' '}
+                <strong>{workspaces.find((ws) => ws.id === currentMoveWorkspace.parent_id)?.name}</strong> to under{' '}
+                <strong>{selectedDestinationWorkspace.name}</strong>.
+              </p>
             )}
           </div>
         </Modal>
