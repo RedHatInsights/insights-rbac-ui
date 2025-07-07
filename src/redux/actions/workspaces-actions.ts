@@ -100,7 +100,7 @@ export const deleteWorkspace = (workspaceData: WorkspacesDeleteParams, { name }:
   };
 };
 
-export const moveWorkspaceWorkspace = (workspaceData: WorkspacesMoveParams, { name }: { name: string }) => {
+export const moveWorkspace = (workspaceData: WorkspacesMoveParams, { name }: { name: string }) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
 

@@ -37,7 +37,7 @@ import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 import AppLink from '../../presentational-components/shared/AppLink';
-import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
+import { deleteWorkspace, fetchWorkspaces, moveWorkspace } from '../../redux/actions/workspaces-actions';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import pathnames from '../../utilities/pathnames';
@@ -381,20 +381,22 @@ const WorkspaceListTable = () => {
               key="submit"
               variant="primary"
               onClick={async () => {
-                if (!selectedDestinationWorkspace) {
-                  console.log('No destination workspace selected');
-                  return;
+                if (currentMoveWorkspace && selectedDestinationWorkspace) {
+                  await dispatch(
+                    moveWorkspace(
+                      {
+                        id: currentMoveWorkspace.id,
+                        workspacesMoveWorkspaceRequest: {
+                          parent_id: selectedDestinationWorkspace.id,
+                        },
+                      },
+                      { name: currentMoveWorkspace.name },
+                    ),
+                  );
+                  dispatch(fetchWorkspaces());
+                  setIsMoveModalOpen(false);
+                  handleMoveModalToggle(null);
                 }
-
-                // TODO: Implement move workspace API call
-                console.log('Moving workspace:', currentMoveWorkspace.name);
-                console.log('To destination:', selectedDestinationWorkspace.name);
-
-                // Here you would call your move workspace API
-                // await dispatch(moveWorkspace(currentMoveWorkspace.id, selectedDestinationWorkspace.id));
-                // dispatch(fetchWorkspaces());
-
-                handleMoveModalToggle(null);
               }}
               isDisabled={!selectedDestinationWorkspace}
             >
