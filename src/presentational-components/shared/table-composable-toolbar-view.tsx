@@ -7,7 +7,7 @@ import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/Skele
 import { Button, EmptyStateActions, Pagination } from '@patternfly/react-core';
 import { PlusCircleIcon } from '@patternfly/react-icons';
 import Toolbar, { paginationBuilder } from './toolbar';
-import EmptyWithAction from './empty-state';
+import EmptyWithAction from './EmptyState';
 import './table-toolbar-view.scss';
 import { ISortBy, OnSort } from '@patternfly/react-table';
 import { CellObject, CellType, SelectCell } from '../../smart-components/user/user-table-helpers';

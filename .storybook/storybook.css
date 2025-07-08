@@ -1,0 +1,295 @@
+/* Custom Storybook Styling */
+
+/* Container improvements */
+.storybook-container {
+  padding: 1rem;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+/* Documentation improvements */
+.docs-story {
+  background: #ffffff;
+  border-radius: 8px;
+  padding: 2rem;
+  margin: 1rem 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  border: 1px solid #e8e8e8;
+}
+
+/* Enhanced code blocks */
+.docblock-code-toggle {
+  background: #f8f9fa;
+  border: 1px solid #e9ecef;
+  border-radius: 6px;
+  margin: 1rem 0;
+}
+
+.prismjs {
+  background: #f8f9fa !important;
+  border-radius: 6px;
+  border: 1px solid #e9ecef;
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+/* Story canvas improvements */
+.docs-story > div {
+  background: transparent;
+}
+
+/* Controls panel styling */
+.sidebar-item {
+  border-radius: 4px;
+  margin-bottom: 2px;
+}
+
+/* Better typography in docs */
+.sbdocs-content h1 {
+  color: #151515;
+  font-weight: 600;
+  margin-bottom: 1rem;
+  border-bottom: 2px solid #0066cc;
+  padding-bottom: 0.5rem;
+}
+
+.sbdocs-content h2 {
+  color: #333;
+  font-weight: 500;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  border-left: 4px solid #0066cc;
+  padding-left: 1rem;
+}
+
+.sbdocs-content h3 {
+  color: #444;
+  font-weight: 500;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+}
+
+/* Enhanced table styling */
+.docblock-argstable {
+  border: 1px solid #e8e8e8;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 1rem 0;
+}
+
+.docblock-argstable-head {
+  background: #f8f9fa;
+  font-weight: 600;
+}
+
+.docblock-argstable-body .docblock-argstable-row {
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.docblock-argstable-body .docblock-argstable-row:hover {
+  background: #fafafa;
+}
+
+/* Story preview improvements */
+.sb-show-main {
+  background: #ffffff;
+}
+
+/* Sidebar improvements */
+.sidebar-container {
+  background: #fafafa;
+  border-right: 1px solid #e8e8e8;
+}
+
+.sidebar-item[data-selected="true"] {
+  background: #e3f2fd;
+  color: #0066cc;
+  font-weight: 500;
+}
+
+/* Toolbar improvements */
+.sb-bar {
+  background: #ffffff;
+  border-bottom: 1px solid #e8e8e8;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Controls improvements */
+.docblock-argstable-category {
+  background: #f0f8ff;
+  color: #0066cc;
+  font-weight: 600;
+  text-transform: uppercase;
+  font-size: 0.75rem;
+  letter-spacing: 0.5px;
+}
+
+/* Badge styling for component status */
+.component-badge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.component-badge--stable {
+  background: #d4edda;
+  color: #155724;
+}
+
+.component-badge--beta {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.component-badge--deprecated {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+/* Enhanced spacing for better readability */
+.sbdocs-content > * + * {
+  margin-top: 1.5rem;
+}
+
+.sbdocs-content ul, .sbdocs-content ol {
+  padding-left: 2rem;
+}
+
+.sbdocs-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.6;
+}
+
+/* Code inline styling */
+.sbdocs-content code:not([class]) {
+  background: #f8f9fa;
+  color: #e83e8c;
+  padding: 0.2rem 0.4rem;
+  border-radius: 4px;
+  font-size: 0.875em;
+  border: 1px solid #e9ecef;
+}
+
+/* Blockquote styling */
+.sbdocs-content blockquote {
+  border-left: 4px solid #0066cc;
+  padding-left: 1rem;
+  margin: 1.5rem 0;
+  color: #666;
+  font-style: italic;
+  background: #f8f9fa;
+  padding: 1rem;
+  border-radius: 0 4px 4px 0;
+}
+
+/* Link styling */
+.sbdocs-content a {
+  color: #0066cc;
+  text-decoration: none;
+  border-bottom: 1px solid transparent;
+  transition: border-color 0.2s ease;
+}
+
+.sbdocs-content a:hover {
+  border-bottom-color: #0066cc;
+}
+
+/* Responsive improvements */
+@media (max-width: 768px) {
+  .storybook-container {
+    padding: 0.5rem;
+  }
+  
+  .docs-story {
+    padding: 1rem;
+    margin: 0.5rem 0;
+  }
+  
+  .sbdocs-content h1 {
+    font-size: 1.5rem;
+  }
+  
+  .sbdocs-content h2 {
+    font-size: 1.25rem;
+    margin-top: 1.5rem;
+  }
+}
+
+/* Dark mode support */
+@media (prefers-color-scheme: dark) {
+  .docs-story {
+    background: #1a1a1a;
+    border-color: #333;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  }
+  
+  .sbdocs-content h1,
+  .sbdocs-content h2,
+  .sbdocs-content h3 {
+    color: #ffffff;
+  }
+  
+  .docblock-argstable {
+    border-color: #333;
+  }
+  
+  .docblock-argstable-head {
+    background: #2a2a2a;
+    color: #ffffff;
+  }
+  
+  .docblock-argstable-body .docblock-argstable-row:hover {
+    background: #2a2a2a;
+  }
+  
+  .prismjs {
+    background: #1a1a1a !important;
+    border-color: #333;
+  }
+  
+  .sbdocs-content code:not([class]) {
+    background: #2a2a2a;
+    color: #ff6b6b;
+    border-color: #333;
+  }
+  
+  .sbdocs-content blockquote {
+    background: #2a2a2a;
+    color: #ccc;
+    border-left-color: #0088ff;
+  }
+}
+
+/* Animation improvements */
+.sidebar-item,
+.docblock-argstable-body .docblock-argstable-row,
+.sbdocs-content a,
+.component-badge {
+  transition: all 0.2s ease;
+}
+
+/* Focus improvements for accessibility */
+.sidebar-item:focus,
+.docblock-argstable button:focus,
+.sbdocs-content a:focus {
+  outline: 2px solid #0088ff;
+  outline-offset: 2px;
+}
+
+/* Print styles */
+@media print {
+  .sb-bar,
+  .sidebar-container {
+    display: none !important;
+  }
+  
+  .docs-story {
+    box-shadow: none;
+    border: 1px solid #ccc;
+    break-inside: avoid;
+  }
+} 

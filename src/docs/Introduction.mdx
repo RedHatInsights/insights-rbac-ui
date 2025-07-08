@@ -1,0 +1,140 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Introduction" />
+
+# Welcome to RBAC UI Storybook
+
+Welcome to the **Red Hat Console RBAC (Role-Based Access Control) UI** component library! This Storybook showcases all the reusable components, design patterns, and documentation for our access management system.
+
+## 🎯 What is RBAC UI?
+
+The RBAC UI is a sophisticated React application that provides:
+
+- **User Access Management** - Control who has access to what
+- **Role & Policy Management** - Define permissions and assign them to users
+- **Group Management** - Organize users into manageable groups
+- **Service Account Management** - Handle programmatic access
+- **Workspace Management** - Organize resources and access by workspace
+- **My User Access (MUA)** - Self-service access overview for users
+
+## 🏗️ Architecture Overview
+
+Our application is built with modern React patterns and integrates with the Red Hat Console platform:
+
+### Key Technologies
+- **React** with functional components and hooks
+- **Redux** for state management
+- **PatternFly 4/5** for design system and components
+- **React Router** for navigation
+- **TypeScript** for type safety
+- **Jest & Cypress** for testing
+
+### Integration Points
+- **Red Hat Console Chrome** - Platform integration
+- **RBAC Backend API** - Permission and role management
+- **User Management API** - User and group operations
+- **Feature Flags (Unleash)** - Feature toggling
+
+## 📚 How to Use This Storybook
+
+### 🎨 Component Stories
+Browse through our components organized by category:
+- **Presentational Components** - Reusable UI components
+- **Smart Components** - Business logic components
+- **Shared Components** - Common utilities and wrappers
+
+### 🔧 Interactive Controls
+Most stories include interactive controls that let you:
+- Toggle props and see real-time changes
+- Test different permissions and feature flags
+- Experiment with various data states
+
+### 📖 Documentation
+Each component includes:
+- **Props documentation** - All available properties
+- **Usage examples** - Common patterns and implementations
+- **Design guidelines** - When and how to use components
+- **Accessibility notes** - WCAG compliance information
+
+## 🎭 Context & Permissions Testing
+
+Our Storybook includes a sophisticated context mocking system that allows you to test components with different:
+
+### Permission Contexts
+- **Organization Admin** - Full administrative access
+- **User Access Administrator** - User management permissions
+- **Regular Users** - Standard user permissions
+
+### Environment Contexts
+- **Production** - Prod environment behavior
+- **Staging** - Stage environment features
+- **CI/Beta** - Development features
+
+### Feature Flags
+- **ITLess Mode** - Modern authentication flow
+- **Workspaces** - Workspace-based access control
+- **Custom flags** - Feature-specific toggles
+
+## 🚀 Getting Started
+
+### For Developers
+1. **Install dependencies**: `npm install`
+2. **Start Storybook**: `npm run storybook`
+3. **Build Storybook**: `npm run build-storybook`
+
+### For Designers
+- Browse components in the **Presentational Components** section
+- Use the **Controls** panel to experiment with different states
+- Check the **Docs** tab for detailed usage guidelines
+
+### For Product Managers
+- Explore user flows in the **Smart Components** section
+- Test different permission scenarios using story controls
+- Review feature flag combinations and their effects
+
+## 📝 Contributing
+
+### Adding New Stories
+When creating new components, always include:
+- Comprehensive prop documentation
+- Multiple usage examples
+- Permission/context variations
+- Accessibility considerations
+
+### Documentation Standards
+- Use descriptive story names
+- Include context about when to use components
+- Document any special behaviors or limitations
+- Add visual examples for complex interactions
+
+## 🎯 Design Principles
+
+### Consistency
+- Follow PatternFly design guidelines
+- Use consistent spacing and typography
+- Maintain design token usage
+
+### Accessibility
+- Ensure WCAG 2.1 AA compliance
+- Include proper ARIA labels
+- Test with screen readers
+- Provide keyboard navigation
+
+### Performance
+- Lazy load heavy components
+- Optimize bundle sizes
+- Use React best practices
+- Monitor rendering performance
+
+## 🔗 Useful Links
+
+- [RBAC Backend API Documentation](https://github.com/RedHatInsights/insights-rbac)
+- [PatternFly Design System](https://www.patternfly.org/)
+- [Red Hat Console Documentation](https://consoledot.pages.redhat.com/)
+- [Project Repository](https://github.com/RedHatInsights/insights-rbac-ui)
+
+---
+
+**Happy exploring!** 🎉
+
+Use the sidebar navigation to browse components, or jump directly to specific sections using the search functionality. 

@@ -40,7 +40,7 @@ exports[`<Groups /> should render group list correctly 1`] = `
             </div>
           </div>
           <div
-            class=""
+            class="pf-m-align-self-center"
           />
         </div>
       </section>
