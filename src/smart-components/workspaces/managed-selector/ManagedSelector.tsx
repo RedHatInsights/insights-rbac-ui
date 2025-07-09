@@ -9,7 +9,7 @@ import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import WorkspaceMenuToggle from './WorkspaceMenuToggle';
 import WorkspaceSelector from './WorkspaceSelector';
 
-interface RBACListWorkspacesResponse {
+export interface RBACListWorkspacesResponse {
   data: Workspace[];
 }
 
@@ -208,6 +208,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect }) =
           selectedWorkspace={props.selectedItem as TreeViewWorkspaceItem | undefined}
           onSelect={props.onSelect}
           isLoading={props.isLoading}
+          isError={props.isError}
         />
       )}
       searchPlaceholder="Find a workspace by name"
