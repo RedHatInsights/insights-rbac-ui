@@ -6,17 +6,7 @@ import {
   SkeletonTableHead,
   WarningModal,
 } from '@patternfly/react-component-groups';
-import {
-  Button,
-  ButtonVariant,
-  Divider,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Modal,
-  ModalVariant,
-} from '@patternfly/react-core';
+import { ButtonVariant, Divider, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
 import {
   DataView,
   DataViewState,
@@ -37,14 +27,13 @@ import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 import AppLink from '../../presentational-components/shared/AppLink';
-import { deleteWorkspace, fetchWorkspaces, moveWorkspace } from '../../redux/actions/workspaces-actions';
+import { deleteWorkspace, fetchWorkspaces } from '../../redux/actions/workspaces-actions';
 import { Workspace } from '../../redux/reducers/workspaces-reducer';
 import { RBACStore } from '../../redux/store';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import ManagedSelector from './managed-selector/ManagedSelector';
-import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
+import MoveWorkspaceModal from './MoveWorkspaceModal';
 
 interface WorkspaceFilters {
   name: string;
@@ -168,8 +157,7 @@ const WorkspaceListTable = () => {
   const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
   const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<Workspace | null>(null);
-  const [selectedDestinationWorkspace, setSelectedDestinationWorkspace] = useState<any>(null);
-  const [initialSelectedWorkspace, setInitialSelectedWorkspace] = useState<TreeViewWorkspaceItem | null>(null);
+
   const [userPermissions, setUserPermissions] = useState<Permission>({
     permission: '',
     resourceDefinitions: [],
@@ -177,16 +165,6 @@ const WorkspaceListTable = () => {
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
   const globalWs = useFlag('platform.rbac.workspaces');
-
-  // Helper function to convert a workspace to TreeViewWorkspaceItem format
-  const convertWorkspaceToTreeViewItem = (workspace: Workspace): TreeViewWorkspaceItem => {
-    return {
-      name: workspace.name,
-      id: workspace.id,
-      workspace: workspace as any, // Type casting to resolve workspace type mismatch
-      children: [],
-    };
-  };
 
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
@@ -196,18 +174,6 @@ const WorkspaceListTable = () => {
   const handleMoveModalToggle = (workspace: Workspace | null) => {
     setCurrentMoveWorkspace(workspace);
     setIsMoveModalOpen(!isMoveModalOpen);
-    if (!workspace) {
-      setSelectedDestinationWorkspace(null);
-      setInitialSelectedWorkspace(null);
-    } else {
-      // Find and set the parent workspace as the initial selection
-      const parentWorkspace = workspaces.find((ws) => ws.id === workspace.parent_id);
-      if (parentWorkspace) {
-        const parentTreeViewItem = convertWorkspaceToTreeViewItem(parentWorkspace);
-        setSelectedDestinationWorkspace(parentTreeViewItem);
-        setInitialSelectedWorkspace(parentTreeViewItem);
-      }
-    }
   };
 
   const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete') => {
@@ -369,65 +335,7 @@ const WorkspaceListTable = () => {
           />
         </WarningModal>
       )}
-      {isMoveModalOpen && currentMoveWorkspace && (
-        <Modal
-          ouiaId={'move-workspace-modal'}
-          isOpen={isMoveModalOpen}
-          variant={ModalVariant.medium}
-          title={`Move "${currentMoveWorkspace.name}"`}
-          onClose={() => handleMoveModalToggle(null)}
-          actions={[
-            <Button
-              key="submit"
-              variant="primary"
-              onClick={async () => {
-                if (currentMoveWorkspace && selectedDestinationWorkspace) {
-                  await dispatch(
-                    moveWorkspace(
-                      {
-                        id: currentMoveWorkspace.id,
-                        workspacesMoveWorkspaceRequest: {
-                          parent_id: selectedDestinationWorkspace.id,
-                        },
-                      },
-                      { name: currentMoveWorkspace.name },
-                    ),
-                  );
-                  dispatch(fetchWorkspaces());
-                  setIsMoveModalOpen(false);
-                  handleMoveModalToggle(null);
-                }
-              }}
-              isDisabled={!selectedDestinationWorkspace}
-            >
-              Submit
-            </Button>,
-            <Button key="cancel" variant="link" onClick={() => handleMoveModalToggle(null)}>
-              {intl.formatMessage(messages.cancel)}
-            </Button>,
-          ]}
-        >
-          <div>
-            <p>
-              Moving a workspace may change who is able to access it and their permissions. Make sure you review the differences between each
-              workspaces&apos; user groups and roles before clicking Submit.
-            </p>
-
-            <div style={{ marginTop: '1rem', marginBottom: '1rem' }}>
-              <h4 style={{ marginBottom: '0.5rem' }}>Parent workspace</h4>
-              <ManagedSelector onSelect={setSelectedDestinationWorkspace} initialSelectedWorkspace={initialSelectedWorkspace || undefined} />
-            </div>
-
-            {selectedDestinationWorkspace && initialSelectedWorkspace && selectedDestinationWorkspace.id !== initialSelectedWorkspace.id && (
-              <p>
-                This will move {currentMoveWorkspace.name} from under{' '}
-                <strong>{workspaces.find((ws) => ws.id === currentMoveWorkspace.parent_id)?.name}</strong> to under{' '}
-                <strong>{selectedDestinationWorkspace.name}</strong>.
-              </p>
-            )}
-          </div>
-        </Modal>
-      )}
+      <MoveWorkspaceModal isOpen={isMoveModalOpen} onClose={() => handleMoveModalToggle(null)} workspaceToMove={currentMoveWorkspace} />
       <DataView activeState={activeState}>
         <DataViewToolbar
           clearAllFilters={clearAllFilters}
