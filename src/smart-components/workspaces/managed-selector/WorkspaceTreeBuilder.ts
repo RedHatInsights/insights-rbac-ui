@@ -1,8 +1,9 @@
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
+import { WorkspacePermissionsObject, canViewWorkspaceById } from './WorkspacePermissions';
 import WorkspaceType from './WorkspaceType';
 
-function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined {
+function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePermissionsObject | undefined): TreeViewWorkspaceItem | undefined {
   if (wps.length == 0) {
     return undefined;
   }
@@ -47,6 +48,11 @@ function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined
   const nodes: TreeViewWorkspaceItem[] = [rootWorkspace];
   while (nodes.length > 0) {
     const node = nodes.pop();
+
+    // TODO temporary POC - PF tree view list item does not currently support adding custom styles or disabling programatically
+    if (node && node.id && workspacePermissions && !canViewWorkspaceById(node.workspace.id, workspacePermissions)) {
+      node.name = `DISABLED ${node.name}`;
+    }
 
     // Find all the children workspaces of the given node by looping through
     // all the available workspaces.
