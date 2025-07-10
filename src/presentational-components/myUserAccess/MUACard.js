@@ -3,6 +3,7 @@ import { NavLink } from 'react-router-dom';
 import PropTypes from 'prop-types';
 import classNames from 'classnames';
 import { Card, CardBody, CardHeader, CardTitle, List, ListItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { useFlag } from '@unleash/proxy-client-react';
 
 import { bundleData } from './bundles';
 import useSearchParams from '../../hooks/useSearchParams';
@@ -13,9 +14,13 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
   const { bundle: bundleParam } = useSearchParams('bundle');
   const [, setIsChecked] = React.useState('');
 
+  const isITLess = useFlag('platform.rbac.itless');
+
   const onChange = (event) => {
     setIsChecked(event.currentTarget.id);
   };
+
+  const bundles = isITLess ? bundleData.filter((data) => data.entitlement === 'rhel') : bundleData;
 
   return (
     <React.Fragment>
@@ -31,7 +36,7 @@ const MUACard = ({ header, entitlements, isDisabled }) => {
         hasGutter
       >
         {entitlements &&
-          bundleData?.map((data) => {
+          bundles?.map((data) => {
             const isEntitled = entitlements.find(([key]) => data.entitlement === key);
             const key = data.entitlement;
             return isEntitled ? (
