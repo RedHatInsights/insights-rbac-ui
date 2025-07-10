@@ -58,7 +58,7 @@ describe('Filter workspaces', () => {
 
   it('should not let user edit or delete root workspace', () => {
     // click the menu button on the root workspace and ensure edit and delete are disabled
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"]').click();
+    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"]').first().click();
     cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-1"]').should('have.class', 'pf-m-disabled');
     cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-2"]').should('have.class', 'pf-m-disabled');
   });
