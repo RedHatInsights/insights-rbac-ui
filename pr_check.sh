@@ -34,7 +34,7 @@ chmod 777 $WORKSPACE/artifacts
 
 docker run -t \
   -v $PWD:/e2e:ro,Z \
-  -v $WORKSPACE/artifacts:/artifacts:Z \
+  -v $WORKSPACE/artifacts:/home/tester/workspace/artifacts:Z \
   -w /e2e \
   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
   -e CHROME_PASSWORD=$CHROME_PASSWORD \
