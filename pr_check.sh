@@ -18,7 +18,7 @@ IQE_PLUGINS="rbac"
 IQE_MARKER_EXPRESSION="smoke"
 IQE_FILTER_EXPRESSION=""
 
-set -exv
+set -xv
 
 CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/?onlyActiveTags=true&limit=100" | jq '.tags | [.[] | select(.name | test("^[a-zA-Z0-9]{7,40}$"))] | .[0].name' -r)
 CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
