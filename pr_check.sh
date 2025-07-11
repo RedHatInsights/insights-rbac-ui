@@ -29,8 +29,12 @@ docker cp $CHROME_CONTAINER_NAME:/opt/app-root/src/build/stable/index.html dist/
 
 CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CHROME_CONTAINER_NAME)
 
+mkdir -p $WORKSPACE/artifacts
+chmod 777 $WORKSPACE/artifacts
+
 docker run -t \
   -v $PWD:/e2e:ro,Z \
+  -v $WORKSPACE/artifacts:/artifacts:Z \
   -w /e2e \
   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
   -e CHROME_PASSWORD=$CHROME_PASSWORD \
