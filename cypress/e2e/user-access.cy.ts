@@ -2,7 +2,9 @@ const API_TIMEOUT = 30000;
 const testUsername = 'platform-experience-ui';
 
 const waitForUsersTable = () => {
-  cy.get('table[aria-label="users table"]', { timeout: 100000 }).should('be.visible');
+  cy.get('table[aria-label="users table"]', { timeout: 100000 });
+  cy.screenshot(`users-table-${Cypress.currentTest.title}`);
+  cy.get('table[aria-label="users table"]').should('be.visible');
 };
 
 const navigateToUsersTable = () => {
