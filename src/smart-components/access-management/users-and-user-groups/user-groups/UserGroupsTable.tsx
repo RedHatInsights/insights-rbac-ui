@@ -350,7 +350,7 @@ const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
         />
         <DataViewTable
           variant="compact"
-          aria-label="Users Table"
+          aria-label="users table"
           ouiaId={`${ouiaId}-table`}
           columns={sortableColumns}
           rows={rows}
