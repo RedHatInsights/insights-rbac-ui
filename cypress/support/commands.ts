@@ -58,6 +58,7 @@ Cypress.Commands.add('login', (enableWorkspaces = false) => {
 
       cy.wait(1000);
       // login into the session
+      cy.log('Logging as: ', Cypress.env(usernameVariable));
       cy.get('#username-verification').type(Cypress.env(usernameVariable));
       cy.get('#login-show-step2').click();
       cy.get('#password').type(Cypress.env(passwordVariable));

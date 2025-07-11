@@ -12,8 +12,6 @@ describe('My User Access Landing page', () => {
 
   describe('Settings and User Access roles', () => {
     it('Select the Settings and User Access roles card', () => {
-      // scroll to bottom of card list to make the settings card visible
-      cy.get('.rbac-l-myUserAccess-section__cards').scrollTo('bottom');
       cy.contains('Settings and User Access').should('exist');
       cy.contains('Settings and User Access').click();
       // verify the card was selected
