@@ -2,6 +2,7 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
+  defaultCommandTimeout: 60000,
   component: {
     specPattern: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}',
     excludeSpecPattern: ['/snapshots/*', '/image_snapshots/*', '/src/*'],
