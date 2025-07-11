@@ -492,7 +492,7 @@ const UsersTable: React.FC<UsersTableProps> = ({ onAddUserClick, focusedUser, de
         />
         <DataViewTable
           variant="compact"
-          aria-label="Users Table"
+          aria-label="users table"
           ouiaId={`${ouiaId}-table`}
           columns={sortableColumns}
           rows={rows}
