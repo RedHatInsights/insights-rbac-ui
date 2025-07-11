@@ -1,6 +1,6 @@
 describe('My User Access Landing page', () => {
   beforeEach(() => {
-    cy.login();
+    cy.login(true);
     cy.visit('/iam/my-user-access');
     cy.viewport(1280, 800); // ensure the viewport is large enough to display the role cards
   });
