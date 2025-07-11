@@ -32,20 +32,20 @@ CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}
 mkdir -p $WORKSPACE/artifacts
 chmod 777 $WORKSPACE/artifacts
 
-# docker run -t \
-#   -v $PWD:/e2e:ro,Z \
-#   -v $WORKSPACE/artifacts:/e2e/artifacts:Z \
-#   -w /e2e \
-#   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
-#   -e CHROME_PASSWORD=$CHROME_PASSWORD \
-#   -e RBAC_FRONTEND_USER=$RBAC_FRONTEND_USER \
-#   -e RBAC_FRONTEND_PASSWORD=$RBAC_FRONTEND_PASSWORD \
-#   -e CHROME_HOST=$CHROME_HOST \
-#   --add-host stage.foo.redhat.com:127.0.0.1 \
-#   --add-host prod.foo.redhat.com:127.0.0.1 \
-#   --entrypoint bash \
-#   --network bridge \
-#   quay.io/cloudservices/cypress-e2e-image:b8480a8 /e2e/run-e2e.sh
+docker run -t \
+  -v $PWD:/e2e:ro,Z \
+  -v $WORKSPACE/artifacts:/e2e/artifacts:Z \
+  -w /e2e \
+  -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
+  -e CHROME_PASSWORD=$CHROME_PASSWORD \
+  -e RBAC_FRONTEND_USER=$RBAC_FRONTEND_USER \
+  -e RBAC_FRONTEND_PASSWORD=$RBAC_FRONTEND_PASSWORD \
+  -e CHROME_HOST=$CHROME_HOST \
+  --add-host stage.foo.redhat.com:127.0.0.1 \
+  --add-host prod.foo.redhat.com:127.0.0.1 \
+  --entrypoint bash \
+  --network bridge \
+  quay.io/cloudservices/cypress-e2e-image:b8480a8 /e2e/run-e2e.sh
 
 echo "After docker run"
 
