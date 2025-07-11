@@ -1,6 +1,6 @@
 describe('Workspaces page', { testIsolation: false }, () => {
   before(() => {
-    cy.login();
+    cy.login(true);
 
     cy.visit('/iam/access-management/workspaces');
     cy.get('[data-ouia-component-id="ContentHeader-title"]', { timeout: 30000 });

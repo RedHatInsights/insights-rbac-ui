@@ -226,6 +226,7 @@ const WorkspaceListTable = () => {
               items={[
                 {
                   title: 'Edit workspace',
+                  'aria-label': `edit workspace ${workspace.name}`,
                   onClick: () => {
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
@@ -233,6 +234,7 @@ const WorkspaceListTable = () => {
                 },
                 {
                   title: 'Move workspace',
+                  'aria-label': `move workspace ${workspace.name}`,
                   onClick: () => {
                     handleMoveModalToggle(workspace);
                   },
@@ -244,6 +246,7 @@ const WorkspaceListTable = () => {
                 },
                 {
                   title: 'Delete workspace',
+                  'aria-label': `delete workspace ${workspace.name}`,
                   onClick: () => {
                     handleModalToggle([workspace]);
                   },

@@ -58,22 +58,29 @@ describe('Filter workspaces', () => {
 
   it('should not let user edit or delete root workspace', () => {
     // click the menu button on the root workspace and ensure edit and delete are disabled
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-plain-1"]').click();
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-1"]').should('have.class', 'pf-m-disabled');
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-2"]').should('have.class', 'pf-m-disabled');
+    cy.contains('div', 'Root Workspace')
+      .parents('tr')
+      .find('button[aria-label="Kebab toggle"]').click();
+    cy.get('[aria-label="edit workspace Root Workspace"]').parents('li').should('have.class', 'pf-m-disabled');
+    cy.get('[aria-label="delete workspace Root Workspace"]').parents('li').should('have.class', 'pf-m-disabled');
+    cy.get('[aria-label="move workspace Root Workspace"]').parents('li').should('have.class', 'pf-m-disabled');
   });
 
   it('should let user edit but not delete a default workspace', () => {
-    // click the menu button on the default workspace and ensure edit is enabled and delete is disabled
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-plain-2"]').last().click();
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-1"]').should('not.have.class', 'pf-m-disabled');
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-2"]').should('have.class', 'pf-m-disabled');
+    cy.contains('div', 'Default Workspace')
+      .parents('tr')
+      .find('button[aria-label="Kebab toggle"]').click();
+    cy.get('[aria-label="edit workspace Default Workspace"]').parents('li').should('not.have.class', 'pf-m-disabled');
+    cy.get('[aria-label="delete workspace Default Workspace"]').parents('li').should('have.class', 'pf-m-disabled');
+    cy.get('[aria-label="move workspace Default Workspace"]').parents('li').should('have.class', 'pf-m-disabled');
   });
 
   it('should let user edit and delete a standard workspace', () => {
-    // click the menu button on a standard workspace and ensure edit and delete are enabled
-    cy.get('[data-ouia-component-id="OUIA-Generated-MenuToggle-plain-3"]').last().click();
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-1"]').should('not.have.class', 'pf-m-disabled');
-    cy.get('[data-ouia-component-id="OUIA-Generated-DropdownItem-2"]').should('not.have.class', 'pf-m-disabled');
+    cy.contains('div', 'xyc')
+      .parents('tr')
+      .find('button[aria-label="Kebab toggle"]').click();
+      cy.get('[aria-label="edit workspace xyc"]').parents('li').should('not.have.class', 'pf-m-disabled');
+    cy.get('[aria-label="delete workspace xyc"]').parents('li').should('not.have.class', 'pf-m-disabled');
+    cy.get('[aria-label="move workspace xyc"]').parents('li').should('not.have.class', 'pf-m-disabled');
   });
 });

@@ -43,6 +43,7 @@ export default defineConfig({
     // required for the SSO redirect
     chromeWebSecurity: false,
     video: false,
+    viewportWidth: 1300,
     setupNodeEvents(on, config) {
       require('cypress-localstorage-commands/plugin')(on, config);
       return config;
