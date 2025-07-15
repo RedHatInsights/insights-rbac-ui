@@ -18,8 +18,11 @@
 
 // Import commands.js using ES2015 syntax:
 import './commands'
-import '../../src/sass/chrome.scss'
-import '../../src/sass/pf-5-assets.scss'
+// Patternfly
+import '@patternfly/patternfly/patternfly.css';
+// Patternfly utilities
+import '@patternfly/patternfly/patternfly-addons.css';
+import '../../src/App.scss'
 import { mount } from 'cypress/react18'
 import '@cypress/code-coverage/support'
 
