@@ -24,8 +24,6 @@ spec:
     value: '{{revision}}'
   - name: output-image
     value: quay.io/redhat-user-workloads/rh-platform-experien-tenant/insights-rbac-ui-sc/insights-rbac-ui-sc:{{revision}}
-  - name: image-expires-after
-    value: 5d
   - name: dockerfile
     value: build-tools/Dockerfile
   - name: path-context
