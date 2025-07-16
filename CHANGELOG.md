@@ -1,3 +1,10 @@
+# [1.45.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.44.0...v1.45.0) (2025-07-16)
+
+
+### Features
+
+* **myuseraccess:** filter out out-of-scope bundles and apps for itless env ([#1867](https://github.com/RedHatInsights/insights-rbac-ui/issues/1867)) ([6d42875](https://github.com/RedHatInsights/insights-rbac-ui/commit/6d4287552d8c27c32e35a1e85232ff5a4b8f8981))
+
 # [1.44.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.3...v1.44.0) (2025-06-25)
 
 
