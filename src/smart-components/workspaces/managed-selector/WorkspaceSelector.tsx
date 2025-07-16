@@ -1,5 +1,4 @@
 import { Button, ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { MenuContainer } from '@patternfly/react-core/dist/dynamic/components/Menu';
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Panel, PanelFooter, PanelHeader, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
