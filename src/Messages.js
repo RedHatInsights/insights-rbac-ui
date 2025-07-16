@@ -431,6 +431,26 @@ export default defineMessages({
     description: 'Delete workspace error notification description',
     defaultMessage: 'The workspace {workspace} was not deleted successfuly.',
   },
+  moveWorkspaceSuccessTitle: {
+    id: 'moveWorkspaceSuccessTitle',
+    description: 'Move workspace success notification title',
+    defaultMessage: 'Moving workspace',
+  },
+  moveWorkspaceSuccessDescription: {
+    id: 'moveWorkspaceSuccessDescription',
+    description: 'Move workspace success notification description',
+    defaultMessage: '{name} has been moved successfully.',
+  },
+  moveWorkspaceErrorTitle: {
+    id: 'moveWorkspaceErrorTitle',
+    description: 'Move workspace error notification title',
+    defaultMessage: 'Failed to move {name}',
+  },
+  moveWorkspaceErrorDescription: {
+    id: 'moveWorkspaceErrorDescription',
+    description: 'Move workspace error notification description',
+    defaultMessage: '{workspace} was not moved successfully.',
+  },
   editUserSuccessTitle: {
     id: 'editUserSuccessTitle',
     description: 'Edit user success notification title',

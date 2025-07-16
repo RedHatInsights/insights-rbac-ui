@@ -6,6 +6,7 @@ import { Panel, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dyn
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { SearchInput } from '@patternfly/react-core';
 import * as React from 'react';
+import './WorkspaceSelector.scss';
 
 interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
   isMenuExpanded: boolean;
@@ -35,6 +36,7 @@ interface WorkspaceSelectorProps<T extends TreeViewDataItem> {
     selectedItem: T | null;
     onSelect: (event: React.MouseEvent, selectedItem: TreeViewDataItem) => void;
     isLoading: boolean;
+    isError: boolean;
   }) => React.ReactNode;
   searchPlaceholder?: string;
   buttonText?: string;
@@ -84,7 +86,7 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   const menuToggle = renderMenuToggle({
     menuToggleRef: toggleRef,
     onMenuToggleClick: () => setIsMenuExpanded(!isMenuExpanded),
-    isDisabled: isError || isLoading,
+    isDisabled: isLoading,
     isMenuToggleExpanded: isMenuExpanded,
     selectedItem,
   });
@@ -96,11 +98,12 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
       selectedItem,
       onSelect: onSelectItem,
       isLoading,
+      isError,
     });
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
   const menu = (
-    <Panel ref={menuRef} variant="raised">
+    <Panel ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu">
       <PanelMain>
         <section>
           <PanelMainBody>
@@ -110,10 +113,10 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
               onChange={(_e, value) => onSearchFilter(value)}
               onClear={() => onSearchFilter('')}
             />
-            <Panel>
+            <Panel className="pf-v6-u-overflow-y-auto pf-v6-u-border-0 pf-v6-u-box-shadow-none rbac-c-workspace-selector-scrollable-panel">
               <PanelMain>
                 <section>
-                  <PanelMainBody>{memoizedTreeView}</PanelMainBody>
+                  <PanelMainBody className="pf-v6-u-py-sm">{memoizedTreeView}</PanelMainBody>
                 </section>
               </PanelMain>
             </Panel>

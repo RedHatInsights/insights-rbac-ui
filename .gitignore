@@ -30,3 +30,7 @@ yarn.lock
 coverage
 # webpack cache
 .cache
+# cypress cache
+.cypress-cache
+# code coverage
+.nyc_output

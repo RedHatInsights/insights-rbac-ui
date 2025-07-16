@@ -10,7 +10,7 @@ import WorkspaceMenuToggle from './WorkspaceMenuToggle';
 import WorkspaceSelector from './WorkspaceSelector';
 import { WorkspacePermissionsObject, useWorkspacePermissions } from './WorkspacePermissions';
 
-interface RBACListWorkspacesResponse {
+export interface RBACListWorkspacesResponse {
   data: Workspace[];
 }
 
@@ -122,11 +122,12 @@ export const createWorkspaceSearchFilter = (
 
 interface ManagedSelectorProps {
   onSelect?: (workspace: TreeViewDataItem) => void;
+  initialSelectedWorkspace?: TreeViewWorkspaceItem;
   withPermissions?: boolean;
 }
 
 // Internal component that uses the store
-const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, withPermissions }) => {
+const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace, withPermissions }) => {
   const {
     isWorkspacesMenuExpanded,
     setIsWorkspacesMenuExpanded,
@@ -161,6 +162,15 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, wit
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
+
+  /**
+   * Set initial selected workspace when provided
+   */
+  React.useEffect(() => {
+    if (initialSelectedWorkspace) {
+      setSelectedWorkspace(initialSelectedWorkspace);
+    }
+  }, [initialSelectedWorkspace, setSelectedWorkspace]);
 
   /**
    * Every time the workspaces tree changes, reset the search filter
@@ -220,6 +230,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, wit
           selectedWorkspace={props.selectedItem as TreeViewWorkspaceItem | undefined}
           onSelect={props.onSelect}
           isLoading={props.isLoading}
+          isError={props.isError}
         />
       )}
       searchPlaceholder="Find a workspace by name"
@@ -229,10 +240,10 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, wit
 };
 
 // Main component that provides the store context
-const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, withPermissions = true }) => {
+const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace, withPermissions = true }) => {
   return (
     <WorkspacesStoreProvider>
-      <ManagedSelectorInternal onSelect={onSelect} withPermissions={withPermissions} />
+      <ManagedSelectorInternal onSelect={onSelect} initialSelectedWorkspace={initialSelectedWorkspace} withPermissions={withPermissions} />
     </WorkspacesStoreProvider>
   );
 };

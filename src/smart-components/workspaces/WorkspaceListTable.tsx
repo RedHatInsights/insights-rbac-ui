@@ -33,6 +33,7 @@ import { RBACStore } from '../../redux/store';
 import pathnames from '../../utilities/pathnames';
 import paths from '../../utilities/pathnames';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import MoveWorkspaceModal from './MoveWorkspaceModal';
 
 interface WorkspaceFilters {
   name: string;
@@ -59,6 +60,19 @@ const isValidEditType = (workspace: Workspace) => {
       return false;
     case 'default':
       return true;
+    case 'ungrouped-hosts':
+      return false;
+    case 'standard':
+      return true;
+  }
+};
+
+const isValidMoveType = (workspace: Workspace) => {
+  switch (workspace.type) {
+    case 'root':
+      return false;
+    case 'default':
+      return false;
     case 'ungrouped-hosts':
       return false;
     case 'standard':
@@ -140,7 +154,10 @@ const WorkspaceListTable = () => {
   const navigate = useAppNavigate();
   const chrome = useChrome();
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [isMoveModalOpen, setIsMoveModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
+  const [currentMoveWorkspace, setCurrentMoveWorkspace] = useState<Workspace | null>(null);
+
   const [userPermissions, setUserPermissions] = useState<Permission>({
     permission: '',
     resourceDefinitions: [],
@@ -154,13 +171,20 @@ const WorkspaceListTable = () => {
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const canModify = (workspace: Workspace, action: 'edit' | 'delete') => {
+  const handleMoveModalToggle = (workspace: Workspace | null) => {
+    setCurrentMoveWorkspace(workspace);
+    setIsMoveModalOpen(!isMoveModalOpen);
+  };
+
+  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete') => {
     if (
       ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission) &&
       (userPermissions.resourceDefinitions.length === 0 ||
         userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id)))
     ) {
       if (action === 'edit' && isValidEditType(workspace)) {
+        return true;
+      } else if (action === 'move' && isValidMoveType(workspace)) {
         return true;
       } else if (action === 'delete' && isValidDeleteType(workspace)) {
         return true;
@@ -206,6 +230,13 @@ const WorkspaceListTable = () => {
                     navigate(paths['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                   isDisabled: !canModify(workspace, 'edit'),
+                },
+                {
+                  title: 'Move workspace',
+                  onClick: () => {
+                    handleMoveModalToggle(workspace);
+                  },
+                  isDisabled: !canModify(workspace, 'move'),
                 },
                 {
                   title: <Divider component="li" key="divider" />,
@@ -304,6 +335,7 @@ const WorkspaceListTable = () => {
           />
         </WarningModal>
       )}
+      <MoveWorkspaceModal isOpen={isMoveModalOpen} onClose={() => handleMoveModalToggle(null)} workspaceToMove={currentMoveWorkspace} />
       <DataView activeState={activeState}>
         <DataViewToolbar
           clearAllFilters={clearAllFilters}

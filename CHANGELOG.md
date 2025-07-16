@@ -1,3 +1,10 @@
+# [1.44.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.3...v1.44.0) (2025-06-25)
+
+
+### Features
+
+* use new workspace selector in create workspace wizard ([#1862](https://github.com/RedHatInsights/insights-rbac-ui/issues/1862)) ([c3eeb71](https://github.com/RedHatInsights/insights-rbac-ui/commit/c3eeb7197189a51ff57a3bf970c8e01f36df9cf1))
+
 ## [1.43.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.43.2...v1.43.3) (2025-06-19)
 
 
