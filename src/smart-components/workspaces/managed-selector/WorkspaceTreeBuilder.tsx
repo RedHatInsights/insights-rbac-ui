@@ -1,6 +1,8 @@
+import { Truncate } from '@patternfly/react-core';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
 import WorkspaceType from './WorkspaceType';
+import React from 'react';
 
 function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined {
   if (wps.length == 0) {
