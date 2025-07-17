@@ -23,7 +23,7 @@ const SetDetails = () => {
   const values = formOptions.getState().values;
   const { isLoading, workspaces } = useSelector((state: RBACStore) => state.workspacesReducer);
 
-  const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy && enableWorkspaces;
+  const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy || enableWorkspaces;
 
   useEffect(() => {
     dispatch(fetchWorkspaces());
