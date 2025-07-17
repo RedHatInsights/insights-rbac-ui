@@ -1,0 +1,424 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Storybook Guide" />
+
+# Enhanced Storybook Guide
+
+This guide explains the enhanced Storybook setup for the RBAC UI project and comprehensive best practices for creating effective component stories.
+
+## 🎨 What's New
+
+### Visual Enhancements
+- **Custom Theming**: Professional styling with Red Hat design principles
+- **Better Typography**: Improved readability with enhanced heading styles
+- **Enhanced Code Blocks**: Syntax highlighting with better formatting
+- **Responsive Design**: Optimized for different screen sizes
+- **Dark Mode Support**: Automatic dark mode detection and styling
+
+### Improved Organization
+- **Story Sorting**: Logical organization with Documentation first
+- **Component Categories**: Clear separation of component types
+- **Enhanced Controls**: Organized controls with categories and subcategories
+- **Better Navigation**: Improved sidebar with visual indicators
+
+### New Features
+- **Background Testing**: Multiple background options for testing
+- **Viewport Testing**: Predefined viewports for responsive design
+- **Context Controls**: Global controls for permissions and feature flags
+- **Source Code**: View component source code directly in Storybook
+- **Enhanced Documentation**: Rich MDX documentation with better formatting
+
+## 🎯 Story Development Best Practices
+
+*Based on learnings from UsersRow and other component story development*
+
+### **Focus on the Component, Not Wrappers**
+- ✅ Stories should document the **actual component** being developed
+- ❌ Don't let stories document complex wrapper components (like `TableToolbarView`)
+- ✅ Use Storybook's **autotitle feature** - don't set custom `title` in meta
+- ✅ Set `component: ActualComponent` in meta object
+
+### **Story Structure Best Practices**
+```typescript
+const meta: Meta<typeof ComponentName> = {
+  component: ComponentName,  // The actual component being documented
+  // No title - let Storybook auto-generate from file path
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `Clear description of what the component does and how it works`
+      }
+    }
+  }
+};
+```
+
+### **Investigation Process - Know Before You Code**
+
+#### **When Working with Existing Components:**
+1. **Check dependency versions** - Look at `package.json` for PatternFly, React, and other library versions to use correct documentation
+2. **Understand the component's role** - Is it a wrapper? What does it wrap?
+3. **Check actual usage** - Look at how it's used in the codebase
+4. **Understand data flow** - What data does it actually read/use?
+5. **Check PatternFly patterns** - What interfaces should it implement? (Use version-specific docs)
+6. **Verify with build/lint** - Ensure changes don't break anything
+
+#### **Version-Specific Documentation Sources:**
+- **PatternFly React**: Check version in `package.json`, then use corresponding docs
+  - Example: `@patternfly/react-table@4.x.x` vs `@patternfly/react-table@5.x.x` have different APIs
+- **Storybook**: Use version-specific documentation for story formats and meta configurations
+- **React**: Ensure patterns match the React version being used
+- **TypeScript**: Check for version-specific type definitions and features
+
+## 🔧 PatternFly Integration Patterns
+
+### **Table Row Wrappers**
+- ✅ Use `RowWrapperProps` interface from PatternFly
+- ✅ Implement as: `({ row, ...props }: RowWrapperProps) => JSX.Element`
+- ✅ Use complete `Table` structure in stories:
+```typescript
+<Table aria-label="Description" cells={columns} rowWrapper={Component} rows={data}>
+  <TableHeader />
+  <TableBody />
+</Table>
+```
+
+### **TypeScript Compatibility**
+- ✅ Import proper PatternFly types: `import { RowWrapperProps } from '@patternfly/react-table'`
+- ✅ Use type assertions when needed: `args.row!` for story arguments
+- ✅ Ensure component return types match PatternFly expectations
+
+### **Data Structure Understanding**
+- ✅ Understand what data the component **actually reads** from props
+- ✅ For table components, understand the expected row structure
+- ✅ Example: `UsersRow` reads `row.status.props['data-is-active']`, not `row.cells`
+- ✅ Use **realistic data structures** that match production usage
+- ✅ Include actual PatternFly components (Labels, Icons, etc.) in cell data
+- ❌ Don't use generic mock data that doesn't reflect real usage
+- ✅ Add `key` props to JSX elements in arrays
+
+## 🚫 Common Pitfalls to Avoid
+
+### **Complex Story Wrappers**
+- ❌ Don't use `TableToolbarView` or similar complex components in stories
+- ❌ Avoid components that cause React hooks issues
+- ✅ Use minimal, focused wrappers that showcase the component
+
+### **TypeScript Issues**
+- ❌ Don't create overly restrictive custom interfaces when PatternFly types exist
+- ❌ Don't ignore TypeScript errors - fix them with proper types
+- ✅ Use PatternFly's provided interfaces and extend them if needed
+
+### **Data Structure Mismatches**
+- ❌ Don't assume component uses `cells` array if it doesn't
+- ❌ Don't create data structures that don't match component expectations
+- ✅ Trace through component code to understand actual data flow
+
+### **Story Titles**
+- ❌ Don't set custom `title` in meta object
+- ✅ Let Storybook auto-generate titles from file path structure
+- ✅ Organize files in logical directory structure for good auto-titles
+
+## ✅ Quality Checklist
+
+### **Before Submitting Stories:**
+- [ ] **Verified dependency versions** in `package.json` and used correct documentation
+- [ ] Stories document the target component, not wrappers
+- [ ] No custom `title` in meta (using autotitle)
+- [ ] All TypeScript errors resolved
+- [ ] `npm run build` passes
+- [ ] `npm run lint:js` passes (no errors, warnings OK)
+- [ ] Realistic data structures used
+- [ ] PatternFly components properly integrated
+- [ ] JSX elements in arrays have `key` props
+- [ ] Stories show different component states/behaviors
+
+### **Component Development:**
+- [ ] **Checked dependency versions** for accurate API usage
+- [ ] Uses appropriate PatternFly interfaces
+- [ ] Handles undefined/missing data gracefully
+- [ ] Returns correct type expected by PatternFly
+- [ ] Follows existing codebase patterns
+- [ ] Properly typed with TypeScript
+
+## 📖 Documentation Structure
+
+### Main Documentation
+Located in `src/docs/`, these provide comprehensive project information:
+
+- **Introduction** - Welcome page and project overview
+- **Architecture** - Technical architecture and project structure
+- **Development Guide** - Complete development workflow and standards
+- **Component Guidelines** - Best practices for component development
+- **Permissions & Context Testing** - Guide to context mocking system
+- **Changelog** - Project changelog and release notes
+- **Storybook Guide** - This guide!
+
+### Component Stories
+Each component includes comprehensive stories with:
+- Interactive controls for all props
+- Multiple usage examples
+- Accessibility information
+- Design guidelines
+- Context variations
+
+## 🔧 Using the Enhanced Features
+
+### Background Testing
+Test components against different backgrounds:
+
+```typescript
+export const OnDarkBackground: Story = {
+  parameters: {
+    backgrounds: {
+      default: 'dark',
+    },
+  },
+};
+```
+
+### Viewport Testing
+Test responsive behavior:
+
+```typescript
+export const MobileView: Story = {
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile',
+    },
+  },
+};
+```
+
+### Context Controls
+Use global controls for permissions and environment:
+
+```typescript
+import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '../../test/storybook-types';
+
+type MyComponentStoryArgs = StoryArgs<React.ComponentProps<typeof MyComponent>>;
+
+const meta: Meta<MyComponentStoryArgs> = {
+  component: MyComponent,
+  argTypes: {
+    ...DECORATOR_ARG_TYPES,
+    // Your component args
+  },
+  args: {
+    ...DEFAULT_DECORATOR_ARGS,
+    // Your component defaults
+  },
+};
+```
+
+### Enhanced Documentation
+Create rich documentation with MDX:
+
+```typescript
+export const ExampleStory: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Example Usage
+
+This story demonstrates:
+- **Feature A**: Description of feature A
+- **Feature B**: Description of feature B
+
+### Code Example
+\`\`\`tsx
+<MyComponent variant="primary" />
+\`\`\`
+
+### Accessibility Notes
+- Supports keyboard navigation
+- Screen reader compatible
+        `,
+      },
+    },
+  },
+};
+```
+
+## 🎯 Component Status Badges
+
+Use badges to indicate component maturity:
+
+```markdown
+<div className="component-badge component-badge--stable">Stable</div>
+<div className="component-badge component-badge--beta">Beta</div>
+<div className="component-badge component-badge--deprecated">Deprecated</div>
+```
+
+## 📱 Responsive Testing
+
+### Available Viewports
+- **Mobile**: 375x667 - Phone viewport
+- **Tablet**: 768x1024 - Tablet viewport  
+- **Desktop**: 1200x800 - Standard desktop
+- **Large Desktop**: 1440x900 - Large screens
+
+### Testing Pattern
+```typescript
+export const ResponsiveExample: Story = {
+  render: (args) => (
+    <div style={{ width: '100%', minHeight: '400px' }}>
+      <MyComponent {...args} />
+    </div>
+  ),
+  parameters: {
+    viewport: {
+      defaultViewport: 'mobile',
+    },
+  },
+};
+```
+
+## 🔍 Context Testing System
+
+### Permission Testing
+Test components with different user permissions:
+
+```typescript
+export const AdminView: Story = {
+  parameters: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: true,
+    },
+  },
+};
+
+export const RegularUser: Story = {
+  parameters: {
+    permissions: {
+      orgAdmin: false,
+      userAccessAdministrator: false,
+    },
+  },
+};
+```
+
+### Environment Testing
+Test behavior across different environments:
+
+```typescript
+export const ProductionBehavior: Story = {
+  parameters: {
+    chrome: {
+      environment: 'prod',
+    },
+  },
+};
+
+export const StagingBehavior: Story = {
+  parameters: {
+    chrome: {
+      environment: 'stage',
+    },
+  },
+};
+```
+
+### Feature Flag Testing
+Test with different feature flag configurations:
+
+```typescript
+export const WithITLess: Story = {
+  parameters: {
+    featureFlags: {
+      'platform.rbac.itless': true,
+    },
+  },
+};
+
+export const WithoutITLess: Story = {
+  parameters: {
+    featureFlags: {
+      'platform.rbac.itless': false,
+    },
+  },
+};
+```
+
+## 🛠️ Development Workflow
+
+### Creating New Stories
+1. **Create the story file** following the naming pattern `Component.stories.tsx`
+2. **Use the story template** from the Component Guidelines
+3. **Add comprehensive documentation** with usage examples
+4. **Include context variations** for different user scenarios
+5. **Test responsiveness** with different viewports
+6. **Verify accessibility** with screen readers
+
+### Documentation Best Practices
+- **Use descriptive titles** that clearly indicate the story purpose
+- **Include usage guidelines** for when to use the component
+- **Add code examples** showing implementation
+- **Document accessibility features** and keyboard navigation
+- **Provide context** about component behavior
+
+### Organizing Stories
+- **Group related stories** under appropriate categories
+- **Use consistent naming** patterns for similar stories
+- **Order stories logically** from basic to complex examples
+- **Include edge cases** and error states
+
+## 🎨 Styling Guidelines
+
+### Component Styling
+- Use PatternFly design tokens for consistency
+- Follow BEM methodology for custom CSS
+- Include responsive breakpoints
+- Support dark mode when applicable
+
+### Story Styling
+- Use the provided background options
+- Test with different viewport sizes
+- Ensure components work in all contexts
+- Consider print styles for documentation
+
+## 🚀 Performance Considerations
+
+### Story Performance
+- **Lazy load heavy components** in stories
+- **Minimize unnecessary re-renders** with proper memoization
+- **Use efficient data structures** for large datasets
+- **Optimize images and assets** used in stories
+
+### Bundle Optimization
+- **Import only what you need** from component libraries
+- **Use dynamic imports** for heavy dependencies
+- **Minimize story dependencies** to reduce bundle size
+
+## 🔧 Troubleshooting
+
+### Common Issues
+1. **Stories not appearing**: Check file naming and location
+2. **Controls not working**: Verify argTypes configuration
+3. **Context not updating**: Check decorator configuration
+4. **Styling issues**: Verify CSS imports and PatternFly integration
+
+### Debug Tools
+- Use browser DevTools to inspect component behavior
+- Check the Actions panel for event handling
+- Use the Controls panel to test different prop combinations
+- Review the Source panel to see generated code
+
+## 📚 Additional Resources
+
+### Storybook Official Documentation
+- [Storybook Docs](https://storybook.js.org/docs)
+- [Writing Stories](https://storybook.js.org/docs/writing-stories)
+- [Essential Addons](https://storybook.js.org/docs/essentials)
+
+### Internal Resources
+- [Component Guidelines](./ComponentGuidelines.mdx)
+- [Development Guide](./Development.mdx)
+- [Architecture Documentation](./Architecture.mdx)
+
+---
+
+This enhanced Storybook provides a powerful platform for developing, testing, and documenting components. Take advantage of all these features to create comprehensive, accessible, and well-documented components! 

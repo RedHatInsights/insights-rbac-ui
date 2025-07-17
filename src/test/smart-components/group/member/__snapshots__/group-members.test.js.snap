@@ -102,7 +102,6 @@ exports[`<GroupMembers /> should render correctly loader 1`] = `
         data-ouia-component-type="PF5/Table"
         data-ouia-safe="true"
         role="grid"
-        rows="20"
       >
         <thead
           class="pf-v5-c-table__thead"

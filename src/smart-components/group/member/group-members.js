@@ -6,7 +6,7 @@ import { Outlet, useParams } from 'react-router-dom';
 import { Bullseye, Button, ButtonVariant, Card, CardBody, Text, TextContent, TextVariants } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { createRows } from './member-table-helpers';
 import { fetchGroup, fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../redux/actions/group-actions';

@@ -1,0 +1,372 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Architecture" />
+
+# Architecture & Project Structure
+
+This document outlines the architecture, design decisions, and project organization of the RBAC UI application.
+
+## 📁 Project Structure
+
+```
+insights-rbac-ui/
+├── src/
+│   ├── entries/                    # Entry points for different builds
+│   ├── helpers/                    # Business logic helpers
+│   │   ├── access/                 # Access management logic
+│   │   ├── group/                  # Group management logic
+│   │   ├── role/                   # Role management logic
+│   │   ├── user/                   # User management logic
+│   │   └── workspaces/             # Workspace management logic
+│   ├── hooks/                      # Custom React hooks
+│   ├── presentational-components/  # Reusable UI components
+│   │   ├── shared/                 # Shared/common components
+│   │   └── myUserAccess/           # MUA-specific components
+│   ├── smart-components/           # Business logic components
+│   │   ├── access-management/      # Access management features
+│   │   ├── group/                  # Group management features
+│   │   ├── role/                   # Role management features
+│   │   ├── user/                   # User management features
+│   │   └── workspaces/             # Workspace management features
+│   ├── redux/                      # State management
+│   │   ├── actions/                # Redux actions
+│   │   └── reducers/               # Redux reducers
+│   ├── utilities/                  # Helper utilities and constants
+│   └── test/                       # Test utilities and mocks
+├── .storybook/                     # Storybook configuration
+├── cypress/                        # E2E tests
+└── config/                         # Build and test configuration
+```
+
+## 🏗️ Architectural Patterns
+
+### Component Architecture
+
+We follow a **Container/Presentational** pattern:
+
+#### Presentational Components (`src/presentational-components/`)
+- Pure UI components
+- No business logic
+- Receive data via props
+- Highly reusable
+- Easy to test and document
+
+```jsx
+// Example: Pure presentational component
+const UserCard = ({ user, onEdit, onDelete }) => (
+  <Card>
+    <CardBody>
+      <Text>{user.name}</Text>
+      <Button onClick={() => onEdit(user)}>Edit</Button>
+      <Button onClick={() => onDelete(user)}>Delete</Button>
+    </CardBody>
+  </Card>
+);
+```
+
+#### Smart Components (`src/smart-components/`)
+- Business logic and data fetching
+- State management
+- API interactions
+- Compose presentational components
+
+```jsx
+// Example: Smart component with business logic
+const UserManagement = () => {
+  const [users, setUsers] = useState([]);
+  const dispatch = useDispatch();
+
+  const handleEditUser = (user) => {
+    dispatch(editUser(user));
+  };
+
+  return (
+    <UserCard 
+      user={user} 
+      onEdit={handleEditUser}
+      onDelete={handleDeleteUser}
+    />
+  );
+};
+```
+
+### State Management
+
+We use **Redux** with a normalized state structure:
+
+```javascript
+// State shape
+{
+  users: {
+    byId: { 1: { id: 1, name: "John" } },
+    allIds: [1, 2, 3],
+    loading: false,
+    error: null
+  },
+  groups: {
+    byId: { 1: { id: 1, name: "Admins" } },
+    allIds: [1],
+    loading: false,
+    error: null
+  }
+}
+```
+
+### Helper Organization
+
+Business logic is organized by domain in the `helpers/` directory:
+
+- **API calls** - Interact with backend services
+- **Data transformation** - Format data for components
+- **Validation** - Input validation logic
+- **Business rules** - Application-specific logic
+
+```javascript
+// Example: User helper
+export const fetchUsers = (params) => {
+  return instance.get('/users', { params });
+};
+
+export const transformUserData = (users) => {
+  return users.map(user => ({
+    ...user,
+    displayName: `${user.first_name} ${user.last_name}`
+  }));
+};
+```
+
+## 🔌 Integration Architecture
+
+### Red Hat Console Integration
+
+Our application integrates with the Red Hat Console platform:
+
+```javascript
+// Chrome integration
+const chrome = useChrome();
+const environment = chrome.getEnvironment();
+const isProd = chrome.isProd();
+const user = chrome.getUser();
+```
+
+### API Architecture
+
+We interact with multiple backend services:
+
+1. **RBAC API** - Core permission management
+2. **User Management API** - User and group operations  
+3. **Cost Management API** - Usage and billing data
+4. **Workspaces API** - Workspace organization
+
+```javascript
+// API helper pattern
+export const rbacAPI = {
+  getRoles: (params) => instance.get('/roles', { params }),
+  createRole: (data) => instance.post('/roles', data),
+  updateRole: (id, data) => instance.put(`/roles/${id}`, data),
+  deleteRole: (id) => instance.delete(`/roles/${id}`)
+};
+```
+
+## 🎯 Design Patterns & Best Practices
+
+### Component Patterns
+
+#### 1. Higher-Order Components (HOCs)
+Used for cross-cutting concerns like permissions:
+
+```jsx
+const withPermissions = (permissions) => (Component) => {
+  return (props) => {
+    const userPermissions = usePermissions();
+    const hasPermission = permissions.every(p => 
+      userPermissions.includes(p)
+    );
+    
+    return hasPermission ? <Component {...props} /> : <AccessDenied />;
+  };
+};
+```
+
+#### 2. Custom Hooks
+Encapsulate reusable stateful logic:
+
+```jsx
+const useUsers = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await userHelper.fetchUsers();
+      setUsers(response.data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+  
+  return { users, loading, fetchUsers };
+};
+```
+
+#### 3. Render Props
+Flexible component composition:
+
+```jsx
+const DataFetcher = ({ children, url }) => {
+  const [data, loading, error] = useAsyncData(url);
+  return children({ data, loading, error });
+};
+
+// Usage
+<DataFetcher url="/api/users">
+  {({ data, loading, error }) => (
+    loading ? <Spinner /> : <UserList users={data} />
+  )}
+</DataFetcher>
+```
+
+### Error Handling
+
+Comprehensive error handling at multiple levels:
+
+```javascript
+// API level
+const apiCall = async () => {
+  try {
+    return await api.getData();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw new AppError('Failed to fetch data', error);
+  }
+};
+
+// Component level
+const ComponentWithErrorBoundary = () => (
+  <ErrorBoundary>
+    <MyComponent />
+  </ErrorBoundary>
+);
+
+// Redux level
+const dataReducer = (state, action) => {
+  switch (action.type) {
+    case 'FETCH_ERROR':
+      return {
+        ...state,
+        error: action.payload,
+        loading: false
+      };
+  }
+};
+```
+
+## 🧪 Testing Architecture
+
+### Testing Strategy
+
+1. **Unit Tests** - Individual components and functions
+2. **Integration Tests** - Component interactions
+3. **E2E Tests** - Full user workflows
+
+### Test Organization
+
+```
+test/
+├── __mocks__/                 # Mock implementations
+├── helpers/                   # Test utilities
+├── presentational-components/ # Component tests
+├── smart-components/         # Integration tests
+└── redux/                    # State management tests
+```
+
+### Storybook Testing
+
+Components are tested in isolation with various:
+- **Props combinations**
+- **Permission states**
+- **Feature flag configurations**
+- **Error conditions**
+
+## 🚀 Performance Considerations
+
+### Code Splitting
+
+```javascript
+// Route-based splitting
+const UserManagement = lazy(() => import('./smart-components/user/Users'));
+const GroupManagement = lazy(() => import('./smart-components/group/Groups'));
+
+// Feature-based splitting  
+const WorkspaceFeature = lazy(() => 
+  import('./smart-components/workspaces/WorkspaceList')
+);
+```
+
+### State Management Optimization
+
+```javascript
+// Normalized state structure
+const usersSelector = createSelector(
+  [getUsersState],
+  (users) => users.allIds.map(id => users.byId[id])
+);
+
+// Memoized components
+const UserListItem = memo(({ user }) => (
+  <ListItem>{user.name}</ListItem>
+));
+```
+
+### Bundle Optimization
+
+- **Tree shaking** for unused code elimination
+- **Dynamic imports** for feature-based splitting
+- **Asset optimization** for images and styles
+- **Dependency analysis** to prevent bloat
+
+## 🔧 Development Workflow
+
+### Local Development
+
+1. **Start development server**: `npm start`
+2. **Run tests**: `npm test`
+3. **Start Storybook**: `npm run storybook`
+4. **Run E2E tests**: `npm run test:e2e`
+
+### CI/CD Pipeline
+
+1. **Linting** - Code quality checks
+2. **Unit Tests** - Component and logic tests
+3. **E2E Tests** - Full workflow validation
+4. **Build** - Production bundle creation
+5. **Deploy** - Automatic deployment
+
+### Code Quality
+
+- **ESLint** - JavaScript/TypeScript linting
+- **Prettier** - Code formatting
+- **TypeScript** - Type safety
+- **Jest** - Unit testing
+- **Cypress** - E2E testing
+
+## 🔐 Security Considerations
+
+### Authentication & Authorization
+
+- **Red Hat SSO integration**
+- **Permission-based access control**
+- **Role-based feature access**
+- **Secure API communication**
+
+### Data Protection
+
+- **Input sanitization**
+- **XSS prevention**
+- **CSRF protection**
+- **Secure data transmission**
+
+---
+
+This architecture provides a scalable, maintainable foundation for the RBAC UI application while following React and Redux best practices. 

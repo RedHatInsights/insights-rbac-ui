@@ -8,7 +8,7 @@ import { useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ModalFormTemplate from '../common/ModalFormTemplate';
-import FormRenderer from '../common/form-renderer';
+import FormRenderer from '../../presentational-components/shared/FormRenderer';
 import useIsMounted from '../../hooks/useIsMounted';
 import { roleSelector } from './role-selectors';
 import { fetchRole, fetchRoles } from '../../helpers/role/role-helper';

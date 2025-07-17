@@ -14,13 +14,13 @@ import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import Breadcrumbs from '../../presentational-components/shared/breadcrumbs';
-import EmptyWithAction from '../../presentational-components/shared/empty-state';
+import RbacBreadcrumbs from '../../presentational-components/shared/Breadcrumbs';
+import EmptyWithAction from '../../presentational-components/shared/EmptyState';
 import PermissionsContext from '../../utilities/permissions-context';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import { fetchRoleForUser, fetchRoles } from '../../redux/actions/role-actions';
 import { fetchUsers } from '../../redux/actions/user-actions';
 import { BAD_UUID, getDateFormat } from '../../helpers/shared/helpers';
@@ -312,7 +312,7 @@ const User = () => {
       ) : (
         <Fragment>
           <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
-            <Breadcrumbs {...breadcrumbsList} />
+            <RbacBreadcrumbs breadcrumbs={breadcrumbsList} />
           </section>
           <EmptyWithAction
             title={intl.formatMessage(messages.userNotFound)}
