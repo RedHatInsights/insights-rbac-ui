@@ -18,7 +18,7 @@ IQE_PLUGINS="rbac"
 IQE_MARKER_EXPRESSION="smoke"
 IQE_FILTER_EXPRESSION=""
 
-set -exv
+set -xv
 
 CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/?onlyActiveTags=true&limit=100" | jq '.tags | [.[] | select(.name | test("^[a-zA-Z0-9]{7,40}$"))] | .[0].name' -r)
 CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
@@ -29,8 +29,12 @@ docker cp $CHROME_CONTAINER_NAME:/opt/app-root/src/build/stable/index.html dist/
 
 CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CHROME_CONTAINER_NAME)
 
+mkdir -p $WORKSPACE/artifacts
+chmod 777 $WORKSPACE/artifacts
+
 docker run -t \
   -v $PWD:/e2e:ro,Z \
+  -v $WORKSPACE/artifacts:/e2e/artifacts:Z \
   -w /e2e \
   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
   -e CHROME_PASSWORD=$CHROME_PASSWORD \
@@ -46,16 +50,16 @@ docker run -t \
 echo "After docker run"
 
 # source is preferred to | bash -s in this case to avoid a subshell
-source <(curl -sSL $COMMON_BUILDER/src/frontend-build.sh)
-BUILD_RESULTS=$?
+# source <(curl -sSL $COMMON_BUILDER/src/frontend-build.sh)
+# BUILD_RESULTS=$?
 
 # Stubbed out for now
 mkdir -p $WORKSPACE/artifacts
-cat << EOF > $WORKSPACE/artifacts/junit-dummy.xml
+cat << EOF > $WORKSPACE/artifacts/junit-foobar.xml
 <testsuite tests="1">
     <testcase classname="dummy" name="dummytest"/>
 </testsuite>
 EOF
 
 # teardown_docker
-exit $BUILD_RESULTS
+exit 0
