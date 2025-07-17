@@ -1,3 +1,10 @@
+## [1.45.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.0...v1.45.1) (2025-07-17)
+
+
+### Bug Fixes
+
+* **create-workspace:** workspace selector can be enabled if hierarchy FF is on ([#1876](https://github.com/RedHatInsights/insights-rbac-ui/issues/1876)) ([baef26c](https://github.com/RedHatInsights/insights-rbac-ui/commit/baef26c680ab99a1ee295e279c3c4b8603ed31a6))
+
 # [1.45.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.44.0...v1.45.0) (2025-07-16)
 
 
