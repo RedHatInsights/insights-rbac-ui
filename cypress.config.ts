@@ -2,6 +2,7 @@
 import { defineConfig } from 'cypress';
 
 export default defineConfig({
+  defaultCommandTimeout: 60000,
   component: {
     specPattern: 'cypress/component/**/*.cy.{js,jsx,ts,tsx}',
     excludeSpecPattern: ['/snapshots/*', '/image_snapshots/*', '/src/*'],
@@ -39,7 +40,8 @@ export default defineConfig({
       E2E_WORKSPACES_USER: process.env.E2E_WORKSPACES_USER,
       E2E_WORKSPACES_PASSWORD: process.env.E2E_WORKSPACES_PASSWORD
     },
-    screenshotOnRunFailure: false,
+    screenshotOnRunFailure: true,
+    screenshotsFolder: 'artifacts/screenshots',
     // required for the SSO redirect
     chromeWebSecurity: false,
     video: false,

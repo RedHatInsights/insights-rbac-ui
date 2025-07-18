@@ -37,7 +37,7 @@ describe('Filter workspaces', () => {
   };
 
   beforeEach(() => {
-    cy.login();
+    cy.login(true);
 
     // mock the workspaces
     cy.intercept('GET', '**/api/rbac/v2/workspaces/*', {
