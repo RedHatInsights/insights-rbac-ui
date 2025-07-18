@@ -6,7 +6,7 @@ import { Alert, Bullseye, Button, Card, CardBody, Text, TextContent, TextVariant
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultSettings } from '../../../helpers/shared/pagination';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import { fetchServiceAccountsForGroup } from '../../../redux/actions/group-actions';
 import { getDateFormat } from '../../../helpers/shared/helpers';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';

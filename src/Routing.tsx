@@ -3,7 +3,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
 import { mergeToBasename } from './presentational-components/shared/AppLink';
-import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
+import { AppPlaceholder } from './presentational-components/shared/LoaderPlaceholders';
 import ElementWrapper from './smart-components/common/ElementWrapper';
 import EditWorkspaceModal from './smart-components/workspaces/EditWorkspaceModal';
 import pathnames from './utilities/pathnames';

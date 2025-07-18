@@ -9,7 +9,7 @@ import WarningModal from '@patternfly/react-component-groups/dist/dynamic/Warnin
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import PermissionsContext from '../../../utilities/permissions-context';
 import GroupRowWrapper from '../../group/group-row-wrapper';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import { addMembersToGroup, fetchGroups } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';

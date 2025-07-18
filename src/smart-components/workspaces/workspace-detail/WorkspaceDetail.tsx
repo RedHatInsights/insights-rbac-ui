@@ -8,7 +8,7 @@ import { RBACStore } from '../../../redux/store';
 import { useParams, useSearchParams } from 'react-router-dom';
 import WorkspaceActions from '../WorkspaceActions';
 import messages from '../../../Messages';
-import AssetsCards from './AssetsCards';
+import AssetsCards from '../../../presentational-components/shared/AssetsCards';
 import RoleAssignmentsTable from './RoleAssignmentsTable';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/reducers/workspaces-reducer';

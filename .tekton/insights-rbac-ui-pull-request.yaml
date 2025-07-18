@@ -36,7 +36,11 @@ spec:
 
       npm install
       npm run lint
-      npm test --  --runInBand --no-cache
+      NODE_OPTIONS="--max-old-space-size=1536" npm test -- --runInBand --no-cache --logHeapUsage --coverage=false
+  - name: unit-tests-memory-request
+    value: "8Gi"
+  - name: unit-tests-memory-limit
+    value: "8Gi"
   pipelineRef:
     name: docker-build
   taskRunTemplate:

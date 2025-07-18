@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
 import { createRows } from './group-table-helpers';
 import {
   fetchAdminGroup,
@@ -16,7 +16,7 @@ import {
   fetchSystemGroup,
 } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import GroupRowWrapper from './group-row-wrapper';
 import {
   applyPaginationToUrl,

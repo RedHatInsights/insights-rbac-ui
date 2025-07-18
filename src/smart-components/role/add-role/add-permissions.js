@@ -6,7 +6,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
 import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import { expandSplats, listPermissionOptions, listPermissions, resetExpandSplats } from '../../../redux/actions/permission-action';
 import { fetchResourceDefinitions } from '../../../redux/actions/cost-management-actions';
 import { fetchRole } from '../../../redux/actions/role-actions';

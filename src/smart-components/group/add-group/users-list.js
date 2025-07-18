@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import { nowrap, sortable } from '@patternfly/react-table';
 import { mappedProps } from '../../../helpers/shared/helpers';
 import { fetchUsers, updateUsersFilters } from '../../../redux/actions/user-actions';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import UsersRow from '../../../presentational-components/shared/UsersRow';
 import PermissionsContext from '../../../utilities/permissions-context';
 import {
@@ -96,7 +96,14 @@ const UsersList = ({ selectedUsers, setSelectedUsers, userLinks, usesMetaInURL, 
 
   const setCheckedItems = (newSelection) => {
     setSelectedUsers((users) => {
-      return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
+      // Handle both function signatures
+      if (typeof newSelection === 'function') {
+        // newSelection is a function that takes the current users and returns selected items
+        return newSelection(users).map(({ uuid, username }) => ({ uuid, label: username || uuid }));
+      } else {
+        // newSelection is an array of selected items directly
+        return newSelection.map(({ uuid, username }) => ({ uuid, label: username || uuid }));
+      }
     });
   };
 

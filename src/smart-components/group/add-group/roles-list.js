@@ -6,7 +6,7 @@ import { sortable } from '@patternfly/react-table';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { defaultCompactSettings } from '../../../helpers/shared/pagination';
 import { mappedProps } from '../../../helpers/shared/helpers';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import { fetchRolesWithPolicies } from '../../../redux/actions/role-actions';
 import { fetchAddRolesForGroup } from '../../../redux/actions/group-actions';
 import messages from '../../../Messages';

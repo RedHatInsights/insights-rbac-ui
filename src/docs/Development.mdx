@@ -1,0 +1,617 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Development Guide" />
+
+# Development Guide
+
+This guide provides comprehensive information for developers working on the RBAC UI project.
+
+## 🚀 Getting Started
+
+### Prerequisites
+- **Node.js** (v18 or higher)
+- **npm** (v8 or higher)
+- **Git**
+- **Red Hat VPN** (for API access)
+
+### Initial Setup
+
+```bash
+# Clone the repository
+git clone https://github.com/RedHatInsights/insights-rbac-ui.git
+cd insights-rbac-ui
+
+# Install dependencies
+npm install
+
+# Start development server
+npm start
+```
+
+### Environment Configuration
+
+Create a `.env` file for local development:
+
+```bash
+# API endpoints
+API_BASE_URL=https://console.redhat.com/api/rbac/v1
+
+# Feature flags
+FEATURE_FLAGS_ENABLED=true
+
+# Debug settings
+DEBUG_MODE=true
+```
+
+## 🛠️ Development Workflow
+
+### Branch Strategy
+- **main** - Production-ready code
+- **develop** - Development integration branch
+- **feature/\*** - Feature development branches
+- **bugfix/\*** - Bug fix branches
+- **hotfix/\*** - Emergency production fixes
+
+### Commit Convention
+We use [Conventional Commits](https://www.conventionalcommits.org/) format:
+
+```bash
+# Format
+<type>[optional scope]: <description>
+
+# Examples
+feat(user): add user deletion functionality
+fix(auth): resolve login redirect issue
+docs(readme): update installation instructions
+style(button): improve button hover states
+refactor(api): simplify user service calls
+test(user): add user management tests
+chore(deps): update dependencies
+```
+
+### Pull Request Process
+1. **Create feature branch** from `develop`
+2. **Implement changes** following coding standards
+3. **Write tests** for new functionality
+4. **Update documentation** if needed
+5. **Run quality checks** locally
+6. **Create pull request** with descriptive title
+7. **Address review feedback**
+8. **Merge after approval**
+
+## 📝 Coding Standards
+
+### File Organization
+
+```
+src/
+├── components/
+│   ├── ComponentName/
+│   │   ├── ComponentName.tsx       # Main component
+│   │   ├── ComponentName.test.tsx  # Unit tests
+│   │   ├── ComponentName.stories.tsx # Storybook stories
+│   │   ├── ComponentName.scss      # Component styles
+│   │   └── index.ts               # Export file
+```
+
+### Component Structure
+
+```tsx
+// ComponentName.tsx
+import React from 'react';
+import { Button } from '@patternfly/react-core';
+import './ComponentName.scss';
+
+interface ComponentNameProps {
+  /** Button text content */
+  children: React.ReactNode;
+  /** Click handler */
+  onClick?: () => void;
+  /** Button variant */
+  variant?: 'primary' | 'secondary' | 'tertiary';
+  /** Disabled state */
+  disabled?: boolean;
+}
+
+/**
+ * ComponentName provides a standardized button component
+ * with consistent styling and behavior across the application.
+ */
+export const ComponentName: React.FC<ComponentNameProps> = ({
+  children,
+  onClick,
+  variant = 'primary',
+  disabled = false,
+}) => {
+  return (
+    <Button
+      variant={variant}
+      onClick={onClick}
+      isDisabled={disabled}
+      className="component-name"
+    >
+      {children}
+    </Button>
+  );
+};
+
+export default ComponentName;
+```
+
+### TypeScript Guidelines
+
+```typescript
+// Use interfaces for props
+interface UserProps {
+  id: string;
+  name: string;
+  email?: string; // Optional props with ?
+}
+
+// Use type unions for literals
+type ButtonVariant = 'primary' | 'secondary' | 'danger';
+
+// Use generic types for reusable components
+interface TableProps<T> {
+  data: T[];
+  columns: TableColumn<T>[];
+  onRowClick?: (row: T) => void;
+}
+
+// Use proper typing for event handlers
+const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+  event.preventDefault();
+  // Handle click
+};
+
+// Use type assertions sparingly
+const element = document.getElementById('root') as HTMLElement;
+```
+
+### Styling Guidelines
+
+```scss
+// Use BEM methodology
+.component-name {
+  display: flex;
+  align-items: center;
+  
+  // Modifiers
+  &--primary {
+    background-color: var(--pf-global--primary-color--100);
+  }
+  
+  &--disabled {
+    opacity: 0.6;
+    pointer-events: none;
+  }
+  
+  // Elements
+  &__content {
+    padding: var(--pf-global--spacer--md);
+  }
+  
+  &__title {
+    font-size: var(--pf-global--FontSize--lg);
+    font-weight: var(--pf-global--FontWeight--bold);
+  }
+}
+
+// Use PatternFly tokens
+.custom-component {
+  padding: var(--pf-global--spacer--md);
+  margin: var(--pf-global--spacer--sm);
+  background: var(--pf-global--BackgroundColor--100);
+  border: var(--pf-global--BorderWidth--sm) solid var(--pf-global--BorderColor--100);
+}
+```
+
+## 🧪 Testing
+
+### Unit Testing with Jest
+
+```tsx
+// ComponentName.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ComponentName } from './ComponentName';
+
+describe('ComponentName', () => {
+  it('renders with correct text', () => {
+    render(<ComponentName>Click me</ComponentName>);
+    expect(screen.getByText('Click me')).toBeInTheDocument();
+  });
+
+  it('calls onClick when clicked', () => {
+    const handleClick = jest.fn();
+    render(<ComponentName onClick={handleClick}>Click me</ComponentName>);
+    
+    fireEvent.click(screen.getByText('Click me'));
+    expect(handleClick).toHaveBeenCalledTimes(1);
+  });
+
+  it('is disabled when disabled prop is true', () => {
+    render(<ComponentName disabled>Click me</ComponentName>);
+    expect(screen.getByText('Click me')).toBeDisabled();
+  });
+});
+```
+
+### Integration Testing
+
+```tsx
+// Integration test example
+describe('User Management Integration', () => {
+  it('should display user list and handle deletion', async () => {
+    // Mock API responses
+    const mockUsers = [
+      { id: '1', name: 'John Doe', email: 'john@example.com' }
+    ];
+    
+    jest.spyOn(userApi, 'getUsers').mockResolvedValue(mockUsers);
+    jest.spyOn(userApi, 'deleteUser').mockResolvedValue(true);
+    
+    render(<UserManagement />);
+    
+    // Wait for users to load
+    await waitFor(() => {
+      expect(screen.getByText('John Doe')).toBeInTheDocument();
+    });
+    
+    // Test deletion
+    fireEvent.click(screen.getByText('Delete'));
+    
+    await waitFor(() => {
+      expect(userApi.deleteUser).toHaveBeenCalledWith('1');
+    });
+  });
+});
+```
+
+### E2E Testing with Cypress
+
+```typescript
+// cypress/e2e/user-management.cy.ts
+describe('User Management', () => {
+  beforeEach(() => {
+    cy.login(); // Custom command for authentication
+    cy.visit('/users');
+  });
+
+  it('should display user list', () => {
+    cy.get('[data-testid="user-list"]').should('be.visible');
+    cy.get('[data-testid="user-item"]').should('have.length.greaterThan', 0);
+  });
+
+  it('should create a new user', () => {
+    cy.get('[data-testid="add-user-button"]').click();
+    cy.get('[data-testid="user-name-input"]').type('New User');
+    cy.get('[data-testid="user-email-input"]').type('newuser@example.com');
+    cy.get('[data-testid="save-user-button"]').click();
+    
+    cy.get('[data-testid="success-message"]').should('contain', 'User created successfully');
+  });
+});
+```
+
+## 📖 Storybook Development
+
+### Creating Stories
+
+```tsx
+// ComponentName.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { ComponentName } from './ComponentName';
+import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '../../test/storybook-types';
+
+type ComponentNameStoryArgs = StoryArgs<React.ComponentProps<typeof ComponentName>>;
+
+const meta: Meta<ComponentNameStoryArgs> = {
+  title: 'Components/ComponentName',
+  component: ComponentName,
+  tags: ['autodocs'],
+  argTypes: {
+    ...DECORATOR_ARG_TYPES,
+    children: {
+      control: 'text',
+      description: 'Button content',
+    },
+    variant: {
+      control: 'select',
+      options: ['primary', 'secondary', 'tertiary'],
+      description: 'Button appearance variant',
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disabled state',
+    },
+  },
+  args: {
+    ...DEFAULT_DECORATOR_ARGS,
+    children: 'Click me',
+    variant: 'primary',
+    disabled: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        component: `
+ComponentName provides a standardized button component with consistent styling and behavior.
+
+## Usage
+- Use for primary actions on a page
+- Always provide meaningful button text
+- Consider loading states for async actions
+        `,
+      },
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+export const Default: Story = {};
+
+export const Secondary: Story = {
+  args: {
+    variant: 'secondary',
+  },
+};
+
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+  },
+};
+
+export const AdminOnly: Story = {
+  parameters: {
+    permissions: {
+      orgAdmin: true,
+    },
+  },
+};
+```
+
+### Documentation Standards
+
+```tsx
+// Add comprehensive documentation to your stories
+export const WithDocumentation: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story: `
+This story demonstrates the component in a specific context with detailed explanation of:
+
+- **When to use**: Appropriate use cases
+- **Behavior**: How the component behaves
+- **Variations**: Different states and configurations
+- **Accessibility**: ARIA labels and keyboard navigation
+        `,
+      },
+    },
+  },
+};
+```
+
+## 🔧 Development Tools
+
+### Available Scripts
+
+```bash
+# Development
+npm start                 # Start dev server
+npm run build            # Build for production
+npm run analyze          # Analyze bundle size
+
+# Testing
+npm test                 # Run unit tests
+npm run test:watch       # Run tests in watch mode
+npm run test:coverage    # Generate coverage report
+npm run test:e2e         # Run E2E tests
+npm run cypress          # Open Cypress GUI
+
+# Code Quality
+npm run lint             # Run ESLint
+npm run lint:fix         # Fix linting issues
+npm run format           # Format code with Prettier
+npm run type-check       # Run TypeScript checks
+
+# Storybook
+npm run storybook        # Start Storybook dev server
+npm run build-storybook  # Build Storybook
+npm run chromatic        # Deploy to Chromatic
+
+# Utilities
+npm run translations     # Extract and compile translations
+npm run circular-dependencies # Check for circular dependencies
+```
+
+### IDE Configuration
+
+#### VS Code Settings
+
+```json
+// .vscode/settings.json
+{
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true
+  },
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "emmet.includeLanguages": {
+    "typescript": "typescriptreact",
+    "javascript": "javascriptreact"
+  }
+}
+```
+
+#### Recommended Extensions
+
+```json
+// .vscode/extensions.json
+{
+  "recommendations": [
+    "bradlc.vscode-tailwindcss",
+    "dbaeumer.vscode-eslint",
+    "esbenp.prettier-vscode",
+    "ms-vscode.vscode-typescript-next",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
+```
+
+## 🐛 Debugging
+
+### Browser DevTools
+
+```javascript
+// Add debug information to components
+const ComponentName = (props) => {
+  useEffect(() => {
+    if (process.env.NODE_ENV === 'development') {
+      console.log('ComponentName props:', props);
+    }
+  }, [props]);
+
+  return <div>Component content</div>;
+};
+```
+
+### Redux DevTools
+
+```javascript
+// Enable Redux DevTools in development
+const store = createStore(
+  rootReducer,
+  composeWithDevTools(applyMiddleware(thunk))
+);
+```
+
+### Error Boundaries
+
+```tsx
+// Add error boundaries for better error handling
+class ErrorBoundary extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error) {
+    return { hasError: true };
+  }
+
+  componentDidCatch(error, errorInfo) {
+    console.error('Error caught by boundary:', error, errorInfo);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return <h1>Something went wrong.</h1>;
+    }
+
+    return this.props.children;
+  }
+}
+```
+
+## 📈 Performance Optimization
+
+### Code Splitting
+
+```tsx
+// Lazy load components
+const LazyComponent = lazy(() => import('./LazyComponent'));
+
+// Use Suspense for loading states
+<Suspense fallback={<Spinner />}>
+  <LazyComponent />
+</Suspense>
+```
+
+### Memoization
+
+```tsx
+// Memoize expensive calculations
+const ExpensiveComponent = ({ data }) => {
+  const processedData = useMemo(() => {
+    return data.map(item => processItem(item));
+  }, [data]);
+
+  return <div>{processedData}</div>;
+};
+
+// Memoize components
+const OptimizedComponent = memo(({ prop1, prop2 }) => {
+  return <div>{prop1} - {prop2}</div>;
+});
+```
+
+### Bundle Analysis
+
+```bash
+# Analyze bundle size
+npm run analyze
+
+# Check for circular dependencies
+npm run circular-dependencies
+```
+
+## 🚀 Deployment
+
+### Build Process
+
+```bash
+# Production build
+npm run build
+
+# Verify build
+npm run preview
+```
+
+### Environment Variables
+
+```bash
+# Production environment
+NODE_ENV=production
+API_BASE_URL=https://console.redhat.com/api
+FEATURE_FLAGS_ENABLED=true
+```
+
+## 🔍 Troubleshooting
+
+### Common Issues
+
+1. **Module not found errors**
+   - Check import paths
+   - Verify file exists
+   - Check webpack aliases
+
+2. **TypeScript errors**
+   - Run `npm run type-check`
+   - Check type definitions
+   - Verify prop types
+
+3. **Styling issues**
+   - Check CSS imports
+   - Verify PatternFly tokens
+   - Check responsive breakpoints
+
+4. **API errors**
+   - Verify VPN connection
+   - Check API endpoints
+   - Verify authentication
+
+### Getting Help
+
+- **Internal Documentation**: Check Confluence pages
+- **Team Chat**: Reach out on Slack
+- **Code Reviews**: Ask questions in PR comments
+- **Office Hours**: Attend weekly team meetings
+
+---
+
+This guide provides the foundation for productive development on the RBAC UI project. Keep it updated as processes evolve! 

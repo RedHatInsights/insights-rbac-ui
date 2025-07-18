@@ -10,7 +10,7 @@ import validatorTypes from '@data-driven-forms/react-form-renderer/validator-typ
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ModalFormTemplate from '../common/ModalFormTemplate';
-import FormRenderer from '../common/form-renderer';
+import FormRenderer from '../../presentational-components/shared/FormRenderer';
 import { fetchGroup, updateGroup } from '../../redux/actions/group-actions';
 import { debouncedAsyncValidator } from './validators';
 import messages from '../../Messages';

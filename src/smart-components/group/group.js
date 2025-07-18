@@ -10,11 +10,11 @@ import WarningModal from '@patternfly/react-component-groups/dist/dynamic/Warnin
 import SkeletonTable from '@patternfly/react-component-groups/dist/esm/SkeletonTable';
 import AppTabs from '../app-tabs/app-tabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import { fetchGroup, fetchSystemGroup, removeGroups } from '../../redux/actions/group-actions';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
-import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
+import EmptyWithAction from '../../presentational-components/shared/EmptyState';
+import RbacBreadcrumbs from '../../presentational-components/shared/Breadcrumbs';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
@@ -252,7 +252,7 @@ const Group = () => {
       ) : (
         <Fragment>
           <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
-            <RbacBreadcrumbs {...breadcrumbsList()} />
+            <RbacBreadcrumbs breadcrumbs={breadcrumbsList()} />
           </section>
           <EmptyWithAction
             title={intl.formatMessage(messages.groupNotFound)}

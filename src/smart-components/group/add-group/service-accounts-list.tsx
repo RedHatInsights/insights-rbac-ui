@@ -7,7 +7,7 @@ import { LAST_PAGE } from '../../../helpers/service-account/constants';
 import { ServiceAccount } from '../../../helpers/service-account/types';
 import { getDateFormat } from '../../../helpers/shared/helpers';
 import messages from '../../../Messages';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import { fetchServiceAccounts } from '../../../redux/actions/service-account-actions';
 import { ServiceAccountsState } from '../../../redux/reducers/service-account-reducer';
 import { PaginationProps } from '../service-account/add-group-service-accounts';
@@ -30,7 +30,7 @@ const reducer = ({ serviceAccountReducer }: { serviceAccountReducer: ServiceAcco
 
 const createRows = (data: ServiceAccount[], checkedRows: ServiceAccount[]) =>
   data?.reduce(
-    (acc: unknown[], curr: ServiceAccount) => [
+    (acc: any[], curr: ServiceAccount) => [
       ...acc,
       {
         uuid: curr.uuid,
@@ -41,7 +41,7 @@ const createRows = (data: ServiceAccount[], checkedRows: ServiceAccount[]) =>
           curr.clientId,
           curr.createdBy,
           <Fragment key={`${curr.name}-modified`}>
-            <DateFormat date={curr.createdAt} type={getDateFormat(curr.createdAt)} />
+            <DateFormat date={curr.createdAt} type={getDateFormat(String(curr.createdAt))} />
           </Fragment>,
         ],
         selected: Boolean(checkedRows && checkedRows.find((row: ServiceAccount) => row.uuid === curr.uuid)) || curr.assignedToSelectedGroup,
@@ -102,10 +102,10 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         ...(status === LAST_PAGE ? { count: offset + serviceAccounts.length } : {}),
       }}
       paginationProps={{
-        toggleTemplate: ({ firstIndex, lastIndex }) => (
+        toggleTemplate: () => (
           <>
             <b>
-              {firstIndex} - {lastIndex}
+              {offset + 1} - {offset + serviceAccounts.length}
             </b>{' '}
             of <b>{status === LAST_PAGE ? offset + serviceAccounts.length : 'many'}</b>
           </>
@@ -122,6 +122,10 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
       }}
       tableId="group-add-accounts"
       ouiaId="group-add-accounts"
+      toolbarButtons={() => []}
+      routes={() => null}
+      setFilterValue={() => {}}
+      filters={[]}
     />
   );
 };

@@ -8,16 +8,16 @@ import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/depr
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/actions/role-actions';
-import { TopToolbar } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar } from '../../presentational-components/shared/TopToolbar';
 import { fetchGroup, fetchRolesForGroup, fetchSystemGroup } from '../../redux/actions/group-actions';
-import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/loader-placeholders';
+import { ToolbarTitlePlaceholder } from '../../presentational-components/shared/LoaderPlaceholders';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import { BAD_UUID, getBackRoute } from '../../helpers/shared/helpers';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import Permissions from './role-permissions';
-import EmptyWithAction from '../../presentational-components/shared/empty-state';
-import RbacBreadcrumbs from '../../presentational-components/shared/breadcrumbs';
+import EmptyWithAction from '../../presentational-components/shared/EmptyState';
+import RbacBreadcrumbs from '../../presentational-components/shared/Breadcrumbs';
 import AppLink, { mergeToBasename } from '../../presentational-components/shared/AppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
@@ -202,7 +202,7 @@ const Role = ({ onDelete }) => {
       ) : (
         <Fragment>
           <section className="pf-v5-c-page__main-breadcrumb pf-v5-u-pb-md">
-            <RbacBreadcrumbs {...breadcrumbsList()} />
+            <RbacBreadcrumbs breadcrumbs={breadcrumbsList()} />
           </section>
           <EmptyWithAction
             title={`${groupExists ? 'Role' : 'Group'} not found`}

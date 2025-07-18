@@ -1,0 +1,211 @@
+
+---
+type: auto_attached
+patterns:
+  - "**/*.stories.tsx"
+  - "**/*.stories.ts"
+tags:
+  - storybook
+---
+
+# Storybook Development Guidelines
+
+## Story Development Principles
+
+### Focus on the Component, Not Wrappers
+- Stories should document the **actual component** being developed, not wrappers
+- Set `component: ActualComponent` in meta object
+- Avoid complex wrapper components like `TableToolbarView` in stories
+
+### Title Generation (FORBIDDEN)
+- **NEVER** use custom `title` in meta configuration
+- **ALWAYS** let Storybook's automatic title generation do the work
+- Automatic titles are generated from file paths and are consistent across the project
+
+### File Naming Requirements
+- Component files: `ComponentName.tsx` (MUST be capitalized and reflect component name)
+- Story files: `ComponentName.stories.tsx` (MUST be capitalized and reflect component name)
+
+### Story Requirements (MANDATORY)
+- **REQUIRED**: All stories MUST use `tags: ['autodocs']` by default
+- **REQUIRED**: All user interactions in components MUST have play functions to test them
+- Stories must test actual user workflows, not just trigger events
+- Cover all interactive states: hover, focus, disabled, error, etc.
+
+### Story Structure Template
+```typescript
+const meta: Meta<typeof ComponentName> = {
+  component: ComponentName,  // The actual component being documented
+  tags: ['autodocs'],       // REQUIRED: All stories must use autodocs tag
+  parameters: {
+    docs: {
+      description: {
+        component: `Clear description of component purpose and usage`
+      }
+    }
+  }
+};
+```
+
+### User Interaction Testing Requirements
+- **REQUIRED**: All user interactions (clicks, form inputs, etc.) must have play functions
+- Play functions should test the actual user flows, not just trigger events
+- Cover all interactive states: hover, focus, disabled, error, etc.
+
+### Testing Imports (REQUIRED)
+- **ALWAYS** import testing utilities from `storybook/test` package (no @ symbol)
+- **NEVER** import from individual packages like `@storybook/testing-library` or `@storybook/jest`
+- **NEVER** use `@storybook/test` (with @ symbol) - this is incorrect
+- Standard imports: `import { userEvent, within, expect, fn } from 'storybook/test';`
+- `storybook/test` consolidates all testing utilities in modern Storybook versions
+
+### Troubleshooting Failing Tests
+When a user asks to fix a failing test, **ALWAYS reason first** whether the test failure is due to:
+1. **Test being wrong**: The test has incorrect expectations, wrong selectors, or flawed logic
+2. **Component having a problem**: The component has accessibility issues, incorrect behavior, or missing features
+
+**Process for Analysis**:
+- Examine the test expectations vs actual component behavior
+- Check if the test is testing realistic user interactions
+- Verify if the component meets accessibility standards
+- Consider if the test is overly specific or brittle
+- Determine if component behavior matches intended design
+
+**Examples**:
+- Test expects `aria-label="Options menu"` but button shows "Filter by status" text → Component accessibility issue
+- Test clicks wrong selector → Test issue  
+- Test expects immediate state change in controlled component → Test issue (missing state management)
+- Component doesn't respond to keyboard navigation → Component issue
+
+### Story Ordering Best Practices
+- **Always make comparison stories the default** when creating them
+- Comparison stories show all component states at once
+- Name comparison stories as first export: `export const StateComparison: Story = { ... }`
+- Individual state stories come after comparison story
+
+## Storybook Actions & Event Handling
+
+### Automatic Actions Configuration
+- Actions are **automatically configured** for all `on*` props
+- Props starting with `on` (onClick, onChange, etc.) automatically log to Actions panel
+- **Don't use `console.log`** in story event handlers
+- **Don't use manual `action()` calls for `on*` props**
+
+### Manual Action Usage
+```typescript
+import { action } from 'storybook/actions';
+
+export const Example: Story = {
+  args: {
+    actions: (
+      <Button onClick={action('create-group')}>Create Group</Button>
+    ),
+  },
+};
+```
+
+### Play Functions for Testing
+```typescript
+import { userEvent, within, expect, fn } from 'storybook/test';
+
+export const ClickableStory: Story = {
+  args: {
+    onClick: fn(),  // Testable spy function
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText('5', { selector: 'a' }));
+    await expect(args.onClick).toHaveBeenCalled();
+  }
+};
+```
+
+### Play Function Guidelines
+- **Use `fn()` for individual stories** - creates testable spy functions
+- **Use specific selectors** - `{ selector: 'a' }` to target exact elements
+- **Test both positive and negative cases**
+- **Never add play functions to comparison stories**
+
+## Story Patterns
+
+### Story Pattern for Table Components
+```typescript
+export const StoryName: Story = {
+  render: (args) => (
+    <Table aria-label="Table description" cells={columns} rowWrapper={Component} rows={[args.row!]}>
+      <TableHeader />
+      <TableBody />
+    </Table>
+  ),
+  args: {
+    row: {
+      uuid: 'unique-id',
+      cells: [<Component key="cell">Content</Component>, 'data'],
+      expectedProperty: { nested: { data: true } }
+    }
+  }
+};
+```
+
+### Basic Story Meta Pattern
+```typescript
+import React from 'react';
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import ComponentName from './ComponentName';
+
+const meta: Meta<typeof ComponentName> = {
+  component: ComponentName,
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+Component description explaining:
+- What it does
+- How it's used
+- Expected data structure
+- Any special behaviors
+        `,
+      },
+    },
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof ComponentName>;
+```
+
+## Quality Requirements for Stories
+
+### Before Submitting Stories
+- [ ] **Check dependency versions** in `package.json` for correct API usage
+- [ ] Stories document target component, not wrappers
+- [ ] No custom `title` in meta (using autotitle)
+- [ ] All TypeScript errors resolved
+- [ ] `npm run build` passes
+- [ ] `npm run lint:js` passes (no errors, warnings OK)
+- [ ] Realistic data structures used
+- [ ] PatternFly components properly integrated
+- [ ] JSX elements in arrays have `key` props
+
+### Story Organization
+
+#### File Structure for Good Auto-Titles
+- Place stories next to components: `ComponentName.stories.tsx`
+- Use descriptive directory names that will generate good titles
+- Example: `src/presentational-components/shared/UsersRow.stories.tsx` 
+  → Auto-title: "Presentational Components/Shared/Users Row"
+
+#### Story Naming Conventions
+- Use descriptive story names that explain the state/scenario
+- Examples: `ActiveUser`, `InactiveUser`, `NoStatus`, `Comparison`
+- Avoid generic names like `Default`, `Example`, `Basic`
+
+## Common Pitfalls to Avoid
+
+- ❌ Don't use `TableToolbarView` or complex wrappers in stories
+- ❌ Don't set custom `title` in meta object
+- ❌ Don't use `console.log` in story event handlers
+- ❌ **NEVER start the Storybook server** - Always ask the user to handle it
+
+**Goal**: Create focused, realistic, maintainable component stories that serve as documentation and testing tools. Let Storybook handle titles automatically for consistency.

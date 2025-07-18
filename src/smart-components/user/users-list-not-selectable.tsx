@@ -2,7 +2,7 @@ import React, { Suspense, useCallback, useContext, useEffect, useRef, useState }
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../helpers/shared/helpers';
-import { TableComposableToolbarView } from '../../presentational-components/shared/table-composable-toolbar-view';
+import { TableComposableToolbarView } from '../../presentational-components/shared/TableComposableToolbarView';
 import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/actions/user-actions';
 import UsersRow from '../../presentational-components/shared/UsersRow';
 import paths from '../../utilities/pathnames';

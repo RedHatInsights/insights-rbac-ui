@@ -20,7 +20,7 @@ import {
   Title,
 } from '@patternfly/react-core';
 import messages from '../../../Messages';
-import CustomDataListItem from './custom-data-list-item';
+import CustomDataListItem from '../../../presentational-components/shared/CustomDataListItem';
 import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';

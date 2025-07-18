@@ -1,12 +1,12 @@
 import React from 'react';
-import FormRenderer from '../../common/form-renderer';
+import FormRenderer from '../../../presentational-components/shared/FormRenderer';
 import ModalFormTemplate from '../../common/ModalFormTemplate';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import AccordionCheckbox from '../../common/expandable-checkbox';
-import InlineError from '../../common/inline-error';
+import InlineError from '../../../presentational-components/shared/InlineError';
 import { addUsers } from '../../../redux/actions/user-actions';
 import { useDispatch } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';

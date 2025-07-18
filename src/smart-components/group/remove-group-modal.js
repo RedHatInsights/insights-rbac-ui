@@ -6,7 +6,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { ButtonVariant, Text, TextContent } from '@patternfly/react-core';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { fetchGroup, removeGroups } from '../../redux/actions/group-actions';
-import { FormItemLoader } from '../../presentational-components/shared/loader-placeholders';
+import { FormItemLoader } from '../../presentational-components/shared/LoaderPlaceholders';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 

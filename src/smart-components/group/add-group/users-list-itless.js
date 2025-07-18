@@ -4,7 +4,7 @@ import truncate from 'lodash/truncate';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import AppLink, { mergeToBasename } from '../../../presentational-components/shared/AppLink';
 import { changeUsersStatus, fetchUsers, updateUserIsOrgAdminStatus, updateUsersFilters } from '../../../redux/actions/user-actions';
 import { Button, Checkbox, Label, List, ListItem, Modal, ModalVariant, Switch as PF4Switch, Stack, StackItem } from '@patternfly/react-core';
