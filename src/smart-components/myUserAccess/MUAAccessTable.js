@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/actions/access-actions';
 import { defaultSettings } from '../../helpers/shared/pagination';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
 import { createRows } from './mua-table-helpers';
 import ResourceDefinitionsModal from './ResourceDefinitionsModal';
 import { sortable } from '@patternfly/react-table';

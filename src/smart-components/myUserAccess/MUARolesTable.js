@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, lazy, useCallback, useEffect, useState } fro
 import PropTypes from 'prop-types';
 import debounce from 'lodash/debounce';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { fetchRoleForPrincipal, fetchRoles } from '../../redux/actions/role-actions';

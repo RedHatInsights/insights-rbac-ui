@@ -4,6 +4,18 @@
 [![Maintainability](https://api.codeclimate.com/v1/badges/54d13cab52391734d841/maintainability)](https://codeclimate.com/github/RedHatInsights/insights-rbac-ui/maintainability)
 [![Test Coverage](https://api.codeclimate.com/v1/badges/54d13cab52391734d841/test_coverage)](https://codeclimate.com/github/RedHatInsights/insights-rbac-ui/test_coverage)
 
+## Storybook
+
+Interactive component documentation and stories are available on Chromatic:
+
+- **Master branch**: https://master--687a10bbc18d4b17063770ba.chromatic.com
+- **Feature branches**: https://`<branch-name>`--687a10bbc18d4b17063770ba.chromatic.com
+
+Stories are automatically deployed on:
+- ✅ Pushes to `master`
+- ✅ Pull requests from [@RedHatInsights/experience-ui-committers](https://github.com/orgs/RedHatInsights/teams/experience-ui-committers) team members
+- ✅ Pull requests from RedHatInsights organization admins
+
 ## Contributing
 
 This repository is now using experimental workflow checks. Your commits must use the [conventional commits format](https://www.conventionalcommits.org/en/v1.0.0/#examples).

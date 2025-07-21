@@ -8,7 +8,7 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { defaultCompactSettings, defaultSettings } from '../../../helpers/shared/pagination';
-import { TableToolbarView } from '../../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../../presentational-components/shared/TableToolbarView';
 import {
   addRolesToGroup,
   fetchAddRolesForGroup,

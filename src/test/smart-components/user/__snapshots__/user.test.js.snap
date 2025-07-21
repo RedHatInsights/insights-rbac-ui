@@ -89,7 +89,7 @@ exports[`<User /> should render user 1`] = `
             </div>
           </div>
           <div
-            class=""
+            class="pf-m-align-self-center"
           >
             <span
               class="pf-v5-c-label pf-m-green"
