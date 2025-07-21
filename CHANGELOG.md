@@ -1,3 +1,10 @@
+# [1.46.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.1...v1.46.0) (2025-07-21)
+
+
+### Features
+
+* implement comprehensive Storybook integration and component documentation ([1095985](https://github.com/RedHatInsights/insights-rbac-ui/commit/1095985f79154756ff312c004feb5d7c82e75e25))
+
 ## [1.45.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.0...v1.45.1) (2025-07-17)
 
 
