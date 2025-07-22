@@ -1,3 +1,10 @@
+## [1.46.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.3...v1.46.4) (2025-07-22)
+
+
+### Bug Fixes
+
+* use node 20 for chromatic ([9ae14e5](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ae14e51d1214bfe7461c53727344c2200eba71a))
+
 ## [1.46.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.2...v1.46.3) (2025-07-22)
 
 
