@@ -1,3 +1,10 @@
+## [1.46.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.1...v1.46.2) (2025-07-22)
+
+
+### Bug Fixes
+
+* chromatic workflow ([d4e1b8b](https://github.com/RedHatInsights/insights-rbac-ui/commit/d4e1b8b5c3a0e4f56ec6cbf7b655fa6e3fb6b923))
+
 ## [1.46.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.0...v1.46.1) (2025-07-22)
 
 
