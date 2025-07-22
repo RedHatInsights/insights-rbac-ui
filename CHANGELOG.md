@@ -1,3 +1,10 @@
+## [1.46.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.5...v1.46.6) (2025-07-22)
+
+
+### Bug Fixes
+
+* **ws:** filter by showing children of found nodes ([#1882](https://github.com/RedHatInsights/insights-rbac-ui/issues/1882)) ([a4532a5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a4532a5342e5446227fea983dcd317501d823bf8))
+
 ## [1.46.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.4...v1.46.5) (2025-07-22)
 
 
