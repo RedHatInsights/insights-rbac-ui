@@ -22,6 +22,22 @@ This repository is now using experimental workflow checks. Your commits must use
 
 ## Getting Started
 
+### Prerequisites
+
+This project requires **Node.js LTS** (currently Node.js 20.x) for both local development and CI/CD. Using other Node.js versions may cause compatibility issues, particularly with Storybook builds.
+
+**Important**: The project uses CommonJS modules for Storybook configuration and requires Node.js LTS for proper module resolution and TypeScript compilation.
+
+```bash
+# Check your Node.js version
+node --version
+
+# If you need to switch to LTS, use nvm or your preferred version manager
+nvm use --lts
+```
+
+### Installation and Setup
+
 ```bash
 npm install
 npm run start
