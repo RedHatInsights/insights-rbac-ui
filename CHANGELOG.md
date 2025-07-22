@@ -1,3 +1,10 @@
+## [1.46.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.2...v1.46.3) (2025-07-22)
+
+
+### Bug Fixes
+
+* use node lts ([772a3e4](https://github.com/RedHatInsights/insights-rbac-ui/commit/772a3e410d48342b595ce41388109f154579b834))
+
 ## [1.46.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.1...v1.46.2) (2025-07-22)
 
 
