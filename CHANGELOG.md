@@ -1,3 +1,15 @@
+## [1.46.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.4...v1.46.5) (2025-07-22)
+
+
+### Bug Fixes
+
+* fix swc error on CI ([b6e0493](https://github.com/RedHatInsights/insights-rbac-ui/commit/b6e04934470d4b8eb534d9be3be8085af3d6c641))
+
+
+### Reverts
+
+* Revert "fix: use node 20 for chromatic" ([677f081](https://github.com/RedHatInsights/insights-rbac-ui/commit/677f081a8f433d605eb422f710dc1dd5c185ce51))
+
 ## [1.46.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.3...v1.46.4) (2025-07-22)
 
 
