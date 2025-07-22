@@ -2,10 +2,10 @@ import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { render } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import MuaBundleRoute from '../../../smart-components/myUserAccess/MUABundleRoute';
+import MuaBundleRoute from '../../../features/myUserAccess/MUABundleRoute';
 import PropTypes from 'prop-types';
 
-jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
+jest.mock('../../../features/myUserAccess/bundles/rhel');
 
 const ComponentWrapper = ({ children, initialEntries }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
 

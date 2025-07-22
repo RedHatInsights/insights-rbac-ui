@@ -1,0 +1,166 @@
+---
+type: always
+description: "LSP-first development methodology using lsp-daemon.js for semantic code operations, atomic refactoring, and file moves with automatic import updates."
+tags:
+  - lsp
+  - refactoring
+  - typescript
+  - semantic
+---
+
+### LSP-First Methodology
+
+The AI MUST use the `lsp-daemon.js` HTTP daemon for all semantic code operations. This provides atomic refactoring operations including file moves with automatic import updates.
+
+**Architecture:**
+- `lsp-daemon.js`: Long-running HTTP server managing typescript-language-server
+- Listens on `http://localhost:3333/lsp`
+- Maintains persistent LSP session with full workspace context
+- Handles proper LSP protocol: initialize → didOpen → requests → didRenameFiles
+
+### Starting the LSP Daemon
+
+```bash
+# Start daemon (runs in background)
+node lsp-daemon.js &
+
+# Verify it's running
+curl http://localhost:3333/lsp -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"textDocument/hover","params":{"textDocument":{"uri":"file:///absolute/path/file.ts"},"position":{"line":0,"character":0}}}'
+```
+
+### ATOMIC FILE REFACTORING
+
+**The refactor/moveFile endpoint performs atomic file moves with automatic import updates:**
+
+```bash
+# Move file with automatic import updates
+curl -X POST http://localhost:3333/lsp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "refactor/moveFile",
+    "params": {
+      "sourceUri": "file:///absolute/path/to/source.ts",
+      "targetUri": "file:///absolute/path/to/target.ts"
+    }
+  }'
+```
+
+**What this accomplishes:**
+- ✅ Analyzes full dependency graph via `workspace/willRenameFiles`
+- ✅ Updates ALL files that import the moved file
+- ✅ Fixes internal imports in the moved file itself
+- ✅ Calculates perfect relative paths for new location
+- ✅ Atomic operation: either all changes succeed or none
+
+### Core LSP Operations
+
+#### Code Navigation & Analysis
+```bash
+# Find definition
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"textDocument/definition","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+
+# Find all references  
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":2,"method":"textDocument/references","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5},"context":{"includeDeclaration":true}}}'
+
+# Get hover information
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":3,"method":"textDocument/hover","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+
+# Rename symbol (updates all references)
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":4,"method":"textDocument/rename","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5},"newName":"newSymbolName"}}'
+```
+
+#### Error Detection
+```bash
+# Use definition/hover to validate code health
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":5,"method":"textDocument/definition","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+```
+
+### MANDATORY LSP-First Rules
+
+**✅ ALWAYS use LSP daemon for:**
+- File moves/renames (`refactor/moveFile` endpoint)
+- Symbol renames (`textDocument/rename`)
+- Finding references (`textDocument/references`) 
+- Code navigation (`textDocument/definition`)
+- Import analysis (via references/definition)
+
+**❌ NEVER use manual approaches for:**
+- File moves with `mv` + manual import updates
+- `grep`/`sed` for import path changes
+- Manual relative path calculations
+- Text-based refactoring when LSP can handle it semantically
+
+**The LSP Advantage:**
+- Semantic understanding vs text manipulation
+- Handles complex dependency chains automatically
+- Calculates precise relative paths
+- Type-aware refactoring
+- Atomic operations prevent partial failures
+
+### Implementation Requirements
+
+**Critical LSP Protocol Steps:**
+1. **Context preparation**: LSP analyzes dependent files before `workspace/willRenameFiles`
+2. **Semantic analysis**: TypeScript Language Server provides character-level edit instructions
+3. **Atomic application**: All text edits and file operations happen together
+4. **Protocol compliance**: Follow `workspace/willRenameFiles` → apply edits → physical move → `workspace/didRenameFiles`
+
+### When NOT to Use LSP
+- Reading file contents (use `read_file` tool)
+- Directory operations (use `list_dir`, `run_terminal_cmd`)
+- Build/test commands (use `run_terminal_cmd`)
+- Git operations (use `run_terminal_cmd`)
+- Simple file operations that don't involve code semantics
+
+### Available Capabilities
+The `lsp-daemon.js` enables:
+- Extract function/variable refactoring
+- Move symbols between files
+- Organize imports
+- Convert between module systems
+- Any operation TypeScript Language Server supports
+
+**This is the foundation for semantic codebase transformation.**
+
+
+## LSP-First Development with Fallback Strategies
+
+### LSP Timeout Handling
+- **Primary Method**: Always attempt LSP refactoring first for semantic operations
+- **Fallback Strategy**: When LSP timeouts occur, use manual file operations + systematic import updates
+
+### LSP Timeout Recovery Process
+1. **Attempt LSP**: Try semantic refactoring first
+2. **Detect Timeout**: LSP requests timing out after 10+ seconds
+3. **Manual Fallback**: 
+   - Use `mv` command for file moves
+   - Use `grep_search` to find all references
+   - Use `search_replace` to update import paths systematically
+4. **Verify**: Test build and functionality after manual updates
+
+### Common LSP Operations and Fallbacks
+```bash
+# When LSP rename/move times out:
+mv src/old/path/Component.tsx src/new/path/Component.tsx
+
+# Find all references:
+grep -r "old/path/Component" src/
+
+# Update imports systematically:
+# Use search_replace tool for each affected file
+```
+
+### Best Practices for Large Refactoring
+- **Start with LSP**: Always try semantic approach first
+- **Monitor Timeouts**: Watch for LSP timeout patterns
+- **Switch to Manual**: When timeouts persist, switch to manual approach
+- **Be Systematic**: Update all references methodically using search tools
+- **Test Frequently**: Run builds between changes to catch issues early
+
+### When to Use Manual vs LSP
+- **LSP Preferred**: Single file renames, simple moves, semantic refactoring
+- **Manual Required**: Large reorganizations, multiple file moves, complex directory restructuring
+- **Mixed Approach**: Start with LSP, fall back to manual when timeouts occur
+

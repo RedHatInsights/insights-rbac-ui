@@ -1,7 +1,7 @@
-import roleReducer, { rolesInitialState } from '../../../redux/reducers/role-reducer';
+import roleReducer, { rolesInitialState } from '../../../redux/roles/reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_ROLE, FETCH_ROLES, FETCH_ROLES_FOR_WIZARD, FETCH_ROLE_FOR_USER } from '../../../redux/action-types';
+import { FETCH_ROLE, FETCH_ROLES, FETCH_ROLES_FOR_WIZARD, FETCH_ROLE_FOR_USER } from '../../../redux/roles/action-types';
 
 describe('Role reducer', () => {
   let initialState;

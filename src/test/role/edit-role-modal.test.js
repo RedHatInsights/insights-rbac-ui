@@ -8,21 +8,21 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import * as RoleHelper from '../../helpers/role/role-helper';
-import * as RoleActions from '../../redux/actions/role-actions';
-import EditRoleModal from '../../smart-components/role/edit-role-modal';
+import * as RoleHelper from '../../redux/roles/helper';
+import * as RoleActions from '../../redux/roles/actions';
+import EditRoleModal from '../../features/roles/edit-role-modal';
 import PropTypes from 'prop-types';
 
-jest.mock('../../helpers/role/role-helper', () => {
-  const actual = jest.requireActual('../../helpers/role/role-helper');
+jest.mock('../../redux/roles/helper', () => {
+  const actual = jest.requireActual('../../redux/roles/helper');
   return {
     __esModule: true,
     ...actual,
   };
 });
 
-jest.mock('../../redux/actions/role-actions', () => {
-  const actual = jest.requireActual('../../redux/actions/role-actions');
+jest.mock('../../redux/roles/actions', () => {
+  const actual = jest.requireActual('../../redux/roles/actions');
   return {
     __esModule: true,
     ...actual,

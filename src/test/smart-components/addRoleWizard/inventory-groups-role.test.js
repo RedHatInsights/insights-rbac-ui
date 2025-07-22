@@ -4,10 +4,10 @@ import '@testing-library/jest-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { BrowserRouter } from 'react-router-dom';
-import InventoryGroupsRole from '../../../smart-components/role/add-role/inventory-groups-role';
+import InventoryGroupsRole from '../../../features/roles/add-role/inventory-groups-role';
 import { testInventoryGroups } from './inventory-groups-test-data';
-import * as InventoryActions from '../../../redux/actions/inventory-actions';
-import { FETCH_INVENTORY_GROUPS } from '../../../redux/action-types';
+import * as InventoryActions from '../../../redux/inventory/actions';
+import { FETCH_INVENTORY_GROUPS } from '../../../redux/inventory/action-types';
 
 const initialStateWithPermissions = {
   inventoryReducer: {

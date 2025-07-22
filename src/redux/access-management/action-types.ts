@@ -1,0 +1,1 @@
+export const GET_PRINCIPAL_ACCESS = 'GET_PRINCIPAL_ACCESS' as const;

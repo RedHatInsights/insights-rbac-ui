@@ -6,14 +6,14 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 
 import registry, { RegistryContext } from '../utilities/store';
 import messages from '../locales/data.json';
-import ErroReducerCatcher from '../presentational-components/shared/ErrorReducerCatcher';
-import PermissionsContext from '../utilities/permissions-context';
+import ErroReducerCatcher from '../components/ui-states/ErrorReducerCatcher';
+import PermissionsContext from '../utilities/permissionsContext';
 import pathnames from '../utilities/pathnames';
-import { AppPlaceholder } from '../presentational-components/shared/LoaderPlaceholders';
+import { AppPlaceholder } from '../components/ui-states/LoaderPlaceholders';
 import useAppNavigate from '../hooks/useAppNavigate';
 import useUserData from '../hooks/useUserData';
 
-const MyUserAccess = lazy(() => import('../smart-components/myUserAccess/MUAHome'));
+const MyUserAccess = lazy(() => import('../features/myUserAccess/MUAHome'));
 
 import '../App.scss';
 
