@@ -42,7 +42,7 @@ describe('<GroupRoles />', () => {
 
     initialProps = {};
     mockStore = configureStore(middlewares);
-    (emptyState = {
+    ((emptyState = {
       roleReducer: {
         ...rolesInitialState,
       },
@@ -109,7 +109,7 @@ describe('<GroupRoles />', () => {
             ],
           },
         },
-      });
+      }));
   });
 
   afterEach(() => {

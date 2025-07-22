@@ -68,7 +68,7 @@ const MyUserAccess = () => {
                   <NavLink key={data.entitlement} to={{ pathname: '', search: `bundle=${data.entitlement}` }}>
                     <DropdownItem
                       onClick={() => {
-                        setBundleParam(data.title), setDropdownOpen(false);
+                        (setBundleParam(data.title), setDropdownOpen(false));
                       }}
                       component="button"
                     >
