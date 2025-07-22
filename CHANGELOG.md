@@ -1,3 +1,10 @@
+## [1.46.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.0...v1.46.1) (2025-07-22)
+
+
+### Bug Fixes
+
+* fix OOM on CI ([d835a6a](https://github.com/RedHatInsights/insights-rbac-ui/commit/d835a6ae3e1231ab6b181eba5062f4054332a976))
+
 # [1.46.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.1...v1.46.0) (2025-07-21)
 
 
