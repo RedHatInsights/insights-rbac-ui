@@ -1,16 +1,28 @@
-name: Chromatic
+name: Chromatic Deployment
 
 on:
-  pull_request:
-    branches: [ master ]
+  # Trigger on pushes to master
   push:
-    branches: [ master ]
+    branches:
+      - master
+  
+  # Trigger on PRs to master - use pull_request_target for forks
+  pull_request_target:
+    branches:
+      - master
+
+# Add standard permissions for the workflow
+permissions:
+  contents: read
+  pull-requests: read
 
 jobs:
-  chromatic:
+  # Job for push events to master
+  chromatic-deployment-push:
+    if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
+      - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -18,21 +30,81 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: 'lts/*'
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm install
 
-      - name: Run Chromatic
-        if: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-        uses: chromaui/action@v11
+      - name: Build Storybook and deploy to Chromatic
+        uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
-          token: ${{ secrets.GITHUB_TOKEN }}
-          onlyChanged: true
-          exitOnceUploaded: true
-          
-      - name: Skip Chromatic (missing token)
-        if: ${{ !secrets.CHROMATIC_PROJECT_TOKEN }}
-        run: echo "Skipping Chromatic - CHROMATIC_PROJECT_TOKEN secret not available" 
+          buildScriptName: build-storybook
+          exitZeroOnChanges: true
+
+  # Job to check if user has repository access (simpler approach)
+  check-permissions:
+    if: github.event_name == 'pull_request_target'
+    runs-on: ubuntu-latest
+    outputs:
+      has-access: ${{ steps.check-access.outputs.has-access }}
+    steps:
+      - name: Check repository access
+        id: check-access
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            try {
+              // Simple approach: check if user has write access to the repository
+              // This works for organization members with appropriate permissions
+              const { data: permission } = await github.rest.repos.getCollaboratorPermissionLevel({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                username: context.payload.pull_request.user.login
+              });
+              
+              const hasAccess = ['write', 'admin', 'maintain'].includes(permission.permission);
+              core.setOutput('has-access', hasAccess);
+              
+              if (hasAccess) {
+                core.info(`User ${context.payload.pull_request.user.login} has ${permission.permission} access to the repository`);
+              } else {
+                core.info(`User ${context.payload.pull_request.user.login} has ${permission.permission} access - not sufficient for Chromatic deployment`);
+              }
+            } catch (error) {
+              // If we can't check permissions, assume no access for security
+              core.info(`Error checking permissions: ${error.message}`);
+              core.setOutput('has-access', false);
+            }
+
+  # Job for PR events from users with repository access
+  chromatic-deployment-pr:
+    if: github.event_name == 'pull_request_target' && needs.check-permissions.outputs.has-access == 'true'
+    runs-on: ubuntu-latest
+    needs: [check-permissions]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # For pull_request_target, checkout the PR head
+          ref: ${{ github.event.pull_request.head.sha }}
+          # Fetch full history for Chromatic
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build Storybook and deploy to Chromatic
+        uses: chromaui/action@latest
+        with:
+          projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
+          buildScriptName: build-storybook
+          exitZeroOnChanges: true 
