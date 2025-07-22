@@ -130,18 +130,11 @@ const search = (workspaceTree: Workspace[], filter: string): Workspace[] => {
 
   workspaceTree.forEach((obj) => {
     if (obj.name.toLocaleLowerCase().includes(filter.toLocaleLowerCase())) {
-      if (obj.type !== 'root') {
-        matches.push(Object.assign({}, obj, { children: [] }));
-      } else {
-        matches.push(obj);
-      }
+      matches.push(obj);
     } else {
-      let childResults: Workspace[] = [];
-      if (obj.children) {
-        childResults = search(obj.children, filter);
-      }
+      const childResults: Workspace[] = obj.children ? search(obj.children, filter) : [];
       if (childResults.length) {
-        matches.push(Object.assign({}, obj, { children: childResults }));
+        matches.push({ ...obj, children: childResults });
       }
     }
   });
