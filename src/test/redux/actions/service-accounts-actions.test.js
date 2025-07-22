@@ -1,11 +1,11 @@
 import thunk from 'redux-thunk';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import { fetchServiceAccounts } from '../../../redux/actions/service-account-actions';
+import { fetchServiceAccounts } from '../../../redux/service-accounts/actions';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import * as ServiceAccountsHelper from '../../../helpers/service-account/service-account-helper';
-import { FETCH_SERVICE_ACCOUNTS } from '../../../redux/action-types';
+import * as ServiceAccountsHelper from '../../../redux/service-accounts/helper';
+import { FETCH_SERVICE_ACCOUNTS } from '../../../redux/service-accounts/action-types';
 
 describe('service accounts actions', () => {
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];

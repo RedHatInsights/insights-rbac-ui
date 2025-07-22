@@ -3,13 +3,13 @@ import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render, screen } from '@testing-library/react';
-import GroupServiceAccounts from '../../../../smart-components/group/service-account/group-service-accounts';
-import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
-import * as GroupActions from '../../../../redux/actions/group-actions';
-import { FETCH_GROUP, FETCH_SERVICE_ACCOUNTS_FOR_GROUP, FETCH_SYSTEM_GROUP } from '../../../../redux/action-types';
+import GroupServiceAccounts from '../../../../features/groups/service-account/group-service-accounts';
+import { groupsInitialState } from '../../../../redux/groups/reducer';
+import * as GroupActions from '../../../../redux/groups/actions';
+import { FETCH_GROUP, FETCH_SERVICE_ACCOUNTS_FOR_GROUP, FETCH_SYSTEM_GROUP } from '../../../../redux/groups/action-types';
 
-jest.mock('../../../../redux/actions/group-actions', () => {
-  const actual = jest.requireActual('../../../../redux/actions/group-actions');
+jest.mock('../../../../redux/groups/actions', () => {
+  const actual = jest.requireActual('../../../../redux/groups/actions');
   return {
     __esModule: true,
     ...actual,

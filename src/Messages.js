@@ -2440,6 +2440,11 @@ export default defineMessages({
     description: 'Loading temporary label',
     defaultMessage: 'Loading...',
   },
+  loadingWorkspaces: {
+    id: 'loadingWorkspaces',
+    description: 'Loading workspaces label',
+    defaultMessage: 'Loading workspaces...',
+  },
   noPermissions: {
     id: 'noPermissions',
     description: 'No permissions label',

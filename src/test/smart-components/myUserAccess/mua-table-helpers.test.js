@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { fireEvent, render } from '@testing-library/react';
-import { createRows } from '../../../smart-components/myUserAccess/mua-table-helpers';
+import { createRows } from '../../../features/myUserAccess/mua-table-helpers';
 
 describe('Mua table helpers', () => {
   describe('createRows', () => {

@@ -1,7 +1,7 @@
-import groupReducer from '../../../redux/reducers/permission-reducer';
+import groupReducer from '../../../redux/permissions/reducer';
 import { callReducer } from '../redux-helpers';
 
-import { LIST_PERMISSIONS } from '../../../redux/action-types';
+import { LIST_PERMISSIONS } from '../../../redux/permissions/action-types';
 
 describe('Permission reducer', () => {
   let initialState;
