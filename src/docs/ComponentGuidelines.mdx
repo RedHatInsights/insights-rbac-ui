@@ -1,0 +1,575 @@
+import { Meta } from '@storybook/addon-docs/blocks';
+
+<Meta title="Documentation/Component Guidelines" />
+
+# Component Guidelines
+
+This guide outlines best practices for creating, maintaining, and using components in the RBAC UI design system.
+
+## 🏗️ Component Types
+
+### Presentational Components
+**Location**: `src/presentational-components/`
+
+Pure UI components focused on appearance and user interaction.
+
+**Characteristics:**
+- No business logic or API calls
+- Receive all data via props
+- Highly reusable across different contexts
+- Easy to test and document
+- Focus on accessibility and visual design
+
+```tsx
+// Example: StatusBadge.tsx
+interface StatusBadgeProps {
+  status: 'active' | 'inactive' | 'pending';
+  children: React.ReactNode;
+}
+
+export const StatusBadge: React.FC<StatusBadgeProps> = ({ status, children }) => (
+  <Badge color={getStatusColor(status)} isRead={status === 'active'}>
+    {children}
+  </Badge>
+);
+```
+
+**When to use:**
+- Creating reusable UI elements
+- Building design system components
+- Components that could be used in multiple contexts
+
+### Smart Components
+**Location**: `src/smart-components/`
+
+Business logic components that handle data fetching, state management, and complex interactions.
+
+**Characteristics:**
+- Contains business logic and side effects
+- Manages local state and API interactions
+- Composes presentational components
+- Context-aware and feature-specific
+
+```tsx
+// Example: UserList.tsx
+export const UserList: React.FC = () => {
+  const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
+  const dispatch = useDispatch();
+
+  const handleDeleteUser = useCallback((userId: string) => {
+    dispatch(deleteUser(userId));
+  }, [dispatch]);
+
+  return (
+    <DataTable
+      data={users}
+      loading={loading}
+      onDelete={handleDeleteUser}
+    />
+  );
+};
+```
+
+**When to use:**
+- Building feature-specific functionality
+- Handling complex user interactions
+- Managing state and data flow
+
+### Shared Components
+**Location**: `src/presentational-components/shared/`
+
+Common utility components used throughout the application.
+
+**Examples:**
+- Loading placeholders
+- Error boundaries
+- Common form elements
+- Layout components
+
+## 🎨 Design Principles
+
+### Consistency
+Use PatternFly components and design tokens for consistent styling:
+
+```scss
+.custom-component {
+  // Use PatternFly tokens
+  padding: var(--pf-global--spacer--md);
+  background: var(--pf-global--BackgroundColor--100);
+  border-radius: var(--pf-global--BorderRadius--sm);
+  
+  // Use PatternFly breakpoints
+  @media (min-width: $pf-global--breakpoint--md) {
+    padding: var(--pf-global--spacer--lg);
+  }
+}
+```
+
+### Accessibility
+Ensure components are accessible to all users:
+
+```tsx
+const AccessibleButton: React.FC<ButtonProps> = ({ 
+  children, 
+  onClick, 
+  disabled,
+  ariaLabel 
+}) => (
+  <Button
+    onClick={onClick}
+    isDisabled={disabled}
+    aria-label={ariaLabel || children}
+    // Ensure keyboard navigation
+    onKeyDown={(e) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        onClick();
+      }
+    }}
+  >
+    {children}
+  </Button>
+);
+```
+
+### Responsiveness
+Design components to work across different screen sizes:
+
+```tsx
+const ResponsiveTable: React.FC = ({ data }) => {
+  const [isSmallScreen, setIsSmallScreen] = useState(false);
+
+  useEffect(() => {
+    const checkScreenSize = () => {
+      setIsSmallScreen(window.innerWidth < 768);
+    };
+    
+    checkScreenSize();
+    window.addEventListener('resize', checkScreenSize);
+    return () => window.removeEventListener('resize', checkScreenSize);
+  }, []);
+
+  return isSmallScreen ? (
+    <MobileTable data={data} />
+  ) : (
+    <DesktopTable data={data} />
+  );
+};
+```
+
+## 📋 Component Structure
+
+### File Organization
+```
+ComponentName/
+├── ComponentName.tsx           # Main component
+├── ComponentName.test.tsx      # Unit tests
+├── ComponentName.stories.tsx   # Storybook stories
+├── ComponentName.scss          # Component styles
+├── types.ts                    # TypeScript interfaces
+├── utils.ts                    # Component utilities
+└── index.ts                    # Export file
+```
+
+### Component Template
+```tsx
+// ComponentName.tsx
+import React from 'react';
+import { classNames } from '@patternfly/react-core';
+import './ComponentName.scss';
+
+interface ComponentNameProps {
+  /** Primary content */
+  children: React.ReactNode;
+  /** Component variant */
+  variant?: 'primary' | 'secondary';
+  /** Additional CSS classes */
+  className?: string;
+  /** Disabled state */
+  disabled?: boolean;
+  /** Click handler */
+  onClick?: () => void;
+}
+
+/**
+ * ComponentName provides [description of component purpose].
+ * 
+ * Use this component when [usage guidelines].
+ */
+export const ComponentName: React.FC<ComponentNameProps> = ({
+  children,
+  variant = 'primary',
+  className,
+  disabled = false,
+  onClick,
+  ...props
+}) => {
+  const classes = classNames(
+    'rbac-component-name',
+    `rbac-component-name--${variant}`,
+    {
+      'rbac-component-name--disabled': disabled,
+    },
+    className
+  );
+
+  return (
+    <div 
+      className={classes}
+      onClick={disabled ? undefined : onClick}
+      {...props}
+    >
+      {children}
+    </div>
+  );
+};
+
+export default ComponentName;
+```
+
+## 🧪 Testing Guidelines
+
+### Unit Tests
+Test component behavior, not implementation:
+
+```tsx
+// ComponentName.test.tsx
+import React from 'react';
+import { render, screen, fireEvent } from '@testing-library/react';
+import { ComponentName } from './ComponentName';
+
+describe('ComponentName', () => {
+  it('renders children correctly', () => {
+    render(<ComponentName>Test Content</ComponentName>);
+    expect(screen.getByText('Test Content')).toBeInTheDocument();
+  });
+
+  it('applies variant classes correctly', () => {
+    render(<ComponentName variant="secondary">Content</ComponentName>);
+    expect(screen.getByText('Content')).toHaveClass('rbac-component-name--secondary');
+  });
+
+  it('handles disabled state', () => {
+    const handleClick = jest.fn();
+    render(
+      <ComponentName disabled onClick={handleClick}>
+        Disabled Button
+      </ComponentName>
+    );
+    
+    fireEvent.click(screen.getByText('Disabled Button'));
+    expect(handleClick).not.toHaveBeenCalled();
+  });
+
+  it('supports custom className', () => {
+    render(<ComponentName className="custom-class">Content</ComponentName>);
+    expect(screen.getByText('Content')).toHaveClass('custom-class');
+  });
+});
+```
+
+### Accessibility Tests
+```tsx
+import { axe, toHaveNoViolations } from 'jest-axe';
+expect.extend(toHaveNoViolations);
+
+it('should not have accessibility violations', async () => {
+  const { container } = render(<ComponentName>Accessible Content</ComponentName>);
+  const results = await axe(container);
+  expect(results).toHaveNoViolations();
+});
+```
+
+## 📖 Storybook Documentation
+
+### Story Structure
+```tsx
+// ComponentName.stories.tsx
+import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import { ComponentName } from './ComponentName';
+
+const meta: Meta<typeof ComponentName> = {
+  title: 'Design System/ComponentName',
+  component: ComponentName,
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        component: `
+ComponentName provides [detailed description].
+
+## When to Use
+- [Use case 1]
+- [Use case 2]
+- [Use case 3]
+
+## Accessibility
+- Supports keyboard navigation
+- Screen reader compatible
+- WCAG 2.1 AA compliant
+
+## Design Tokens
+Uses PatternFly design tokens for consistent styling.
+        `,
+      },
+    },
+  },
+  argTypes: {
+    variant: {
+      control: 'select',
+      options: ['primary', 'secondary'],
+      description: 'Visual variant of the component',
+      table: {
+        type: { summary: 'string' },
+        defaultValue: { summary: 'primary' },
+      },
+    },
+    disabled: {
+      control: 'boolean',
+      description: 'Disabled state',
+    },
+    children: {
+      control: 'text',
+      description: 'Content to display',
+    },
+  },
+  args: {
+    children: 'Default Content',
+    variant: 'primary',
+    disabled: false,
+  },
+};
+
+export default meta;
+type Story = StoryObj<typeof meta>;
+
+// Basic story
+export const Default: Story = {};
+
+// Variant stories
+export const Secondary: Story = {
+  args: {
+    variant: 'secondary',
+  },
+};
+
+// State stories
+export const Disabled: Story = {
+  args: {
+    disabled: true,
+  },
+};
+
+// Complex scenarios
+export const WithLongContent: Story = {
+  args: {
+    children: 'This is a much longer piece of content to test how the component handles text wrapping and layout.',
+  },
+};
+
+// Interactive example
+export const Interactive: Story = {
+  render: (args) => {
+    const [clicked, setClicked] = React.useState(false);
+    
+    return (
+      <ComponentName
+        {...args}
+        onClick={() => setClicked(!clicked)}
+      >
+        {clicked ? 'Clicked!' : 'Click me'}
+      </ComponentName>
+    );
+  },
+};
+```
+
+## 🎯 Performance Guidelines
+
+### Optimization Strategies
+
+#### 1. Memoization
+```tsx
+// Memoize expensive calculations
+const ExpensiveComponent = ({ data }) => {
+  const processedData = useMemo(() => {
+    return data.map(item => expensiveTransformation(item));
+  }, [data]);
+
+  return <div>{processedData}</div>;
+};
+
+// Memoize components that re-render frequently
+export const MemoizedComponent = memo(ComponentName);
+```
+
+#### 2. Lazy Loading
+```tsx
+// Lazy load heavy components
+const HeavyComponent = lazy(() => import('./HeavyComponent'));
+
+// Use in component
+<Suspense fallback={<Spinner />}>
+  <HeavyComponent />
+</Suspense>
+```
+
+#### 3. Event Handler Optimization
+```tsx
+// Use useCallback for event handlers passed to children
+const ParentComponent = ({ items }) => {
+  const handleItemClick = useCallback((id: string) => {
+    // Handle click
+  }, []);
+
+  return (
+    <div>
+      {items.map(item => (
+        <ChildComponent 
+          key={item.id}
+          onClick={() => handleItemClick(item.id)}
+        />
+      ))}
+    </div>
+  );
+};
+```
+
+## 🔍 Component Patterns
+
+### Compound Components
+For components with multiple related parts:
+
+```tsx
+// Compound component pattern
+const Modal = ({ children, isOpen, onClose }) => {
+  return isOpen ? (
+    <div className="modal-overlay" onClick={onClose}>
+      <div className="modal-content" onClick={e => e.stopPropagation()}>
+        {children}
+      </div>
+    </div>
+  ) : null;
+};
+
+Modal.Header = ({ children }) => (
+  <div className="modal-header">{children}</div>
+);
+
+Modal.Body = ({ children }) => (
+  <div className="modal-body">{children}</div>
+);
+
+Modal.Footer = ({ children }) => (
+  <div className="modal-footer">{children}</div>
+);
+
+// Usage
+<Modal isOpen={true} onClose={handleClose}>
+  <Modal.Header>Title</Modal.Header>
+  <Modal.Body>Content</Modal.Body>
+  <Modal.Footer>Actions</Modal.Footer>
+</Modal>
+```
+
+### Render Props Pattern
+For flexible component composition:
+
+```tsx
+interface DataFetcherProps<T> {
+  url: string;
+  children: (state: { data: T | null; loading: boolean; error: string | null }) => React.ReactNode;
+}
+
+const DataFetcher = <T,>({ url, children }: DataFetcherProps<T>) => {
+  const [data, setData] = useState(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
+
+  // Fetch data logic...
+
+  return <>{children({ data, loading, error })}</>;
+};
+
+// Usage
+<DataFetcher url="/api/users">
+  {({ data, loading, error }) => {
+    if (loading) return <Spinner />;
+    if (error) return <ErrorMessage error={error} />;
+    return <UserList users={data} />;
+  }}
+</DataFetcher>
+```
+
+### Custom Hooks Pattern
+Extract reusable logic:
+
+```tsx
+// Custom hook
+const useUsers = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(false);
+
+  const fetchUsers = useCallback(async () => {
+    setLoading(true);
+    try {
+      const response = await api.getUsers();
+      setUsers(response.data);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  return { users, loading, refetch: fetchUsers };
+};
+
+// Usage in component
+const UserManagement = () => {
+  const { users, loading, refetch } = useUsers();
+  
+  return (
+    <div>
+      {loading ? <Spinner /> : <UserList users={users} />}
+      <Button onClick={refetch}>Refresh</Button>
+    </div>
+  );
+};
+```
+
+## 🚀 Component Lifecycle
+
+### Development Process
+1. **Design Review** - Ensure component fits design system
+2. **API Design** - Define props and interfaces
+3. **Implementation** - Build component following guidelines
+4. **Testing** - Add comprehensive tests
+5. **Documentation** - Create Storybook stories
+6. **Review** - Code review and feedback
+7. **Integration** - Use in application
+
+### Maintenance
+- **Regular Updates** - Keep dependencies current
+- **Performance Monitoring** - Watch for performance regressions
+- **Accessibility Audits** - Regular accessibility testing
+- **Usage Analytics** - Track component adoption
+- **Deprecation Planning** - Plan component lifecycle
+
+## 📚 Resources
+
+### Internal
+- [Design System Figma](link-to-figma)
+- [Component Usage Analytics](link-to-analytics)
+- [Architecture Documentation](./Architecture.mdx)
+
+### External
+- [PatternFly Components](https://www.patternfly.org/v4/components/)
+- [React Patterns](https://reactpatterns.com/)
+- [Web Accessibility Guidelines](https://www.w3.org/WAI/WCAG21/quickref/)
+
+---
+
+Following these guidelines ensures our components are consistent, accessible, performant, and maintainable across the entire RBAC UI application. 

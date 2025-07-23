@@ -33,7 +33,7 @@ spec:
 
       npm install
       npm run lint
-      npm test --  --runInBand --no-cache
+      NODE_OPTIONS="--max-old-space-size=1536" npm test --  --runInBand --no-cache
   pipelineRef:
     name: docker-build
   taskRunTemplate:

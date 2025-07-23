@@ -2,7 +2,7 @@ import React, { useContext, useEffect } from 'react';
 import { Stack, StackItem } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
-import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/top-toolbar';
+import { TopToolbar, TopToolbarTitle } from '../../presentational-components/shared/TopToolbar';
 import { useFlag } from '@unleash/proxy-client-react';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './users-list-not-selectable';

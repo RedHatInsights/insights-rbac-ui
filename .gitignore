@@ -30,6 +30,9 @@ yarn.lock
 coverage
 # webpack cache
 .cache
+
+*storybook.log
+storybook-static
 # cypress cache
 .cypress-cache
 # code coverage
