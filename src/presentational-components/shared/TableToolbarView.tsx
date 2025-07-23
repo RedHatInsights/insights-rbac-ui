@@ -240,20 +240,7 @@ export const TableToolbarView: React.FC<TableToolbarViewProps> = ({
                   )(checkedRows || []);
                   if (typeof setCheckedItems === 'function') {
                     // Check if the function expects a callback by looking at its parameter names
-                    const functionStr = setCheckedItems.toString();
-                    const hasCallbackParam =
-                      functionStr.includes('newSelection') ||
-                      functionStr.includes('callback') ||
-                      functionStr.includes('(selected)') ||
-                      functionStr.includes('(users)');
-
-                    if (hasCallbackParam) {
-                      // setCheckedItems(callback: (selected: any[]) => void) => void
-                      (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
-                    } else {
-                      // setCheckedItems(items: any[]) => void
-                      (setCheckedItems as (items: any[]) => void)(selectedItems);
-                    }
+                    (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
                   }
                 },
               })}

@@ -130,14 +130,7 @@ export const bulkSelectBuilder = (
       title: intl.formatMessage(messages.selectNone),
       onClick: () => {
         if (typeof setCheckedItems === 'function') {
-          // Handle both function signatures
-          if (setCheckedItems.length === 1) {
-            // setCheckedItems(items: any[]) => void
-            (setCheckedItems as (items: any[]) => void)([]);
-          } else {
-            // setCheckedItems(callback: (selected: any[]) => void) => void
-            (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => []);
-          }
+          (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => []);
         }
       },
     },
@@ -151,14 +144,7 @@ export const bulkSelectBuilder = (
       onClick: () => {
         if (typeof setCheckedItems === 'function') {
           const selectedItems = selectedRows(data, true)(checkedRows);
-          // Handle both function signatures
-          if (setCheckedItems.length === 1) {
-            // setCheckedItems(items: any[]) => void
-            (setCheckedItems as (items: any[]) => void)(selectedItems);
-          } else {
-            // setCheckedItems(callback: (selected: any[]) => void) => void
-            (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
-          }
+          (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
         }
       },
     });
@@ -171,14 +157,7 @@ export const bulkSelectBuilder = (
     onSelect: (value: boolean) => {
       if (!isLoading && typeof setCheckedItems === 'function') {
         const selectedItems = selectedRows(data, value)(checkedRows);
-        // Handle both function signatures
-        if (setCheckedItems.length === 1) {
-          // setCheckedItems(items: any[]) => void
-          (setCheckedItems as (items: any[]) => void)(selectedItems);
-        } else {
-          // setCheckedItems(callback: (selected: any[]) => void) => void
-          (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
-        }
+        (setCheckedItems as (callback: (selected: any[]) => void) => void)(() => selectedItems);
       }
     },
     id: tableId,
