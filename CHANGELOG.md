@@ -1,3 +1,10 @@
+## [1.46.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.6...v1.46.7) (2025-07-23)
+
+
+### Bug Fixes
+
+* **toolbar:** selection by using callback only ([#1885](https://github.com/RedHatInsights/insights-rbac-ui/issues/1885)) ([8905442](https://github.com/RedHatInsights/insights-rbac-ui/commit/890544286c772422854d608d58d3a3c33f64cfa1))
+
 ## [1.46.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.5...v1.46.6) (2025-07-22)
 
 
