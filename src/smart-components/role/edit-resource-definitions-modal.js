@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useReducer } from 'react';
 import PropTypes from 'prop-types';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
-import FormRenderer from '../common/form-renderer';
+import FormRenderer from '../../presentational-components/shared/FormRenderer';
 import flatten from 'lodash/flattenDeep';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useParams } from 'react-router-dom';

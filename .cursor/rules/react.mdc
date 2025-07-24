@@ -1,0 +1,167 @@
+---
+type: auto_attached
+patterns:
+  - "**/*.tsx"
+  - "**/*.ts"
+tags:
+  - react
+  - typescript
+  - patternfly
+---
+
+# React Component Development Guidelines
+
+## Key Technologies & Dependencies
+
+Always check `package.json` for current versions when working with:
+- `@patternfly/react-core` - Core PatternFly components
+- `@patternfly/react-table` - Table components
+- `react-router-dom` - Routing
+- `@redhat-cloud-services/frontend-components` - Red Hat specific components
+
+## Component Organization
+
+### Component Structure
+- **Presentational components** in `src/presentational-components/` - Pure UI components
+- **Smart components** in `src/smart-components/` - Connected components with business logic
+- **Helpers** in `src/helpers/` - Business logic utilities
+- **Redux** in `src/redux/` - State management
+
+### Code Quality Requirements
+- All code must pass TypeScript compilation (`npm run build`)
+- Linting must pass without errors (`npm run lint:js`)
+- New components should have Storybook stories
+- Use PatternFly components and patterns where possible
+
+## PatternFly Integration
+
+### Import Strategy - Always Use Dynamic Imports
+- **ALWAYS** use dynamic imports from PatternFly for better tree shaking and bundle optimization
+- **NEVER** use global imports from PatternFly packages
+
+```typescript
+// ✅ DO - Dynamic imports
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Table, TableHeader, TableBody } from '@patternfly/react-table/dist/dynamic/components/Table';
+
+// ❌ DON'T - Global imports
+import { Spinner, TreeView, TreeViewDataItem } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core';
+import { Table, TableHeader, TableBody } from '@patternfly/react-table';
+```
+
+### Table Row Wrappers
+- Use `RowWrapperProps` interface from PatternFly
+- Implement as: `({ row, ...props }: RowWrapperProps) => JSX.Element`
+- Use complete `Table` structure:
+```typescript
+<Table aria-label="Description" cells={columns} rowWrapper={Component} rows={data}>
+  <TableHeader />
+  <TableBody />
+</Table>
+```
+
+### TypeScript Compatibility
+- Import proper PatternFly types using dynamic imports: `import { RowWrapperProps } from '@patternfly/react-table/dist/dynamic/components/Table'`
+- Use type assertions when needed for story arguments
+- Ensure component return types match PatternFly expectations
+
+### Common Patterns
+- Use `RowWrapperProps` for table row components
+- Import types from appropriate PatternFly packages using dynamic paths
+- Follow PatternFly's component composition patterns
+- Use PatternFly's built-in accessibility features
+
+## Data Structure Guidelines
+
+### Know Component Dependencies
+- Understand what data the component **actually reads** from props
+- For table components, understand expected row structure
+- Use **realistic data structures** that match production usage
+- Include actual PatternFly components (Labels, Icons, etc.) in cell data
+- Add `key` props to JSX elements in arrays
+
+### Data Structures
+- Table components often work with `row` objects containing `cells` arrays
+- Understand what data each component actually consumes
+- Use realistic data structures that match production usage
+
+## JavaScript to TypeScript Conversion
+
+### Conversion Process
+1. **Document first**: Create Storybook stories for JS component
+2. **Test behaviors**: Use stories to understand component states/props
+3. **Add play functions**: Test interactive behaviors if needed
+4. **Convert to TypeScript**: Transform `.js` → `.tsx` with proper types
+5. **Verify**: Ensure stories work and tests pass
+
+### TypeScript Conversion Best Practices
+```typescript
+// Before (JavaScript)
+const StatusLabel = ({ isOrgAdmin, isUserAccessAdmin }) => { /* logic */ };
+StatusLabel.propTypes = { /* PropTypes */ };
+
+// After (TypeScript)
+interface StatusLabelProps {
+  isOrgAdmin?: boolean;
+  isUserAccessAdmin?: boolean;
+}
+
+const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAccessAdmin }) => {
+  // Keep exact same behavior
+};
+```
+
+### Conversion Guidelines
+- **Preserve exact behavior** - don't improve logic during conversion
+- **Remove PropTypes** - replace with TypeScript interface
+- **Use `React.FC<Props>`** for function components
+- **Keep original file structure** and imports (except PropTypes)
+- Don't change component logic during TS conversion
+
+### Common TypeScript Patterns
+```typescript
+// Optional props with defaults
+interface ComponentProps {
+  required: string;
+  optional?: boolean;
+  callback?: () => void;
+}
+
+// Extending existing interfaces
+interface ExtendedProps extends BaseProps {
+  additionalProp: string;
+}
+
+// Event handlers
+interface ButtonProps {
+  onClick?: (event: React.MouseEvent<HTMLButtonElement>) => void;
+}
+```
+
+## Common Pitfalls to Avoid
+
+- ❌ Don't create overly restrictive custom interfaces when PatternFly types exist
+- ❌ Don't assume component uses `cells` array if it doesn't
+- ❌ Don't use generic mock data that doesn't reflect real usage
+- ❌ Don't ignore TypeScript errors - fix them with proper types
+
+## Key Patterns
+
+### Row Wrapper Pattern
+```typescript
+const ComponentRow = ({ row, ...props }: RowWrapperProps) => {
+  const { relevantData } = row || {};
+  const computedValue = relevantData?.nested?.property;
+  return <RowWrapper className={classNames('base-class', { 'conditional-class': computedValue })} row={row} {...props} />;
+};
+```
+
+### Component Development Requirements
+- Uses appropriate PatternFly interfaces
+- Handles undefined/missing data gracefully
+- Returns correct type expected by PatternFly
+- Follows existing codebase patterns
+- Properly typed with TypeScript

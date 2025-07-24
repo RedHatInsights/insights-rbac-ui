@@ -8,7 +8,7 @@ import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/Skele
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import AppLink from '../../presentational-components/shared/AppLink';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
 import {
   INITIALIZE_ROLE,
   INITIATE_REMOVE_PERMISSION,
@@ -85,7 +85,14 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
   ];
 
   const setCheckedItems = (newSelection) => {
-    internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
+    // Handle both function signatures
+    if (typeof newSelection === 'function') {
+      // newSelection is a function that takes the current selectedPermissions and returns selected items
+      internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection(selectedPermissions).map(({ uuid }) => ({ uuid })) });
+    } else {
+      // newSelection is an array of selected items directly
+      internalDispatch({ type: SELECT_PERMISSIONS, selection: newSelection.map(({ uuid }) => ({ uuid })) });
+    }
   };
   const emptyPropsDescription = cantAddPermissions
     ? ['']

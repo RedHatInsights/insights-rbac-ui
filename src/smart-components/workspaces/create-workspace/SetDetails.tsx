@@ -1,17 +1,17 @@
+import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
+import { Button, FormGroup, FormSelect, FormSelectOption, Grid, GridItem, MenuToggle, Skeleton, Text } from '@patternfly/react-core';
+import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
+import { useFlag } from '@unleash/proxy-client-react';
 import React, { useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { useFlag } from '@unleash/proxy-client-react';
-import { Button, FormGroup, FormSelect, FormSelectOption, Grid, GridItem, MenuToggle, Skeleton, Text } from '@patternfly/react-core';
-import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
-import { RBACStore } from '../../../redux/store';
-import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../presentational-components/InputHelpPopover';
+import { fetchWorkspaces } from '../../../redux/actions/workspaces-actions';
+import { RBACStore } from '../../../redux/store';
 import ManagedSelector from '../managed-selector/ManagedSelector';
 import { instanceOfTreeViewWorkspaceItem } from '../managed-selector/TreeViewWorkspaceItem';
+import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from './schema';
 
 const SetDetails = () => {
   const intl = useIntl();

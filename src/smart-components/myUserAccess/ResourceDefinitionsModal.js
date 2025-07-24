@@ -1,7 +1,7 @@
 import { Button, Modal } from '@patternfly/react-core';
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { TableToolbarView } from '../../presentational-components/shared/table-toolbar-view';
+import { TableToolbarView } from '../../presentational-components/shared/TableToolbarView';
 import { defaultSettings } from '../../helpers/shared/pagination';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';

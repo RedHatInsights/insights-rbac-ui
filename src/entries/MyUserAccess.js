@@ -9,7 +9,7 @@ import messages from '../locales/data.json';
 import ErroReducerCatcher from '../presentational-components/shared/ErrorReducerCatcher';
 import PermissionsContext from '../utilities/permissions-context';
 import pathnames from '../utilities/pathnames';
-import { AppPlaceholder } from '../presentational-components/shared/loader-placeholders';
+import { AppPlaceholder } from '../presentational-components/shared/LoaderPlaceholders';
 import useAppNavigate from '../hooks/useAppNavigate';
 import useUserData from '../hooks/useUserData';
 

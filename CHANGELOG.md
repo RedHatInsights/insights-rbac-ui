@@ -1,3 +1,64 @@
+## [1.46.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.6...v1.46.7) (2025-07-23)
+
+
+### Bug Fixes
+
+* **toolbar:** selection by using callback only ([#1885](https://github.com/RedHatInsights/insights-rbac-ui/issues/1885)) ([8905442](https://github.com/RedHatInsights/insights-rbac-ui/commit/890544286c772422854d608d58d3a3c33f64cfa1))
+
+## [1.46.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.5...v1.46.6) (2025-07-22)
+
+
+### Bug Fixes
+
+* **ws:** filter by showing children of found nodes ([#1882](https://github.com/RedHatInsights/insights-rbac-ui/issues/1882)) ([a4532a5](https://github.com/RedHatInsights/insights-rbac-ui/commit/a4532a5342e5446227fea983dcd317501d823bf8))
+
+## [1.46.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.4...v1.46.5) (2025-07-22)
+
+
+### Bug Fixes
+
+* fix swc error on CI ([b6e0493](https://github.com/RedHatInsights/insights-rbac-ui/commit/b6e04934470d4b8eb534d9be3be8085af3d6c641))
+
+
+### Reverts
+
+* Revert "fix: use node 20 for chromatic" ([677f081](https://github.com/RedHatInsights/insights-rbac-ui/commit/677f081a8f433d605eb422f710dc1dd5c185ce51))
+
+## [1.46.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.3...v1.46.4) (2025-07-22)
+
+
+### Bug Fixes
+
+* use node 20 for chromatic ([9ae14e5](https://github.com/RedHatInsights/insights-rbac-ui/commit/9ae14e51d1214bfe7461c53727344c2200eba71a))
+
+## [1.46.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.2...v1.46.3) (2025-07-22)
+
+
+### Bug Fixes
+
+* use node lts ([772a3e4](https://github.com/RedHatInsights/insights-rbac-ui/commit/772a3e410d48342b595ce41388109f154579b834))
+
+## [1.46.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.1...v1.46.2) (2025-07-22)
+
+
+### Bug Fixes
+
+* chromatic workflow ([d4e1b8b](https://github.com/RedHatInsights/insights-rbac-ui/commit/d4e1b8b5c3a0e4f56ec6cbf7b655fa6e3fb6b923))
+
+## [1.46.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.0...v1.46.1) (2025-07-22)
+
+
+### Bug Fixes
+
+* fix OOM on CI ([d835a6a](https://github.com/RedHatInsights/insights-rbac-ui/commit/d835a6ae3e1231ab6b181eba5062f4054332a976))
+
+# [1.46.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.1...v1.46.0) (2025-07-21)
+
+
+### Features
+
+* implement comprehensive Storybook integration and component documentation ([1095985](https://github.com/RedHatInsights/insights-rbac-ui/commit/1095985f79154756ff312c004feb5d7c82e75e25))
+
 ## [1.45.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.45.0...v1.45.1) (2025-07-17)
 
 
