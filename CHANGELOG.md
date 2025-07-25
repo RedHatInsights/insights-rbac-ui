@@ -1,3 +1,10 @@
+# [1.47.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.7...v1.47.0) (2025-07-25)
+
+
+### Features
+
+* temporarily updated tooltip content for workspace naming guidelines ([#1880](https://github.com/RedHatInsights/insights-rbac-ui/issues/1880)) ([74c48d7](https://github.com/RedHatInsights/insights-rbac-ui/commit/74c48d7d536df2ba2d75dbdd708f2c37c38a34a1))
+
 ## [1.46.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.6...v1.46.7) (2025-07-23)
 
 
