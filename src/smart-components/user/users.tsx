@@ -18,6 +18,7 @@ const Users = () => {
   const { appNavClick } = useChrome();
   const isITLess = useFlag('platform.rbac.itless');
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
+  const commonUsersTable = useFlag('platform.rbac.common.userstable');
 
   const description = <ActiveUser linkDescription={intl.formatMessage(messages.addNewUsersText)} />;
 
@@ -43,7 +44,15 @@ const Users = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id="users">
-          {isITLess ? <UsersListItless {...usersListProps} /> : <UsersListNotSelectable {...usersListProps} />}
+          {!commonUsersTable ? (
+            isITLess ? (
+              <UsersListItless {...usersListProps} />
+            ) : (
+              <UsersListNotSelectable {...usersListProps} />
+            )
+          ) : (
+            <UsersListNotSelectable {...usersListProps} />
+          )}
         </Section>
       </StackItem>
     </Stack>
