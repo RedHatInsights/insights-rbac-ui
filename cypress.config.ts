@@ -24,6 +24,7 @@ export default defineConfig({
       return config;
     },
     video: false,
+    viewportWidth: 1300,
     devServer: {
       framework: 'react',
       bundler: 'webpack',
