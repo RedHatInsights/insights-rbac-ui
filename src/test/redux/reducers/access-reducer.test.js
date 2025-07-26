@@ -1,7 +1,7 @@
-import accessReducer, { accessInitialState } from '../../../redux/reducers/access-reducer';
+import accessReducer, { accessInitialState } from '../../../redux/access-management/reducer';
 import { callReducer } from '../redux-helpers';
 
-import { GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
+import { GET_PRINCIPAL_ACCESS } from '../../../redux/access-management/action-types';
 
 describe('Group reducer', () => {
   let initialState;

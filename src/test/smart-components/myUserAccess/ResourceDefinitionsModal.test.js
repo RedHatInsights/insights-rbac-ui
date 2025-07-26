@@ -1,7 +1,7 @@
 import React from 'react';
 import { act } from 'react-dom/test-utils';
 import { fireEvent, render, screen } from '@testing-library/react';
-import ResourceDefinitionsModal from '../../../smart-components/myUserAccess/ResourceDefinitionsModal';
+import ResourceDefinitionsModal from '../../../features/myUserAccess/ResourceDefinitionsModal';
 
 describe('<ResourceDefinitionsModal />', () => {
   const initialProps = {

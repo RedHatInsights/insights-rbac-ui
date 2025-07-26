@@ -3,9 +3,9 @@ import { act } from 'react-dom/test-utils';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import PropTypes from 'prop-types'; // Add this import
-import MUAContent from '../../../smart-components/myUserAccess/MUAContent';
+import MUAContent from '../../../features/myUserAccess/MUAContent';
 
-jest.mock('../../../smart-components/myUserAccess/bundles/rhel');
+jest.mock('../../../features/myUserAccess/bundles/rhel');
 
 const ComponentWrapper = ({ initialEntries, children }) => <MemoryRouter initialEntries={initialEntries}>{children}</MemoryRouter>;
 ComponentWrapper.propTypes = {

@@ -1,7 +1,7 @@
-import * as GroupsHelper from '../../../helpers/group/group-helper';
+import * as GroupsHelper from '../../../redux/groups/helper';
 
 import { getUserMock } from '../../../../config/setupTests';
-import * as UserLogin from '../../../helpers/shared/user-login';
+import { getGroupApi } from '../../../api/groupApi';
 
 /**
  * These tests seem to me a bit strange, we are basically checking that promise returns a value.
@@ -20,12 +20,14 @@ describe('group helper', () => {
   };
   const pagination = { limit: 10, offset: 0, redirected: false };
 
-  const groupApi = UserLogin.getGroupApi();
+  const groupApi = getGroupApi();
+  const createGroupSpy = jest.spyOn(groupApi, 'createGroup');
   const addMemberToGroupSpy = jest.spyOn(groupApi, 'addPrincipalToGroup');
   const addRoleToGroupSpy = jest.spyOn(groupApi, 'addRoleToGroup');
   const deleteGroupSpy = jest.spyOn(groupApi, 'deleteGroup');
 
   afterEach(() => {
+    createGroupSpy.mockReset();
     addMemberToGroupSpy.mockReset();
     addRoleToGroupSpy.mockReset();
     deleteGroupSpy.mockReset();
@@ -50,20 +52,29 @@ describe('group helper', () => {
     const newGroup = {
       uuid: '123',
       name: 'group name',
+      description: 'description',
       user_list: [{ username: 'user1', uuid: '12' }],
       roles_list: ['role-1', 'role-2'],
     };
-    const newPrincipalsResponse = { principals: newGroup.user_list };
+    const newPrincipalsResponse = {
+      principals: [
+        {
+          username: 'user1',
+          type: 'user',
+          clientId: '',
+        },
+      ],
+    };
 
-    const createGroupSpy = jest.spyOn(groupApi, 'createGroup');
+    // Mock createGroup to return a successful response so the test can continue
+    createGroupSpy.mockResolvedValueOnce({ uuid: '123', name: 'group name', description: 'description' });
+    addMemberToGroupSpy.mockResolvedValueOnce();
+    addRoleToGroupSpy.mockResolvedValueOnce();
 
-    createGroupSpy.mockResolvedValueOnce(newGroup);
-    addMemberToGroupSpy.mockResolvedValueOnce('group-with-principals');
-    addRoleToGroupSpy.mockResolvedValueOnce('group-with-roles');
     await GroupsHelper.addGroup(newGroup);
 
-    expect(addMemberToGroupSpy).toHaveBeenCalledWith('123', newPrincipalsResponse);
-    expect(addRoleToGroupSpy).toHaveBeenCalledWith('123', { roles: ['role-1', 'role-2'] });
+    expect(addMemberToGroupSpy).toHaveBeenCalledWith('123', newPrincipalsResponse, undefined);
+    expect(addRoleToGroupSpy).toHaveBeenCalledWith('123', { roles: ['role-1', 'role-2'] }, undefined);
   });
 
   it('should call remove group', async () => {

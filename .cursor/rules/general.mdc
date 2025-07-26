@@ -1,5 +1,6 @@
 ---
 type: always
+description: "General development guidelines and project standards for the RBAC UI React application, including file organization, naming conventions, and workflow rules."
 ---
 
 # RBAC UI Project - General Development Rules

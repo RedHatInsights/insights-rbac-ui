@@ -1,18 +1,24 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
+import '@patternfly/patternfly/patternfly-addons.css';
 import React from 'react';
 import { IntlProvider } from 'react-intl';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
-import PermissionsContext from '../src/utilities/permissions-context';
+import PermissionsContext from '../src/utilities/permissionsContext';
 import { 
   ChromeProvider, 
   FeatureFlagsProvider,
   type ChromeConfig,
   type FeatureFlagsConfig
-} from '../src/test/storybook-context-providers';
+} from './context-providers';
+import { initialize, mswLoader } from 'msw-storybook-addon';
+
+// Initialize MSW
+initialize();
 
 const preview: Preview = {
+  loaders: [mswLoader],
   parameters: {
     actions: { argTypesRegex: '^on.*' },
     controls: {
