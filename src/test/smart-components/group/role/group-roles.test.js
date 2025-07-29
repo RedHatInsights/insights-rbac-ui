@@ -42,74 +42,74 @@ describe('<GroupRoles />', () => {
 
     initialProps = {};
     mockStore = configureStore(middlewares);
-    (emptyState = {
+    emptyState = {
       roleReducer: {
         ...rolesInitialState,
       },
       groupReducer: {
         ...groupsInitialState,
       },
-    }),
-      (initialState = {
-        roleReducer: {
-          ...rolesInitialState,
-          isLoading: false,
-          roles: [],
-        },
-        groupReducer: {
-          ...groupsInitialState,
-          isLoading: false,
-          groups: {
-            identity: {
-              user: {
-                is_org_admin: true,
-              },
+    };
+    initialState = {
+      roleReducer: {
+        ...rolesInitialState,
+        isLoading: false,
+        roles: [],
+      },
+      groupReducer: {
+        ...groupsInitialState,
+        isLoading: false,
+        groups: {
+          identity: {
+            user: {
+              is_org_admin: true,
             },
           },
-          systemGroup: {
-            uuid: '123',
-            name: 'Test group',
-            description: 'Description',
-            platform_default: true,
-            roleCount: 11,
-            roles: [
-              {
-                uuid: '123',
-                name: 'User role',
-                description: 'Description',
-                modified: '2020-03-31T19:06:06.682885Z',
-                system: true,
-                platform_default: true,
-              },
-            ],
-          },
-          selectedGroup: {
-            addRoles: {
-              roles: [],
-              pagination: {
-                count: 1,
-                limit: 10,
-                offset: 0,
-              },
-            },
-            uuid: '123',
-            name: 'Test group',
-            description: 'Description',
-            platform_default: true,
-            roleCount: 11,
-            roles: [
-              {
-                uuid: '123',
-                name: 'User role',
-                description: 'Description',
-                modified: '2020-03-31T19:06:06.682885Z',
-                system: true,
-                platform_default: true,
-              },
-            ],
-          },
         },
-      });
+        systemGroup: {
+          uuid: '123',
+          name: 'Test group',
+          description: 'Description',
+          platform_default: true,
+          roleCount: 11,
+          roles: [
+            {
+              uuid: '123',
+              name: 'User role',
+              description: 'Description',
+              modified: '2020-03-31T19:06:06.682885Z',
+              system: true,
+              platform_default: true,
+            },
+          ],
+        },
+        selectedGroup: {
+          addRoles: {
+            roles: [],
+            pagination: {
+              count: 1,
+              limit: 10,
+              offset: 0,
+            },
+          },
+          uuid: '123',
+          name: 'Test group',
+          description: 'Description',
+          platform_default: true,
+          roleCount: 11,
+          roles: [
+            {
+              uuid: '123',
+              name: 'User role',
+              description: 'Description',
+              modified: '2020-03-31T19:06:06.682885Z',
+              system: true,
+              platform_default: true,
+            },
+          ],
+        },
+      },
+    };
   });
 
   afterEach(() => {

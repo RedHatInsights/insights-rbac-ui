@@ -1,6 +1,6 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import { Button, Text } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
 import { useSelector } from 'react-redux';
@@ -90,11 +90,12 @@ export const schemaBuilder = (enableBillingFeatures: boolean) => {
                             id={messages.workspaceNamingGuidelines.id}
                             defaultMessage={messages.workspaceNamingGuidelines.defaultMessage}
                             values={{
-                              link: (
-                                <Button variant="link" href="#" isInline>
-                                  {intl.formatMessage(messages.learnMore)}
-                                </Button>
-                              ),
+                              link: '', // RHCLOUD-40659: Temporarily hidden link until Learn More section is ready
+                              // link: (
+                              //   <Button variant="link" href="#" isInline>
+                              //     {intl.formatMessage(messages.learnMore)}
+                              //   </Button>
+                              // ),
                             }}
                           />
                         </Text>

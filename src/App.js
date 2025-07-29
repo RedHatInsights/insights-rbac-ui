@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
 import PermissionsContext from './utilities/permissions-context';
-import { AppPlaceholder } from './presentational-components/shared/loader-placeholders';
+import { AppPlaceholder } from './presentational-components/shared/LoaderPlaceholders';
 import { updateGroupsFilters } from './redux/actions/group-actions';
 import { updateRolesFilters } from './redux/actions/role-actions';
 import { updateUsersFilters } from './redux/actions/user-actions';

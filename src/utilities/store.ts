@@ -32,8 +32,10 @@ const middlewares = [
 ].filter((middleware) => typeof middleware === 'function');
 
 const composeEnhancers =
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   typeof window === 'object' && (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__ && window.location.hostname.includes('.foo.redhat.com')
-    ? (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
+    ? // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
     : compose;
 
 const registry = new ReducerRegistry({}, middlewares, composeEnhancers);

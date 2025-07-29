@@ -1,0 +1,66 @@
+---
+type: always
+---
+
+# RBAC UI Project - General Development Rules
+
+## Project Context
+
+This is a React-based UI application for Red Hat's Role-Based Access Control (RBAC) system, built with:
+- **React** for UI components  
+- **PatternFly** for design system and components
+- **TypeScript** for type safety
+- **Storybook** for component documentation and testing
+- **Redux** for state management
+
+## Development Workflow
+
+### Never Perform Git Operations
+- **CRITICAL**: Never run git commands or suggest git workflows unless explicitly requested
+- Don't create commits, branches, or any git operations
+- Don't run git commands or suggest git workflows  
+- Focus only on code changes and file modifications
+- Let user handle all version control operations
+
+### File Case Changes (CRITICAL)
+- **ALWAYS** handle case changes properly to avoid IDE confusion
+- When renaming files with case changes (e.g., `toolbar.js` → `Toolbar.tsx`):
+  1. Create the new file with correct case
+  2. Delete the old file with wrong case
+  3. **MUST** stage both changes: `git add newfile.tsx` and `git rm oldfile.js`
+  4. This prevents IDE confusion where Git tracks old file as deleted while new file is untracked
+- Case changes without proper Git staging cause IDE save issues and file tracking problems
+
+### Investigation Process
+1. Check dependency versions in `package.json` first
+2. Understand component's role and data requirements
+3. Look for existing patterns in similar components
+4. Use PatternFly documentation for component APIs
+5. Verify changes with build/lint commands
+
+### Building and Testing
+- `npm run build` - Production build
+- `npm run lint:js` - JavaScript/TypeScript linting
+- `npm run storybook` - Start Storybook development server
+- `npm test` - Run test suite
+
+## Architecture
+
+### Key Directories
+- `src/smart-components/` - Feature-based component organization
+  - `access-management/` - User and group access management
+  - `group/` - Group management functionality
+  - `role/` - Role management functionality
+  - `user/` - User management functionality
+  - `workspaces/` - Workspace management functionality
+- `src/presentational-components/` - Reusable UI components
+- `src/helpers/` - Business logic by feature area
+- `src/redux/` - State management (actions, reducers)
+
+### File Naming Conventions (REQUIRED)
+- Components: `ComponentName.js/tsx` (MUST be capitalized and reflect component name)
+- Stories: `ComponentName.stories.tsx` (MUST be capitalized and reflect component name)
+- Tests: `ComponentName.test.js` (MUST be capitalized and reflect component name)
+- Styles: `ComponentName.scss` (MUST be capitalized and reflect component name)
+
+This project follows Red Hat's frontend development standards and integrates with the Red Hat Cloud Services platform.
