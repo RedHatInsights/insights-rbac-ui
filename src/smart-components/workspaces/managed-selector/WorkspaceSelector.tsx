@@ -1,10 +1,9 @@
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { Button, ButtonVariant } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { MenuContainer } from '@patternfly/react-core/dist/dynamic/components/Menu';
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { Panel, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
+import { Panel, PanelFooter, PanelHeader, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import { SearchInput } from '@patternfly/react-core';
+import { Flex, FlexItem, SearchInput } from '@patternfly/react-core';
 import * as React from 'react';
 import './WorkspaceSelector.scss';
 
@@ -103,34 +102,27 @@ const WorkspaceSelector = <T extends TreeViewDataItem>({
   }, [renderTreeView, filteredTreeElements, areElementsFiltered, selectedItem, onSelectItem, isLoading]);
 
   const menu = (
-    <Panel ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu">
+    <Panel isScrollable ref={menuRef} variant="raised" className="rbac-c-workspace-selector-menu">
+      <PanelHeader className="pf-v6-u-pb-0">
+        <SearchInput
+          placeholder={searchPlaceholder}
+          value={searchInputValue}
+          onChange={(_e, value) => onSearchFilter(value)}
+          onClear={() => onSearchFilter('')}
+        />
+      </PanelHeader>
       <PanelMain>
-        <section>
-          <PanelMainBody>
-            <SearchInput
-              placeholder={searchPlaceholder}
-              value={searchInputValue}
-              onChange={(_e, value) => onSearchFilter(value)}
-              onClear={() => onSearchFilter('')}
-            />
-            <Panel className="pf-v6-u-overflow-y-auto pf-v6-u-border-0 pf-v6-u-box-shadow-none rbac-c-workspace-selector-scrollable-panel">
-              <PanelMain>
-                <section>
-                  <PanelMainBody className="pf-v6-u-py-sm">{memoizedTreeView}</PanelMainBody>
-                </section>
-              </PanelMain>
-            </Panel>
-          </PanelMainBody>
-          <PanelMainBody>
-            <Divider />
-          </PanelMainBody>
-          <PanelMainBody>
-            <Button isBlock onClick={onButtonClick}>
+        <PanelMainBody className="pf-v6-u-p-0">{memoizedTreeView}</PanelMainBody>
+      </PanelMain>
+      <PanelFooter>
+        <Flex justifyContent={{ default: 'justifyContentCenter' }}>
+          <FlexItem>
+            <Button onClick={onButtonClick} variant={ButtonVariant.secondary}>
               {buttonText}
             </Button>
-          </PanelMainBody>
-        </section>
-      </PanelMain>
+          </FlexItem>
+        </Flex>
+      </PanelFooter>
     </Panel>
   );
 

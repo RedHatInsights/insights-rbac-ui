@@ -34,6 +34,7 @@ const WorkspaceMenuToggle = ({ menuToggleRef, onMenuToggleClick, isMenuToggleExp
       isDisabled={isDisabled}
       isExpanded={isMenuToggleExpanded}
       className="workspace-selector-toggle"
+      isFullWidth
     >
       {content}
     </MenuToggle>
