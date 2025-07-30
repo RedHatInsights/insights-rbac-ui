@@ -1,3 +1,10 @@
+# [1.48.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.47.1...v1.48.0) (2025-07-30)
+
+
+### Features
+
+* comprehensive codebase modernization and tooling overhaul ([3d01173](https://github.com/RedHatInsights/insights-rbac-ui/commit/3d011734ada451fe0912b9e7ec396b97cacb60de))
+
 ## [1.47.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.47.0...v1.47.1) (2025-07-30)
 
 
