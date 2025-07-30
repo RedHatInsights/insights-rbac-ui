@@ -1,14 +1,14 @@
 import React, { useEffect } from 'react';
 import { useDispatch } from 'react-redux';
-import ErroReducerCatcher from './presentational-components/shared/ErrorReducerCatcher';
-import PermissionsContext from './utilities/permissions-context';
-import { AppPlaceholder } from './presentational-components/shared/LoaderPlaceholders';
-import { updateGroupsFilters } from './redux/actions/group-actions';
-import { updateRolesFilters } from './redux/actions/role-actions';
-import { updateUsersFilters } from './redux/actions/user-actions';
-import { groupsInitialState } from './redux/reducers/group-reducer';
-import { rolesInitialState } from './redux/reducers/role-reducer';
-import { usersInitialState } from './redux/reducers/user-reducer';
+import ErroReducerCatcher from './components/ui-states/ErrorReducerCatcher';
+import PermissionsContext from './utilities/permissionsContext';
+import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
+import { updateGroupsFilters } from './redux/groups/actions';
+import { updateRolesFilters } from './redux/roles/actions';
+import { updateUsersFilters } from './redux/users/actions';
+import { groupsInitialState } from './redux/groups/reducer';
+import { rolesInitialState } from './redux/roles/reducer';
+import { usersInitialState } from './redux/users/reducer';
 import useUserData from './hooks/useUserData';
 import Routing from './Routing';
 

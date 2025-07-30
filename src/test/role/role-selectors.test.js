@@ -1,4 +1,4 @@
-const { roleSelector, roleNameSelector } = require('../../smart-components/role/role-selectors');
+const { roleSelector, roleNameSelector } = require('../../features/roles/role-selectors');
 
 describe('role selectors', () => {
   describe('role selector', () => {

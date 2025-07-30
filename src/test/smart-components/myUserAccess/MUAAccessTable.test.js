@@ -8,10 +8,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import MUAAccessTable from '../../../smart-components/myUserAccess/MUAAccessTable';
-import * as AccessActions from '../../../redux/actions/access-actions';
-import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
-import { GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
+import MUAAccessTable from '../../../features/myUserAccess/MUAAccessTable';
+import * as AccessActions from '../../../redux/access-management/actions';
+import { createFilter } from '../../../features/myUserAccess/CommonBundleView';
+import { GET_PRINCIPAL_ACCESS } from '../../../redux/access-management/action-types';
 import PropTypes from 'prop-types';
 
 const ContextWrapper = ({ children, store, initialEntries = ['/foo?bundle="bundle"'] }) => (

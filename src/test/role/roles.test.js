@@ -5,14 +5,15 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
-import Roles from '../../smart-components/role/roles';
+import Roles from '../../features/roles/roles';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { rolesInitialState } from '../../redux/reducers/role-reducer';
+import { rolesInitialState } from '../../redux/roles/reducer';
 
-import * as RoleActions from '../../redux/actions/role-actions';
-import * as GroupActions from '../../redux/actions/group-actions';
-import { FETCH_ADMIN_GROUP, FETCH_ROLES } from '../../redux/action-types';
-import { defaultSettings } from '../../helpers/shared/pagination';
+import * as RoleActions from '../../redux/roles/actions';
+import * as GroupActions from '../../redux/groups/actions';
+import { FETCH_ROLES } from '../../redux/roles/action-types';
+import { FETCH_ADMIN_GROUP } from '../../redux/groups/action-types';
+import { defaultSettings } from '../../helpers/pagination';
 
 describe('<Roles />', () => {
   const middlewares = [promiseMiddleware, notificationsMiddleware()];

@@ -5,10 +5,10 @@ import { MemoryRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import configureMockStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
-import * as groupActions from '../../../redux/actions/group-actions';
-import AddUserToGroup from '../../../smart-components/user/add-user-to-group/add-user-to-group';
-import { ADD_MEMBERS_TO_GROUP, FETCH_GROUPS } from '../../../redux/action-types.js';
-import PermissionsContext from '../../../utilities/permissions-context';
+import * as groupActions from '../../../redux/groups/actions';
+import AddUserToGroup from '../../../features/users/add-user-to-group/add-user-to-group';
+import { ADD_MEMBERS_TO_GROUP, FETCH_GROUPS } from '../../../redux/groups/action-types';
+import PermissionsContext from '../../../utilities/permissionsContext';
 import messages from '../../../Messages';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 

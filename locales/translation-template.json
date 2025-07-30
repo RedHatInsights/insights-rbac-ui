@@ -1130,6 +1130,10 @@
     "defaultMessage": "Loading...",
     "description": "Loading temporary label"
   },
+  "loadingWorkspaces": {
+    "defaultMessage": "Loading workspaces...",
+    "description": "Loading workspaces label"
+  },
   "maxCharactersWarning": {
     "defaultMessage": "Can have maximum of {number} characters.",
     "description": "Maximum number of characters message"

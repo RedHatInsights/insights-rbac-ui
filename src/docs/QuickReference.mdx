@@ -12,87 +12,198 @@ import { Meta } from '@storybook/addon-docs/blocks';
 
 **For new components:**
 ```
-Following the guidelines in CURSOR-CONTEXT.md, create Storybook stories for [ComponentName]
+Following the project rules in .cursor/rules/, create comprehensive Storybook stories for [ComponentName] including interactive testing and MSW integration where needed
 ```
 
 **When you need investigation first:**
 ```
-Following the investigation process in CURSOR-CONTEXT.md, analyze [ComponentName] and determine how to create proper stories for it
+Following the investigation process in the project rules, analyze [ComponentName] and determine how to create proper stories with realistic data and user interactions
 ```
 
 **For fixing existing stories:**
 ```
-Using the patterns in CURSOR-CONTEXT.md, fix the issues with [ComponentName] stories - focus on [specific issue area]
+Using the patterns from our established stories, fix the issues with [ComponentName] stories - focus on [specific issue area]. Ensure proper async testing and element targeting.
+```
+
+### **🧪 Interactive Story Testing**
+
+**Adding play functions:**
+```
+Add comprehensive play functions to [ComponentName] stories that test user interactions, callback functions, and state changes using userEvent and canvas utilities
+```
+
+**MSW integration for API stories:**
+```
+Set up MSW handlers for [ComponentName] stories to mock [API endpoints] with realistic data, including loading states and error conditions
+```
+
+**Async testing fixes:**
+```
+Fix timing issues in [ComponentName] stories by replacing getBy* queries with findBy* queries and adding proper waitFor guards for dynamic content
 ```
 
 ### **🔧 Component Development**
 
+**Feature islands pattern:**
+```
+Following our feature islands architecture, help me implement [ComponentName] in the [FeatureName] feature. Determine if it should be in components/ or if it's feature-specific.
+```
+
 **Table row wrappers:**
 ```
-Following CURSOR-CONTEXT.md guidelines, help me implement [ComponentName] as a PatternFly table row wrapper
+Following PatternFly table patterns and our established row wrapper components, help me implement [ComponentName] as a table row component with proper TypeScript types
 ```
 
-**General components:**
+**Cross-feature component sharing:**
 ```
-Following CURSOR-CONTEXT.md guidelines, help me implement [ComponentName] - it should [describe functionality]
+Analyze if [ComponentName] should be moved from features/[feature]/components/ to src/components/ based on actual usage patterns across features
 ```
 
-**TypeScript fixes:**
+### **🏗️ Architecture & Organization**
+
+**Feature reorganization:**
 ```
-Using the TypeScript patterns in CURSOR-CONTEXT.md, fix the type issues in [ComponentName]
+Following our feature islands pattern, help me reorganize [FeatureName] to better co-locate related components, hooks, and logic while maintaining clear separation of concerns
+```
+
+**Import path cleanup:**
+```
+Update all import paths in [directory/file] to reflect our new feature islands structure, changing from smart-components/* and presentational-components/* to features/* and components/*
+```
+
+**Module federation updates:**
+```
+Update module federation configuration to expose [ComponentName] from the new features/ structure and verify all external consumption paths work correctly
 ```
 
 ### **🔍 Investigation & Analysis**
 
-**Check dependency versions:**
+**Dependency version check:**
 ```
-Check package.json for [PatternFly/Storybook/React] version and ensure we use the correct documentation for [ComponentName] work
-```
-
-**Understand components:**
-```
-Following the investigation process in CURSOR-CONTEXT.md, analyze how [ComponentName] works and what data it expects
+Check package.json for [PatternFly/Storybook/MSW] version and ensure we use the correct documentation for [ComponentName] implementation
 ```
 
-**Compare with working examples:**
+**Component usage analysis:**
 ```
-Using CURSOR-CONTEXT.md patterns, compare [ComponentName] with [WorkingComponent] and identify what needs to be fixed
+Analyze how [ComponentName] is actually used across the codebase to determine if it belongs in shared components/ or should stay feature-specific
+```
+
+**Story complexity assessment:**
+```
+Evaluate [ComponentName] and recommend the appropriate story complexity - basic props testing, interactive scenarios, API integration, or full user workflow testing
 ```
 
 ### **🚀 Quality & Build**
 
-**Pre-submission check:**
+**Comprehensive testing verification:**
 ```
-Using the quality checklist in CURSOR-CONTEXT.md, verify that [ComponentName] and its stories are ready for submission
+Verify [ComponentName] stories include: props testing, interaction testing, error states, loading states, and edge cases. Ensure all stories pass in both local and CI environments.
 ```
 
-**Build/lint fixes:**
+**Build/lint fixes after reorganization:**
 ```
-Following CURSOR-CONTEXT.md patterns, fix the build/lint errors in [ComponentName] - errors: [paste errors]
+Fix all build and lint errors after feature islands reorganization, focusing on import path updates and TypeScript type resolution. Verify module federation still works.
+```
+
+**Performance and bundle optimization:**
+```
+Analyze [ComponentName] for proper code splitting, lazy loading, and bundle optimization. Ensure large features like workspaces are properly split.
+```
+
+## **💡 Real Examples from Recent Work**
+
+### **MSW Integration Success:**
+```
+Add MSW handlers for workspace data with hierarchical structure. Create fast handlers for most stories and slow handlers (1-second delay) specifically for loading state testing.
+```
+
+### **Interactive Testing Pattern:**
+```
+Create WorkspaceSelector stories that test: initial selection, dropdown interactions, search functionality, selection callbacks with proper data validation, and error handling.
+```
+
+### **Architectural Improvement:**
+```
+Reorganize workspaces feature to use nested components: managed-selector/components/, workspace-detail/components/, overview/components/ instead of shared workspaces/components/
+```
+
+### **Import Path Migration:**
+```
+Update all test files to use new paths: smart-components/group/* → features/groups/*, smart-components/user/* → features/users/*, presentational-components/features/* → features/*/components/*
+```
+
+## **🛠️ Advanced Patterns**
+
+### **Compound Component Stories:**
+```
+Create stories for [ComponentName] compound component pattern showing how Toggle, Tree, and main component work together with proper TypeScript interfaces
+```
+
+### **Error Boundary Testing:**
+```
+Add error boundary stories for [ComponentName] that test graceful degradation, error recovery, and user feedback for API failures and component errors
+```
+
+### **Feature Hook Integration:**
+```
+Create stories that test [ComponentName] with its associated useFeature hook, showing loading states, data transformation, and error handling
+```
+
+### **Cross-Feature Integration:**
+```
+Test [ComponentName] stories with components from other features to ensure proper data flow and API consistency across feature boundaries
+```
+
+## **🔧 Development Workflow Prompts**
+
+### **Pre-Development:**
+```
+Before implementing [ComponentName], analyze: 1) Where it fits in feature islands structure, 2) What data it needs, 3) If it's truly reusable, 4) What stories it requires
+```
+
+### **During Development:**
+```
+While building [ComponentName], create stories incrementally: basic props → interactions → API integration → error states → edge cases
+```
+
+### **Quality Gates:**
+```
+Before submitting [ComponentName]: verify build passes, all tests pass, stories are comprehensive, imports are correct, and no regressions in existing features
 ```
 
 ## **💡 Usage Tips**
 
 ### **How to Customize:**
 1. Replace `[ComponentName]` with actual component name
-2. Replace `[specific issue area]` with your focus (TypeScript, data structure, etc.)
-3. Add specific error messages or requirements as needed
+2. Replace `[FeatureName]` with your target feature (groups, roles, users, workspaces)
+3. Replace `[specific issue area]` with your focus (TypeScript, async testing, MSW setup, etc.)
+4. Add specific error messages or requirements as needed
 
 ### **When to Use Each:**
 - **Create stories** → Starting fresh with a component
-- **Investigate first** → Unsure about component behavior  
-- **Fix issues** → Stories exist but have problems
-- **Component development** → Building/modifying components
+- **Interactive testing** → Adding user interaction validation
+- **MSW integration** → Components that need API data
+- **Feature islands** → Organizing or reorganizing code structure
+- **Investigation** → Understanding component behavior and dependencies
 - **Quality check** → Before finalizing work
 
 ### **Pro Tips:**
-- **Chain prompts** for complex work: Investigate first, then create stories
-- **Be specific** about the issue area when fixing problems
-- **Include error messages** when asking for build/lint fixes
-- **Reference working components** when comparing patterns
+- **Start with MSW setup** for components needing API data
+- **Use findBy* queries** for dynamic content to avoid timing issues
+- **Test actual user workflows** not just component props
+- **Consider feature boundaries** when deciding component placement
+- **Batch import updates** using find/replace for efficiency
+- **Verify module federation** after any structural changes
+
+### **Common Patterns from Our Work:**
+- **Timing fixes**: Replace `getByText` with `findByText` for async content
+- **Data validation**: Test callback functions receive correct object structure
+- **Error recovery**: Test components gracefully handle API failures
+- **Feature organization**: Keep related code together, extract only when truly shared
 
 ---
 
 ## **🔗 Related Documentation**
-- [Storybook Guide](/?path=/docs/documentation-storybook-guide--docs) - Complete guide with enhanced features and story development best practices
-- External files: `CURSOR-CONTEXT.md` and `CURSOR-PROMPTS.md` in project root 
+- [Architecture Guide](/?path=/docs/documentation-architecture--docs) - Feature islands architecture and component organization patterns
+- [Storybook Guide](/?path=/docs/documentation-storybook-guide--docs) - Complete guide with MSW integration, interactive testing, and story development best practices
+- Project rules: `.cursor/rules/` directory with mdc files containing project-specific guidelines and patterns 
