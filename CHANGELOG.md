@@ -1,3 +1,11 @@
+## [1.47.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.47.0...v1.47.1) (2025-07-30)
+
+
+### Bug Fixes
+
+* fix broken cypress tests ([f8a88d0](https://github.com/RedHatInsights/insights-rbac-ui/commit/f8a88d0231b951ea4471af6c2f308dfc78ed4484))
+* workspace selector styling ([#1873](https://github.com/RedHatInsights/insights-rbac-ui/issues/1873)) ([eb491ca](https://github.com/RedHatInsights/insights-rbac-ui/commit/eb491ca5777e297022eee629f28a0dff84c5b3f2))
+
 # [1.47.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.46.7...v1.47.0) (2025-07-25)
 
 
