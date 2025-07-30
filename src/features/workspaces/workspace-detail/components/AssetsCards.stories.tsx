@@ -12,12 +12,12 @@ const meta: Meta<typeof AssetsCards> = {
         component: `
 AssetsCards component that displays two predefined asset management cards for Insights and OpenShift.
 - Uses PatternFly Card and Panel components for consistent styling
-- Shows Insights and OpenShift asset management options
+- Shows Insights asset management options
 - Each card includes a logo, title, description, and navigation link
 - Links are workspace-specific and include the workspace name in the URL
 - Uses internationalization for all text content
 
-**Note:** In Storybook, the external SVG icons (Insights and OpenShift logos) are not available and will show as broken images.
+**Note:** In Storybook, the external SVG icon (Insights logo) is not available and will show as a broken image.
         `,
       },
     },
@@ -35,8 +35,8 @@ AssetsCards component that displays two predefined asset management cards for In
             fontSize: '14px',
           }}
         >
-          <strong>⚠️ Storybook Note:</strong> The external SVG icons (Insights and OpenShift logos) are not available in this environment and will
-          show as broken images. The component functionality is still fully testable.
+          <strong>⚠️ Storybook Note:</strong> The external SVG icon (Insights logo) is not available in this environment and will show as a broken
+          image. The component functionality is still fully testable.
         </div>
         <Story />
       </div>
@@ -58,9 +58,5 @@ export const Default: Story = {
     const insightsLink = await canvas.findByRole('link', { name: /.*insights.*/i });
     await expect(insightsLink).toBeInTheDocument();
     await expect(insightsLink).toHaveAttribute('href', '/insights/inventory?workspace=my-workspace');
-
-    const openshiftLink = await canvas.findByRole('link', { name: /.*openshift.*/i });
-    await expect(openshiftLink).toBeInTheDocument();
-    await expect(openshiftLink).toHaveAttribute('href', '/openshift/?workspace=my-workspace');
   },
 };
