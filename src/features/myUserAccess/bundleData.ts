@@ -1,4 +1,7 @@
-interface BundleData {
+/**
+ * Bundle data structure interfaces
+ */
+export interface BundleData {
   entitlement: string;
   title: string;
   apps: Record<string, string>;

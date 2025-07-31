@@ -1,38 +1,32 @@
 import React, { useState } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import classNames from 'classnames';
 import { Card, CardBody, CardHeader, CardTitle, List, ListItem, Stack, StackItem, Title } from '@patternfly/react-core';
 import { useFlag } from '@unleash/proxy-client-react';
+import { bundleData } from '../bundleData';
+import './BundleCard.scss';
 
-import { bundleData } from './bundles';
-import useSearchParams from '../../../hooks/useSearchParams';
+export type EntitlementTuple = [string, { is_entitled: boolean }];
+export type Entitlements = EntitlementTuple[];
 
-import './MUACard.scss';
-
-interface MUACardProps {
+interface BundleCardProps {
   header?: string;
-  entitlements?: Array<[string, any]>;
+  entitlements?: Entitlements;
   isDisabled?: boolean;
+  currentBundle: string;
 }
 
-interface BundleData {
-  entitlement: string;
-  title: string;
-  apps: Record<string, string | undefined>;
-  appsIds: string[];
-}
-
-const MUACard: React.FC<MUACardProps> = ({ header, entitlements = [], isDisabled = false }) => {
-  const { bundle: bundleParam } = useSearchParams('bundle') as { bundle?: string };
-  const [, setIsChecked] = useState<string>('');
+export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [], isDisabled = false, currentBundle }) => {
+  const [, setIsChecked] = useState('');
+  const location = useLocation();
 
   const isITLess = useFlag('platform.rbac.itless');
 
-  const onChange = (event: React.FormEvent<HTMLInputElement>) => {
-    setIsChecked((event.target as HTMLInputElement).id);
+  const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setIsChecked(event.target.id);
   };
 
-  const bundles: BundleData[] = isITLess ? bundleData.filter((data) => data.entitlement === 'rhel') : bundleData;
+  const bundles = isITLess ? bundleData.filter((data) => data.entitlement === 'rhel') : bundleData;
 
   return (
     <React.Fragment>
@@ -57,14 +51,14 @@ const MUACard: React.FC<MUACardProps> = ({ header, entitlements = [], isDisabled
                 <NavLink
                   aria-label="card-link"
                   className={classNames('rbac-c-mua-bundles__cardlink', { 'pf-v5-u-background-color-disabled-color-300': isDisabled })}
-                  to={{ pathname: '', search: `bundle=${key}` }}
+                  to={{ pathname: location.pathname, search: `bundle=${key}` }}
                 >
                   <Card
                     ouiaId={`${data.title}-card`}
                     key={data.title}
-                    isFlat={isDisabled || key !== bundleParam}
+                    isFlat={isDisabled || key !== currentBundle}
                     isSelectable={!isDisabled}
-                    isSelected={!isDisabled && key === bundleParam}
+                    isSelected={!isDisabled && key === currentBundle}
                     className={classNames({
                       'pf-v5-u-background-color-disabled-color-300': isDisabled,
                     })}
@@ -74,7 +68,7 @@ const MUACard: React.FC<MUACardProps> = ({ header, entitlements = [], isDisabled
                         selectableActionId: '',
                         name: data.title,
                         variant: 'single',
-                        onChange,
+                        onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
                       }}
                     >
                       <CardTitle className="pf-v5-u-font-weight-light" data-ouia-component-id={`${data.title}-card-title`}>
@@ -98,5 +92,3 @@ const MUACard: React.FC<MUACardProps> = ({ header, entitlements = [], isDisabled
     </React.Fragment>
   );
 };
-
-export default MUACard;
