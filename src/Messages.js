@@ -1273,7 +1273,8 @@ export default defineMessages({
   workspaceNamingGuidelines: {
     id: 'workspaceNamingGuidelines',
     description: 'Workspace naming guidelines hint',
-    defaultMessage: '{link} about the guidelines for naming your workspaces.',
+    defaultMessage:
+      'Use clear, descriptive workspace names like "Production North America" or "Project-X" to organize assets, control access, and simplify management.{link}',
   },
   workspaceDescriptionMaxLength: {
     id: 'workspaceDescriptionMaxLength',
@@ -2438,6 +2439,11 @@ export default defineMessages({
     id: 'loading',
     description: 'Loading temporary label',
     defaultMessage: 'Loading...',
+  },
+  loadingWorkspaces: {
+    id: 'loadingWorkspaces',
+    description: 'Loading workspaces label',
+    defaultMessage: 'Loading workspaces...',
   },
   noPermissions: {
     id: 'noPermissions',

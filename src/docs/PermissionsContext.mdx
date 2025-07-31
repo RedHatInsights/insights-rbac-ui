@@ -116,7 +116,7 @@ export const MyStory: Story = {
 You can also make these configurable through Storybook controls:
 
 ```typescript
-import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '../../test/storybook-types';
+import { DECORATOR_ARG_TYPES, DEFAULT_DECORATOR_ARGS, StoryArgs } from '../../.storybook/types';
 
 type MyComponentStoryArgs = StoryArgs<React.ComponentProps<typeof MyComponent>>;
 
@@ -225,10 +225,10 @@ The system uses webpack aliases to replace real imports with mock implementation
 // .storybook/main.ts
 webpackFinal: async (config) => {
   config.resolve.alias = {
-    '@redhat-cloud-services/frontend-components/useChrome': 
-      path.resolve(__dirname, '../src/test/storybook-hooks/useChrome'),
-    '@unleash/proxy-client-react': 
-      path.resolve(__dirname, '../src/test/storybook-hooks/unleash'),
+            '@redhat-cloud-services/frontend-components/useChrome': 
+          path.resolve(__dirname, '.storybook/hooks/useChrome'),
+        '@unleash/proxy-client-react': 
+          path.resolve(__dirname, '.storybook/hooks/unleash'),
   };
 },
 ```
@@ -237,7 +237,7 @@ webpackFinal: async (config) => {
 Mock implementations read from React contexts that are provided globally:
 
 ```typescript
-// src/test/storybook-context-providers.tsx
+// .storybook/context-providers.tsx
 export const useChrome = () => {
   const chromeConfig = useContext(ChromeContext);
   return {
@@ -290,8 +290,8 @@ decorators: [
 
 To add new contexts or extend existing ones:
 
-1. **Update interfaces** in `src/test/storybook-context-providers.tsx`
-2. **Update shared types** in `src/test/storybook-types.ts`
+1. **Update interfaces** in `.storybook/context-providers.tsx`
+2. **Update shared types** in `.storybook/types.ts`
 3. **Update default values** in `.storybook/preview.tsx`
 4. **Create webpack aliases** in `.storybook/main.ts` if needed
 5. **Document the new context** in this guide
@@ -323,7 +323,7 @@ parameters: {
 
 // 4. Add webpack alias if needed
 config.resolve.alias = {
-  'new-service-lib': path.resolve(__dirname, '../src/test/storybook-hooks/newService'),
+          'new-service-lib': path.resolve(__dirname, '.storybook/hooks/newService'),
 };
 ```
 
@@ -354,9 +354,9 @@ export const DebugStory: Story = {
 
 ## 📚 Related Documentation
 
-- [Storybook Types Reference](./src/test/storybook-types.ts)
-- [Context Providers Implementation](./src/test/storybook-context-providers.tsx)
-- [Mock Hooks](./src/test/storybook-hooks/)
+- [Storybook Types Reference](./.storybook/types.ts)
+- [Context Providers Implementation](./.storybook/context-providers.tsx)
+- [Mock Hooks](./.storybook/hooks/)
 
 ---
 

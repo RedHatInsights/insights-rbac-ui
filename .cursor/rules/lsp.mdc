@@ -1,0 +1,254 @@
+---
+type: always
+description: "LSP-first development methodology using lsp-daemon.js for semantic code operations, atomic refactoring, and file moves with automatic import updates."
+tags:
+  - lsp
+  - refactoring
+  - typescript
+  - semantic
+---
+
+## Quick Reference (AI Priority)
+
+### LSP Operations Checklist
+| Operation | LSP Method | Manual Fallback |
+|-----------|------------|------------------|
+| File moves | `refactor/moveFile` | `mv` + `grep` + `search_replace` |
+| Symbol renames | `textDocument/rename` | `grep` + systematic replace |
+| Find references | `textDocument/references` | `grep -r` |
+| Find definitions | `textDocument/definition` | Code search |
+
+### Critical Commands
+```bash
+# Start LSP daemon
+node scripts/lsp-daemon.js &
+
+# Verify running
+curl http://localhost:3333/lsp -X POST -d '{"jsonrpc":"2.0","id":1,"method":"textDocument/hover"}'
+
+# Move file with auto-imports
+curl -X POST http://localhost:3333/lsp -d '{
+  "method": "refactor/moveFile",
+  "params": {
+    "sourceUri": "file:///absolute/path/source.ts",
+    "targetUri": "file:///absolute/path/target.ts"
+  }
+}'
+```
+
+### When to Use LSP vs Manual
+| Scenario | Use LSP First | Use Manual Fallback |
+|----------|---------------|---------------------|
+| Single file moves | ✅ Always try first | If timeout (>10s) |
+| Large refactoring | ✅ Try first | Switch if timeouts persist |
+| Complex restructuring | ✅ Try first | Often needed for scale |
+| Import updates | ✅ Automatic | Manual with grep |
+
+### LSP Advantages
+- ✅ Semantic understanding vs text manipulation
+- ✅ Handles complex dependency chains automatically
+- ✅ Calculates precise relative paths
+- ✅ Type-aware refactoring
+- ✅ Atomic operations prevent partial failures
+
+### LSP-First Methodology
+
+The AI MUST use the `scripts/lsp-daemon.js` HTTP daemon for all semantic code operations. This provides atomic refactoring operations including file moves with automatic import updates.
+
+**Architecture:**
+- `scripts/lsp-daemon.js`: Long-running HTTP server managing typescript-language-server
+- Listens on `http://localhost:3333/lsp`
+- Maintains persistent LSP session with full workspace context
+- Handles proper LSP protocol: initialize → didOpen → requests → didRenameFiles
+
+### Starting the LSP Daemon
+
+```bash
+# Start daemon (runs in background)
+node scripts/lsp-daemon.js &
+
+# Verify it's running
+curl http://localhost:3333/lsp -X POST -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"textDocument/hover","params":{"textDocument":{"uri":"file:///absolute/path/file.ts"},"position":{"line":0,"character":0}}}'
+```
+
+### ATOMIC FILE REFACTORING
+
+**The refactor/moveFile endpoint performs atomic file moves with automatic import updates:**
+
+```bash
+# Move file with automatic import updates
+curl -X POST http://localhost:3333/lsp \
+  -H "Content-Type: application/json" \
+  -d '{
+    "jsonrpc": "2.0",
+    "id": 1,
+    "method": "refactor/moveFile",
+    "params": {
+      "sourceUri": "file:///absolute/path/to/source.ts",
+      "targetUri": "file:///absolute/path/to/target.ts"
+    }
+  }'
+```
+
+**What this accomplishes:**
+- ✅ Analyzes full dependency graph via `workspace/willRenameFiles`
+- ✅ Updates ALL files that import the moved file
+- ✅ Fixes internal imports in the moved file itself
+- ✅ Calculates perfect relative paths for new location
+- ✅ Atomic operation: either all changes succeed or none
+
+### Core LSP Operations
+
+#### Code Navigation & Analysis
+```bash
+# Find definition
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":1,"method":"textDocument/definition","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+
+# Find all references  
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":2,"method":"textDocument/references","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5},"context":{"includeDeclaration":true}}}'
+
+# Get hover information
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":3,"method":"textDocument/hover","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+
+# Rename symbol (updates all references)
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":4,"method":"textDocument/rename","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5},"newName":"newSymbolName"}}'
+```
+
+#### Error Detection
+```bash
+# Use definition/hover to validate code health
+curl -X POST http://localhost:3333/lsp -H "Content-Type: application/json" -d '{"jsonrpc":"2.0","id":5,"method":"textDocument/definition","params":{"textDocument":{"uri":"file:///absolute/path.ts"},"position":{"line":10,"character":5}}}'
+```
+
+### MANDATORY LSP-First Rules
+
+**✅ ALWAYS use LSP daemon for:**
+- File moves/renames (`refactor/moveFile` endpoint)
+- Symbol renames (`textDocument/rename`)
+- Finding references (`textDocument/references`) 
+- Code navigation (`textDocument/definition`)
+- Import analysis (via references/definition)
+
+**❌ NEVER use manual approaches for:**
+- File moves with `mv` + manual import updates
+- `grep`/`sed` for import path changes
+- Manual relative path calculations
+- Text-based refactoring when LSP can handle it semantically
+
+**The LSP Advantage:**
+- Semantic understanding vs text manipulation
+- Handles complex dependency chains automatically
+- Calculates precise relative paths
+- Type-aware refactoring
+- Atomic operations prevent partial failures
+
+### Implementation Requirements
+
+**Critical LSP Protocol Steps:**
+1. **Context preparation**: LSP analyzes dependent files before `workspace/willRenameFiles`
+2. **Semantic analysis**: TypeScript Language Server provides character-level edit instructions
+3. **Atomic application**: All text edits and file operations happen together
+4. **Protocol compliance**: Follow `workspace/willRenameFiles` → apply edits → physical move → `workspace/didRenameFiles`
+
+### When NOT to Use LSP
+- Reading file contents (use `read_file` tool)
+- Directory operations (use `list_dir`, `run_terminal_cmd`)
+- Build/test commands (use `run_terminal_cmd`)
+- Git operations (use `run_terminal_cmd`)
+- Simple file operations that don't involve code semantics
+
+### Available Capabilities
+The `scripts/lsp-daemon.js` enables:
+- Extract function/variable refactoring
+- Move symbols between files
+- Organize imports
+- Convert between module systems
+- Any operation TypeScript Language Server supports
+
+**This is the foundation for semantic codebase transformation.**
+
+# LSP-First Development Methodology
+
+This project now uses the standalone `lsp-for-ai` npm package for semantic code operations.
+
+## Installation
+
+Install the LSP daemon globally or use with npx:
+
+```bash
+# Global installation
+npm install -g lsp-for-ai
+
+# Or use with npx
+npx lsp-for-ai --workspace . --port 3007
+```
+
+## Usage
+
+```bash
+# Start LSP daemon in project root
+lsp-daemon --workspace . --port 3007
+
+# Verify running
+curl http://localhost:3007/health
+```
+
+## Core Principles
+
+### 1. Semantic-First Operations
+- All code movements use LSP to understand semantic relationships
+- Automatic import/export updates when moving functions or files
+- Type-aware refactoring that maintains code correctness
+
+### 2. Atomic Refactoring
+- File moves are atomic: physical move + import updates in single operation
+- Function extraction maintains all dependencies and references
+- Safe rename operations across the entire codebase
+
+### 3. AI-Powered Code Analysis
+- The LSP daemon provides semantic understanding to AI assistants
+- Enables intelligent code suggestions based on actual type information
+- Supports complex refactoring patterns that maintain type safety
+
+## Available Operations
+
+### File Operations
+- `POST /move-file` - Atomic file moves with import updates
+- `POST /sync` - Synchronize file with LSP for analysis
+
+### Function Operations  
+- `POST /move-function` - Move functions between files
+- `POST /extract-function` - Extract code into new functions
+
+### Analysis Operations
+- `POST /find-references` - Find all symbol references
+- `POST /rename` - Safe symbol renaming
+- `POST /organize-imports` - Clean up import statements
+
+## Security Features
+
+The standalone package includes:
+- Path traversal protection
+- Workspace-confined operations
+- Input validation for all file paths
+
+## Architecture Benefits
+
+1. **Separation of Concerns**: LSP operations are now separate from UI code
+2. **Reusability**: Other projects can use the same LSP daemon
+3. **Security**: No security vulnerabilities in the main codebase
+4. **Maintainability**: LSP functionality is independently versioned and maintained
+
+## Development Guidelines
+
+### When to Use Manual vs LSP
+- **LSP Preferred**: Single file renames, simple moves, semantic refactoring
+- **Manual Required**: Large reorganizations, multiple file moves, complex directory restructuring
+- **Mixed Approach**: Start with LSP, fall back to manual when timeouts occur
+
+### Best Practices
+- **Monitor Timeouts**: Watch for LSP timeout patterns
+- **Switch to Manual**: When timeouts persist, switch to manual approach
+- **Be Systematic**: Update all references methodically using search tools
+- **Test Frequently**: Run builds between changes to catch issues early
+
