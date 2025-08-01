@@ -1,3 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`<MUABundleRoute /> should render placeholder component when no bundle is found 1`] = `<div />`;

@@ -22,7 +22,9 @@ export interface FetchRolesParams {
   displayName?: string;
   nameMatch?: ListRolesNameMatchEnum;
   scope?: ListRolesScopeEnum;
-  orderBy?: ListRolesOrderByEnum;
+  // TODO: Fix this once @redhat-cloud-services/rbac-client library is fixed
+  // The ListRolesOrderByEnum is too restrictive and doesn't include all valid orderBy values
+  orderBy?: string; // was: ListRolesOrderByEnum;
   addFields?: Array<ListRolesAddFieldsEnum>;
   username?: string;
   application?: string;
@@ -42,7 +44,7 @@ export async function fetchRoles(params: FetchRolesParams): Promise<RolePaginati
     displayName as string,
     nameMatch || 'partial',
     scope || 'org_id',
-    orderBy as ListRolesOrderByEnum,
+    orderBy as ListRolesOrderByEnum, // Cast needed due to rbac-client library type issues
     addFields || ['groups_in_count'],
     username as string,
     application as string,
@@ -88,7 +90,7 @@ export async function fetchRolesWithPolicies(params: FetchRolesWithPoliciesParam
   } = params;
 
   // Convert string orderBy to enum
-  const orderByEnum = typeof orderBy === 'string' ? (orderBy as ListRolesOrderByEnum) : orderBy;
+  const orderByEnum = orderBy as ListRolesOrderByEnum; // Cast needed due to rbac-client library type issues
 
   const roles: RolePaginationDynamic = await roleApi.listRoles(
     limit as number,

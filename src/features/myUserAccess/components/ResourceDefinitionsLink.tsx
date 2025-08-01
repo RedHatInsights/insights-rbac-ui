@@ -1,14 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-
-interface ResourceDefinition {
-  attributeFilter?: {
-    value: string | string[] | null;
-    key?: string;
-    operation?: string;
-  };
-}
+import type { ResourceDefinition } from '../types';
 
 interface Access {
   resourceDefinitions: ResourceDefinition[];
@@ -19,7 +12,7 @@ interface ResourceDefinitionsLinkProps {
   access: Access;
 }
 
-const ResourceDefinitionsLink: React.FC<ResourceDefinitionsLinkProps> = ({ onClick, access }) => {
+export const ResourceDefinitionsLink: React.FC<ResourceDefinitionsLinkProps> = ({ onClick, access }) => {
   const intl = useIntl();
 
   return access.resourceDefinitions.length === 0 ? (
@@ -35,5 +28,3 @@ const ResourceDefinitionsLink: React.FC<ResourceDefinitionsLinkProps> = ({ onCli
     </a>
   );
 };
-
-export default ResourceDefinitionsLink;

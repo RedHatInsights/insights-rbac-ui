@@ -922,6 +922,227 @@ Consider adding these ESLint rules to catch `getBy*` usage in stories:
 - **Cleaner code**: Less `waitFor` boilerplate
 - **Better errors**: More descriptive failure messages
 
+### Handling Multiple Elements with Scoping
+
+When text appears in multiple places (bundle cards, table content, filter dropdowns), use scoping to target specific areas:
+
+#### ❌ WRONG: Global search finds multiple elements
+```typescript
+// Fails: "Found multiple elements with the text: advisor"
+expect(await canvas.findByText('advisor')).toBeInTheDocument();
+```
+
+#### ✅ CORRECT: Scope search to specific container
+```typescript
+// Target specific table content only
+const table = await canvas.findByRole('grid', { name: /permissions table/i });
+const tableContent = within(table);
+expect(await tableContent.findByText('advisor')).toBeInTheDocument();
+
+// Or target specific menu content only
+const menu = await canvas.findByRole('menu');
+const menuContent = within(menu);
+expect(await menuContent.findByText('advisor')).toBeInTheDocument();
+```
+
+#### Common Scoping Patterns
+```typescript
+// 1. Table content scoping
+const table = await canvas.findByRole('grid');
+expect(await within(table).findByText('data')).toBeInTheDocument();
+
+// 2. Modal content scoping
+const modal = screen.getByRole('dialog');
+expect(within(modal).getByText('title')).toBeInTheDocument();
+
+// 3. Bundle card scoping
+const bundleCard = await canvas.findByText('Red Hat Enterprise Linux').closest('.pf-v5-c-card');
+expect(within(bundleCard).getByText('advisor')).toBeInTheDocument();
+
+// 4. Dropdown menu scoping
+const menu = await canvas.findByRole('menu');
+expect(await within(menu).findByLabelText(/option/i)).toBeInTheDocument();
+```
+
+## Critical Storybook Testing Rules
+
+### NEVER Use getBy* in Play Functions
+**MANDATORY**: Always use `findBy*` instead of `getBy*` in Storybook play functions for better async handling.
+
+```typescript
+// ❌ NEVER do this in play functions
+const button = canvas.getByRole('button');
+const text = canvas.getByText('Hello');
+
+// ✅ ALWAYS use findBy* for async content
+const button = await canvas.findByRole('button');
+const text = await canvas.findByText('Hello');
+```
+
+## PatternFly Component Testing Patterns
+
+### PatternFly Table Role Requirements
+**CRITICAL**: PatternFly tables use `role="grid"`, not `role="table"`.
+
+#### Table Testing Patterns
+```typescript
+// ✅ PatternFly tables render with role="grid" - use findBy for async
+const table = await canvas.findByRole('grid'); // Correct for PatternFly tables
+
+// ❌ Don't use role="table" for PatternFly components
+const table = await canvas.findByRole('table'); // Wrong for PatternFly tables
+
+// ❌ NEVER use getBy* in play functions - always use findBy*
+const table = canvas.getByRole('grid'); // Wrong - use findBy instead
+
+// ✅ Fallback pattern for when unsure about table type
+const table = (await canvas.findByRole('grid').catch(() => null)) || 
+               (await canvas.findByRole('table'));
+```
+
+#### Expandable Row Testing Patterns
+**CRITICAL**: For testing expandable rows in PatternFly tables, scope queries to the nested content.
+
+```typescript
+// ✅ Testing expandable row content - scope to nested table
+export const ExpandedRowStory: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Click to expand a row (e.g., permissions count link)
+    const expandLink = await canvas.findByText('5'); // or findByRole('button', { name: /expand/i })
+    await userEvent.click(expandLink);
+    
+    // Scope queries to the nested content within the expanded row
+    const expandedRow = within(expandLink.closest('tbody').querySelector('table'));
+    
+    // Test nested table headers and content within the scoped area
+    expect(await expandedRow.findByText('Application')).toBeInTheDocument();
+    expect(await expandedRow.findByText('Resource type')).toBeInTheDocument();
+    expect(await expandedRow.findByText('Operation')).toBeInTheDocument();
+    
+    // Test data within the nested table only
+    expect(await expandedRow.findByText('advisor')).toBeInTheDocument();
+    expect(await expandedRow.findByText('compliance')).toBeInTheDocument();
+  },
+};
+
+// ❌ Don't search globally - may find text elsewhere in the DOM
+const text = await canvas.findByText('Application'); // Wrong - too broad
+
+// ✅ Always scope to the specific expanded content
+const expandedRow = within(triggerElement.closest('tbody').querySelector('table'));
+const text = await expandedRow.findByText('Application'); // Correct - scoped search
+```
+
+### Modal Testing Requirements
+**CRITICAL**: For modal testing, add a button to open the modal with a simple label.
+
+#### Modal Story Pattern
+```typescript
+export const ModalStory: Story = {
+  args: {
+    isOpen: false, // Start with modal closed
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    
+    // Add a simple button to open the modal
+    const openButton = canvas.getByRole('button', { name: 'Open Modal' });
+    await userEvent.click(openButton);
+    
+    // Modal renders to document.body via portal
+    const modal = screen.getByRole('dialog');
+    expect(modal).toBeInTheDocument();
+    
+    // Test modal content using within(modal)
+    expect(within(modal).getByText('Modal Title')).toBeInTheDocument();
+  },
+};
+```
+
+#### Modal Button Labels
+Keep button labels simple for easy testing:
+- ✅ "Open Modal", "Edit Item", "Delete User"
+- ❌ "Click here to open the advanced configuration modal dialog"
+
+### Filter Testing Patterns
+**CRITICAL**: For testing PatternFly filter components, use proper scoping and test real UI behavior.
+
+#### Filter Interaction Pattern
+```typescript
+export const FilterStory: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Step 1: Open filter dropdown by text content (not aria-label)
+    const filterButton = await canvas.findByText('Filter by application');
+    await userEvent.click(filterButton);
+    
+    await delay(200); // Give dropdown time to open
+    
+    // Step 2: Double scoping for complex interactions
+    const menu = await canvas.findByRole('menu');
+    const menuContent = within(menu);
+    
+    // Step 3: Target specific menuitem, then the checkbox within it
+    const advisorMenuItem = await menuContent.findByRole('menuitem', { name: /advisor/i });
+    const advisorCheckbox = within(advisorMenuItem).getByRole('checkbox');
+    await userEvent.click(advisorCheckbox);
+    
+    await delay(300); // Wait for API call
+    
+    // Step 4: Test REAL UI behavior, not assumptions
+    // ✅ Use length assertions when elements appear in multiple contexts
+    expect(await canvas.findAllByText('advisor')).toHaveLength(3); 
+    // 1. in the menu, 2. in the filter chips, 3. in the table
+    
+    // ✅ Other filter options remain in dropdown (don't disappear)
+    expect(canvas.queryByText('compliance')).toHaveLength(1);
+    expect(canvas.queryByText('vulnerability')).toHaveLength(1);
+  },
+};
+```
+
+#### Filter Testing Key Principles
+
+**Double Scoping Pattern**: For complex nested interactions
+```typescript
+// ✅ Scope to container, then to specific element
+const menu = await canvas.findByRole('menu');
+const menuContent = within(menu);
+const menuItem = await menuContent.findByRole('menuitem', { name: /option/i });
+const checkbox = within(menuItem).getByRole('checkbox');
+```
+
+**Real UI Behavior Testing**: Test what actually happens, not assumptions
+```typescript
+// ❌ Don't assume filtered options disappear completely
+expect(canvas.queryByText('compliance')).not.toBeInTheDocument(); // Wrong
+
+// ✅ Test actual behavior - options remain in filter dropdown
+expect(canvas.queryByText('compliance')).toHaveLength(1); // Correct
+```
+
+**Length Assertions**: When text appears in multiple UI contexts
+```typescript
+// ✅ When filtering, text may appear in: dropdown, filter chips, and results
+expect(await canvas.findAllByText('advisor')).toHaveLength(3);
+
+// ❌ Don't use simple presence/absence when there are multiple instances
+expect(await canvas.findByText('advisor')).toBeInTheDocument(); // Wrong - multiple elements
+```
+
+**OUIA vs TestId**: Different attributes require different selectors
+```typescript
+// ❌ Wrong - findByTestId looks for data-testid, not data-ouia-component-id
+const element = await canvas.findByTestId('Filter by application');
+
+// ✅ Correct approaches for OUIA components
+const element = await canvas.findByText('Filter by application');
+const element = await canvas.findByRole('menu');
+```
+
 ### Migration Checklist
 
 When updating existing stories:
@@ -929,17 +1150,10 @@ When updating existing stories:
 - [ ] Replace `canvas.getByText()` with `await canvas.findByText()`
 - [ ] Replace `canvas.getAllByText()` with `await canvas.findAllByText()`  
 - [ ] Replace `screen.getByRole()` with `await screen.findByRole()`
+- [ ] Replace `canvas.getByRole('table')` with `canvas.getByRole('grid')` for PatternFly tables
 - [ ] Add parentheses around `await` expressions before `.closest()`: `(await canvas.findByText()).closest()`
 - [ ] Remove redundant `waitFor()` wrappers around `findBy*` queries
 - [ ] Make `waitFor` callbacks `async` if they contain `await` expressions
 - [ ] Remove unused `waitFor` imports when no longer needed
 
-
-- [ ] Replace `canvas.getByText()` with `await canvas.findByText()`
-- [ ] Replace `canvas.getAllByText()` with `await canvas.findAllByText()`  
-- [ ] Replace `screen.getByRole()` with `await screen.findByRole()`
-- [ ] Add parentheses around `await` expressions before `.closest()`: `(await canvas.findByText()).closest()`
-- [ ] Remove redundant `waitFor()` wrappers around `findBy*` queries
-- [ ] Make `waitFor` callbacks `async` if they contain `await` expressions
-- [ ] Remove unused `waitFor` imports when no longer needed
 

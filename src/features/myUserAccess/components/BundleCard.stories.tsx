@@ -1,18 +1,25 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-webpack5';
 import { MemoryRouter } from 'react-router-dom';
-import MUACard from './MUACard';
+import { BundleCard } from './BundleCard';
 
-const meta: Meta<typeof MUACard> = {
-  component: MUACard,
+interface BundleCardProps {
+  header?: string;
+  entitlements?: Array<[string, any]>;
+  isDisabled?: boolean;
+  currentBundle: string;
+}
+
+const meta: Meta<BundleCardProps> = {
+  component: BundleCard,
   tags: ['autodocs'],
   parameters: {
     docs: {
       description: {
         component: `
-## MUACard Component
+## BundleCard Component
 
-The **MUACard** component is a **My User Access** card component that displays user entitlements and applications. It serves as a dashboard showing what applications and services a user has access to based on their entitlements.
+The **BundleCard** component is a **My User Access** card component that displays user entitlements and applications. It serves as a dashboard showing what applications and services a user has access to based on their entitlements.
 
 ### Visual Structure
 
@@ -53,6 +60,11 @@ This component is essentially a **dashboard of available applications** based on
   argTypes: {
     header: { control: 'text' },
     isDisabled: { control: 'boolean' },
+    currentBundle: {
+      control: 'select',
+      options: ['openshift', 'rhel', 'ansible', 'settings'],
+      description: 'Currently selected bundle (determines which card is highlighted)',
+    },
   },
   decorators: [
     (Story) => (
@@ -66,7 +78,7 @@ This component is essentially a **dashboard of available applications** based on
 };
 
 export default meta;
-type Story = StoryObj<typeof MUACard>;
+type Story = StoryObj<BundleCardProps>;
 
 // Sample entitlements data
 const sampleEntitlements: Array<[string, any]> = [
@@ -87,6 +99,7 @@ export const Default: Story = {
   args: {
     entitlements: sampleEntitlements,
     isDisabled: false,
+    currentBundle: 'rhel',
   },
   parameters: {
     docs: {
@@ -103,6 +116,7 @@ export const WithHeader: Story = {
     header: 'My Applications',
     entitlements: sampleEntitlements,
     isDisabled: false,
+    currentBundle: 'openshift',
   },
   parameters: {
     docs: {
@@ -118,6 +132,7 @@ export const Disabled: Story = {
     header: 'My Applications',
     entitlements: sampleEntitlements,
     isDisabled: true,
+    currentBundle: 'ansible',
   },
   parameters: {
     docs: {
@@ -134,6 +149,7 @@ export const LimitedEntitlements: Story = {
     header: 'Available Applications',
     entitlements: limitedEntitlements,
     isDisabled: false,
+    currentBundle: 'settings',
   },
   parameters: {
     docs: {
@@ -150,6 +166,7 @@ export const SingleEntitlement: Story = {
     header: 'OpenShift Applications',
     entitlements: singleEntitlement,
     isDisabled: false,
+    currentBundle: 'openshift',
   },
   parameters: {
     docs: {
@@ -165,6 +182,7 @@ export const NoEntitlements: Story = {
     header: 'My Applications',
     entitlements: [],
     isDisabled: false,
+    currentBundle: 'rhel',
   },
   parameters: {
     docs: {
@@ -179,6 +197,7 @@ export const WithoutHeader: Story = {
   args: {
     entitlements: sampleEntitlements,
     isDisabled: false,
+    currentBundle: 'settings',
   },
   parameters: {
     docs: {

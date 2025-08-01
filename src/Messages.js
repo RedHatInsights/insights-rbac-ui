@@ -2272,6 +2272,11 @@ export default defineMessages({
     description: 'Resources defined for permission message',
     defaultMessage: 'Resources defined for the permission',
   },
+  filterByApplication: {
+    id: 'filterByApplication',
+    description: 'Filter by application',
+    defaultMessage: 'Filter by application...',
+  },
   filterByResource: {
     id: 'filterByResource',
     description: 'Filter by resource label',

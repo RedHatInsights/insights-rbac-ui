@@ -45,6 +45,7 @@ const preview: Preview = {
   },
   loaders: [mswLoader],
   parameters: {
+    layout: 'fullscreen',
     parameters: {
       // Sets the delay (in milliseconds) at the component level for all stories.
       chromatic: { delay: 300 },
