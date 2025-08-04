@@ -1989,7 +1989,7 @@ export default defineMessages({
   systemRolesCantBeModified: {
     id: 'systemRolesCantBeModified',
     description: 'Tooltip message for disabled add permissions button on system roles',
-    defaultMessage: 'System roles can\'t be modified',
+    defaultMessage: 'System roles can not be modified',
   },
   selectPermissionsForRole: {
     id: 'selectPermissionsForRole',
