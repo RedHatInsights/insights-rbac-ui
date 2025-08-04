@@ -11,68 +11,66 @@ import { AppTabs } from '../../components/navigation/AppTabs';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { fetchGroup, fetchSystemGroup, removeGroups } from '../../redux/groups/actions';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 import { RbacBreadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { DefaultGroupChangedIcon } from './components/DefaultGroupChangedIcon';
 import { DefaultGroupRestore } from './components/DefaultGroupRestore';
 import { BAD_UUID } from '../../helpers/dataUtilities';
-import { getBackRoute } from '../../helpers/navigation';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../utilities/constants';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { useFlag } from '@unleash/proxy-client-react';
+import type { GroupState, OutletContext, RBACStore, TabItem } from './types';
 import './group.scss';
 
-const Group = () => {
+export const Group: React.FC = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const location = useLocation();
   const navigationType = useNavigationType();
   const chrome = useChrome();
-  const { groupId } = useParams();
+  const { groupId } = useParams<{ groupId: string }>();
   const isPlatformDefault = groupId === DEFAULT_ACCESS_GROUP_ID;
   const enableServiceAccounts =
     (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
     (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
-  const tabItems = [
-    { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId), to: 'roles' },
-    { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link.replace(':groupId', groupId), to: 'members' },
+  const tabItems: TabItem[] = [
+    { eventKey: 0, title: 'Roles', name: pathnames['group-detail-roles'].link.replace(':groupId', groupId || ''), to: 'roles' },
+    { eventKey: 1, title: 'Members', name: pathnames['group-detail-members'].link.replace(':groupId', groupId || ''), to: 'members' },
     ...(enableServiceAccounts
       ? [
           {
             eventKey: 2,
             title: 'Service accounts',
-            name: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId),
+            name: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId || ''),
             to: 'service-accounts',
           },
         ]
       : []),
   ];
 
-  const { pagination, filters, groupExists, systemGroupUuid } = useSelector(
-    ({ groupReducer: { groups, error, systemGroup } }) => ({
-      pagination: groups.pagination || groups.meta,
-      filters: groups.filters,
-      groupExists: error !== BAD_UUID,
-      systemGroupUuid: systemGroup?.uuid,
+  const { groupExists, systemGroupUuid } = useSelector(
+    ({ groupReducer }: RBACStore) => ({
+      groupExists: groupReducer?.error !== BAD_UUID,
+      systemGroupUuid: groupReducer?.systemGroup?.uuid,
     }),
     shallowEqual,
   );
 
   const { group, isGroupLoading } = useSelector(
-    ({ groupReducer: { selectedGroup, isRecordLoading } }) => ({
-      group: selectedGroup,
-      isGroupLoading: isRecordLoading,
+    ({ groupReducer }: RBACStore) => ({
+      group: groupReducer?.selectedGroup as GroupState | undefined,
+      isGroupLoading: groupReducer?.isRecordLoading || false,
     }),
     shallowEqual,
   );
 
-  const [isResetWarningVisible, setResetWarningVisible] = useState(false);
-  const [isDropdownOpen, setDropdownOpen] = useState(false);
-  const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState(false);
+  const [isResetWarningVisible, setResetWarningVisible] = useState<boolean>(false);
+  const [isDropdownOpen, setDropdownOpen] = useState<boolean>(false);
+  const [showDefaultGroupChangedInfo, setShowDefaultGroupChangedInfo] = useState<boolean>(false);
 
   useEffect(() => {
     dispatch(fetchSystemGroup({ chrome }));
@@ -81,16 +79,16 @@ const Group = () => {
       dispatch(fetchGroup(currId));
       chrome.appObjectId(currId);
     }
-    return () => chrome.appObjectId(undefined);
-  }, [groupId, systemGroupUuid]);
+    return () => chrome.appObjectId('');
+  }, [groupId, systemGroupUuid, dispatch, chrome, isPlatformDefault]);
 
   const breadcrumbsList = () => [
     {
       title: intl.formatMessage(messages.groups),
-      to: getBackRoute(mergeToBasename(pathnames.groups.link), pagination, filters),
+      to: pathnames.groups.link,
     },
     groupExists
-      ? { title: isGroupLoading ? undefined : group.name, isActive: true }
+      ? { title: isGroupLoading ? undefined : group?.name, isActive: true }
       : { title: intl.formatMessage(messages.invalidGroup), isActive: true },
   ];
 
@@ -101,7 +99,7 @@ const Group = () => {
           onClick={() => setDropdownOpen(false)}
           to={(location.pathname.includes('members') ? pathnames['group-members-edit-group'] : pathnames['group-roles-edit-group']).link.replace(
             ':groupId',
-            isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId,
+            isPlatformDefault ? DEFAULT_ACCESS_GROUP_ID : groupId || '',
           )}
         >
           {intl.formatMessage(messages.edit)}
@@ -114,7 +112,7 @@ const Group = () => {
         <AppLink
           to={(location.pathname.includes('members') ? pathnames['group-members-remove-group'] : pathnames['group-roles-remove-group']).link.replace(
             ':groupId',
-            groupId,
+            groupId || '',
           )}
         >
           {intl.formatMessage(messages.delete)}
@@ -125,6 +123,14 @@ const Group = () => {
     />,
   ];
 
+  const outletContext: OutletContext = {
+    [pathnames['group-detail-roles'].path]: {
+      onDefaultGroupChanged: setShowDefaultGroupChangedInfo,
+    },
+    groupId: groupId || '',
+    systemGroupUuid,
+  };
+
   return (
     <Fragment>
       {isResetWarningVisible && (
@@ -133,12 +139,12 @@ const Group = () => {
           title={intl.formatMessage(messages.restoreDefaultAccessQuestion)}
           confirmButtonLabel={intl.formatMessage(messages.continue)}
           onClose={() => setResetWarningVisible(false)}
-          onConfirm={() => {
-            dispatch(removeGroups([systemGroupUuid])).then(() =>
-              dispatch(fetchSystemGroup({ chrome })).then(() => {
-                setShowDefaultGroupChangedInfo(false);
-              }),
-            );
+          onConfirm={async () => {
+            if (systemGroupUuid) {
+              await dispatch(removeGroups([systemGroupUuid]));
+              await dispatch(fetchSystemGroup({ chrome }));
+              setShowDefaultGroupChangedInfo(false);
+            }
             setResetWarningVisible(false);
             navigate(pathnames['group-detail-roles'].link.replace(':groupId', DEFAULT_ACCESS_GROUP_ID));
           }}
@@ -146,7 +152,7 @@ const Group = () => {
           <FormattedMessage
             {...messages.restoreDefaultAccessDescription}
             values={{
-              b: (text) => <b>{text}</b>,
+              b: (text: React.ReactNode) => <b>{text}</b>,
             }}
           />
         </WarningModal>
@@ -165,13 +171,13 @@ const Group = () => {
                   description={(!isGroupLoading && group?.description) || undefined}
                 />
               </SplitItem>
-              {group.platform_default && !group.system ? (
+              {group?.platform_default && !group?.system ? (
                 <SplitItem>
                   <DefaultGroupRestore onRestore={() => setResetWarningVisible(true)} />
                 </SplitItem>
               ) : null}
               <SplitItem>
-                {group.platform_default || group.admin_default ? null : (
+                {group?.platform_default || group?.admin_default ? null : (
                   <Dropdown
                     ouiaId="group-title-actions-dropdown"
                     toggle={<KebabToggle onToggle={(_event, isOpen) => setDropdownOpen(isOpen)} id="group-actions-dropdown" />}
@@ -188,29 +194,21 @@ const Group = () => {
                 variant="info"
                 isInline
                 title={intl.formatMessage(messages.defaultAccessGroupChanged)}
-                action={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
+                actionClose={<AlertActionCloseButton onClose={() => setShowDefaultGroupChangedInfo(false)} />}
                 className="pf-v5-u-mb-lg pf-v5-u-mt-sm"
               >
                 <FormattedMessage
                   {...messages.defaultAccessGroupNameChanged}
                   values={{
-                    b: (text) => <b>{text}</b>,
+                    b: (text: React.ReactNode) => <b>{text}</b>,
                   }}
                 />
               </Alert>
             ) : null}
           </PageLayout>
           <AppTabs isHeader tabItems={tabItems} />
-          <Outlet
-            context={{
-              [pathnames['group-detail-roles'].path]: {
-                onDefaultGroupChanged: setShowDefaultGroupChangedInfo,
-              },
-              groupId, // used for redirect from /:groupId to /:groupId/roles
-              systemGroupUuid,
-            }}
-          />
-          {!group && <SkeletonTable numberOfColumns={1} />}
+          <Outlet context={outletContext} />
+          {!group && <SkeletonTable rows={5} />}
         </Fragment>
       ) : (
         <Fragment>
@@ -227,7 +225,7 @@ const Group = () => {
                 ouiaId="back-button"
                 variant="primary"
                 aria-label="Back to previous page"
-                onClick={() => navigate(navigationType !== 'POP' ? -1 : pathnames.groups.link)}
+                onClick={() => navigate(navigationType !== 'POP' ? '../' : pathnames.groups.link)}
               >
                 {intl.formatMessage(messages.backToPreviousPage)}
               </Button>,
@@ -238,5 +236,3 @@ const Group = () => {
     </Fragment>
   );
 };
-
-export default Group;
