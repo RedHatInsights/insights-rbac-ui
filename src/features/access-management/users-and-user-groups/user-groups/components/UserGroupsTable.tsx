@@ -7,21 +7,15 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { EllipsisVIcon, SearchIcon } from '@patternfly/react-icons';
+import { Pagination, Tooltip } from '@patternfly/react-core';
+import { EllipsisVIcon } from '@patternfly/react-icons';
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { UserGroupsEmptyState } from './UserGroupsEmptyState';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 
 import { Group } from '../../../../../redux/groups/reducer';
 import messages from '../../../../../Messages';
-
-const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <EmptyState>
-    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-    <EmptyStateBody>No user groups match the filter criteria. Remove all filters or clear all to show results.</EmptyStateBody>
-  </EmptyState>
-);
 
 // User group row actions component
 interface GroupRowActionsProps {
@@ -300,7 +294,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           headStates={{ loading: loadingHeader }}
           bodyStates={{
             loading: loadingBody,
-            empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />,
+            empty: <UserGroupsEmptyState colSpan={6} />,
           }}
         />
         <DataViewToolbar

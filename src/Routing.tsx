@@ -32,18 +32,20 @@ const EditResourceDefinitionsModal = lazy(() => import('./features/roles/edit-re
 const newRolesTable = lazy(() => import('./features/roles/RolesTable'));
 const newEditRole = lazy(() => import('./features/roles/edit-role/edit-role'));
 
-const Groups = lazy(() => import('./features/groups/groups'));
-const Group = lazy(() => import('./features/groups/group'));
-const AddGroupWizard = lazy(() => import('./features/groups/add-group/add-group-wizard'));
-const EditGroup = lazy(() => import('./features/groups/edit-group-modal'));
-const RemoveGroup = lazy(() => import('./features/groups/remove-group-modal'));
-const GroupMembers = lazy(() => import('./features/groups/member/group-members'));
-const GroupRoles = lazy(() => import('./features/groups/role/group-roles'));
-const GroupServiceAccounts = lazy(() => import('./features/groups/service-account/group-service-accounts'));
-const AddGroupRoles = lazy(() => import('./features/groups/role/add-group-roles'));
-const AddGroupMembers = lazy(() => import('./features/groups/member/add-group-members'));
-const AddGroupServiceAccounts = lazy(() => import('./features/groups/service-account/add-group-service-accounts'));
-const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/service-account/remove-group-service-accounts'));
+const Groups = lazy(() => import('./features/groups/Groups'));
+const Group = lazy(() => import('./features/groups/group/Group'));
+const AddGroupWizard = lazy(() => import('./features/groups/add-group/AddGroupWizard').then((module) => ({ default: module.AddGroupWizard })));
+const EditGroup = lazy(() => import('./features/groups/EditGroupModal').then((module) => ({ default: module.EditGroupModal })));
+const RemoveGroup = lazy(() => import('./features/groups/RemoveGroupModal').then((module) => ({ default: module.RemoveGroupModal })));
+const GroupMembers = lazy(() => import('./features/groups/group/members/GroupMembers'));
+const GroupRoles = lazy(() => import('./features/groups/group/role/GroupRoles').then((module) => ({ default: module.GroupRoles })));
+const GroupServiceAccounts = lazy(() =>
+  import('./features/groups/group/service-account/GroupServiceAccounts').then((module) => ({ default: module.GroupServiceAccounts })),
+);
+const AddGroupRoles = lazy(() => import('./features/groups/group/role/AddGroupRoles').then((module) => ({ default: module.AddGroupRoles })));
+const AddGroupMembers = lazy(() => import('./features/groups/group/member/AddGroupMembers').then((module) => ({ default: module.AddGroupMembers })));
+const AddGroupServiceAccounts = lazy(() => import('./features/groups/group/service-account/add-group-service-accounts'));
+const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/group/service-account/remove-group-service-accounts'));
 const QuickstartsTest = lazy(() => import('./features/quickstarts/QuickstartsTest'));
 
 const UsersAndUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/UsersAndUserGroups'));

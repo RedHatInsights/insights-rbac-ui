@@ -26,7 +26,6 @@ import { Group } from '../../../../redux/groups/reducer';
 import { fetchMembersForGroup, fetchRolesForGroup } from '../../../../redux/groups/actions';
 import { RBACStore } from '../../../../redux/store';
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
-import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 
@@ -144,7 +143,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       );
     }
 
-    const userRows = members.map((user: User) => ({
+    const userRows = members.map((user) => ({
       key: user.username,
       row: [user.username, user.first_name, user.last_name],
       props: {},
@@ -205,8 +204,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     }
 
     // Map roles to rows with conditional inheritance information
-    const roleRows = roles.map((role: RoleWithInheritance) => {
-      const baseRow: (string | React.ReactElement)[] = [role.display_name];
+    const roleRows = roles.map((role) => {
+      const baseRow: (string | React.ReactElement)[] = [role.display_name || role.name || ''];
 
       if (showInheritance) {
         // Use the group's inheritance info since roles inherit from the same workspace

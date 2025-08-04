@@ -61,7 +61,6 @@ exports[`EditResourceDefinitionsModal - Cost management should render edit resou
   </header>
   <div
     class="pf-v5-c-modal-box__body"
-    role="dialog"
   >
     <form
       class="pf-v5-c-form"
@@ -473,7 +472,6 @@ exports[`EditResourceDefinitionsModal - Inventory should render edit resource de
   </header>
   <div
     class="pf-v5-c-modal-box__body"
-    role="dialog"
   >
     <form
       class="pf-v5-c-form"

@@ -7,6 +7,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { HttpResponse, http } from 'msw';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
