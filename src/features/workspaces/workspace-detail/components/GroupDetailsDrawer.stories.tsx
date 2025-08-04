@@ -7,6 +7,7 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { HttpResponse, http } from 'msw';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
@@ -130,6 +131,73 @@ const meta: Meta<typeof GroupDetailsDrawer> = {
   decorators: [withProviders],
   parameters: {
     layout: 'fullscreen',
+    msw: {
+      handlers: [
+        // Handle group members (users) API calls
+        http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
+          const url = new URL(request.url);
+          const principalType = url.searchParams.get('principal_type');
+
+          if (principalType === 'user') {
+            // Return mock users data
+            return HttpResponse.json({
+              data: [
+                {
+                  username: 'john.doe',
+                  email: 'john.doe@example.com',
+                  first_name: 'John',
+                  last_name: 'Doe',
+                  is_active: true,
+                  is_org_admin: false,
+                },
+                {
+                  username: 'jane.smith',
+                  email: 'jane.smith@example.com',
+                  first_name: 'Jane',
+                  last_name: 'Smith',
+                  is_active: true,
+                  is_org_admin: true,
+                },
+              ],
+              meta: { count: 2, limit: 1000, offset: 0 },
+            });
+          }
+
+          // Default to service accounts (empty)
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 1000, offset: 0 },
+          });
+        }),
+
+        // Handle group roles API calls
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: [
+              {
+                uuid: 'role-1',
+                name: 'Administrator',
+                display_name: 'Administrator',
+                description: 'Full system administrator access',
+                system: false,
+                platform_default: false,
+                admin_default: false,
+              },
+              {
+                uuid: 'role-2',
+                name: 'user-manager',
+                display_name: 'User Manager',
+                description: 'Manage users and groups',
+                system: false,
+                platform_default: false,
+                admin_default: false,
+              },
+            ],
+            meta: { count: 2, limit: 1000, offset: 0 },
+          });
+        }),
+      ],
+    },
     docs: {
       description: {
         component: `
