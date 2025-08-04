@@ -23,9 +23,7 @@ interface AssetsCardsProps {
 
 const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName }: AssetsCardsProps) => {
   const InsightsIcon = '/apps/frontend-assets/console-landing/insights.svg';
-  const OpenShiftIcon = '/apps/frontend-assets/console-landing/openshift.svg';
   const InsightsNavURL = `/insights/inventory?workspace=${workspaceName}`;
-  const OpenShiftNavURL = `/openshift/?workspace=${workspaceName}`;
   const intl = useIntl();
   const AssetsCardsWidths = {
     md: '100px',
@@ -52,18 +50,6 @@ const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName 
               <CardFooter>
                 <Button variant="link" component="a" href={InsightsNavURL} icon={<ArrowRightIcon />} iconPosition="end" isInline>
                   {intl.formatMessage(Messages.assetManagementInsightsNav)}
-                </Button>
-              </CardFooter>
-            </Card>
-            <Card>
-              <CardHeader>
-                <Brand src={OpenShiftIcon} alt="OpenShift logo" widths={AssetsCardsIconWidths} />
-              </CardHeader>
-              <CardTitle>{intl.formatMessage(Messages.assetManagementOpenShift)}</CardTitle>
-              <CardBody>{intl.formatMessage(Messages.assetManagementOpenShiftOverview)}</CardBody>
-              <CardFooter>
-                <Button variant="link" component="a" href={OpenShiftNavURL} icon={<ArrowRightIcon />} iconPosition="end" isInline>
-                  {intl.formatMessage(Messages.assetManagementOpenShiftNav)}
                 </Button>
               </CardFooter>
             </Card>
