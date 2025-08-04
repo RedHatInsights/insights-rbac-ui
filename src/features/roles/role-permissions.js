@@ -1,7 +1,7 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
 import { cellWidth, info } from '@patternfly/react-table';
-import { Button, ButtonVariant } from '@patternfly/react-core';
+import { Button, ButtonVariant, Tooltip } from '@patternfly/react-core';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
@@ -157,47 +157,56 @@ const Permissions = ({ cantAddPermissions, isLoading }) => {
     },
   ];
 
-  const toolbarButtons = () =>
-    cantAddPermissions
-      ? []
-      : [
-          <AppLink to={pathnames['role-add-permission'].link.replace(':roleId', role.uuid)} key="role-add-permission" className="rbac-m-hide-on-sm">
-            <Button variant="primary" aria-label="Add Permission">
-              {intl.formatMessage(messages.addPermissions)}
-            </Button>
-          </AppLink>,
-          {
-            label: intl.formatMessage(messages.addPermission),
-            props: {
-              className: 'rbac-m-hide-on-md',
-            },
-            onClick: () => {
-              navigate(pathnames['role-add-permission'].link.replace(':roleId', role.uuid));
-            },
+  const toolbarButtons = () => [
+    cantAddPermissions ? (
+      <Tooltip content={intl.formatMessage(messages.systemRolesCantBeModified)} key="role-add-permission">
+        <Button variant="primary" aria-label="Add Permission" isAriaDisabled={true} className="rbac-m-hide-on-sm">
+          {intl.formatMessage(messages.addPermissions)}
+        </Button>
+      </Tooltip>
+    ) : (
+      <AppLink to={pathnames['role-add-permission'].link.replace(':roleId', role.uuid)} key="role-add-permission" className="rbac-m-hide-on-sm">
+        <Button variant="primary" aria-label="Add Permission">
+          {intl.formatMessage(messages.addPermissions)}
+        </Button>
+      </AppLink>
+    ),
+    {
+      label: intl.formatMessage(messages.addPermission),
+      props: {
+        className: 'rbac-m-hide-on-md',
+        isDisabled: cantAddPermissions,
+        ...(cantAddPermissions && { tooltip: intl.formatMessage(messages.systemRolesCantBeModified) }),
+      },
+      onClick: cantAddPermissions
+        ? undefined
+        : () => {
+            navigate(pathnames['role-add-permission'].link.replace(':roleId', role.uuid));
           },
-          {
-            label: intl.formatMessage(messages.remove),
-            props: {
-              isDisabled: !selectedPermissions.length > 0,
-            },
-            onClick: () => {
-              const multiplePermissionsSelected = selectedPermissions.length > 1;
-              internalDispatch({
-                type: INITIATE_REMOVE_PERMISSION,
-                confirmDelete: () => removePermissions([...selectedPermissions]),
-                deleteInfo: {
-                  title: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
-                  text: removeModalText(
-                    multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
-                    role,
-                    selectedPermissions.length > 1,
-                  ),
-                  confirmButtonLabel: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
-                },
-              });
-            },
+    },
+    {
+      label: intl.formatMessage(messages.remove),
+      props: {
+        isDisabled: !selectedPermissions.length > 0,
+      },
+      onClick: () => {
+        const multiplePermissionsSelected = selectedPermissions.length > 1;
+        internalDispatch({
+          type: INITIATE_REMOVE_PERMISSION,
+          confirmDelete: () => removePermissions([...selectedPermissions]),
+          deleteInfo: {
+            title: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissionsQuestion : messages.removePermissionQuestion),
+            text: removeModalText(
+              multiplePermissionsSelected ? selectedPermissions.length : selectedPermissions[0].uuid,
+              role,
+              selectedPermissions.length > 1,
+            ),
+            confirmButtonLabel: intl.formatMessage(multiplePermissionsSelected ? messages.removePermissions : messages.removePermission),
           },
-        ];
+        });
+      },
+    },
+  ];
 
   const calculateSelected = (filter) =>
     filter.reduce(
