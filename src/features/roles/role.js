@@ -16,6 +16,7 @@ import { BAD_UUID } from '../../helpers/dataUtilities';
 import { getBackRoute } from '../../helpers/navigation';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import { defaultSettings } from '../../helpers/pagination';
+import useUserData from '../../hooks/useUserData';
 import Permissions from './role-permissions';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 import { RbacBreadcrumbs } from '../../components/navigation/Breadcrumbs';
@@ -32,6 +33,7 @@ const Role = ({ onDelete }) => {
   const [isDropdownOpen, setDropdownOpen] = useState(false);
   const [isNonPermissionAddingRole, setIsNonPermissionAddingRole] = useState(false);
   const { roleId, groupId } = useParams();
+  const { orgAdmin, userAccessAdministrator } = useUserData();
   const { role, group, isLoading, rolesPagination, rolesFilters, groupsPagination, groupsFilters, systemGroupUuid } = useSelector(
     (state) => ({
       role: state.roleReducer.selectedRole,
@@ -85,10 +87,18 @@ const Role = ({ onDelete }) => {
   }, [roleId, groupId, systemGroupUuid]);
 
   useEffect(() => {
-    if (role?.accessCount === 0 && role?.external_tenant !== '' && role?.external_role_id !== '' && role?.system) {
+    // Disable for system roles
+    const isSystemRole = role?.system;
+
+    // Disable for preconfigured roles when user is Org Admin or User Access Admin
+    const isPreconfiguredRoleForAdmin = (orgAdmin || userAccessAdministrator) && (role?.platform_default || role?.admin_default);
+
+    if (isSystemRole || isPreconfiguredRoleForAdmin) {
       setIsNonPermissionAddingRole(true);
+    } else {
+      setIsNonPermissionAddingRole(false);
     }
-  }, [role]);
+  }, [role, orgAdmin, userAccessAdministrator]);
 
   const breadcrumbsList = () => [
     groupId
