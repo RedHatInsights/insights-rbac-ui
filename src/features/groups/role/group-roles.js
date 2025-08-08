@@ -74,14 +74,14 @@ const addRoleButton = (isDisabled, ouiaId, customTooltipText) => {
 };
 
 const reducer = ({ groupReducer: { selectedGroup, systemGroup, groups } }) => ({
-  roles: selectedGroup.roles?.data || [],
-  pagination: { ...defaultSettings, ...(selectedGroup.roles?.meta || {}) },
+  roles: selectedGroup?.roles?.data || [],
+  pagination: { ...defaultSettings, ...(selectedGroup?.roles?.meta || {}) },
   groupsPagination: groups.pagination || groups.meta,
   groupsFilters: groups.filters,
-  isLoading: selectedGroup.roles?.isLoading,
-  isPlatformDefault: selectedGroup.platform_default,
-  isAdminDefault: selectedGroup.admin_default,
-  isChanged: !selectedGroup.system,
+  isLoading: selectedGroup?.roles?.isLoading,
+  isPlatformDefault: selectedGroup?.platform_default,
+  isAdminDefault: selectedGroup?.admin_default,
+  isChanged: !selectedGroup?.system,
   disableAddRoles:
     /**
      * First validate if the pagination object exists and is not empty.
