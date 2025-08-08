@@ -190,7 +190,7 @@ const Roles = () => {
   const removingAllRows = pagination.count === removeRolesList.length;
 
   // Show NotAuthorized component for users without proper permissions
-  if (!orgAdmin && !userAccessAdministrator) {
+  if (!orgAdmin || !userAccessAdministrator) {
     return (
       <NotAuthorized
         serviceName="User Access Administration"
