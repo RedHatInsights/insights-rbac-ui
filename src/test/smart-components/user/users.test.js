@@ -11,12 +11,17 @@ import notificationsMiddleware from '@redhat-cloud-services/frontend-components-
 import { usersInitialState } from '../../../redux/users/reducer';
 import * as UserHelper from '../../../redux/users/helper';
 import { defaultSettings } from '../../../helpers/pagination';
+import PermissionsContext from '../../../utilities/permissionsContext';
 
 describe('<Users />', () => {
   let enhanceState;
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
+  const adminPermissions = {
+    orgAdmin: true,
+    userAccessAdministrator: false,
+  };
 
   const fetchUsersSpy = jest.spyOn(UserHelper, 'fetchUsers');
 
@@ -47,11 +52,13 @@ describe('<Users />', () => {
     const store = mockStore(initialState);
     render(
       <Provider store={store}>
-        <Router initialEntries={['/users']}>
-          <Routes>
-            <Route path="/users/*" element={<Users />} />
-          </Routes>
-        </Router>
+        <PermissionsContext.Provider value={adminPermissions}>
+          <Router initialEntries={['/users']}>
+            <Routes>
+              <Route path="/users/*" element={<Users />} />
+            </Routes>
+          </Router>
+        </PermissionsContext.Provider>
       </Provider>,
     );
     expect(screen.getAllByText('Username')).toHaveLength(2);
@@ -71,12 +78,13 @@ describe('<Users />', () => {
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     render(
       <Provider store={store}>
-        <Router initialEntries={['/users']}>
-          <Routes>
-            <Route path="/users/*" element={<Users />} />
-          </Routes>
-        </Router>
-        ,
+        <PermissionsContext.Provider value={adminPermissions}>
+          <Router initialEntries={['/users']}>
+            <Routes>
+              <Route path="/users/*" element={<Users />} />
+            </Routes>
+          </Router>
+        </PermissionsContext.Provider>
       </Provider>,
     );
     const expectedPayload = [{ type: 'FETCH_USERS_PENDING' }];
@@ -102,11 +110,13 @@ describe('<Users />', () => {
     await act(async () => {
       render(
         <Provider store={store}>
-          <Router initialEntries={['/users']}>
-            <Routes>
-              <Route path="/users/*" element={<Users />} />
-            </Routes>
-          </Router>
+          <PermissionsContext.Provider value={adminPermissions}>
+            <Router initialEntries={['/users']}>
+              <Routes>
+                <Route path="/users/*" element={<Users />} />
+              </Routes>
+            </Router>
+          </PermissionsContext.Provider>
         </Provider>,
       );
     });
@@ -138,11 +148,13 @@ describe('<Users />', () => {
     fetchUsersSpy.mockImplementationOnce(() => Promise.resolve({ type: 'foo', payload: Promise.resolve({}) }));
     await render(
       <Provider store={store}>
-        <Router initialEntries={['/users']}>
-          <Routes>
-            <Route path="/users/*" element={<Users />} />
-          </Routes>
-        </Router>
+        <PermissionsContext.Provider value={adminPermissions}>
+          <Router initialEntries={['/users']}>
+            <Routes>
+              <Route path="/users/*" element={<Users />} />
+            </Routes>
+          </Router>
+        </PermissionsContext.Provider>
       </Provider>,
     );
     const target = screen.getByRole('textbox');

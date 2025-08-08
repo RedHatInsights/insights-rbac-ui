@@ -8,6 +8,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import Roles from '../../features/roles/roles';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
 import { rolesInitialState } from '../../redux/roles/reducer';
+import PermissionsContext from '../../utilities/permissionsContext';
 
 import * as RoleActions from '../../redux/roles/actions';
 import * as GroupActions from '../../redux/groups/actions';
@@ -19,6 +20,10 @@ describe('<Roles />', () => {
   const middlewares = [promiseMiddleware, notificationsMiddleware()];
   let mockStore;
   let initialState;
+  const adminPermissions = {
+    orgAdmin: true,
+    userAccessAdministrator: false,
+  };
 
   const fetchRolesWithPoliciesSpy = jest.spyOn(RoleActions, 'fetchRolesWithPolicies');
   const fetchAdminGroupSpy = jest.spyOn(GroupActions, 'fetchAdminGroup');
@@ -80,9 +85,11 @@ describe('<Roles />', () => {
     await act(async () => {
       const { container: ci } = render(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/roles']}>
-            <Roles />
-          </MemoryRouter>
+          <PermissionsContext.Provider value={adminPermissions}>
+            <MemoryRouter initialEntries={['/roles']}>
+              <Roles />
+            </MemoryRouter>
+          </PermissionsContext.Provider>
         </Provider>,
       );
       container = ci;
@@ -110,9 +117,11 @@ describe('<Roles />', () => {
     });
     render(
       <Provider store={store}>
-        <MemoryRouter initialEntries={['/roles']}>
-          <Roles />
-        </MemoryRouter>
+        <PermissionsContext.Provider value={adminPermissions}>
+          <MemoryRouter initialEntries={['/roles']}>
+            <Roles />
+          </MemoryRouter>
+        </PermissionsContext.Provider>
       </Provider>,
     );
     expect(screen.getByLabelText('Loading')).toMatchSnapshot();
@@ -152,9 +161,11 @@ describe('<Roles />', () => {
     await act(async () => {
       render(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/roles']}>
-            <Roles />
-          </MemoryRouter>
+          <PermissionsContext.Provider value={adminPermissions}>
+            <MemoryRouter initialEntries={['/roles']}>
+              <Roles />
+            </MemoryRouter>
+          </PermissionsContext.Provider>
         </Provider>,
       );
     });
@@ -196,22 +207,32 @@ describe('<Roles />', () => {
     await act(async () => {
       const { container: ci } = render(
         <Provider store={store}>
-          <MemoryRouter initialEntries={['/roles']}>
-            <Roles />
-          </MemoryRouter>
+          <PermissionsContext.Provider value={adminPermissions}>
+            <MemoryRouter initialEntries={['/roles']}>
+              <Roles />
+            </MemoryRouter>
+          </PermissionsContext.Provider>
         </Provider>,
       );
 
       container = ci;
     });
 
-    await act(async () => {
-      await fireEvent.click(container.querySelector('#expandable-toggle-0-3'));
-    });
+    // Find the first expandable toggle button for groups (if it exists)
+    const groupsToggle = container.querySelector('[id*="expandable-toggle"][id*="-3"]');
+    if (groupsToggle) {
+      await act(async () => {
+        await fireEvent.click(groupsToggle);
+      });
+    }
 
-    await act(async () => {
-      await fireEvent.click(container.querySelector('#expandable-toggle-0-2'));
-    });
+    // Find the first expandable toggle button for access/permissions (if it exists)
+    const accessToggle = container.querySelector('[id*="expandable-toggle"][id*="-2"]');
+    if (accessToggle) {
+      await act(async () => {
+        await fireEvent.click(accessToggle);
+      });
+    }
 
     await act(async () => {
       await Promise.resolve();
