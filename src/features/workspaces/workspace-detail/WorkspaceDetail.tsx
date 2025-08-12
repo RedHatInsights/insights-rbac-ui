@@ -13,6 +13,7 @@ import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { mappedProps } from '../../../helpers/dataUtilities';
+import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
 
 interface WorkspaceData {
   name: string;
@@ -24,12 +25,18 @@ const WORKSPACE_TABS = {
   assets: 1,
 } as const;
 
+const ROLE_ASSIGNMENT_TABS = {
+  'roles-assigned-in-workspace': 0,
+  'roles-assigned-outside': 1,
+} as const;
+
 export const WorkspaceDetail = () => {
   const intl = useIntl();
   const { workspaceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
   const enableRoles = useFlag('platform.rbac.workspaces-role-bindings');
   const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
+  const activeRoleAssignmentTabString = searchParams.get('roleAssignmentTab') || 'roles-assigned-in-workspace';
 
   const rolesRef = React.createRef<HTMLElement>();
   const assetsRef = React.createRef<HTMLElement>();
@@ -48,18 +55,33 @@ export const WorkspaceDetail = () => {
   const [groupsPage, setGroupsPage] = useState(1);
   const [groupsPerPage, setGroupsPerPage] = useState(20);
 
+  // Groups sorting and filtering state
+  const [groupsSortBy, setGroupsSortBy] = useState('name');
+  const [groupsDirection, setGroupsDirection] = useState<'asc' | 'desc'>('asc');
+  const [groupsFilters, setGroupsFilters] = useState<{ name: string }>({ name: '' });
+
   // Groups data fetching
   const fetchGroupsData = useCallback(
-    (page: number, perPage: number) => {
+    (page: number, perPage: number, sortBy?: string, direction?: 'asc' | 'desc', filters?: { name: string }) => {
       const offset = (page - 1) * perPage;
+      const orderBy = sortBy && direction ? `${direction === 'desc' ? '-' : ''}${sortBy}` : 'name';
+      const nameFilter = filters?.name?.trim() || '';
+
       dispatch(
         fetchGroups({
           ...mappedProps({
             count: groupsTotalCount || 0,
             limit: perPage,
             offset,
-            orderBy: 'name' as any,
+            orderBy: orderBy as ListGroupsOrderByEnum,
           }),
+          // Pass filter parameters correctly according to the API
+          ...(nameFilter
+            ? {
+                filters: { name: nameFilter },
+                nameMatch: 'partial' as const, // Enable partial matching for the filter
+              }
+            : {}),
           usesMetaInURL: true,
           system: false,
         }),
@@ -70,13 +92,29 @@ export const WorkspaceDetail = () => {
 
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
-      fetchGroupsData(groupsPage, groupsPerPage);
+      fetchGroupsData(groupsPage, groupsPerPage, groupsSortBy, groupsDirection, groupsFilters);
     }
-  }, [fetchGroupsData, groupsPage, groupsPerPage, activeTabString, enableRoles]);
+  }, [fetchGroupsData, groupsPage, groupsPerPage, groupsSortBy, groupsDirection, groupsFilters, activeTabString, enableRoles]);
 
   const handleGroupsPaginationChange = useCallback((page: number, perPage: number) => {
     setGroupsPage(page);
     setGroupsPerPage(perPage);
+  }, []);
+
+  const handleGroupsSort = useCallback((_event: React.MouseEvent | React.KeyboardEvent, key: string, direction: 'asc' | 'desc') => {
+    setGroupsSortBy(key);
+    setGroupsDirection(direction);
+    setGroupsPage(1); // Reset to first page when sorting
+  }, []);
+
+  const handleGroupsSetFilters = useCallback((newFilters: Partial<{ name: string }>) => {
+    setGroupsFilters((prev) => ({ ...prev, ...newFilters }));
+    setGroupsPage(1); // Reset to first page when filtering
+  }, []);
+
+  const handleGroupsClearAllFilters = useCallback(() => {
+    setGroupsFilters({ name: '' });
+    setGroupsPage(1); // Reset to first page when clearing filters
   }, []);
 
   useEffect(() => {
@@ -123,6 +161,17 @@ export const WorkspaceDetail = () => {
     }
   };
 
+  const handleRoleAssignmentTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
+    const selectedTabKey = Object.keys(ROLE_ASSIGNMENT_TABS).find(
+      (tab): tab is keyof typeof ROLE_ASSIGNMENT_TABS => ROLE_ASSIGNMENT_TABS[tab as keyof typeof ROLE_ASSIGNMENT_TABS] === key,
+    );
+    if (selectedTabKey && selectedTabKey !== activeRoleAssignmentTabString) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('roleAssignmentTab', selectedTabKey);
+      setSearchParams(newParams);
+    }
+  };
+
   return (
     <>
       <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
@@ -156,14 +205,47 @@ export const WorkspaceDetail = () => {
           <AssetsCards workspaceName={selectedWorkspace?.name} />
         ) : (
           enableRoles && (
-            <RoleAssignmentsTable
-              groups={groups}
-              totalCount={groupsTotalCount}
-              isLoading={groupsIsLoading}
-              page={groupsPage}
-              perPage={groupsPerPage}
-              onPaginationChange={handleGroupsPaginationChange}
-            />
+            <>
+              <div className="pf-v5-u-background-color-100">
+                <Tabs
+                  activeKey={ROLE_ASSIGNMENT_TABS[activeRoleAssignmentTabString as keyof typeof ROLE_ASSIGNMENT_TABS]}
+                  onSelect={handleRoleAssignmentTabSelect}
+                  inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
+                  className="pf-v5-u-background-color-100"
+                >
+                  <Tab
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
+                    title="Roles assigned in this Workspace"
+                    tabContentId="rolesAssignedInWorkspaceTab"
+                  />
+                  <Tab
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-outside']}
+                    title="Roles assigned outside"
+                    tabContentId="rolesAssignedOutsideTab"
+                  />
+                </Tabs>
+                <div className="pf-v5-u-background-color-100">
+                  {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
+                    <RoleAssignmentsTable
+                      groups={groups}
+                      totalCount={groupsTotalCount}
+                      isLoading={groupsIsLoading}
+                      page={groupsPage}
+                      perPage={groupsPerPage}
+                      onPaginationChange={handleGroupsPaginationChange}
+                      sortBy={groupsSortBy}
+                      direction={groupsDirection}
+                      onSort={handleGroupsSort}
+                      filters={groupsFilters}
+                      onSetFilters={handleGroupsSetFilters}
+                      clearAllFilters={handleGroupsClearAllFilters}
+                    />
+                  ) : (
+                    <div className="pf-v5-u-background-color-100 pf-v5-u-p-lg pf-v5-u-text-align-center">Roles assigned outside - Coming soon</div>
+                  )}
+                </div>
+              </div>
+            </>
           )
         )}
       </PageSection>
