@@ -2798,4 +2798,24 @@ export default defineMessages({
     description: 'save changes button label',
     defaultMessage: 'Save changes',
   },
+  unableToLoadUsers: {
+    id: 'unableToLoadUsers',
+    description: 'Unable to load users error title',
+    defaultMessage: 'Unable to load users',
+  },
+  unableToLoadRoles: {
+    id: 'unableToLoadRoles',
+    description: 'Unable to load roles error title',
+    defaultMessage: 'Unable to load roles',
+  },
+  groupNoUsersAssigned: {
+    id: 'groupNoUsersAssigned',
+    description: 'Message when group has no users assigned',
+    defaultMessage: 'This group currently has no users assigned to it.',
+  },
+  groupNoRolesAssigned: {
+    id: 'groupNoRolesAssigned',
+    description: 'Message when group has no roles assigned',
+    defaultMessage: 'This group currently has no roles assigned to it.',
+  },
 });
