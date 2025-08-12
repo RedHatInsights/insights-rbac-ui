@@ -2798,4 +2798,14 @@ export default defineMessages({
     description: 'save changes button label',
     defaultMessage: 'Save changes',
   },
+  unableToLoadUsers: {
+    id: 'unableToLoadUsers',
+    description: 'Unable to load users error title',
+    defaultMessage: 'Unable to load users',
+  },
+  unableToLoadRoles: {
+    id: 'unableToLoadRoles',
+    description: 'Unable to load roles error title',
+    defaultMessage: 'Unable to load roles',
+  },
 });

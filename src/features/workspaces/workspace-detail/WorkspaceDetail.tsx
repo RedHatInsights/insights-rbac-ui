@@ -6,6 +6,7 @@ import { fetchGroups } from '../../../redux/groups/actions';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { RBACStore } from '../../../redux/store';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
@@ -18,6 +19,10 @@ import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGr
 interface WorkspaceData {
   name: string;
   id: string;
+}
+
+interface RoleAssignmentsFilters {
+  name: string;
 }
 
 const WORKSPACE_TABS = {
@@ -51,71 +56,60 @@ export const WorkspaceDetail = () => {
 
   const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
 
-  // Groups pagination state
-  const [groupsPage, setGroupsPage] = useState(1);
-  const [groupsPerPage, setGroupsPerPage] = useState(20);
+  // DataView hooks for role assignments table
+  const { sortBy, direction, onSort } = useDataViewSort({
+    initialSort: {
+      sortBy: 'name',
+      direction: 'asc' as const,
+    },
+    searchParams,
+    setSearchParams,
+  });
 
-  // Groups sorting and filtering state
-  const [groupsSortBy, setGroupsSortBy] = useState('name');
-  const [groupsDirection, setGroupsDirection] = useState<'asc' | 'desc'>('asc');
-  const [groupsFilters, setGroupsFilters] = useState<{ name: string }>({ name: '' });
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleAssignmentsFilters>({
+    initialFilters: { name: '' },
+    searchParams,
+    setSearchParams,
+  });
+
+  const { page, perPage, onSetPage, onPerPageSelect } = useDataViewPagination({
+    perPage: 20,
+    searchParams,
+    setSearchParams,
+  });
 
   // Groups data fetching
-  const fetchGroupsData = useCallback(
-    (page: number, perPage: number, sortBy?: string, direction?: 'asc' | 'desc', filters?: { name: string }) => {
-      const offset = (page - 1) * perPage;
-      const orderBy = sortBy && direction ? `${direction === 'desc' ? '-' : ''}${sortBy}` : 'name';
-      const nameFilter = filters?.name?.trim() || '';
+  const fetchGroupsData = useCallback(() => {
+    const offset = (page - 1) * perPage;
+    const orderBy = sortBy && direction ? `${direction === 'desc' ? '-' : ''}${sortBy}` : 'name';
+    const nameFilter = filters?.name?.trim() || '';
 
-      dispatch(
-        fetchGroups({
-          ...mappedProps({
-            count: groupsTotalCount || 0,
-            limit: perPage,
-            offset,
-            orderBy: orderBy as ListGroupsOrderByEnum,
-          }),
-          // Pass filter parameters correctly according to the API
-          ...(nameFilter
-            ? {
-                filters: { name: nameFilter },
-                nameMatch: 'partial' as const, // Enable partial matching for the filter
-              }
-            : {}),
-          usesMetaInURL: true,
-          system: false,
+    dispatch(
+      fetchGroups({
+        ...mappedProps({
+          count: groupsTotalCount || 0,
+          limit: perPage,
+          offset,
+          orderBy: orderBy as ListGroupsOrderByEnum,
         }),
-      );
-    },
-    [dispatch, groupsTotalCount],
-  );
+        // Pass filter parameters correctly according to the API
+        ...(nameFilter
+          ? {
+              filters: { name: nameFilter },
+              nameMatch: 'partial' as const, // Enable partial matching for the filter
+            }
+          : {}),
+        usesMetaInURL: true,
+        system: false,
+      }),
+    );
+  }, [dispatch, groupsTotalCount, page, perPage, sortBy, direction, filters]);
 
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
-      fetchGroupsData(groupsPage, groupsPerPage, groupsSortBy, groupsDirection, groupsFilters);
+      fetchGroupsData();
     }
-  }, [fetchGroupsData, groupsPage, groupsPerPage, groupsSortBy, groupsDirection, groupsFilters, activeTabString, enableRoles]);
-
-  const handleGroupsPaginationChange = useCallback((page: number, perPage: number) => {
-    setGroupsPage(page);
-    setGroupsPerPage(perPage);
-  }, []);
-
-  const handleGroupsSort = useCallback((_event: React.MouseEvent | React.KeyboardEvent, key: string, direction: 'asc' | 'desc') => {
-    setGroupsSortBy(key);
-    setGroupsDirection(direction);
-    setGroupsPage(1); // Reset to first page when sorting
-  }, []);
-
-  const handleGroupsSetFilters = useCallback((newFilters: Partial<{ name: string }>) => {
-    setGroupsFilters((prev) => ({ ...prev, ...newFilters }));
-    setGroupsPage(1); // Reset to first page when filtering
-  }, []);
-
-  const handleGroupsClearAllFilters = useCallback(() => {
-    setGroupsFilters({ name: '' });
-    setGroupsPage(1); // Reset to first page when clearing filters
-  }, []);
+  }, [fetchGroupsData, activeTabString, enableRoles]);
 
   useEffect(() => {
     if (!searchParams.has('activeTab') || (!enableRoles && activeTabString !== 'assets')) {
@@ -230,15 +224,16 @@ export const WorkspaceDetail = () => {
                       groups={groups}
                       totalCount={groupsTotalCount}
                       isLoading={groupsIsLoading}
-                      page={groupsPage}
-                      perPage={groupsPerPage}
-                      onPaginationChange={handleGroupsPaginationChange}
-                      sortBy={groupsSortBy}
-                      direction={groupsDirection}
-                      onSort={handleGroupsSort}
-                      filters={groupsFilters}
-                      onSetFilters={handleGroupsSetFilters}
-                      clearAllFilters={handleGroupsClearAllFilters}
+                      page={page}
+                      perPage={perPage}
+                      onSetPage={onSetPage}
+                      onPerPageSelect={onPerPageSelect}
+                      sortBy={sortBy}
+                      direction={direction}
+                      onSort={onSort}
+                      filters={filters}
+                      onSetFilters={onSetFilters}
+                      clearAllFilters={clearAllFilters}
                     />
                   ) : (
                     <div className="pf-v5-u-background-color-100 pf-v5-u-p-lg pf-v5-u-text-align-center">Roles assigned outside - Coming soon</div>

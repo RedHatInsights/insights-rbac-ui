@@ -54,7 +54,8 @@ interface RoleAssignmentsTableProps {
   isLoading: boolean;
   page: number;
   perPage: number;
-  onPaginationChange: (page: number, perPage: number) => void;
+  onSetPage: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, page: number) => void;
+  onPerPageSelect: (event: React.MouseEvent | React.KeyboardEvent | MouseEvent, perPage: number) => void;
 
   // Sorting props
   sortBy?: string;
@@ -76,7 +77,8 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   isLoading,
   page,
   perPage,
-  onPaginationChange,
+  onSetPage,
+  onPerPageSelect,
   sortBy = 'name',
   direction = 'asc',
   onSort,
@@ -121,21 +123,6 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
     return baseColumns.map((col, index) => ({ ...col, index }));
   }, [intl]);
 
-  // Handle pagination
-  const onSetPage = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, page: number) => {
-      onPaginationChange(page, perPage);
-    },
-    [onPaginationChange, perPage],
-  );
-
-  const onPerPageSelect = useCallback(
-    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, perPage: number) => {
-      onPaginationChange(1, perPage);
-    },
-    [onPaginationChange],
-  );
-
   // Drawer handlers
   const onRowClick = useCallback((group: Group | undefined) => {
     setFocusedGroup(group);
@@ -158,8 +145,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
 
   // Calculate sortable columns
   const sortByIndex = useMemo(() => {
-    const columnIndex = columns.findIndex((column) => column.key === sortBy);
-    return columnIndex;
+    return columns.findIndex((column) => column.key === sortBy);
   }, [sortBy, columns]);
 
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
@@ -250,7 +236,11 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       return (
         <div className="pf-v5-u-pt-md">
           <EmptyState variant="sm">
-            <EmptyStateHeader titleText="No users found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
+            <EmptyStateHeader
+              titleText={intl.formatMessage(messages.usersEmptyStateTitle)}
+              icon={<EmptyStateIcon icon={UsersIcon} />}
+              headingLevel="h4"
+            />
             <EmptyStateBody>This group currently has no users assigned to it.</EmptyStateBody>
           </EmptyState>
         </div>
@@ -303,7 +293,11 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       return (
         <div className="pf-v5-u-pt-md">
           <EmptyState variant="sm">
-            <EmptyStateHeader titleText="No roles found" icon={<EmptyStateIcon icon={KeyIcon} />} headingLevel="h4" />
+            <EmptyStateHeader
+              titleText={intl.formatMessage(messages.rolesEmptyStateTitle)}
+              icon={<EmptyStateIcon icon={KeyIcon} />}
+              headingLevel="h4"
+            />
             <EmptyStateBody>This group currently has no roles assigned to it.</EmptyStateBody>
           </EmptyState>
         </div>

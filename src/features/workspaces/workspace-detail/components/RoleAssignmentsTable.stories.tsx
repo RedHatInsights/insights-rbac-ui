@@ -107,7 +107,8 @@ The RoleAssignmentsTable displays groups and their role assignments in a workspa
 - \`isLoading\`: Loading state boolean
 - \`page\`: Current page number
 - \`perPage\`: Number of items per page
-- \`onPaginationChange\`: Callback when pagination changes
+- \`onSetPage\`: Callback when page changes
+- \`onPerPageSelect\`: Callback when per page changes
 - \`sortBy\`: Current sort field
 - \`direction\`: Current sort direction
 - \`onSort\`: Callback when sorting changes
@@ -144,9 +145,13 @@ The table handles long descriptions with tooltips and shows creation/modificatio
       description: 'Number of items per page',
       control: { type: 'number' },
     },
-    onPaginationChange: {
-      description: 'Callback when pagination changes',
-      action: 'pagination-changed',
+    onSetPage: {
+      description: 'Callback when page changes',
+      action: 'page-changed',
+    },
+    onPerPageSelect: {
+      description: 'Callback when per page changes',
+      action: 'per-page-changed',
     },
     sortBy: {
       description: 'Current sort field',
@@ -190,7 +195,8 @@ export const Default: Story = {
     isLoading: false,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
     sortBy: 'name',
     direction: 'asc',
     onSort: fn(),
@@ -245,7 +251,8 @@ export const LoadingState: Story = {
     isLoading: true,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
     sortBy: 'name',
     direction: 'asc',
     onSort: fn(),
@@ -288,7 +295,8 @@ export const EmptyState: Story = {
     isLoading: false,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
     sortBy: 'name',
     direction: 'asc',
     onSort: fn(),
@@ -319,7 +327,8 @@ export const PaginationTest: Story = {
     isLoading: false,
     page: 1,
     perPage: 2,
-    onPaginationChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
     sortBy: 'name',
     direction: 'asc',
     onSort: fn(),
@@ -357,6 +366,11 @@ export const PaginationTest: Story = {
 
     // Test pagination callback when clicking next
     await userEvent.click(nextButtons[0]);
-    await expect(args.onPaginationChange).toHaveBeenCalledWith(2, 2);
+
+    // Verify the callback was called and the second argument is the page number
+    await expect(args.onSetPage).toHaveBeenCalled();
+    const mockFn = args.onSetPage as any;
+    const lastCall = mockFn.mock.calls[mockFn.mock.calls.length - 1];
+    expect(lastCall[1]).toBe(2); // Second argument should be the page number
   },
 };
