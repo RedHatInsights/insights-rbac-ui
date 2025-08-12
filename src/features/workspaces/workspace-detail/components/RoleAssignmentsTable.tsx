@@ -241,7 +241,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
               icon={<EmptyStateIcon icon={UsersIcon} />}
               headingLevel="h4"
             />
-            <EmptyStateBody>This group currently has no users assigned to it.</EmptyStateBody>
+            <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
       );
@@ -298,7 +298,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
               icon={<EmptyStateIcon icon={KeyIcon} />}
               headingLevel="h4"
             />
-            <EmptyStateBody>This group currently has no roles assigned to it.</EmptyStateBody>
+            <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
           </EmptyState>
         </div>
       );

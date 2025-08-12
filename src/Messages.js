@@ -2808,4 +2808,14 @@ export default defineMessages({
     description: 'Unable to load roles error title',
     defaultMessage: 'Unable to load roles',
   },
+  groupNoUsersAssigned: {
+    id: 'groupNoUsersAssigned',
+    description: 'Message when group has no users assigned',
+    defaultMessage: 'This group currently has no users assigned to it.',
+  },
+  groupNoRolesAssigned: {
+    id: 'groupNoRolesAssigned',
+    description: 'Message when group has no roles assigned',
+    defaultMessage: 'This group currently has no roles assigned to it.',
+  },
 });
