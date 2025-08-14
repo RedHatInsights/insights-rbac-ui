@@ -32,12 +32,12 @@ const EditResourceDefinitionsModal = lazy(() => import('./features/roles/edit-re
 const newRolesTable = lazy(() => import('./features/roles/RolesTable'));
 const newEditRole = lazy(() => import('./features/roles/edit-role/edit-role'));
 
-const Groups = lazy(() => import('./features/groups/groups'));
-const Group = lazy(() => import('./features/groups/group'));
+const Groups = lazy(() => import('./features/groups/Groups'));
+const Group = lazy(() => import('./features/groups/Group').then((module) => ({ default: module.Group })));
 const AddGroupWizard = lazy(() => import('./features/groups/add-group/add-group-wizard'));
 const EditGroup = lazy(() => import('./features/groups/edit-group-modal'));
 const RemoveGroup = lazy(() => import('./features/groups/remove-group-modal'));
-const GroupMembers = lazy(() => import('./features/groups/member/group-members'));
+const GroupMembers = lazy(() => import('./features/groups/members/GroupMembers'));
 const GroupRoles = lazy(() => import('./features/groups/role/group-roles'));
 const GroupServiceAccounts = lazy(() => import('./features/groups/service-account/group-service-accounts'));
 const AddGroupRoles = lazy(() => import('./features/groups/role/add-group-roles'));
