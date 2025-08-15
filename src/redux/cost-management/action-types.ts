@@ -1,4 +1,0 @@
-export const FETCH_RESOURCE_DEFINITIONS = 'FETCH_RESOURCE_DEFINITIONS' as const;
-export const FETCH_RESOURCE = 'FETCH_RESOURCE' as const;
-export const EXPAND_SPLATS = 'EXPAND_SPLATS' as const;
-export const RESET_EXPAND_SPLATS = 'RESET_EXPAND_SPLATS' as const;

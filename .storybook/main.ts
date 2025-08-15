@@ -10,7 +10,6 @@ const config: StorybookConfig = {
   addons: [
     "@storybook/addon-webpack5-compiler-swc",
     "@storybook/addon-docs",
-    "msw-storybook-addon",
   ],
   framework: {
     name: "@storybook/react-webpack5",
@@ -26,8 +25,8 @@ const config: StorybookConfig = {
       ...config.resolve,
       alias: {
         ...config.resolve?.alias,
-        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(process.cwd(), '.storybook/hooks/useChrome'),
-        '@unleash/proxy-client-react': path.resolve(process.cwd(), '.storybook/hooks/unleash'),
+        '@redhat-cloud-services/frontend-components/useChrome': path.resolve(process.cwd(), 'src/test/storybook-hooks/useChrome'),
+        '@unleash/proxy-client-react': path.resolve(process.cwd(), 'src/test/storybook-hooks/unleash'),
       },
     };
 

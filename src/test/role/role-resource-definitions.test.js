@@ -7,11 +7,10 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
-import { FETCH_ROLE } from '../../redux/roles/action-types';
-import { FETCH_INVENTORY_GROUPS_DETAILS } from '../../redux/inventory/action-types';
-import ResourceDefinitions from '../../features/roles/role-resource-definitions';
-import * as InventoryActions from '../../redux/inventory/actions';
-import * as RoleActions from '../../redux/roles/actions';
+import { FETCH_INVENTORY_GROUPS_DETAILS, FETCH_ROLE } from '../../redux/action-types';
+import ResourceDefinitions from '../../smart-components/role/role-resource-definitions';
+import * as InventoryActions from '../../redux/actions/inventory-actions';
+import * as RoleActions from '../../redux/actions/role-actions';
 
 describe('RoleResourceDefinitions - Cost management', () => {
   const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];

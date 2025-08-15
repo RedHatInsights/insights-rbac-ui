@@ -5,17 +5,17 @@ import { createContext } from 'react';
 import { compose } from 'redux';
 import promiseMiddleware from 'redux-promise-middleware';
 import thunk from 'redux-thunk';
-import accessReducer, { accessInitialState } from '../redux/access-management/reducer';
-import costReducer, { costInitialState } from '../redux/cost-management/reducer';
-import errorReducer from '../redux/api-error/error-reducer';
-import groupReducer, { groupsInitialState } from '../redux/groups/reducer';
-import inventoryReducer, { inventoryGroupsInitialState } from '../redux/inventory/reducer';
-import permissionReducer, { permissionInitialState } from '../redux/permissions/reducer';
-import policyReducer, { policiesInitialState } from '../redux/policies/reducer';
-import roleReducer, { rolesInitialState } from '../redux/roles/reducer';
-import serviceAccountReducer, { serviceAccountsInitialState } from '../redux/service-accounts/reducer';
-import userReducer, { usersInitialState } from '../redux/users/reducer';
-import workspacesReducer, { workspacesInitialState } from '../redux/workspaces/reducer';
+import accessReducer, { accessInitialState } from '../redux/reducers/access-reducer';
+import costReducer, { costInitialState } from '../redux/reducers/cost-reducer';
+import errorReducer from '../redux/reducers/errorReducer';
+import groupReducer, { groupsInitialState } from '../redux/reducers/group-reducer';
+import inventoryReducer, { inventoryGroupsInitialState } from '../redux/reducers/inventory-reducer';
+import permissionReducer, { permissionInitialState } from '../redux/reducers/permission-reducer';
+import policyReducer, { policiesInitialState } from '../redux/reducers/policy-reducer';
+import roleReducer, { rolesInitialState } from '../redux/reducers/role-reducer';
+import serviceAccountReducer, { serviceAccountsInitialState } from '../redux/reducers/service-account-reducer';
+import userReducer, { usersInitialState } from '../redux/reducers/user-reducer';
+import workspacesReducer, { workspacesInitialState } from '../redux/reducers/workspaces-reducer';
 
 export const RegistryContext = createContext({
   getRegistry: () => {},
@@ -38,27 +38,21 @@ const composeEnhancers =
       (window as any).__REDUX_DEVTOOLS_EXTENSION_COMPOSE__({})
     : compose;
 
-export function registryFactory() {
-  const registry = new ReducerRegistry({}, middlewares, composeEnhancers);
+const registry = new ReducerRegistry({}, middlewares, composeEnhancers);
 
-  registry.register({
-    userReducer: applyReducerHash(userReducer, usersInitialState),
-    workspacesReducer: applyReducerHash(workspacesReducer, workspacesInitialState),
-    groupReducer: applyReducerHash(groupReducer, groupsInitialState),
-    policyReducer: applyReducerHash(policyReducer, policiesInitialState),
-    roleReducer: applyReducerHash(roleReducer, rolesInitialState),
-    accessReducer: applyReducerHash(accessReducer, accessInitialState),
-    permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
-    inventoryReducer: applyReducerHash(inventoryReducer, inventoryGroupsInitialState),
-    costReducer: applyReducerHash(costReducer, costInitialState),
-    serviceAccountReducer: applyReducerHash(serviceAccountReducer, serviceAccountsInitialState),
-    errorReducer: applyReducerHash(errorReducer),
-    notifications: notificationsReducer,
-  });
-
-  return registry;
-}
-
-const registry = registryFactory();
+registry.register({
+  userReducer: applyReducerHash(userReducer, usersInitialState),
+  workspacesReducer: applyReducerHash(workspacesReducer, workspacesInitialState),
+  groupReducer: applyReducerHash(groupReducer, groupsInitialState),
+  policyReducer: applyReducerHash(policyReducer, policiesInitialState),
+  roleReducer: applyReducerHash(roleReducer, rolesInitialState),
+  accessReducer: applyReducerHash(accessReducer, accessInitialState),
+  permissionReducer: applyReducerHash(permissionReducer, permissionInitialState),
+  inventoryReducer: applyReducerHash(inventoryReducer, inventoryGroupsInitialState),
+  costReducer: applyReducerHash(costReducer, costInitialState),
+  serviceAccountReducer: applyReducerHash(serviceAccountReducer, serviceAccountsInitialState),
+  errorReducer: applyReducerHash(errorReducer),
+  notifications: notificationsReducer,
+});
 
 export default registry;

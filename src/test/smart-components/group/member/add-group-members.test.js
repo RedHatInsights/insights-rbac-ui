@@ -5,11 +5,11 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import AddGroupMembers from '../../../../features/groups/member/add-group-members';
+import AddGroupMembers from '../../../../smart-components/group/member/add-group-members';
 import { fireEvent, render, screen } from '@testing-library/react';
-import * as UserHelper from '../../../../redux/users/helper';
-import * as GroupHelper from '../../../../redux/groups/helper';
-import { FETCH_USERS } from '../../../../redux/users/action-types';
+import * as UserHelper from '../../../../helpers/user/user-helper';
+import * as GroupHelper from '../../../../helpers/group/group-helper';
+import { FETCH_USERS } from '../../../../redux/action-types';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

@@ -1,54 +1,19 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
-import '@patternfly/patternfly/patternfly-addons.css';
 import React from 'react';
 import { IntlProvider } from 'react-intl';
-import { Provider } from 'react-redux';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
-import PermissionsContext from '../src/utilities/permissionsContext';
-import { registryFactory, RegistryContext } from '../src/utilities/store';
+import PermissionsContext from '../src/utilities/permissions-context';
 import { 
   ChromeProvider, 
   FeatureFlagsProvider,
   type ChromeConfig,
   type FeatureFlagsConfig
-} from './context-providers';
-import { initialize, mswLoader } from 'msw-storybook-addon';
-
-// Mock insights global for Storybook
-declare global {
-  var insights: {
-    chrome: {
-      getEnvironment: () => string;
-    };
-  };
-}
-
-if (typeof global !== 'undefined') {
-  (global as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
-} else if (typeof window !== 'undefined') {
-  (window as any).insights = {
-    chrome: {
-      getEnvironment: () => 'prod',
-    },
-  };
-}
+} from '../src/test/storybook-context-providers';
 
 const preview: Preview = {
-  beforeAll: async () => {
-    initialize({ onUnhandledRequest: 'error' });
-  },
-  loaders: [mswLoader],
   parameters: {
-    parameters: {
-      // Sets the delay (in milliseconds) at the component level for all stories.
-      chromatic: { delay: 300 },
-    },
     actions: { argTypesRegex: '^on.*' },
     controls: {
       matchers: {
@@ -71,8 +36,6 @@ const preview: Preview = {
   decorators: [
     // 👇 Combined context decorator - reads from story parameters and args
     (Story, { parameters, args }) => {
-      const registry = registryFactory();
-
       const permissions = {
         userAccessAdministrator: false,
         orgAdmin: false,
@@ -97,23 +60,15 @@ const preview: Preview = {
       };
       
       return (
-        <RegistryContext.Provider
-          value={{
-            getRegistry: () => registry,
-          }}
-        >
-          <Provider store={registry.getStore()}>
-            <ChromeProvider value={chromeConfig}>
-              <FeatureFlagsProvider value={featureFlags}>
-                <PermissionsContext.Provider value={permissions}>
-                  <IntlProvider locale={locale} messages={messages[locale]}>
-                    <Story />
-                  </IntlProvider>
-                </PermissionsContext.Provider>
-              </FeatureFlagsProvider>
-            </ChromeProvider>
-          </Provider>
-        </RegistryContext.Provider>
+        <ChromeProvider value={chromeConfig}>
+          <FeatureFlagsProvider value={featureFlags}>
+            <PermissionsContext.Provider value={permissions}>
+              <IntlProvider locale={locale} messages={messages[locale]}>
+                <Story />
+              </IntlProvider>
+            </PermissionsContext.Provider>
+          </FeatureFlagsProvider>
+        </ChromeProvider>
       );
     },
   ],

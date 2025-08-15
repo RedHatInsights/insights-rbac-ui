@@ -1,7 +1,7 @@
-import userReducer, { usersInitialState } from '../../../redux/users/reducer';
+import userReducer, { usersInitialState } from '../../../redux/reducers/user-reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_USERS } from '../../../redux/users/action-types';
+import { FETCH_USERS } from '../../../redux/action-types';
 
 describe('User reducer', () => {
   let initialState;

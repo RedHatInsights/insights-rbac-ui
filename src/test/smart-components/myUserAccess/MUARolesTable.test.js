@@ -8,10 +8,10 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 
-import MUARolesTable from '../../../features/myUserAccess/MUARolesTable';
-import { createFilter } from '../../../features/myUserAccess/CommonBundleView';
-import * as RoleActions from '../../../redux/roles/actions';
-import { FETCH_ROLE_FOR_PRINCIPAL, FETCH_ROLES } from '../../../redux/roles/action-types';
+import MUARolesTable from '../../../smart-components/myUserAccess/MUARolesTable';
+import { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
+import * as RoleActions from '../../../redux/actions/role-actions';
+import { FETCH_ROLE_FOR_PRINCIPAL, FETCH_ROLES } from '../../../redux/action-types';
 
 /**
  * Mock debounce to remove tomers shenanigans

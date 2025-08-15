@@ -3,9 +3,9 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import * as GroupActions from '../../../redux/groups/actions';
-import AddGroupRoles from '../../../features/groups/role/add-group-roles';
-import { FETCH_GROUP, FETCH_GROUPS } from '../../../redux/groups/action-types';
+import * as GroupActions from '../../../redux/actions/group-actions';
+import AddGroupRoles from '../../../smart-components/group/role/add-group-roles';
+import { FETCH_GROUP, FETCH_GROUPS } from '../../../redux/action-types';
 
 describe('<AddGroupRoles />', () => {
   const setSelectedRoles = jest.fn();

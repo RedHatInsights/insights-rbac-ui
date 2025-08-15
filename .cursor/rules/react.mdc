@@ -1,6 +1,5 @@
 ---
 type: auto_attached
-description: "React component development guidelines including TypeScript conversion best practices, PatternFly integration patterns, and table component requirements."
 patterns:
   - "**/*.tsx"
   - "**/*.ts"
@@ -11,42 +10,6 @@ tags:
 ---
 
 # React Component Development Guidelines
-## Quick Reference (AI Priority)
-
-### Export Rules (CRITICAL)
-| Item | Export Type | Import Pattern |
-|------|-------------|----------------|
-| Components | Named ONLY | `import { Component } from './Component'` |
-| Features | Named + Default | Both patterns allowed |
-| Helpers | Named ONLY | `import { helper } from './helpers'` |
-
-### PatternFly Import Rules (REQUIRED)
-```typescript
-// ✅ DO - Dynamic imports for components
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-
-// ✅ DO - Absolute paths for icons  
-import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
-
-// ❌ DON'T - Global imports
-import { Button } from '@patternfly/react-core';
-```
-
-### i18n Rules (CRITICAL)
-| Rule | Pattern |
-|------|---------|
-| Presentational components | Handle i18n internally with `useIntl` |
-| Smart components | Pass data, NOT translated strings |
-| Message files | Check `locales/translation-template.json` first |
-
-### TypeScript Conversion Checklist
-- [ ] Document with Storybook stories first (while JS)
-- [ ] Test all behaviors and interactions
-- [ ] Convert to TS: `.js` → `.tsx` + interfaces
-- [ ] Remove PropTypes, add `React.FC<Props>`
-- [ ] Use named exports (never default)
-- [ ] Preserve exact behavior during conversion
-
 
 ## Key Technologies & Dependencies
 
@@ -63,114 +26,6 @@ Always check `package.json` for current versions when working with:
 - **Smart components** in `src/smart-components/` - Connected components with business logic
 - **Helpers** in `src/helpers/` - Business logic utilities
 - **Redux** in `src/redux/` - State management
-
-### Export Patterns - ALWAYS Use Named Exports
-- **ALWAYS** use named exports, **NEVER** use default exports
-- This applies to all React components, hooks, utilities, and other modules
-
-```typescript
-// ✅ DO - Named exports
-export const MyComponent: React.FC<MyComponentProps> = ({ prop1, prop2 }) => {
-  return <div>{prop1}</div>;
-};
-
-// ✅ DO - Multiple named exports
-export const ComponentA: React.FC = () => <div>A</div>;
-export const ComponentB: React.FC = () => <div>B</div>;
-
-// ❌ DON'T - Default exports
-const MyComponent: React.FC<MyComponentProps> = ({ prop1, prop2 }) => {
-  return <div>{prop1}</div>;
-};
-export default MyComponent;
-```
-
-### Import Patterns for Named Exports
-```typescript
-// ✅ DO - Import named exports
-import { MyComponent } from './MyComponent';
-import { ComponentA, ComponentB } from './MultipleComponents';
-
-// ❌ DON'T - Import default exports
-import MyComponent from './MyComponent';
-```
-
-### Internationalization (i18n) Guidelines
-- **ALWAYS** handle internationalization internally in presentational components using `react-intl`
-- **NEVER** pass translated strings as props to presentational components
-- Import and use messages from the Messages file
-
-```typescript
-// ✅ DO - Handle i18n internally in presentational components
-import { useIntl } from 'react-intl';
-import messages from '../../../Messages';
-
-export const MyComponent: React.FC<MyComponentProps> = ({ onAction }) => {
-  const intl = useIntl();
-  
-  return (
-    <div>
-      <h1>{intl.formatMessage(messages.myTitle)}</h1>
-      <Button onClick={onAction}>
-        {intl.formatMessage(messages.myButtonLabel)}
-      </Button>
-    </div>
-  );
-};
-
-// ❌ DON'T - Pass translations as props
-interface BadComponentProps {
-  title: string; // Don't do this for translations
-  buttonLabel: string; // Don't do this for translations
-  onAction: () => void;
-}
-
-export const BadComponent: React.FC<BadComponentProps> = ({ title, buttonLabel, onAction }) => {
-  return (
-    <div>
-      <h1>{title}</h1>
-      <Button onClick={onAction}>{buttonLabel}</Button>
-    </div>
-  );
-};
-```
-
-### Translation Message Management
-- **All messages** are stored in `locales/translation-template.json` as the source of truth
-- **Always check** `locales/translation-template.json` first for existing messages before creating new ones
-- **Add missing messages** to both files when needed:
-  1. `locales/translation-template.json` - The translation template with format:
-     ```json
-     "messageKey": {
-       "defaultMessage": "Message text...",
-       "description": "Description of message purpose"
-     }
-     ```
-  2. `src/Messages.js` - The React message definitions with format:
-     ```javascript
-     messageKey: {
-       id: 'messageKey',
-       description: 'Description of message purpose',
-       defaultMessage: 'Message text...',
-     }
-     ```
-
-- **Use specific, contextual messages** rather than generic ones:
-  ```typescript
-  // ✅ DO - Specific contextual messages
-  content = intl.formatMessage(messages.loadingWorkspaces); // "Loading workspaces..."
-  content = intl.formatMessage(messages.selectWorkspaces);  // "Select workspaces"
-  
-  // ❌ DON'T - Generic messages when specific ones are needed
-  content = intl.formatMessage(messages.loading); // Just "Loading..." - too generic
-  ```
-
-- **Never hardcode strings** - always use the message system for user-facing text
-- **Never assume messages exist** - verify in the translation files and add if missing
-
-### Smart Components and i18n
-- Smart components can continue to use `useIntl` but should not pass translated strings to presentational components
-- Focus on passing data and callbacks, let presentational components handle their own translations
 
 ### Code Quality Requirements
 - All code must pass TypeScript compilation (`npm run build`)
@@ -195,20 +50,6 @@ import { Table, TableHeader, TableBody } from '@patternfly/react-table/dist/dyna
 import { Spinner, TreeView, TreeViewDataItem } from '@patternfly/react-core';
 import { Button } from '@patternfly/react-core';
 import { Table, TableHeader, TableBody } from '@patternfly/react-table';
-```
-
-### Icon Import Strategy - Always Use Absolute Paths
-- **ALWAYS** use absolute path imports for PatternFly icons for optimal tree shaking
-- **NEVER** use destructured imports from the main icons package
-
-```typescript
-// ✅ DO - Absolute path imports
-import CheckCircleIcon from '@patternfly/react-icons/dist/js/icons/check-circle-icon';
-import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
-import InfoCircleIcon from '@patternfly/react-icons/dist/js/icons/info-circle-icon';
-
-// ❌ DON'T - Destructured imports
-import { CheckCircleIcon, ExclamationCircleIcon, InfoCircleIcon } from '@patternfly/react-icons';
 ```
 
 ### Table Row Wrappers
@@ -261,7 +102,6 @@ import { CheckCircleIcon, ExclamationCircleIcon, InfoCircleIcon } from '@pattern
 // Before (JavaScript)
 const StatusLabel = ({ isOrgAdmin, isUserAccessAdmin }) => { /* logic */ };
 StatusLabel.propTypes = { /* PropTypes */ };
-export default StatusLabel;
 
 // After (TypeScript)
 interface StatusLabelProps {
@@ -269,7 +109,7 @@ interface StatusLabelProps {
   isUserAccessAdmin?: boolean;
 }
 
-export const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAccessAdmin }) => {
+const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAccessAdmin }) => {
   // Keep exact same behavior
 };
 ```
@@ -278,7 +118,6 @@ export const StatusLabel: React.FC<StatusLabelProps> = ({ isOrgAdmin, isUserAcce
 - **Preserve exact behavior** - don't improve logic during conversion
 - **Remove PropTypes** - replace with TypeScript interface
 - **Use `React.FC<Props>`** for function components
-- **Use named exports** - never default exports
 - **Keep original file structure** and imports (except PropTypes)
 - Don't change component logic during TS conversion
 
@@ -308,14 +147,12 @@ interface ButtonProps {
 - ❌ Don't assume component uses `cells` array if it doesn't
 - ❌ Don't use generic mock data that doesn't reflect real usage
 - ❌ Don't ignore TypeScript errors - fix them with proper types
-- ❌ Don't use default exports - always use named exports
-- ❌ Don't pass translated strings as props to presentational components
 
 ## Key Patterns
 
 ### Row Wrapper Pattern
 ```typescript
-export const ComponentRow = ({ row, ...props }: RowWrapperProps) => {
+const ComponentRow = ({ row, ...props }: RowWrapperProps) => {
   const { relevantData } = row || {};
   const computedValue = relevantData?.nested?.property;
   return <RowWrapper className={classNames('base-class', { 'conditional-class': computedValue })} row={row} {...props} />;
@@ -328,160 +165,3 @@ export const ComponentRow = ({ row, ...props }: RowWrapperProps) => {
 - Returns correct type expected by PatternFly
 - Follows existing codebase patterns
 - Properly typed with TypeScript
-- Uses named exports exclusively
-- Handles internationalization internally for presentational components
-
-## Islands Architecture Pattern
-
-### Understanding Features vs Components
-- **Features**: Tied to routes/pages, act as containers, often correspond to app routes
-- **Components**: Reusable UI elements, not tied to specific routes
-
-### Export Patterns by Type
-- **Components**: Use **NAMED exports only**
-- **Features**: Use **BOTH named AND default exports** 
-- **Stories**: **ALWAYS import components using NAMED exports**
-
-### File Organization Structure
-```
-src/features/feature-name/
-├── FeatureContainer.tsx          # Feature (route/page) - named + default exports
-├── components/                   # Reusable components folder
-│   ├── ComponentA.tsx            # Component - named export only
-│   ├── ComponentB.tsx            # Component - named export only
-│   └── ComponentA.stories.tsx    # Stories - import using named exports
-└── sub-feature/
-    ├── SubFeature.tsx            # Sub-feature - named + default exports  
-    └── components/
-        └── SubComponent.tsx      # Component - named export only
-```
-
-### Export Examples
-```typescript
-// ✅ Feature container (tied to route)
-export const WorkspacesList = () => { /* feature logic */ };
-export default WorkspacesList; // Both exports for features
-
-// ✅ Reusable component  
-export const WorkspaceActions = () => { /* component logic */ };
-// No default export for components
-
-// ✅ Stories always use named imports
-import { WorkspaceActions } from "./WorkspaceActions";
-```
-
-### Islands Architecture Guidelines
-- **Identify the pattern**: Look for route/page correlation to determine if something is a feature
-- **Organize accordingly**: Move non-feature components to `components/` subdirectories
-- **Follow naming**: File names must match component names (CamelCase for both)
-- **Respect exports**: Features get both exports, components get named only
-
-### Feature Identification Checklist
-- [ ] Is it tied to a specific route/URL?
-- [ ] Does it act as a page container?
-- [ ] Is it referenced in routing configuration?
-- [ ] Does it orchestrate multiple smaller components?
-
-If YES to most → **Feature** (both exports)
-If NO to most → **Component** (named export only)
-
-## UX Patterns and Best Practices
-
-### Row Actions in Tables
-**CRITICAL**: Never use direct action buttons in table rows - use kebab menus instead.
-
-#### ❌ Poor UX - Direct Buttons
-```typescript
-// BAD: Direct delete button in table
-<Button variant="link" isDanger onClick={() => onDelete(user)}>
-  Delete
-</Button>
-```
-
-#### ✅ Professional UX - Kebab Menu
-```typescript
-// GOOD: Professional kebab menu for row actions
-<Dropdown
-  isOpen={isOpen}
-  onOpenChange={setIsOpen}
-  toggle={(toggleRef) => (
-    <MenuToggle
-      ref={toggleRef}
-      aria-label={`Actions for user ${user.username}`}
-      variant="plain"
-      onClick={() => setIsOpen(!isOpen)}
-    >
-      <EllipsisVIcon />
-    </MenuToggle>
-  )}
->
-  <DropdownList>
-    <DropdownItem
-      onClick={() => onDeleteUser(user)}
-      isDisabled={!orgAdmin || isProd}
-    >
-      Delete
-    </DropdownItem>
-  </DropdownList>
-</Dropdown>
-```
-
-### Business Logic Integration
-Always include proper permission checks for destructive actions:
-```typescript
-// Disable dangerous actions based on environment and permissions
-const isDeleteDisabled = !orgAdmin || isProd;
-const isEditDisabled = !hasEditPermission || isReadOnly;
-```
-
-## PatternFly Component Specifics
-
-### DataViewTable vs DataList
-**IMPORTANT**: `DataViewTable` from PatternFly extensions works differently than core PatternFly components.
-
-#### Table Role Differences
-```typescript
-// ✅ DataViewTable renders with role="grid"
-const table = canvas.getByRole('grid'); // Correct for DataViewTable
-
-// ❌ Regular tables use role="table" 
-const table = canvas.getByRole('table'); // Wrong for DataViewTable
-```
-
-#### Actions Column Pattern
-`DataViewTable` does NOT auto-render actions like `DataList` - must be manual:
-```typescript
-// Add actions as explicit column
-const columns = [
-  { label: 'Name', key: 'name' },
-  { label: 'Email', key: 'email' },
-  { label: 'Actions', key: 'actions', sort: false }, // Manual actions column
-];
-
-// Include action component in row data
-const rows = users.map(user => ({
-  id: user.id,
-  row: [
-    user.name,
-    user.email,
-    <UserRowActions user={user} onDelete={onDelete} />, // Action component
-  ],
-}));
-```
-
-### Production Environment Constraints
-**CRITICAL**: Always disable destructive actions in production environments:
-```typescript
-const { isProd } = useChrome();
-const isDeleteDisabled = isProd() || !hasPermission;
-```
-
-### Permission-Based UI States
-Integrate org admin and permission checks throughout the UI:
-```typescript
-// Typical permission pattern
-const { orgAdmin } = useContext(PermissionsContext);
-const canEdit = orgAdmin && !isProd() && hasEditAccess;
-const canDelete = orgAdmin && !isProd() && hasDeleteAccess;
-```
-

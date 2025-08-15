@@ -6,7 +6,6 @@ const { defineConfig } = require('eslint/config');
 const fecPlugin = require('@redhat-cloud-services/eslint-config-redhat-cloud-services');
 const tsParser = require('@typescript-eslint/parser');
 const tseslint = require('@typescript-eslint/eslint-plugin');
-const testingLibrary = require('eslint-plugin-testing-library');
 
 module.exports = defineConfig(
   fecPlugin,
@@ -46,15 +45,6 @@ module.exports = defineConfig(
   {
     // Inside your .eslintignore file
     ignores: ['!.storybook'],
-  },
-  {
-    files: ['**/*.stories.@(js|jsx|ts|tsx)', '**/__tests__/**/*.@(js|jsx|ts|tsx)'],
-    plugins: {
-      'testing-library': testingLibrary,
-    },
-    rules: {
-      'testing-library/prefer-find-by': 'error',
-    },
   },
   storybook.configs['flat/recommended'],
 );

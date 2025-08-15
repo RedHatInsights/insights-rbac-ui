@@ -8,8 +8,8 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import AddGroupWizard, { onCancel } from '../../../../features/groups/add-group/add-group-wizard';
-import { defaultSettings } from '../../../../helpers/pagination';
+import AddGroupWizard, { onCancel } from '../../../../smart-components/group/add-group/add-group-wizard';
+import { defaultSettings } from '../../../../helpers/shared/pagination';
 import PropTypes from 'prop-types';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {

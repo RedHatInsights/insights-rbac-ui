@@ -2,54 +2,54 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
-import { mergeToBasename } from './components/navigation/AppLink';
-import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
-import ElementWrapper from './components/ElementWrapper';
-import EditWorkspaceModal from './features/workspaces/EditWorkspaceModal';
+import { mergeToBasename } from './presentational-components/shared/AppLink';
+import { AppPlaceholder } from './presentational-components/shared/LoaderPlaceholders';
+import ElementWrapper from './smart-components/common/ElementWrapper';
+import EditWorkspaceModal from './smart-components/workspaces/EditWorkspaceModal';
 import pathnames from './utilities/pathnames';
-import QuickstartsTestButtons from './utilities/quickstartsTestButtons';
+import QuickstartsTestButtons from './utilities/quickstarts-test-buttons';
 
-const Overview = lazy(() => import('./features/overview/overview'));
+const Overview = lazy(() => import('./smart-components/overview/overview'));
 
-const WorkspacesOverview = lazy(() => import('./features/workspaces/overview/WorkspacesOverview'));
-const WorkspaceList = lazy(() => import('./features/workspaces/WorkspaceList'));
-const CreateWorkspaceWizard = lazy(() => import('./features/workspaces/create-workspace/CreateWorkspaceWizard'));
-const WorkspaceDetail = lazy(() => import('./features/workspaces/workspace-detail/WorkspaceDetail'));
-const Users = lazy(() => import('./features/users/users'));
-const UserDetail = lazy(() => import('./features/users/user'));
-const AddUserToGroup = lazy(() => import('./features/users/add-user-to-group/add-user-to-group'));
-const InviteUsersModal = lazy(() => import('./features/users/invite-users/invite-users-modal'));
-const InviteUsersModalCommonAuth = lazy(() => import('./features/users/invite-users/invite-users-modal-common-auth'));
+const WorkspacesOverview = lazy(() => import('./smart-components/workspaces/overview/about-access-tab'));
+const WorkspaceList = lazy(() => import('./smart-components/workspaces/WorkspaceList'));
+const CreateWorkspaceWizard = lazy(() => import('./smart-components/workspaces/create-workspace/CreateWorkspaceWizard'));
+const WorkspaceDetail = lazy(() => import('./smart-components/workspaces/workspace-detail/WorkspaceDetail'));
+const Users = lazy(() => import('./smart-components/user/users'));
+const UserDetail = lazy(() => import('./smart-components/user/user'));
+const AddUserToGroup = lazy(() => import('./smart-components/user/add-user-to-group/add-user-to-group'));
+const InviteUsersModal = lazy(() => import('./smart-components/user/invite-users/invite-users-modal'));
+const InviteUsersModalCommonAuth = lazy(() => import('./smart-components/user/invite-users/invite-users-modal-common-auth'));
 
-const Roles = lazy(() => import('./features/roles/roles'));
-const Role = lazy(() => import('./features/roles/role'));
-const AddRoleWizard = lazy(() => import('./features/roles/add-role/add-role-wizard'));
-const EditRole = lazy(() => import('./features/roles/edit-role-modal'));
-const RemoveRole = lazy(() => import('./features/roles/remove-role-modal'));
-const AddRolePermissionWizard = lazy(() => import('./features/roles/add-role-permissions/add-role-permission-wizard'));
-const ResourceDefinitions = lazy(() => import('./features/roles/role-resource-definitions'));
-const EditResourceDefinitionsModal = lazy(() => import('./features/roles/edit-resource-definitions-modal'));
-const newRolesTable = lazy(() => import('./features/roles/RolesTable'));
-const newEditRole = lazy(() => import('./features/roles/edit-role/edit-role'));
+const Roles = lazy(() => import('./smart-components/role/roles'));
+const Role = lazy(() => import('./smart-components/role/role'));
+const AddRoleWizard = lazy(() => import('./smart-components/role/add-role/add-role-wizard'));
+const EditRole = lazy(() => import('./smart-components/role/edit-role-modal'));
+const RemoveRole = lazy(() => import('./smart-components/role/remove-role-modal'));
+const AddRolePermissionWizard = lazy(() => import('./smart-components/role/add-role-permissions/add-role-permission-wizard'));
+const ResourceDefinitions = lazy(() => import('./smart-components/role/role-resource-definitions'));
+const EditResourceDefinitionsModal = lazy(() => import('./smart-components/role/edit-resource-definitions-modal'));
+const newRolesTable = lazy(() => import('./smart-components/role/RolesTable'));
+const newEditRole = lazy(() => import('./smart-components/role/edit-role/edit-role'));
 
-const Groups = lazy(() => import('./features/groups/groups'));
-const Group = lazy(() => import('./features/groups/group'));
-const AddGroupWizard = lazy(() => import('./features/groups/add-group/add-group-wizard'));
-const EditGroup = lazy(() => import('./features/groups/edit-group-modal'));
-const RemoveGroup = lazy(() => import('./features/groups/remove-group-modal'));
-const GroupMembers = lazy(() => import('./features/groups/member/group-members'));
-const GroupRoles = lazy(() => import('./features/groups/role/group-roles'));
-const GroupServiceAccounts = lazy(() => import('./features/groups/service-account/group-service-accounts'));
-const AddGroupRoles = lazy(() => import('./features/groups/role/add-group-roles'));
-const AddGroupMembers = lazy(() => import('./features/groups/member/add-group-members'));
-const AddGroupServiceAccounts = lazy(() => import('./features/groups/service-account/add-group-service-accounts'));
-const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/service-account/remove-group-service-accounts'));
-const QuickstartsTest = lazy(() => import('./features/quickstarts/QuickstartsTest'));
+const Groups = lazy(() => import('./smart-components/group/groups'));
+const Group = lazy(() => import('./smart-components/group/group'));
+const AddGroupWizard = lazy(() => import('./smart-components/group/add-group/add-group-wizard'));
+const EditGroup = lazy(() => import('./smart-components/group/edit-group-modal'));
+const RemoveGroup = lazy(() => import('./smart-components/group/remove-group-modal'));
+const GroupMembers = lazy(() => import('./smart-components/group/member/group-members'));
+const GroupRoles = lazy(() => import('./smart-components/group/role/group-roles'));
+const GroupServiceAccounts = lazy(() => import('./smart-components/group/service-account/group-service-accounts'));
+const AddGroupRoles = lazy(() => import('./smart-components/group/role/add-group-roles'));
+const AddGroupMembers = lazy(() => import('./smart-components/group/member/add-group-members'));
+const AddGroupServiceAccounts = lazy(() => import('./smart-components/group/service-account/add-group-service-accounts'));
+const RemoveServiceAccountFromGroup = lazy(() => import('./smart-components/group/service-account/remove-group-service-accounts'));
+const QuickstartsTest = lazy(() => import('./smart-components/quickstarts/quickstarts-test'));
 
-const UsersAndUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/UsersAndUserGroups'));
-const AccessManagementUsers = lazy(() => import('./features/access-management/users-and-user-groups/users/Users'));
-const AccessManagementUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/UserGroups'));
-const EditUserGroup = lazy(() => import('./features/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
+const UsersAndUserGroups = lazy(() => import('./smart-components/access-management/users-and-user-groups/users-and-user-groups'));
+const UsersView = lazy(() => import('./smart-components/access-management/users-and-user-groups/users/UsersView'));
+const UserGroupsView = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/UserGroupsView'));
+const EditUserGroup = lazy(() => import('./smart-components/access-management/users-and-user-groups/user-groups/edit-user-group/EditUserGroup'));
 
 const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommonAuthModel, hideWorkspaceDetails }: Record<string, boolean>) => [
   {
@@ -58,7 +58,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     childRoutes: [
       {
         path: pathnames['users-new'].path,
-        element: AccessManagementUsers,
+        element: UsersView,
         childRoutes: [
           isCommonAuthModel && {
             path: pathnames['invite-group-users'].path,
@@ -68,7 +68,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
       {
         path: pathnames['user-groups'].path,
-        element: AccessManagementUserGroups,
+        element: UserGroupsView,
         childRoutes: [
           {
             path: pathnames['create-user-group'].path,
