@@ -1,3 +1,10 @@
+## [1.48.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.0...v1.48.1) (2025-08-04)
+
+
+### Bug Fixes
+
+* remove openshift asset from WS details ([#1890](https://github.com/RedHatInsights/insights-rbac-ui/issues/1890)) ([8a742fe](https://github.com/RedHatInsights/insights-rbac-ui/commit/8a742fe409a6890ea60355c49a25e3d7f3554e69))
+
 # [1.48.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.47.1...v1.48.0) (2025-07-30)
 
 

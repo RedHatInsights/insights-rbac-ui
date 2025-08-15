@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { action } from 'storybook/actions';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import ResourceDefinitionsLink from './ResourceDefinitionsLink';
+import { ResourceDefinitionsLink } from './ResourceDefinitionsLink';
 
 const meta: Meta<typeof ResourceDefinitionsLink> = {
   component: ResourceDefinitionsLink,

@@ -1,10 +1,10 @@
 import { useLocation, useNavigate } from 'react-router-dom';
-import { bundleData } from './components/bundles';
+import { bundleData } from './bundleData';
 import { DEFAULT_MUA_BUNDLE } from '../../utilities/constants';
 
 type BundleType = 'openshift' | 'rhel' | 'ansible' | 'settings';
 
-const useBundleApps = (bundle?: string): string[] => {
+export const useBundleApps = (bundle?: string): string[] => {
   const { pathname } = useLocation();
   const navigate = useNavigate();
 
@@ -16,5 +16,3 @@ const useBundleApps = (bundle?: string): string[] => {
 
   return bundleData.find(({ entitlement }) => entitlement === bundle)?.appsIds || [];
 };
-
-export default useBundleApps;

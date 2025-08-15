@@ -1986,6 +1986,11 @@ export default defineMessages({
     description: 'Add permission label',
     defaultMessage: 'Add permission',
   },
+  systemRolesCantBeModified: {
+    id: 'systemRolesCantBeModified',
+    description: 'Tooltip message for disabled add permissions button on system roles',
+    defaultMessage: 'System roles can not be modified',
+  },
   selectPermissionsForRole: {
     id: 'selectPermissionsForRole',
     description: 'Select permissions for role label',
@@ -2271,6 +2276,11 @@ export default defineMessages({
     id: 'resourcesDefined',
     description: 'Resources defined for permission message',
     defaultMessage: 'Resources defined for the permission',
+  },
+  filterByApplication: {
+    id: 'filterByApplication',
+    description: 'Filter by application',
+    defaultMessage: 'Filter by application...',
   },
   filterByResource: {
     id: 'filterByResource',

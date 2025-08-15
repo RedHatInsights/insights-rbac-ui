@@ -13,7 +13,7 @@ import { AppPlaceholder } from '../components/ui-states/LoaderPlaceholders';
 import useAppNavigate from '../hooks/useAppNavigate';
 import useUserData from '../hooks/useUserData';
 
-const MyUserAccess = lazy(() => import('../features/myUserAccess/MUAHome'));
+const MyUserAccess = lazy(() => import('../features/myUserAccess/MyUserAccess'));
 
 import '../App.scss';
 
