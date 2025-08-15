@@ -5,33 +5,32 @@ import { Provider } from 'react-redux';
 import { render } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import { rolesInitialState } from '../../../redux/roles/reducer';
-import { usersInitialState } from '../../../redux/users/reducer';
-import User from '../../../features/users/user';
-import { FETCH_ADMIN_GROUP } from '../../../redux/groups/action-types';
-import { FETCH_USERS } from '../../../redux/users/action-types';
-import * as UserActions from '../../../redux/users/actions';
-import * as RoleActions from '../../../redux/roles/actions';
-import * as GroupActions from '../../../redux/groups/actions';
+import { rolesInitialState } from '../../../redux/reducers/role-reducer';
+import { usersInitialState } from '../../../redux/reducers/user-reducer';
+import User from '../../../smart-components/user/user';
+import { FETCH_ADMIN_GROUP, FETCH_USERS } from '../../../redux/action-types';
+import * as UserActions from '../../../redux/actions/user-actions';
+import * as RoleActions from '../../../redux/actions/role-actions';
+import * as GroupActions from '../../../redux/actions/group-actions';
 
-jest.mock('../../../redux/users/actions', () => {
-  const actions = jest.requireActual('../../../redux/users/actions');
+jest.mock('../../../redux/actions/user-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/user-actions');
   return {
     __esModule: true,
     ...actions,
   };
 });
 
-jest.mock('../../../redux/groups/actions', () => {
-  const actions = jest.requireActual('../../../redux/groups/actions');
+jest.mock('../../../redux/actions/group-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/group-actions');
   return {
     __esModule: true,
     ...actions,
   };
 });
 
-jest.mock('../../../redux/roles/actions', () => {
-  const actions = jest.requireActual('../../../redux/roles/actions');
+jest.mock('../../../redux/actions/role-actions', () => {
+  const actions = jest.requireActual('../../../redux/actions/role-actions');
   return {
     __esModule: true,
     ...actions,

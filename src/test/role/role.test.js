@@ -6,22 +6,21 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
-import Role from '../../features/roles/role';
-import { FETCH_ROLE, UPDATE_ROLE } from '../../redux/roles/action-types';
-import { FETCH_GROUP, FETCH_SYSTEM_GROUP } from '../../redux/groups/action-types';
+import Role from '../../smart-components/role/role';
+import { FETCH_GROUP, FETCH_ROLE, FETCH_SYSTEM_GROUP, UPDATE_ROLE } from '../../redux/action-types';
 
-import * as RoleActions from '../../redux/roles/actions';
-import * as GroupActions from '../../redux/groups/actions';
-import { getRoleApi } from '../../api/roleApi';
-import { defaultSettings } from '../../helpers/pagination';
-import RemoveRoleModal from '../../features/roles/remove-role-modal';
+import * as RoleActions from '../../redux/actions/role-actions';
+import * as GroupActions from '../../redux/actions/group-actions';
+import * as UserLogin from '../../helpers/shared/user-login';
+import { defaultSettings } from '../../helpers/shared/pagination';
+import RemoveRoleModal from '../../smart-components/role/remove-role-modal';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
   let mockStore;
   let initialState;
 
-  const roleApi = getRoleApi();
+  const roleApi = UserLogin.getRoleApi();
 
   const fetchSystemGroupSpy = jest.spyOn(GroupActions, 'fetchSystemGroup');
   const fetchRoleSpy = jest.spyOn(RoleActions, 'fetchRole');

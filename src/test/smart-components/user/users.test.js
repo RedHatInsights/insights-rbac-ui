@@ -6,11 +6,11 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import configureStore from 'redux-mock-store';
 import promiseMiddleware from 'redux-promise-middleware';
-import Users from '../../../features/users/users';
+import Users from '../../../smart-components/user/users';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { usersInitialState } from '../../../redux/users/reducer';
-import * as UserHelper from '../../../redux/users/helper';
-import { defaultSettings } from '../../../helpers/pagination';
+import { usersInitialState } from '../../../redux/reducers/user-reducer';
+import * as UserHelper from '../../../helpers/user/user-helper';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 describe('<Users />', () => {
   let enhanceState;

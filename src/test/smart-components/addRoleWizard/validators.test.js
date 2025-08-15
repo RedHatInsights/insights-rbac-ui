@@ -1,17 +1,17 @@
-import { asyncValidator } from '../../../features/roles/add-role/validators';
-import * as RoleHelper from '../../../redux/roles/helper';
+import { asyncValidator } from '../../../smart-components/role/add-role/validators';
 
-jest.mock('../../../redux/roles/helper', () => {
-  const actions = jest.requireActual('../../../redux/roles/helper');
+jest.mock('../../../helpers/role/role-helper', () => {
+  const actions = jest.requireActual('../../../helpers/role/role-helper');
 
   return {
     __esModule: true,
     ...actions,
   };
 });
+import * as GroupActions from '../../../helpers/role/role-helper';
 
 describe('validators', () => {
-  const fetchRoles = jest.spyOn(RoleHelper, 'fetchRoles');
+  const fetchRoles = jest.spyOn(GroupActions, 'fetchRoles');
   afterEach(() => {
     fetchRoles.mockReset();
   });

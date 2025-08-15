@@ -1,51 +1,8 @@
 ---
 type: always
-description: "General development guidelines and project standards for the RBAC UI React application, including file organization, naming conventions, and workflow rules."
 ---
 
 # RBAC UI Project - General Development Rules
-## Quick Reference (AI Priority)
-
-### File Operations
-| Operation | Rule | Pattern |
-|-----------|------|---------|
-| Case changes | Create new → Delete old → Stage both | `git add NewFile.tsx && git rm oldfile.js` |
-| Git operations | NEVER do unless requested | Focus on code only |
-| Component files | CamelCase.tsx | `ComponentName.tsx` |
-| Other files | lowerCamelCase | `helperFunction.js` |
-
-### Build Commands
-```bash
-npm run build       # Production build - verify before commit
-npm run lint:js     # Linting - must pass
-npm run build-storybook   # Storybook build
-npm test           # Test suite
-npm run test-storybook:ci # Storybook Test suite
-```
-
-### Architecture Quick Map
-```
-src/
-├── smart-components/           # Feature containers (route-tied)
-├── presentational-components/  # Reusable UI components  
-├── helpers/                   # Business logic by feature
-└── redux/                     # State management
-```
-
-## Critical Rules Checklist
-
-### ❌ NEVER DO
-- [ ] Run git commands unless explicitly requested
-- [ ] Use case changes without proper Git staging
-- [ ] Ignore build/lint failures
-- [ ] Mix file naming conventions
-
-### ✅ ALWAYS DO  
-- [ ] Check `package.json` for dependency versions first
-- [ ] Use proper file naming: CamelCase for components, lowerCamelCase for others
-- [ ] Stage both old/new files for case changes
-- [ ] Verify changes with build commands
-
 
 ## Project Context
 
@@ -105,6 +62,5 @@ This is a React-based UI application for Red Hat's Role-Based Access Control (RB
 - Stories: `ComponentName.stories.tsx` (MUST be capitalized and reflect component name)
 - Tests: `ComponentName.test.js` (MUST be capitalized and reflect component name)
 - Styles: `ComponentName.scss` (MUST be capitalized and reflect component name)
-- All the rest: `lowerCamelCase.xyz` (MUST be lowerCamelCase)
 
 This project follows Red Hat's frontend development standards and integrates with the Red Hat Cloud Services platform.

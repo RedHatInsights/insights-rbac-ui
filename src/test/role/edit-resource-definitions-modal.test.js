@@ -3,12 +3,11 @@ import { act } from 'react-dom/test-utils';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Provider } from 'react-redux';
 import configureStore from 'redux-mock-store';
-import EditResourceDefinitionsModal from '../../features/roles/edit-resource-definitions-modal';
-import { FETCH_INVENTORY_GROUPS } from '../../redux/inventory/action-types';
-import { FETCH_RESOURCE, FETCH_RESOURCE_DEFINITIONS } from '../../redux/cost-management/action-types';
+import EditResourceDefinitionsModal from '../../smart-components/role/edit-resource-definitions-modal';
+import { FETCH_INVENTORY_GROUPS, FETCH_RESOURCE, FETCH_RESOURCE_DEFINITIONS } from '../../redux/action-types';
 
-import * as CostManagementActions from '../../redux/cost-management/actions';
-import * as InventoryActions from '../../redux/inventory/actions';
+import * as CostManagementActions from '../../redux/actions/cost-management-actions';
+import * as InventoryActions from '../../redux/actions/inventory-actions';
 import { render, screen } from '@testing-library/react';
 
 describe('EditResourceDefinitionsModal - Cost management', () => {

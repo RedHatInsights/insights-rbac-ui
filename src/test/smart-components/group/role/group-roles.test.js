@@ -6,16 +6,16 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { render } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
-import GroupRoles from '../../../../features/groups/role/group-roles';
+import GroupRoles from '../../../../smart-components/group/role/group-roles';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { rolesInitialState } from '../../../../redux/roles/reducer';
-import { groupsInitialState } from '../../../../redux/groups/reducer';
+import { rolesInitialState } from '../../../../redux/reducers/role-reducer';
+import { groupsInitialState } from '../../../../redux/reducers/group-reducer';
 
-import * as GroupActions from '../../../../redux/groups/actions';
-import { FETCH_ROLES_FOR_GROUP, FETCH_SYSTEM_GROUP } from '../../../../redux/groups/action-types';
+import * as GroupActions from '../../../../redux/actions/group-actions';
+import { FETCH_ROLES_FOR_GROUP, FETCH_SYSTEM_GROUP } from '../../../../redux/action-types';
 
-jest.mock('../../../../redux/groups/actions', () => {
-  const actual = jest.requireActual('../../../../redux/groups/actions');
+jest.mock('../../../../redux/actions/group-actions', () => {
+  const actual = jest.requireActual('../../../../redux/actions/group-actions');
   return {
     __esModule: true,
     ...actual,

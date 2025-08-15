@@ -6,11 +6,11 @@ import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { render, screen } from '@testing-library/react';
-import * as ServiceAccountsHelper from '../../../../redux/service-accounts/helper';
-import AddGroupServiceAccounts from '../../../../features/groups/service-account/add-group-service-accounts';
-import { serviceAccountsInitialState } from '../../../../redux/service-accounts/reducer';
+import * as ServiceAccountsHelper from '../../../../helpers/service-account/service-account-helper';
+import AddGroupServiceAccounts from '../../../../smart-components/group/service-account/add-group-service-accounts';
+import { serviceAccountsInitialState } from '../../../../redux/reducers/service-account-reducer';
 import * as useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import { RESULTS } from '../../../../redux/service-accounts/constants';
+import { RESULTS } from '../../../../helpers/service-account/constants';
 
 jest.mock('@redhat-cloud-services/frontend-components/useChrome', () => {
   return {

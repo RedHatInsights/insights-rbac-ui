@@ -5,13 +5,12 @@ import configureStore from 'redux-mock-store';
 import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
 
-import CommonBundleView, { createFilter } from '../../../features/myUserAccess/CommonBundleView';
-import OrgAdminContext from '../../../utilities/orgAdminContext';
+import CommonBundleView, { createFilter } from '../../../smart-components/myUserAccess/CommonBundleView';
+import OrgAdminContext from '../../../utilities/org-admin-context';
 
-import * as RoleActions from '../../../redux/roles/actions';
-import * as AccessActions from '../../../redux/access-management/actions';
-import { FETCH_ROLES } from '../../../redux/roles/action-types';
-import { GET_PRINCIPAL_ACCESS } from '../../../redux/access-management/action-types';
+import * as RoleActions from '../../../redux/actions/role-actions';
+import * as AccessActions from '../../../redux/actions/access-actions';
+import { FETCH_ROLES, GET_PRINCIPAL_ACCESS } from '../../../redux/action-types';
 import PropTypes from 'prop-types';
 
 // TODO: Add permissions back when we support partial matching

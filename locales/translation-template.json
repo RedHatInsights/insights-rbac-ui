@@ -11,22 +11,6 @@
     "defaultMessage": "Activate users",
     "description": "activate users button text"
   },
-  "activateUsersConfirmationButton": {
-    "defaultMessage": "Activate user(s)",
-    "description": "activate users confirmation button text"
-  },
-  "activateUsersConfirmationModalCheckboxText": {
-    "defaultMessage": "Yes, I confirm that I want to add these users",
-    "description": "activate users confirmation modal checkbox text"
-  },
-  "activateUsersConfirmationModalDescription": {
-    "defaultMessage": "Are you sure you want to activate the user(s) below for your Red Hat organization?",
-    "description": "activate users confirmation modal description text"
-  },
-  "activateUsersConfirmationModalTitle": {
-    "defaultMessage": "Activate users",
-    "description": "activate users confirmation modal title text"
-  },
   "active": {
     "defaultMessage": "Active",
     "description": "Active label"
@@ -286,34 +270,6 @@
   "applyWorkspacesRolePermission": {
     "defaultMessage": "Specify which workspaces you'd like to give access for these permissions",
     "description": "Permissions for Workspaces"
-  },
-  "assetManagementInsights": {
-    "defaultMessage": "Red Hat Insights",
-    "description": "Red Hat Insights"
-  },
-  "assetManagementInsightsNav": {
-    "defaultMessage": "Take me to Red Hat Insights",
-    "description": "take me to Red Hat Insights"
-  },
-  "assetManagementInsightsOverview": {
-    "defaultMessage": "Manage your RHEL Systems",
-    "description": "manage your RHEL Systems"
-  },
-  "assetManagementOpenShift": {
-    "defaultMessage": "Red Hat OpenShift",
-    "description": "Red Hat OpenShift"
-  },
-  "assetManagementOpenShiftNav": {
-    "defaultMessage": "Take me to Red Hat OpenShift",
-    "description": "take me to Red Hat OpenShift"
-  },
-  "assetManagementOpenShiftOverview": {
-    "defaultMessage": "Manage your Clusters",
-    "description": "manage your clusters"
-  },
-  "assetManagementOverview": {
-    "defaultMessage": "Navigate to a service to manage your assets",
-    "description": "navigate to a service to manage your assets"
   },
   "assets": {
     "defaultMessage": "Assets",
@@ -635,29 +591,13 @@
     "defaultMessage": "Delete Workspaces",
     "description": "delete workspaces"
   },
-  "deleteWorkspaceErrorDescription": {
-    "defaultMessage": "The workspace {workspace} was not deleted successfuly.",
-    "description": "Delete workspace error notification description"
-  },
-  "deleteWorkspaceErrorTitle": {
-    "defaultMessage": "Failed deleting workspace",
-    "description": "Delete workspace error notification title"
-  },
   "deleteWorkspaceModalBody": {
-    "defaultMessage": "{count, plural, one {<b>{name}</b> workspace and all its} other {<b>{count} workspaces</b> and all their}} data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
+    "defaultMessage": "<b>{name}</b> and all its data will be permanently deleted. All access granted to user groups via this workspace will be removed.",
     "description": "Modal body text for deleting a workspace"
   },
   "deleteWorkspaceModalHeader": {
     "defaultMessage": "Delete workspace?",
     "description": "Modal header text for deleting a workspace"
-  },
-  "deleteWorkspaceSuccessDescription": {
-    "defaultMessage": "The workspace {workspace} was deleted successfully.",
-    "description": "Delete workspace success notification description"
-  },
-  "deleteWorkspaceSuccessTitle": {
-    "defaultMessage": "Success deleting workspace",
-    "description": "Delete workspace success notification title"
   },
   "deletingGroupRemovesRoles": {
     "defaultMessage": "Deleting the <b>{name}</b> group removes all roles from the members inside the group.",
@@ -666,14 +606,6 @@
   "deletingGroupsRemovesRoles": {
     "defaultMessage": "Deleting these <b>{count}</b> groups removes all roles from the members inside the groups.",
     "description": "Delete groups label"
-  },
-  "deletingWorkspaceCanceledDescription": {
-    "defaultMessage": "Delete workspace was canceled by the user.",
-    "description": "Delete workspace canceled notification description"
-  },
-  "deletingWorkspaceTitle": {
-    "defaultMessage": "Deleting workspace",
-    "description": "Deleting workspace notification title"
   },
   "description": {
     "defaultMessage": "Description",
@@ -698,10 +630,6 @@
   "edit": {
     "defaultMessage": "Edit",
     "description": "Edit button text"
-  },
-  "editCustomRole": {
-    "defaultMessage": "Edit custom role",
-    "description": "Edit custom role label"
   },
   "editGroupCanceledDescription": {
     "defaultMessage": "Edit group was canceled by the user.",
@@ -783,14 +711,6 @@
     "defaultMessage": "Success updating user",
     "description": "Edit user success notification title"
   },
-  "editWorkspaceSuccessDescription": {
-    "defaultMessage": "The workspace was updated successfully.",
-    "description": "Update workspace success notification description"
-  },
-  "editWorkspaceSuccessTitle": {
-    "defaultMessage": "Success updating workspace",
-    "description": "Update workspace success notification title"
-  },
   "editingGroupTitle": {
     "defaultMessage": "Editing group",
     "description": "Editing group notification title"
@@ -802,14 +722,6 @@
   "editingRoleTitle": {
     "defaultMessage": "Editing role",
     "description": "Editing role notification title"
-  },
-  "editingWorkspaceCanceledDescription": {
-    "defaultMessage": "Edit workspace was canceled by the user.",
-    "description": "Edit workspace canceled notification description"
-  },
-  "editingWorkspaceTitle": {
-    "defaultMessage": "Editing workspace",
-    "description": "Editing workspace notification title"
   },
   "email": {
     "defaultMessage": "Email",
@@ -867,10 +779,6 @@
     "defaultMessage": "Features management",
     "description": "Features management label"
   },
-  "filterByEmail": {
-    "defaultMessage": "Filter by email",
-    "description": "Filter by email label"
-  },
   "filterByKey": {
     "defaultMessage": "Filter by {key}",
     "description": "Filter by data key label"
@@ -878,10 +786,6 @@
   "filterByResource": {
     "defaultMessage": "Filter by resource...",
     "description": "Filter by resource label"
-  },
-  "filterByUsername": {
-    "defaultMessage": "Filter by username",
-    "description": "Filter by username label"
   },
   "filterMatchesNoFilters": {
     "defaultMessage": "This filter criteria matches no {items}.",
@@ -1130,10 +1034,6 @@
     "defaultMessage": "Loading...",
     "description": "Loading temporary label"
   },
-  "loadingWorkspaces": {
-    "defaultMessage": "Loading workspaces...",
-    "description": "Loading workspaces label"
-  },
   "maxCharactersWarning": {
     "defaultMessage": "Can have maximum of {number} characters.",
     "description": "Maximum number of characters message"
@@ -1145,22 +1045,6 @@
   "members": {
     "defaultMessage": "Members",
     "description": "Group members label"
-  },
-  "moveWorkspaceErrorDescription": {
-    "defaultMessage": "{workspace} was not moved successfully.",
-    "description": "Move workspace error notification description"
-  },
-  "moveWorkspaceErrorTitle": {
-    "defaultMessage": "Failed to move {name}",
-    "description": "Move workspace error notification title"
-  },
-  "moveWorkspaceSuccessDescription": {
-    "defaultMessage": "{name} has been moved successfully.",
-    "description": "Move workspace success notification description"
-  },
-  "moveWorkspaceSuccessTitle": {
-    "defaultMessage": "Moving workspace",
-    "description": "Move workspace success notification title"
   },
   "myUserAccess": {
     "defaultMessage": "My User Access",
@@ -1287,7 +1171,7 @@
     "description": "User Access Admin hint about permissions"
   },
   "orgAdminInheritedRoles": {
-    "defaultMessage": "This group contains the roles that all org admin users inherit by default. The roles within this group are managed and maintained by Red Hat and cannot be edited.",
+    "defaultMessage": "This group contains the roles that all org admin users inherit by default.",
     "description": "Org. Admin inherited roles message"
   },
   "orgAdministrator": {
@@ -1730,22 +1614,6 @@
     "defaultMessage": "Save",
     "description": "Save button text"
   },
-  "saveChanges": {
-    "defaultMessage": "Save changes",
-    "description": "save changes button label"
-  },
-  "searchByApplicationPlaceholder": {
-    "defaultMessage": "Search by application",
-    "description": "search by application placeholder"
-  },
-  "searchByOperationPlaceholder": {
-    "defaultMessage": "Search by operation",
-    "description": "search by operation placeholder"
-  },
-  "searchByResourceTypePlaceholder": {
-    "defaultMessage": "Search by resource type",
-    "description": "search by resource type placeholder"
-  },
   "seeLess": {
     "defaultMessage": "See less",
     "description": "See less label"
@@ -1934,10 +1802,6 @@
     "defaultMessage": "Cancel",
     "description": "Cancel add user label"
   },
-  "usersAndUserGroupsCreateUserGroup": {
-    "defaultMessage": "Create user group",
-    "description": "Create user group label"
-  },
   "usersAndUserGroupsDeleteUserGroup": {
     "defaultMessage": "Delete user group",
     "description": "Delete user group label"
@@ -2070,16 +1934,12 @@
     "defaultMessage": "Workspace name",
     "description": "Workspace name label"
   },
-  "workspaceNameTaken": {
-    "defaultMessage": "Workspace name already taken",
-    "description": "Workspace name taken error title"
-  },
   "workspaceNamingGuidelines": {
-    "defaultMessage": "Use clear, descriptive workspace names like \"Production North America\" or \"Project-X\" to organize assets, control access, and simplify management.{link}",
+    "defaultMessage": "{link} about the guidelines for naming your workspaces.",
     "description": "Workspace naming guidelines hint"
   },
   "workspaceNotEmptyWarning": {
-    "defaultMessage": "{count, plural, one {Workspace} other {Workspaces}} must be empty to delete and must not have any children workspaces. You must move assets in {count, plural, one {this workspace} other {these workspaces}} to other workspaces in order to proceed.",
+    "defaultMessage": "Workspace must be empty to delete and must not have any children workspaces. You must move assets in this workspace to other workspaces in order to proceed.",
     "description": "Display text in delete modal when workspace is not empty"
   },
   "workspaceParentHelperText": {

@@ -7,15 +7,15 @@ import configureStore from 'redux-mock-store';
 import { MemoryRouter } from 'react-router-dom';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
-import EditGroupModal from '../../../features/groups/edit-group-modal';
-import { groupsInitialState } from '../../../redux/groups/reducer';
-import * as GroupActions from '../../../redux/groups/actions';
-import { FETCH_GROUP } from '../../../redux/groups/action-types';
-import { defaultSettings } from '../../../helpers/pagination';
+import EditGroupModal from '../../../smart-components/group/edit-group-modal';
+import { groupsInitialState } from '../../../redux/reducers/group-reducer';
+import * as GroupActions from '../../../redux/actions/group-actions';
+import { FETCH_GROUP } from '../../../redux/action-types';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 import PropTypes from 'prop-types';
 
-jest.mock('../../../redux/groups/actions', () => {
-  const actual = jest.requireActual('../../../redux/groups/actions');
+jest.mock('../../../redux/actions/group-actions', () => {
+  const actual = jest.requireActual('../../../redux/actions/group-actions');
   return {
     __esModule: true,
     ...actual,

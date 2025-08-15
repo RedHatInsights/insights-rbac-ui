@@ -6,12 +6,12 @@ import configureStore from 'redux-mock-store';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { Provider } from 'react-redux';
 import promiseMiddleware from 'redux-promise-middleware';
-import Groups from '../../../features/groups/groups';
+import Groups from '../../../smart-components/group/groups';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { groupsInitialState } from '../../../redux/groups/reducer';
-import * as GroupActions from '../../../redux/groups/actions';
-import { FETCH_ADMIN_GROUP, FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/groups/action-types';
-import { defaultSettings } from '../../../helpers/pagination';
+import { groupsInitialState } from '../../../redux/reducers/group-reducer';
+import * as GroupActions from '../../../redux/actions/group-actions';
+import { FETCH_ADMIN_GROUP, FETCH_GROUPS, FETCH_SYSTEM_GROUP } from '../../../redux/action-types';
+import { defaultSettings } from '../../../helpers/shared/pagination';
 
 jest.mock('react-router-dom', () => ({
   ...jest.requireActual('react-router-dom'),

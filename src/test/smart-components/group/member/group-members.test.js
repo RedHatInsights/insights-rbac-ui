@@ -5,13 +5,13 @@ import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import configureStore from 'redux-mock-store';
 import { render } from '@testing-library/react';
 import promiseMiddleware from 'redux-promise-middleware';
-import GroupMembers from '../../../../features/groups/member/group-members';
+import GroupMembers from '../../../../smart-components/group/member/group-members';
 import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import * as GroupActions from '../../../../redux/groups/actions';
-import { FETCH_GROUPS, FETCH_MEMBERS_FOR_GROUP } from '../../../../redux/groups/action-types';
+import * as GroupActions from '../../../../redux/actions/group-actions';
+import { FETCH_GROUPS, FETCH_MEMBERS_FOR_GROUP } from '../../../../redux/action-types';
 
-jest.mock('../../../../redux/groups/actions', () => {
-  const actual = jest.requireActual('../../../../redux/groups/actions');
+jest.mock('../../../../redux/actions/group-actions', () => {
+  const actual = jest.requireActual('../../../../redux/actions/group-actions');
   return {
     __esModule: true,
     ...actual,

@@ -1,8 +1,7 @@
-import policyReducer, { policiesInitialState } from '../../../redux/policies/reducer';
+import policyReducer, { policiesInitialState } from '../../../redux/reducers/policy-reducer';
 import { callReducer } from '../redux-helpers';
 
-import { FETCH_GROUP_POLICIES } from '../../../redux/policies/action-types';
-import { FETCH_POLICY } from '../../../redux/policies/action-types';
+import { FETCH_GROUP_POLICIES, FETCH_POLICY } from '../../../redux/action-types';
 
 describe('Policy reducer', () => {
   let initialState;
