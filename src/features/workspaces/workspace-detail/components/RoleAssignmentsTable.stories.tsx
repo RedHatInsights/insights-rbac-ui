@@ -374,3 +374,98 @@ export const PaginationTest: Story = {
     expect(lastCall[1]).toBe(2); // Second argument should be the page number
   },
 };
+
+// Test row click to open drawer
+export const DrawerInteraction: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    ouiaId: 'role-assignments-drawer-test',
+  },
+  parameters: {
+    mockState: {
+      groupReducer: {
+        selectedGroup: {
+          members: {
+            data: [
+              { username: 'admin', first_name: 'Admin', last_name: 'User', uuid: '1' },
+              { username: 'user1', first_name: 'John', last_name: 'Doe', uuid: '2' },
+            ],
+            isLoading: false,
+          },
+          roles: {
+            data: [
+              { uuid: '1', display_name: 'Administrator' },
+              { uuid: '2', display_name: 'User Manager' },
+            ],
+            isLoading: false,
+          },
+          error: null,
+        },
+      },
+    },
+    docs: {
+      description: {
+        story: 'Testing row click functionality to open the GroupDetailsDrawer with tabs.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Initially drawer should be closed
+    await expect(canvas.queryByRole('tab', { name: /roles/i })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('tab', { name: /users/i })).not.toBeInTheDocument();
+
+    // Find the first row (Platform Administrators) and click it
+    const firstRowCell = await canvas.findByText('Platform Administrators');
+    await userEvent.click(firstRowCell);
+
+    // Wait for drawer to open
+    await waitFor(async () => {
+      // Should see the group name in drawer header
+      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+
+      // Should see tabs
+      await expect(canvas.findByRole('tab', { name: /roles/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+    });
+
+    // Verify roles tab content is visible (default active tab)
+    await expect(canvas.findByText('Administrator')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('User Manager')).resolves.toBeInTheDocument();
+
+    // Switch to Users tab
+    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+    await userEvent.click(usersTab);
+
+    // Verify users content is now visible
+    await expect(canvas.findByText('admin')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('John')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Doe')).resolves.toBeInTheDocument();
+
+    // Close drawer by clicking close button
+    const closeButton = await canvas.findByRole('button', { name: /close/i });
+    await userEvent.click(closeButton);
+
+    // Verify drawer is closed
+    await waitFor(async () => {
+      await expect(canvas.queryByRole('tab', { name: /roles/i })).not.toBeInTheDocument();
+    });
+  },
+};
