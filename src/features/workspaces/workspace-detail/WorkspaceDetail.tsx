@@ -6,6 +6,7 @@ import { fetchGroups } from '../../../redux/groups/actions';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { RBACStore } from '../../../redux/store';
 import { useParams, useSearchParams } from 'react-router-dom';
+import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
@@ -13,15 +14,25 @@ import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { mappedProps } from '../../../helpers/dataUtilities';
+import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
 
 interface WorkspaceData {
   name: string;
   id: string;
 }
 
+interface RoleAssignmentsFilters {
+  name: string;
+}
+
 const WORKSPACE_TABS = {
   roles: 0,
   assets: 1,
+} as const;
+
+const ROLE_ASSIGNMENT_TABS = {
+  'roles-assigned-in-workspace': 0,
+  'roles-assigned-outside': 1,
 } as const;
 
 export const WorkspaceDetail = () => {
@@ -30,6 +41,7 @@ export const WorkspaceDetail = () => {
   const [searchParams, setSearchParams] = useSearchParams();
   const enableRoles = useFlag('platform.rbac.workspaces-role-bindings');
   const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
+  const activeRoleAssignmentTabString = searchParams.get('roleAssignmentTab') || 'roles-assigned-in-workspace';
 
   const rolesRef = React.createRef<HTMLElement>();
   const assetsRef = React.createRef<HTMLElement>();
@@ -44,40 +56,60 @@ export const WorkspaceDetail = () => {
 
   const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
 
-  // Groups pagination state
-  const [groupsPage, setGroupsPage] = useState(1);
-  const [groupsPerPage, setGroupsPerPage] = useState(20);
+  // DataView hooks for role assignments table
+  const { sortBy, direction, onSort } = useDataViewSort({
+    initialSort: {
+      sortBy: 'name',
+      direction: 'asc' as const,
+    },
+    searchParams,
+    setSearchParams,
+  });
+
+  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleAssignmentsFilters>({
+    initialFilters: { name: '' },
+    searchParams,
+    setSearchParams,
+  });
+
+  const { page, perPage, onSetPage, onPerPageSelect } = useDataViewPagination({
+    perPage: 20,
+    searchParams,
+    setSearchParams,
+  });
 
   // Groups data fetching
-  const fetchGroupsData = useCallback(
-    (page: number, perPage: number) => {
-      const offset = (page - 1) * perPage;
-      dispatch(
-        fetchGroups({
-          ...mappedProps({
-            count: groupsTotalCount || 0,
-            limit: perPage,
-            offset,
-            orderBy: 'name' as any,
-          }),
-          usesMetaInURL: true,
-          system: false,
+  const fetchGroupsData = useCallback(() => {
+    const offset = (page - 1) * perPage;
+    const orderBy = sortBy && direction ? `${direction === 'desc' ? '-' : ''}${sortBy}` : 'name';
+    const nameFilter = filters?.name?.trim() || '';
+
+    dispatch(
+      fetchGroups({
+        ...mappedProps({
+          count: groupsTotalCount || 0,
+          limit: perPage,
+          offset,
+          orderBy: orderBy as ListGroupsOrderByEnum,
         }),
-      );
-    },
-    [dispatch, groupsTotalCount],
-  );
+        // Pass filter parameters correctly according to the API
+        ...(nameFilter
+          ? {
+              filters: { name: nameFilter },
+              nameMatch: 'partial' as const, // Enable partial matching for the filter
+            }
+          : {}),
+        usesMetaInURL: true,
+        system: false,
+      }),
+    );
+  }, [dispatch, groupsTotalCount, page, perPage, sortBy, direction, filters]);
 
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
-      fetchGroupsData(groupsPage, groupsPerPage);
+      fetchGroupsData();
     }
-  }, [fetchGroupsData, groupsPage, groupsPerPage, activeTabString, enableRoles]);
-
-  const handleGroupsPaginationChange = useCallback((page: number, perPage: number) => {
-    setGroupsPage(page);
-    setGroupsPerPage(perPage);
-  }, []);
+  }, [fetchGroupsData, activeTabString, enableRoles]);
 
   useEffect(() => {
     if (!searchParams.has('activeTab') || (!enableRoles && activeTabString !== 'assets')) {
@@ -123,6 +155,17 @@ export const WorkspaceDetail = () => {
     }
   };
 
+  const handleRoleAssignmentTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
+    const selectedTabKey = Object.keys(ROLE_ASSIGNMENT_TABS).find(
+      (tab): tab is keyof typeof ROLE_ASSIGNMENT_TABS => ROLE_ASSIGNMENT_TABS[tab as keyof typeof ROLE_ASSIGNMENT_TABS] === key,
+    );
+    if (selectedTabKey && selectedTabKey !== activeRoleAssignmentTabString) {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('roleAssignmentTab', selectedTabKey);
+      setSearchParams(newParams);
+    }
+  };
+
   return (
     <>
       <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
@@ -156,14 +199,48 @@ export const WorkspaceDetail = () => {
           <AssetsCards workspaceName={selectedWorkspace?.name} />
         ) : (
           enableRoles && (
-            <RoleAssignmentsTable
-              groups={groups}
-              totalCount={groupsTotalCount}
-              isLoading={groupsIsLoading}
-              page={groupsPage}
-              perPage={groupsPerPage}
-              onPaginationChange={handleGroupsPaginationChange}
-            />
+            <>
+              <div className="pf-v5-u-background-color-100">
+                <Tabs
+                  activeKey={ROLE_ASSIGNMENT_TABS[activeRoleAssignmentTabString as keyof typeof ROLE_ASSIGNMENT_TABS]}
+                  onSelect={handleRoleAssignmentTabSelect}
+                  inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
+                  className="pf-v5-u-background-color-100"
+                >
+                  <Tab
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
+                    title="Roles assigned in this Workspace"
+                    tabContentId="rolesAssignedInWorkspaceTab"
+                  />
+                  <Tab
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-outside']}
+                    title="Roles assigned outside"
+                    tabContentId="rolesAssignedOutsideTab"
+                  />
+                </Tabs>
+                <div className="pf-v5-u-background-color-100">
+                  {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
+                    <RoleAssignmentsTable
+                      groups={groups}
+                      totalCount={groupsTotalCount}
+                      isLoading={groupsIsLoading}
+                      page={page}
+                      perPage={perPage}
+                      onSetPage={onSetPage}
+                      onPerPageSelect={onPerPageSelect}
+                      sortBy={sortBy}
+                      direction={direction}
+                      onSort={onSort}
+                      filters={filters}
+                      onSetFilters={onSetFilters}
+                      clearAllFilters={clearAllFilters}
+                    />
+                  ) : (
+                    <div className="pf-v5-u-background-color-100 pf-v5-u-p-lg pf-v5-u-text-align-center">Roles assigned outside - Coming soon</div>
+                  )}
+                </div>
+              </div>
+            </>
           )
         )}
       </PageSection>

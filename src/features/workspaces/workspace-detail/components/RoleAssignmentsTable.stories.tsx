@@ -1,10 +1,30 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { Provider } from 'react-redux';
+// @ts-ignore - redux-mock-store doesn't have TypeScript definitions
+import configureStore from 'redux-mock-store';
+import thunk from 'redux-thunk';
+import promiseMiddleware from 'redux-promise-middleware';
+import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
 import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
-import { waitForSkeletonToDisappear } from '../../workspaceTestHelpers';
+
+// Redux store setup
+const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
+const mockStore = configureStore(middlewares);
+
+const createInitialState = (overrides: Record<string, unknown> = {}) => ({
+  groupReducer: {
+    selectedGroup: {
+      members: { data: [], isLoading: false },
+      roles: { data: [], isLoading: false },
+      error: null,
+    },
+    ...overrides,
+  },
+});
 
 // Mock group data
 const mockGroups: Group[] = [
@@ -46,13 +66,18 @@ const mockGroups: Group[] = [
 ];
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any) => {
+const withProviders = (Story: React.ComponentType, context: { parameters?: { mockState?: { groupReducer?: Record<string, unknown> } } }) => {
+  const initialState = createInitialState(context.parameters?.mockState?.groupReducer || {});
+  const store = mockStore(initialState);
+
   return (
-    <IntlProvider locale="en" messages={{}}>
-      <div style={{ height: '600px', padding: '16px' }}>
-        <Story />
-      </div>
-    </IntlProvider>
+    <Provider store={store}>
+      <IntlProvider locale="en" messages={{}}>
+        <div style={{ height: '600px', padding: '16px' }}>
+          <Story />
+        </div>
+      </IntlProvider>
+    </Provider>
   );
 };
 
@@ -71,6 +96,8 @@ The RoleAssignmentsTable displays groups and their role assignments in a workspa
 - **Prop-based Data**: Receives groups data as props from parent component
 - **Pagination**: Built-in pagination with configurable page sizes
 - **Bulk Selection**: Select individual or all groups on a page
+- **Sorting & Filtering**: Sortable columns and user group filtering
+- **Interactive Drawer**: Clickable rows open drawer with Users and Roles tabs
 - **Data States**: Loading, empty, and error states
 - **Responsive Design**: Optimized for different screen sizes
 
@@ -80,8 +107,14 @@ The RoleAssignmentsTable displays groups and their role assignments in a workspa
 - \`isLoading\`: Loading state boolean
 - \`page\`: Current page number
 - \`perPage\`: Number of items per page
-- \`onPaginationChange\`: Callback when pagination changes
-- \`onChange\`: Callback when selection changes
+- \`onSetPage\`: Callback when page changes
+- \`onPerPageSelect\`: Callback when per page changes
+- \`sortBy\`: Current sort field
+- \`direction\`: Current sort direction
+- \`onSort\`: Callback when sorting changes
+- \`filters\`: Current filter values
+- \`onSetFilters\`: Callback when filters change
+- \`clearAllFilters\`: Callback to clear all filters
 - \`ouiaId\`: OUIA identifier for testing
 
 ## Group Data Structure
@@ -112,13 +145,37 @@ The table handles long descriptions with tooltips and shows creation/modificatio
       description: 'Number of items per page',
       control: { type: 'number' },
     },
-    onPaginationChange: {
-      description: 'Callback when pagination changes',
-      action: 'pagination-changed',
+    onSetPage: {
+      description: 'Callback when page changes',
+      action: 'page-changed',
     },
-    onChange: {
-      description: 'Callback when selection changes',
-      action: 'selection-changed',
+    onPerPageSelect: {
+      description: 'Callback when per page changes',
+      action: 'per-page-changed',
+    },
+    sortBy: {
+      description: 'Current sort field',
+      control: { type: 'text' },
+    },
+    direction: {
+      description: 'Current sort direction',
+      control: { type: 'select', options: ['asc', 'desc'] },
+    },
+    onSort: {
+      description: 'Callback when sorting changes',
+      action: 'sort-changed',
+    },
+    filters: {
+      description: 'Current filter values',
+      control: { type: 'object' },
+    },
+    onSetFilters: {
+      description: 'Callback when filters change',
+      action: 'filters-changed',
+    },
+    clearAllFilters: {
+      description: 'Callback to clear all filters',
+      action: 'filters-cleared',
     },
     ouiaId: {
       description: 'OUIA identifier for testing',
@@ -138,8 +195,14 @@ export const Default: Story = {
     isLoading: false,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
-    onChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
     ouiaId: 'role-assignments-table',
   },
   parameters: {
@@ -152,18 +215,22 @@ export const Default: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
-
     // Wait for table to load - PatternFly uses 'grid' role for interactive tables
     const table = await canvas.findByRole('grid');
     await expect(table).toBeInTheDocument();
 
-    // Verify table headers
-    await expect(canvas.findByText('User group')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Description')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Users')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('Roles')).resolves.toBeInTheDocument();
+    // Verify table headers (using more specific selectors to avoid filter dropdown conflicts)
+    await waitFor(async () => {
+      // Check for table headers specifically within the table
+      const tableHeaders = table.querySelectorAll('th');
+      expect(tableHeaders.length).toBeGreaterThan(0);
+
+      // Verify specific headers exist in the table
+      await expect(canvas.getByText('Description')).toBeInTheDocument();
+      await expect(canvas.getByText('Users')).toBeInTheDocument();
+      await expect(canvas.getByText('Roles')).toBeInTheDocument();
+      await expect(canvas.getByText('Last modified')).toBeInTheDocument();
+    });
 
     // Verify group data is displayed
     await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
@@ -184,8 +251,14 @@ export const LoadingState: Story = {
     isLoading: true,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
-    onChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
     ouiaId: 'role-assignments-table-loading',
   },
   parameters: {
@@ -198,11 +271,16 @@ export const LoadingState: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    // In loading state, should show skeleton but not actual group data
+    // In loading state, should show skeleton elements and not actual group data
     await waitFor(
       async () => {
+        // Check for skeleton loading elements
+        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+        expect(skeletonElements.length).toBeGreaterThan(0);
+
+        // Should not show actual group data
         const loadingElements = canvas.queryAllByText('Platform Administrators');
-        await expect(loadingElements.length).toBe(0);
+        expect(loadingElements.length).toBe(0);
       },
       { timeout: 2000 },
     );
@@ -217,8 +295,14 @@ export const EmptyState: Story = {
     isLoading: false,
     page: 1,
     perPage: 20,
-    onPaginationChange: fn(),
-    onChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
     ouiaId: 'role-assignments-table-empty',
   },
   parameters: {
@@ -243,8 +327,14 @@ export const PaginationTest: Story = {
     isLoading: false,
     page: 1,
     perPage: 2,
-    onPaginationChange: fn(),
-    onChange: fn(),
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
     ouiaId: 'role-assignments-pagination',
   },
   parameters: {
@@ -256,9 +346,6 @@ export const PaginationTest: Story = {
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
-
-    // Wait for skeleton loading to complete first
-    await waitForSkeletonToDisappear(canvasElement);
 
     // Wait for table to load
     const table = await canvas.findByRole('grid');
@@ -279,6 +366,106 @@ export const PaginationTest: Story = {
 
     // Test pagination callback when clicking next
     await userEvent.click(nextButtons[0]);
-    await expect(args.onPaginationChange).toHaveBeenCalledWith(2, 2);
+
+    // Verify the callback was called and the second argument is the page number
+    await expect(args.onSetPage).toHaveBeenCalled();
+    const mockFn = args.onSetPage as any;
+    const lastCall = mockFn.mock.calls[mockFn.mock.calls.length - 1];
+    expect(lastCall[1]).toBe(2); // Second argument should be the page number
+  },
+};
+
+// Test row click to open drawer
+export const DrawerInteraction: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    ouiaId: 'role-assignments-drawer-test',
+  },
+  parameters: {
+    mockState: {
+      groupReducer: {
+        selectedGroup: {
+          members: {
+            data: [
+              { username: 'admin', first_name: 'Admin', last_name: 'User', uuid: '1' },
+              { username: 'user1', first_name: 'John', last_name: 'Doe', uuid: '2' },
+            ],
+            isLoading: false,
+          },
+          roles: {
+            data: [
+              { uuid: '1', display_name: 'Administrator' },
+              { uuid: '2', display_name: 'User Manager' },
+            ],
+            isLoading: false,
+          },
+          error: null,
+        },
+      },
+    },
+    docs: {
+      description: {
+        story: 'Testing row click functionality to open the GroupDetailsDrawer with tabs.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Initially drawer should be closed
+    await expect(canvas.queryByRole('tab', { name: /roles/i })).not.toBeInTheDocument();
+    await expect(canvas.queryByRole('tab', { name: /users/i })).not.toBeInTheDocument();
+
+    // Find the first row (Platform Administrators) and click it
+    const firstRowCell = await canvas.findByText('Platform Administrators');
+    await userEvent.click(firstRowCell);
+
+    // Wait for drawer to open
+    await waitFor(async () => {
+      // Should see the group name in drawer header
+      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+
+      // Should see tabs
+      await expect(canvas.findByRole('tab', { name: /roles/i })).resolves.toBeInTheDocument();
+      await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+    });
+
+    // Verify roles tab content is visible (default active tab)
+    await expect(canvas.findByText('Administrator')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('User Manager')).resolves.toBeInTheDocument();
+
+    // Switch to Users tab
+    const usersTab = await canvas.findByRole('tab', { name: /users/i });
+    await userEvent.click(usersTab);
+
+    // Verify users content is now visible
+    await expect(canvas.findByText('admin')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('John')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Doe')).resolves.toBeInTheDocument();
+
+    // Close drawer by clicking close button
+    const closeButton = await canvas.findByRole('button', { name: /close/i });
+    await userEvent.click(closeButton);
+
+    // Verify drawer is closed
+    await waitFor(async () => {
+      await expect(canvas.queryByRole('tab', { name: /roles/i })).not.toBeInTheDocument();
+    });
   },
 };

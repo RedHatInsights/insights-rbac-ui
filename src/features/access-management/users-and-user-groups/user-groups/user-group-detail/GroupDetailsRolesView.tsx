@@ -60,7 +60,7 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
       <div className="pf-v5-u-pt-md">
         <EmptyState variant="sm">
           <EmptyStateHeader titleText="No roles found" icon={<EmptyStateIcon icon={KeyIcon} />} headingLevel="h4" />
-          <EmptyStateBody>This group currently has no roles assigned to it.</EmptyStateBody>
+          <EmptyStateBody>{intl.formatMessage(messages.groupNoRolesAssigned)}</EmptyStateBody>
         </EmptyState>
       </div>
     );

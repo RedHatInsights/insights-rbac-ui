@@ -64,7 +64,7 @@ const GroupDetailsUsersView: React.FunctionComponent<GroupDetailsUsersViewProps>
       <div className="pf-v5-u-pt-md">
         <EmptyState variant="sm">
           <EmptyStateHeader titleText="No users found" icon={<EmptyStateIcon icon={UsersIcon} />} headingLevel="h4" />
-          <EmptyStateBody>This group currently has no users assigned to it.</EmptyStateBody>
+          <EmptyStateBody>{intl.formatMessage(messages.groupNoUsersAssigned)}</EmptyStateBody>
         </EmptyState>
       </div>
     );
