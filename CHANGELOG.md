@@ -1,3 +1,10 @@
+## [1.48.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.1...v1.48.2) (2025-08-19)
+
+
+### Bug Fixes
+
+* update iam.svg url ([#1898](https://github.com/RedHatInsights/insights-rbac-ui/issues/1898)) ([b8a49c4](https://github.com/RedHatInsights/insights-rbac-ui/commit/b8a49c42bb2c72bd66a4b6df39857b58a3978e7f))
+
 ## [1.48.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.0...v1.48.1) (2025-08-04)
 
 
