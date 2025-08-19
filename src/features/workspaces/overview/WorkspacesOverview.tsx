@@ -29,7 +29,7 @@ import { useNavigate } from 'react-router-dom';
 const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
 const GRANT_ACCESS = '';
-const workspacesIcon = '/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg';
+const workspacesIcon = '/apps/frontend-assets/technology-icons/iam.svg';
 const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-icon.svg';
 const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
 

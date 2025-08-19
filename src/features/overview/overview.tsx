@@ -21,7 +21,7 @@ const Overview: React.FC = () => {
       <ContentHeader
         title={intl.formatMessage(messages.overview)}
         subtitle={intl.formatMessage(messages.overviewSubtitle)}
-        icon={<img src="/apps/frontend-assets/rbac-landing/rbac-landing-icon.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
+        icon={<img src="/apps/frontend-assets/technology-icons/iam.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
         linkProps={{
           label: intl.formatMessage(messages.learnMore),
           isExternal: true,
