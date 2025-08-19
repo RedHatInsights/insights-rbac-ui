@@ -59,12 +59,12 @@ interface FetchUsersApiProps {
 /**
  * An action creator function to invite new users to CRC.
  */
-export const addUsers = (usersData: AddUsersData, config: Config): ReduxAction<Promise<Response>> => {
+export const addUsers = (usersData: AddUsersData, config: Config, itless: boolean): ReduxAction<Promise<Response>> => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: (providerMessages as Record<string, unknown>).en as Record<string, string> }, cache);
   return {
     type: ADD_USERS,
-    payload: addUsersHelper(usersData, config),
+    payload: addUsersHelper(usersData, config, itless),
     meta: {
       notifications: {
         fulfilled: {
