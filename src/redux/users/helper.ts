@@ -159,8 +159,8 @@ export async function addUsers(
   return promise;
 }
 
-export async function updateUserIsOrgAdminStatus(user: UserOrgAdminUpdate, config?: Config): Promise<Response | Response[]> {
-  if (config && config.accountId && config.token) {
+export async function updateUserIsOrgAdminStatus(user: UserOrgAdminUpdate, config?: Config, itless?: boolean): Promise<Response | Response[]> {
+  if (config && config.accountId && config.token && !itless) {
     const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${String(config.accountId)}/users/${user.id}/roles`;
     return fetch(currURL, {
       method: user.is_org_admin ? 'POST' : 'DELETE',
@@ -195,8 +195,8 @@ export async function updateUserIsOrgAdminStatus(user: UserOrgAdminUpdate, confi
   return promise;
 }
 
-export async function changeUsersStatus(users: User[], config?: Config): Promise<Response | Response[]> {
-  if (config && config.accountId && config.token) {
+export async function changeUsersStatus(users: User[], config?: Config, itless?: boolean): Promise<Response | Response[]> {
+  if (config && config.accountId && config.token && !itless) {
     return Promise.all(
       users.map((user) => {
         const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${String(config.accountId)}/users/${user.uuid}/status`;
