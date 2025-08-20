@@ -55,6 +55,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
   const [isDeactivateModalOpen, setIsDeactivateModalOpen] = useState(false);
   const [checkedStates, setCheckedStates] = useState(false);
   const [currAccountId, setCurrAccountId] = useState<string | undefined>();
+  const isITLess = useFlag('platform.rbac.itless');
 
   useEffect(() => {
     const getToken = async () => {
@@ -186,7 +187,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
 
     const usersList = updatedUsers.map((user) => ({ ...user, id: user.external_source_id, is_active: isActive }));
     try {
-      await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }));
+      await dispatch(changeUsersStatus(usersList, { isProd: isProd(), token, accountId }, isITLess));
       fetchData({ ...pagination, filters, usesMetaInURL });
     } catch (error) {
       console.error('Failed to update status: ', error);

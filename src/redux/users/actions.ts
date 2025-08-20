@@ -59,12 +59,12 @@ interface FetchUsersApiProps {
 /**
  * An action creator function to invite new users to CRC.
  */
-export const addUsers = (usersData: AddUsersData, config: Config): ReduxAction<Promise<Response>> => {
+export const addUsers = (usersData: AddUsersData, config: Config, itless: boolean): ReduxAction<Promise<Response>> => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: (providerMessages as Record<string, unknown>).en as Record<string, string> }, cache);
   return {
     type: ADD_USERS,
-    payload: addUsersHelper(usersData, config),
+    payload: addUsersHelper(usersData, config, itless),
     meta: {
       notifications: {
         fulfilled: {
@@ -106,12 +106,16 @@ export const addUsers = (usersData: AddUsersData, config: Config): ReduxAction<P
 /**
  * An action creator function to promote/demote an user to be org. admin in CRC.
  */
-export const updateUserIsOrgAdminStatus = (user: UserOrgAdminUpdate, config: Config): ReduxAction<Promise<Response | Response[]>> => {
+export const updateUserIsOrgAdminStatus = (
+  user: UserOrgAdminUpdate,
+  config: Config,
+  itless: boolean,
+): ReduxAction<Promise<Response | Response[]>> => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: (providerMessages as Record<string, unknown>).en as Record<string, string> }, cache);
   return {
     type: UPDATE_USER_IS_ORG_ADMIN_STATUS,
-    payload: updateUserIsOrgAdminStatusHelper(user, config),
+    payload: updateUserIsOrgAdminStatusHelper(user, config, itless),
     meta: {
       notifications: {
         fulfilled: {
@@ -136,12 +140,12 @@ export const updateUserIsOrgAdminStatus = (user: UserOrgAdminUpdate, config: Con
 /**
  * An action creator function to change user status to active/inactive in CRC.
  */
-export const changeUsersStatus = (userList: User[], config: Config): ReduxAction<Promise<Response | Response[]>> => {
+export const changeUsersStatus = (userList: User[], config: Config, itless: boolean): ReduxAction<Promise<Response | Response[]>> => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: (providerMessages as Record<string, unknown>).en as Record<string, string> }, cache);
   return {
     type: CHANGE_USERS_STATUS,
-    payload: changeUsersStatusHelper(userList, config),
+    payload: changeUsersStatusHelper(userList, config, itless),
     meta: {
       notifications: {
         fulfilled: {

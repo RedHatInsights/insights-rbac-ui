@@ -4,6 +4,7 @@ import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useDispatch } from 'react-redux';
 import { updateUserIsOrgAdminStatus } from '../../redux/users/actions';
 import { OrgAdminDropdown as PresentationalOrgAdminDropdown } from './components/OrgAdminDropdown';
+import { useFlag } from '@unleash/proxy-client-react';
 
 const OrgAdminDropdown: React.FC<{
   isOrgAdmin: boolean;
@@ -19,6 +20,7 @@ const OrgAdminDropdown: React.FC<{
   const [accountId, setAccountId] = useState<string | null>(null);
   const [accountUsername, setAccountUsername] = useState<string | null>(null);
   const dispatch = useDispatch();
+  const isITLess = useFlag('platform.rbac.itless');
 
   useEffect(() => {
     const getToken = async () => {
@@ -43,7 +45,7 @@ const OrgAdminDropdown: React.FC<{
     setLoading(true);
 
     try {
-      await dispatch(updateUserIsOrgAdminStatus({ id: String(userId), is_org_admin: newStatus }, { isProd: isProd(), token, accountId }));
+      await dispatch(updateUserIsOrgAdminStatus({ id: String(userId), is_org_admin: newStatus }, { isProd: isProd(), token, accountId }, isITLess));
       fetchData?.();
     } catch (error) {
       console.error('Failed to update org admin status:', error);

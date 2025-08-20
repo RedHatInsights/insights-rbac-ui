@@ -38,6 +38,7 @@ interface UsersProps {
 
 export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, ouiaId = 'iam-users-table' }) => {
   const authModel = useFlag('platform.rbac.common-auth-model');
+  const isITLess = useFlag('platform.rbac.itless');
   const { getBundle, getApp } = useChrome();
   const dispatch = useDispatch();
   const [searchParams, setSearchParams] = useSearchParams();
@@ -141,6 +142,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               },
             ],
             { isProd: isProd() || false, token, accountId },
+            isITLess,
           ),
         );
       } catch (error) {

@@ -35,6 +35,7 @@ type SubmitValues = {
 const InviteUsers = () => {
   const { fetchData } = useOutletContext<{ fetchData: (isSubmit: boolean) => void }>();
   const advancedPermissions = useFlag('platform.rbac.common-auth-model_advanced-permissions');
+  const isITLess = useFlag('platform.rbac.itless');
   const [token, setToken] = React.useState<string | null>(null);
   const [accountId, setAccountId] = React.useState<string | null>(null);
   const [responseError, setResponseError] = React.useState<{ title: string; description: string; url?: string } | null>(null);
@@ -62,6 +63,7 @@ const InviteUsers = () => {
         portal_manage_subscriptions: values['customer-portal-permissions']?.['manage-subscriptions'],
       },
       { isProd: isProd(), token, accountId },
+      isITLess,
     );
     action.payload.then(async (response) => {
       if (response.status === 200 || response.status === 204) {
