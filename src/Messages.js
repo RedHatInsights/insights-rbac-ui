@@ -2818,4 +2818,9 @@ export default defineMessages({
     description: 'Message when group has no roles assigned',
     defaultMessage: 'This group currently has no roles assigned to it.',
   },
+  creatingWorkspaceCancel: {
+    id: 'creatingWorkspaceCancel',
+    description: 'Create workspace canceled notification description',
+    defaultMessage: 'Workspace creation was canceled by the user.',
+  },
 });

@@ -47,7 +47,7 @@ export const CreateWorkspaceWizard: React.FunctionComponent<CreateWorkspaceWizar
       addNotification({
         variant: 'warning',
         title: intl.formatMessage(messages.createWorkspace),
-        description: 'Workspace creation has been canceled.',
+        description: intl.formatMessage(messages.creatingWorkspaceCancel),
       }),
     );
     navigate(pathnames.workspaces.link);
