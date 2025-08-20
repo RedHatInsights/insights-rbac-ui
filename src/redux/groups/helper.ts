@@ -229,9 +229,8 @@ export async function fetchRolesForGroup(groupId: string, excluded?: boolean, pa
 }
 
 export async function addServiceAccountsToGroup(groupId: string, serviceAccounts: Array<{ uuid: string }>): Promise<void> {
-  const groupPrincipalIn: GroupPrincipalIn = {
+  const groupPrincipalIn: { principals: { clientId: string; type: string }[] } = {
     principals: serviceAccounts.map((account) => ({
-      username: '',
       clientId: account.uuid,
       type: 'service-account' as any,
     })),
@@ -240,10 +239,12 @@ export async function addServiceAccountsToGroup(groupId: string, serviceAccounts
 }
 
 export async function removeServiceAccountsFromGroup(groupId: string, serviceAccountsIds: string[]): Promise<void> {
-  await (groupApi.deletePrincipalFromGroup as any)(groupId, '', serviceAccountsIds.join(','), undefined);
+  console.log(groupId, 'this is groupId!!!!');
+  await (groupApi.deletePrincipalFromGroup as any)(groupId, undefined, serviceAccountsIds.join(','), undefined);
 }
 
 export async function fetchAccountsForGroup(groupId: string, options: FetchAccountsForGroupParams = {}): Promise<AllPrincipalsPagination> {
+  console.log(options.serviceAccountClientIds, 'what is this?');
   const response = await (groupApi.getPrincipalsFromGroup as any)(
     groupId,
     undefined, // adminOnly - undefined instead of false
@@ -252,8 +253,8 @@ export async function fetchAccountsForGroup(groupId: string, options: FetchAccou
     options.offset,
     undefined, // orderBy - undefined instead of 'username'
     undefined, // adminOnly second param - undefined instead of false
-    options.serviceAccountClientIds ? GetPrincipalsFromGroupPrincipalTypeEnum.ServiceAccount : GetPrincipalsFromGroupPrincipalTypeEnum.User, // principalType - service account if serviceAccountClientIds provided, otherwise user
-    options.serviceAccountClientIds, // serviceAccountClientIds
+    GetPrincipalsFromGroupPrincipalTypeEnum.ServiceAccount, // principalType - service account if serviceAccountClientIds provided, otherwise user
+    undefined, // serviceAccountClientIds
     options.description,
     options.name,
     undefined, // options - undefined instead of empty object
