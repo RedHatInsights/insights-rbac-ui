@@ -3,12 +3,7 @@ import { ContentHeader, ServiceCard } from '@patternfly/react-component-groups';
 import {
   Button,
   ButtonVariant,
-  Card,
-  CardBody,
-  CardFooter,
-  CardTitle,
   DataList,
-  ExpandableSection,
   Gallery,
   GalleryItem,
   Label,
@@ -34,7 +29,7 @@ const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-ico
 const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
 
 export const WorkspacesOverview = () => {
-  const [isExpanded, setIsExpanded] = React.useState(false);
+  // const [isExpanded, setIsExpanded] = React.useState(false);
   const intl = useIntl();
   const navigate = useNavigate();
 
@@ -57,18 +52,19 @@ export const WorkspacesOverview = () => {
         </Title>
         <Text component={TextVariants.p}>{intl.formatMessage(messages.workspacesPageSubtitle)} </Text>
         <br></br>
-        <ExpandableSection
+        {/* commenting this out for now, since it is in stage and we have no visuals yet, leaving it as placeholder for when they become avaiable */}
+        {/* <ExpandableSection
           toggleText="Show me how my assets and permissions will be organized into workspaces"
           onToggle={(_e: React.MouseEvent, isExpanded: boolean) => setIsExpanded(isExpanded)}
           isExpanded={isExpanded}
         >
-          {/* to do - add migration visualization when ready */}
+          to do - add migration visualization when ready
           <Card ouiaId="animation-card">
             <CardTitle>A cool animation</CardTitle>
             <CardBody>will go here</CardBody>
             <CardFooter>when its ready</CardFooter>
           </Card>
-        </ExpandableSection>
+        </ExpandableSection> */}
 
         <br />
 
