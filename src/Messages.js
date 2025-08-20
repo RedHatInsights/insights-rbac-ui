@@ -1112,7 +1112,7 @@ export default defineMessages({
   createWorkspaceSuccessTitle: {
     id: 'createWorkspaceSuccessTitle',
     description: 'Create workspace success notification title',
-    defaultMessage: 'New {name} workspace have been successfully created',
+    defaultMessage: 'New {name} workspace has been successfully created',
   },
   createWorkspaceErrorTitle: {
     id: 'createWorkspaceErrorTitle',

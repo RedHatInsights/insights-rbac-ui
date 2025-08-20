@@ -308,7 +308,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].path)}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {globalWs && (
