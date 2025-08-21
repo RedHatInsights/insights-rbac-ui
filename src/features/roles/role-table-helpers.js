@@ -45,7 +45,7 @@ export const createRows = (data, selectedRows, intl, expanded, adminGroup) =>
                   ouiaId="role-in-groups-nested-table"
                   variant={TableVariant.compact}
                   cells={[intl.formatMessage(messages.groupName), intl.formatMessage(messages.description), ' ']}
-                  rows={groups.map((group) => ({
+                  rows={groups?.map((group) => ({
                     cells: [
                       { title: <AppLink to={pathnames['group-detail'].link.replace(':groupId', group.uuid)}>{group.name}</AppLink> },
                       group.description,
