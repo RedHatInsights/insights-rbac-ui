@@ -10,6 +10,7 @@ import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@pat
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
+import { ParentRoleAssignmentsTable } from './components/ParentRoleAssignmentsTable';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
@@ -23,6 +24,7 @@ interface WorkspaceData {
 
 interface RoleAssignmentsFilters {
   name: string;
+  inheritedFrom?: string;
 }
 
 const WORKSPACE_TABS = {
@@ -32,7 +34,7 @@ const WORKSPACE_TABS = {
 
 const ROLE_ASSIGNMENT_TABS = {
   'roles-assigned-in-workspace': 0,
-  'roles-assigned-outside': 1,
+  'roles-assigned-in-parent-workspaces': 1,
 } as const;
 
 export const WorkspaceDetail = () => {
@@ -67,7 +69,7 @@ export const WorkspaceDetail = () => {
   });
 
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleAssignmentsFilters>({
-    initialFilters: { name: '' },
+    initialFilters: { name: '', inheritedFrom: '' },
     searchParams,
     setSearchParams,
   });
@@ -209,12 +211,12 @@ export const WorkspaceDetail = () => {
                 >
                   <Tab
                     eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
-                    title="Roles assigned in this Workspace"
+                    title={intl.formatMessage(messages.rolesAssignedInThisWorkspace)}
                     tabContentId="rolesAssignedInWorkspaceTab"
                   />
                   <Tab
-                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-outside']}
-                    title="Roles assigned outside"
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-parent-workspaces']}
+                    title={intl.formatMessage(messages.rolesAssignedInParentWorkspaces)}
                     tabContentId="rolesAssignedOutsideTab"
                   />
                 </Tabs>
@@ -236,7 +238,22 @@ export const WorkspaceDetail = () => {
                       clearAllFilters={clearAllFilters}
                     />
                   ) : (
-                    <div className="pf-v5-u-background-color-100 pf-v5-u-p-lg pf-v5-u-text-align-center">Roles assigned outside - Coming soon</div>
+                    <ParentRoleAssignmentsTable
+                      groups={groups}
+                      totalCount={groupsTotalCount}
+                      isLoading={groupsIsLoading}
+                      page={page}
+                      perPage={perPage}
+                      onSetPage={onSetPage}
+                      onPerPageSelect={onPerPageSelect}
+                      sortBy={sortBy}
+                      direction={direction}
+                      onSort={onSort}
+                      filters={filters}
+                      onSetFilters={onSetFilters}
+                      clearAllFilters={clearAllFilters}
+                      ouiaId="parent-role-assignments-table"
+                    />
                   )}
                 </div>
               </div>

@@ -418,6 +418,8 @@
   "reviewWorkspaceDescription": "Review the information below to make sure everything is correct before creating a new workspace.",
   "role": "role",
   "roleAssignments": "Role assignments",
+  "rolesAssignedInThisWorkspace": "Roles assigned in this workspace",
+  "rolesAssignedInParentWorkspaces": "Roles assigned in parent workspaces",
   "roleAssignmentsEmptyStateSubtitle": "This filter criteria matches no role assignments.{br}Try changing your filter input.",
   "roleCreatedSuccessfully": "You have successfully created a new role",
   "roleDescription": "Role description",
@@ -546,5 +548,6 @@
   "workspacesTooltip": "Add permission to these workspaces.",
   "yes": "Yes",
   "yourPermissions": "Your {name} permissions",
-  "yourRoles": "Your {name} roles"
+  "yourRoles": "Your {name} roles",
+  "inheritedFrom": "Inherited from"
 }

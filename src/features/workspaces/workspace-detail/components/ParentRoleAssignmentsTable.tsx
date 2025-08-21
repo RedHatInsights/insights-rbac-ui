@@ -12,14 +12,13 @@ import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 
-import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
-import { GroupDetailsDrawer } from './GroupDetailsDrawer';
+import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
 import { EmptyTable } from './EmptyTable';
 
-interface RoleAssignmentsTableProps {
+interface ParentRoleAssignmentsTableProps {
   // Data props
-  groups: Group[];
+  groups: GroupWithInheritance[];
   totalCount: number;
   isLoading: boolean;
   page: number;
@@ -33,15 +32,15 @@ interface RoleAssignmentsTableProps {
   onSort: (event: React.MouseEvent | React.KeyboardEvent, key: string, direction: 'asc' | 'desc') => void;
 
   // Filtering props
-  filters: { name: string };
-  onSetFilters: (filters: Partial<{ name: string }>) => void;
+  filters: { name: string; inheritedFrom?: string };
+  onSetFilters: (filters: Partial<{ name: string; inheritedFrom?: string }>) => void;
   clearAllFilters: () => void;
 
   // UI configuration props
   ouiaId?: string;
 }
 
-export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
+export const ParentRoleAssignmentsTable: React.FC<ParentRoleAssignmentsTableProps> = ({
   groups,
   totalCount,
   isLoading,
@@ -55,23 +54,24 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   filters,
   onSetFilters,
   clearAllFilters,
-  ouiaId = 'iam-role-assignments-table',
+  ouiaId = 'iam-parent-role-assignments-table',
 }) => {
   const intl = useIntl();
 
   // Local state for drawer only
-  const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
+  const [focusedGroup, setFocusedGroup] = useState<GroupWithInheritance | undefined>();
 
   // Selection hook
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
-  // Define columns - matching the required columns from the spec
+  // Define columns - includes the "Inherited from" column
   const columns = useMemo(() => {
     const baseColumns = [
       { label: intl.formatMessage(messages.userGroup), key: 'name', sort: true },
       { label: intl.formatMessage(messages.description), key: 'description', sort: false },
       { label: intl.formatMessage(messages.users), key: 'principalCount', sort: true },
       { label: intl.formatMessage(messages.roles), key: 'roleCount', sort: true },
+      { label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true },
       { label: intl.formatMessage(messages.lastModified), key: 'modified', sort: true },
     ];
 
@@ -79,7 +79,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   }, [intl]);
 
   // Drawer handlers
-  const onRowClick = useCallback((group: Group | undefined) => {
+  const onRowClick = useCallback((group: GroupWithInheritance | undefined) => {
     setFocusedGroup(group);
   }, []);
 
@@ -111,13 +111,13 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
 
   // Transform groups into table rows
   const rows = useMemo(() => {
-    const handleRowClick = (event?: React.MouseEvent | React.KeyboardEvent, group?: Group) => {
+    const handleRowClick = (event?: React.MouseEvent | React.KeyboardEvent, group?: GroupWithInheritance) => {
       if (event && (event.currentTarget.matches('td') || event.currentTarget.matches('tr'))) {
         onRowClick(group);
       }
     };
 
-    return groups.map((group: Group) => ({
+    return groups.map((group: GroupWithInheritance) => ({
       id: group.uuid,
       row: [
         group.name,
@@ -130,6 +130,13 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
         ),
         group.principalCount,
         group.roleCount,
+        group.inheritedFrom ? (
+          <a href={`#/workspaces/${group.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+            {group.inheritedFrom.workspaceName}
+          </a>
+        ) : (
+          <div className="pf-v5-u-color-400">-</div>
+        ),
         group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '',
       ],
       props: {
@@ -143,7 +150,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
   return (
-    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={false}>
+    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={true}>
       <DataView activeState={activeState} selection={selection}>
         <DataViewToolbar
           bulkSelect={
@@ -169,13 +176,14 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
           filters={
             <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
               <DataViewTextFilter filterId="name" title="User group" placeholder="Filter by user group" />
+              <DataViewTextFilter filterId="inheritedFrom" title="Inherited from" placeholder="Filter by inherited from" />
             </DataViewFilters>
           }
           clearAllFilters={clearAllFilters}
         />
         <DataViewTable
           variant="compact"
-          aria-label="Role Assignments Table"
+          aria-label="Parent Role Assignments Table"
           ouiaId={`${ouiaId}-table`}
           columns={sortableColumns}
           rows={rows}
