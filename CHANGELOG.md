@@ -1,3 +1,10 @@
+# [1.49.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.2...v1.49.0) (2025-08-21)
+
+
+### Features
+
+* **users:** Unify users table ([#1900](https://github.com/RedHatInsights/insights-rbac-ui/issues/1900)) ([4e15933](https://github.com/RedHatInsights/insights-rbac-ui/commit/4e15933dba2b9ebe5870b3339bd817336351d0ec))
+
 ## [1.48.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.1...v1.48.2) (2025-08-19)
 
 
