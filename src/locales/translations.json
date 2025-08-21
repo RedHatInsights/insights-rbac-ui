@@ -127,7 +127,7 @@
   "createWorkspace": "Create workspace",
   "createWorkspaceErrorDescription": "The workspace was not created successfuly.",
   "createWorkspaceErrorTitle": "Failed creating {name} workspace",
-  "createWorkspaceSuccessTitle": "New {name} workspace have been successfully created",
+  "createWorkspaceSuccessTitle": "New {name} workspace has been successfully created",
   "creatingGroup": "Creating a group",
   "creatingRoleCanceled": "Creating role was canceled by the user",
   "deactivateUsersButton": "Deactivate users",

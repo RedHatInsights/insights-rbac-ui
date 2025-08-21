@@ -1112,7 +1112,7 @@ export default defineMessages({
   createWorkspaceSuccessTitle: {
     id: 'createWorkspaceSuccessTitle',
     description: 'Create workspace success notification title',
-    defaultMessage: 'New {name} workspace have been successfully created',
+    defaultMessage: 'New {name} workspace has been successfully created',
   },
   createWorkspaceErrorTitle: {
     id: 'createWorkspaceErrorTitle',
@@ -2817,5 +2817,10 @@ export default defineMessages({
     id: 'groupNoRolesAssigned',
     description: 'Message when group has no roles assigned',
     defaultMessage: 'This group currently has no roles assigned to it.',
+  },
+  creatingWorkspaceCancel: {
+    id: 'creatingWorkspaceCancel',
+    description: 'Create workspace canceled notification description',
+    defaultMessage: 'Workspace creation was canceled by the user.',
   },
 });
