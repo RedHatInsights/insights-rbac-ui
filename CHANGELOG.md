@@ -1,3 +1,10 @@
+## [1.49.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.0...v1.49.1) (2025-08-21)
+
+
+### Bug Fixes
+
+* **roles:** when navigating from my user access ([#1904](https://github.com/RedHatInsights/insights-rbac-ui/issues/1904)) ([2b6af9b](https://github.com/RedHatInsights/insights-rbac-ui/commit/2b6af9bf0b8c8128a40ef4b77f4b848fe63a6d49))
+
 # [1.49.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.48.2...v1.49.0) (2025-08-21)
 
 
