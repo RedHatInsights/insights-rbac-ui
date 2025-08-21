@@ -2711,6 +2711,16 @@ export default defineMessages({
     description: 'placeholder for name filter',
     defaultMessage: 'Filter by name',
   },
+  filterByUserGroup: {
+    id: 'filterByUserGroup',
+    description: 'placeholder for user group filter',
+    defaultMessage: 'Filter by user group',
+  },
+  filterByInheritedFrom: {
+    id: 'filterByInheritedFrom',
+    description: 'placeholder for inherited from filter',
+    defaultMessage: 'Filter by inherited from',
+  },
   deleteRolesAction: {
     id: 'deleteRolesAction',
     description: 'delete roles',

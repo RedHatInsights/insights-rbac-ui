@@ -295,6 +295,8 @@
     "nameAlreadyTaken": "Name has already been taken.",
     "nameAndDescription": "Name and description",
     "nameFilterPlaceholder": "Filter by name",
+    "filterByUserGroup": "Filter by user group",
+    "filterByInheritedFrom": "Filter by inherited from",
     "no": "No",
     "noAccountsInDefaultAccess": "In adherence to security guidelines, service accounts are not automatically included in the default access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",
     "noAccountsInDefaultAdminAccess": "In adherence to security guidelines, service accounts are not automatically included in the default admin access group. To grant access, it is necessary to manually add them to the appropriate user access groups.",

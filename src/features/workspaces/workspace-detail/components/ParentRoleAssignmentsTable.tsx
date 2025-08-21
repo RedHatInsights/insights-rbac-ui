@@ -175,8 +175,16 @@ export const ParentRoleAssignmentsTable: React.FC<ParentRoleAssignmentsTableProp
           }
           filters={
             <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter filterId="name" title="User group" placeholder="Filter by user group" />
-              <DataViewTextFilter filterId="inheritedFrom" title="Inherited from" placeholder="Filter by inherited from" />
+              <DataViewTextFilter
+                filterId="name"
+                title={intl.formatMessage(messages.userGroup)}
+                placeholder={intl.formatMessage(messages.filterByUserGroup)}
+              />
+              <DataViewTextFilter
+                filterId="inheritedFrom"
+                title={intl.formatMessage(messages.inheritedFrom)}
+                placeholder={intl.formatMessage(messages.filterByInheritedFrom)}
+              />
             </DataViewFilters>
           }
           clearAllFilters={clearAllFilters}

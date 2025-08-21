@@ -168,7 +168,11 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
           }
           filters={
             <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter filterId="name" title="User group" placeholder="Filter by user group" />
+              <DataViewTextFilter
+                filterId="name"
+                title={intl.formatMessage(messages.userGroup)}
+                placeholder={intl.formatMessage(messages.filterByUserGroup)}
+              />
             </DataViewFilters>
           }
           clearAllFilters={clearAllFilters}
