@@ -60,6 +60,13 @@ export interface FetchMembersForGroupParams {
   orderBy?: string;
 }
 
+export interface PrincipalsInGroup {
+  principals: {
+    clientId: string;
+    type: string;
+  }[];
+}
+
 export async function fetchGroups({
   limit,
   offset,
@@ -229,7 +236,7 @@ export async function fetchRolesForGroup(groupId: string, excluded?: boolean, pa
 }
 
 export async function addServiceAccountsToGroup(groupId: string, serviceAccounts: Array<{ uuid: string }>): Promise<void> {
-  const groupPrincipalIn: { principals: { clientId: string; type: string }[] } = {
+  const groupPrincipalIn: PrincipalsInGroup = {
     principals: serviceAccounts.map((account) => ({
       clientId: account.uuid,
       type: 'service-account' as any,
@@ -239,12 +246,10 @@ export async function addServiceAccountsToGroup(groupId: string, serviceAccounts
 }
 
 export async function removeServiceAccountsFromGroup(groupId: string, serviceAccountsIds: string[]): Promise<void> {
-  console.log(groupId, 'this is groupId!!!!');
   await (groupApi.deletePrincipalFromGroup as any)(groupId, undefined, serviceAccountsIds.join(','), undefined);
 }
 
 export async function fetchAccountsForGroup(groupId: string, options: FetchAccountsForGroupParams = {}): Promise<AllPrincipalsPagination> {
-  console.log(options.serviceAccountClientIds, 'what is this?');
   const response = await (groupApi.getPrincipalsFromGroup as any)(
     groupId,
     undefined, // adminOnly - undefined instead of false
