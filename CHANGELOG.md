@@ -1,3 +1,10 @@
+## [1.49.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.1...v1.49.2) (2025-08-26)
+
+
+### Bug Fixes
+
+* **service-accounts:** assign, list and delete from group ([#1901](https://github.com/RedHatInsights/insights-rbac-ui/issues/1901)) ([727a976](https://github.com/RedHatInsights/insights-rbac-ui/commit/727a976eeea501dccb022cac23c51b26276619ce))
+
 ## [1.49.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.0...v1.49.1) (2025-08-21)
 
 
