@@ -2823,4 +2823,9 @@ export default defineMessages({
     description: 'Create workspace canceled notification description',
     defaultMessage: 'Workspace creation was canceled by the user.',
   },
+  grantAccess: {
+    id: 'grantAccess',
+    description: 'Grant access button text',
+    defaultMessage: 'Grant access',
+  },
 });
