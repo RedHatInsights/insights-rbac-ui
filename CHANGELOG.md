@@ -1,3 +1,10 @@
+# [1.50.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.2...v1.50.0) (2025-08-27)
+
+
+### Features
+
+* add disabled grant access button to WS details ([#1906](https://github.com/RedHatInsights/insights-rbac-ui/issues/1906)) ([b5772d4](https://github.com/RedHatInsights/insights-rbac-ui/commit/b5772d4c5a705e7a7ca9bbd5d545559c6138de97))
+
 ## [1.49.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.1...v1.49.2) (2025-08-26)
 
 
