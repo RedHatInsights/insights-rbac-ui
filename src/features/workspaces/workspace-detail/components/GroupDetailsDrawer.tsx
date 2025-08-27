@@ -29,30 +29,56 @@ import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
 
+// Extended Group interface to optionally include inheritedFrom data
+export interface GroupWithInheritance extends Group {
+  inheritedFrom?: {
+    workspaceId: string;
+    workspaceName: string;
+  };
+}
+
+// Extended Role interface to include inheritedFrom data
+export interface RoleWithInheritance extends Role {
+  inheritedFrom?: {
+    workspaceId: string;
+    workspaceName: string;
+  };
+}
+
 interface GroupDetailsDrawerProps {
   isOpen: boolean;
-  group?: Group;
+  group?: Group | GroupWithInheritance;
   onClose: () => void;
   ouiaId?: string;
   children: React.ReactNode;
+  showInheritance?: boolean; // New prop to control inheritance column display
 }
 
-export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({ isOpen, group, onClose, ouiaId = 'group-details-drawer', children }) => {
+export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
+  isOpen,
+  group,
+  onClose,
+  ouiaId = 'group-details-drawer',
+  children,
+  showInheritance = false,
+}) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<string | number>(0);
 
   // Redux state for group data
   const members = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.members?.data || []);
-  const membersLoading = useSelector((state: RBACStore) => (state.groupReducer?.selectedGroup?.members as any)?.isLoading || false);
+  const membersLoading = useSelector(
+    (state: RBACStore) => (state.groupReducer?.selectedGroup?.members as { isLoading?: boolean })?.isLoading || false,
+  );
   const membersError = useSelector(
-    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.members as any)?.error,
+    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.members as { error?: unknown })?.error,
   );
 
   const roles = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.data || []);
   const rolesLoading = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.isLoading || false);
   const rolesError = useSelector(
-    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.roles as any)?.error,
+    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.roles as { error?: unknown })?.error,
   );
 
   // Fetch data when group changes
@@ -66,17 +92,19 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({ isOpen, 
     }
   }, [dispatch, group]);
 
-  // Users tab columns
+  // Users tab columns (same for both drawer types)
   const GROUP_USERS_COLUMNS: string[] = [
     intl.formatMessage(messages.username),
     intl.formatMessage(messages.firstName),
     intl.formatMessage(messages.lastName),
   ];
 
-  // Roles tab columns
-  const GROUP_ROLES_COLUMNS: string[] = [intl.formatMessage(messages.roles)];
+  // Roles tab columns - conditionally includes "Inherited from" column
+  const GROUP_ROLES_COLUMNS: string[] = showInheritance
+    ? [intl.formatMessage(messages.roles), intl.formatMessage(messages.inheritedFrom)]
+    : [intl.formatMessage(messages.roles)];
 
-  // Render users tab content
+  // Render users tab content (same for both drawer types)
   const renderUsersTab = useCallback(() => {
     // Show loading state
     if (membersLoading) {
@@ -136,7 +164,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({ isOpen, 
     );
   }, [intl, members, membersError, membersLoading, ouiaId]);
 
-  // Render roles tab content
+  // Render roles tab content - conditionally shows inheritance information
   const renderRolesTab = useCallback(() => {
     // Show loading state
     if (rolesLoading) {
@@ -175,11 +203,29 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({ isOpen, 
       );
     }
 
-    const roleRows = roles.map((role: Role) => ({
-      key: role.uuid,
-      row: [role.display_name],
-      props: {},
-    }));
+    // Map roles to rows with conditional inheritance information
+    const roleRows = roles.map((role: RoleWithInheritance) => {
+      const baseRow: (string | React.ReactElement)[] = [role.display_name];
+
+      if (showInheritance) {
+        // Use the group's inheritance info since roles inherit from the same workspace
+        const groupWithInheritance = group as GroupWithInheritance;
+        const inheritanceCell = groupWithInheritance?.inheritedFrom ? (
+          <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+            {groupWithInheritance.inheritedFrom.workspaceName}
+          </a>
+        ) : (
+          <div className="pf-v5-u-color-400">-</div>
+        );
+        baseRow.push(inheritanceCell);
+      }
+
+      return {
+        key: role.uuid,
+        row: baseRow,
+        props: {},
+      };
+    });
 
     return (
       <div className="pf-v5-u-pt-md">
@@ -194,7 +240,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({ isOpen, 
         </DataView>
       </div>
     );
-  }, [intl, ouiaId, roles, rolesError, rolesLoading]);
+  }, [intl, ouiaId, roles, rolesError, rolesLoading, showInheritance, group]);
 
   return (
     <Drawer isExpanded={isOpen}>

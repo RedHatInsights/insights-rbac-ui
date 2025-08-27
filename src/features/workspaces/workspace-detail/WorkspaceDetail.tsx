@@ -10,11 +10,13 @@ import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@pat
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
+import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { mappedProps } from '../../../helpers/dataUtilities';
 import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
+import { fetchGroups as fetchGroupsHelper } from '../../../redux/groups/helper';
 
 interface WorkspaceData {
   name: string;
@@ -23,6 +25,7 @@ interface WorkspaceData {
 
 interface RoleAssignmentsFilters {
   name: string;
+  inheritedFrom?: string;
 }
 
 const WORKSPACE_TABS = {
@@ -32,7 +35,7 @@ const WORKSPACE_TABS = {
 
 const ROLE_ASSIGNMENT_TABS = {
   'roles-assigned-in-workspace': 0,
-  'roles-assigned-outside': 1,
+  'roles-assigned-in-parent-workspaces': 1,
 } as const;
 
 export const WorkspaceDetail = () => {
@@ -54,6 +57,11 @@ export const WorkspaceDetail = () => {
   const groupsTotalCount = useSelector((state: RBACStore) => state.groupReducer?.groups?.meta.count || 0);
   const groupsIsLoading = useSelector((state: RBACStore) => state.groupReducer?.isLoading);
 
+  // Separate parent groups data for RoleAssignmentsTable with inheritance
+  const [parentGroups, setParentGroups] = useState<GroupWithInheritance[]>([]);
+  const [parentGroupsTotalCount, setParentGroupsTotalCount] = useState(0);
+  const [parentGroupsIsLoading, setParentGroupsIsLoading] = useState(false);
+
   const [workspaceHierarchy, setWorkspaceHierarchy] = useState<WorkspaceData[]>([]);
 
   // DataView hooks for role assignments table
@@ -67,7 +75,7 @@ export const WorkspaceDetail = () => {
   });
 
   const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleAssignmentsFilters>({
-    initialFilters: { name: '' },
+    initialFilters: { name: '', inheritedFrom: '' },
     searchParams,
     setSearchParams,
   });
@@ -76,6 +84,43 @@ export const WorkspaceDetail = () => {
     perPage: 20,
     searchParams,
     setSearchParams,
+  });
+
+  // Parent DataView hooks for parent role assignments table (separate state)
+  const [parentSearchParams, setParentSearchParams] = useState(new URLSearchParams());
+
+  const {
+    sortBy: parentSortBy,
+    direction: parentDirection,
+    onSort: parentOnSort,
+  } = useDataViewSort({
+    initialSort: {
+      sortBy: 'name',
+      direction: 'asc' as const,
+    },
+    searchParams: parentSearchParams,
+    setSearchParams: setParentSearchParams,
+  });
+
+  const {
+    filters: parentFilters,
+    onSetFilters: parentOnSetFilters,
+    clearAllFilters: parentClearAllFilters,
+  } = useDataViewFilters<RoleAssignmentsFilters>({
+    initialFilters: { name: '', inheritedFrom: '' },
+    searchParams: parentSearchParams,
+    setSearchParams: setParentSearchParams,
+  });
+
+  const {
+    page: parentPage,
+    perPage: parentPerPage,
+    onSetPage: parentOnSetPage,
+    onPerPageSelect: parentOnPerPageSelect,
+  } = useDataViewPagination({
+    perPage: 20,
+    searchParams: parentSearchParams,
+    setSearchParams: setParentSearchParams,
   });
 
   // Groups data fetching
@@ -105,11 +150,79 @@ export const WorkspaceDetail = () => {
     );
   }, [dispatch, groupsTotalCount, page, perPage, sortBy, direction, filters]);
 
+  const fetchParentGroupsData = useCallback(async () => {
+    const offset = (parentPage - 1) * parentPerPage;
+    const orderBy = parentSortBy && parentDirection ? `${parentDirection === 'desc' ? '-' : ''}${parentSortBy}` : 'name';
+    const nameFilter = parentFilters?.name?.trim() || '';
+
+    setParentGroupsIsLoading(true);
+
+    try {
+      // Call the same API helper that Redux uses, but store result in parent state
+      const result = await fetchGroupsHelper({
+        ...mappedProps({
+          count: 0, // Use 0 for initial count to avoid dependency loop
+          limit: parentPerPage,
+          offset,
+          orderBy: orderBy as ListGroupsOrderByEnum,
+        }),
+        // Pass filter parameters correctly according to the API
+        ...(nameFilter
+          ? {
+              filters: { name: nameFilter },
+              nameMatch: 'partial' as const, // Enable partial matching for the filter
+            }
+          : {}),
+        usesMetaInURL: true,
+        system: false,
+      });
+
+      // Store result in parent state and add inheritance information
+      const groupsWithInheritance = (result.data || []).map((group: any) => ({
+        ...group,
+        inheritedFrom: {
+          workspaceId: '',
+          workspaceName: '',
+        },
+      }));
+      setParentGroups(groupsWithInheritance);
+      setParentGroupsTotalCount(result.meta?.count || 0);
+    } catch (error) {
+      console.error('Error fetching parent groups:', error);
+      setParentGroups([]);
+      setParentGroupsTotalCount(0);
+    } finally {
+      // Always set loading to false in finally block
+      setParentGroupsIsLoading(false);
+    }
+  }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters]);
+
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
+      if (activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
+        fetchGroupsData();
+      } else if (activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
+        // Reset parent data when switching to parent tab
+        setParentGroups([]);
+        setParentGroupsTotalCount(0);
+        fetchParentGroupsData();
+      }
+    }
+  }, [activeTabString, enableRoles, activeRoleAssignmentTabString]);
+
+  // Fetch workspace data when workspace table parameters change
+  useEffect(() => {
+    if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
       fetchGroupsData();
     }
-  }, [fetchGroupsData, activeTabString, enableRoles]);
+  }, [fetchGroupsData, activeTabString, enableRoles, activeRoleAssignmentTabString]);
+
+  // Fetch parent data when parent table parameters change
+  useEffect(() => {
+    if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
+      fetchParentGroupsData();
+    }
+  }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters, activeTabString, enableRoles, activeRoleAssignmentTabString]);
 
   useEffect(() => {
     if (!searchParams.has('activeTab') || (!enableRoles && activeTabString !== 'assets')) {
@@ -209,12 +322,12 @@ export const WorkspaceDetail = () => {
                 >
                   <Tab
                     eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
-                    title="Roles assigned in this Workspace"
+                    title={intl.formatMessage(messages.rolesAssignedInThisWorkspace)}
                     tabContentId="rolesAssignedInWorkspaceTab"
                   />
                   <Tab
-                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-outside']}
-                    title="Roles assigned outside"
+                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-parent-workspaces']}
+                    title={intl.formatMessage(messages.rolesAssignedInParentWorkspaces)}
                     tabContentId="rolesAssignedOutsideTab"
                   />
                 </Tabs>
@@ -236,7 +349,22 @@ export const WorkspaceDetail = () => {
                       clearAllFilters={clearAllFilters}
                     />
                   ) : (
-                    <div className="pf-v5-u-background-color-100 pf-v5-u-p-lg pf-v5-u-text-align-center">Roles assigned outside - Coming soon</div>
+                    <RoleAssignmentsTable
+                      groups={parentGroups}
+                      totalCount={parentGroupsTotalCount}
+                      isLoading={parentGroupsIsLoading}
+                      page={parentPage}
+                      perPage={parentPerPage}
+                      onSetPage={parentOnSetPage}
+                      onPerPageSelect={parentOnPerPageSelect}
+                      sortBy={parentSortBy}
+                      direction={parentDirection}
+                      onSort={parentOnSort}
+                      filters={parentFilters}
+                      onSetFilters={parentOnSetFilters}
+                      clearAllFilters={parentClearAllFilters}
+                      ouiaId="parent-role-assignments-table"
+                    />
                   )}
                 </div>
               </div>

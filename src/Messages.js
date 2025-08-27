@@ -1169,6 +1169,16 @@ export default defineMessages({
     description: 'Rola assignments label',
     defaultMessage: 'Role assignments',
   },
+  rolesAssignedInThisWorkspace: {
+    id: 'rolesAssignedInThisWorkspace',
+    description: 'Tab title for roles assigned in current workspace',
+    defaultMessage: 'Roles assigned in this workspace',
+  },
+  rolesAssignedInParentWorkspaces: {
+    id: 'rolesAssignedInParentWorkspaces',
+    description: 'Tab title for roles assigned in parent workspaces',
+    defaultMessage: 'Roles assigned in parent workspaces',
+  },
   assets: {
     id: 'assets',
     description: 'Assets label',
@@ -2701,6 +2711,16 @@ export default defineMessages({
     description: 'placeholder for name filter',
     defaultMessage: 'Filter by name',
   },
+  filterByUserGroup: {
+    id: 'filterByUserGroup',
+    description: 'placeholder for user group filter',
+    defaultMessage: 'Filter by user group',
+  },
+  filterByInheritedFrom: {
+    id: 'filterByInheritedFrom',
+    description: 'placeholder for inherited from filter',
+    defaultMessage: 'Filter by inherited from',
+  },
   deleteRolesAction: {
     id: 'deleteRolesAction',
     description: 'delete roles',
@@ -2822,6 +2842,11 @@ export default defineMessages({
     id: 'creatingWorkspaceCancel',
     description: 'Create workspace canceled notification description',
     defaultMessage: 'Workspace creation was canceled by the user.',
+  },
+  inheritedFrom: {
+    id: 'inheritedFrom',
+    description: 'Inherited from column label',
+    defaultMessage: 'Inherited from',
   },
   grantAccess: {
     id: 'grantAccess',

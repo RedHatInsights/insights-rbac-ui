@@ -7,26 +7,23 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { Button, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { SearchIcon } from '@patternfly/react-icons';
+import { Button, Pagination, Tooltip } from '@patternfly/react-core';
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 
 import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
-import { GroupDetailsDrawer } from './GroupDetailsDrawer';
+import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
+import { EmptyTable } from './EmptyTable';
 
-const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <EmptyState>
-    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-    <EmptyStateBody>No user groups match the filter criteria. Remove all filters or clear all to show results.</EmptyStateBody>
-  </EmptyState>
-);
+const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
+  return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
+};
 
 interface RoleAssignmentsTableProps {
   // Data props
-  groups: Group[];
+  groups: Group[] | GroupWithInheritance[];
   totalCount: number;
   isLoading: boolean;
   page: number;
@@ -40,8 +37,8 @@ interface RoleAssignmentsTableProps {
   onSort: (event: React.MouseEvent | React.KeyboardEvent, key: string, direction: 'asc' | 'desc') => void;
 
   // Filtering props
-  filters: { name: string };
-  onSetFilters: (filters: Partial<{ name: string }>) => void;
+  filters: { name: string; inheritedFrom?: string };
+  onSetFilters: (filters: Partial<{ name: string; inheritedFrom?: string }>) => void;
   clearAllFilters: () => void;
 
   // UI configuration props
@@ -72,18 +69,24 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   // Selection hook
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
-  // Define columns - matching the required columns from the spec
+  // Check if any group has inheritance information
+  const hasInheritanceData = useMemo(() => {
+    return groups.length > 0 && groups.some(isGroupWithInheritance);
+  }, [groups]);
+
+  // Define columns - conditionally includes inheritance column
   const columns = useMemo(() => {
     const baseColumns = [
       { label: intl.formatMessage(messages.userGroup), key: 'name', sort: true },
       { label: intl.formatMessage(messages.description), key: 'description', sort: false },
       { label: intl.formatMessage(messages.users), key: 'principalCount', sort: true },
       { label: intl.formatMessage(messages.roles), key: 'roleCount', sort: true },
+      ...(hasInheritanceData ? [{ label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true }] : []),
       { label: intl.formatMessage(messages.lastModified), key: 'modified', sort: true },
     ];
 
     return baseColumns.map((col, index) => ({ ...col, index }));
-  }, [intl]);
+  }, [intl, hasInheritanceData]);
 
   // Drawer handlers
   const onRowClick = useCallback((group: Group | undefined) => {
@@ -118,15 +121,14 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
 
   // Transform groups into table rows
   const rows = useMemo(() => {
-    const handleRowClick = (event: any, group: Group | undefined) => {
-      if (event.currentTarget.matches('td') || event.currentTarget.matches('tr')) {
+    const handleRowClick = (event?: React.MouseEvent | React.KeyboardEvent, group?: Group | GroupWithInheritance) => {
+      if (event && (event.currentTarget.matches('td') || event.currentTarget.matches('tr'))) {
         onRowClick(group);
       }
     };
 
-    return groups.map((group: Group) => ({
-      id: group.uuid,
-      row: [
+    return groups.map((group: Group | GroupWithInheritance) => {
+      const baseRow = [
         group.name,
         group.description ? (
           <Tooltip isContentLeftAligned content={group.description}>
@@ -137,20 +139,43 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
         ),
         group.principalCount,
         group.roleCount,
-        group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '',
-      ],
-      props: {
-        isClickable: true,
-        onRowClick: (event: any) => handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
-        isRowSelected: false,
-      },
-    }));
-  }, [groups, focusedGroup, intl, onRowClick]);
+      ];
+
+      // Add inheritance column if this group has inheritance data
+      if (isGroupWithInheritance(group)) {
+        const inheritanceCell = group.inheritedFrom ? (
+          <a href={`#/workspaces/${group.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+            {group.inheritedFrom.workspaceName}
+          </a>
+        ) : (
+          <div className="pf-v5-u-color-400">-</div>
+        );
+        baseRow.push(inheritanceCell);
+      } else if (hasInheritanceData) {
+        // Add empty cell if other groups have inheritance but this one doesn't
+        baseRow.push(<div className="pf-v5-u-color-400">-</div>);
+      }
+
+      // Add last modified column
+      baseRow.push(group.modified ? formatDistanceToNow(new Date(group.modified), { addSuffix: true }) : '');
+
+      return {
+        id: group.uuid,
+        row: baseRow,
+        props: {
+          isClickable: true,
+          onRowClick: (event?: React.MouseEvent | React.KeyboardEvent) =>
+            handleRowClick(event, focusedGroup?.uuid === group.uuid ? undefined : group),
+          isRowSelected: false,
+        },
+      };
+    });
+  }, [groups, focusedGroup, intl, onRowClick, hasInheritanceData]);
 
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
   return (
-    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId}>
+    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={hasInheritanceData}>
       <DataView activeState={activeState} selection={selection}>
         <DataViewToolbar
           bulkSelect={
@@ -175,7 +200,18 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
           }
           filters={
             <DataViewFilters onChange={(_e, values) => onSetFilters(values)} values={filters}>
-              <DataViewTextFilter filterId="name" title="User group" placeholder="Filter by user group" />
+              <DataViewTextFilter
+                filterId="name"
+                title={intl.formatMessage(messages.userGroup)}
+                placeholder={intl.formatMessage(messages.filterByUserGroup)}
+              />
+              {hasInheritanceData && (
+                <DataViewTextFilter
+                  filterId="inheritedFrom"
+                  title={intl.formatMessage(messages.inheritedFrom)}
+                  placeholder={intl.formatMessage(messages.filterByInheritedFrom)}
+                />
+              )}
             </DataViewFilters>
           }
           actions={
