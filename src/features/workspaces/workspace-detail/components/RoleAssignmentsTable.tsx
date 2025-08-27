@@ -17,6 +17,10 @@ import messages from '../../../../Messages';
 import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
 import { EmptyTable } from './EmptyTable';
 
+const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
+  return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
+};
+
 interface RoleAssignmentsTableProps {
   // Data props
   groups: Group[] | GroupWithInheritance[];
@@ -39,7 +43,6 @@ interface RoleAssignmentsTableProps {
 
   // UI configuration props
   ouiaId?: string;
-  showInheritance?: boolean; // New prop to show inheritance column and filter
 }
 
 export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
@@ -57,7 +60,6 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   onSetFilters,
   clearAllFilters,
   ouiaId = 'iam-role-assignments-table',
-  showInheritance = false,
 }) => {
   const intl = useIntl();
 
@@ -67,6 +69,11 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   // Selection hook
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
 
+  // Check if any group has inheritance information
+  const hasInheritanceData = useMemo(() => {
+    return groups.length > 0 && groups.some(isGroupWithInheritance);
+  }, [groups]);
+
   // Define columns - conditionally includes inheritance column
   const columns = useMemo(() => {
     const baseColumns = [
@@ -74,12 +81,12 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       { label: intl.formatMessage(messages.description), key: 'description', sort: false },
       { label: intl.formatMessage(messages.users), key: 'principalCount', sort: true },
       { label: intl.formatMessage(messages.roles), key: 'roleCount', sort: true },
-      ...(showInheritance ? [{ label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true }] : []),
+      ...(hasInheritanceData ? [{ label: intl.formatMessage(messages.inheritedFrom), key: 'inheritedFrom', sort: true }] : []),
       { label: intl.formatMessage(messages.lastModified), key: 'modified', sort: true },
     ];
 
     return baseColumns.map((col, index) => ({ ...col, index }));
-  }, [intl, showInheritance]);
+  }, [intl, hasInheritanceData]);
 
   // Drawer handlers
   const onRowClick = useCallback((group: Group | undefined) => {
@@ -134,17 +141,19 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
         group.roleCount,
       ];
 
-      // Add inheritance column if enabled
-      if (showInheritance) {
-        const groupWithInheritance = group as GroupWithInheritance;
-        const inheritanceCell = groupWithInheritance?.inheritedFrom ? (
-          <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
-            {groupWithInheritance.inheritedFrom.workspaceName}
+      // Add inheritance column if this group has inheritance data
+      if (isGroupWithInheritance(group)) {
+        const inheritanceCell = group.inheritedFrom ? (
+          <a href={`#/workspaces/${group.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+            {group.inheritedFrom.workspaceName}
           </a>
         ) : (
           <div className="pf-v5-u-color-400">-</div>
         );
         baseRow.push(inheritanceCell);
+      } else if (hasInheritanceData) {
+        // Add empty cell if other groups have inheritance but this one doesn't
+        baseRow.push(<div className="pf-v5-u-color-400">-</div>);
       }
 
       // Add last modified column
@@ -161,12 +170,12 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
         },
       };
     });
-  }, [groups, focusedGroup, intl, onRowClick, showInheritance]);
+  }, [groups, focusedGroup, intl, onRowClick, hasInheritanceData]);
 
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
   return (
-    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={showInheritance}>
+    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={hasInheritanceData}>
       <DataView activeState={activeState} selection={selection}>
         <DataViewToolbar
           bulkSelect={
@@ -196,7 +205,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
                 title={intl.formatMessage(messages.userGroup)}
                 placeholder={intl.formatMessage(messages.filterByUserGroup)}
               />
-              {showInheritance && (
+              {hasInheritanceData && (
                 <DataViewTextFilter
                   filterId="inheritedFrom"
                   title={intl.formatMessage(messages.inheritedFrom)}

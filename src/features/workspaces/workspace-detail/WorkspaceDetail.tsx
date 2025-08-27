@@ -364,7 +364,6 @@ export const WorkspaceDetail = () => {
                       onSetFilters={parentOnSetFilters}
                       clearAllFilters={parentClearAllFilters}
                       ouiaId="parent-role-assignments-table"
-                      showInheritance={true}
                     />
                   )}
                 </div>
