@@ -10,7 +10,7 @@ import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@pat
 import messages from '../../../Messages';
 import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
-import { ParentRoleAssignmentsTable } from './components/ParentRoleAssignmentsTable';
+import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
@@ -57,8 +57,8 @@ export const WorkspaceDetail = () => {
   const groupsTotalCount = useSelector((state: RBACStore) => state.groupReducer?.groups?.meta.count || 0);
   const groupsIsLoading = useSelector((state: RBACStore) => state.groupReducer?.isLoading);
 
-  // Separate parent groups data for ParentRoleAssignmentsTable
-  const [parentGroups, setParentGroups] = useState<any[]>([]);
+  // Separate parent groups data for RoleAssignmentsTable with inheritance
+  const [parentGroups, setParentGroups] = useState<GroupWithInheritance[]>([]);
   const [parentGroupsTotalCount, setParentGroupsTotalCount] = useState(0);
   const [parentGroupsIsLoading, setParentGroupsIsLoading] = useState(false);
 
@@ -177,8 +177,15 @@ export const WorkspaceDetail = () => {
         system: false,
       });
 
-      // Store result in parent state instead of Redux
-      setParentGroups(result.data || []);
+      // Store result in parent state and add inheritance information
+      const groupsWithInheritance = (result.data || []).map((group: any) => ({
+        ...group,
+        inheritedFrom: {
+          workspaceId: '',
+          workspaceName: '',
+        },
+      }));
+      setParentGroups(groupsWithInheritance);
       setParentGroupsTotalCount(result.meta?.count || 0);
     } catch (error) {
       console.error('Error fetching parent groups:', error);
@@ -342,7 +349,7 @@ export const WorkspaceDetail = () => {
                       clearAllFilters={clearAllFilters}
                     />
                   ) : (
-                    <ParentRoleAssignmentsTable
+                    <RoleAssignmentsTable
                       groups={parentGroups}
                       totalCount={parentGroupsTotalCount}
                       isLoading={parentGroupsIsLoading}
@@ -357,6 +364,7 @@ export const WorkspaceDetail = () => {
                       onSetFilters={parentOnSetFilters}
                       clearAllFilters={parentClearAllFilters}
                       ouiaId="parent-role-assignments-table"
+                      showInheritance={true}
                     />
                   )}
                 </div>
