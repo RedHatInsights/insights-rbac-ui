@@ -362,6 +362,51 @@ export const ClickableStory: Story = {
 - **Test both positive and negative cases**
 - **Never add play functions to comparison stories**
 
+### Spy Testing with Async Operations (NEW)
+
+#### Debounced API Calls
+When testing spies for debounced operations (filtering, search), use `waitFor()`:
+
+```typescript
+// ✅ CORRECT: Debounced filtering with waitFor
+export const FilterStory: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
+    await userEvent.type(filterInput, 'Platform');
+    
+    // Use waitFor for debounced spy assertions
+    await waitFor(() => {
+      expect(filterSpy).toHaveBeenCalledWith('Platform');
+    });
+    
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Management');
+    
+    await waitFor(() => {
+      expect(filterSpy).toHaveBeenCalledWith('Management');
+    });
+  },
+};
+
+// ❌ WRONG: Immediate assertion may fail due to debouncing
+await userEvent.type(filterInput, 'Platform');
+expect(filterSpy).toHaveBeenCalledWith('Platform'); // May fail if debounced
+```
+
+#### Non-Debounced Operations
+For immediate operations (clicks, selections), direct spy assertions work:
+
+```typescript
+// ✅ CORRECT: Immediate operations don't need waitFor
+await userEvent.click(button);
+expect(clickSpy).toHaveBeenCalled(); // Immediate assertion OK
+
+await userEvent.click(sortHeader);
+expect(sortSpy).toHaveBeenCalledWith('display_name'); // Immediate assertion OK
+```
+
 ### Args Parameter Management
 **CRITICAL**: Only remove `args` parameter if the story doesn't use it.
 
@@ -966,6 +1011,32 @@ expect(await within(menu).findByLabelText(/option/i)).toBeInTheDocument();
 
 ## Critical Storybook Testing Rules
 
+### NEVER Guess - ALWAYS Ask for Guidance
+**MANDATORY**: When you don't understand how something works (API parameters, component behavior, etc.), ALWAYS ask for guidance instead of guessing.
+
+```typescript
+// ❌ NEVER guess at API parameter names
+const username = url.searchParams.get('username') || 
+                 url.searchParams.get('principal_username') || 
+                 url.searchParams.get('name') ||
+                 url.searchParams.get('user'); // Multiple guesses!
+
+// ✅ ALWAYS ask: "What parameter name does the API use for filtering?"
+const usernames = url.searchParams.get('usernames'); // Correct parameter from guidance
+
+// ❌ NEVER guess at expected values
+expect(sortSpy).toHaveBeenCalledWith('-username'); // Guessing format
+
+// ✅ ALWAYS ask: "What values does the sorting API expect?"  
+expect(sortSpy).toHaveBeenCalledWith('desc'); // Correct value from guidance
+```
+
+**Why this matters:**
+- Guessing wastes time and creates incorrect tests
+- API contracts are specific - wrong parameters fail silently
+- Component behavior varies - assumptions lead to broken tests
+- **ASK, don't guess** - it's faster and more reliable
+
 ### NEVER Use getBy* in Play Functions
 **MANDATORY**: Always use `findBy*` instead of `getBy*` in Storybook play functions for better async handling.
 
@@ -1003,8 +1074,9 @@ const table = (await canvas.findByRole('grid').catch(() => null)) ||
 #### Expandable Row Testing Patterns
 **CRITICAL**: For testing expandable rows in PatternFly tables, scope queries to the nested content.
 
+##### Single Expandable Cell Pattern
 ```typescript
-// ✅ Testing expandable row content - scope to nested table
+// ✅ Testing single expandable row content - scope to nested table
 export const ExpandedRowStory: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
@@ -1026,6 +1098,83 @@ export const ExpandedRowStory: Story = {
     expect(await expandedRow.findByText('compliance')).toBeInTheDocument();
   },
 };
+```
+
+##### Multiple Compound Expandable Cells Pattern
+**CRITICAL**: When a row contains **multiple compound expandable cells** (e.g., both Groups and Permissions), use semantic targeting to distinguish between nested tables:
+
+```typescript
+// ✅ CORRECT: Multiple compound expandables in same row
+export const MultipleExpandableStory: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Test groups expandable
+    const groupsButton = await canvas.findByRole('button', { name: '3' });
+    const row = within(groupsButton.closest('tbody') as HTMLElement);
+    await userEvent.click(groupsButton);
+    
+    // Use semantic targeting to find correct nested table
+    const groupsTable = within(await row.findByLabelText('Compound groups table'));
+    expect(await groupsTable.findByText('Group name')).toBeInTheDocument();
+    expect(await groupsTable.findByText('Description')).toBeInTheDocument();
+    
+    // Test permissions expandable (same row, different table)
+    const permissionsButton = await canvas.findByRole('button', { name: '25' });
+    await userEvent.click(permissionsButton);
+    
+    const permissionsTable = within(await row.findByLabelText('Compound permissions table'));
+    expect(await permissionsTable.findByText('Application')).toBeInTheDocument();
+    expect(await permissionsTable.findByText('Resource type')).toBeInTheDocument();
+    expect(await permissionsTable.findByText('Operation')).toBeInTheDocument();
+  },
+};
+
+// ❌ WRONG: DOM traversal finds first table regardless of button
+const table = within(button.closest('tbody').querySelector('table')); // Always finds first table!
+
+// ✅ CORRECT: Semantic targeting distinguishes between tables
+const table = within(await row.findByLabelText('Compound groups table')); // Specific table
+```
+
+**This pattern applies when:**
+- ✅ Multiple compound expandables exist in the same row
+- ✅ All nested tables have distinct `aria-label` attributes  
+- ✅ Tables exist simultaneously (not conditionally rendered)
+
+**Progressive Scoping Strategy:**
+1. **Create logical container scope**: `within(button.closest('tbody'))`
+2. **Find semantic element within scope**: `await row.findByLabelText('Compound groups table')`
+3. **Test content within semantic scope**: `await groupsTable.findByText('Group name')`
+
+### Semantic Targeting Priority
+
+#### Priority Order for Element Selection
+Use this hierarchy when choosing selectors (most preferred to least):
+
+1. **Semantic roles**: `findByRole('grid')`, `findByLabelText('aria-label')`
+2. **Accessible text**: `findByText()`, `findByDisplayValue()`  
+3. **DOM traversal**: `closest()` + `querySelector()` (last resort)
+
+```typescript
+// ✅ BEST: Semantic targeting with aria-labels
+const table = within(await row.findByLabelText('Compound permissions table'));
+
+// ✅ GOOD: Role-based targeting  
+const table = await canvas.findByRole('grid', { name: /permissions/i });
+
+// ✅ ACCEPTABLE: Text-based targeting
+const table = await canvas.findByText('Permissions').closest('table');
+
+// ❌ FRAGILE: DOM traversal only when necessary
+const table = within(button.closest('td')?.querySelector('table'));
+```
+
+#### Benefits of Semantic Targeting
+- **More resilient** to DOM structure changes
+- **Better accessibility** testing coverage  
+- **Clearer intent** - shows what user is looking for
+- **Less brittle** than CSS selector chains
 
 // ❌ Don't search globally - may find text elsewhere in the DOM
 const text = await canvas.findByText('Application'); // Wrong - too broad
@@ -1033,7 +1182,6 @@ const text = await canvas.findByText('Application'); // Wrong - too broad
 // ✅ Always scope to the specific expanded content
 const expandedRow = within(triggerElement.closest('tbody').querySelector('table'));
 const text = await expandedRow.findByText('Application'); // Correct - scoped search
-```
 
 ### Modal Testing Requirements
 **CRITICAL**: For modal testing, add a button to open the modal with a simple label.
