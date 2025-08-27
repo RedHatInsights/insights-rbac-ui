@@ -2848,4 +2848,9 @@ export default defineMessages({
     description: 'Inherited from column label',
     defaultMessage: 'Inherited from',
   },
+  grantAccess: {
+    id: 'grantAccess',
+    description: 'Grant access button text',
+    defaultMessage: 'Grant access',
+  },
 });

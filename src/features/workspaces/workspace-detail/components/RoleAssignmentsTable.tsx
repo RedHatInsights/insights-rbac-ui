@@ -7,7 +7,8 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { Pagination, Tooltip } from '@patternfly/react-core';
+import { Button, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
+import { SearchIcon } from '@patternfly/react-icons';
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
@@ -204,6 +205,11 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
                 />
               )}
             </DataViewFilters>
+          }
+          actions={
+            <Button variant="primary" isDisabled ouiaId={`${ouiaId}-grant-access-button`}>
+              {intl.formatMessage(messages.grantAccess)}
+            </Button>
           }
           clearAllFilters={clearAllFilters}
         />
