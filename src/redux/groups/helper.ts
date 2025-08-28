@@ -67,6 +67,12 @@ export interface PrincipalsInGroup {
   }[];
 }
 
+export interface UsersInGroup {
+  principals: {
+    username: string;
+  }[];
+}
+
 export async function fetchGroups({
   limit,
   offset,
@@ -202,15 +208,13 @@ export async function removeGroups(uuids: string[]): Promise<void[]> {
 
 export async function deleteMembersFromGroup(groupId: string, users: string[]): Promise<void> {
   // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
-  await (groupApi.deletePrincipalFromGroup as any)(groupId, users.join(','), '', undefined);
+  await (groupApi.deletePrincipalFromGroup as any)(groupId, users.join(','), undefined, undefined);
 }
 
 export async function addMembersToGroup(groupId: string, users: PrincipalIn[]): Promise<void> {
-  const groupPrincipalIn: GroupPrincipalIn = {
+  const groupPrincipalIn: UsersInGroup = {
     principals: users.map((user) => ({
       username: user.username || '',
-      type: 'user' as any,
-      clientId: '',
     })),
   };
   // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass
