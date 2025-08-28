@@ -44,9 +44,8 @@ describe('Group reducer', () => {
       isRecordLoading: false,
       groups: { ...initialState.groups },
       selectedGroup: {
-        ...initialState.selectedGroup,
-        members: { ...initialState.selectedGroup.members, data: payload.principals },
-        pagination: { ...initialState.selectedGroup.pagination, count: 1 },
+        members: { data: payload.principals },
+        pagination: { count: 1, offset: 0 },
         uuid: 'uuid1',
         roleCount: 1,
         loaded: true,
@@ -80,9 +79,8 @@ describe('Group reducer', () => {
         ],
       },
       selectedGroup: {
-        ...initialState.selectedGroup,
-        members: { ...initialState.selectedGroup.members, data: payload.principals },
-        pagination: { ...initialState.selectedGroup.pagination, count: 1 },
+        members: { data: payload.principals },
+        pagination: { count: 1, offset: 0 },
         uuid: 'uuid1',
         roleCount: 1,
         loaded: true,

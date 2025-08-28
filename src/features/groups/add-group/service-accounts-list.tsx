@@ -10,7 +10,7 @@ import messages from '../../../Messages';
 import { TableToolbarView } from '../../../components/tables/TableToolbarView';
 import { fetchServiceAccounts } from '../../../redux/service-accounts/actions';
 import { ServiceAccountsState } from '../../../redux/service-accounts/reducer';
-import { PaginationProps } from '../service-account/add-group-service-accounts';
+import { PaginationProps } from '../group/service-account/add-group-service-accounts';
 import './service-accounts-list.scss';
 
 interface ServiceAccountsListProps {
