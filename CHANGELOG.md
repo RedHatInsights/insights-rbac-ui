@@ -1,3 +1,10 @@
+## [1.50.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.0...v1.50.1) (2025-08-28)
+
+
+### Bug Fixes
+
+* **groups:** adding and removing users from group ([#1907](https://github.com/RedHatInsights/insights-rbac-ui/issues/1907)) ([2e66610](https://github.com/RedHatInsights/insights-rbac-ui/commit/2e66610b5cdd43d78cdf8e15afb7f51d6f084411))
+
 # [1.50.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.49.2...v1.50.0) (2025-08-27)
 
 
