@@ -1,3 +1,10 @@
+## [1.50.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.1...v1.50.2) (2025-09-03)
+
+
+### Bug Fixes
+
+* **feo:** removing ciam app data ([#1910](https://github.com/RedHatInsights/insights-rbac-ui/issues/1910)) ([5f5e609](https://github.com/RedHatInsights/insights-rbac-ui/commit/5f5e609b640502b2d2fd71a1f2eb0d635bc1d193))
+
 ## [1.50.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.0...v1.50.1) (2025-08-28)
 
 
