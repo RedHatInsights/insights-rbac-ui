@@ -1,7 +1,7 @@
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
-import { IntlShape, useIntl } from 'react-intl';
+import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
