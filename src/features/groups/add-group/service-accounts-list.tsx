@@ -187,6 +187,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
           <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
         ) : (
           <DataViewTable
+            variant="compact"
             columns={columns}
             rows={rows}
             ouiaId={`${ouiaId}-table`}
