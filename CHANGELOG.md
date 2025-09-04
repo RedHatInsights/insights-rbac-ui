@@ -1,3 +1,18 @@
+# [1.51.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.2...v1.51.0) (2025-09-04)
+
+
+### Bug Fixes
+
+* **lint:** remove import ([f4baac8](https://github.com/RedHatInsights/insights-rbac-ui/commit/f4baac8f97bb477b859a9f1959b8c34020b81fa0))
+* **serviceaccountslist:** make table compact ([c139d17](https://github.com/RedHatInsights/insights-rbac-ui/commit/c139d1721dba23dc1ef34f3a9eb33320ae0fb5af))
+* **tests:** update snapshots ([34a97ee](https://github.com/RedHatInsights/insights-rbac-ui/commit/34a97ee5034e0721e43c96012d0626fa8e3e7139))
+* **test:** update snapshot ([dbe7c36](https://github.com/RedHatInsights/insights-rbac-ui/commit/dbe7c36b7bfac22b44c5cc1a6c03ff648740783f))
+
+
+### Features
+
+* **serviceaccountslist:** convert service-accounts-list to use DataViewTable ([db75a8d](https://github.com/RedHatInsights/insights-rbac-ui/commit/db75a8d808a24d84d4af8bb9d08e781dec11bcb8))
+
 ## [1.50.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.1...v1.50.2) (2025-09-03)
 
 
