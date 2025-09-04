@@ -1,34 +1,20 @@
 import React, { useCallback, useContext, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useSearchParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import {
-  DataViewEventsProvider,
-  EventTypes,
-  useDataViewEventsContext,
-  useDataViewFilters,
-  useDataViewPagination,
-  useDataViewSort,
-} from '@patternfly/react-data-view';
+import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
 import { TabContent } from '@patternfly/react-core';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { changeUsersStatus, fetchUsers } from '../../../../redux/users/actions';
-import { mappedProps } from '../../../../helpers/dataUtilities';
+import { changeUsersStatus } from '../../../../redux/users/actions';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import paths from '../../../../utilities/pathnames';
-import { RBACStore } from '../../../../redux/store';
 import { User } from '../../../../redux/users/reducer';
+import { useUsers } from './useUsers';
 import { UsersTable } from './components/UsersTable';
 import { DeleteUserModal } from './components/DeleteUserModal';
 import { BulkDeactivateUsersModal } from './components/BulkDeactivateUsersModal';
 import { AddUserToGroupModal } from './add-user-to-group/AddUserToGroupModal';
 import { UserDetailsDrawer } from './user-detail/UserDetailsDrawer';
-
-interface UsersFilters {
-  username: string;
-  email: string;
-}
 
 interface UsersProps {
   usersRef?: React.RefObject<HTMLDivElement>;
@@ -41,8 +27,23 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const isITLess = useFlag('platform.rbac.itless');
   const { getBundle, getApp } = useChrome();
   const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
   const appNavigate = useAppNavigate(`/${getBundle()}/${getApp()}`);
+
+  // Use the custom hook for all Users business logic
+  const {
+    users,
+    isLoading,
+    totalCount,
+    filters,
+    sortBy,
+    direction,
+    onSort,
+    pagination,
+    setFocusedUser,
+    handleRowClick: hookHandleRowClick,
+    clearAllFilters,
+    onSetFilters,
+  } = useUsers({ enableAdminFeatures: true });
 
   // Modal state
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -50,25 +51,21 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const [currentUser, setCurrentUser] = useState<User | undefined>();
   const [selectedUsers, setSelectedUsers] = useState<User[]>([]);
 
-  // Focus user state
-  const [focusedUser, setFocusedUser] = useState<User | undefined>();
-
   // Add user to group modal state
   const [selectedUsersForGroup, setSelectedUsersForGroup] = useState<User[]>([]);
   const [isAddUserGroupModalOpen, setIsAddUserGroupModalOpen] = useState(false);
 
-  // Redux state
-  const { users, totalCount, isLoading } = useSelector((state: RBACStore) => ({
-    users: state.userReducer.users.data || [],
-    totalCount: state.userReducer.users.meta.count || 0,
-    isLoading: state.userReducer.isUserDataLoading,
-  }));
+  // Local focus state for compatibility with existing components (they expect undefined, not null)
+  const [localFocusedUser, setLocalFocusedUser] = useState<User | undefined>();
 
   // Auth and permissions
   const [accountId, setAccountId] = useState<number | undefined>();
-  const { orgAdmin } = useContext(PermissionsContext);
+  const { orgAdmin: contextOrgAdmin } = useContext(PermissionsContext);
   const { auth, isProd } = useChrome();
   const [token, setToken] = useState<string | null>(null);
+
+  // Use the context orgAdmin for actual permissions
+  const orgAdmin = contextOrgAdmin;
 
   useEffect(() => {
     const getToken = async () => {
@@ -78,55 +75,9 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     getToken();
   }, [auth]);
 
-  // Data view hooks - moved from presentational component
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'username',
-      direction: 'asc',
-    },
-  });
-
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UsersFilters>({
-    initialFilters: { username: '', email: '' },
-    searchParams,
-    setSearchParams,
-  });
-
-  const pagination = useDataViewPagination({
-    perPage: defaultPerPage,
-    searchParams,
-    setSearchParams,
-  });
-
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  // Data fetching logic - moved from original UsersTable
-  const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters?: UsersFilters }) => {
-      const { count, limit, offset, orderBy, filters } = apiProps;
-      const orderDirection = direction === 'desc' ? '-' : '';
-      dispatch(
-        fetchUsers({
-          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}`, filters }),
-          usesMetaInURL: true,
-        }),
-      );
-    },
-    [dispatch, direction],
-  );
-
-  // Fetch users data with parameters
-  useEffect(() => {
-    fetchData({
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      orderBy: sortBy || 'username',
-      count: totalCount || 0,
-      filters,
-    });
-  }, [fetchData, page, perPage, sortBy, direction, filters, totalCount]);
+  // Note: Data fetching is now handled by the useUsers hook automatically
 
   // User status toggle handler
   const handleToggleUserStatus = useCallback(
@@ -187,11 +138,19 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
   const context = useDataViewEventsContext();
   const handleRowClick = useCallback(
     (user: User | undefined) => {
-      setFocusedUser(user);
+      // Use the hook's handler for focus state
+      if (user) {
+        hookHandleRowClick(user);
+        setFocusedUser(user);
+      } else {
+        setFocusedUser(null);
+      }
+      // Also set local focus state for compatibility
+      setLocalFocusedUser(user);
       // Trigger DataView event so UserDetailsDrawer can subscribe to it
       context.trigger(EventTypes.rowClick, user);
     },
-    [context],
+    [context, hookHandleRowClick, setFocusedUser],
   );
 
   // Modal handlers
@@ -243,13 +202,13 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
     <>
       <AddUserToGroupModal isOpen={isAddUserGroupModalOpen} setIsOpen={setIsAddUserGroupModalOpen} selectedUsers={selectedUsersForGroup} />
       <DataViewEventsProvider>
-        <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setFocusedUser} focusedUser={focusedUser}>
+        <UserDetailsDrawer ouiaId="user-details-drawer" setFocusedUser={setLocalFocusedUser} focusedUser={localFocusedUser}>
           <TabContent eventKey={0} id="usersTab" ref={usersRef} aria-label="Users tab">
             <UsersTable
               users={users}
               totalCount={totalCount}
               isLoading={isLoading}
-              focusedUser={focusedUser}
+              focusedUser={localFocusedUser}
               authModel={authModel}
               orgAdmin={orgAdmin}
               isProd={isProd() || false}
@@ -262,7 +221,7 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               onDeleteUser={handleDeleteUser}
               onBulkStatusChange={() => handleBulkStatusChange(selectedUsers)}
               onRowClick={handleRowClick}
-              // Data view props - now managed by container
+              // Data view props - now managed by useUsers hook
               sortBy={sortBy}
               direction={direction}
               onSort={onSort}
