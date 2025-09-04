@@ -1723,6 +1723,11 @@ export default defineMessages({
     description: 'No service accounts message',
     defaultMessage: 'No service accounts found',
   },
+  groupServiceAccountEmptyStateBody: {
+    id: 'groupServiceAccountEmptyStateBody',
+    description: 'No service accounts for this group message',
+    defaultMessage: 'No service accounts found for this group.',
+  },
   contactServiceTeamForAccounts: {
     id: 'contactServiceTeamForAccounts',
     description: 'Contact service team to add accounts message',
