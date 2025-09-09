@@ -179,12 +179,12 @@ const workspaceDetailHandlers = [
     });
   }),
   // Add handlers for static assets
-  http.get('/apps/frontend-assets/console-landing/insights.svg', () => {
+  http.get('/apps/frontend-assets/technology-icons/insights.svg', () => {
     return HttpResponse.text('<svg></svg>', {
       headers: { 'Content-Type': 'image/svg+xml' },
     });
   }),
-  http.get('/apps/frontend-assets/console-landing/openshift.svg', () => {
+  http.get('/apps/frontend-assets/technology-icons/openshift.svg', () => {
     return HttpResponse.text('<svg></svg>', {
       headers: { 'Content-Type': 'image/svg+xml' },
     });
