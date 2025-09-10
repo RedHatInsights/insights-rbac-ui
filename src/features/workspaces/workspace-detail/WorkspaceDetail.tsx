@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
+import { fetchRoleBindings, fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
 import { fetchGroups } from '../../../redux/groups/actions';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { RBACStore } from '../../../redux/store';
@@ -42,7 +42,7 @@ export const WorkspaceDetail = () => {
   const intl = useIntl();
   const { workspaceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const enableRoles = useFlag('platform.rbac.workspaces-role-bindings');
+  const enableRoles = !useFlag('platform.rbac.workspaces-role-bindings');
   const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
   const activeRoleAssignmentTabString = searchParams.get('roleAssignmentTab') || 'roles-assigned-in-workspace';
 
@@ -196,6 +196,21 @@ export const WorkspaceDetail = () => {
       setParentGroupsIsLoading(false);
     }
   }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters]);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const result = await fetchRoleBindings({ limit: 10, subjectType: 'group', resourceType: 'workspace', subjectId: workspaceId });
+        console.log(result);
+      } catch (error) {
+        console.error('Error fetching role bindings:', error);
+      }
+    };
+
+    if (workspaceId) {
+      fetchData();
+    }
+  }, [workspaceId]);
 
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {

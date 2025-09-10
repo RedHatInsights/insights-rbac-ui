@@ -1,4 +1,5 @@
-import { FETCH_WORKSPACE, FETCH_WORKSPACES } from './action-types';
+import { RoleBindingsRole } from '@redhat-cloud-services/rbac-client/v2/types';
+import { FETCH_ROLE_BINDINGS, FETCH_WORKSPACE, FETCH_WORKSPACES } from './action-types';
 
 export interface WorkspaceCreateBody {
   id?: string;
@@ -14,12 +15,40 @@ export interface Workspace extends WorkspaceCreateBody {
   parent_id: string;
 }
 
+export interface RoleBindingsSubject {
+  id?: string;
+  type: string;
+}
+export interface RoleBindingsResource {
+  type: string;
+}
+
+export interface RoleBindingBySubject {
+  last_modified?: string;
+  subject?: RoleBindingsSubject;
+  roles?: RoleBindingsRole[];
+  resource?: RoleBindingsResource;
+}
 export interface WorkspacesStore {
   isLoading: boolean;
   workspaces: Workspace[];
   error: string;
   selectedWorkspace: Workspace;
 }
+
+export interface RoleBindingsBySubjectStore {
+  isLoading: boolean;
+  roleBindings: RoleBindingBySubject[];
+  error: string;
+  selectedRoleBinding: RoleBindingBySubject;
+}
+
+export const RoleBindingsInitialState = {
+  isLoading: false,
+  roleBindings: [],
+  error: '',
+  selectedRoleBinding: undefined,
+};
 
 export const workspacesInitialState = {
   isLoading: false,

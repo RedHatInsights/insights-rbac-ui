@@ -9,6 +9,9 @@ import listWorkspaces, { WorkspacesListReturnType } from '@redhat-cloud-services
 import updateWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesPatch';
 
 import getWorkspace, { WorkspacesReadReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesRead';
+
+import roleBindingsListBySubject, { RoleBindingsListBySubjectReturnType } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
+
 import axios, { AxiosError } from 'axios';
 import { RBAC_API_BASE_2 } from '../../utilities/constants';
 
@@ -49,6 +52,7 @@ const workspacesApiEndpoints = {
   deleteWorkspace,
   listWorkspaces,
   moveWorkspaces,
+  roleBindingsListBySubject,
 };
 
 type workspacesApiEndpointsReturnType = {
@@ -58,6 +62,7 @@ type workspacesApiEndpointsReturnType = {
   deleteWorkspace: WorkspacesDeleteReturnType;
   listWorkspaces: WorkspacesListReturnType;
   moveWorkspaces: WorkspacesMoveReturnType;
+  roleBindingsListBySubject: RoleBindingsListBySubjectReturnType;
 };
 
 const workspacesApi = APIFactory<typeof workspacesApiEndpoints, workspacesApiEndpointsReturnType>(RBAC_API_BASE_2, workspacesApiEndpoints, {
