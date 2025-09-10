@@ -22,7 +22,7 @@ interface AssetsCardsProps {
 }
 
 const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName }: AssetsCardsProps) => {
-  const InsightsIcon = '/apps/frontend-assets/console-landing/insights.svg';
+  const InsightsIcon = '/apps/frontend-assets/technology-icons/insights.svg';
   const InsightsNavURL = `/insights/inventory?workspace=${workspaceName}`;
   const intl = useIntl();
   const AssetsCardsWidths = {
