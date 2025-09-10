@@ -1,3 +1,10 @@
+# [1.52.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.51.0...v1.52.0) (2025-09-10)
+
+
+### Features
+
+* update technology icon path ([#1912](https://github.com/RedHatInsights/insights-rbac-ui/issues/1912)) ([b9d14e2](https://github.com/RedHatInsights/insights-rbac-ui/commit/b9d14e24c9d9f76690ad0a621ab9aadd07066ce6))
+
 # [1.51.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.2...v1.51.0) (2025-09-04)
 
 
