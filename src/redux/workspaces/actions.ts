@@ -4,6 +4,7 @@ import { createIntl, createIntlCache } from 'react-intl';
 import {
   createWorkspace as createWorkspaceHelper,
   deleteWorkspace as deleteWorkspaceHelper,
+  getRoleBindingsForSubject,
   getWorkspace,
   getWorkspaces,
   moveWorkspace as moveWorkspaceHelper,
@@ -12,9 +13,18 @@ import {
 import providerMessages from '../../locales/data.json';
 import { locale } from '../../locales/locale';
 import messages from '../../Messages';
-import { CREATE_WORKSPACE, DELETE_WORKSPACE, FETCH_WORKSPACE, FETCH_WORKSPACES, MOVE_WORKSPACE, PATCH_WORKSPACE } from './action-types';
+import {
+  CREATE_WORKSPACE,
+  DELETE_WORKSPACE,
+  FETCH_ROLE_BINDINGS,
+  FETCH_WORKSPACE,
+  FETCH_WORKSPACES,
+  MOVE_WORKSPACE,
+  PATCH_WORKSPACE,
+} from './action-types';
 import { WorkspaceCreateBody } from './reducer';
 import { WorkspacesMoveParams } from '@redhat-cloud-services/rbac-client/v2/WorkspacesMove';
+import { RoleBindingsListBySubjectParams } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
 
 export const fetchWorkspaces = () => ({
   type: FETCH_WORKSPACES,
@@ -134,3 +144,8 @@ export const moveWorkspace = (workspaceData: WorkspacesMoveParams, { name }: { n
     },
   };
 };
+
+export const fetchRoleBindings = (config: RoleBindingsListBySubjectParams) => ({
+  type: FETCH_ROLE_BINDINGS,
+  payload: getRoleBindingsForSubject(config),
+});
