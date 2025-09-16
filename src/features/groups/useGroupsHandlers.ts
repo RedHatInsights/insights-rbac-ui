@@ -8,21 +8,27 @@ import { mergeToBasename } from '../../components/navigation/AppLink';
 import pathnames from '../../utilities/pathnames';
 import type { Group } from './types';
 
+interface PaginationState {
+  limit: number;
+  offset: number;
+  [key: string]: unknown;
+}
+
 interface UseGroupsHandlersProps {
   isAdmin: boolean;
   columns: Array<{ key?: string; title: string }>;
-  expanded: Record<string, any>;
-  onExpandedChange: (expanded: Record<string, any>) => void;
+  expanded: Record<string, number | boolean>;
+  onExpandedChange: (expanded: Record<string, number | boolean>) => void;
   onSelectedRowsChange: (rows: Group[]) => void;
   onRemoveGroupsChange: (groups: Group[]) => void;
   onSortChange: (sortState: { index: number; direction: 'asc' | 'desc' }) => void;
   onFilterValueChange: (filterValue: string) => void;
   data: Group[];
-  pagination: any;
+  pagination: PaginationState;
   orderBy: string;
   totalCount: number;
   filterValue: string;
-  fetchData: (options: any) => void;
+  fetchData: (options: Record<string, unknown>) => void;
 }
 
 export const useGroupsHandlers = ({
@@ -47,7 +53,7 @@ export const useGroupsHandlers = ({
 
   // Expanded data fetchers - directly from legacy
   const fetchExpandedRoles = useCallback(
-    (uuid: string, flags?: any) => dispatch(fetchRolesForExpandedGroup(uuid, { limit: 100 }, flags)),
+    (uuid: string, flags?: Record<string, unknown>) => dispatch(fetchRolesForExpandedGroup(uuid, { limit: 100 }, flags)),
     [dispatch],
   );
 
@@ -55,7 +61,7 @@ export const useGroupsHandlers = ({
 
   // Expand handler - directly from legacy
   const onExpand = useCallback(
-    (_event: any, _rowIndex: number, colIndex: number, isOpen: boolean, rowData: Group) => {
+    (_event: React.MouseEvent | null, _rowIndex: number, colIndex: number, isOpen: boolean, rowData: Group) => {
       const adjustedIndex = colIndex + Number(!isAdmin);
 
       if (!isOpen) {
@@ -78,7 +84,7 @@ export const useGroupsHandlers = ({
 
   // Sort handler
   const handleSort = useCallback(
-    (e: any, index: number, direction: 'asc' | 'desc') => {
+    (e: React.MouseEvent, index: number, direction: 'asc' | 'desc') => {
       const orderBy = `${direction === 'desc' ? '-' : ''}${columns[index - Number(isAdmin)].key}`;
       onSortChange({ index, direction });
       applyFiltersToUrl(location, navigate, { name: filterValue });

@@ -6,7 +6,7 @@ import { useIntl } from 'react-intl';
 import { ServiceAccount } from '../../../redux/service-accounts/types';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
-import ServiceAccountsList from './service-accounts-list';
+import ServiceAccountsList from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
   name: string;

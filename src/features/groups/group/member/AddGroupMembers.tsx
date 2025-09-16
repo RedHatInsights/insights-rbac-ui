@@ -8,7 +8,6 @@ import { addNotification } from '@redhat-cloud-services/frontend-components-noti
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addMembersToGroup, fetchGroups, fetchMembersForGroup } from '../../../../redux/groups/actions';
 import { UsersList } from '../../add-group/UsersList';
-import UsersListItless from '../../add-group/users-list-itless-legacy';
 import { ActiveUsers } from '../../../../components/user-management/ActiveUsers';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
@@ -76,7 +75,7 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({ cancelRoute })
         </StackItem>
         <StackItem isFilled>
           {isITLess ? (
-            <UsersListItless selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
+            <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
           ) : (
             <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
           )}

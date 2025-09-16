@@ -4,25 +4,68 @@ import { expect, fn, screen, userEvent, within } from 'storybook/test';
 import { RemoveRoleModal } from './RemoveRoleModal';
 
 // Wrapper component to control modal state with a trigger button
-const RemoveRoleModalWrapper: React.FC<any> = (props) => {
+const RemoveRolesWrapper: React.FC<any> = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
-    <>
-      <button onClick={() => setIsOpen(true)}>Open Modal</button>
-      <RemoveRoleModal {...props} isOpen={isOpen} onClose={() => setIsOpen(false)} />
-    </>
+    <div style={{ padding: '20px' }}>
+      <button
+        onClick={() => setIsOpen(true)}
+        style={{
+          padding: '8px 16px',
+          backgroundColor: '#c9190b',
+          color: 'white',
+          border: 'none',
+          borderRadius: '4px',
+          cursor: 'pointer',
+        }}
+      >
+        Remove Role
+      </button>
+
+      <RemoveRoleModal
+        {...props}
+        isOpen={isOpen}
+        onClose={() => {
+          setIsOpen(false);
+          props.onClose?.();
+        }}
+        onSubmit={() => {
+          setIsOpen(false);
+          props.onSubmit?.();
+        }}
+      />
+    </div>
   );
 };
 
-const meta: Meta<typeof RemoveRoleModalWrapper> = {
-  component: RemoveRoleModalWrapper,
-  tags: ['remove-role-modal'], // NO autodocs on meta
+const meta: Meta<typeof RemoveRoleModal> = {
+  component: RemoveRoleModal,
   parameters: {
-    docs: {
-      description: {
-        component: 'TypeScript version of the RemoveRoleModal component for confirming role removal.',
-      },
+    layout: 'centered',
+  },
+  tags: ['autodocs'],
+  render: (args) => <RemoveRolesWrapper {...args} />,
+  argTypes: {
+    title: {
+      control: 'text',
+      description: 'Modal title',
+    },
+    text: {
+      control: 'text',
+      description: 'Modal content text',
+    },
+    confirmButtonLabel: {
+      control: 'text',
+      description: 'Label for the confirm button',
+    },
+    isDefault: {
+      control: 'boolean',
+      description: 'Whether this is a default group',
+    },
+    isChanged: {
+      control: 'boolean',
+      description: 'Whether the group has been changed',
     },
   },
 };
@@ -31,85 +74,98 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
-  tags: ['autodocs'], // ONLY story with autodocs
   args: {
-    title: 'Remove roles?',
-    text: 'Are you sure you want to remove these roles from this group?',
+    title: 'Remove role from group?',
+    text: 'This action will remove the selected role from the group. This action cannot be undone.',
     confirmButtonLabel: 'Remove',
-    onSubmit: fn(),
     isDefault: false,
     isChanged: false,
+    onClose: fn(),
+    onSubmit: fn(),
   },
-  parameters: {
-    docs: {
-      description: {
-        story: `
-**RemoveRoleModal** is a confirmation modal for removing roles from groups with different behaviors for default vs custom groups.
-
-## Feature Overview
-
-This modal provides role removal confirmation with:
-
-- ⚠️ **Confirmation Dialog** - Clear warning before destructive actions
-- 🔐 **Default Group Protection** - Special handling for system default groups  
-- ✏️ **Custom Messaging** - Configurable title and confirmation text
-- 🎯 **Callback Integration** - onSubmit handler for confirmed actions
-- 🎨 **Consistent UI** - PatternFly warning modal styling
-
-## Additional Test Stories
-
-For testing different group types and scenarios:
-
-- **[DefaultGroup](?path=/story/features-groups-group-role-removerolemodal--default-group)**: Tests role removal from system default groups
-
-## What This Tests
-
-- ✅ Modal opens when button is clicked (autodocs compatible)
-- ✅ Displays correct title and confirmation message
-- ✅ Shows Remove and Cancel buttons with proper labels
-- ✅ Calls onSubmit callback when Remove is clicked
-- ✅ Handles modal close functionality properly
-        `,
-      },
-    },
-  },
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
     // Click trigger button to open modal
-    const triggerButton = await canvas.findByText('Open Modal');
+    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
     await userEvent.click(triggerButton);
 
-    // Should show modal
+    // Modal renders to document.body via portal
     const modal = await screen.findByRole('dialog');
     expect(modal).toBeInTheDocument();
 
-    // Should have correct title and content
-    expect(await screen.findByText('Remove roles?')).toBeInTheDocument();
-    expect(await screen.findByText('Are you sure you want to remove these roles from this group?')).toBeInTheDocument();
-    expect(await screen.findByText('Remove')).toBeInTheDocument();
+    // Verify modal content
+    expect(within(modal).getByText('Remove role from group?')).toBeInTheDocument();
+    expect(within(modal).getByText(/this action will remove/i)).toBeInTheDocument();
+
+    // Click confirm button
+    const confirmButton = within(modal).getByRole('button', { name: /remove/i });
+    await userEvent.click(confirmButton);
+
+    // Verify callback was called
+    expect(args.onSubmit).toHaveBeenCalled();
   },
 };
 
-export const DefaultGroup: Story = {
+export const DefaultGroupUnchanged: Story = {
   args: {
-    title: 'Remove roles from default group?',
-    text: 'Removing roles from a default group requires confirmation.',
+    title: 'Remove role from default group?',
+    text: 'This action will remove the selected role from the default group.',
     confirmButtonLabel: 'Remove',
-    onSubmit: fn(),
     isDefault: true,
-    isChanged: false,
+    isChanged: false, // Unchanged default group - complex flow
+    onClose: fn(),
+    onSubmit: fn(),
   },
-  play: async ({ canvasElement }: { canvasElement: HTMLElement }) => {
+  play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
 
     // Open modal
-    const triggerButton = await canvas.findByText('Open Modal');
+    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
     await userEvent.click(triggerButton);
 
-    // Should show warning modal
-    const modal = await screen.findByRole('dialog');
-    expect(modal).toBeInTheDocument();
-    expect(await screen.findByText('Remove roles from default group?')).toBeInTheDocument();
+    // Should show WarningModal first
+    const warningModal = await screen.findByRole('dialog');
+    expect(within(warningModal).getByText('Remove role from default group?')).toBeInTheDocument();
+
+    // Click confirm on WarningModal (this sets showConfirmModal=true)
+    const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
+    await userEvent.click(confirmButton);
+
+    // Now should show DefaultGroupChangeModal with checkbox
+    const changeModal = await screen.findByRole('dialog');
+    expect(changeModal).toBeInTheDocument();
+
+    // Find and check the required checkbox first
+    const checkbox = within(changeModal).getByRole('checkbox');
+    await userEvent.click(checkbox);
+
+    // Now find and click the "Continue" button in DefaultGroupChangeModal
+    const continueButton = within(changeModal).getByRole('button', { name: /continue/i });
+    await userEvent.click(continueButton);
+
+    // onSubmit should be called after the DefaultGroupChangeModal confirms
+    expect(args.onSubmit).toHaveBeenCalled();
+  },
+};
+
+export const ClosedState: Story = {
+  args: {
+    title: 'Remove role from group?',
+    text: 'This modal starts closed.',
+    confirmButtonLabel: 'Remove',
+    isDefault: false,
+    isChanged: false,
+    onClose: fn(),
+    onSubmit: fn(),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Should show trigger button but no modal
+    expect(await canvas.findByRole('button', { name: /remove role/i })).toBeInTheDocument();
+
+    // No modal should be present initially
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   },
 };

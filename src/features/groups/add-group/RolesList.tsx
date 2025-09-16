@@ -7,6 +7,7 @@ import { mappedProps } from '../../../helpers/dataUtilities';
 import { TableToolbarView } from '../../../components/tables/TableToolbarView';
 import { fetchRolesWithPolicies } from '../../../redux/roles/actions';
 import { fetchAddRolesForGroup } from '../../../redux/groups/actions';
+import type { RBACStore } from '../../../redux/store.d';
 
 interface Role {
   uuid: string;
@@ -49,7 +50,7 @@ export const RolesList: React.FC<RolesListProps> = ({ selectedRoles, setSelected
   const dispatch = useDispatch();
   const textFilterRef = useRef<HTMLInputElement>(null);
 
-  const selector = ({ roleReducer }: any) => ({
+  const selector = ({ roleReducer }: RBACStore) => ({
     roles: roleReducer?.roles?.data,
     pagination: roleReducer?.roles?.meta,
     isLoading: roleReducer?.isLoading,
@@ -60,11 +61,11 @@ export const RolesList: React.FC<RolesListProps> = ({ selectedRoles, setSelected
   const [filterValue, setFilterValue] = useState<{ name?: string }>({ name: '' });
 
   const fetchData = useCallback(
-    (apiProps: any) => {
+    (apiProps: Record<string, unknown>) => {
       if (rolesExcluded && groupUuid) {
-        return dispatch(fetchAddRolesForGroup(groupUuid, apiProps) as any);
+        return dispatch(fetchAddRolesForGroup(groupUuid, apiProps));
       } else {
-        return dispatch(fetchRolesWithPolicies(mappedProps(apiProps)) as any);
+        return dispatch(fetchRolesWithPolicies(mappedProps(apiProps)));
       }
     },
     [rolesExcluded, groupUuid, dispatch],
@@ -102,19 +103,21 @@ export const RolesList: React.FC<RolesListProps> = ({ selectedRoles, setSelected
       isCompact={true}
       borders={false}
       data={roles}
-      fetchData={(config: any) => {
-        fetchData(config).then(() => {
+      fetchData={(config: Record<string, unknown>) => {
+        fetchData(config);
+        // Focus the text filter after data fetch
+        setTimeout(() => {
           textFilterRef?.current?.focus();
-        });
+        }, 0);
       }}
-      filterValue={filterValue as any}
+      filterValue={filterValue as unknown as string | string[]}
       setFilterValue={({ name }: { name?: string }) => {
         setFilterValue({
           name: typeof name === 'undefined' ? filterValue.name : name,
         });
       }}
       isLoading={isLoading}
-      pagination={pagination as any}
+      pagination={pagination}
       checkedRows={selectedRoles}
       setCheckedItems={setCheckedItems}
       titlePlural="roles"

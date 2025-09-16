@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useEffect } from 'react';
 import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
 import { HttpResponse, http } from 'msw';
-import { expect, fn, userEvent, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { useDispatch, useSelector } from 'react-redux';
 import { AddGroupRoles } from './AddGroupRoles';
 import { fetchAddRolesForGroup, fetchGroup } from '../../../../redux/groups/actions';
@@ -316,6 +316,26 @@ export const WithRoles: Story = {
     const submitButton = within(modal).queryByRole('button', { name: /add|submit|save/i });
     if (submitButton) {
       expect(submitButton).toBeEnabled();
+
+      // ✅ TEST NOTIFICATION: Test success notification when roles are added
+      await userEvent.click(submitButton);
+
+      await waitFor(
+        () => {
+          const notificationPortal = document.querySelector('.notifications-portal');
+          expect(notificationPortal).toBeInTheDocument();
+
+          const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+          expect(successAlert).toBeInTheDocument();
+
+          const alertTitle = successAlert?.querySelector('.pf-v5-c-alert__title');
+          expect(alertTitle).toHaveTextContent(/add.*roles/i);
+
+          const alertDescription = successAlert?.querySelector('.pf-v5-c-alert__description');
+          expect(alertDescription).toHaveTextContent(/roles.*successfully.*added/i);
+        },
+        { timeout: 5000 },
+      );
     } else {
       // Alternative: just verify modal has interactive content
       expect(within(modal).queryByRole('table')).toBeTruthy();
@@ -594,5 +614,66 @@ export const Loading: Story = {
       modal.querySelector('[class*="spinner"]');
 
     expect(hasLoading).toBeTruthy();
+  },
+};
+
+export const CancelNotification: Story = {
+  render: () => (
+    <AddGroupRolesWithData
+      title="Add roles to group"
+      closeUrl="/groups/detail/test-group-id/roles"
+      isDefault={false}
+      isChanged={false}
+      selectedRoles={[mockRoles[0]]}
+      setSelectedRoles={fn()}
+      addRolesToGroup={fn(() => Promise.resolve())}
+      afterSubmit={fn()}
+      onDefaultGroupChanged={fn()}
+    />
+  ),
+  parameters: {
+    docs: {
+      description: {
+        story: 'Test warning notification when user cancels adding roles.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // 🎯 MODAL TESTING: Click button to open modal
+    const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
+    await userEvent.click(openButton);
+
+    // 🎯 MODAL TESTING: Modal renders to document.body via portal
+    const modal = document.querySelector('[role="dialog"]') as HTMLElement;
+    expect(modal).toBeInTheDocument();
+
+    // Find and click the specific Cancel button (not the close X button)
+    const cancelButton = within(modal).queryByRole('button', { name: /^cancel$/i });
+    if (cancelButton) {
+      await userEvent.click(cancelButton);
+
+      // ✅ TEST NOTIFICATION: Test warning notification when user cancels
+      await waitFor(
+        () => {
+          const notificationPortal = document.querySelector('.notifications-portal');
+          expect(notificationPortal).toBeInTheDocument();
+
+          const warningAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-warning');
+          expect(warningAlert).toBeInTheDocument();
+
+          const alertTitle = warningAlert?.querySelector('.pf-v5-c-alert__title');
+          expect(alertTitle).toHaveTextContent(/cancel/i);
+
+          const alertDescription = warningAlert?.querySelector('.pf-v5-c-alert__description');
+          expect(alertDescription).toHaveTextContent(/cancelled/i);
+        },
+        { timeout: 5000 },
+      );
+    } else {
+      // If no cancel button found, just verify the modal opened
+      expect(within(modal).getByRole('heading', { name: 'Add roles to group' })).toBeInTheDocument();
+    }
   },
 };

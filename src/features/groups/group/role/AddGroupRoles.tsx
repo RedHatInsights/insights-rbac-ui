@@ -10,21 +10,34 @@ import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { RolesList } from '../../add-group/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import messages from '../../../../Messages';
+import type { RBACStore } from '../../../../redux/store.d';
 import '../../../../App.scss';
 import './add-group-roles.scss';
+
+interface Role {
+  uuid: string;
+  name: string;
+  display_name?: string;
+  description?: string;
+}
+
+interface Group {
+  uuid: string;
+  name: string;
+}
 
 interface AddGroupRolesProps {
   afterSubmit?: () => void;
   fetchUuid?: string;
-  selectedRoles?: any[];
-  setSelectedRoles?: (roles: any[]) => void;
+  selectedRoles?: Role[];
+  setSelectedRoles?: (roles: Role[]) => void;
   title?: string;
   closeUrl?: string;
-  addRolesToGroup?: (groupId: string, roles: any[]) => void;
+  addRolesToGroup?: (groupId: string, roles: Role[]) => void;
   groupName?: string;
   isDefault?: boolean;
   isChanged?: boolean;
-  onDefaultGroupChanged?: (group: any) => void;
+  onDefaultGroupChanged?: (group: Group) => void;
 }
 
 export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
@@ -48,7 +61,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
   const navigate = useAppNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
-  const { groupName, isRecordLoading } = useSelector(({ groupReducer }: any) => {
+  const { groupName, isRecordLoading } = useSelector(({ groupReducer }: RBACStore) => {
     const { selectedGroup, isRecordLoading } = groupReducer;
     return {
       groupName: name || state?.name || selectedGroup?.name,
@@ -69,7 +82,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
         variant: 'warning',
         title: intl.formatMessage(messages.addingGroupRolesCancelled),
         description: 'Adding roles to group has been cancelled.',
-      }) as any,
+      }),
     );
     navigate(closeUrl || '/groups');
   };
@@ -93,7 +106,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
         variant: 'success',
         title: intl.formatMessage(messages.addRoles),
         description: 'Roles have been successfully added to the group.',
-      }) as any,
+      }),
     );
 
     afterSubmit && afterSubmit();
@@ -106,7 +119,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
       addRolesToGroup(groupId!, selectedRoles!);
     }
     dispatch(invalidateSystemGroup());
-    onDefaultGroupChanged && onDefaultGroupChanged(groupName);
+    onDefaultGroupChanged && groupName && onDefaultGroupChanged({ uuid: groupId!, name: groupName });
     afterSubmit && afterSubmit();
     navigate(closeUrl || `/groups/detail/${groupId}/roles`);
   };

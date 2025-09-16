@@ -16,31 +16,41 @@ import { DefaultServiceAccountsCard } from '../../components/DefaultServiceAccou
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import type { GroupServiceAccountsProps, ServiceAccount } from './types';
+import type { GroupServiceAccountsProps, ServiceAccount, ServiceAccountFilters } from './types';
+import type { RBACStore } from '../../../../redux/store.d';
 import './group-service-accounts.scss';
 
-const createRows = (data: ServiceAccount[] = [], checkedRows: ServiceAccount[] = []) =>
-  data?.reduce(
-    (acc, { uuid, name, clientId, time_created: timeCreated }) => [
-      ...acc,
-      {
-        uuid,
-        title: name,
-        cells: [
-          name,
-          clientId || '',
-          (data as any).find((item: any) => item.uuid === uuid)?.owner || '',
-          <Fragment key={`${name}-modified`}>
-            {timeCreated ? <DateFormat date={timeCreated} type={getDateFormat(timeCreated.toString())} /> : ''}
-          </Fragment>,
-        ],
-        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
-      },
-    ],
-    [] as any[],
-  );
+interface TableRow {
+  uuid: string;
+  title: string;
+  cells: (string | React.ReactElement)[];
+  selected: boolean;
+}
 
-const reducer = ({ groupReducer }: any) => {
+const createRows = (data: ServiceAccount[] = [], checkedRows: ServiceAccount[] = []): TableRow[] => {
+  if (!data) return [];
+
+  return data.map(({ uuid, name, clientId, time_created: timeCreated }): TableRow => {
+    const ownerItem = data.find((item: ServiceAccount) => item.uuid === uuid);
+    const owner = (ownerItem as Record<string, unknown>)?.owner || '';
+
+    return {
+      uuid,
+      title: name,
+      cells: [
+        name,
+        clientId || '',
+        owner as string,
+        <Fragment key={`${name}-modified`}>
+          {timeCreated ? <DateFormat date={timeCreated} type={getDateFormat(timeCreated.toString())} /> : ''}
+        </Fragment>,
+      ],
+      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
+    };
+  });
+};
+
+const reducer = ({ groupReducer }: RBACStore) => {
   const { selectedGroup, systemGroup, groups } = groupReducer;
   return {
     serviceAccounts: selectedGroup?.serviceAccounts?.data || [],
@@ -66,7 +76,10 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
   const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
   const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, isPlatformDefault } = useSelector(reducer);
 
-  const fetchGroupAccounts = useCallback((groupId: string, options: any) => dispatch(fetchServiceAccountsForGroup(groupId, options)), [dispatch]);
+  const fetchGroupAccounts = useCallback(
+    (groupId: string, options: Record<string, unknown>) => dispatch(fetchServiceAccountsForGroup(groupId, options)),
+    [dispatch],
+  );
 
   const columns = [
     { title: intl.formatMessage(messages.name) },
@@ -160,10 +173,10 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
               isSelectable
               rows={createRows(serviceAccounts, selectedAccounts)}
               data={serviceAccounts}
-              filterValue={filterValue as any}
-              fetchData={(config: any) => fetchGroupAccounts(groupId!, config)}
+              filterValue={filterValue as unknown as string | string[]}
+              fetchData={(config: Record<string, unknown>) => fetchGroupAccounts(groupId!, config)}
               emptyFilters={{ clientId: '', name: '', description: '' }}
-              setFilterValue={({ clientId, name, description }: any) => {
+              setFilterValue={({ clientId, name, description }: ServiceAccountFilters) => {
                 setFilterValue({
                   clientId: typeof clientId === 'undefined' ? filterValue.clientId : clientId,
                   name: typeof name === 'undefined' ? filterValue.name : name,
@@ -176,7 +189,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
               setCheckedItems={setSelectedAccounts}
               titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
               titleSingular={intl.formatMessage(messages.serviceAccount)}
-              toolbarButtons={toolbarButtons as any}
+              toolbarButtons={toolbarButtons as () => React.ReactNode[]}
               actionResolver={actionResolver}
               emptyProps={{
                 title: intl.formatMessage(messages.noGroupAccounts),
@@ -207,7 +220,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
           <Outlet
             context={{
               [pathnames['group-service-accounts-remove-group'].path]: {
-                postMethod: (promise: Promise<any>) => {
+                postMethod: (promise: Promise<unknown>) => {
                   setSelectedAccounts([]);
                   navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
                   if (promise) {
@@ -216,7 +229,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
                 },
               },
               [pathnames['group-add-service-account'].path]: {
-                postMethod: (promise: Promise<any>) => {
+                postMethod: (promise: Promise<unknown>) => {
                   navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
                   if (promise) {
                     promise.then?.(fetchData);

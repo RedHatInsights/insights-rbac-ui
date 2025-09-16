@@ -4,7 +4,6 @@ import { Form, Stack, StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { UsersList } from './UsersList';
-import UsersListItless from './users-list-itless-legacy';
 import { ActiveUsers } from '../../../components/user-management/ActiveUsers';
 import type { User } from './types';
 import '../../../App.scss';
@@ -42,7 +41,7 @@ export const SetUsers: React.FC<SetUsersProps> = (props) => {
         <Stack hasGutter>
           <StackItem>
             {isITLess ? (
-              <UsersListItless selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
+              <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
             ) : (
               <ActiveUsers {...activeUserProps}>
                 <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />

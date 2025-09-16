@@ -11,13 +11,13 @@ interface GroupsTableContentProps {
   sortByState: { index: number; direction: 'asc' | 'desc' };
   selectedRows: Group[];
   selectableItemsCount: number;
-  expanded: Record<string, any>;
-  onExpandedChange: (expanded: Record<string, any>) => void;
+  expanded: Record<string, number | boolean>;
+  onExpandedChange: (expanded: Record<string, number | boolean>) => void;
   onSelectedRowsChange: (rows: Group[]) => void;
   onRemoveGroupsChange: (groups: Group[]) => void;
   handleBulkSelect: (type: 'page' | 'none') => void;
-  handleSort: (event: any, index: number, direction: 'asc' | 'desc') => void;
-  onExpand: (event: any, rowIndex: number, colIndex: number, isOpen: boolean, data: Group) => void;
+  handleSort: (event: React.MouseEvent, index: number, direction: 'asc' | 'desc') => void;
+  onExpand: (event: React.MouseEvent | null, rowIndex: number, colIndex: number, isOpen: boolean, data: Group) => void;
 }
 
 export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
