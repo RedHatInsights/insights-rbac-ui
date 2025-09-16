@@ -1,3 +1,10 @@
+# [1.53.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.52.0...v1.53.0) (2025-09-16)
+
+
+### Features
+
+* run test-storybook against Chromatic's build ([f0838dc](https://github.com/RedHatInsights/insights-rbac-ui/commit/f0838dc4f22f2a59d82240d228952d0523c8e0d0))
+
 # [1.52.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.51.0...v1.52.0) (2025-09-10)
 
 
