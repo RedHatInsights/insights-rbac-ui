@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch } from 'react-redux';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -16,11 +16,11 @@ interface Group {
   uuid: string;
   name: string;
   description?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface EditGroupModalProps {
-  postMethod: (config?: any) => Promise<any>;
+  postMethod: (config?: Record<string, unknown>) => Promise<unknown>;
   cancelRoute: string;
   submitRoute?: string;
   group?: Group;
@@ -28,59 +28,51 @@ interface EditGroupModalProps {
 }
 
 export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
-  const [selectedGroup, setSelectedGroup] = useState<Group | undefined>(undefined);
-
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
-
-  const setGroupData = (groupData: Group | undefined) => {
-    setSelectedGroup(groupData);
-  };
-
-  const fetchData = () => {
-    if (groupId) {
-      (fetchGroup(groupId) as any).payload.then((data: any) => setGroupData(data)).catch(() => setGroupData(undefined));
-    }
-  };
-
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    fetchData();
-  }, [groupId]);
+  // Get group data and loading state from Redux (like other components do)
+  const selectedGroup = useSelector((state: any) => state.groupReducer?.selectedGroup) || group;
+  const isLoading = useSelector((state: any) => state.groupReducer?.isRecordLoading);
 
+  // Fetch group data on mount (standard Redux pattern)
   useEffect(() => {
-    group && setSelectedGroup(group);
-  }, [group]);
+    if (groupId && !group) {
+      dispatch(fetchGroup(groupId));
+    }
+  }, [groupId, group, dispatch]);
 
-  const onSubmit = (formData: any) => {
+  const onSubmit = async (formData: { name: string; description?: string }) => {
     const userData = {
       uuid: selectedGroup?.uuid || '',
       name: formData.name,
       description: formData.description,
     };
 
-    dispatch(updateGroup(userData) as any)
-      .then(() => {
-        (dispatch as any)(
-          addNotification({
-            variant: 'success',
-            title: 'Group updated successfully',
-            description: `Group "${formData.name}" has been updated.`,
-          }),
-        );
-      })
-      .then(() => postMethod && postMethod())
-      .then(() => navigate(submitRoute))
-      .catch(() => {
-        (dispatch as any)(
-          addNotification({
-            variant: 'danger',
-            title: 'Error updating group',
-            description: `There was an error updating the group "${formData.name}".`,
-          }),
-        );
-      });
+    try {
+      // Use standard dispatch pattern - let redux-promise-middleware handle the promise
+      await dispatch(updateGroup(userData));
+
+      dispatch(
+        addNotification({
+          variant: 'success',
+          title: 'Group updated successfully',
+          description: `Group "${formData.name}" has been updated.`,
+        }),
+      );
+
+      postMethod && postMethod();
+      navigate(submitRoute);
+    } catch {
+      dispatch(
+        addNotification({
+          variant: 'danger',
+          title: 'Error updating group',
+          description: `There was an error updating the group "${formData.name}".`,
+        }),
+      );
+    }
   };
 
   const schema = {
@@ -120,11 +112,20 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
     navigate(cancelRoute);
   };
 
-  return selectedGroup ? (
+  // Show loading while data loads (like AddGroupRoles story pattern)
+  if (isLoading || !selectedGroup || !selectedGroup.uuid) {
+    return (
+      <div>
+        <Skeleton height="300px" />
+      </div>
+    );
+  }
+
+  return (
     <FormRenderer
       schema={schema}
       subscription={{ values: true, valid: true, pristine: true }}
-      FormTemplate={(props: any) => (
+      FormTemplate={(props: React.ComponentProps<typeof ModalFormTemplate>) => (
         <ModalFormTemplate
           {...props}
           ModalProps={{
@@ -146,9 +147,5 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
         textarea: componentMapper[componentTypes.TEXTAREA],
       }}
     />
-  ) : (
-    <div>
-      <Skeleton height="300px" />
-    </div>
   );
 };

@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
-import { useIntl } from 'react-intl';
-import { Wizard } from '@patternfly/react-core/deprecated';
+import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
+import { useFlag } from '@unleash/proxy-client-react';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import Pf4FormTemplate from '@data-driven-forms/pf4-component-mapper/form-template';
@@ -12,34 +12,48 @@ import { addGroup, addServiceAccountsToGroup } from '../../../redux/groups/actio
 import { SetName } from './SetName';
 import { SetRoles } from './SetRoles';
 import { SetUsers } from './SetUsers';
-import SetServiceAccounts from './set-service-accounts';
+import SetServiceAccounts from './SetServiceAccounts';
 import { SummaryContent } from './SummaryContent';
-import { AddGroupSuccess } from './add-group-success';
+import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import paths from '../../../utilities/pathnames';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 
-const FormTemplate = (props: any) => <Pf4FormTemplate {...props} showFormControls={false} />;
+const FormTemplate = (props: React.ComponentProps<typeof Pf4FormTemplate>) => <Pf4FormTemplate {...props} showFormControls={false} />;
 
-interface DescriptionProps {
-  Content: React.ComponentType<Record<string, unknown>>;
-  [key: string]: unknown;
-}
-
-const Description = ({ Content, ...rest }: DescriptionProps) => <Content {...rest} />;
+// Component mapper extension for wizard steps
+const mapperExtension = {
+  'set-name': SetName,
+  'set-roles': SetRoles,
+  'set-users': SetUsers,
+  'set-service-accounts': SetServiceAccounts,
+  'summary-content': SummaryContent,
+  'add-group-success': AddGroupSuccess,
+};
 
 interface AddGroupWizardProps {
   // No direct props - component receives data from URL params and context
 }
 
 export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
-  const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
+  const chrome = useChrome();
+
+  // Feature flags for wizard configuration
+  const enableServiceAccounts =
+    (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
+    (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
+
+  const enableWorkspaces = useFlag('platform.rbac.workspaces');
+
+  // When workspaces is enabled, roles are disabled (per business logic)
+  const enableRoles = !enableWorkspaces;
 
   const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
   const [submitting] = useState<boolean>(false);
   const [submittingError] = useState<string | null>(null);
+  const [wizardError, setWizardError] = useState<boolean | undefined>(undefined);
   const [wizardContextValue, setWizardContextValue] = useState<{
     success: boolean;
     submitting: boolean;
@@ -59,8 +73,8 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
   interface FormData {
     'group-name': string;
     'group-description': string;
-    'users-list'?: Array<{ label: string; username?: string }>;
-    'roles-list'?: Array<{ uuid: string }>;
+    'users-list'?: Array<{ label: string; username?: string; value?: string }>;
+    'roles-list'?: Array<{ uuid: string; value?: string }>;
     'set-service-accounts'?: string[];
   }
 
@@ -73,44 +87,38 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       'set-service-accounts': serviceAccounts,
     } = formData;
 
+    // Prepare all group data for single API call
     const groupData = {
       name,
       description,
+      // Add users if any are selected
+      user_list: users && users.length > 0 ? users.map((user) => ({ username: user.username || user.label || user.value || '' })) : [],
+      // Add roles if any are selected
+      roles_list: roles && roles.length > 0 ? roles.map((role) => role.uuid || role.value || '').filter(Boolean) : [],
     };
 
     try {
-      const newGroup = (await dispatch(addGroup(groupData))) as any;
-      const promises: Promise<unknown>[] = [];
+      // Create group with all data in one call
+      console.log('🚀 Starting group creation with data:', groupData);
+      const newGroupAction = dispatch(addGroup(groupData)) as { payload: Promise<any> };
+      const newGroup = await newGroupAction.payload;
+      console.log('✅ Group created successfully:', newGroup);
 
-      if (users && users.length > 0) {
-        promises.push(
-          dispatch(
-            addGroup({
-              ...groupData,
-              user_list: users.map((user) => ({ username: user.label })),
-            }),
-          ) as any,
-        );
+      // Check if group creation actually succeeded
+      if (newGroup?.error) {
+        throw new Error('Group creation returned error: ' + JSON.stringify(newGroup.error));
       }
 
-      if (roles && roles.length > 0) {
-        promises.push(
-          dispatch(
-            addGroup({
-              ...groupData,
-              roles_list: roles.map((role) => role.uuid),
-            }),
-          ) as any,
-        );
-      }
-
+      // Handle service accounts separately (if enabled)
       if (serviceAccounts && serviceAccounts.length > 0) {
+        console.log('⚙️ Adding service accounts:', serviceAccounts);
         const serviceAccountObjects = serviceAccounts.map((sa) => ({ uuid: sa }));
-        promises.push(dispatch(addServiceAccountsToGroup(newGroup.payload.uuid, serviceAccountObjects)) as any);
+        const serviceAccountAction = dispatch(addServiceAccountsToGroup(newGroup.uuid, serviceAccountObjects)) as { payload: Promise<unknown> };
+        await serviceAccountAction.payload;
+        console.log('✅ Service accounts added successfully');
       }
 
-      await Promise.all(promises);
-
+      // Success! Show notification
       dispatch(
         addNotification({
           variant: 'success',
@@ -119,9 +127,23 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         }),
       );
 
-      const pathname = `${paths['group-detail'].link.split('/').slice(0, -1).join('/')}/${newGroup.payload.uuid}`;
-      navigate(pathname);
-    } catch {
+      // Navigate to the new group or groups list (in separate try-catch to not fail group creation)
+      try {
+        if (newGroup?.uuid) {
+          const pathname = `${paths['group-detail'].link.split('/').slice(0, -1).join('/')}/${newGroup.uuid}`;
+          console.log('🔄 Navigating to:', pathname);
+          navigate(pathname);
+        } else {
+          console.warn('⚠️ No UUID returned, navigating to groups list');
+          navigate('/groups');
+        }
+      } catch (navError) {
+        console.error('❌ Navigation error (but group was created successfully):', navError);
+        // Still try to go back to groups list
+        navigate('/groups');
+      }
+    } catch (error) {
+      console.error('❌ Error creating group:', error);
       dispatch(
         addNotification({
           variant: 'danger',
@@ -130,6 +152,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         }),
       );
     } finally {
+      console.log('🏁 Group creation process completed');
     }
   };
 
@@ -138,48 +161,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     navigate('/groups');
   };
 
-  const schema = schemaBuilder(container.current, intl);
-
-  interface RenderWizardProps {
-    fields: unknown[];
-    handleSubmit: (event: React.FormEvent) => void;
-    getState: () => Record<string, unknown>;
-  }
-
-  const renderWizard = (props: RenderWizardProps) => {
-    const { fields, handleSubmit, getState } = props;
-
-    return (
-      <Wizard
-        className="rbac"
-        title="Create group"
-        description="Create a new group and configure its settings"
-        steps={fields.map((field: any) => ({
-          name: field.title,
-          component: (
-            <Description
-              Content={field.component}
-              {...field}
-              formOptions={{
-                ...field.formOptions,
-                getState,
-                handleSubmit,
-              }}
-            />
-          ),
-          isDisabled: field.isDisabled && field.isDisabled(getState()),
-        }))}
-        onNext={() => {
-          // Step navigation handled by wizard
-        }}
-        onBack={() => {
-          // Step navigation handled by wizard
-        }}
-        onSubmit={handleSubmit}
-        isNavExpandable
-      />
-    );
-  };
+  const schema = schemaBuilder(container.current, enableServiceAccounts, enableRoles);
 
   return (
     <AddGroupWizardContext.Provider
@@ -187,9 +169,12 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         ...wizardContextValue,
         success: false,
         submitting,
-        error: submittingError || undefined,
+        submittingGroup: false,
+        submittingServiceAccounts: false,
+        error: wizardError !== undefined ? wizardError : submittingError || undefined,
         setHideForm: () => {},
         setWizardSuccess: (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success })),
+        setWizardError,
       }}
     >
       <div ref={container}>
@@ -208,17 +193,9 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
           schema={schema}
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
-          componentMapper={{
-            ...componentMapper,
-            'set-name': SetName,
-            'set-roles': SetRoles,
-            'set-users': SetUsers,
-            'set-service-accounts': SetServiceAccounts,
-            'summary-content': SummaryContent,
-            'add-group-success': AddGroupSuccess,
-            wizard: renderWizard,
-          }}
+          componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
+          onCancel={() => setCancelWarningVisible(true)}
         />
       </div>
     </AddGroupWizardContext.Provider>

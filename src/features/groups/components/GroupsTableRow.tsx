@@ -20,15 +20,15 @@ interface GroupsTableRowProps {
   item: Group;
   rowIndex: number;
   isAdmin: boolean;
-  expanded: Record<string, any>;
+  expanded: Record<string, number | boolean>;
   selectedRows: Group[];
   expandedCellKey: number | boolean | undefined;
   isRowExpanded: boolean;
   isSelected: Group | undefined;
-  onExpandedChange: (expanded: Record<string, any>) => void;
+  onExpandedChange: (expanded: Record<string, number | boolean>) => void;
   onSelectedRowsChange: (rows: Group[]) => void;
   onRemoveGroupsChange: (groups: Group[]) => void;
-  onExpand: (event: any, rowIndex: number, colIndex: number, isOpen: boolean, data: Group) => void;
+  onExpand: (event: React.MouseEvent | null, rowIndex: number, colIndex: number, isOpen: boolean, data: Group) => void;
 }
 
 export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
@@ -89,7 +89,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
             onToggle: () => onExpand(null, rowIndex, isAdmin ? 2 : 1, expandedCellKey === 2, item),
           }}
         >
-          {item.roleCount || (item as any).roleCount || item.roles?.length || 0}
+          {item.roleCount || (item as { roleCount?: number }).roleCount || item.roles?.length || 0}
         </Td>
         {/* Members - expandable */}
         <Td
@@ -103,7 +103,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                 }
           }
         >
-          {item.principalCount || (item as any).memberCount || item.members?.length || 0}
+          {item.principalCount || (item as { memberCount?: number }).memberCount || item.members?.length || 0}
         </Td>
         {/* Modified */}
         <Td dataLabel="Modified">{item.modified ? <DateFormat date={item.modified} type={getDateFormat(item.modified)} /> : ''}</Td>

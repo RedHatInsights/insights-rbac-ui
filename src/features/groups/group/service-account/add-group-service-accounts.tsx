@@ -10,7 +10,7 @@ import { AppLink } from '../../../../components/navigation/AppLink';
 import { addServiceAccountsToGroup } from '../../../../redux/groups/actions';
 import { ServiceAccountsState } from '../../../../redux/service-accounts/reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
-import { ServiceAccountsList } from '../../add-group/service-accounts-list';
+import { ServiceAccountsList } from '../../add-group/ServiceAccountsList';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {

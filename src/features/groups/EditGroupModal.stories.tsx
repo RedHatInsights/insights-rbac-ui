@@ -300,6 +300,24 @@ export const FormSubmission: Story = {
       },
       { timeout: 5000 },
     );
+
+    // ✅ TEST NOTIFICATION: Verify success notification appears in DOM
+    await waitFor(
+      () => {
+        const notificationPortal = document.querySelector('.notifications-portal');
+        expect(notificationPortal).toBeInTheDocument();
+
+        const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
+        expect(successAlert).toBeInTheDocument();
+
+        const alertTitle = successAlert?.querySelector('.pf-v5-c-alert__title');
+        expect(alertTitle).toHaveTextContent('Success updating group');
+
+        const alertDescription = successAlert?.querySelector('.pf-v5-c-alert__description');
+        expect(alertDescription).toHaveTextContent('The group was updated successfully.');
+      },
+      { timeout: 5000 },
+    );
   },
   parameters: {
     docs: {
@@ -409,5 +427,124 @@ export const CancelAction: Story = {
         story: 'Test cancel action closes modal and triggers callback.',
       },
     },
+  },
+};
+
+export const ErrorNotification: Story = {
+  args: {
+    initialRoute: '/groups/edit/test-group-id',
+    postMethod: fn(),
+  },
+  parameters: {
+    msw: {
+      handlers: [
+        // Fetch group API handler - same as default
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+          if (params.groupId === 'test-group-id') {
+            return HttpResponse.json(mockGroup);
+          }
+          if (params.groupId === 'system-group-id') {
+            return HttpResponse.json(systemGroup);
+          }
+          return HttpResponse.json(mockGroup);
+        }),
+
+        // Group name validation API handler - same as default
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name');
+
+          if (!name) {
+            return HttpResponse.json({ data: [], meta: { count: 0, limit: 10, offset: 0 } });
+          }
+
+          return HttpResponse.json({ data: [], meta: { count: 0, limit: 10, offset: 0 } });
+        }),
+
+        // ❌ ERROR: Update group API handler that returns 500 error
+        http.put('/api/rbac/v1/groups/:groupId/', async () => {
+          await delay(100);
+          return new HttpResponse(
+            JSON.stringify({
+              errors: [
+                {
+                  status: '500',
+                  detail: 'Internal server error occurred while updating group',
+                },
+              ],
+            }),
+            { status: 500, headers: { 'Content-Type': 'application/json' } },
+          );
+        }),
+      ],
+    },
+    docs: {
+      description: {
+        story: 'Test error notification when form submission fails.',
+      },
+    },
+  },
+  play: async ({ canvasElement, args }) => {
+    await delay(300); // Required for MSW
+
+    const canvas = within(canvasElement);
+
+    // Click button to open modal
+    const openButton = canvas.getByRole('button', { name: 'Edit Group' });
+    await userEvent.click(openButton);
+
+    await waitFor(
+      async () => {
+        const modal = screen.getByRole('dialog');
+        expect(modal).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    const modal = screen.getByRole('dialog');
+
+    // Wait for form to be fully loaded
+    await waitFor(() => {
+      expect(within(modal).getByDisplayValue('Test Group')).toBeInTheDocument();
+    });
+
+    // Modify form fields to trigger update
+    const nameField = within(modal).getByLabelText(/group name/i);
+    await userEvent.clear(nameField);
+    await userEvent.type(nameField, 'Updated Group Name');
+
+    // Wait for save button to be enabled
+    await waitFor(
+      () => {
+        const saveButton = within(modal).getByRole('button', { name: /save/i });
+        expect(saveButton).toBeEnabled();
+      },
+      { timeout: 10000 },
+    );
+
+    // Submit the form (this will fail due to our MSW error handler)
+    const saveButton = within(modal).getByRole('button', { name: /save/i });
+    await userEvent.click(saveButton);
+
+    // ✅ TEST NOTIFICATION: Verify error notification appears in DOM
+    await waitFor(
+      () => {
+        const notificationPortal = document.querySelector('.notifications-portal');
+        expect(notificationPortal).toBeInTheDocument();
+
+        const errorAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-danger');
+        expect(errorAlert).toBeInTheDocument();
+
+        const alertTitle = errorAlert?.querySelector('.pf-v5-c-alert__title');
+        expect(alertTitle).toHaveTextContent('Failed updating group');
+
+        const alertDescription = errorAlert?.querySelector('.pf-v5-c-alert__description');
+        expect(alertDescription).toHaveTextContent('The group was not updated successfuly.');
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify postMethod was NOT called since the request failed
+    expect(args.postMethod).not.toHaveBeenCalled();
   },
 };

@@ -12,6 +12,12 @@ import messages from '../../../Messages';
 import { EmptyGroupsState } from './EmptyGroupsState';
 import type { Group, GroupsTableProps } from '../types';
 
+interface Role {
+  name: string;
+  description?: string;
+  modified: string;
+}
+
 // Nested table for expanded roles
 const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
   const intl = useIntl();
@@ -48,7 +54,7 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
       </Thead>
       <Tbody>
         {group.roles.length > 0 ? (
-          group.roles.map((role: any, index: number) => (
+          group.roles.map((role: Role, index: number) => (
             <Tr key={index}>
               <Td dataLabel={compoundRolesCells[0]}>{role.name}</Td>
               <Td dataLabel={compoundRolesCells[1]}>{role.description}</Td>
@@ -101,7 +107,7 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
     <Table aria-label={`Members for ${group.name}`} variant={TableVariant.compact} ouiaId={`compound-members-${group.uuid}`}>
       <Thead>
         <Tr>
-          {compoundMembersCells.map((cell, index) => (
+          {compoundMembersCells.map((cell: string, index: number) => (
             <Th key={index}>{cell}</Th>
           ))}
         </Tr>

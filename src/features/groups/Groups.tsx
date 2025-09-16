@@ -65,7 +65,7 @@ export const Groups: React.FC<GroupsProps> = () => {
       chrome,
       platformDefault: false,
       adminDefault: false,
-      ...(orderBy && { orderBy: orderBy as any }), // Cast to any since we can't easily import the enum here
+      ...(orderBy && { orderBy: orderBy as any }), // Cast to any since @redhat-cloud-services/rbac-client has broken enum types
     };
     return dispatch(fetchGroups(fetchOptions));
   };
@@ -99,7 +99,9 @@ export const Groups: React.FC<GroupsProps> = () => {
       groups: [
         ...(adminGroup?.name?.match(new RegExp(filters?.name || '', 'i')) ? [adminGroup] : []),
         ...(systemGroup?.name?.match(new RegExp(filters?.name || '', 'i')) ? [systemGroup] : []),
-        ...(data?.filter(({ platform_default, admin_default }: any = {}) => !(platform_default || admin_default)) || []),
+        ...(data?.filter(
+          ({ platform_default, admin_default }: { platform_default?: boolean; admin_default?: boolean } = {}) => !(platform_default || admin_default),
+        ) || []),
       ],
       pagination: {
         limit: pagination?.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
@@ -311,13 +313,13 @@ export const Groups: React.FC<GroupsProps> = () => {
                   filters,
                   [pathnames['add-group'].path]: {
                     orderBy,
-                    postMethod: (config: any) => {
+                    postMethod: (config: Record<string, unknown>) => {
                       setFilterValue('');
                       fetchData(config);
                     },
                   },
                   [pathnames['edit-group'].path]: {
-                    postMethod: (config: any) => {
+                    postMethod: (config: Record<string, unknown>) => {
                       setFilterValue('');
                       fetchData({ ...config, orderBy });
                     },
@@ -325,7 +327,7 @@ export const Groups: React.FC<GroupsProps> = () => {
                     submitRoute: getBackRoute(pathnames['groups'].link, { ...pagination, offset: 0 }, filters),
                   },
                   [pathnames['remove-group'].path]: {
-                    postMethod: (ids: string[], config: any) => {
+                    postMethod: (ids: string[], config: Record<string, unknown>) => {
                       fetchData({ ...config, filters: { name: removingAllRows ? '' : filterValue }, orderBy });
                       removingAllRows && setFilterValue('');
                       setSelectedRows(selectedRows.filter((row) => !ids.includes(row.uuid)));

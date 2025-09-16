@@ -21,7 +21,7 @@ import { fetchServiceAccounts } from '../../../redux/service-accounts/actions';
 import { ServiceAccountsState } from '../../../redux/service-accounts/reducer';
 import { PaginationProps } from '../group/service-account/add-group-service-accounts';
 import { PER_PAGE_OPTIONS } from '../../../helpers/pagination';
-import './service-accounts-list.scss';
+import './serviceAccountsList.scss';
 
 interface ServiceAccountsListProps {
   selected: ServiceAccount[];

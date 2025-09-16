@@ -16,11 +16,20 @@ import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import type { GroupRolesProps, Role } from './types';
+import type { GroupRolesProps } from './types';
+import type { RoleWithAccess as Role } from '@redhat-cloud-services/rbac-client/types';
+import type { RBACStore } from '../../../../redux/store.d';
 import './group-roles.scss';
 
-const createRows = (groupId: string, roles: Role[], checkedRows: Role[] = []) =>
-  roles?.reduce(
+interface TableRow {
+  uuid: string;
+  title: string;
+  cells: (string | React.ReactElement)[];
+  selected: boolean;
+}
+
+const createRows = (groupId: string, roles: Role[], checkedRows: Role[] = []): TableRow[] =>
+  roles?.reduce<TableRow[]>(
     (acc, { uuid, display_name, name, description, modified }) => [
       ...acc,
       {
@@ -40,7 +49,7 @@ const createRows = (groupId: string, roles: Role[], checkedRows: Role[] = []) =>
         selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
       },
     ],
-    [] as any[],
+    [],
   ) || [];
 
 const generateOuiaID = (name: string) => {
@@ -63,11 +72,11 @@ const addRoleButton = (isDisabled: boolean, ouiaId: string, customTooltipText?: 
   );
 };
 
-const reducer = ({ groupReducer }: any) => {
+const reducer = ({ groupReducer }: RBACStore) => {
   const { selectedGroup, systemGroup, groups } = groupReducer;
   return {
     roles: selectedGroup?.roles?.data || [],
-    pagination: { ...defaultSettings, ...(selectedGroup?.roles?.meta || {}) },
+    pagination: { ...defaultSettings, ...((selectedGroup?.roles as any)?.meta || {}) },
     groupsPagination: groups?.pagination || groups?.meta,
     groupsFilters: groups?.filters,
     isLoading: selectedGroup?.roles?.isLoading || false,
@@ -80,8 +89,8 @@ const reducer = ({ groupReducer }: any) => {
        * If empty or undefined, the disable condition will be always true
        */
       Object.keys(selectedGroup?.addRoles?.pagination || {}).length > 0
-        ? !(selectedGroup.addRoles.pagination && selectedGroup.addRoles.pagination.count > 0) || !!selectedGroup.admin_default
-        : !!selectedGroup.admin_default,
+        ? !(selectedGroup?.addRoles?.pagination && (selectedGroup?.addRoles?.pagination?.count || 0) > 0) || !!selectedGroup?.admin_default
+        : !!selectedGroup?.admin_default,
     systemGroupUuid: systemGroup?.uuid,
     group: selectedGroup,
   };
@@ -104,10 +113,13 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
     { title: intl.formatMessage(messages.lastModified) },
   ];
 
-  const fetchGroupRoles = useCallback((groupId: string, options: any) => dispatch(fetchRolesForGroup(groupId, options)), [dispatch]);
+  const fetchGroupRoles = useCallback(
+    (groupId: string, options: Record<string, unknown>) => dispatch(fetchRolesForGroup(groupId, options)),
+    [dispatch],
+  );
 
   const fetchData = useCallback(
-    (apiProps: any = {}) => {
+    (apiProps: Record<string, unknown> = {}) => {
       const actualGroupId = groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid;
       if (actualGroupId) {
         fetchGroupRoles(actualGroupId, {
@@ -131,8 +143,8 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
   }, [orgAdmin, userAccessAdministrator]);
 
   useEffect(() => {
-    if (isChanged && onDefaultGroupChanged) {
-      onDefaultGroupChanged(group);
+    if (isChanged && onDefaultGroupChanged && group) {
+      onDefaultGroupChanged({ uuid: group.uuid, name: group.name });
     }
   }, [isChanged, group, onDefaultGroupChanged]);
 
@@ -152,7 +164,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
   ];
 
   const toolbarButtons = () => {
-    const buttons: any[] = [];
+    const buttons: (React.ReactElement | { label: string; props: Record<string, unknown>; onClick: () => void })[] = [];
 
     if (hasPermissions.current && !isPlatformDefault) {
       buttons.push(
@@ -197,8 +209,8 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
           isSelectable={hasPermissions.current && !isPlatformDefault}
           rows={createRows(groupId!, roles, selectedRoles)}
           data={roles}
-          filterValue={filterValue as any}
-          fetchData={(config: any) => fetchData(config)}
+          filterValue={filterValue as unknown as string | string[]}
+          fetchData={(config: Record<string, unknown>) => fetchData(config)}
           setFilterValue={setFilterValue}
           isLoading={isLoading}
           pagination={pagination}
@@ -206,7 +218,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
           setCheckedItems={setSelectedRoles}
           titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
           titleSingular={intl.formatMessage(messages.role)}
-          toolbarButtons={toolbarButtons as any}
+          toolbarButtons={toolbarButtons as () => React.ReactNode[]}
           actionResolver={actionResolver}
           emptyProps={{
             title: intl.formatMessage(messages.noGroupRoles),
@@ -234,7 +246,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
           <Outlet
             context={{
               [pathnames['group-add-roles'].path]: {
-                postMethod: (promise: Promise<any>) => {
+                postMethod: (promise: Promise<unknown>) => {
                   navigate(pathnames['group-detail-roles'].link.replace(':groupId', groupId!));
                   if (promise) {
                     promise.then(() => {
@@ -245,7 +257,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
                 },
               },
               [pathnames['group-remove-role'].path]: {
-                postMethod: (promise: Promise<any>) => {
+                postMethod: (promise: Promise<unknown>) => {
                   const backRoute = getBackRoute(pathnames['group-detail-roles'].link.replace(':groupId', groupId!), pagination, {});
                   navigate(backRoute);
                   if (promise) {
