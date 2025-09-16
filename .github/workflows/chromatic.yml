@@ -21,6 +21,9 @@ jobs:
   chromatic-deployment-push:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
+    outputs:
+      storybookUrl: ${{ steps.chromatic-deployment.outputs.storybookUrl }}
+      buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -37,11 +40,35 @@ jobs:
         run: npm install
 
       - name: Build Storybook and deploy to Chromatic
+        id: chromatic-deployment
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
           exitZeroOnChanges: true
+
+  # Test Storybook against deployed Chromatic build (for push events)
+  test-storybook-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: [chromatic-deployment-push]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Storybook tests
+        run: npm run test-storybook:ci -- --url ${{ needs.chromatic-deployment-push.outputs.storybookUrl }}
+        env:
+          CI: true
 
   # Job to check if user has repository access (simpler approach)
   check-permissions:
@@ -84,6 +111,9 @@ jobs:
     if: github.event_name == 'pull_request_target' && needs.check-permissions.outputs.has-access == 'true'
     runs-on: ubuntu-latest
     needs: [check-permissions]
+    outputs:
+      storybookUrl: ${{ steps.chromatic-deployment.outputs.storybookUrl }}
+      buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -103,8 +133,34 @@ jobs:
         run: npm install
 
       - name: Build Storybook and deploy to Chromatic
+        id: chromatic-deployment
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
-          exitZeroOnChanges: true 
+          exitZeroOnChanges: true
+
+  # Test Storybook against deployed Chromatic build (for PR events)
+  test-storybook-pr:
+    runs-on: ubuntu-latest
+    needs: [chromatic-deployment-pr]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # For pull_request_target, checkout the PR head
+          ref: ${{ github.event.pull_request.head.sha }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Storybook tests
+        run: npm run test-storybook:ci -- --url ${{ needs.chromatic-deployment-pr.outputs.storybookUrl }}
+        env:
+          CI: true
