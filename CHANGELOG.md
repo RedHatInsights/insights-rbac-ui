@@ -1,3 +1,10 @@
+## [1.53.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.0...v1.53.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* run npx playwright install before running the tests for PRs ([c20a44a](https://github.com/RedHatInsights/insights-rbac-ui/commit/c20a44aa65171b8984b5d4e5a2134e01d266a60e))
+
 # [1.53.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.52.0...v1.53.0) (2025-09-16)
 
 
