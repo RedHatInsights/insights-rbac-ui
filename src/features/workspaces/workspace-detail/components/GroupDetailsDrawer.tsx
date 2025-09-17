@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import {
+  Button,
   Drawer,
   DrawerActions,
   DrawerCloseButton,
@@ -253,6 +254,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
                   {group.name}
                 </Title>
                 <DrawerActions>
+                  <Button variant="secondary" isDisabled>
+                    {intl.formatMessage(messages.editAccessForThisWorkspace)}
+                  </Button>
                   <DrawerCloseButton onClick={onClose} />
                 </DrawerActions>
               </DrawerHead>
