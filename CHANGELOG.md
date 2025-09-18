@@ -1,3 +1,15 @@
+# [1.54.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.1...v1.54.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* **deps:** bump tmp and inquirer ([#1915](https://github.com/RedHatInsights/insights-rbac-ui/issues/1915)) ([5484280](https://github.com/RedHatInsights/insights-rbac-ui/commit/5484280bc43c435c941283b1b5b8eee322c0f608))
+
+
+### Features
+
+* replace custom SVG icons with PatternFly icons in WorkspacesOverview ([#1913](https://github.com/RedHatInsights/insights-rbac-ui/issues/1913)) ([f50bbbb](https://github.com/RedHatInsights/insights-rbac-ui/commit/f50bbbb36321fcae5ed3dc460c78f7d53975f533))
+
 ## [1.53.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.0...v1.53.1) (2025-09-17)
 
 
