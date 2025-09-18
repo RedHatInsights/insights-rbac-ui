@@ -3,7 +3,7 @@ import { PoliciesState } from './policies/reducer';
 import { RoleStore } from './roles/reducer';
 import { ServiceAccountsState } from './service-accounts/reducer';
 import { UserStore } from './users/reducer';
-import { WorkspacesStore } from './workspaces/reducer';
+import { RoleBindingsStore, WorkspacesStore } from './workspaces/reducer';
 import { AccessState } from './access-management/reducer';
 import { PermissionState } from './permissions/reducer';
 import { InventoryState } from './inventory/reducer';
@@ -46,5 +46,6 @@ export type RBACStore = {
   serviceAccountReducer: ServiceAccountsState;
   userReducer: UserStore;
   workspacesReducer: WorkspacesStore;
+  roleBindingsReducer: RoleBindingsStore; // Keep as any since it's from external library
   notifications: any; // Keep as any since it's from external library
 };
