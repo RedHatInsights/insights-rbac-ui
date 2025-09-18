@@ -16,7 +16,7 @@ import {
 } from '@patternfly/react-core';
 import messages from '../../../Messages';
 import CustomDataListItem from '../../../components/data-display/CustomDataListItem';
-import { ExternalLinkAltIcon, InfrastructureIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
+import { ExternalLinkAltIcon, IdBadgeIcon, InfrastructureIcon, KeyIcon, LinkIcon, UsersIcon } from '@patternfly/react-icons';
 import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
@@ -25,8 +25,6 @@ const VIEW_DEFAULT_GROUPS = 'https://console.redhat.com/iam/user-access/groups';
 // to do - update link when available
 const GRANT_ACCESS = '';
 const workspacesIcon = '/apps/frontend-assets/technology-icons/iam.svg';
-const bindingsIcon = '/apps/frontend-assets/rbac-landing/workspaces-bindings-icon.svg';
-const rolesIcon = '/apps/frontend-assets/rbac-landing/workspaces-roles-icon.svg';
 
 export const WorkspacesOverview = () => {
   // const [isExpanded, setIsExpanded] = React.useState(false);
@@ -123,7 +121,7 @@ export const WorkspacesOverview = () => {
               title="Role"
               subtitle=""
               description={intl.formatMessage(messages.roleServiceCardDescription)}
-              icon={<img src={rolesIcon} alt="roles-icon" className="pf-v5-u-primary-color-100" />}
+              icon={<IdBadgeIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.secondary}
@@ -147,7 +145,7 @@ export const WorkspacesOverview = () => {
               title="Bindings"
               subtitle=""
               description={intl.formatMessage(messages.bindingsServiceCardDescription)}
-              icon={<img src={bindingsIcon} alt="bindings-icon" className="pf-v5-u-primary-color-100" />}
+              icon={<LinkIcon className="pf-v5-u-primary-color-100 pf-v5-c-icon pf-m-lg" />}
               footer={
                 <Button
                   variant={ButtonVariant.secondary}
