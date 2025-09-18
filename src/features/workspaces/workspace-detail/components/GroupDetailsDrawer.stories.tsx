@@ -13,7 +13,7 @@ import { Group } from '../../../../redux/groups/reducer';
 import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
 import { Button, Card, CardBody } from '@patternfly/react-core';
-import { http, HttpResponse } from 'msw';
+import { HttpResponse, http } from 'msw';
 
 // Redux store setup
 const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -101,7 +101,7 @@ const mockGroup: Group = {
 // MSW handlers for group details API calls
 const groupDetailsHandlers = [
   // Handler for fetching group members
-  http.get('/api/rbac/v1/groups/:groupId/principals/', ({ params, request }) => {
+  http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
     const url = new URL(request.url);
     const principalType = url.searchParams.get('principal_type');
 
