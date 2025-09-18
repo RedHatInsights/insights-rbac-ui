@@ -2858,4 +2858,9 @@ export default defineMessages({
     description: 'Grant access button text',
     defaultMessage: 'Grant access',
   },
+  editAccessForThisWorkspace: {
+    id: 'editAccessForThisWorkspace',
+    description: 'Edit access for this workspace button text',
+    defaultMessage: 'Edit access for this workspace',
+  },
 });
