@@ -13,6 +13,7 @@ import { Group } from '../../../../redux/groups/reducer';
 import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
 import { Button, Card, CardBody } from '@patternfly/react-core';
+import { http, HttpResponse } from 'msw';
 
 // Redux store setup
 const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -97,6 +98,49 @@ const mockGroup: Group = {
   system: false,
 };
 
+// MSW handlers for group details API calls
+const groupDetailsHandlers = [
+  // Handler for fetching group members
+  http.get('/api/rbac/v1/groups/:groupId/principals/', ({ params, request }) => {
+    const url = new URL(request.url);
+    const principalType = url.searchParams.get('principal_type');
+
+    // Return users for user principal type
+    if (principalType === 'user') {
+      return HttpResponse.json({
+        data: mockUsers,
+        meta: {
+          count: mockUsers.length,
+          limit: 1000,
+          offset: 0,
+        },
+      });
+    }
+
+    // Return empty for service accounts
+    return HttpResponse.json({
+      data: [],
+      meta: {
+        count: 0,
+        limit: 1000,
+        offset: 0,
+      },
+    });
+  }),
+
+  // Handler for fetching group roles
+  http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+    return HttpResponse.json({
+      data: mockRoles,
+      meta: {
+        count: mockRoles.length,
+        limit: 1000,
+        offset: 0,
+      },
+    });
+  }),
+];
+
 const createInitialState = (overrides: any = {}) => ({
   groupReducer: {
     selectedGroup: {
@@ -130,6 +174,9 @@ const meta: Meta<typeof GroupDetailsDrawer> = {
   decorators: [withProviders],
   parameters: {
     layout: 'fullscreen',
+    msw: {
+      handlers: groupDetailsHandlers,
+    },
     docs: {
       description: {
         component: `
@@ -247,6 +294,11 @@ export const Default: Story = {
     // Wait for drawer to open and show group name
     await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
 
+    // Verify the "Edit access for this workspace" button is present and disabled
+    const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+    await expect(editAccessButton).toBeInTheDocument();
+    expect(editAccessButton).toBeDisabled();
+
     // Verify tabs are present - Roles tab should be active by default
     const rolesTab = await canvas.findByRole('tab', { name: /roles/i });
     const usersTab = await canvas.findByRole('tab', { name: /users/i });
@@ -283,6 +335,19 @@ export const OpenState: Story = {
         story: 'Drawer in open state showing the group details panel with tabs.',
       },
     },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify the "Edit access for this workspace" button is present and disabled
+    const editAccessButton = await canvas.findByRole('button', { name: /edit access for this workspace/i });
+    await expect(editAccessButton).toBeInTheDocument();
+    expect(editAccessButton).toBeDisabled();
+
+    // Verify close button is present and enabled
+    const closeButton = await canvas.findByRole('button', { name: /close drawer panel/i });
+    await expect(closeButton).toBeInTheDocument();
+    expect(closeButton).not.toBeDisabled();
   },
 };
 
