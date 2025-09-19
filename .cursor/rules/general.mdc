@@ -39,12 +39,18 @@ src/
 - [ ] Use case changes without proper Git staging
 - [ ] Ignore build/lint failures
 - [ ] Mix file naming conventions
+- [ ] **REFACTOR IN-PLACE** - Never modify existing working components directly
+- [ ] Delete/modify working components during refactoring
+- [ ] Trust that existing TypeScript types are 100% accurate
 
 ### ✅ ALWAYS DO  
 - [ ] Check `package.json` for dependency versions first
 - [ ] Use proper file naming: CamelCase for components, lowerCamelCase for others
 - [ ] Stage both old/new files for case changes
 - [ ] Verify changes with build commands
+- [ ] **USE SIDE-BY-SIDE DEVELOPMENT** - Always create new components alongside existing ones
+- [ ] **COPY AND ADAPT STORIES** - Migrate test coverage to prove functional equivalence
+- [ ] **VERIFY BEFORE SWITCHING** - Only replace working components after full validation
 
 
 ## Project Context
@@ -57,6 +63,58 @@ This is a React-based UI application for Red Hat's Role-Based Access Control (RB
 - **Redux** for state management
 
 ## Development Workflow
+
+### JavaScript to TypeScript Conversion Process (MANDATORY)
+
+**CRITICAL**: ALL conversion from JavaScript to TypeScript work MUST use side-by-side development, not in-place modification.
+
+**The Process**:
+1. **Rename existing JS file to -legacy.js** - Keep original working (e.g., `userTable.js` → `userTable-legacy.js`)
+2. **Create Storybook file for legacy component** - Document current behavior (`UserTable-legacy.stories.tsx`)
+3. **Create new TypeScript implementation** - Use proper casing (`UserTable.tsx`)
+4. **Copy and adapt stories** - Migrate test coverage to new implementation (`UserTable.stories.tsx`)
+5. **Verify functional equivalence** - Ensure all stories pass with new component
+6. **Switch when confident** - Update imports to use new TypeScript component
+7. **Clean up** - Remove -legacy files only after successful switch
+
+**Example Workflow**:
+```bash
+# ❌ WRONG - In-place modification
+# Modifying src/components/userTable.js directly
+
+# ✅ CORRECT - Side-by-side development  
+# 1. Rename existing to legacy
+mv src/components/userTable.js src/components/userTable-legacy.js
+
+# 2. Create stories for legacy (document current behavior)
+# Create: src/components/UserTable-legacy.stories.tsx
+
+# 3. Create new TypeScript implementation (proper casing)
+# Create: src/components/UserTable.tsx
+
+# 4. Copy and adapt stories for new implementation
+# Create: src/components/UserTable.stories.tsx (copied from UserTable-legacy.stories.tsx)
+
+# 5. Verify equivalence through stories
+npm run test-storybook:ci -- "UserTable.stories.tsx"
+
+# 6. Switch when confident (update imports)
+# 7. Remove legacy files
+```
+
+**Why This Process**:
+- ✅ **Zero Risk** - Original stays working during development
+- ✅ **Easy Rollback** - Can revert quickly if issues found  
+- ✅ **Proper Testing** - Stories verify functional equivalence
+- ✅ **Confidence** - Full validation before switching
+- ✅ **No Regressions** - Maintains stability throughout process
+
+**This Process Applies To**:
+- **JavaScript to TypeScript conversions** (primary use case)
+- **Component architecture refactoring** when changing file structure
+- **Major API integration changes** that affect component signatures
+- **react-data-view migrations** from TableToolbarView
+- **Any change that might break existing functionality**
 
 ### Never Perform Git Operations
 - **CRITICAL**: Never run git commands or suggest git workflows unless explicitly requested
