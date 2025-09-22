@@ -7,7 +7,7 @@ import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-d
 import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
-import { DataViewTh, DataViewTr } from '@patternfly/react-data-view';
+import { DataViewTr } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { EmptyState, EmptyStateBody, EmptyStateHeader, Pagination } from '@patternfly/react-core';
 import { SkeletonTable, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
@@ -117,7 +117,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     { label: intl.formatMessage(messages.timeCreated), key: 'timeCreated', index: 4 },
   ];
 
-  const columns: DataViewTh[] = COLUMN_HEADERS.map((column) => ({
+  const columns = COLUMN_HEADERS.map((column) => ({
     cell: column.label,
     props: {},
   }));
