@@ -5,7 +5,6 @@ import {
   DataViewState,
   DataViewTable,
   DataViewTextFilter,
-  DataViewTh,
   DataViewToolbar,
   DataViewTrTree,
   useDataViewFilters,
@@ -240,7 +239,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const workspacesTree = useMemo(() => mapWorkspacesToHierarchy(workspaces), [workspaces]);
   const filteredTree = useMemo(() => (workspacesTree ? search([workspacesTree], filters.name) : []), [workspacesTree, filters]);
   const rows = useMemo(() => (filteredTree ? buildRows(filteredTree) : []), [filteredTree]);
-  const columns: DataViewTh[] = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
+  const columns = [intl.formatMessage(messages.name), intl.formatMessage(messages.description)];
 
   useEffect(() => {
     if (isLoading) {
@@ -321,6 +320,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
           />
           <DataViewTable
             isTreeTable
+            expandAll
             aria-label="Workspaces list table"
             ouiaId="workspaces-list"
             columns={columns}
