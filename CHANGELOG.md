@@ -1,3 +1,10 @@
+# [1.55.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.54.0...v1.55.0) (2025-09-23)
+
+
+### Features
+
+* add disabled edit access button to WS details drawer ([#1918](https://github.com/RedHatInsights/insights-rbac-ui/issues/1918)) ([8b59ac4](https://github.com/RedHatInsights/insights-rbac-ui/commit/8b59ac4666c993fbc35c7c7fb509f632eb03c68d))
+
 # [1.54.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.1...v1.54.0) (2025-09-18)
 
 
