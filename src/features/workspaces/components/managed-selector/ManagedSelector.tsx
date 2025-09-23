@@ -202,6 +202,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
       onSearchFilter={onSearchFilter}
       onSelectItem={onSelectTreeViewWorkspaceItem}
       onFetchData={fetchWorkspacesFromRBACBuildTree}
+      onButtonClick={() => setIsWorkspacesMenuExpanded(false)}
       renderMenuToggle={(props) => (
         <WorkspaceMenuToggle
           menuToggleRef={props.menuToggleRef}
@@ -222,7 +223,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
         />
       )}
       searchPlaceholder="Find a workspace by name"
-      buttonText="View workspace list"
+      buttonText="Select Workspace"
     />
   );
 };
