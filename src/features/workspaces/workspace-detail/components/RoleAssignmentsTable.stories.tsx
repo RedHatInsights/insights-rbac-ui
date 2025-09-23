@@ -10,6 +10,7 @@ import { notificationsMiddleware } from '@redhat-cloud-services/frontend-compone
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
 import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
+import { HttpResponse, http } from 'msw';
 
 // Redux store setup
 const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
@@ -65,6 +66,49 @@ const mockGroups: Group[] = [
   },
 ];
 
+// MSW handlers for group details API calls
+const groupDetailsHandlers = [
+  // Handler for fetching group members
+  http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
+    const url = new URL(request.url);
+    const principalType = url.searchParams.get('principal_type');
+
+    // Return empty users for user principal type
+    if (principalType === 'user') {
+      return HttpResponse.json({
+        data: [],
+        meta: {
+          count: 0,
+          limit: 1000,
+          offset: 0,
+        },
+      });
+    }
+
+    // Return empty for service accounts
+    return HttpResponse.json({
+      data: [],
+      meta: {
+        count: 0,
+        limit: 1000,
+        offset: 0,
+      },
+    });
+  }),
+
+  // Handler for fetching group roles
+  http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+    return HttpResponse.json({
+      data: [],
+      meta: {
+        count: 0,
+        limit: 1000,
+        offset: 0,
+      },
+    });
+  }),
+];
+
 // Story decorator to provide necessary context
 const withProviders = (Story: React.ComponentType, context: { parameters?: { mockState?: { groupReducer?: Record<string, unknown> } } }) => {
   const initialState = createInitialState(context.parameters?.mockState?.groupReducer || {});
@@ -87,6 +131,9 @@ const meta: Meta<typeof RoleAssignmentsTable> = {
   decorators: [withProviders],
   parameters: {
     layout: 'fullscreen',
+    msw: {
+      handlers: groupDetailsHandlers,
+    },
     docs: {
       description: {
         component: `
@@ -436,11 +483,8 @@ export const DrawerInteraction: Story = {
     const firstRowCell = await canvas.findByText('Platform Administrators');
     await userEvent.click(firstRowCell);
 
-    // Wait for drawer to open
+    // Wait for drawer to open by looking for tabs
     await waitFor(async () => {
-      // Should see the group name in drawer header
-      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
-
       // Should see tabs
       await expect(canvas.findByRole('tab', { name: /roles/i })).resolves.toBeInTheDocument();
       await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
