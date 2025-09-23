@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { ButtonVariant, Text, TextContent } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { fetchGroup, removeGroups } from '../../redux/groups/actions';
 import { FormItemLoader } from '../../components/ui-states/LoaderPlaceholders';
@@ -80,3 +82,5 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
     </WarningModal>
   );
 };
+
+export default RemoveGroupModal;

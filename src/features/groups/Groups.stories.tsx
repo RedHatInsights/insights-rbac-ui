@@ -438,11 +438,13 @@ export const AdminUserView: Story = {
     // Should see create group button
     expect(await canvas.findByText('Create group')).toBeInTheDocument();
 
-    // Should see bulk selection functionality
-    const table = canvas.getByRole('grid');
-    const headerRow = within(table).getAllByRole('row')[0];
-    const bulkSelectCheckbox = within(headerRow).getByRole('checkbox');
-    expect(bulkSelectCheckbox).toBeInTheDocument();
+    // Should see bulk selection functionality in the toolbar (not in table header)
+    // The new DataView pattern uses BulkSelect component in toolbar, not header checkbox
+    await waitFor(async () => {
+      // Look for bulk select component in toolbar - it should have dropdown toggle
+      const bulkSelectElements = canvas.queryAllByRole('button', { name: /select/i });
+      expect(bulkSelectElements.length).toBeGreaterThan(0);
+    });
   },
 };
 
@@ -484,6 +486,54 @@ export const BulkSelectionAndActions: Story = {
     await waitFor(() => {
       expect(canvas.getByText('Edit')).toBeInTheDocument();
       expect(canvas.getByText('Delete')).toBeInTheDocument();
+    });
+  },
+};
+
+// Bulk select checkbox functionality
+export const BulkSelectCheckbox: Story = {
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: true },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    await delay(300); // Required for MSW
+
+    // Find bulk select checkbox
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    const bulkSelectCheckbox = checkboxes[0]; // First checkbox should be bulk select
+    expect(bulkSelectCheckbox).toBeInTheDocument();
+    expect(bulkSelectCheckbox).not.toBeChecked();
+
+    // Click bulk select to select all
+    await userEvent.click(bulkSelectCheckbox);
+
+    // Verify bulk select is now checked
+    expect(bulkSelectCheckbox).toBeChecked();
+
+    // Verify individual row checkboxes are also checked (excluding system/platform groups)
+    const rowCheckboxes = checkboxes.filter((cb) => cb !== bulkSelectCheckbox);
+    const selectableRowCheckboxes = rowCheckboxes.filter((checkbox) => {
+      // Assume first few groups might be system/platform groups that can't be selected
+      const row = checkbox.closest('tr');
+      return row && !row.textContent?.includes('System') && !row.textContent?.includes('Platform');
+    });
+
+    selectableRowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).toBeChecked();
+    });
+
+    // TEST DESELECT: Click bulk select again to deselect all
+    await userEvent.click(bulkSelectCheckbox);
+
+    // Verify bulk select is now unchecked
+    expect(bulkSelectCheckbox).not.toBeChecked();
+
+    // Verify individual row checkboxes are also unchecked
+    selectableRowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).not.toBeChecked();
     });
   },
 };

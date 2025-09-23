@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { Text } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TableVariant } from '@patternfly/react-table';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { AppLink } from '../../components/navigation/AppLink';

@@ -1,5 +1,10 @@
 import React, { Fragment, Suspense, useEffect, useMemo, useState } from 'react';
-import { Button, Level, LevelItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Level } from '@patternfly/react-core';
+import { LevelItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { TableToolbarView } from '../../components/tables/TableToolbarView';
@@ -10,7 +15,8 @@ import { ToolbarTitlePlaceholder } from '../../components/ui-states/LoaderPlaceh
 import { defaultSettings } from '../../helpers/pagination';
 import { fetchRole } from '../../redux/roles/actions';
 import paths from '../../utilities/pathnames';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import { getBackRoute } from '../../helpers/navigation';
 import { useIntl } from 'react-intl';
 import { fetchInventoryGroupsDetails } from '../../redux/inventory/actions';
@@ -33,6 +39,7 @@ const ResourceDefinitions = () => {
 
   const { roleId, permissionId } = useParams();
   const isInventory = useMemo(() => isInventoryPermission(permissionId), [permissionId]);
+  const toAppLink = useAppLink();
 
   const { role, permission, isRoleLoading, rolesPagination, rolesFilters, inventoryGroupsDetails, isLoadingInventoryDetails } = useSelector(
     (state) => ({
@@ -107,10 +114,10 @@ const ResourceDefinitions = () => {
     <Fragment>
       <PageLayout
         breadcrumbs={[
-          { title: intl.formatMessage(messages.roles), to: getBackRoute(mergeToBasename(paths['roles'].link), rolesPagination, rolesFilters) },
+          { title: intl.formatMessage(messages.roles), to: getBackRoute(toAppLink(paths['roles'].link), rolesPagination, rolesFilters) },
           {
             title: isRoleLoading ? undefined : role && (role.display_name || role.name),
-            to: mergeToBasename(paths['role-detail'].link.replace(':roleId', roleId)),
+            to: toAppLink(paths['role-detail'].link.replace(':roleId', roleId)),
           },
           { title: permissionId, isActive: true },
         ]}

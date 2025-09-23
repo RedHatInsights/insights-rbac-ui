@@ -1,7 +1,15 @@
 import React, { useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import classNames from 'classnames';
-import { Card, CardBody, CardHeader, CardTitle, List, ListItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardHeader } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardTitle } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { List } from '@patternfly/react-core/dist/dynamic/components/List';
+import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useFlag } from '@unleash/proxy-client-react';
 import { bundleData } from '../bundleData';
 import './BundleCard.scss';

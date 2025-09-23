@@ -2,7 +2,7 @@ import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState
 import { useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { TabContent } from '@patternfly/react-core';
+import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 

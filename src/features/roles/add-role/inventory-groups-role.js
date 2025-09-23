@@ -1,26 +1,25 @@
 import React, { useEffect, useReducer } from 'react';
-import {
-  Badge,
-  Button,
-  Chip,
-  ChipGroup,
-  Divider,
-  FormGroup,
-  Grid,
-  GridItem,
-  MenuToggle,
-  Select,
-  SelectList,
-  SelectOption,
-  Spinner,
-  Text,
-  TextInputGroup,
-  TextInputGroupMain,
-  TextInputGroupUtilities,
-  TextVariants,
-  Tooltip,
-} from '@patternfly/react-core';
-import { TimesIcon } from '@patternfly/react-icons';
+import { Badge } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
+import { ChipGroup } from '@patternfly/react-core/dist/dynamic/components/Chip';
+import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { Select } from '@patternfly/react-core';
+import { SelectList } from '@patternfly/react-core';
+import { SelectOption } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextInputGroup } from '@patternfly/react-core';
+import { TextInputGroupMain } from '@patternfly/react-core';
+import { TextInputGroupUtilities } from '@patternfly/react-core';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import {} from '@patternfly/react-core';
+import TimesIcon from '@patternfly/react-icons/dist/js/icons/times-icon';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';

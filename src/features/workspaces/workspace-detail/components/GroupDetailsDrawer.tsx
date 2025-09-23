@@ -1,25 +1,26 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import {
-  Button,
-  Drawer,
-  DrawerActions,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  Spinner,
-  Tab,
-  Tabs,
-  Title,
-} from '@patternfly/react-core';
-import { ExclamationCircleIcon, KeyIcon, UsersIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerCloseButton } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import {} from '@patternfly/react-core';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
+import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
+import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
 
 import { Group } from '../../../../redux/groups/reducer';

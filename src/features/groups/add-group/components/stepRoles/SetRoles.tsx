@@ -1,9 +1,13 @@
-import React, { Fragment, useEffect, useState } from 'react';
+import React, { Fragment, useCallback, useEffect, useState } from 'react';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { FormGroup, Stack, StackItem, Text, TextContent } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { RolesList } from './RolesList';
-import '../../../App.scss';
+import '../../../../../App.scss';
 
 interface Role {
   uuid: string;
@@ -22,18 +26,21 @@ interface SetRolesProps {
 }
 
 export const SetRoles: React.FC<SetRolesProps> = (props) => {
-  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
-  const { input } = useFieldApi(props);
   const formOptions = useFormApi();
-
-  useEffect(() => {
-    setSelectedRoles(formOptions.getState().values['roles-list'] || []);
-  }, []);
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>(formOptions.getState().values['roles-list'] || []);
+  const { input } = useFieldApi(props);
 
   useEffect(() => {
     input.onChange(selectedRoles);
     formOptions.change('roles-list', selectedRoles);
-  }, [selectedRoles]);
+  }, [selectedRoles]); // Remove unstable formOptions and input dependencies
+
+  // Handle selection changes from RolesList - sync with form API
+  const handleRoleSelection = useCallback((roles: Role[]) => {
+    setSelectedRoles(roles);
+  }, []);
+
+  console.log({ selectedRoles });
 
   return (
     <Fragment>
@@ -45,7 +52,7 @@ export const SetRoles: React.FC<SetRolesProps> = (props) => {
         </StackItem>
         <StackItem>
           <FormGroup fieldId="select-role">
-            <RolesList selectedRoles={selectedRoles} setSelectedRoles={setSelectedRoles} rolesExcluded={false} />
+            <RolesList initialSelectedRoles={selectedRoles} onSelect={handleRoleSelection} rolesExcluded={false} />
           </FormGroup>
         </StackItem>
       </Stack>

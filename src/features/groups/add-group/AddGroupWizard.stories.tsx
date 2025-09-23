@@ -2,8 +2,320 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter, Route, Routes, useNavigate } from 'react-router-dom';
 import { HttpResponse, http } from 'msw';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupWizard } from './AddGroupWizard';
+
+// REUSABLE HELPER: Fill Add Group Wizard Form
+interface GroupFormData {
+  name: string;
+  description?: string;
+  selectRoles?: boolean;
+  selectUsers?: boolean;
+  selectServiceAccounts?: boolean;
+}
+
+// API Spy Types - Define what each spy should receive as parameters
+
+interface APISpies {
+  groupCreationSpy?: ReturnType<typeof fn>;
+  roleAssignmentSpy?: ReturnType<typeof fn>;
+  principalAssignmentSpy?: ReturnType<typeof fn>;
+}
+
+/**
+ * Helper function to fill out the Add Group Wizard form
+ * Shared with AppEntry E2E tests to avoid duplication
+ */
+async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Promise<void> {
+  const body = within(document.body);
+
+  // STEP 1: Fill name and description
+  const nameInput = document.getElementById('group-name') as HTMLInputElement;
+  expect(nameInput).toBeInTheDocument();
+
+  await userEvent.clear(nameInput);
+  await userEvent.type(nameInput, data.name);
+
+  if (data.description) {
+    const descriptionInput = document.getElementById('group-description');
+    if (descriptionInput) {
+      await userEvent.clear(descriptionInput);
+      await userEvent.type(descriptionInput, data.description);
+    }
+  }
+
+  // Wait for form validation to complete
+  await waitFor(() => {
+    expect(nameInput.value).toBe(data.name);
+  });
+
+  // Helper to get wizard next button (extracted from FullWizardFlow)
+  const getWizardNextButton = () => {
+    const allNextButtons = body.queryAllByRole('button', { name: /next/i });
+    return allNextButtons.find((btn) => {
+      const isNotPagination = !btn.closest('.pf-v5-c-pagination');
+      const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
+      return isNotPagination && isEnabled;
+    });
+  };
+
+  // Navigate to next step - wait for button to be enabled
+  const nextButton1 = await waitFor(
+    () => {
+      const button = getWizardNextButton();
+      expect(button).toBeInTheDocument();
+      expect(button).toBeEnabled();
+      return button!;
+    },
+    { timeout: 15000 },
+  ); // Extended timeout for async validation
+
+  await userEvent.click(nextButton1);
+
+  // STEP 2: Handle Roles step (if not in workspaces mode)
+  let currentStepHasRoles = false;
+  try {
+    await waitFor(
+      () => {
+        const rolesContent = body.queryAllByText(/add roles|select roles/i)[0] || body.queryByText(/role/i);
+        if (rolesContent) {
+          currentStepHasRoles = true;
+          expect(rolesContent).toBeInTheDocument();
+        }
+      },
+      { timeout: 3000 },
+    );
+  } catch {
+    // No roles step - probably workspaces mode
+  }
+
+  if (currentStepHasRoles && data.selectRoles) {
+    // Wait for roles to load
+    await waitFor(
+      () => {
+        const roleCheckboxes = body.queryAllByRole('checkbox');
+        expect(roleCheckboxes.length).toBeGreaterThan(1);
+      },
+      { timeout: 8000 },
+    );
+
+    const roleCheckboxes = body.queryAllByRole('checkbox');
+    if (roleCheckboxes.length >= 2) {
+      await userEvent.click(roleCheckboxes[1]); // Select first role
+      // Wait for checkbox to actually be checked
+      await waitFor(
+        () => {
+          expect(roleCheckboxes[1]).toBeChecked();
+        },
+        { timeout: 2000 },
+      );
+    }
+
+    // Navigate to next step
+    const nextButton2 = await waitFor(
+      () => {
+        const button = getWizardNextButton();
+        expect(button).toBeInTheDocument();
+        return button!;
+      },
+      { timeout: 5000 },
+    );
+
+    await userEvent.click(nextButton2);
+  } else if (currentStepHasRoles) {
+    // Skip roles selection but still navigate
+    const nextButton2 = await waitFor(
+      () => {
+        const button = getWizardNextButton();
+        expect(button).toBeInTheDocument();
+        return button!;
+      },
+      { timeout: 5000 },
+    );
+
+    await userEvent.click(nextButton2);
+  }
+
+  // STEP 3: Handle Members/Users step
+  await waitFor(
+    () => {
+      const membersContent = body.queryAllByText(/add members|add users|select users/i)[0] || body.queryByText(/member|user/i);
+      expect(membersContent).toBeTruthy();
+    },
+    { timeout: 5000 },
+  );
+
+  if (data.selectUsers) {
+    await waitFor(
+      () => {
+        const userCheckboxes = body.queryAllByRole('checkbox');
+        expect(userCheckboxes.length).toBeGreaterThan(1);
+      },
+      { timeout: 8000 },
+    );
+
+    const userCheckboxes = body.queryAllByRole('checkbox');
+    if (userCheckboxes.length >= 2) {
+      await userEvent.click(userCheckboxes[1]); // Select first user
+    }
+  }
+
+  // Try to navigate to next step (could be service accounts or review)
+  const nextButton3 = await waitFor(
+    () => {
+      const button = getWizardNextButton();
+      expect(button).toBeInTheDocument();
+      return button!;
+    },
+    { timeout: 5000 },
+  );
+
+  await userEvent.click(nextButton3);
+
+  // STEP 4: Handle Service Accounts step (optional)
+  let hasServiceAccountsStep = false;
+  try {
+    await waitFor(
+      () => {
+        const serviceAccountsContent = body.queryAllByText(/service account/i)[0];
+        if (serviceAccountsContent) {
+          hasServiceAccountsStep = true;
+          expect(serviceAccountsContent).toBeInTheDocument();
+        }
+      },
+      { timeout: 3000 },
+    );
+  } catch {
+    // No service accounts step - go to review
+    // console.log('🎯 WIZARD HELPER: No service accounts step - going to review');
+  }
+
+  if (hasServiceAccountsStep) {
+    // console.log('🎯 WIZARD HELPER: Step 4 - Service accounts step found');
+
+    if (data.selectServiceAccounts) {
+      const saCheckboxes = body.queryAllByRole('checkbox');
+      if (saCheckboxes.length >= 2) {
+        await userEvent.click(saCheckboxes[1]); // Select first service account
+        await waitFor(
+          () => {
+            expect(saCheckboxes[1]).toBeChecked();
+          },
+          { timeout: 2000 },
+        );
+      }
+    }
+
+    // Navigate to review step
+    const nextButton4 = await waitFor(
+      () => {
+        const button = getWizardNextButton();
+        expect(button).toBeInTheDocument();
+        return button!;
+      },
+      { timeout: 5000 },
+    );
+
+    await userEvent.click(nextButton4);
+  }
+
+  // FINAL STEP: Verify we reached Review step and submit
+  await waitFor(
+    () => {
+      const reviewContent = body.queryAllByText(/review|summary/i)[0];
+      const groupNameText = body.queryByText(new RegExp(data.name.toLowerCase(), 'i'));
+      const createButton = body.queryAllByRole('button').find((btn) => /create|submit|finish|add.*group/i.test(btn.textContent || ''));
+      const finalStep = reviewContent || groupNameText || createButton;
+      expect(finalStep).toBeTruthy();
+    },
+    { timeout: 8000 },
+  );
+
+  // console.log('🎯 WIZARD HELPER: Final step - Review step reached');
+
+  // Click the Create/Submit button
+  const createButton = await waitFor(
+    () => {
+      const buttons = body.queryAllByRole('button');
+      const submitBtn = buttons.find(
+        (btn) =>
+          /create|submit|finish|add.*group/i.test(btn.textContent || '') &&
+          !btn.hasAttribute('disabled') &&
+          btn.getAttribute('aria-disabled') !== 'true',
+      );
+      expect(submitBtn).toBeTruthy();
+      return submitBtn!;
+    },
+    { timeout: 5000 },
+  );
+
+  // console.log('🎯 WIZARD HELPER: Submitting form...');
+  await userEvent.click(createButton);
+
+  // VALIDATION: Use spies if provided, otherwise use UI indicators
+  if (spies) {
+    // console.log('🎯 WIZARD HELPER: Using API spies for validation...');
+    await waitFor(
+      () => {
+        // Verify that the group creation API was called with EXACT data from HAR file
+        expect(spies.groupCreationSpy).toHaveBeenCalledWith({
+          name: data.name,
+          description: data.description,
+          user_list: [{ username: 'alice.johnson' }],
+          roles_list: ['role-1'],
+        });
+
+        // If roles were selected, verify role assignment API was called with EXACT data from HAR file
+        if (data.selectRoles && spies.roleAssignmentSpy) {
+          expect(spies.roleAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
+            roles: ['role-1'],
+          });
+        }
+
+        // If users were selected, verify principal assignment API was called with correct format
+        if (data.selectUsers && spies.principalAssignmentSpy) {
+          expect(spies.principalAssignmentSpy).toHaveBeenCalledWith('new-group-uuid', {
+            principals: [{ username: 'alice.johnson' }], // No clientId or type for users
+          });
+        }
+
+        return true;
+      },
+      { timeout: 10000 },
+    );
+
+    // console.log('✅ WIZARD HELPER: Form submitted with validated API spies');
+  } else {
+    // Fallback to UI success indicators when no spies provided
+    await waitFor(
+      () => {
+        const successNotification =
+          document.querySelector('.pf-v5-c-alert--success') ||
+          document.querySelector('.notifications-portal') ||
+          body.queryByText(/success/i) ||
+          body.queryByText(/created successfully/i) ||
+          body.queryByText(/group.*created/i);
+
+        const backToGroupsList = body.queryByText('Groups') && !document.querySelector('[data-ouia-component-id="add-group-wizard"]');
+
+        const wizardClosed = !document.querySelector('[data-ouia-component-id="add-group-wizard"]');
+
+        const hasSuccessIndicator = successNotification || backToGroupsList || wizardClosed;
+
+        if (hasSuccessIndicator) {
+          // console.log('🎉 WIZARD HELPER: Success indicator found - form submission validated');
+          expect(hasSuccessIndicator).toBeTruthy();
+          return true;
+        }
+
+        throw new Error('Waiting for form submission to complete...');
+      },
+      { timeout: 10000 },
+    );
+
+    // console.log('✅ WIZARD HELPER: Form submitted successfully');
+  }
+}
 
 // Mock data for the wizard steps - Enhanced for better testing experience
 const mockUsers = [
@@ -185,8 +497,8 @@ const AddGroupWizardWithRouter: React.FC = () => {
   );
 };
 
-// Define MSW handlers for reuse across stories
-const mockHandlers = [
+// Create spy-enabled MSW handlers for API validation
+const createMockHandlersWithSpies = (spies: APISpies = {}) => [
   // Users API for step 3
   http.get('/api/rbac/v1/principals/', ({ request }) => {
     const url = new URL(request.url);
@@ -244,14 +556,11 @@ const mockHandlers = [
   // Group creation API
   http.post('/api/rbac/v1/groups/', async ({ request }) => {
     const body = (await request.json()) as any;
-    console.log('📝 Group Creation API Called with data:', {
-      name: body.name,
-      description: body.description,
-      roles_list: body.roles_list?.length || 0,
-      user_list: body.user_list?.length || 0,
-      users: body.user_list?.map((u: any) => u.username) || [],
-      roles: body.roles_list || [],
-    });
+
+    // Call spy function if provided
+    if (spies?.groupCreationSpy) {
+      spies.groupCreationSpy(body);
+    }
 
     // Validate required fields
     if (!body.name) {
@@ -277,20 +586,26 @@ const mockHandlers = [
   // Role assignment API - assign roles to group
   http.post('/api/rbac/v1/groups/:groupId/roles/', async ({ request, params }) => {
     const body = (await request.json()) as any;
-    console.log('🎭 Role Assignment API Called:', {
-      groupId: params.groupId,
-      roles: body.roles || body,
-    });
+    // Role Assignment API Called
+
+    // Call spy function if provided
+    if (spies?.roleAssignmentSpy) {
+      spies.roleAssignmentSpy(params.groupId, body);
+    }
+
     return HttpResponse.json({ message: 'Roles assigned successfully' });
   }),
 
   // Principal assignment API - assign users to group
   http.post('/api/rbac/v1/groups/:groupId/principals/', async ({ request, params }) => {
     const body = (await request.json()) as any;
-    console.log('👥 Principal Assignment API Called:', {
-      groupId: params.groupId,
-      principals: body.principals || body,
-    });
+    // Principal Assignment API Called
+
+    // Call spy function if provided
+    if (spies?.principalAssignmentSpy) {
+      spies.principalAssignmentSpy(params.groupId, body);
+    }
+
     return HttpResponse.json({ message: 'Principals assigned successfully' });
   }),
 
@@ -309,6 +624,9 @@ const mockHandlers = [
     return HttpResponse.json(slicedAccounts); // Direct array response
   }),
 ];
+
+// Default handlers without spies for backward compatibility
+const mockHandlers = createMockHandlersWithSpies();
 
 const meta: Meta<typeof AddGroupWizardWithRouter> = {
   component: AddGroupWizardWithRouter,
@@ -441,7 +759,7 @@ export const ServiceAccountsEnabled: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ SERVICE ACCOUNTS ENABLED: Wizard navigation includes service accounts step!');
+    // console.log('✅ SERVICE ACCOUNTS ENABLED: Wizard navigation includes service accounts step!');
   },
 };
 
@@ -473,7 +791,7 @@ export const WorkspacesEnabled: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ WORKSPACES MODE: Wizard opened successfully');
+    // console.log('✅ WORKSPACES MODE: Wizard opened successfully');
 
     // Fill name to enable next button
     const nameInput = document.getElementById('group-name') as HTMLInputElement;
@@ -511,7 +829,7 @@ export const WorkspacesEnabled: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ WORKSPACES MODE: Successfully tested step progression (roles step skipped)');
+    // console.log('✅ WORKSPACES MODE: Successfully tested step progression (roles step skipped)');
   },
 };
 
@@ -598,7 +916,7 @@ export const FormValidation: Story = {
       });
     }
 
-    console.log('✅ Form validation tests completed!');
+    // console.log('✅ Form validation tests completed!');
   },
 };
 
@@ -625,7 +943,7 @@ export const CancelWarning: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ CANCEL WARNING: Wizard opened successfully');
+    // console.log('✅ CANCEL WARNING: Wizard opened successfully');
 
     // Fill in some form data to make cancellation meaningful
     const nameInput = document.getElementById('group-name') as HTMLInputElement;
@@ -663,7 +981,7 @@ export const CancelWarning: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ CANCEL WARNING: Warning dialog appeared with correct content');
+    // console.log('✅ CANCEL WARNING: Warning dialog appeared with correct content');
 
     // Find and click the "Exit" button in the warning dialog
     const exitButton = await waitFor(
@@ -696,15 +1014,26 @@ export const CancelWarning: Story = {
     const wizardStillExists = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
     expect(wizardStillExists).toBeNull();
 
-    console.log('✅ CANCEL WARNING: Wizard closed successfully after confirming exit');
+    // console.log('✅ CANCEL WARNING: Wizard closed successfully after confirming exit');
 
-    console.log('✅ CANCEL WARNING: Successfully tested cancel functionality');
+    // console.log('✅ CANCEL WARNING: Successfully tested cancel functionality');
   },
 };
 
+// Create story-specific spies that can be accessed in both parameters and play function
+const createFullWizardFlowSpies = (): APISpies => ({
+  groupCreationSpy: fn(),
+  roleAssignmentSpy: fn(),
+  principalAssignmentSpy: fn(),
+});
+
+const fullWizardFlowSpies = createFullWizardFlowSpies();
+
 export const FullWizardFlow: Story = {
   parameters: {
-    msw: { handlers: mockHandlers },
+    msw: {
+      handlers: createMockHandlersWithSpies(fullWizardFlowSpies),
+    },
     featureFlags: {
       'platform.rbac.workspaces': false,
       'platform.rbac.group-service-accounts': true,
@@ -719,7 +1048,6 @@ export const FullWizardFlow: Story = {
     await userEvent.click(addButton);
 
     // Wait for wizard to load
-    const body = within(document.body);
     await waitFor(
       async () => {
         const wizardElement = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
@@ -730,233 +1058,18 @@ export const FullWizardFlow: Story = {
       { timeout: 5000 },
     );
 
-    // STEP 1: Fill name and description
-    const nameInput = document.getElementById('group-name') as HTMLInputElement;
-    await userEvent.type(nameInput, 'Complete Test Group');
-
-    const descriptionInput = document.getElementById('group-description');
-    if (descriptionInput) {
-      await userEvent.type(descriptionInput, 'Testing full wizard flow');
-    }
-
-    await waitFor(() => {
-      expect(nameInput.value).toBe('Complete Test Group');
-    });
-
-    // Navigate to Step 2: Roles
-    const getWizardNextButton = () => {
-      const allNextButtons = body.queryAllByRole('button', { name: /next/i });
-      // Filter out pagination buttons and find the main wizard Next button
-      return allNextButtons.find((btn) => {
-        const isNotPagination = !btn.closest('.pf-v5-c-pagination');
-        const isEnabled = !btn.hasAttribute('disabled') && btn.getAttribute('aria-disabled') !== 'true';
-        return isNotPagination && isEnabled;
-      });
-    };
-
-    await waitFor(
-      () => {
-        const nextButton = getWizardNextButton();
-        expect(nextButton).toBeTruthy();
+    // Use the reusable helper with API spies for comprehensive validation
+    await fillAddGroupWizardForm(
+      {
+        name: 'Complete Test Group',
+        description: 'Testing full wizard flow',
+        selectRoles: true,
+        selectUsers: true,
+        selectServiceAccounts: true, // Test service accounts since they're enabled
       },
-      { timeout: 8000 },
+      fullWizardFlowSpies,
     );
 
-    const nextButton1 = getWizardNextButton();
-    if (nextButton1) await userEvent.click(nextButton1);
-
-    // STEP 2: Verify we're on Roles step
-    await waitFor(
-      () => {
-        const rolesContent = body.queryAllByText(/add roles|select roles/i)[0] || body.queryByText(/role/i);
-        expect(rolesContent).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    // Select some roles - wait for data to load first
-    await waitFor(
-      () => {
-        const roleCheckboxes = body.queryAllByRole('checkbox');
-        expect(roleCheckboxes.length).toBeGreaterThan(2); // Should have checkboxes for roles
-      },
-      { timeout: 8000 },
-    );
-
-    const roleCheckboxes = body.queryAllByRole('checkbox');
-    if (roleCheckboxes.length >= 3) {
-      // Click specific role checkboxes (skip bulk select at index 0)
-      await userEvent.click(roleCheckboxes[1]); // Select first role
-      await userEvent.click(roleCheckboxes[2]); // Select second role
-
-      // Wait for selections to register
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    // Navigate to Step 3: Members
-    await waitFor(
-      () => {
-        const nextButton = getWizardNextButton();
-        expect(nextButton).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    const nextButton2 = getWizardNextButton();
-    if (nextButton2) await userEvent.click(nextButton2);
-
-    // STEP 3: Verify we're on Members step
-    await waitFor(
-      () => {
-        const membersContent = body.queryAllByText(/add members|add users|select users/i)[0] || body.queryByText(/member|user/i);
-        expect(membersContent).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    // Select some users - wait for data to load first
-    await waitFor(
-      () => {
-        const userCheckboxes = body.queryAllByRole('checkbox');
-        expect(userCheckboxes.length).toBeGreaterThan(2); // Should have checkboxes for users
-      },
-      { timeout: 8000 },
-    );
-
-    const userCheckboxes = body.queryAllByRole('checkbox');
-    if (userCheckboxes.length >= 3) {
-      // Click specific user checkboxes (skip bulk select at index 0)
-      await userEvent.click(userCheckboxes[1]); // Select first user
-      await userEvent.click(userCheckboxes[2]); // Select second user
-
-      // Wait for selections to register
-      await new Promise((resolve) => setTimeout(resolve, 500));
-    }
-
-    // Navigate to Step 4: Service Accounts (if enabled)
-    await waitFor(
-      () => {
-        const nextButton = getWizardNextButton();
-        expect(nextButton).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    const nextButton3 = getWizardNextButton();
-    if (nextButton3) await userEvent.click(nextButton3);
-
-    // STEP 4: Handle Service Accounts step (conditional)
-    await waitFor(
-      () => {
-        const serviceAccountsContent = body.queryAllByText(/service account/i)[0];
-        const reviewContent = body.queryAllByText(/review|summary/i)[0];
-        expect(serviceAccountsContent || reviewContent).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
-
-    if (body.queryAllByText(/service account/i).length > 0) {
-      // We're on service accounts step - select one and continue
-      const saCheckboxes = body.queryAllByRole('checkbox');
-      if (saCheckboxes.length >= 2) {
-        await userEvent.click(saCheckboxes[1]); // Select first service account
-      }
-
-      // Navigate to final Review step
-      await waitFor(
-        () => {
-          const nextButton = getWizardNextButton();
-          expect(nextButton).toBeTruthy();
-        },
-        { timeout: 5000 },
-      );
-
-      const nextButton4 = getWizardNextButton();
-      if (nextButton4) await userEvent.click(nextButton4);
-    }
-
-    // FINAL STEP: Verify we reached the Review step
-    await waitFor(
-      () => {
-        // Look for multiple indicators of the final step
-        const reviewContent = body.queryAllByText(/review|summary/i)[0];
-        const groupNameText = body.queryByText(/complete test group/i);
-        const createButton = body.queryAllByRole('button').find((btn) => /create|submit|finish|add.*group/i.test(btn.textContent || ''));
-        const finalStep = reviewContent || groupNameText || createButton;
-
-        expect(finalStep).toBeTruthy();
-      },
-      { timeout: 8000 },
-    );
-
-    // SUBMISSION: Click the Create/Submit button
-    const createButton = await waitFor(
-      () => {
-        const buttons = body.queryAllByRole('button');
-        const submitBtn = buttons.find(
-          (btn) =>
-            /create|submit|finish|add.*group/i.test(btn.textContent || '') &&
-            !btn.hasAttribute('disabled') &&
-            btn.getAttribute('aria-disabled') !== 'true',
-        );
-        expect(submitBtn).toBeTruthy();
-        return submitBtn!;
-      },
-      { timeout: 5000 },
-    );
-
-    // Click submit button
-    await userEvent.click(createButton);
-
-    // VERIFICATION 1: Wait for submission to complete and check for success
-    // Since API calls are working, focus on verifying the wizard completes
-    await new Promise((resolve) => setTimeout(resolve, 2000)); // Wait for API calls
-
-    console.log('🔍 Checking for success indicators after submission...');
-
-    // Check for any success indicators (notification, success screen, etc.)
-    const successFound = await waitFor(
-      () => {
-        // Try different success indicators
-        const hasSuccess =
-          body.queryByText(/success/i) ||
-          body.queryByText(/group.*created/i) ||
-          document.querySelector('.pf-v5-c-alert') ||
-          document.querySelector('.notifications-portal') ||
-          body.queryByRole('button', { name: /close|done|finish/i }) ||
-          body.queryByText(/complete test group/i);
-
-        console.log('✅ Success indicator found:', !!hasSuccess);
-        return hasSuccess;
-      },
-      { timeout: 5000 },
-    ).catch(() => null);
-
-    // If no success indicator found, that's okay - the API calls worked!
-    if (!successFound) {
-      console.log('⚠️  No success indicator found, but API calls worked - test passes!');
-    } else {
-      console.log('🎉 Success indicator found!');
-    }
-
-    // VERIFICATION 2: Wait for API calls to complete
-    // The wizard should make multiple API calls:
-    // 1. POST /api/rbac/v1/groups/ - create group with basic info
-    // 2. POST /api/rbac/v1/groups/{uuid}/roles/ - assign selected roles
-    // 3. POST /api/rbac/v1/groups/{uuid}/principals/ - assign selected users
-    // 4. POST /api/rbac/v1/groups/{uuid}/service-accounts/ - assign selected service accounts (if any)
-
-    // Wait a moment for all API calls to complete
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-
-    // VERIFICATION 3: Final success verification
-    console.log('🎯 FINAL VERIFICATION:');
-    console.log('✅ Wizard navigated through all steps');
-    console.log('✅ Form data captured (name, description, users, roles)');
-    console.log('✅ API calls made (group creation, principal assignment)');
-    console.log('✅ Data was sent to backend successfully');
-
-    // Test passes - the wizard submission is working!
-    console.log('🏆 WIZARD SUBMISSION TEST COMPLETED SUCCESSFULLY!');
+    console.log('✅ Full wizard flow completed with all API validations!');
   },
 };

@@ -1,7 +1,12 @@
 import React from 'react';
-import { Label, Title } from '@patternfly/react-core';
-import { ArrowRightIcon, ExternalLinkAltIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import ArrowRightIcon from '@patternfly/react-icons/dist/js/icons/arrow-right-icon';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
+import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 

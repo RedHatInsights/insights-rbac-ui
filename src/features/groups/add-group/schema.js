@@ -96,7 +96,6 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
           {
             name: 'review',
             title: intl.formatMessage(messages.reviewDetails),
-
             buttons: (props) => <ReviewStepButtons {...props} context={AddGroupWizardContext} />,
             StepTemplate: ReviewTemplate,
             fields: [

@@ -12,7 +12,10 @@ import { fetchInventoryGroups, fetchInventoryGroupsDetails } from '../../redux/i
 import { processResourceDefinitions } from '../../redux/inventory/helper';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { Bullseye, Modal, ModalVariant, Spinner } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';

@@ -1,4 +1,8 @@
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +14,7 @@ import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } fro
 import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 import { FormattedMessage, useIntl } from 'react-intl';
 import Messages from '../../../../../Messages';
-import { SearchIcon } from '@patternfly/react-icons';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string; subtitleText?: string }> = ({ titleText, subtitleText }) => {
   return (

@@ -3,11 +3,16 @@ import { useDispatch } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
-import { Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { addMembersToGroup, fetchGroups, fetchMembersForGroup } from '../../../../redux/groups/actions';
-import { UsersList } from '../../add-group/UsersList';
+import { UsersList } from '../../add-group/components/stepUsers/UsersList';
 import { ActiveUsers } from '../../../../components/user-management/ActiveUsers';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
@@ -24,7 +29,7 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({ cancelRoute })
   const [selectedUsers, setSelectedUsers] = useState<any[]>([]);
 
   const onSubmit = () => {
-    const userList = selectedUsers.map((user) => ({ username: user.label }));
+    const userList = selectedUsers.map((user) => ({ username: user.username || user.label }));
     if (userList.length > 0) {
       dispatch(
         addNotification({
@@ -75,12 +80,14 @@ export const AddGroupMembers: React.FC<AddGroupMembersProps> = ({ cancelRoute })
         </StackItem>
         <StackItem isFilled>
           {isITLess ? (
-            <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
+            <UsersList initialSelectedUsers={selectedUsers} onSelect={setSelectedUsers} displayNarrow={true} />
           ) : (
-            <UsersList selectedUsers={selectedUsers} setSelectedUsers={setSelectedUsers} displayNarrow={true} />
+            <UsersList initialSelectedUsers={selectedUsers} onSelect={setSelectedUsers} displayNarrow={true} />
           )}
         </StackItem>
       </Stack>
     </Modal>
   );
 };
+
+export default AddGroupMembers;

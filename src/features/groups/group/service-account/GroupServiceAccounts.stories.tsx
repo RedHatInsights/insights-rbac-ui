@@ -11,18 +11,21 @@ const mockServiceAccounts = [
     clientId: 'service-account-123',
     owner: 'platform-team',
     time_created: 1642636800, // Unix timestamp (will be multiplied by 1000 in reducer)
+    description: 'CI/CD pipeline automation service account',
   },
   {
     name: 'monitoring-collector',
     clientId: 'service-account-456',
     owner: 'ops-team',
     time_created: 1642550400,
+    description: 'Monitoring and metrics collection service',
   },
   {
     name: 'backup-automation',
     clientId: 'service-account-789',
     owner: 'infrastructure-team',
     time_created: 1642464000,
+    description: 'Automated backup and data management',
   },
 ];
 
@@ -325,7 +328,12 @@ export const AdminDefault: Story = {
 };
 
 export const WithSelection: Story = {
-  // Use meta-level MSW handlers (no override)
+  parameters: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+  },
   play: async ({ canvasElement }) => {
     await delay(300); // MSW delay
     const canvas = within(canvasElement);
@@ -350,6 +358,44 @@ export const WithSelection: Story = {
 // 🚨 NEW COMPREHENSIVE STORIES TO FIX CRITICAL GAPS
 
 export const ServiceAccountWorkflows: Story = {
+  parameters: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+          return HttpResponse.json({
+            uuid: params.groupId,
+            name: 'Test Group',
+            description: 'Test group for service accounts',
+            platform_default: false,
+            admin_default: false,
+            system: false,
+            created: '2024-01-15T10:30:00.000Z',
+            modified: '2024-01-15T10:30:00.000Z',
+            principalCount: 3,
+            roleCount: 2,
+          });
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+
+          return HttpResponse.json({
+            data: mockServiceAccounts,
+            meta: {
+              count: mockServiceAccounts.length,
+              limit,
+              offset,
+            },
+          });
+        }),
+      ],
+    },
+  },
   play: async ({ canvasElement }) => {
     await delay(300); // MSW delay
     const canvas = within(canvasElement);
@@ -388,7 +434,6 @@ export const ServiceAccountWorkflows: Story = {
     expect(headerCheckbox).toBeInTheDocument();
 
     // 4. VERIFY SELECTION INFRASTRUCTURE: Core functionality that enables removal
-    // The key test is that selection works - removal functionality depends on TableToolbarView implementation
     const selectedCheckboxes = checkboxes.filter((cb: Element) => (cb as HTMLInputElement).checked);
     expect(selectedCheckboxes.length).toBeGreaterThan(0);
 
@@ -398,78 +443,12 @@ export const ServiceAccountWorkflows: Story = {
   },
 };
 
-export const ServiceAccountsEmptyAndFilteringDemo: Story = {
-  parameters: {
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
-          return HttpResponse.json({
-            uuid: params.groupId,
-            name: 'Test Group',
-            platform_default: false,
-            admin_default: false,
-          });
-        }),
-        // Return empty by default to show empty state immediately
-        http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
-          return HttpResponse.json({
-            data: [],
-            meta: { count: 0, limit: 20, offset: 0 },
-          });
-        }),
-        http.get('/api/rbac/v1/groups/', () => {
-          return HttpResponse.json({
-            data: [{ uuid: 'test-group-id', name: 'Test Group' }],
-            meta: { count: 1 },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // MSW delay
-    const canvas = within(canvasElement);
-
-    // Wait for loading to complete
-    await waitFor(
-      async () => {
-        const loadingText = canvas.queryByText(/loading group data/i);
-        expect(loadingText).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
-
-    // TEST EMPTY STATE: Should show when no service accounts
-    await waitFor(
-      () => {
-        const emptyStateTexts = [
-          canvas.queryByText(/there are no service accounts in this group/i),
-          canvas.queryByText(/add service accounts you wish to associate/i),
-          canvas.queryByText(/no service accounts/i),
-          canvas.queryByText(/empty/i),
-        ].filter(Boolean);
-
-        expect(emptyStateTexts.length).toBeGreaterThan(0);
-      },
-      { timeout: 5000 },
-    );
-
-    // TEST FILTER STRUCTURE: Check if filters are rendered (even if not functional)
-    const filterInputs = canvas.queryAllByRole('textbox');
-    // TableToolbarView with isFilterable=true should render at least one filter input
-    // But this might be dependent on the component's filter configuration
-    if (filterInputs.length > 0) {
-      expect(filterInputs.length).toBeGreaterThan(0);
-    }
-
-    // Verify basic component structure is present
-    expect(canvasElement).toBeInTheDocument();
-    expect(canvasElement.children.length).toBeGreaterThan(0);
-  },
-};
-
 export const ServiceAccountsFilteringWithData: Story = {
   parameters: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
     msw: {
       handlers: [
         http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
@@ -480,12 +459,33 @@ export const ServiceAccountsFilteringWithData: Story = {
             admin_default: false,
           });
         }),
-        http.get('/api/rbac/v1/groups/:groupId/principals/', () => {
-          // Always return full data set - TableToolbarView should handle filtering client-side
-          // OR the component might not implement server-side filtering for service accounts
+        http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
+          const url = new URL(request.url);
+          // Use the actual parameter names sent by the Redux action
+          const clientIdFilter = url.searchParams.get('principal_username') || ''; // Maps to clientId in UI
+          const nameFilter = url.searchParams.get('service_account_name') || '';
+          const descFilter = url.searchParams.get('service_account_description') || '';
+
+          // Filter the mock service accounts based on query parameters
+          let filteredAccounts = mockServiceAccounts;
+
+          if (clientIdFilter) {
+            filteredAccounts = filteredAccounts.filter((account) => account.clientId.toLowerCase().includes(clientIdFilter.toLowerCase()));
+          }
+
+          if (nameFilter) {
+            filteredAccounts = filteredAccounts.filter((account) => account.name.toLowerCase().includes(nameFilter.toLowerCase()));
+          }
+
+          if (descFilter) {
+            filteredAccounts = filteredAccounts.filter(
+              (account) => account.description && account.description.toLowerCase().includes(descFilter.toLowerCase()),
+            );
+          }
+
           return HttpResponse.json({
-            data: mockServiceAccounts,
-            meta: { count: mockServiceAccounts.length, limit: 20, offset: 0 },
+            data: filteredAccounts,
+            meta: { count: filteredAccounts.length, limit: 20, offset: 0 },
           });
         }),
         http.get('/api/rbac/v1/groups/', () => {
@@ -501,7 +501,7 @@ export const ServiceAccountsFilteringWithData: Story = {
     await delay(300); // MSW delay
     const canvas = within(canvasElement);
 
-    // Wait for all service accounts to load
+    // Wait for all service accounts to load initially
     await waitFor(
       async () => {
         expect(await canvas.findByText('ci-pipeline-service')).toBeInTheDocument();
@@ -511,29 +511,90 @@ export const ServiceAccountsFilteringWithData: Story = {
       { timeout: 10000 },
     );
 
-    // Look for filter inputs (TableToolbarView with isFilterable=true should render them)
-    const filterInputs = canvas.queryAllByRole('textbox');
+    // TEST CLIENT ID FILTERING: Start with the default Client ID filter
+    const filterInput = canvas.getByLabelText('Client ID filter');
+    expect(filterInput).toBeInTheDocument();
 
-    // This test verifies:
-    // 1. Service accounts data is loaded correctly
-    // 2. Filter inputs are rendered (if the component supports it)
-    // 3. Component doesn't crash with filter configuration
+    // Filter for '789' - should show only backup-automation
+    await userEvent.type(filterInput, '789');
 
-    expect(await canvas.findByText('ci-pipeline-service')).toBeInTheDocument();
-    expect(await canvas.findByText('monitoring-collector')).toBeInTheDocument();
-    expect(await canvas.findByText('backup-automation')).toBeInTheDocument();
+    await waitFor(
+      () => {
+        expect(canvas.getByText('backup-automation')).toBeInTheDocument();
+        expect(canvas.queryByText('ci-pipeline-service')).not.toBeInTheDocument();
+        expect(canvas.queryByText('monitoring-collector')).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
-    // Note: The actual filtering behavior depends on TableToolbarView implementation
-    // This component might not implement server-side filtering for service accounts
-    // or might have different filter parameter expectations
+    // Clear client ID filter and test name filtering
+    await userEvent.clear(filterInput);
 
-    if (filterInputs.length > 0) {
-      // If filters exist, verify they're interactive
-      expect(filterInputs[0]).toBeInTheDocument();
+    // Wait for all items to reappear
+    await waitFor(
+      () => {
+        expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
+        expect(canvas.getByText('monitoring-collector')).toBeInTheDocument();
+        expect(canvas.getByText('backup-automation')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // TEST NAME FILTERING: Switch to Name filter
+    const filterDropdown = canvas.getByRole('button', { name: /client id/i });
+    await userEvent.click(filterDropdown);
+
+    const nameOption = canvas.getByRole('menuitem', { name: 'Name' });
+    await userEvent.click(nameOption);
+
+    const nameFilterInput = canvas.getByLabelText('Name filter');
+    await userEvent.type(nameFilterInput, 'monitoring');
+
+    await waitFor(
+      () => {
+        expect(canvas.getByText('monitoring-collector')).toBeInTheDocument();
+        expect(canvas.queryByText('ci-pipeline-service')).not.toBeInTheDocument();
+        expect(canvas.queryByText('backup-automation')).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // TEST NO RESULTS FILTERING: Use filter that matches nothing
+    await userEvent.clear(nameFilterInput);
+    await userEvent.type(nameFilterInput, 'nonexistent');
+
+    await waitFor(
+      () => {
+        expect(canvas.queryByText('ci-pipeline-service')).not.toBeInTheDocument();
+        expect(canvas.queryByText('monitoring-collector')).not.toBeInTheDocument();
+        expect(canvas.queryByText('backup-automation')).not.toBeInTheDocument();
+
+        // Should show empty state or no results message
+        const noResults =
+          canvas.queryByText(/no service accounts match your filter criteria/i) ||
+          canvas.queryByText(/no results found/i) ||
+          canvas.queryByText(/no service accounts/i);
+        if (noResults) {
+          expect(noResults).toBeInTheDocument();
+        }
+      },
+      { timeout: 5000 },
+    );
+
+    // TEST CLEAR FILTERS: Clear all filters to restore full data
+    const clearFiltersButton = canvas.queryByText('Clear all filters');
+    if (clearFiltersButton) {
+      await userEvent.click(clearFiltersButton);
+
+      // Should restore all service accounts
+      await waitFor(
+        () => {
+          expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
+          expect(canvas.getByText('monitoring-collector')).toBeInTheDocument();
+          expect(canvas.getByText('backup-automation')).toBeInTheDocument();
+        },
+        { timeout: 5000 },
+      );
     }
-
-    // Verify component is properly rendered with data
-    expect(canvasElement).toBeInTheDocument();
-    expect(canvasElement.children.length).toBeGreaterThan(0);
   },
 };

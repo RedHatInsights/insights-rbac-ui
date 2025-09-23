@@ -1,5 +1,5 @@
 import React from 'react';
-import { PageSection } from '@patternfly/react-core';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';

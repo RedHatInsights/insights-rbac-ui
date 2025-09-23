@@ -1,4 +1,10 @@
-import { Alert, Button, Modal, ModalVariant, Stack, StackItem, TextContent } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
@@ -10,7 +16,7 @@ import { AppLink } from '../../../../components/navigation/AppLink';
 import { addServiceAccountsToGroup } from '../../../../redux/groups/actions';
 import { ServiceAccountsState } from '../../../../redux/service-accounts/reducer';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
-import { ServiceAccountsList } from '../../add-group/ServiceAccountsList';
+import { ServiceAccountsList } from '../../add-group/components/stepServiceAccounts/ServiceAccountsList';
 import './group-service-accounts.scss';
 
 interface AddGroupServiceAccountsProps {
@@ -96,8 +102,8 @@ const AddGroupServiceAccounts: React.FunctionComponent<AddGroupServiceAccountsPr
         </StackItem>
         <StackItem className="rbac-add-service-account-modal">
           <ServiceAccountsList
-            selected={selectedAccounts}
-            setSelected={setSelectedAccounts}
+            initialSelectedServiceAccounts={selectedAccounts}
+            onSelect={setSelectedAccounts}
             groupId={groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupId}
           />
         </StackItem>

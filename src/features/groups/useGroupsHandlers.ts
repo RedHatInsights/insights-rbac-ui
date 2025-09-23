@@ -4,7 +4,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { fetchMembersForExpandedGroup, fetchRolesForExpandedGroup } from '../../redux/groups/actions';
 import { applyFiltersToUrl } from '../../helpers/urlFilters';
-import { mergeToBasename } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import pathnames from '../../utilities/pathnames';
 import type { Group } from './types';
 
@@ -50,6 +50,7 @@ export const useGroupsHandlers = ({
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const location = useLocation();
+  const toAppLink = useAppLink();
 
   // Expanded data fetchers - directly from legacy
   const fetchExpandedRoles = useCallback(
@@ -96,11 +97,14 @@ export const useGroupsHandlers = ({
   // Bulk actions handlers
   const handleBulkSelect = useCallback(
     (value: BulkSelectValue) => {
-      if (value === 'none') {
+      if (value === BulkSelectValue.none) {
         onSelectedRowsChange([]);
-      } else if (value === 'page') {
+      } else if (value === BulkSelectValue.page) {
         const selectableItems = data.filter((item) => !(item.platform_default || item.admin_default));
         onSelectedRowsChange(selectableItems);
+      } else if (value === BulkSelectValue.nonePage) {
+        // Handle main checkbox click to deselect all items
+        onSelectedRowsChange([]);
       }
     },
     [data, onSelectedRowsChange],
@@ -109,9 +113,9 @@ export const useGroupsHandlers = ({
   const handleEdit = useCallback(
     (groupId: string) => {
       const editPath = (pathnames['edit-group'].link as string).replace(':groupId', groupId);
-      navigate(mergeToBasename(editPath));
+      navigate(toAppLink(editPath));
     },
-    [navigate],
+    [navigate, toAppLink],
   );
 
   const handleDelete = useCallback(
@@ -119,10 +123,10 @@ export const useGroupsHandlers = ({
       onRemoveGroupsChange(groups);
       const groupIds = groups.map(({ uuid }) => uuid);
       const removePath = (pathnames['remove-group'].link as string).replace(':groupId', groupIds.join(','));
-      navigate(mergeToBasename(removePath));
+      navigate(toAppLink(removePath));
       onSelectedRowsChange([]); // Clear selection after action
     },
-    [navigate, onRemoveGroupsChange, onSelectedRowsChange],
+    [navigate, toAppLink, onRemoveGroupsChange, onSelectedRowsChange],
   );
 
   // Pagination handlers

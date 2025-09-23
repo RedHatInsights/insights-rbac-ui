@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Skeleton } from '@patternfly/react-core';
+import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
@@ -149,3 +149,5 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
     />
   );
 };
+
+export default EditGroupModal;

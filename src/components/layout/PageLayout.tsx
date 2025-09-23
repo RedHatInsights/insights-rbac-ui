@@ -1,5 +1,9 @@
 import React, { Fragment, ReactNode } from 'react';
-import { Flex, FlexItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
+import { Flex } from '@patternfly/react-core';
+import { FlexItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { ToolbarTitlePlaceholder } from '../ui-states/LoaderPlaceholders';
 import { RbacBreadcrumbs } from '../navigation/Breadcrumbs';
 import { PageHeader, PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';

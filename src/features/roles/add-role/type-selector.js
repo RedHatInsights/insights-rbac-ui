@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Radio } from '@patternfly/react-core';
+import { Radio } from '@patternfly/react-core/dist/dynamic/components/Radio';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { useIntl } from 'react-intl';

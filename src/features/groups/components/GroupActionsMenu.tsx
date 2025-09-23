@@ -1,6 +1,12 @@
 import React from 'react';
-import { Button, Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
-import { EllipsisVIcon, PlusIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
+import PlusIcon from '@patternfly/react-icons/dist/js/icons/plus-icon';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import type { GroupActionsMenuProps } from '../types';

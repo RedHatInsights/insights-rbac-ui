@@ -1,6 +1,6 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
-import { Text } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import React from 'react';
 import { FormattedMessage, createIntl, createIntlCache } from 'react-intl';
 import { useSelector } from 'react-redux';

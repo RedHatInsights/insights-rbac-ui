@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Alert, AlertActionCloseButton, Button, Chip, ChipGroup, Popover, Text, TextContent, Title } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
+import { ChipGroup } from '@patternfly/react-core/dist/dynamic/components/Chip';
+import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import QuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import { useIntl } from 'react-intl';

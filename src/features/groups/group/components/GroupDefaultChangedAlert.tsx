@@ -1,6 +1,7 @@
 import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { Alert, AlertActionCloseButton } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { AlertActionCloseButton } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import messages from '../../../../Messages';
 
 interface GroupDefaultChangedAlertProps {

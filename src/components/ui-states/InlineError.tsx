@@ -1,6 +1,6 @@
 import React from 'react';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
-import { Alert } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 
 interface InlineErrorProps extends Partial<UseFieldApiConfig> {
   title?: string;

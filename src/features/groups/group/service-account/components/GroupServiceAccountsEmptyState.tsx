@@ -1,65 +1,52 @@
 import React from 'react';
-import { useIntl } from 'react-intl';
-import { Bullseye } from '@patternfly/react-core/dist/dynamic/layouts/Bullseye';
-import {
-  EmptyState,
-  EmptyStateActions,
-  EmptyStateBody,
-  EmptyStateFooter,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-} from '@patternfly/react-core/dist/dynamic/components/EmptyState';
-import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Bullseye } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
-
-import messages from '../../../../../Messages';
+import ServiceCatalogIcon from '@patternfly/react-icons/dist/js/icons/service-catalog-icon';
 
 interface GroupServiceAccountsEmptyStateProps {
-  titleText: string;
-  descriptionText: string;
+  colSpan: number;
   hasActiveFilters: boolean;
-  onClearFilters?: () => void;
-  onAddServiceAccount?: () => void;
-  canAdd?: boolean;
+  title: string;
+  description: string;
 }
 
-export const GroupServiceAccountsEmptyState: React.FC<GroupServiceAccountsEmptyStateProps> = ({
-  titleText,
-  descriptionText,
-  hasActiveFilters,
-  onClearFilters,
-  onAddServiceAccount,
-  canAdd = false,
-}) => {
-  const intl = useIntl();
+export const GroupServiceAccountsEmptyState: React.FC<GroupServiceAccountsEmptyStateProps> = ({ colSpan, hasActiveFilters, title, description }) => {
+  if (hasActiveFilters) {
+    return (
+      <Tbody>
+        <Tr>
+          <Td colSpan={colSpan}>
+            <Bullseye>
+              <EmptyState>
+                <EmptyStateHeader titleText="No service accounts match your search" icon={<EmptyStateIcon icon={SearchIcon} />} headingLevel="h2" />
+                <EmptyStateBody>Try adjusting your search filters to find the service accounts you&apos;re looking for.</EmptyStateBody>
+              </EmptyState>
+            </Bullseye>
+          </Td>
+        </Tr>
+      </Tbody>
+    );
+  }
 
   return (
-    <tr>
-      <td colSpan={4}>
-        <Bullseye>
-          <EmptyState variant={EmptyStateVariant.sm}>
-            <EmptyStateHeader titleText={titleText} icon={<EmptyStateIcon icon={SearchIcon} />} headingLevel="h4" />
-            <EmptyStateBody>{descriptionText}</EmptyStateBody>
-            {(hasActiveFilters || canAdd) && (
-              <EmptyStateFooter>
-                <EmptyStateActions>
-                  {hasActiveFilters && onClearFilters && (
-                    <Button variant="link" onClick={onClearFilters}>
-                      {intl.formatMessage(messages.clearAllFilters)}
-                    </Button>
-                  )}
-                  {canAdd && onAddServiceAccount && (
-                    <Button variant="primary" onClick={onAddServiceAccount}>
-                      {intl.formatMessage(messages.addServiceAccount)}
-                    </Button>
-                  )}
-                </EmptyStateActions>
-              </EmptyStateFooter>
-            )}
-          </EmptyState>
-        </Bullseye>
-      </td>
-    </tr>
+    <Tbody>
+      <Tr>
+        <Td colSpan={colSpan}>
+          <Bullseye>
+            <EmptyState>
+              <EmptyStateHeader titleText={title} icon={<EmptyStateIcon icon={ServiceCatalogIcon} />} headingLevel="h2" />
+              <EmptyStateBody>{description}</EmptyStateBody>
+            </EmptyState>
+          </Bullseye>
+        </Td>
+      </Tr>
+    </Tbody>
   );
 };

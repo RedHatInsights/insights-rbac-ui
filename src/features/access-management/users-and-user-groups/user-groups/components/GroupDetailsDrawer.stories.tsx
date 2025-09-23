@@ -1,7 +1,9 @@
 import React, { useRef, useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
-import { Button, Card, CardBody } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
 
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 

@@ -1,5 +1,12 @@
 import { ContentHeader, ErrorState, SkeletonTableBody, SkeletonTableHead, WarningModal } from '@patternfly/react-component-groups';
-import { Button, ButtonVariant, Divider, EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, PageSection } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import {
   DataView,
   DataViewState,
@@ -10,7 +17,7 @@ import {
   DataViewTrTree,
   useDataViewFilters,
 } from '@patternfly/react-data-view';
-import { SearchIcon } from '@patternfly/react-icons';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
 import { useFlag } from '@unleash/proxy-client-react';

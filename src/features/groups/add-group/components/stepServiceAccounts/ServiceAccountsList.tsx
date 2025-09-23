@@ -1,6 +1,6 @@
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
-import React, { Dispatch, SetStateAction, useCallback, useEffect, useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
@@ -9,23 +9,26 @@ import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataVi
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewTh, DataViewTr } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, Pagination } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { SkeletonTable, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { TableVariant } from '@patternfly/react-table';
-import { SearchIcon } from '@patternfly/react-icons';
-import { LAST_PAGE } from '../../../redux/service-accounts/constants';
-import { ServiceAccount } from '../../../redux/service-accounts/types';
-import { getDateFormat } from '../../../helpers/stringUtilities';
-import messages from '../../../Messages';
-import { fetchServiceAccounts } from '../../../redux/service-accounts/actions';
-import { ServiceAccountsState } from '../../../redux/service-accounts/reducer';
-import { PaginationProps } from '../group/service-account/add-group-service-accounts';
-import { PER_PAGE_OPTIONS } from '../../../helpers/pagination';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
+import { LAST_PAGE } from '../../../../../redux/service-accounts/constants';
+import { ServiceAccount } from '../../../../../redux/service-accounts/types';
+import { getDateFormat } from '../../../../../helpers/stringUtilities';
+import messages from '../../../../../Messages';
+import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
+import { ServiceAccountsState } from '../../../../../redux/service-accounts/reducer';
+import { PaginationProps } from '../../../group/service-account/AddGroupServiceAccounts';
+import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
 import './serviceAccountsList.scss';
 
 interface ServiceAccountsListProps {
-  selected: ServiceAccount[];
-  setSelected: Dispatch<SetStateAction<ServiceAccount[]>>;
+  initialSelectedServiceAccounts: ServiceAccount[];
+  onSelect: (selectedServiceAccounts: ServiceAccount[]) => void;
   groupId?: string;
 }
 
@@ -46,7 +49,7 @@ const EmptyTable: React.FunctionComponent<{ titleText: string; bodyText: string 
   );
 };
 
-export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ selected, setSelected, groupId }) => {
+export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect, groupId }) => {
   const { auth, getEnvironmentDetails } = useChrome();
   const { serviceAccounts, status, limit, offset, isLoading } = useSelector(reducer);
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
@@ -59,26 +62,27 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
 
   const selection = useDataViewSelection({
     matchOption: (a, b) => a.id === b.id,
+    initialSelected: initialSelectedServiceAccounts.map((serviceAccount) => ({ id: serviceAccount.uuid })),
   });
-  const { selected: dataViewSelected, onSelect, isSelected } = selection;
+  const { selected: dataViewSelected, onSelect: dataViewOnSelect, isSelected } = selection;
 
   useEffect(() => {
     const selectedServiceAccounts = serviceAccounts.filter((serviceAccount) =>
       dataViewSelected.some((selected) => selected.id === serviceAccount.uuid),
     );
-    setSelected(selectedServiceAccounts);
-  }, [dataViewSelected, serviceAccounts, setSelected]);
+    onSelect(selectedServiceAccounts);
+  }, [dataViewSelected, serviceAccounts, onSelect]);
 
   useEffect(() => {
     const dataViewItems = serviceAccounts.map((serviceAccount) => ({ id: serviceAccount.uuid }));
-    const selectedItems = dataViewItems.filter((item) => selected.some((serviceAccount) => serviceAccount.uuid === item.id));
+    const selectedItems = dataViewItems.filter((item) => initialSelectedServiceAccounts.some((serviceAccount) => serviceAccount.uuid === item.id));
     if (selectedItems.length !== dataViewSelected.length || !selectedItems.every((item) => dataViewSelected.some((s) => s.id === item.id))) {
-      onSelect(false);
+      dataViewOnSelect(false);
       if (selectedItems.length > 0) {
-        onSelect(true, selectedItems);
+        dataViewOnSelect(true, selectedItems);
       }
     }
-  }, [selected]);
+  }, [initialSelectedServiceAccounts]);
 
   const fetchAccounts = useCallback(
     async (props?: PaginationProps) => {
@@ -133,21 +137,25 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
         timeCreated: <DateFormat date={serviceAccount.createdAt} type={getDateFormat(String(serviceAccount.createdAt))} />,
       }),
       props: {
-        isRowSelected: selected.some((selectedServiceAccount) => selectedServiceAccount.uuid === serviceAccount.uuid),
+        isRowSelected: initialSelectedServiceAccounts.some((selectedServiceAccount) => selectedServiceAccount.uuid === serviceAccount.uuid),
       },
     }));
-  }, [serviceAccounts, selected]);
+  }, [serviceAccounts, initialSelectedServiceAccounts]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
-    const selectableRows = rows.filter((row) => {
-      const serviceAccount = serviceAccounts.find((serviceAccount) => serviceAccount.uuid === (row as any).id);
-      return !serviceAccount?.assignedToSelectedGroup;
-    });
+    const selectableServiceAccounts = serviceAccounts.filter((serviceAccount) => !serviceAccount.assignedToSelectedGroup);
 
-    value === BulkSelectValue.none && onSelect(false);
-    value === BulkSelectValue.all && onSelect(true, selectableRows);
-    value === BulkSelectValue.nonePage && onSelect(false, rows);
-    value === BulkSelectValue.page && onSelect(true, selectableRows);
+    if (value === BulkSelectValue.none) {
+      onSelect([]);
+      dataViewOnSelect(false);
+    } else if (value === BulkSelectValue.all || value === BulkSelectValue.page) {
+      onSelect(selectableServiceAccounts);
+      const dataViewItems = selectableServiceAccounts.map((sa) => ({ id: sa.uuid }));
+      dataViewOnSelect(true, dataViewItems);
+    } else if (value === BulkSelectValue.nonePage) {
+      onSelect([]);
+      dataViewOnSelect(false);
+    }
   };
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);

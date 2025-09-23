@@ -163,6 +163,8 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
       { cell: intl.formatMessage(messages.status) },
       { cell: intl.formatMessage(messages.username) },
       { cell: intl.formatMessage(messages.email) },
+      { cell: intl.formatMessage(messages.lastName) },
+      { cell: intl.formatMessage(messages.firstName) },
     ];
 
     if (isAdmin) {
@@ -217,6 +219,8 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
         </Label>,
         member.username,
         member.email,
+        member.last_name,
+        member.first_name,
       ];
 
       // Actions column with MemberRowActions component

@@ -5,8 +5,15 @@ import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynami
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
-import { ButtonVariant, Drawer, DrawerContent, DrawerContentBody, PageSection, Pagination } from '@patternfly/react-core';
-import { ActionsColumn, TableVariant, ThProps } from '@patternfly/react-table';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { ActionsColumn } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { ThProps } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
 import { removeRole } from '../../redux/roles/actions';
 import { FormattedMessage, useIntl } from 'react-intl';
