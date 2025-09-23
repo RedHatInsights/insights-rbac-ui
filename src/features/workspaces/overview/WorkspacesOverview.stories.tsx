@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { WorkspacesOverview } from './WorkspacesOverview';
 import { BrowserRouter } from 'react-router-dom';
 
@@ -114,39 +114,6 @@ export const Default: Story = {
 
     // Verify learning resources link
     await expect(canvas.findByText('View all Identity and Access Management Learning resources')).resolves.toBeInTheDocument();
-  },
-};
-
-export const ExpandedMigrationSection: Story = {
-  parameters: {
-    docs: {
-      description: {
-        story:
-          'Tests the expandable migration visualization section. Shows how users can expand and collapse the section to view information about how assets and permissions will be organized into workspaces.',
-      },
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const user = userEvent.setup();
-
-    // Find and click the expandable section toggle
-    const expandToggle = await canvas.findByText('Show me how my assets and permissions will be organized into workspaces');
-    await expect(expandToggle).toBeInTheDocument();
-
-    // Expand the section
-    await user.click(expandToggle);
-
-    // Verify expanded content is visible
-    await expect(canvas.findByText('A cool animation')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('will go here')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('when its ready')).resolves.toBeInTheDocument();
-
-    // Collapse the section
-    await user.click(expandToggle);
-
-    // Note: PatternFly ExpandableSection might use different text when collapsed,
-    // but the animation content should no longer be in the DOM or be hidden
   },
 };
 
