@@ -120,8 +120,6 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
         selection={selection}
         enableActions={true} // Enable to show selection checkboxes
         // Data view state - managed locally in modal
-        sortBy={modalSort.sortBy}
-        direction={modalSort.direction}
         onSort={handleSort}
         filters={modalFilters}
         onSetFilters={handleSetFilters}

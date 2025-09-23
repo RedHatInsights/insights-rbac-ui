@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { DataViewState, DataViewTextFilter, DataViewTh, useDataViewSelection } from '@patternfly/react-data-view';
+import { DataViewState, DataViewTextFilter, useDataViewSelection } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
 import { ResponsiveActions } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveActions';
@@ -24,7 +24,6 @@ import {
   SplitItem,
   Switch,
 } from '@patternfly/react-core';
-import { ThProps } from '@patternfly/react-table';
 import { EllipsisVIcon, SearchIcon } from '@patternfly/react-icons';
 import messages from '../../../../../Messages';
 import { User } from '../../../../../redux/users/reducer';
@@ -106,8 +105,6 @@ interface UsersTableProps {
   onRowClick?: (user: User | undefined) => void;
 
   // Data view props - managed by container
-  sortBy?: string;
-  direction?: 'asc' | 'desc';
   onSort: (event: any, key: string, direction: 'asc' | 'desc') => void;
   filters: { username: string; email: string };
   onSetFilters: (filters: Partial<{ username: string; email: string }>) => void;
@@ -146,8 +143,6 @@ export const UsersTable: React.FC<UsersTableProps> = ({
   onDeleteUser,
   onBulkStatusChange,
   onRowClick,
-  sortBy,
-  direction,
   onSort,
   filters,
   onSetFilters,
@@ -161,6 +156,12 @@ export const UsersTable: React.FC<UsersTableProps> = ({
 }) => {
   const intl = useIntl();
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+
+  // Local sorting state - similar to working AccessTable implementation
+  const [sortByState, setSortByState] = useState({
+    index: 0,
+    direction: 'asc' as 'asc' | 'desc',
+  });
 
   // Define columns based on authModel flag
   const columns = useMemo(() => {
@@ -187,23 +188,40 @@ export const UsersTable: React.FC<UsersTableProps> = ({
     }
   }, [authModel, intl]);
 
-  // All data view state is now managed by container - just compute derived values
-  const sortByIndex = useMemo(() => columns.findIndex((column) => column.key === (sortBy || 'username')), [sortBy, columns]);
-
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex,
-      direction: direction || 'asc',
-      defaultDirection: 'asc',
+  // Handle sorting like in working AccessTable implementation
+  const handleSort = useCallback(
+    (_event: any, index: number, direction: 'asc' | 'desc') => {
+      const column = columns[index];
+      if (!column?.key) {
+        return; // Don't sort if column doesn't have a key
+      }
+      setSortByState({ index, direction });
+      // Notify parent component about sort change
+      onSort(_event, column.key, direction);
+      onSetPage(_event, 1); // Reset to first page when sorting
     },
-    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
+    [columns, onSort, onSetPage],
+  );
+
+  const getSortParams = (columnIndex: number) => ({
+    sortBy: {
+      index: sortByState.index,
+      direction: sortByState.direction,
+      defaultDirection: 'asc' as const,
+    },
+    onSort: handleSort,
     columnIndex,
   });
 
-  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
-    cell: column.label,
-    props: column.sort ? { sort: getSortParams(index) } : {},
-  }));
+  // Convert columns to DataView format with sorting
+  const dataViewColumns = useMemo(
+    () =>
+      columns.map((column, index) => ({
+        cell: column.label,
+        props: column.sort ? { sort: getSortParams(index) } : {},
+      })),
+    [columns, sortByState, handleSort],
+  );
 
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect } = selection;
@@ -421,7 +439,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
           variant="compact"
           aria-label="Users Table"
           ouiaId={`${ouiaId}-table`}
-          columns={sortableColumns}
+          columns={dataViewColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
           bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}

@@ -263,8 +263,6 @@ export const Users: React.FC<UsersProps> = ({ usersRef, defaultPerPage = 20, oui
               onBulkStatusChange={() => handleBulkStatusChange(selectedUsers)}
               onRowClick={handleRowClick}
               // Data view props - now managed by container
-              sortBy={sortBy}
-              direction={direction}
               onSort={onSort}
               filters={filters}
               onSetFilters={onSetFilters}

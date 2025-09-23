@@ -341,8 +341,6 @@ export const WorkspaceDetail = () => {
                       perPage={perPage}
                       onSetPage={onSetPage}
                       onPerPageSelect={onPerPageSelect}
-                      sortBy={sortBy}
-                      direction={direction}
                       onSort={onSort}
                       filters={filters}
                       onSetFilters={onSetFilters}
@@ -357,8 +355,6 @@ export const WorkspaceDetail = () => {
                       perPage={parentPerPage}
                       onSetPage={parentOnSetPage}
                       onPerPageSelect={parentOnPerPageSelect}
-                      sortBy={parentSortBy}
-                      direction={parentDirection}
                       onSort={parentOnSort}
                       filters={parentFilters}
                       onSetFilters={parentOnSetFilters}

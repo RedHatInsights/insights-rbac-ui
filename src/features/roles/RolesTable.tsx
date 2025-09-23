@@ -38,7 +38,7 @@ import {
   SkeletonTableHead,
   WarningModal,
 } from '@patternfly/react-component-groups';
-import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
+import { DataViewTextFilter, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import { SearchIcon } from '@patternfly/react-icons';
 import pathnames from '../../utilities/pathnames';
@@ -175,7 +175,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     columnIndex,
   });
 
-  const columns: DataViewTh[] = COLUMNHEADERS.map((column, index) => ({
+  const columns = COLUMNHEADERS.map((column, index) => ({
     cell: column.label,
     props: column.isSortable ? { sort: getSortParams(index) } : {},
   }));
@@ -320,13 +320,13 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
             }
           />
           {isLoading ? (
-            <SkeletonTable rowsCount={10} columns={columns} variant={TableVariant.compact} />
+            <SkeletonTable rowsCount={10} columns={COLUMNHEADERS.map((column) => column.label)} variant={TableVariant.compact} />
           ) : (
             <DataViewTable
-              columns={columns}
+              columns={columns as any}
               rows={rows}
               ouiaId={`${ouiaId}-table`}
-              headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
+              headStates={{ loading: <SkeletonTableHead columns={COLUMNHEADERS.map((column) => column.label)} /> }}
               bodyStates={{
                 loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
                 empty: <EmptyTable titleText={intl.formatMessage(messages.rolesEmptyStateTitle)} />,

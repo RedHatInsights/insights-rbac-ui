@@ -1,7 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useCallback, useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
-import { DataViewState, DataViewTextFilter, DataViewTh } from '@patternfly/react-data-view';
+import { DataViewState, DataViewTextFilter } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
@@ -9,7 +9,6 @@ import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataView
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
 import { EllipsisVIcon, SearchIcon } from '@patternfly/react-icons';
-import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
 
@@ -104,8 +103,6 @@ interface UserGroupsTableProps {
   ouiaId?: string;
 
   // Data view state props - managed by container
-  sortBy?: string;
-  direction?: 'asc' | 'desc';
   onSort: (event: any, key: string, direction: 'asc' | 'desc') => void;
   filters: { name: string };
   onSetFilters: (filters: Partial<{ name: string }>) => void;
@@ -138,8 +135,6 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
   orgAdmin = true,
   isProd = false,
   ouiaId = 'iam-user-groups-table',
-  sortBy,
-  direction,
   onSort,
   filters,
   onSetFilters,
@@ -157,6 +152,12 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
 }) => {
   const intl = useIntl();
 
+  // Local sorting state - similar to working AccessTable implementation
+  const [sortByState, setSortByState] = useState({
+    index: 0,
+    direction: 'asc' as 'asc' | 'desc',
+  });
+
   // Define columns - selection is handled automatically by DataView
   const columns = useMemo(() => {
     const baseColumns = [
@@ -173,34 +174,40 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
     return baseColumns.map((col, index) => ({ ...col, index }));
   }, [intl]);
 
-  // All data view state is now managed by container - just compute derived values
-
-  const sortByIndex = useMemo(() => {
-    const columnIndex = columns.findIndex((column) => column.key === (sortBy || 'name'));
-    return columnIndex;
-  }, [sortBy, columns]);
-
-  const getSortParams = (columnIndex: number): ThProps['sort'] => ({
-    sortBy: {
-      index: sortByIndex,
-      direction: direction || 'asc',
-      defaultDirection: 'asc',
+  // Handle sorting like in working AccessTable implementation
+  const handleSort = useCallback(
+    (_event: any, index: number, direction: 'asc' | 'desc') => {
+      const column = columns[index];
+      if (!column?.key) {
+        return; // Don't sort if column doesn't have a key
+      }
+      setSortByState({ index, direction });
+      // Notify parent component about sort change
+      onSort(_event, column.key, direction);
+      onSetPage(_event, 1); // Reset to first page when sorting
     },
-    onSort: (_event, index, direction) => onSort(_event, columns[index].key, direction),
+    [columns, onSort, onSetPage],
+  );
+
+  const getSortParams = (columnIndex: number) => ({
+    sortBy: {
+      index: sortByState.index,
+      direction: sortByState.direction,
+      defaultDirection: 'asc' as const,
+    },
+    onSort: handleSort,
     columnIndex,
   });
 
-  const sortableColumns: DataViewTh[] = columns.map((column, index) => ({
-    cell: column.label,
-    props: {
-      ...(column.sort ? { sort: getSortParams(index) } : {}),
-      ...((column as any).screenReaderText ? { screenReaderText: (column as any).screenReaderText } : {}),
-    },
-  }));
-
-  // Filtering and pagination state now comes from props (container manages it)
-
-  // Selection is now managed by container - no hooks needed
+  // Convert columns to DataView format with sorting
+  const dataViewColumns = useMemo(
+    () =>
+      columns.map((column, index) => ({
+        cell: column.label,
+        props: column.sort ? { sort: getSortParams(index) } : {},
+      })),
+    [columns, sortByState, handleSort],
+  );
 
   // Transform groups into table rows
   const rows = useMemo(() => {
@@ -295,7 +302,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           variant="compact"
           aria-label="User Groups Table"
           ouiaId={`${ouiaId}-table`}
-          columns={sortableColumns}
+          columns={dataViewColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
           bodyStates={{

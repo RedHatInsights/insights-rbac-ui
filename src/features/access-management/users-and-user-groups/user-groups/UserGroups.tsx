@@ -63,7 +63,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   const { isProd } = useChrome();
 
   // Data view hooks - managing state in container
-  const { sortBy, direction, onSort } = useDataViewSort({
+  const { onSort } = useDataViewSort({
     searchParams,
     setSearchParams,
     initialSort: {
@@ -249,8 +249,6 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               isProd={isProd() || false}
               ouiaId={ouiaId}
               // Data view state - managed by container
-              sortBy={sortBy}
-              direction={direction}
               onSort={onSort}
               filters={filters}
               onSetFilters={onSetFilters}
