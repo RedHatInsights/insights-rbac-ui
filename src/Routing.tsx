@@ -2,7 +2,7 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
-import { mergeToBasename } from './components/navigation/AppLink';
+import { mergeToBasename, useAppLink } from './hooks/useAppLink';
 import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
 import ElementWrapper from './components/ElementWrapper';
 import EditWorkspaceModal from './features/workspaces/EditWorkspaceModal';
@@ -34,18 +34,16 @@ const newEditRole = lazy(() => import('./features/roles/edit-role/edit-role'));
 
 const Groups = lazy(() => import('./features/groups/Groups'));
 const Group = lazy(() => import('./features/groups/group/Group'));
-const AddGroupWizard = lazy(() => import('./features/groups/add-group/AddGroupWizard').then((module) => ({ default: module.AddGroupWizard })));
-const EditGroup = lazy(() => import('./features/groups/EditGroupModal').then((module) => ({ default: module.EditGroupModal })));
-const RemoveGroup = lazy(() => import('./features/groups/RemoveGroupModal').then((module) => ({ default: module.RemoveGroupModal })));
+const AddGroupWizard = lazy(() => import('./features/groups/add-group/AddGroupWizard'));
+const EditGroup = lazy(() => import('./features/groups/EditGroupModal'));
+const RemoveGroup = lazy(() => import('./features/groups/RemoveGroupModal'));
 const GroupMembers = lazy(() => import('./features/groups/group/members/GroupMembers'));
-const GroupRoles = lazy(() => import('./features/groups/group/role/GroupRoles').then((module) => ({ default: module.GroupRoles })));
-const GroupServiceAccounts = lazy(() =>
-  import('./features/groups/group/service-account/GroupServiceAccounts').then((module) => ({ default: module.GroupServiceAccounts })),
-);
-const AddGroupRoles = lazy(() => import('./features/groups/group/role/AddGroupRoles').then((module) => ({ default: module.AddGroupRoles })));
-const AddGroupMembers = lazy(() => import('./features/groups/group/member/AddGroupMembers').then((module) => ({ default: module.AddGroupMembers })));
-const AddGroupServiceAccounts = lazy(() => import('./features/groups/group/service-account/add-group-service-accounts'));
-const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/group/service-account/remove-group-service-accounts'));
+const GroupRoles = lazy(() => import('./features/groups/group/role/GroupRoles'));
+const GroupServiceAccounts = lazy(() => import('./features/groups/group/service-account/GroupServiceAccounts'));
+const AddGroupRoles = lazy(() => import('./features/groups/group/role/AddGroupRoles'));
+const AddGroupMembers = lazy(() => import('./features/groups/group/member/AddGroupMembers'));
+const AddGroupServiceAccounts = lazy(() => import('./features/groups/group/service-account/AddGroupServiceAccounts'));
+const RemoveServiceAccountFromGroup = lazy(() => import('./features/groups/group/service-account/RemoveGroupServiceAccounts'));
 const QuickstartsTest = lazy(() => import('./features/quickstarts/QuickstartsTest'));
 
 const UsersAndUserGroups = lazy(() => import('./features/access-management/users-and-user-groups/UsersAndUserGroups'));
@@ -321,19 +319,21 @@ interface RouteType {
 }
 
 const renderRoutes = (routes: RouteType[] = []) =>
-  routes.map(({ path, element: Element, childRoutes, elementProps }) => (
-    <RouterRoute
-      key={path}
-      path={path}
-      element={
-        <ElementWrapper path={path}>
-          <Element {...elementProps} />
-        </ElementWrapper>
-      }
-    >
-      {renderRoutes(childRoutes)}
-    </RouterRoute>
-  ));
+  routes
+    .filter(Boolean) // Filter out falsy values (false, null, undefined)
+    .map(({ path, element: Element, childRoutes, elementProps }) => (
+      <RouterRoute
+        key={path}
+        path={path}
+        element={
+          <ElementWrapper path={path}>
+            <Element {...elementProps} />
+          </ElementWrapper>
+        }
+      >
+        {renderRoutes(childRoutes)}
+      </RouterRoute>
+    ));
 
 const Routing = () => {
   const location = useLocation();
@@ -345,6 +345,7 @@ const Routing = () => {
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
   const wsList = useFlag('platform.rbac.workspaces-list');
   const hideWorkspaceDetails = wsList && !isWorkspacesFlag;
+  const toAppLink = useAppLink();
 
   useEffect(() => {
     const currPath = Object.values(pathnames).find(
@@ -371,15 +372,13 @@ const Routing = () => {
   });
   const renderedRoutes = useMemo(() => renderRoutes(routes as never), [routes]);
 
-  const { getBundle, getApp } = useChrome();
-  const defaultBasename = `/${getBundle()}/${getApp()}`;
   return (
     <Suspense fallback={<AppPlaceholder />}>
       <QuickstartsTestButtons />
       <RouterRoutes>
         {renderedRoutes}
         {/* Catch all unmatched routes */}
-        <RouterRoute path="*" element={<Navigate to={mergeToBasename(pathnames.users.link, defaultBasename)} />} />
+        <RouterRoute path="*" element={<Navigate to={toAppLink(pathnames.users.link)} />} />
       </RouterRoutes>
     </Suspense>
   );

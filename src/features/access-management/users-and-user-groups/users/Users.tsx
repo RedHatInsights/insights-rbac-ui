@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import { useFlag } from '@unleash/proxy-client-react';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
-import { TabContent } from '@patternfly/react-core';
+import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { changeUsersStatus } from '../../../../redux/users/actions';
 import PermissionsContext from '../../../../utilities/permissionsContext';

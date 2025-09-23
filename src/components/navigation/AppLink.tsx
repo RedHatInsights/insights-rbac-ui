@@ -1,31 +1,19 @@
-import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { LegacyRef } from 'react';
 import { Link, LinkProps, To } from 'react-router-dom';
+import { useAppLink } from '../../hooks/useAppLink';
 
 interface AppLinkProps extends LinkProps {
   linkBasename?: string;
   to: To;
 }
 
-export const mergeToBasename = (to: To, basename = '/iam/user-access') => {
-  if (typeof to === 'string') {
-    // replace possible "//" after basename
-    return `${basename}/${to}`.replaceAll('//', '/');
-  }
-
-  return {
-    ...to,
-    pathname: `${basename}/${to?.pathname}`.replaceAll('//', '/'),
-  };
-};
-
 const AppLink: React.FC<React.PropsWithChildren<AppLinkProps & { className?: string }>> = React.forwardRef(
   (props: React.PropsWithChildren<AppLinkProps>, ref: LegacyRef<HTMLSpanElement>) => {
-    const { getBundle, getApp } = useChrome();
-    const defaultBasename = `/${getBundle()}/${getApp()}`;
+    const toAppLink = useAppLink();
+    const to = toAppLink(props.to, props.linkBasename);
     return (
       <span ref={ref}>
-        <Link {...props} to={mergeToBasename(props.to, props.linkBasename || defaultBasename)} />
+        <Link {...props} to={to} />
       </span>
     );
   },

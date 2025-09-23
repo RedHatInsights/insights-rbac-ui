@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { MemoryRouter } from 'react-router-dom';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
 import { AddUserToGroupModal } from './AddUserToGroupModal';

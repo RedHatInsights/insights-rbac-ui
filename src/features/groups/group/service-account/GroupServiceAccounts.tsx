@@ -1,152 +1,112 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useIntl } from 'react-intl';
-import { Outlet, createSearchParams, useParams } from 'react-router-dom';
-import { Alert, Button } from '@patternfly/react-core';
+import React, { Fragment, Suspense, useCallback, useMemo } from 'react';
+import { Outlet, useParams } from 'react-router-dom';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { defaultSettings } from '../../../../helpers/pagination';
-import { TableToolbarView } from '../../../../components/tables/TableToolbarView';
-import { fetchServiceAccountsForGroup } from '../../../../redux/groups/actions';
-import { getDateFormat } from '../../../../helpers/stringUtilities';
-import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
-import PermissionsContext from '../../../../utilities/permissionsContext';
+
+// DataView imports
+import { DataView, DataViewState } from '@patternfly/react-data-view';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewTextFilter } from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+
+// Component imports
+import { GroupServiceAccountsEmptyState } from './components/GroupServiceAccountsEmptyState';
+import { useGroupServiceAccounts } from './hooks/useGroupServiceAccounts';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { DefaultServiceAccountsCard } from '../../components/DefaultServiceAccountsCard';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
-import type { GroupServiceAccountsProps, ServiceAccount, ServiceAccountFilters } from './types';
-import type { RBACStore } from '../../../../redux/store.d';
+import type { GroupServiceAccountsProps } from './types';
 import './group-service-accounts.scss';
+import { useIntl } from 'react-intl';
 
-interface TableRow {
-  uuid: string;
-  title: string;
-  cells: (string | React.ReactElement)[];
-  selected: boolean;
-}
-
-const createRows = (data: ServiceAccount[] = [], checkedRows: ServiceAccount[] = []): TableRow[] => {
-  if (!data) return [];
-
-  return data.map(({ uuid, name, clientId, time_created: timeCreated }): TableRow => {
-    const ownerItem = data.find((item: ServiceAccount) => item.uuid === uuid);
-    const owner = (ownerItem as Record<string, unknown>)?.owner || '';
-
-    return {
-      uuid,
-      title: name,
-      cells: [
-        name,
-        clientId || '',
-        owner as string,
-        <Fragment key={`${name}-modified`}>
-          {timeCreated ? <DateFormat date={timeCreated} type={getDateFormat(timeCreated.toString())} /> : ''}
-        </Fragment>,
-      ],
-      selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
-    };
-  });
-};
-
-const reducer = ({ groupReducer }: RBACStore) => {
-  const { selectedGroup, systemGroup, groups } = groupReducer;
-  return {
-    serviceAccounts: selectedGroup?.serviceAccounts?.data || [],
-    pagination: { ...defaultSettings, ...(selectedGroup?.serviceAccounts?.meta || {}) },
-    groupsPagination: groups?.pagination || groups?.meta,
-    groupsFilters: groups?.filters,
-    isLoading: selectedGroup?.serviceAccounts?.isLoading || false,
-    isAdminDefault: selectedGroup?.admin_default || false,
-    systemGroupUuid: systemGroup?.uuid,
-    group: selectedGroup,
-    isPlatformDefault: selectedGroup?.platform_default || false,
-  };
-};
-
-export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
+export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();
-  const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
-  const [filterValue, setFilterValue] = useState({ clientId: '', name: '', description: '' });
-  const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>([]);
-  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
-  const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, isPlatformDefault } = useSelector(reducer);
 
-  const fetchGroupAccounts = useCallback(
-    (groupId: string, options: Record<string, unknown>) => dispatch(fetchServiceAccountsForGroup(groupId, options)),
-    [dispatch],
+  // Use custom hook for ALL business logic
+  const {
+    serviceAccounts,
+    isLoading,
+    filters,
+    selection,
+    tableRows,
+    columns,
+    hasActiveFilters,
+    hasPermissions,
+    isAdminDefault,
+    isPlatformDefault,
+    fetchData,
+    emptyStateProps,
+    toolbarButtons,
+    group,
+  } = useGroupServiceAccounts(props);
+
+  // Filter change handler
+  const handleFilterChange = useCallback(
+    (key: string, newValues: Partial<{ clientId: string; name: string; description: string }>) => {
+      const newFilters = { ...filters.filters, ...newValues };
+      filters.onSetFilters(newFilters);
+      fetchData({
+        clientId: newFilters.clientId,
+        name: newFilters.name,
+        description: newFilters.description,
+        offset: 0,
+      });
+    },
+    [filters, fetchData],
   );
 
-  const columns = [
-    { title: intl.formatMessage(messages.name) },
-    { title: intl.formatMessage(messages.clientId) },
-    { title: intl.formatMessage(messages.owner) },
-    { title: intl.formatMessage(messages.timeCreated) },
-  ];
+  // Clear all filters
+  const clearAllFilters = useCallback(() => {
+    const defaultFilters = { clientId: '', name: '', description: '' };
+    filters.onSetFilters(defaultFilters);
+    fetchData({ ...defaultFilters, offset: 0 });
+  }, [filters, fetchData]);
 
-  const fetchData = useCallback(() => {
-    if (groupId !== DEFAULT_ACCESS_GROUP_ID) {
-      fetchGroupAccounts(groupId!, pagination);
-    } else {
-      systemGroupUuid && fetchGroupAccounts(systemGroupUuid, pagination);
+  // Bulk select handler
+  const handleBulkSelect = useCallback(
+    (value: BulkSelectValue) => {
+      if (value === BulkSelectValue.none) {
+        selection.onSelect(false);
+      } else if (value === BulkSelectValue.all || value === BulkSelectValue.page) {
+        selection.onSelect(true, tableRows);
+      } else if (value === BulkSelectValue.nonePage) {
+        selection.onSelect(false, tableRows);
+      }
+    },
+    [selection, tableRows],
+  );
+
+  // Skeleton states
+  const loadingHeader = useMemo(() => <SkeletonTableHead columns={columns.map((col) => col.cell)} />, [columns]);
+
+  const loadingBody = useMemo(() => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />, [columns.length]);
+
+  // Empty state component
+  const emptyState = useMemo(() => <GroupServiceAccountsEmptyState {...emptyStateProps} />, [emptyStateProps]);
+
+  // Bulk select component
+  const bulkSelectComponent = useMemo(() => {
+    if (!hasPermissions || isAdminDefault || isPlatformDefault) {
+      return undefined;
     }
-  }, [systemGroupUuid, groupId, pagination, fetchGroupAccounts]);
 
-  useEffect(() => {
-    fetchData();
-  }, [systemGroupUuid]);
+    const selectedCount = selection.selected?.length || 0;
+    const totalCount = serviceAccounts.length;
 
-  useEffect(() => {
-    hasPermissions.current = orgAdmin || userAccessAdministrator;
-  }, [orgAdmin, userAccessAdministrator]);
+    return (
+      <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
+    );
+  }, [hasPermissions, isAdminDefault, isPlatformDefault, selection.selected?.length, serviceAccounts.length, handleBulkSelect]);
 
-  const actionResolver = ({ uuid }: ServiceAccount) => [
-    ...(hasPermissions.current && !isAdminDefault
-      ? [
-          {
-            title: intl.formatMessage(messages.remove),
-            onClick: () =>
-              navigate({
-                pathname: pathnames['group-service-accounts-remove-group'].link.replace(':groupId', groupId!),
-                search: createSearchParams({ name: uuid }).toString(),
-              }),
-          },
-        ]
-      : []),
-  ];
-
-  const toolbarButtons = () => [
-    <AppLink className="rbac-m-hide-on-sm" to={pathnames['group-add-service-account'].link.replace(':groupId', groupId!)} key="add-to-group">
-      <Button ouiaId="add-service-account-button" variant="primary" className="rbac-m-hide-on-sm" aria-label="Add service account to group">
-        {intl.formatMessage(messages.addServiceAccount)}
-      </Button>
-    </AppLink>,
-    {
-      label: intl.formatMessage(messages.remove),
-      props: {
-        isDisabled: selectedAccounts.length === 0,
-      },
-      onClick: () => {
-        const searchParams = createSearchParams();
-        selectedAccounts.forEach(({ name }) => searchParams.append('name', name));
-        navigate({
-          pathname: pathnames['group-service-accounts-remove-group'].link.replace(':groupId', groupId!),
-          search: searchParams.toString(),
-        });
-      },
-    },
-    {
-      label: intl.formatMessage(messages.addServiceAccount),
-      props: {
-        className: 'rbac-m-hide-on-md',
-      },
-      onClick: () => navigate(pathnames['group-add-service-account'].link.replace(':groupId', groupId!)),
-    },
-  ];
+  // Determine active state
+  const activeState = isLoading ? DataViewState.loading : serviceAccounts.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <React.Fragment>
@@ -168,50 +128,28 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
                 ),
               })}
             />
-            <TableToolbarView
-              columns={columns}
-              isSelectable
-              rows={createRows(serviceAccounts, selectedAccounts)}
-              data={serviceAccounts}
-              filterValue={filterValue as unknown as string | string[]}
-              fetchData={(config: Record<string, unknown>) => fetchGroupAccounts(groupId!, config)}
-              emptyFilters={{ clientId: '', name: '', description: '' }}
-              setFilterValue={({ clientId, name, description }: ServiceAccountFilters) => {
-                setFilterValue({
-                  clientId: typeof clientId === 'undefined' ? filterValue.clientId : clientId,
-                  name: typeof name === 'undefined' ? filterValue.name : name,
-                  description: typeof description === 'undefined' ? filterValue.description : description,
-                });
-              }}
-              isLoading={isLoading}
-              pagination={pagination}
-              checkedRows={selectedAccounts}
-              setCheckedItems={setSelectedAccounts}
-              titlePlural={intl.formatMessage(messages.serviceAccounts).toLowerCase()}
-              titleSingular={intl.formatMessage(messages.serviceAccount)}
-              toolbarButtons={toolbarButtons as () => React.ReactNode[]}
-              actionResolver={actionResolver}
-              emptyProps={{
-                title: intl.formatMessage(messages.noGroupAccounts),
-                description: [intl.formatMessage(isAdminDefault ? messages.contactServiceTeamForAccounts : messages.addAccountsToThisGroup), ''],
-              }}
-              filters={[
-                {
-                  key: 'clientId',
-                  value: filterValue.clientId,
-                  label: intl.formatMessage(messages.clientId),
-                  placeholder: intl.formatMessage(messages.filterByKey, {
-                    key: `${intl.formatMessage(messages.clientId)[0].toLowerCase()}${intl.formatMessage(messages.clientId).slice(1)}`,
-                  }),
-                },
-                { key: 'name', value: filterValue.name },
-                { key: 'description', value: filterValue.description },
-              ]}
-              isFilterable={true}
-              tableId="group-accounts"
-              ouiaId="group-accounts"
-              routes={() => null}
-            />
+            <DataView activeState={activeState} selection={hasPermissions ? selection : undefined}>
+              <DataViewToolbar
+                bulkSelect={bulkSelectComponent}
+                actions={toolbarButtons}
+                filters={
+                  <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
+                    <DataViewTextFilter filterId="clientId" title="Client ID" placeholder="Filter by client ID" />
+                    <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
+                  </DataViewFilters>
+                }
+                clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
+              />
+              <DataViewTable
+                columns={columns}
+                rows={tableRows}
+                headStates={{ loading: loadingHeader }}
+                bodyStates={{
+                  loading: loadingBody,
+                  empty: emptyState,
+                }}
+              />
+            </DataView>
           </>
         )}
       </Section>
@@ -219,12 +157,16 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
         <Suspense>
           <Outlet
             context={{
+              [pathnames['group-service-accounts-edit-group'].path]: {
+                group,
+                cancelRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!),
+                submitRoute: pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!), // Stay on service accounts tab after edit
+              },
               [pathnames['group-service-accounts-remove-group'].path]: {
                 postMethod: (promise: Promise<unknown>) => {
-                  setSelectedAccounts([]);
                   navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
                   if (promise) {
-                    promise.then?.(fetchData);
+                    promise.then?.(() => fetchData());
                   }
                 },
               },
@@ -232,7 +174,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
                 postMethod: (promise: Promise<unknown>) => {
                   navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
                   if (promise) {
-                    promise.then?.(fetchData);
+                    promise.then?.(() => fetchData());
                   }
                 },
               },
@@ -243,3 +185,5 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = () => {
     </React.Fragment>
   );
 };
+
+export default GroupServiceAccounts;

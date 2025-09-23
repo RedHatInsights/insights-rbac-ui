@@ -1,23 +1,22 @@
 import React, { useRef } from 'react';
 import { useIntl } from 'react-intl';
-import {
-  Drawer,
-  DrawerActions,
-  DrawerCloseButton,
-  DrawerContent,
-  DrawerContentBody,
-  DrawerHead,
-  DrawerPanelContent,
-  Icon,
-  Popover,
-  Tab,
-  TabTitleText,
-  Tabs,
-  Text,
-  TextContent,
-  Title,
-} from '@patternfly/react-core';
-import { OutlinedQuestionCircleIcon } from '@patternfly/react-icons';
+import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerActions } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerCloseButton } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerHead } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerPanelContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
+import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
+import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { TabTitleText } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import {} from '@patternfly/react-core';
+import OutlinedQuestionCircleIcon from '@patternfly/react-icons/dist/js/icons/outlined-question-circle-icon';
 import messages from '../../../Messages';
 import { User } from '../../../redux/users/reducer';
 

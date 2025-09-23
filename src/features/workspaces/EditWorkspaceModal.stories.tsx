@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { EditWorkspaceModal } from './EditWorkspaceModal';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 // Mock workspace data
 const mockWorkspace = {

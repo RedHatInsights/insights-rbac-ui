@@ -1,4 +1,4 @@
-import React, { Fragment } from 'react';
+import React, { Fragment, useCallback } from 'react';
 import { Outlet } from 'react-router-dom';
 import SkeletonTable from '@patternfly/react-component-groups/dist/esm/SkeletonTable';
 import { AppTabs } from '../../../components/navigation/AppTabs';
@@ -30,6 +30,9 @@ export const Group: React.FC = () => {
     setShowDefaultGroupChangedInfo,
   } = useGroupState();
 
+  // Memoize callback to prevent infinite re-renders in useGroupNavigation
+  const onDefaultGroupChanged = useCallback((show: boolean) => setShowDefaultGroupChangedInfo(show), []);
+
   // Navigation and context
   const { location, breadcrumbsList, outletContext, navigateBack } = useGroupNavigation({
     groupId,
@@ -37,17 +40,17 @@ export const Group: React.FC = () => {
     group,
     isGroupLoading,
     groupExists,
-    onDefaultGroupChanged: setShowDefaultGroupChangedInfo,
+    onDefaultGroupChanged,
   });
 
-  // Simplified handlers
-  const handleResetWarningHide = () => setResetWarningVisible(false);
-  const handleDefaultGroupChangedHide = () => setShowDefaultGroupChangedInfo(false);
-  const handleResetWarningShow = () => setResetWarningVisible(true);
+  // Memoized handlers to prevent infinite re-renders
+  const handleResetWarningHide = useCallback(() => setResetWarningVisible(false), []);
+  const handleDefaultGroupChangedHide = useCallback(() => setShowDefaultGroupChangedInfo(false), []);
+  const handleResetWarningShow = useCallback(() => setResetWarningVisible(true), []);
 
-  const navigateToGroup = (id: string) => {
+  const navigateToGroup = useCallback((id: string) => {
     window.location.href = pathnames['group-detail-roles'].link.replace(':groupId', id);
-  };
+  }, []);
 
   // Actions and handlers
   const { editUrl, deleteUrl, editLabel, deleteLabel, handleResetConfirm } = useGroupActions({

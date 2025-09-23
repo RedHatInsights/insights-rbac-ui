@@ -16,5 +16,5 @@ export interface ServiceAccountTableRow {
 }
 
 export interface GroupServiceAccountsProps {
-  // Component receives no direct props - all data comes from Redux/Router
+  groupId?: string;
 }

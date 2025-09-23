@@ -25,12 +25,10 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
   isAdmin,
   sortByState,
   selectedRows,
-  selectableItemsCount,
   expanded,
   onExpandedChange,
   onSelectedRowsChange,
   onRemoveGroupsChange,
-  handleBulkSelect,
   handleSort,
   onExpand,
 }) => {
@@ -40,15 +38,7 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
     <Table role="grid" isExpandable aria-label={intl.formatMessage(messages.groups)}>
       <Thead>
         <Tr>
-          {isAdmin && (
-            <Th
-              screenReaderText="Select all rows"
-              select={{
-                onSelect: (_event, isSelecting) => handleBulkSelect(isSelecting ? 'page' : 'none'),
-                isSelected: selectedRows.length > 0 && selectedRows.length === selectableItemsCount,
-              }}
-            />
-          )}
+          {isAdmin && <Th screenReaderText="Row selection" />}
           {/* Name column */}
           <Th
             sort={{
@@ -76,7 +66,7 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
           >
             {intl.formatMessage(messages.lastModified)}
           </Th>
-          <Th screenReaderText="Actions" />
+          <Th screenReaderText="Actions" width={10} style={{ width: '1%' }} />
         </Tr>
       </Thead>
       {data.map((item: Group, rowIndex: number) => {

@@ -32,10 +32,23 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
     ({ groupReducer: { selectedGroup } }) => selectedGroup,
   );
   const [params] = useSearchParams();
-  const selectedServiceAccounts = useSelector<RBACStore, ServiceAccount[]>(({ groupReducer: { selectedGroup } }) =>
-    (selectedGroup?.serviceAccounts?.data || []).filter(({ name }) => params.getAll('name').includes(name)),
-  );
-  const accountsCount = useMemo(() => params.getAll('name').length, [params]);
+
+  // Get UUIDs from URL params - no names needed
+  const selectedServiceAccountUUIDs = useMemo(() => {
+    const uuids = params.getAll('uuid');
+    return uuids;
+  }, [params]);
+
+  const accountsCount = selectedServiceAccountUUIDs.length;
+
+  // For singular case, try to get name from Redux state, fallback to generic name
+  const firstServiceAccountName = useMemo(() => {
+    if (accountsCount === 1 && group.serviceAccounts?.data) {
+      const serviceAccount = group.serviceAccounts.data.find((sa) => sa.uuid === selectedServiceAccountUUIDs[0]);
+      return serviceAccount?.name || 'service account';
+    }
+    return 'service account';
+  }, [accountsCount, selectedServiceAccountUUIDs, group.serviceAccounts]);
   const dispatch = useDispatch();
   const intl = useIntl();
 
@@ -48,10 +61,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
       confirmButtonVariant={ButtonVariant.danger}
       onClose={() => postMethod()}
       onConfirm={() => {
-        const action = removeServiceAccountFromGroup(
-          group.uuid,
-          selectedServiceAccounts.map((serviceAccount) => serviceAccount.clientId),
-        );
+        const action = removeServiceAccountFromGroup(group.uuid, selectedServiceAccountUUIDs);
         dispatch(action);
         postMethod(action.payload);
       }}
@@ -61,7 +71,7 @@ const RemoveServiceAccountFromGroup: React.FunctionComponent<AddGroupServiceAcco
         values={{
           b: (text) => <b>{text}</b>,
           count: accountsCount,
-          name: selectedServiceAccounts[0]?.name,
+          name: firstServiceAccountName,
           group: group.name,
         }}
       />

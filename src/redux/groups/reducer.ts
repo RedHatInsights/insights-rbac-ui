@@ -3,6 +3,7 @@ import { PaginationDefaultI, defaultSettings } from '../../helpers/pagination';
 import { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
 import { BAD_UUID } from '../../helpers/dataUtilities';
 import {
+  ADD_GROUP,
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_ADMIN_GROUP,
   FETCH_GROUP,
@@ -14,7 +15,9 @@ import {
   FETCH_SERVICE_ACCOUNTS_FOR_GROUP,
   FETCH_SYSTEM_GROUP,
   INVALIDATE_SYSTEM_GROUP,
+  REMOVE_GROUPS,
   RESET_SELECTED_GROUP,
+  UPDATE_GROUP,
   UPDATE_GROUPS_FILTERS,
 } from './action-types';
 
@@ -295,7 +298,7 @@ const setAccountsForGroup = (state: GroupStore, { payload }: any) => ({
       ...(!payload.error
         ? {
             ...payload,
-            data: payload.data.map((item: any) => ({ ...item, uuid: item.name, time_created: item.time_created * 1000 })),
+            data: payload.data.map((item: any) => ({ ...item, uuid: item.clientId || item.id, time_created: item.time_created * 1000 })),
           }
         : {}),
     },
@@ -419,6 +422,53 @@ const setGroupError = (state: GroupStore) => ({
   selectedGroup: undefined, // Clear any existing selected group
 });
 
+// ADD_GROUP reducer handlers
+const setAddGroupLoadingState = (state: GroupStore) => ({
+  ...state,
+  isLoading: true,
+  error: undefined,
+});
+
+const addNewGroup = (state: GroupStore, { payload }: any) => ({
+  ...state,
+  groups: {
+    ...state.groups,
+    data: [payload, ...state.groups.data], // Add new group to beginning of list
+    pagination: {
+      ...state.groups.pagination,
+      count: state.groups.pagination.count + 1,
+    },
+  },
+  isLoading: false,
+});
+
+const setAddGroupError = (state: GroupStore, { payload }: any) => ({
+  ...state,
+  isLoading: false,
+  error: payload,
+});
+
+// REMOVE_GROUPS reducer handlers - just handle loading states
+// The actual list refresh is handled by postMethod -> fetchData -> fetchGroups
+const setRemoveGroupsLoadingState = (state: GroupStore) => ({
+  ...state,
+  isLoading: true,
+  error: undefined,
+});
+
+const removeGroupsCompleted = (state: GroupStore) => ({
+  ...state,
+  isLoading: false,
+  error: undefined,
+  // Don't modify the groups list here - postMethod will call fetchGroups to refresh
+});
+
+const setRemoveGroupsError = (state: GroupStore, { payload }: any) => ({
+  ...state,
+  isLoading: false,
+  error: payload,
+});
+
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
@@ -431,6 +481,12 @@ export default {
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
   [`${FETCH_GROUP}_REJECTED`]: setGroupError,
+  [`${ADD_GROUP}_PENDING`]: setAddGroupLoadingState,
+  [`${ADD_GROUP}_FULFILLED`]: addNewGroup,
+  [`${ADD_GROUP}_REJECTED`]: setAddGroupError,
+  [`${REMOVE_GROUPS}_PENDING`]: setRemoveGroupsLoadingState,
+  [`${REMOVE_GROUPS}_FULFILLED`]: removeGroupsCompleted,
+  [`${REMOVE_GROUPS}_REJECTED`]: setRemoveGroupsError,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
   [`${FETCH_ROLES_FOR_GROUP}_REJECTED`]: setRolesForGroupError,
@@ -446,6 +502,9 @@ export default {
   [`${FETCH_MEMBERS_FOR_EXPANDED_GROUP}_FULFILLED`]: setMembersForExpandedGroup,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_PENDING`]: setAddRolesLoading,
   [`${FETCH_ADD_ROLES_FOR_GROUP}_FULFILLED`]: setAddRolesForGroup,
+  [`${UPDATE_GROUP}_PENDING`]: setRecordLoadingState,
+  [`${UPDATE_GROUP}_FULFILLED`]: setGroup,
+  [`${UPDATE_GROUP}_REJECTED`]: setGroupError,
   [RESET_SELECTED_GROUP]: resetSelectedGroup,
   [UPDATE_GROUPS_FILTERS]: setFilters,
 };

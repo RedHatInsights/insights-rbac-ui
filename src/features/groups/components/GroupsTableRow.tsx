@@ -1,17 +1,17 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { EllipsisVIcon } from '@patternfly/react-icons';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { DefaultInfoPopover } from './DefaultInfoPopover';
 import { GroupsRolesTable } from './GroupsRolesTable';
 import { GroupsMembersTable } from './GroupsMembersTable';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import { getDateFormat } from '../../../helpers/stringUtilities';
-import { mergeToBasename } from '../../../components/navigation/AppLink';
+import { useAppLink } from '../../../hooks/useAppLink';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
 import type { Group } from '../types';
@@ -47,6 +47,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
 }) => {
   const intl = useIntl();
   const navigate = useNavigate();
+  const toAppLink = useAppLink();
 
   return (
     <Tbody key={`tbody-${item.uuid}`} isExpanded={isRowExpanded}>
@@ -72,7 +73,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
           ))}
         {/* Name */}
         <Td dataLabel="Name">
-          <span>{item.name}</span>
+          <Link to={toAppLink((pathnames['group-detail-roles'].link as string).replace(':groupId', item.uuid))}>{item.name}</Link>
           {(item.platform_default || item.admin_default) && (
             <DefaultInfoPopover
               id={`default${item.admin_default ? '-admin' : ''}-group-popover`}
@@ -108,7 +109,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
         {/* Modified */}
         <Td dataLabel="Modified">{item.modified ? <DateFormat date={item.modified} type={getDateFormat(item.modified)} /> : ''}</Td>
         {/* Actions */}
-        <Td dataLabel="Actions">
+        <Td dataLabel="Actions" style={{ width: '1%' }}>
           {isAdmin && !(item.platform_default || item.admin_default) ? (
             <Dropdown
               isOpen={expanded[`actions-${item.uuid}`] === true}
@@ -130,7 +131,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                   key="edit"
                   onClick={() => {
                     const editPath = (pathnames['edit-group'].link as string).replace(':groupId', item.uuid);
-                    navigate(mergeToBasename(editPath));
+                    navigate(toAppLink(editPath));
                   }}
                 >
                   {intl.formatMessage(messages.edit)}
@@ -140,7 +141,7 @@ export const GroupsTableRow: React.FC<GroupsTableRowProps> = ({
                   onClick={() => {
                     onRemoveGroupsChange([item]);
                     const removePath = (pathnames['remove-group'].link as string).replace(':groupId', item.uuid);
-                    navigate(mergeToBasename(removePath));
+                    navigate(toAppLink(removePath));
                   }}
                 >
                   {intl.formatMessage(messages.delete)}

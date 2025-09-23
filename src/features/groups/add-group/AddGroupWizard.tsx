@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useMemo, useRef, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -9,11 +9,11 @@ import componentMapper from '@data-driven-forms/pf4-component-mapper/component-m
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { schemaBuilder } from './schema';
 import { addGroup, addServiceAccountsToGroup } from '../../../redux/groups/actions';
-import { SetName } from './SetName';
-import { SetRoles } from './SetRoles';
-import { SetUsers } from './SetUsers';
-import SetServiceAccounts from './SetServiceAccounts';
-import { SummaryContent } from './SummaryContent';
+import { SetName } from './components/stepName/SetName';
+import { SetRoles } from './components/stepRoles/SetRoles';
+import { SetUsers } from './components/stepUsers/SetUsers';
+import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccounts';
+import { SummaryContent } from './components/stepReview/SummaryContent';
 import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import paths from '../../../utilities/pathnames';
@@ -99,10 +99,8 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
     try {
       // Create group with all data in one call
-      console.log('🚀 Starting group creation with data:', groupData);
       const newGroupAction = dispatch(addGroup(groupData)) as { payload: Promise<any> };
       const newGroup = await newGroupAction.payload;
-      console.log('✅ Group created successfully:', newGroup);
 
       // Check if group creation actually succeeded
       if (newGroup?.error) {
@@ -111,11 +109,9 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
       // Handle service accounts separately (if enabled)
       if (serviceAccounts && serviceAccounts.length > 0) {
-        console.log('⚙️ Adding service accounts:', serviceAccounts);
         const serviceAccountObjects = serviceAccounts.map((sa) => ({ uuid: sa }));
         const serviceAccountAction = dispatch(addServiceAccountsToGroup(newGroup.uuid, serviceAccountObjects)) as { payload: Promise<unknown> };
         await serviceAccountAction.payload;
-        console.log('✅ Service accounts added successfully');
       }
 
       // Success! Show notification
@@ -131,7 +127,6 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
       try {
         if (newGroup?.uuid) {
           const pathname = `${paths['group-detail'].link.split('/').slice(0, -1).join('/')}/${newGroup.uuid}`;
-          console.log('🔄 Navigating to:', pathname);
           navigate(pathname);
         } else {
           console.warn('⚠️ No UUID returned, navigating to groups list');
@@ -152,7 +147,6 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
         }),
       );
     } finally {
-      console.log('🏁 Group creation process completed');
     }
   };
 
@@ -163,20 +157,23 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
 
   const schema = schemaBuilder(container.current, enableServiceAccounts, enableRoles);
 
+  const contextValue = useMemo(
+    () => ({
+      ...wizardContextValue,
+      success: false,
+      submitting,
+      submittingGroup: false,
+      submittingServiceAccounts: false,
+      error: wizardError !== undefined ? wizardError : submittingError || undefined,
+      setHideForm: () => {},
+      setWizardSuccess: (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success })),
+      setWizardError,
+    }),
+    [wizardContextValue, wizardError, submitting, submittingError, setWizardError],
+  );
+
   return (
-    <AddGroupWizardContext.Provider
-      value={{
-        ...wizardContextValue,
-        success: false,
-        submitting,
-        submittingGroup: false,
-        submittingServiceAccounts: false,
-        error: wizardError !== undefined ? wizardError : submittingError || undefined,
-        setHideForm: () => {},
-        setWizardSuccess: (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success })),
-        setWizardError,
-      }}
-    >
+    <AddGroupWizardContext.Provider value={contextValue}>
       <div ref={container}>
         {cancelWarningVisible && (
           <WarningModal
@@ -201,3 +198,5 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     </AddGroupWizardContext.Provider>
   );
 };
+
+export default AddGroupWizard;

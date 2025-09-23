@@ -1,5 +1,6 @@
 import React, { Fragment } from 'react';
-import { Split, SplitItem } from '@patternfly/react-core';
+import { Split } from '@patternfly/react-core';
+import { SplitItem } from '@patternfly/react-core';
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import { PageTitle } from '../../../../components/layout/PageLayout';
 import { AppLink } from '../../../../components/navigation/AppLink';

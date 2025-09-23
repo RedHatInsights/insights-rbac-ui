@@ -1,7 +1,9 @@
 import React, { useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { ButtonVariant, Text, TextContent } from '@patternfly/react-core';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { fetchGroup, removeGroups } from '../../redux/groups/actions';
 import { FormItemLoader } from '../../components/ui-states/LoaderPlaceholders';
@@ -10,8 +12,8 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 interface RemoveGroupModalProps {
   postMethod: (groupIds: string[], config: { limit?: number }) => Promise<unknown>;
   pagination?: { limit?: number };
-  cancelRoute: string;
-  submitRoute?: string;
+  cancelRoute: string | { pathname: string; search: string };
+  submitRoute?: string | { pathname: string; search: string };
 }
 
 export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, pagination, cancelRoute, submitRoute = cancelRoute }) => {
@@ -33,13 +35,49 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
     groupsToRemove.length === 1 && (dispatch(fetchGroup(groupsToRemove[0])) as unknown);
   }, []);
 
-  const onSubmit = () => {
-    (dispatch(removeGroups(groupsToRemove)) as any)
-      .then(() => postMethod(groupsToRemove, { limit: pagination?.limit }))
-      .then(() => navigate(submitRoute));
+  const onSubmit = async () => {
+    try {
+      // Remove groups and wait for completion
+      await dispatch(removeGroups(groupsToRemove));
+
+      // Call postMethod to refresh data
+      await postMethod(groupsToRemove, { limit: pagination?.limit });
+
+      // Navigate back to the route
+      console.log('🔍 Navigating to submitRoute:', submitRoute);
+      if (submitRoute) {
+        navigate(submitRoute);
+      } else {
+        console.warn('⚠️ submitRoute is undefined, falling back to cancelRoute');
+        navigate(cancelRoute);
+      }
+    } catch (error) {
+      console.error('Failed to remove groups:', error);
+      // Still navigate back even if refresh fails
+      try {
+        if (submitRoute) {
+          navigate(submitRoute);
+        } else {
+          navigate(cancelRoute);
+        }
+      } catch (navError) {
+        console.error('Navigation error:', navError);
+        // Last resort - navigate to groups list
+        navigate('/groups');
+      }
+    }
   };
 
-  const onCancel = () => navigate(cancelRoute);
+  const onCancel = () => {
+    try {
+      console.log('🔍 Navigating to cancelRoute:', cancelRoute);
+      navigate(cancelRoute);
+    } catch (navError) {
+      console.error('Cancel navigation error:', navError);
+      // Last resort - navigate to groups list
+      navigate('/groups');
+    }
+  };
 
   if (isLoading) {
     return (
@@ -80,3 +118,5 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
     </WarningModal>
   );
 };
+
+export default RemoveGroupModal;

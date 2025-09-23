@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';

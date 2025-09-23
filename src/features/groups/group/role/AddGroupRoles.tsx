@@ -1,13 +1,18 @@
-import React, { useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { Alert, Button, Modal, ModalVariant, Stack, StackItem } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import { useLocation, useParams } from 'react-router-dom';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
+import { addRolesToGroup as addRolesToGroupAction, fetchGroup, fetchRolesForGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { RolesList } from '../../add-group/RolesList';
+import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import messages from '../../../../Messages';
 import type { RBACStore } from '../../../../redux/store.d';
@@ -29,11 +34,10 @@ interface Group {
 interface AddGroupRolesProps {
   afterSubmit?: () => void;
   fetchUuid?: string;
-  selectedRoles?: Role[];
-  setSelectedRoles?: (roles: Role[]) => void;
+  initialSelectedRoles?: Role[];
+  onSelectedRolesChange?: (roles: Role[]) => void;
   title?: string;
   closeUrl?: string;
-  addRolesToGroup?: (groupId: string, roles: Role[]) => void;
   groupName?: string;
   isDefault?: boolean;
   isChanged?: boolean;
@@ -43,11 +47,10 @@ interface AddGroupRolesProps {
 export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
   afterSubmit,
   fetchUuid,
-  selectedRoles,
-  setSelectedRoles,
+  initialSelectedRoles,
+  onSelectedRolesChange,
   title,
   closeUrl,
-  addRolesToGroup,
   groupName: name,
   isDefault,
   isChanged,
@@ -61,13 +64,16 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
   const groupId = isDefault && fetchUuid ? fetchUuid : uuid;
   const navigate = useAppNavigate();
   const [showConfirmModal, setShowConfirmModal] = useState(false);
+
+  // Internal state for selected roles
+  const [selectedRoles, setSelectedRoles] = useState<Role[]>(initialSelectedRoles || []);
   const { groupName, isRecordLoading } = useSelector(({ groupReducer }: RBACStore) => {
     const { selectedGroup, isRecordLoading } = groupReducer;
     return {
       groupName: name || state?.name || selectedGroup?.name,
       isRecordLoading,
     };
-  });
+  }, shallowEqual);
 
   useEffect(() => {
     if (!name) {
@@ -75,8 +81,18 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
     }
   }, []);
 
+  // Handle role selection changes
+  const handleRoleSelection = useCallback(
+    (roles: Role[]) => {
+      setSelectedRoles(roles);
+      onSelectedRolesChange?.(roles);
+    },
+    [onSelectedRolesChange],
+  );
+
   const onCancel = () => {
-    setSelectedRoles && setSelectedRoles([]);
+    setSelectedRoles([]);
+    onSelectedRolesChange?.([]);
     dispatch(
       addNotification({
         variant: 'warning',
@@ -84,10 +100,10 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
         description: 'Adding roles to group has been cancelled.',
       }),
     );
-    navigate(closeUrl || '/groups');
+    navigate(closeUrl || `/groups/detail/${groupId}/roles`);
   };
 
-  const onSubmit = () => {
+  const onSubmit = async () => {
     if (!selectedRoles || selectedRoles.length === 0) {
       return;
     }
@@ -97,37 +113,45 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
       return;
     }
 
-    if (addRolesToGroup) {
-      addRolesToGroup(groupId!, selectedRoles);
+    try {
+      // Dispatch the addRolesToGroup action with role UUIDs
+      const roleUuids = selectedRoles.map((role) => role.uuid);
+      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
+
+      // Refresh the group roles data to show the newly added roles
+      dispatch(fetchRolesForGroup(groupId!, {}));
+
+      afterSubmit && afterSubmit();
+      navigate(closeUrl || `/groups/detail/${groupId}/roles`);
+    } catch (error) {
+      console.error('Failed to add roles to group:', error);
     }
-
-    dispatch(
-      addNotification({
-        variant: 'success',
-        title: intl.formatMessage(messages.addRoles),
-        description: 'Roles have been successfully added to the group.',
-      }),
-    );
-
-    afterSubmit && afterSubmit();
-    navigate(closeUrl || `/groups/detail/${groupId}/roles`);
   };
 
-  const handleConfirm = () => {
+  const handleConfirm = async () => {
     setShowConfirmModal(false);
-    if (addRolesToGroup) {
-      addRolesToGroup(groupId!, selectedRoles!);
+
+    try {
+      // Dispatch the addRolesToGroup action with role UUIDs
+      const roleUuids = selectedRoles!.map((role) => role.uuid);
+      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
+
+      // Refresh the group roles data to show the newly added roles
+      dispatch(fetchRolesForGroup(groupId!, {}));
+
+      dispatch(invalidateSystemGroup());
+      onDefaultGroupChanged && groupName && onDefaultGroupChanged({ uuid: groupId!, name: groupName });
+      afterSubmit && afterSubmit();
+      navigate(closeUrl || `/groups/detail/${groupId}/roles`);
+    } catch (error) {
+      console.error('Failed to add roles to group:', error);
     }
-    dispatch(invalidateSystemGroup());
-    onDefaultGroupChanged && groupName && onDefaultGroupChanged({ uuid: groupId!, name: groupName });
-    afterSubmit && afterSubmit();
-    navigate(closeUrl || `/groups/detail/${groupId}/roles`);
   };
 
   return (
     <>
       <Modal
-        title={title || intl.formatMessage(messages.addRoles)}
+        title={title || (groupName ? intl.formatMessage(messages.addRolesToGroup, { name: groupName }) : intl.formatMessage(messages.addRoles))}
         variant={ModalVariant.large}
         isOpen
         onClose={onCancel}
@@ -151,7 +175,7 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
                 <Alert variant="info" isInline title="Select roles to add to this group" />
               </StackItem>
               <StackItem isFilled>
-                <RolesList selectedRoles={selectedRoles || []} setSelectedRoles={setSelectedRoles || (() => {})} rolesExcluded={true} />
+                <RolesList initialSelectedRoles={selectedRoles || []} onSelect={handleRoleSelection} rolesExcluded={true} />
               </StackItem>
             </>
           )}
@@ -162,3 +186,5 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
     </>
   );
 };
+
+export default AddGroupRoles;

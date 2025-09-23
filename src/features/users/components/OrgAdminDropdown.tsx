@@ -1,4 +1,8 @@
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';

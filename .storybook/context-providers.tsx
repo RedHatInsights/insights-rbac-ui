@@ -248,6 +248,12 @@ export const useChrome = () => {
     appNavClick: chromeAppNavClickSpy,
     appObjectId: () => undefined,
     appAction: () => undefined,
+    updateDocumentTitle: (title: string) => {
+      // Mock document title update for Storybook
+      if (typeof document !== 'undefined') {
+        document.title = title;
+      }
+    },
     auth: chromeConfig.auth || { 
       getUser: () => Promise.resolve({ username: 'test-user', email: 'test@redhat.com' }), 
       getToken: () => Promise.resolve('mock-jwt-token-12345') 

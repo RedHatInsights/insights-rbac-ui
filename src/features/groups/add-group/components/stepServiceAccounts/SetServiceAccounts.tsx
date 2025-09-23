@@ -1,11 +1,16 @@
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Alert, Form, FormGroup, Stack, StackItem, TextContent } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
-import { ServiceAccount } from '../../../redux/service-accounts/types';
-import messages from '../../../Messages';
-import { AppLink } from '../../../components/navigation/AppLink';
+import { ServiceAccount } from '../../../../../redux/service-accounts/types';
+import messages from '../../../../../Messages';
+import { AppLink } from '../../../../../components/navigation/AppLink';
 import ServiceAccountsList from './ServiceAccountsList';
 
 interface SetServiceAccountProps {
@@ -13,15 +18,10 @@ interface SetServiceAccountProps {
 }
 
 const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ name }) => {
-  const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>([]);
-
   const { input } = useFieldApi({ name });
   const intl = useIntl();
   const formOptions = useFormApi();
-
-  useEffect(() => {
-    setSelectedAccounts(formOptions.getState().values['service-accounts-list'] || []);
-  }, []);
+  const [selectedAccounts, setSelectedAccounts] = useState<ServiceAccount[]>(formOptions.getState().values['service-accounts-list'] || []);
 
   useEffect(() => {
     input.onChange(selectedAccounts);
@@ -53,7 +53,7 @@ const SetServiceAccounts: React.FunctionComponent<SetServiceAccountProps> = ({ n
           </StackItem>
           <StackItem>
             <FormGroup fieldId="select-service-accounts">
-              <ServiceAccountsList selected={selectedAccounts} setSelected={setSelectedAccounts} />
+              <ServiceAccountsList initialSelectedServiceAccounts={selectedAccounts} onSelect={setSelectedAccounts} />
             </FormGroup>
           </StackItem>
         </Stack>

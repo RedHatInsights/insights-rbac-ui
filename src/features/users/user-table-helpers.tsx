@@ -4,9 +4,10 @@ import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { AppLink } from '../../components/navigation/AppLink';
 import OrgAdminDropdown from './OrgAdminDropdown';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
+import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { ActivateToggle } from './components/ActivateToggle';
-import { Label } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 export interface UserProps {
   isSelected: boolean;
   email: string;

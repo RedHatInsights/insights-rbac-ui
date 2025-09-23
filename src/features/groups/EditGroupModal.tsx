@@ -1,8 +1,7 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { Skeleton } from '@patternfly/react-core';
-import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
+import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import componentTypes from '@data-driven-forms/react-form-renderer/component-types';
 import validatorTypes from '@data-driven-forms/react-form-renderer/validator-types';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
@@ -20,14 +19,13 @@ interface Group {
 }
 
 interface EditGroupModalProps {
-  postMethod: (config?: Record<string, unknown>) => Promise<unknown>;
-  cancelRoute: string;
-  submitRoute?: string;
+  cancelRoute?: string | { pathname: string; search: string };
+  submitRoute?: string | { pathname: string; search: string };
   group?: Group;
-  onClose: () => void;
+  onClose?: () => void; // Optional - used in stories, not in routing
 }
 
-export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
+export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, submitRoute = cancelRoute, group, onClose }) => {
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
   const dispatch = useDispatch();
@@ -50,28 +48,25 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
       description: formData.description,
     };
 
+    console.log('🚀 Submitting group update:', userData);
+
     try {
-      // Use standard dispatch pattern - let redux-promise-middleware handle the promise
+      // Use standard dispatch pattern - redux-promise-middleware handles notifications automatically
       await dispatch(updateGroup(userData));
 
-      dispatch(
-        addNotification({
-          variant: 'success',
-          title: 'Group updated successfully',
-          description: `Group "${formData.name}" has been updated.`,
-        }),
-      );
+      // Refresh the group data after successful update
+      if (selectedGroup?.uuid) {
+        dispatch(fetchGroup(selectedGroup.uuid));
+      }
 
-      postMethod && postMethod();
-      navigate(submitRoute);
-    } catch {
-      dispatch(
-        addNotification({
-          variant: 'danger',
-          title: 'Error updating group',
-          description: `There was an error updating the group "${formData.name}".`,
-        }),
-      );
+      // Navigate to submitRoute or cancelRoute as fallback
+      const route = submitRoute || cancelRoute || '/groups';
+      console.log('🔍 Navigating after successful update to:', route);
+      navigate(route);
+    } catch (error) {
+      // Error notifications are handled automatically by redux-promise-middleware
+      console.error('Error updating group:', error);
+      // Don't navigate on error - let user retry or manually cancel
     }
   };
 
@@ -93,7 +88,8 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
             pattern: /^[A-Za-z0-9]+[A-Za-z0-9\s_-]*$/,
             message: 'Group name must start with alphanumeric character and can contain alphanumeric characters, spaces, hyphens, and underscores',
           },
-          debouncedAsyncValidator,
+          // Pass current group UUID to validator to exclude it from "already taken" check
+          (value: string) => debouncedAsyncValidator(value, 'uuid', selectedGroup?.uuid),
         ],
       },
       {
@@ -108,8 +104,14 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
   };
 
   const onCancel = () => {
-    onClose();
-    navigate(cancelRoute);
+    // Call onClose if provided (for stories/tests), otherwise just navigate
+    if (onClose) {
+      onClose();
+    } else {
+      // Navigate to cancelRoute (used in routing scenarios)
+      const route = cancelRoute || '/groups';
+      navigate(route);
+    }
   };
 
   // Show loading while data loads (like AddGroupRoles story pattern)
@@ -149,3 +151,5 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ postMethod, canc
     />
   );
 };
+
+export default EditGroupModal;

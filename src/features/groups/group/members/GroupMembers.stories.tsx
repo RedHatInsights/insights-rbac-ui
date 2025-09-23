@@ -632,6 +632,17 @@ export const BulkSelection: Story = {
     individualCheckboxes.forEach((checkbox) => {
       expect(checkbox).toBeChecked();
     });
+
+    // TEST DESELECT: Click bulk select again to deselect all
+    await userEvent.click(bulkSelectCheckbox);
+
+    // Verify bulk select is now unchecked
+    expect(bulkSelectCheckbox).not.toBeChecked();
+
+    // Verify individual row checkboxes are also unchecked
+    individualCheckboxes.forEach((checkbox) => {
+      expect(checkbox).not.toBeChecked();
+    });
   },
 };
 

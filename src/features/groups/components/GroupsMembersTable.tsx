@@ -4,7 +4,8 @@ import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react
 import { SkeletonTableBody } from '@patternfly/react-component-groups';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
+import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import messages from '../../../Messages';
 import type { Group } from '../types';
 

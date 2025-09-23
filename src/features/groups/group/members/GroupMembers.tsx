@@ -241,7 +241,7 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
             [pathnames['group-members-edit-group'].path]: {
               group,
               cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-              postMethod: () => group && dispatch(fetchGroup(group.uuid)),
+              submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId), // Stay on members tab after edit
             },
             [pathnames['group-members-remove-group'].path]: {
               postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),

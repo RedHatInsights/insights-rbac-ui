@@ -1,5 +1,9 @@
 import React from 'react';
-import { Grid, GridItem, Stack, StackItem, Title } from '@patternfly/react-core';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { BundleCard, type Entitlements } from './BundleCard';
 import './UserAccessLayout.scss';
 

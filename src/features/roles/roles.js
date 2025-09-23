@@ -2,8 +2,13 @@ import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
-import { Button, Stack, StackItem } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
+import { nowrap } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import { isSmallScreen, useScreenSize } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -23,7 +28,8 @@ import {
 } from '../../helpers/pagination';
 import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
 import RoleRowWrapper from './role-row-wrapper';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
@@ -40,6 +46,7 @@ const Roles = () => {
   const location = useLocation();
   const screenSize = useScreenSize();
   const chrome = useChrome();
+  const toAppLink = useAppLink();
 
   const { roles, filters, pagination, isLoading, adminGroup } = useSelector(
     ({
@@ -115,13 +122,13 @@ const Roles = () => {
       : [
           {
             title: intl.formatMessage(messages.edit),
-            onClick: (_event, _rowId, role) => navigate(mergeToBasename(paths['edit-role'].link.replace(':roleId', role.uuid))),
+            onClick: (_event, _rowId, role) => navigate(toAppLink(paths['edit-role'].link.replace(':roleId', role.uuid))),
           },
           {
             title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, role) => {
               setRemoveRolesList([role]);
-              navigate(mergeToBasename(paths['remove-role'].link.replace(':roleId', role.uuid)));
+              navigate(toAppLink(paths['remove-role'].link.replace(':roleId', role.uuid)));
             },
           },
         ];
@@ -138,7 +145,7 @@ const Roles = () => {
             ? [
                 {
                   label: intl.formatMessage(messages.createRole),
-                  onClick: () => navigate(mergeToBasename(paths['add-role'].link)),
+                  onClick: () => navigate(toAppLink(paths['add-role'].link)),
                 },
               ]
             : []),
@@ -147,7 +154,7 @@ const Roles = () => {
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
-            onClick: () => navigate(mergeToBasename(paths['edit-role'].link.replace(':roleId', selectedRows[0].uuid))),
+            onClick: () => navigate(toAppLink(paths['edit-role'].link.replace(':roleId', selectedRows[0].uuid))),
           },
           {
             label: intl.formatMessage(messages.delete),
@@ -157,7 +164,7 @@ const Roles = () => {
             onClick: () => {
               setRemoveRolesList(selectedRows);
               navigate(
-                mergeToBasename(
+                toAppLink(
                   paths['remove-role'].link.replace(
                     ':roleId',
                     selectedRows.map(({ uuid }) => uuid),

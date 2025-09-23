@@ -1,244 +1,139 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useIntl } from 'react-intl';
+import React, { Fragment, Suspense, useCallback, useMemo } from 'react';
+import { useDispatch } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
-import { Button, Tooltip } from '@patternfly/react-core';
 import Section from '@redhat-cloud-services/frontend-components/Section';
-import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { defaultSettings } from '../../../../helpers/pagination';
-import { TableToolbarView } from '../../../../components/tables/TableToolbarView';
-import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../redux/groups/actions';
+
+// DataView imports
+import { DataView, DataViewState } from '@patternfly/react-data-view';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewTextFilter } from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+
+// Component imports
+import { GroupRolesEmptyState } from './components/GroupRolesEmptyState';
+import { useGroupRoles } from './hooks/useGroupRoles';
+import { fetchAddRolesForGroup } from '../../../../redux/groups/actions';
 import { getBackRoute } from '../../../../helpers/navigation';
-import { getDateFormat } from '../../../../helpers/stringUtilities';
-import PermissionsContext from '../../../../utilities/permissionsContext';
-import { AppLink } from '../../../../components/navigation/AppLink';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
-import { DEFAULT_ACCESS_GROUP_ID } from '../../../../utilities/constants';
-import messages from '../../../../Messages';
 import pathnames from '../../../../utilities/pathnames';
 import type { GroupRolesProps } from './types';
-import type { RoleWithAccess as Role } from '@redhat-cloud-services/rbac-client/types';
-import type { RBACStore } from '../../../../redux/store.d';
 import './group-roles.scss';
 
-interface TableRow {
-  uuid: string;
-  title: string;
-  cells: (string | React.ReactElement)[];
-  selected: boolean;
-}
-
-const createRows = (groupId: string, roles: Role[], checkedRows: Role[] = []): TableRow[] =>
-  roles?.reduce<TableRow[]>(
-    (acc, { uuid, display_name, name, description, modified }) => [
-      ...acc,
-      {
-        uuid,
-        title: display_name || name,
-        cells: [
-          <Fragment key={`${uuid}-name`}>
-            <AppLink to={pathnames['group-detail-role-detail'].link.replace(':groupId', groupId).replace(':roleId', uuid)}>
-              {display_name || name}
-            </AppLink>
-          </Fragment>,
-          description || '',
-          <Fragment key={`${uuid}-modified`}>
-            <DateFormat date={modified} type={getDateFormat(modified)} />
-          </Fragment>,
-        ],
-        selected: Boolean(checkedRows && checkedRows.find((row) => row.uuid === uuid)),
-      },
-    ],
-    [],
-  ) || [];
-
-const generateOuiaID = (name: string) => {
-  // given a group name, generate an OUIA ID for the 'Add role' button
-  return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
-};
-
-const addRoleButton = (isDisabled: boolean, ouiaId: string, customTooltipText?: string) => {
-  const intl = useIntl();
-  const addRoleButtonContent = (
-    <Button ouiaId={ouiaId} variant="primary" className="rbac-m-hide-on-sm" aria-label="Add role" isAriaDisabled={isDisabled}>
-      {intl.formatMessage(messages.addRole)}
-    </Button>
-  );
-
-  return isDisabled ? (
-    <Tooltip content={customTooltipText || intl.formatMessage(messages.allRolesAdded)}>{addRoleButtonContent}</Tooltip>
-  ) : (
-    addRoleButtonContent
-  );
-};
-
-const reducer = ({ groupReducer }: RBACStore) => {
-  const { selectedGroup, systemGroup, groups } = groupReducer;
-  return {
-    roles: selectedGroup?.roles?.data || [],
-    pagination: { ...defaultSettings, ...((selectedGroup?.roles as any)?.meta || {}) },
-    groupsPagination: groups?.pagination || groups?.meta,
-    groupsFilters: groups?.filters,
-    isLoading: selectedGroup?.roles?.isLoading || false,
-    isPlatformDefault: selectedGroup?.platform_default || false,
-    isAdminDefault: selectedGroup?.admin_default || false,
-    isChanged: !selectedGroup?.system,
-    disableAddRoles:
-      /**
-       * First validate if the pagination object exists and is not empty.
-       * If empty or undefined, the disable condition will be always true
-       */
-      Object.keys(selectedGroup?.addRoles?.pagination || {}).length > 0
-        ? !(selectedGroup?.addRoles?.pagination && (selectedGroup?.addRoles?.pagination?.count || 0) > 0) || !!selectedGroup?.admin_default
-        : !!selectedGroup?.admin_default,
-    systemGroupUuid: systemGroup?.uuid,
-    group: selectedGroup,
-  };
-};
-
-export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged }) => {
-  const intl = useIntl();
+export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const { groupId } = useParams<{ groupId: string }>();
-  const [filterValue, setFilterValue] = useState('');
-  const [selectedRoles, setSelectedRoles] = useState<Role[]>([]);
-  const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
-  const hasPermissions = useRef(orgAdmin || userAccessAdministrator);
-  const { roles, pagination, isLoading, isPlatformDefault, isChanged, disableAddRoles, systemGroupUuid, group } = useSelector(reducer);
 
-  const columns = [
-    { title: intl.formatMessage(messages.name), transforms: [] },
-    { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.lastModified) },
-  ];
+  // Use custom hook for ALL business logic
+  const {
+    roles,
+    isLoading,
+    filters,
+    selection,
+    tableRows,
+    columns,
+    hasActiveFilters,
+    hasPermissions,
+    isPlatformDefault,
+    isAdminDefault,
+    pagination,
+    fetchData,
+    emptyStateProps,
+    toolbarButtons,
+    group,
+  } = useGroupRoles(props);
 
-  const fetchGroupRoles = useCallback(
-    (groupId: string, options: Record<string, unknown>) => dispatch(fetchRolesForGroup(groupId, options)),
-    [dispatch],
+  // Filter change handler
+  const handleFilterChange = useCallback(
+    (key: string, newValues: Partial<{ name: string }>) => {
+      const newFilters = { ...filters.filters, ...newValues };
+      filters.onSetFilters(newFilters);
+      fetchData({ name: newFilters.name, offset: 0 });
+    },
+    [filters, fetchData],
   );
 
-  const fetchData = useCallback(
-    (apiProps: Record<string, unknown> = {}) => {
-      const actualGroupId = groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid;
-      if (actualGroupId) {
-        fetchGroupRoles(actualGroupId, {
-          limit: 50,
-          offset: 0,
-          orderBy: 'display_name',
-          ...pagination,
-          ...apiProps,
-        });
+  // Clear all filters
+  const clearAllFilters = useCallback(() => {
+    filters.onSetFilters({ name: '' });
+    fetchData({ offset: 0 });
+  }, [filters, fetchData]);
+
+  // Bulk select handler
+  const handleBulkSelect = useCallback(
+    (value: BulkSelectValue) => {
+      if (value === BulkSelectValue.none) {
+        selection.onSelect(false);
+      } else if (value === BulkSelectValue.page) {
+        // Use tableRows for bulk selection - this matches individual selection format
+        selection.onSelect(true, tableRows);
+      } else if (value === BulkSelectValue.nonePage) {
+        selection.onSelect(false);
       }
     },
-    [fetchGroupRoles, groupId, pagination, systemGroupUuid],
+    [selection, tableRows],
   );
 
-  useEffect(() => {
-    fetchData();
-  }, [systemGroupUuid]);
+  // Skeleton states
+  const loadingHeader = useMemo(() => <SkeletonTableHead columns={columns.map((col) => col.cell)} />, [columns]);
 
-  useEffect(() => {
-    hasPermissions.current = orgAdmin || userAccessAdministrator;
-  }, [orgAdmin, userAccessAdministrator]);
+  const loadingBody = useMemo(() => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />, [columns.length]);
 
-  useEffect(() => {
-    if (isChanged && onDefaultGroupChanged && group) {
-      onDefaultGroupChanged({ uuid: group.uuid, name: group.name });
-    }
-  }, [isChanged, group, onDefaultGroupChanged]);
+  // Empty state component
+  const emptyState = useMemo(() => <GroupRolesEmptyState {...emptyStateProps} />, [emptyStateProps]);
 
-  const actionResolver = ({ uuid }: Role) => [
-    ...(hasPermissions.current && isPlatformDefault
-      ? []
-      : [
-          {
-            title: intl.formatMessage(messages.remove),
-            onClick: () =>
-              navigate({
-                pathname: pathnames['group-remove-role'].link.replace(':groupId', groupId!).replace(':roleId', uuid),
-                search: `?pagination=${pagination?.limit || defaultSettings.limit}-${pagination?.offset || defaultSettings.offset}`,
-              }),
-          },
-        ]),
-  ];
-
-  const toolbarButtons = () => {
-    const buttons: (React.ReactElement | { label: string; props: Record<string, unknown>; onClick: () => void })[] = [];
-
-    if (hasPermissions.current && !isPlatformDefault) {
-      buttons.push(
-        <AppLink className="rbac-m-hide-on-sm" to={pathnames['group-add-roles'].link.replace(':groupId', groupId!)} key="add-to-group">
-          {addRoleButton(disableAddRoles, generateOuiaID(group?.name || ''))}
-        </AppLink>,
-      );
-
-      if (selectedRoles.length > 0) {
-        buttons.push({
-          label: intl.formatMessage(messages.remove),
-          props: {
-            isDisabled: false,
-          },
-          onClick: () => {
-            const roleIds = selectedRoles.map(({ uuid }) => uuid);
-            dispatch(removeRolesFromGroup(groupId!, roleIds));
-            setSelectedRoles([]);
-            fetchData();
-          },
-        });
-      }
-
-      buttons.push({
-        label: intl.formatMessage(messages.addRole),
-        props: {
-          className: 'rbac-m-hide-on-md',
-          isDisabled: disableAddRoles,
-        },
-        onClick: () => navigate(pathnames['group-add-roles'].link.replace(':groupId', groupId!)),
-      });
+  // Bulk select component
+  const bulkSelectComponent = useMemo(() => {
+    if (!hasPermissions || isAdminDefault) {
+      return undefined;
     }
 
-    return buttons;
-  };
+    const selectedCount = selection.selected?.length || 0;
+    const totalCount = roles.length;
+
+    return (
+      <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
+    );
+  }, [hasPermissions, isAdminDefault, selection.selected?.length, roles.length, handleBulkSelect]);
+
+  // Toolbar actions - use the buttons directly from the hook
+  const toolbarActions = useMemo(() => {
+    if (!hasPermissions || isAdminDefault) {
+      return undefined;
+    }
+    return toolbarButtons;
+  }, [hasPermissions, isAdminDefault, toolbarButtons]);
+
+  // Determine active state
+  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <Fragment>
       <Section type="content" id="tab-roles">
-        <TableToolbarView
-          columns={columns}
-          isSelectable={hasPermissions.current && !isPlatformDefault}
-          rows={createRows(groupId!, roles, selectedRoles)}
-          data={roles}
-          filterValue={filterValue as unknown as string | string[]}
-          fetchData={(config: Record<string, unknown>) => fetchData(config)}
-          setFilterValue={setFilterValue}
-          isLoading={isLoading}
-          pagination={pagination}
-          checkedRows={selectedRoles}
-          setCheckedItems={setSelectedRoles}
-          titlePlural={intl.formatMessage(messages.roles).toLowerCase()}
-          titleSingular={intl.formatMessage(messages.role)}
-          toolbarButtons={toolbarButtons as () => React.ReactNode[]}
-          actionResolver={actionResolver}
-          emptyProps={{
-            title: intl.formatMessage(messages.noGroupRoles),
-            description: [intl.formatMessage(isPlatformDefault ? messages.contactServiceTeamForRoles : messages.addRoleToThisGroup), ''],
-          }}
-          isFilterable
-          tableId="group-roles"
-          ouiaId="group-roles"
-          routes={() => null}
-          filters={[
-            {
-              key: 'name',
-              value: filterValue,
-              label: intl.formatMessage(messages.name),
-              placeholder: intl.formatMessage(messages.filterByKey, {
-                key: intl.formatMessage(messages.name).toLowerCase(),
-              }),
-            },
-          ]}
-        />
+        <DataView activeState={activeState} selection={hasPermissions && !isAdminDefault ? selection : undefined}>
+          <DataViewToolbar
+            bulkSelect={bulkSelectComponent}
+            filters={
+              <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
+                <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
+              </DataViewFilters>
+            }
+            clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
+            actions={toolbarActions}
+          />
+          <DataViewTable
+            columns={columns}
+            rows={tableRows}
+            headStates={{ loading: loadingHeader }}
+            bodyStates={{
+              loading: loadingBody,
+              empty: emptyState,
+            }}
+          />
+        </DataView>
       </Section>
 
       {!isPlatformDefault ? (
@@ -256,7 +151,12 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
                   }
                 },
               },
-              [pathnames['group-remove-role'].path]: {
+              [pathnames['group-roles-edit-group'].path]: {
+                group,
+                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
+                submitRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!), // Stay on roles tab after edit
+              },
+              [pathnames['group-roles-remove-group'].path]: {
                 postMethod: (promise: Promise<unknown>) => {
                   const backRoute = getBackRoute(pathnames['group-detail-roles'].link.replace(':groupId', groupId!), pagination, {});
                   navigate(backRoute);
@@ -267,6 +167,10 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
                     });
                   }
                 },
+                // Add cancelRoute so cancel button takes user back to group roles tab
+                cancelRoute: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
+                // Add submitRoute for consistent navigation after successful removal
+                submitRoute: getBackRoute(pathnames.groups.link, { ...pagination, offset: 0 }, {}),
               },
             }}
           />
@@ -275,3 +179,5 @@ export const GroupRoles: React.FC<GroupRolesProps> = ({ onDefaultGroupChanged })
     </Fragment>
   );
 };
+
+export default GroupRoles;

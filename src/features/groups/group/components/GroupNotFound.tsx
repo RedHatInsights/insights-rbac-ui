@@ -1,6 +1,6 @@
 import React, { Fragment } from 'react';
 import { useIntl } from 'react-intl';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { EmptyWithAction } from '../../../../components/ui-states/EmptyState';
 import { RbacBreadcrumbs } from '../../../../components/navigation/Breadcrumbs';
 import messages from '../../../../Messages';

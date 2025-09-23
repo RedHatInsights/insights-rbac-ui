@@ -1,6 +1,8 @@
 import { useMemo } from 'react';
 import { useIntl } from 'react-intl';
-import { compoundExpand, nowrap, sortable } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
+import { nowrap } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
 import messages from '../../Messages';
 
 /**

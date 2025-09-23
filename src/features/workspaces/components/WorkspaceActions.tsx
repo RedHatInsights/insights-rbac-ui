@@ -1,17 +1,16 @@
 import React, { Suspense, useState } from 'react';
-import {
-  ButtonVariant,
-  Divider,
-  DrilldownMenu,
-  Menu,
-  MenuContainer,
-  MenuContent,
-  MenuItem,
-  MenuItemAction,
-  MenuList,
-  MenuToggle,
-} from '@patternfly/react-core';
-import { ExternalLinkAltIcon } from '@patternfly/react-icons';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { DrilldownMenu } from '@patternfly/react-core';
+import { Menu } from '@patternfly/react-core';
+import { MenuContainer } from '@patternfly/react-core';
+import { MenuContent } from '@patternfly/react-core';
+import { MenuItem } from '@patternfly/react-core';
+import { MenuItemAction } from '@patternfly/react-core';
+import { MenuList } from '@patternfly/react-core';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import {} from '@patternfly/react-core';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { WarningModal } from '@patternfly/react-component-groups';
@@ -19,7 +18,7 @@ import { Workspace } from '../../../redux/workspaces/reducer';
 import { Outlet } from 'react-router-dom';
 import pathnames from '../../../utilities/pathnames';
 import paths from '../../../utilities/pathnames';
-import { mergeToBasename } from '../../../components/navigation/AppLink';
+import { useAppLink } from '../../../hooks/useAppLink';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 
 enum ActionType {
@@ -50,6 +49,7 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
 
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const toAppLink = useAppLink();
 
   const toggle = (
     <MenuToggle ref={toggleRef} onClick={() => setIsOpen(!isOpen)} isExpanded={isOpen} isDisabled={isDisabled} variant="default">
@@ -227,10 +227,10 @@ export const WorkspaceActions: React.FC<WorkspaceActionsProps> = ({ isDisabled =
           context={{
             [pathnames['edit-workspace'].path]: {
               afterSubmit: () => {
-                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+                navigate(toAppLink(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
               },
               onCancel: () => {
-                navigate(mergeToBasename(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
+                navigate(toAppLink(paths['workspace-detail'].link.replace(':workspaceId', currentWorkspace.id ?? '')));
               },
             },
           }}
