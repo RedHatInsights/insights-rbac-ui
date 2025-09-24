@@ -15,19 +15,46 @@ export interface Workspace extends WorkspaceCreateBody {
   parent_id: string;
 }
 
-export interface RoleBindingsSubject {
-  id?: string;
-  type: string;
+export interface RoleBindingsUser {
+  username: string;
 }
-export interface RoleBindingsResource {
+
+export interface RoleBindingsGroup {
+  name: string;
+  description?: string;
+  user_count?: number;
+}
+
+export interface RoleBindingsSubject {
+  id: string;
+  type: 'user' | 'group';
+  user?: RoleBindingsUser;
+  group?: RoleBindingsGroup;
+}
+
+export interface RoleBindingsProject {
+  name: string;
+  description?: string;
+}
+
+export interface RoleBindingsWorkspace {
+  name: string;
   type: string;
+  description?: string;
+}
+
+export interface RoleBindingsResource {
+  id: string;
+  type: 'project' | 'workspace';
+  project?: RoleBindingsProject;
+  workspace?: RoleBindingsWorkspace;
 }
 
 export interface RoleBindingBySubject {
-  last_modified?: string;
-  subject?: RoleBindingsSubject;
-  roles?: RoleBindingsRole[];
-  resource?: RoleBindingsResource;
+  last_modified: string;
+  subject: RoleBindingsSubject;
+  roles: RoleBindingsRole[];
+  resource: RoleBindingsResource;
 }
 export interface WorkspacesStore {
   isLoading: boolean;
