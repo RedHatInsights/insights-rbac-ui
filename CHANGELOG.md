@@ -1,3 +1,10 @@
+# [1.56.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.55.0...v1.56.0) (2025-09-24)
+
+
+### Features
+
+* **dev-proxy:** use dev proxy when running start ([#1923](https://github.com/RedHatInsights/insights-rbac-ui/issues/1923)) ([19fedeb](https://github.com/RedHatInsights/insights-rbac-ui/commit/19fedeb8954a0d674f6636ded7ed6c7ce211234d))
+
 # [1.55.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.54.0...v1.55.0) (2025-09-23)
 
 
