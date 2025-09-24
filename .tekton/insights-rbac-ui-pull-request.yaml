@@ -9,7 +9,7 @@ metadata:
     pipelinesascode.tekton.dev/max-keep-runs: "3"
     pipelinesascode.tekton.dev/on-cel-expression: event == "pull_request" && target_branch
       == "master"
-    pipelinesascode.tekton.dev/pipeline: https://github.com/RedHatInsights/konflux-pipelines/raw/main/pipelines/platform-ui/docker-build-run-unit-tests.yaml
+    pipelinesascode.tekton.dev/pipeline: https://raw.githubusercontent.com/karelhala/konflux-pipelines/b1fb409f6f2537307559f435723b9c86dd3c46b6/pipelines/platform-ui/docker-build-run-unit-e2e-tests.yaml
   creationTimestamp: null
   labels:
     appstudio.openshift.io/application: insights-rbac-ui
@@ -41,6 +41,20 @@ spec:
     value: "8Gi"
   - name: unit-tests-memory-limit
     value: "8Gi"
+  - name: e2e-script
+    value: |
+      #!/usr/bin/env bash
+      set -ex
+      npm install
+      npm run start &
+      until curl -k 'https://stage.foo.redhat.com:1337' > /dev/null 2>&1; do
+        echo "Waiting for dev server to be ready"
+        sleep 5
+      done
+      echo "Dev server ready!"
+      NO_COLOR=1 E2E_USER=$CHROME_ACCOUNT E2E_PASSWORD=$CHROME_PASSWORD E2E_WORKSPACES_USER=$RBAC_USER E2E_WORKSPACES_PASSWORD=$RBAC_PASSWORD npm run cypress
+  - name: secrets
+    value: e2e-secrets
   pipelineRef:
     name: docker-build
   taskRunTemplate:

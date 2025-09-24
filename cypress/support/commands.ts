@@ -39,6 +39,7 @@
 Cypress.Commands.add('login', (enableWorkspaces = false) => {
   const usernameVariable = enableWorkspaces ? 'E2E_WORKSPACES_USER' : 'E2E_USER';
   const passwordVariable = enableWorkspaces ? 'E2E_WORKSPACES_PASSWORD' : 'E2E_PASSWORD';
+  console.log(usernameVariable, 'user has been passed!');
   cy.session(
     `login-${Cypress.env(usernameVariable)}`,
     () => {
