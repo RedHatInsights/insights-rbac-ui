@@ -154,9 +154,9 @@ For testing specific scenarios, see these additional stories:
           const principalType = url.searchParams.get('principal_type');
           const limit = url.searchParams.get('limit');
 
-          // Service accounts component calls with principal_type=user AND limit=1000
+          // Service accounts component calls with principal_type=service-account AND limit=1000
           // Regular users component calls with principal_type=user but different limit
-          if (principalType === 'user' && limit === '1000') {
+          if (principalType === 'service-account') {
             // This is the service accounts component calling
             return HttpResponse.json({
               data: [
@@ -438,7 +438,7 @@ For testing specific scenarios, see these additional stories:
 
       // Users tab should be active by default and show data
       await expect(usersTab).toBeInTheDocument();
-      await expect(drawer.findByText('rbac-service-account')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('jane.smith')).resolves.toBeInTheDocument();
 
       // Click Service Accounts tab
       await userEvent.click(serviceAccountsTab);
@@ -540,8 +540,8 @@ export const GroupFocusInteraction: StoryObj<typeof meta> = {
           const principalType = url.searchParams.get('principal_type');
           const limit = url.searchParams.get('limit');
 
-          // Service accounts component calls with principal_type=user AND limit=1000
-          // Regular users component calls with principal_type=user but different limit
+          // Service accounts component calls with principal_type=user
+          // Regular users component calls with principal_type=user
           if (principalType === 'user' && limit === '1000') {
             // This is the service accounts component calling
             return HttpResponse.json({
