@@ -53,6 +53,7 @@ interface GroupDetailsDrawerProps {
   ouiaId?: string;
   children: React.ReactNode;
   showInheritance?: boolean; // New prop to control inheritance column display
+  currentWorkspace?: { id: string; name: string }; // Current workspace info for navigation context
 }
 
 export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
@@ -62,6 +63,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   ouiaId = 'group-details-drawer',
   children,
   showInheritance = false,
+  currentWorkspace,
 }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -212,9 +214,33 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         // Use the group's inheritance info since roles inherit from the same workspace
         const groupWithInheritance = group as GroupWithInheritance;
         const inheritanceCell = groupWithInheritance?.inheritedFrom ? (
-          <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+          <button
+            className="pf-v5-c-button pf-m-link pf-m-inline"
+            onClick={(event) => {
+              // Prevent row click from opening drawer
+              event.stopPropagation();
+
+              const searchParams = new URLSearchParams();
+
+              // Add child workspace parameters for navigation context
+              if (currentWorkspace?.id && currentWorkspace?.name) {
+                searchParams.set('fromChildId', currentWorkspace.id);
+                searchParams.set('fromChildName', currentWorkspace.name);
+              }
+
+              // Only preserve essential navigation parameters, not drawer/table state
+              searchParams.set('activeTab', 'roles');
+              searchParams.set('roleAssignmentTab', 'roles-assigned-in-workspace');
+
+              const paramString = searchParams.toString();
+              const fullUrl = `/iam/access-management/workspaces/detail/${groupWithInheritance.inheritedFrom!.workspaceId}${paramString ? '?' + paramString : ''}`;
+
+              // Use replace instead of navigate to avoid preserving current page state
+              window.location.href = fullUrl;
+            }}
+          >
             {groupWithInheritance.inheritedFrom.workspaceName}
-          </a>
+          </button>
         ) : (
           <div className="pf-v5-u-color-400">-</div>
         );

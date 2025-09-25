@@ -43,6 +43,9 @@ interface RoleAssignmentsTableProps {
 
   // UI configuration props
   ouiaId?: string;
+
+  // Current workspace info for navigation context
+  currentWorkspace?: { id: string; name: string };
 }
 
 export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
@@ -60,6 +63,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   onSetFilters,
   clearAllFilters,
   ouiaId = 'iam-role-assignments-table',
+  currentWorkspace,
 }) => {
   const intl = useIntl();
 
@@ -144,9 +148,33 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       // Add inheritance column if this group has inheritance data
       if (isGroupWithInheritance(group)) {
         const inheritanceCell = group.inheritedFrom ? (
-          <a href={`#/workspaces/${group.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+          <button
+            className="pf-v5-c-button pf-m-link pf-m-inline"
+            onClick={(event) => {
+              // Prevent row click from opening drawer
+              event.stopPropagation();
+
+              const searchParams = new URLSearchParams();
+
+              // Add child workspace parameters for navigation context
+              if (currentWorkspace?.id && currentWorkspace?.name) {
+                searchParams.set('fromChildId', currentWorkspace.id);
+                searchParams.set('fromChildName', currentWorkspace.name);
+              }
+
+              // Only preserve essential navigation parameters, not drawer/table state
+              searchParams.set('activeTab', 'roles');
+              searchParams.set('roleAssignmentTab', 'roles-assigned-in-workspace');
+
+              const paramString = searchParams.toString();
+              const fullUrl = `/iam/access-management/workspaces/detail/${group.inheritedFrom!.workspaceId}${paramString ? '?' + paramString : ''}`;
+
+              // Use replace instead of navigate to avoid preserving current page state
+              window.location.href = fullUrl;
+            }}
+          >
             {group.inheritedFrom.workspaceName}
-          </a>
+          </button>
         ) : (
           <div className="pf-v5-u-color-400">-</div>
         );
@@ -175,7 +203,14 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
   return (
-    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={hasInheritanceData}>
+    <GroupDetailsDrawer
+      isOpen={!!focusedGroup}
+      group={focusedGroup}
+      onClose={onCloseDrawer}
+      ouiaId={ouiaId}
+      showInheritance={hasInheritanceData}
+      currentWorkspace={currentWorkspace}
+    >
       <DataView activeState={activeState} selection={selection}>
         <DataViewToolbar
           bulkSelect={
