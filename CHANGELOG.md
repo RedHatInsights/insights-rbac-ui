@@ -1,3 +1,10 @@
+## [1.56.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.0...v1.56.1) (2025-09-25)
+
+
+### Bug Fixes
+
+* **disable-users:** use user ID instead of user UUID ([#1927](https://github.com/RedHatInsights/insights-rbac-ui/issues/1927)) ([afefa4c](https://github.com/RedHatInsights/insights-rbac-ui/commit/afefa4c3b2d91382f25b294ca25f77172c48c185))
+
 # [1.56.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.55.0...v1.56.0) (2025-09-24)
 
 
