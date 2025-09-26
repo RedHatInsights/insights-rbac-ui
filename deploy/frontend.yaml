@@ -21,6 +21,13 @@ objects:
           - /apps/rbac
       image: ${IMAGE}:${IMAGE_TAG}
       feoConfigEnabled: true
+      searchEntries:
+        - id: rbac-org-admin
+          title: Org Admins
+          href: /iam/user-access/users
+          description: Manage your organization's administrator users.
+          alt_title:
+            - org administrator
       serviceTiles:
         - section: iam
           group: iam
