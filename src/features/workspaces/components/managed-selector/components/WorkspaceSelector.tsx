@@ -3,7 +3,9 @@ import { MenuContainer } from '@patternfly/react-core/dist/dynamic/components/Me
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Panel, PanelFooter, PanelHeader, PanelMain, PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import { Flex, FlexItem, SearchInput } from '@patternfly/react-core';
+import { Flex } from '@patternfly/react-core';
+import { FlexItem } from '@patternfly/react-core';
+import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
 import * as React from 'react';
 import './WorkspaceSelector.scss';
 

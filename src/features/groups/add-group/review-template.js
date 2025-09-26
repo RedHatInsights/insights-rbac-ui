@@ -2,19 +2,18 @@ import React, { useContext, useEffect } from 'react';
 import { useIntl } from 'react-intl';
 import PropTypes from 'prop-types';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import {
-  Bullseye,
-  Button,
-  ButtonVariant,
-  EmptyState,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  EmptyStateVariant,
-  Progress,
-  Spinner,
-  Title,
-} from '@patternfly/react-core';
-import { InProgressIcon } from '@patternfly/react-icons';
+import { Bullseye } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateVariant } from '@patternfly/react-core';
+import { Progress } from '@patternfly/react-core/dist/dynamic/components/Progress';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import {} from '@patternfly/react-core';
+import InProgressIcon from '@patternfly/react-icons/dist/js/icons/in-progress-icon';
 import { asyncValidator } from '../validators';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import { WizardError } from '../../../components/ui-states/WizardError';
@@ -30,7 +29,8 @@ const ReviewTemplate = ({ formFields }) => {
   const { getState } = useFormApi();
   useEffect(() => {
     setWizardError(undefined);
-    asyncValidator(getState().values['group-name'])
+    const groupName = getState().values['group-name'];
+    asyncValidator(groupName, 'uuid')
       .then(() => setWizardError(false))
       .catch(() => setWizardError(true));
   }, []);

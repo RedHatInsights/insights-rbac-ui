@@ -1,5 +1,13 @@
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Button, FormGroup, FormSelect, FormSelectOption, Grid, GridItem, MenuToggle, Skeleton, Text } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormSelect } from '@patternfly/react-core/dist/dynamic/components/FormSelect';
+import { FormSelectOption } from '@patternfly/react-core/dist/dynamic/components/FormSelect';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
 import { useFlag } from '@unleash/proxy-client-react';
 import React, { useEffect } from 'react';

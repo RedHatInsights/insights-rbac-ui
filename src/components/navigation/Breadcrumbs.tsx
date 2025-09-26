@@ -1,6 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Breadcrumb, BreadcrumbItem } from '@patternfly/react-core';
+import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
 import { BreadcrumbPlaceholder } from '../ui-states/LoaderPlaceholders';
 
 interface BreadcrumbItemProps {

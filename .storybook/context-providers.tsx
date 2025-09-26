@@ -1,4 +1,5 @@
 import React, { createContext, useContext, ReactNode, useMemo } from 'react';
+import { fn } from 'storybook/test';
 
 // Types
 export interface ChromeConfig {
@@ -40,6 +41,9 @@ const PermissionsContext = createContext<PermissionsConfig>({
 export const PermissionsProvider: React.FC<{ value: PermissionsConfig; children: ReactNode }> = ({ value, children }) => (
   <PermissionsContext.Provider value={value}>{children}</PermissionsContext.Provider>
 );
+
+// Chrome spy for testing - IS the spy function
+export const chromeAppNavClickSpy = fn();
 
 // Mock Hook Implementations (only for Storybook)
 export const useChrome = () => {
@@ -241,9 +245,15 @@ export const useChrome = () => {
     }),
     isProd: () => chromeConfig.environment === 'prod',
     isBeta: () => chromeConfig.environment !== 'prod',
-    appNavClick: () => undefined,
+    appNavClick: chromeAppNavClickSpy,
     appObjectId: () => undefined,
     appAction: () => undefined,
+    updateDocumentTitle: (title: string) => {
+      // Mock document title update for Storybook
+      if (typeof document !== 'undefined') {
+        document.title = title;
+      }
+    },
     auth: chromeConfig.auth || { 
       getUser: () => Promise.resolve({ username: 'test-user', email: 'test@redhat.com' }), 
       getToken: () => Promise.resolve('mock-jwt-token-12345') 

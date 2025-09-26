@@ -7,21 +7,20 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination, Tooltip } from '@patternfly/react-core';
-import { EllipsisVIcon, SearchIcon } from '@patternfly/react-icons';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { Dropdown, DropdownItem, DropdownList, MenuToggle, MenuToggleElement } from '@patternfly/react-core';
+import { UserGroupsEmptyState } from './UserGroupsEmptyState';
+import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 
 import { Group } from '../../../../../redux/groups/reducer';
 import messages from '../../../../../Messages';
-
-const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <EmptyState>
-    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-    <EmptyStateBody>No user groups match the filter criteria. Remove all filters or clear all to show results.</EmptyStateBody>
-  </EmptyState>
-);
 
 // User group row actions component
 interface GroupRowActionsProps {
@@ -300,7 +299,7 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
           headStates={{ loading: loadingHeader }}
           bodyStates={{
             loading: loadingBody,
-            empty: <EmptyTable titleText={intl.formatMessage(messages.userGroupsEmptyStateTitle)} />,
+            empty: <UserGroupsEmptyState colSpan={6} />,
           }}
         />
         <DataViewToolbar

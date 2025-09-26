@@ -1,15 +1,24 @@
 import React, { Fragment, ReactNode } from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { Table, TableVariant, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { TableVariant } from '@patternfly/react-table';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import TableToolbar from '@redhat-cloud-services/frontend-components/TableToolbar';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
-import { Button, EmptyStateActions, Pagination } from '@patternfly/react-core';
-import { PlusCircleIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import PlusCircleIcon from '@patternfly/react-icons/dist/js/icons/plus-circle-icon';
 import { Toolbar, paginationBuilder } from './Toolbar';
 import { EmptyWithAction } from '../ui-states/EmptyState';
 import './TableToolbarView.scss';
-import { ISortBy, OnSort } from '@patternfly/react-table';
+import { ISortBy } from '@patternfly/react-table';
+import { OnSort } from '@patternfly/react-table';
 import { CellObject, CellType, SelectCell } from '../../features/users/user-table-helpers';
 
 interface FilterProps {

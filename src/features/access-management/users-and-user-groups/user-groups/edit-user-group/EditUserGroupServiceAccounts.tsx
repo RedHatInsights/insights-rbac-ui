@@ -1,7 +1,11 @@
 import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Pagination } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
-import { SearchIcon } from '@patternfly/react-icons';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

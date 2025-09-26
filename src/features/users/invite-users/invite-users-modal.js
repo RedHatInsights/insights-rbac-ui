@@ -1,7 +1,14 @@
 import React, { Fragment, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
-import { Button, Checkbox, ExpandableSection, Form, FormGroup, Modal, ModalVariant, TextArea } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
+import { ExpandableSection } from '@patternfly/react-core/dist/dynamic/components/ExpandableSection';
+import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
 import { useDispatch } from 'react-redux';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
@@ -9,12 +16,13 @@ import messages from '../../../Messages';
 import { addUsers } from '../../../redux/users/actions';
 import PropTypes from 'prop-types';
 import paths from '../../../utilities/pathnames';
-import { mergeToBasename } from '../../../components/navigation/AppLink';
+import { useAppLink } from '../../../hooks/useAppLink';
 
 const InviteUsersModal = ({ fetchData }) => {
   const dispatch = useDispatch();
   const intl = useIntl();
   const navigate = useNavigate();
+  const toAppLink = useAppLink();
 
   const [isCheckboxLabelExpanded, setIsCheckboxLabelExpanded] = useState(false);
   const [areNewUsersAdmins, setAreNewUsersAdmins] = useState(false);
@@ -27,7 +35,7 @@ const InviteUsersModal = ({ fetchData }) => {
     dispatch(addUsers(newUsersData))
       .then(() => {
         fetchData();
-        navigate(mergeToBasename(paths.users.link));
+        navigate(toAppLink(paths.users.link));
       })
       .catch((err) => {
         console.error(err);
@@ -59,7 +67,7 @@ const InviteUsersModal = ({ fetchData }) => {
         description: intl.formatMessage(messages.inviteUsersCancelled),
       }),
     );
-    navigate(mergeToBasename(paths.users.link));
+    navigate(toAppLink(paths.users.link));
   };
 
   useEffect(() => {

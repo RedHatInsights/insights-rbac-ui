@@ -1,5 +1,7 @@
 import omit from 'lodash/omit';
 import { PaginationDefaultI, defaultSettings } from '../../helpers/pagination';
+import { RoleWithAccess } from '@redhat-cloud-services/rbac-client/types';
+import { BAD_UUID } from '../../helpers/dataUtilities';
 import {
   FETCH_ADD_ROLES_FOR_GROUP,
   FETCH_ADMIN_GROUP,
@@ -16,7 +18,83 @@ import {
   UPDATE_GROUPS_FILTERS,
 } from './action-types';
 
-export interface Group {
+// Filter interfaces
+export interface GroupFilters {
+  name?: string;
+  [key: string]: string | number | boolean | undefined;
+}
+
+// Error interfaces
+export interface ApiError {
+  errors?: Array<{
+    detail?: string;
+    status?: string;
+    source?: string;
+  }>;
+}
+
+// Service Account interface
+export interface ServiceAccount {
+  uuid: string;
+  name: string;
+  description?: string;
+  clientId?: string;
+  time_created?: number;
+  [key: string]: unknown;
+}
+
+// Core data interfaces used by Redux
+
+// Member interface - core data type used by Redux
+export interface Member {
+  username: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  is_active: boolean;
+}
+
+// GroupState interface - base group data structure
+export interface GroupState {
+  uuid: string;
+  name: string;
+  description?: string;
+  platform_default: boolean;
+  system: boolean;
+  admin_default: boolean;
+}
+
+// Group interface - extended group data for UI
+export interface Group extends GroupState {
+  principalCount?: number | string;
+  roleCount?: number;
+  policyCount?: number;
+  created?: string;
+  modified?: string;
+  roles?: any[];
+  members?: any[];
+  isLoadingRoles?: boolean;
+  isLoadingMembers?: boolean;
+}
+
+// Group reducer state interface
+export interface GroupReducerState {
+  selectedGroup?: GroupState;
+  isRecordLoading: boolean;
+  isLoading: boolean;
+  groups: {
+    data?: Group[];
+    pagination?: any;
+    meta?: any;
+    filters?: any;
+  };
+  error?: string;
+  adminGroup?: Group;
+  systemGroup?: Group;
+}
+
+// Backwards compatibility
+export interface LegacyGroup {
   uuid: string;
   name: string;
   description?: string;
@@ -27,24 +105,47 @@ export interface Group {
   admin_default?: boolean;
   platform_default?: boolean;
   system?: boolean;
+  // Extended properties for expanded groups
+  isLoadingRoles?: boolean;
+  isLoadingMembers?: boolean;
+  roles?: RoleWithAccess[];
+  members?: Member[];
 }
 
-export interface GroupStore {
+export interface GroupStore extends Record<string, unknown> {
   groups: {
     data: Group[];
-    meta: any;
-    filters: any;
+    meta: PaginationDefaultI;
+    filters: GroupFilters;
     pagination: { count: number };
-    error?: any;
+    error?: ApiError;
   };
-  selectedGroup: Group & {
-    addRoles: any;
-    members: { meta: PaginationDefaultI; data?: any[] };
-    serviceAccounts: { meta: PaginationDefaultI; data?: any[] };
+  selectedGroup?: Group & {
+    addRoles: {
+      loaded: boolean;
+      roles?: RoleWithAccess[];
+      pagination?: PaginationDefaultI;
+    };
+    members: {
+      meta: PaginationDefaultI;
+      data?: Member[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
+    serviceAccounts: {
+      meta: PaginationDefaultI;
+      data?: ServiceAccount[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
     pagination: PaginationDefaultI;
-    roles?: { data: any[]; isLoading: boolean };
+    roles?: {
+      data: RoleWithAccess[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
     loaded?: boolean;
-    error?: any;
+    error?: ApiError;
   };
   isLoading: boolean;
   isRecordLoading: boolean;
@@ -57,19 +158,14 @@ export interface GroupStore {
 export const groupsInitialState = {
   groups: {
     data: [],
-    meta: {},
+    meta: defaultSettings,
     filters: {},
     pagination: { count: 0 },
   },
-  selectedGroup: {
-    addRoles: {},
-    members: { meta: defaultSettings },
-    serviceAccounts: { meta: defaultSettings },
-    pagination: defaultSettings,
-  },
+  selectedGroup: undefined,
   isLoading: false,
   isRecordLoading: false,
-};
+} as GroupStore;
 
 const setLoadingState = (state: GroupStore) => ({ ...state, error: undefined, isLoading: true });
 const setRecordLoadingState = (state: GroupStore) => ({
@@ -126,10 +222,13 @@ const setGroup = (state: GroupStore, { payload }: any) => ({
         },
         selectedGroup: {
           ...state.selectedGroup,
-          members: { ...state.selectedGroup.members, data: payload.principals },
+          // Only update members data if principals are provided in the payload
+          ...(payload.principals !== undefined && {
+            members: { ...(state.selectedGroup?.members || {}), data: payload.principals },
+          }),
           ...omit(payload, ['principals', 'roles']),
           loaded: true,
-          pagination: { ...state.selectedGroup.pagination, count: payload.roleCount, offset: 0 },
+          pagination: { ...(state.selectedGroup?.pagination || {}), count: payload.roleCount, offset: 0 },
         },
       }
     : payload),
@@ -292,7 +391,7 @@ const setAddRolesForGroup = (state: GroupStore, { payload }: any) => ({
   selectedGroup: {
     ...state.selectedGroup,
     addRoles: {
-      ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.selectedGroup.addRoles),
+      ...(!payload.error ? { roles: payload.data, pagination: payload.meta } : state.selectedGroup?.addRoles),
       loaded: true,
     },
   },
@@ -313,6 +412,13 @@ const setGroupsError = (state: GroupStore, { payload }: any) => ({
   },
 });
 
+const setGroupError = (state: GroupStore) => ({
+  ...state,
+  isRecordLoading: false,
+  error: BAD_UUID, // Treat any group fetch error as BAD_UUID for consistent error handling
+  selectedGroup: undefined, // Clear any existing selected group
+});
+
 export default {
   [`${FETCH_GROUPS}_PENDING`]: setLoadingState,
   [`${FETCH_GROUPS}_FULFILLED`]: setGroups,
@@ -324,6 +430,7 @@ export default {
   [INVALIDATE_SYSTEM_GROUP]: invalidateSystemGroup,
   [`${FETCH_GROUP}_PENDING`]: setRecordLoadingState,
   [`${FETCH_GROUP}_FULFILLED`]: setGroup,
+  [`${FETCH_GROUP}_REJECTED`]: setGroupError,
   [`${FETCH_ROLES_FOR_GROUP}_PENDING`]: setRecordRolesLoadingState,
   [`${FETCH_ROLES_FOR_GROUP}_FULFILLED`]: setRolesForGroup,
   [`${FETCH_ROLES_FOR_GROUP}_REJECTED`]: setRolesForGroupError,

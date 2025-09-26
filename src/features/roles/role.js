@@ -3,7 +3,11 @@ import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Button, Level, LevelItem, Text, TextContent } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Level } from '@patternfly/react-core';
+import { LevelItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
@@ -20,7 +24,8 @@ import useUserData from '../../hooks/useUserData';
 import Permissions from './role-permissions';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 import { RbacBreadcrumbs } from '../../components/navigation/Breadcrumbs';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import pathnames from '../../utilities/pathnames';
 import messages from '../../Messages';
 import './role.scss';
@@ -63,6 +68,7 @@ const Role = ({ onDelete }) => {
   });
 
   const dispatch = useDispatch();
+  const toAppLink = useAppLink();
   const fetchData = () => {
     dispatch(fetchRole(roleId));
     if (groupId) {
@@ -104,11 +110,11 @@ const Role = ({ onDelete }) => {
     groupId
       ? {
           title: intl.formatMessage(messages.groups),
-          to: getBackRoute(mergeToBasename(pathnames.groups.link), groupsPagination, groupsFilters),
+          to: getBackRoute(toAppLink(pathnames.groups.link), groupsPagination, groupsFilters),
         }
       : {
           title: intl.formatMessage(messages.roles),
-          to: getBackRoute(mergeToBasename(pathnames.roles.link), rolesPagination, rolesFilters),
+          to: getBackRoute(toAppLink(pathnames.roles.link), rolesPagination, rolesFilters),
         },
 
     ...(groupExists && groupId && (groupId === DEFAULT_ACCESS_GROUP_ID ? systemGroupUuid : groupExists)
@@ -116,7 +122,7 @@ const Role = ({ onDelete }) => {
         ? [
             {
               title: group && group.name,
-              to: mergeToBasename(pathnames['group-detail-roles'].link).replace(':groupId', groupId),
+              to: toAppLink(pathnames['group-detail-roles'].link).replace(':groupId', groupId),
               isLoading: group && group.loaded,
             },
           ]

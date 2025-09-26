@@ -1,5 +1,6 @@
 import React from 'react';
-import { ActionGroup, Button } from '@patternfly/react-core';
+import { ActionGroup } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { isEmpty } from 'lodash';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import FormSpy from '@data-driven-forms/react-form-renderer/form-spy';

@@ -226,9 +226,36 @@ export const LoadingState: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    // Test loading behavior
+    // Test skeleton loading state (standard pattern)
+    await waitFor(
+      async () => {
+        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+        await expect(skeletonElements.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
   },
 };
+```
+
+### Loading State Testing Requirements
+- **REQUIRED**: All loading states must test for skeleton elements using the standard pattern
+- **NEVER** test for absence of data - always test for presence of skeleton loading indicators
+- Use `canvasElement.querySelectorAll('[class*="skeleton"]')` to find skeleton elements
+- Always wrap in `waitFor` with appropriate timeout for async loading behavior
+
+**Standard Loading State Test Pattern:**
+```typescript
+play: async ({ canvasElement }) => {
+  // Test skeleton loading state (check for skeleton class)
+  await waitFor(
+    async () => {
+      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletonElements.length).toBeGreaterThan(0);
+    },
+    { timeout: 10000 },
+  );
+},
 ```
 
 ### User Interaction Testing Requirements

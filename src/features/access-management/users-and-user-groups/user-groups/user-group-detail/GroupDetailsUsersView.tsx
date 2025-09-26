@@ -1,6 +1,11 @@
 import { DataView, DataViewTable } from '@patternfly/react-data-view';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Spinner } from '@patternfly/react-core';
-import { ExclamationCircleIcon, UsersIcon } from '@patternfly/react-icons';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
+import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { RBACStore } from '../../../../../redux/store';

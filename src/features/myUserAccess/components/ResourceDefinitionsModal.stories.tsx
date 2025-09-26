@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import PropTypes from 'prop-types';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { expect, userEvent, within } from 'storybook/test';
 import { screen } from 'storybook/test';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';

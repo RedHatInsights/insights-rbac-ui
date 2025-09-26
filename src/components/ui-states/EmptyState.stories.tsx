@@ -1,7 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { Button } from '@patternfly/react-core';
-import { ExclamationTriangleIcon, LockIcon, PlusCircleIcon, SearchIcon } from '@patternfly/react-icons';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import ExclamationTriangleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-triangle-icon';
+import LockIcon from '@patternfly/react-icons/dist/js/icons/lock-icon';
+import PlusCircleIcon from '@patternfly/react-icons/dist/js/icons/plus-circle-icon';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { action } from 'storybook/actions';
 import { EmptyWithAction } from './EmptyState';
 

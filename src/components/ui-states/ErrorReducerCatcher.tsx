@@ -6,7 +6,6 @@ import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAu
 import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import { AppLink } from '../navigation/AppLink';
 
-import { API_ERROR } from '../../redux/api-error/action-types';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 
@@ -47,7 +46,7 @@ const ErrorReducerCatcher: React.FC<ErrorReducerCatcherProps> = ({ children }) =
 
   useEffect(() => {
     if (errorCode) {
-      dispatch({ type: API_ERROR, payload: undefined });
+      // dispatch({ type: API_ERROR, payload: undefined });
     }
   }, [location?.pathname, dispatch, errorCode]);
 

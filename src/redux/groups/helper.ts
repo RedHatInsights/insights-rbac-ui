@@ -5,7 +5,6 @@ import {
   Group,
   GroupOut,
   GroupPagination,
-  GroupPrincipalIn,
   GroupWithPrincipalsAndRoles,
   PrincipalIn,
 } from '@redhat-cloud-services/rbac-client/types';
@@ -180,11 +179,9 @@ export async function addGroup(
   const promises = [];
 
   if (data.user_list && data.user_list.length > 0) {
-    const groupPrincipalIn: GroupPrincipalIn = {
+    const groupPrincipalIn: UsersInGroup = {
       principals: data.user_list.map((user) => ({
         username: user.username || '',
-        type: 'user' as any,
-        clientId: '',
       })),
     };
     // NOTE: @redhat-cloud-services/rbac-client broken types - using (as any) to bypass

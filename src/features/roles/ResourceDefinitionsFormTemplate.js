@@ -1,6 +1,6 @@
 import React from 'react';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
-import { Alert } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';

@@ -8,17 +8,20 @@ import { ActiveUsersNonAdminView } from './ActiveUsersNonAdminView';
 type ActiveUserProps = {
   linkDescription?: string;
   linkTitle?: string;
+  children?: React.ReactNode;
 };
 
-export const ActiveUsers: FunctionComponent<ActiveUserProps> = ({ linkDescription, linkTitle }) => {
+export const ActiveUsers: FunctionComponent<ActiveUserProps> = ({ linkDescription, linkTitle, children }) => {
   const chrome = useChrome();
   const env = chrome.getEnvironment();
   const prefix = chrome.isProd() ? '' : `${env}.`;
   const { orgAdmin } = useContext(PermissionsContext) as PermissionsContextType;
   const isITLess = useFlag('platform.rbac.itless');
   return !isITLess && orgAdmin ? (
-    <ActiveUsersAdminView linkDescription={linkDescription} linkTitle={linkTitle} prefix={prefix} />
+    <ActiveUsersAdminView linkDescription={linkDescription} linkTitle={linkTitle} prefix={prefix}>
+      {children}
+    </ActiveUsersAdminView>
   ) : (
-    <ActiveUsersNonAdminView />
+    <ActiveUsersNonAdminView>{children}</ActiveUsersNonAdminView>
   );
 };

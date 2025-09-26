@@ -1,6 +1,7 @@
 import React, { ReactNode } from 'react';
-import { HelpIcon } from '@patternfly/react-icons';
-import { Button, Popover } from '@patternfly/react-core';
+import HelpIcon from '@patternfly/react-icons/dist/js/icons/help-icon';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Popover } from '@patternfly/react-core/dist/dynamic/components/Popover';
 
 interface InputHelpPopoverProps {
   headerContent?: ReactNode;

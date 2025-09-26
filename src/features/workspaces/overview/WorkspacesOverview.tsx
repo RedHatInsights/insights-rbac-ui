@@ -1,23 +1,30 @@
 import React from 'react';
 import { ContentHeader, ServiceCard } from '@patternfly/react-component-groups';
-import {
-  Button,
-  ButtonVariant,
-  DataList,
-  Gallery,
-  GalleryItem,
-  Label,
-  List,
-  ListItem,
-  PageSection,
-  Text,
-  TextVariants,
-  Title,
-} from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { DataList } from '@patternfly/react-core/dist/dynamic/components/DataList';
+import { Gallery } from '@patternfly/react-core';
+import { GalleryItem } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { List } from '@patternfly/react-core/dist/dynamic/components/List';
+import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import {} from '@patternfly/react-core';
 import messages from '../../../Messages';
 import CustomDataListItem from '../../../components/data-display/CustomDataListItem';
-import { ExternalLinkAltIcon, IdBadgeIcon, InfrastructureIcon, KeyIcon, LinkIcon, UsersIcon } from '@patternfly/react-icons';
-import { Table, Tbody, Td, Tr } from '@patternfly/react-table';
+import ExternalLinkAltIcon from '@patternfly/react-icons/dist/js/icons/external-link-alt-icon';
+import IdBadgeIcon from '@patternfly/react-icons/dist/js/icons/id-badge-icon';
+import InfrastructureIcon from '@patternfly/react-icons/dist/js/icons/infrastructure-icon';
+import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
+import LinkIcon from '@patternfly/react-icons/dist/js/icons/link-icon';
+import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
+import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { useIntl } from 'react-intl';
 import { useNavigate } from 'react-router-dom';
 

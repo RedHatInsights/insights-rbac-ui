@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Title } from '@patternfly/react-core';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import { useFlag } from '@unleash/proxy-client-react';

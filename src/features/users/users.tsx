@@ -1,5 +1,6 @@
 import React, { useContext, useEffect } from 'react';
-import { Stack, StackItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { useIntl } from 'react-intl';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
@@ -9,7 +10,6 @@ import UsersListNotSelectable from './users-list-not-selectable';
 import { ActiveUsers } from '../../components/user-management/ActiveUsers';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
 import messages from '../../Messages';
-import UsersListItless from '../groups/add-group/users-list-itless';
 import paths from '../../utilities/pathnames';
 import { useLocation } from 'react-router-dom';
 
@@ -48,7 +48,7 @@ const Users: React.FC = () => {
         <Section type="content" id="users">
           {!commonUsersTable ? (
             isITLess ? (
-              <UsersListItless {...usersListProps} />
+              <UsersListNotSelectable {...usersListProps} />
             ) : (
               <UsersListNotSelectable {...usersListProps} />
             )
