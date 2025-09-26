@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
+import { useSearchParams } from 'react-router-dom';
 import { ContentHeader } from '@patternfly/react-component-groups';
-import { Breadcrumb, BreadcrumbItem, Skeleton } from '@patternfly/react-core';
+import { Alert, AlertActionCloseButton, Breadcrumb, BreadcrumbItem, Skeleton } from '@patternfly/react-core';
 import { WorkspaceActions } from './WorkspaceActions';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import messages from '../../../Messages';
@@ -30,6 +31,15 @@ export interface WorkspaceHeaderProps {
  */
 export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isLoading, workspaceHierarchy, hasAssets }) => {
   const intl = useIntl();
+  const [searchParams] = useSearchParams();
+
+  // Check if we navigated from a child workspace via URL parameters
+  const fromChildId = searchParams.get('fromChildId');
+  const fromChildName = searchParams.get('fromChildName');
+  const fromChildWorkspace = fromChildId && fromChildName ? { id: fromChildId, name: fromChildName } : null;
+
+  // State to manage alert dismissal
+  const [isAlertDismissed, setIsAlertDismissed] = useState(false);
 
   return (
     <ContentHeader
@@ -50,6 +60,15 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
             </BreadcrumbItem>
           ))}
         </Breadcrumb>
+        {fromChildWorkspace && !isAlertDismissed && workspace?.name && (
+          <Alert
+            variant="info"
+            isInline
+            actionClose={<AlertActionCloseButton onClose={() => setIsAlertDismissed(true)} />}
+            title={`You are now viewing the '${workspace.name}' workspace. From here, you can edit access for this workspace and the child workspace, '${fromChildWorkspace.name}' workspace.`}
+            className="pf-v5-u-mt-md"
+          />
+        )}
       </div>
     </ContentHeader>
   );

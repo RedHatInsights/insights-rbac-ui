@@ -178,11 +178,12 @@ export const WorkspaceDetail = () => {
       });
 
       // Store result in parent state and add inheritance information
+      // Testing with the Default Workspace until API is ready
       const groupsWithInheritance = (result.data || []).map((group: any) => ({
         ...group,
         inheritedFrom: {
-          workspaceId: '',
-          workspaceName: '',
+          workspaceId: '01938960-94c7-79e3-aecb-54a9451af9c3',
+          workspaceName: 'Default Workspace',
         },
       }));
       setParentGroups(groupsWithInheritance);
@@ -279,6 +280,8 @@ export const WorkspaceDetail = () => {
     }
   };
 
+  const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id, name: selectedWorkspace.name } : undefined;
+
   return (
     <>
       <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
@@ -347,6 +350,7 @@ export const WorkspaceDetail = () => {
                       filters={filters}
                       onSetFilters={onSetFilters}
                       clearAllFilters={clearAllFilters}
+                      currentWorkspace={currentWorkspace}
                     />
                   ) : (
                     <RoleAssignmentsTable
@@ -364,6 +368,7 @@ export const WorkspaceDetail = () => {
                       onSetFilters={parentOnSetFilters}
                       clearAllFilters={parentClearAllFilters}
                       ouiaId="parent-role-assignments-table"
+                      currentWorkspace={currentWorkspace}
                     />
                   )}
                 </div>
