@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import {
   Button,
   Drawer,
@@ -67,6 +68,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
 }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<string | number>(0);
 
   // Redux state for group data
@@ -236,7 +238,8 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
               const fullUrl = `/iam/access-management/workspaces/detail/${groupWithInheritance.inheritedFrom!.workspaceId}${paramString ? '?' + paramString : ''}`;
 
               // Use replace instead of navigate to avoid preserving current page state
-              window.location.href = fullUrl;
+              navigate(fullUrl, { replace: true });
+              onClose();
             }}
           >
             {groupWithInheritance.inheritedFrom.workspaceName}

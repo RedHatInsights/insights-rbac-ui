@@ -1,6 +1,7 @@
 import React, { useCallback, useMemo, useState } from 'react';
 import { formatDistanceToNow } from 'date-fns';
 import { useIntl } from 'react-intl';
+import { useNavigate } from 'react-router-dom';
 import { DataViewState, DataViewTextFilter, DataViewTh } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
@@ -66,6 +67,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   currentWorkspace,
 }) => {
   const intl = useIntl();
+  const navigate = useNavigate();
 
   // Local state for drawer only
   const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
@@ -170,7 +172,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
               const fullUrl = `/iam/access-management/workspaces/detail/${group.inheritedFrom!.workspaceId}${paramString ? '?' + paramString : ''}`;
 
               // Use replace instead of navigate to avoid preserving current page state
-              window.location.href = fullUrl;
+              navigate(fullUrl, { replace: true });
             }}
           >
             {group.inheritedFrom.workspaceName}
