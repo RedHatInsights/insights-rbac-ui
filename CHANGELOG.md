@@ -1,3 +1,10 @@
+# [1.57.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.1...v1.57.0) (2025-09-26)
+
+
+### Features
+
+* **search:** add org admin global search entry ([17d4811](https://github.com/RedHatInsights/insights-rbac-ui/commit/17d48111fa3fc49024208fa9dcda3d97318e91b2))
+
 ## [1.56.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.0...v1.56.1) (2025-09-25)
 
 
