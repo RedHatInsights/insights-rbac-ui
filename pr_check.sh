@@ -18,7 +18,7 @@ IQE_PLUGINS="rbac"
 IQE_MARKER_EXPRESSION="smoke"
 IQE_FILTER_EXPRESSION=""
 
-set -exv
+set -xv
 
 CHROME_SHA=$(curl -X GET "https://quay.io/api/v1/repository/cloudservices/insights-chrome-frontend/tag/?onlyActiveTags=true&limit=100" | jq '.tags | [.[] | select(.name | test("^[a-zA-Z0-9]{7,40}$"))] | .[0].name' -r)
 CHROME_CONTAINER_NAME=chrome-$CHROME_SHA
@@ -29,8 +29,12 @@ docker cp $CHROME_CONTAINER_NAME:/opt/app-root/src/build/stable/index.html dist/
 
 CHROME_HOST=$(docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' $CHROME_CONTAINER_NAME)
 
+mkdir -p $WORKSPACE/artifacts
+chmod 777 $WORKSPACE/artifacts
+
 docker run -t \
   -v $PWD:/e2e:ro,Z \
+  -v $WORKSPACE/artifacts:/e2e/artifacts:Z \
   -w /e2e \
   -e CHROME_ACCOUNT=$CHROME_ACCOUNT \
   -e CHROME_PASSWORD=$CHROME_PASSWORD \
