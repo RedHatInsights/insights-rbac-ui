@@ -91,7 +91,7 @@ const AddRolePermissionWizard = ({ role }) => {
                         },
                       },
                     ]
-                  : permission.includes('cost-management')
+                  : permission.includes('cost-management') && costResources?.find((r) => r.permission === permission)?.resources.length > 0
                     ? [
                         {
                           attributeFilter: {
