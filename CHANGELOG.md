@@ -1,3 +1,10 @@
+## [1.57.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.0...v1.57.1) (2025-09-29)
+
+
+### Bug Fixes
+
+* **cost-settings:** do not send resource definitions ([#1929](https://github.com/RedHatInsights/insights-rbac-ui/issues/1929)) ([0e5727c](https://github.com/RedHatInsights/insights-rbac-ui/commit/0e5727c85a38d2cfe0c70f843b0368ddcec07e09))
+
 # [1.57.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.1...v1.57.0) (2025-09-26)
 
 
