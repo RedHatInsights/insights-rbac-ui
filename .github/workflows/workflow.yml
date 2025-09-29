@@ -18,8 +18,6 @@ jobs:
         with:
           fetch-depth: 0
       - uses: './.github/actions/setup-environment'
-      - name: Check Node version
-        run: node --version && npm --version
       - name: Install dependencies
         run: npm i
   commitlint:
