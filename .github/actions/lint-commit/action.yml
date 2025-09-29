@@ -7,9 +7,10 @@ runs:
       id: commitlint
       with:
         fetch-depth: 0
+    - uses: './.github/actions/setup-environment'
     - name: install
       shell: bash
-      run: npm i
+      run: npm ci
     - name: Validate current commit on push
       shell: bash
       if: github.event_name == 'push'
