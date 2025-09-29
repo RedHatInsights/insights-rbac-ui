@@ -56,7 +56,6 @@ export async function getRoleBindingsForSubject(config: RoleBindingsListBySubjec
   // Mocking until backend is ready
   const groups = await getGroupApi().listGroups({});
   const { data, ...rest } = groups;
-  console.log(data);
   return {
     data: data.map(({ uuid, name, description }) => ({
       last_modified: '2024-08-24T15:45:00Z',

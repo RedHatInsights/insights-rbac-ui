@@ -1,5 +1,5 @@
 import { RoleBindingsRole } from '@redhat-cloud-services/rbac-client/v2/types';
-import { FETCH_ROLE_BINDINGS, FETCH_WORKSPACE, FETCH_WORKSPACES } from './action-types';
+import { FETCH_WORKSPACE, FETCH_WORKSPACES } from './action-types';
 
 export interface WorkspaceCreateBody {
   id?: string;

@@ -145,7 +145,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
     workspaces.map((workspace) => ({
       id: workspace.id,
       row: Object.values({
-        name: !hideWorkspaceDetails ? (
+        name: hideWorkspaceDetails ? (
           ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
             <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
               {workspace.name}

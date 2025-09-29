@@ -46,6 +46,6 @@ export type RBACStore = {
   serviceAccountReducer: ServiceAccountsState;
   userReducer: UserStore;
   workspacesReducer: WorkspacesStore;
-  roleBindingsReducer: RoleBindingsStore; // Keep as any since it's from external library
+  roleBindingsReducer: RoleBindingsStore;
   notifications: any; // Keep as any since it's from external library
 };

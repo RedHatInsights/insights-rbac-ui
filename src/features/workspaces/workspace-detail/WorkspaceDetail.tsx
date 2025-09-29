@@ -210,21 +210,6 @@ export const WorkspaceDetail = () => {
   }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters]);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const result = await getRoleBindingsForSubject({ limit: 10, subjectType: 'group', resourceType: 'workspace', subjectId: workspaceId });
-        console.log(result);
-      } catch (error) {
-        console.error('Error fetching role bindings:', error);
-      }
-    };
-
-    if (workspaceId) {
-      fetchData();
-    }
-  }, [workspaceId]);
-
-  useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
       if (activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
         fetchRoleBindingsData();

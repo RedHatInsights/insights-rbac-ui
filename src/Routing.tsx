@@ -104,7 +104,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
     ],
   },
-  hideWorkspaceDetails && {
+  !hideWorkspaceDetails && {
     path: pathnames['workspace-detail'].path,
     element: WorkspaceDetail,
     childRoutes: [
