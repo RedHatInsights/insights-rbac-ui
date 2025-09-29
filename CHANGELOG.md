@@ -1,3 +1,10 @@
+## [1.57.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.1...v1.57.2) (2025-09-29)
+
+
+### Bug Fixes
+
+* remove unused @redhat-cloud-services/cost-management-client and update axios to 1.12.0 ([88a42e9](https://github.com/RedHatInsights/insights-rbac-ui/commit/88a42e9e3c402c10386b036ce856a72ee22d638e))
+
 ## [1.57.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.0...v1.57.1) (2025-09-29)
 
 
