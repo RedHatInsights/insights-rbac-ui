@@ -145,23 +145,29 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
     workspaces.map((workspace) => ({
       id: workspace.id,
       row: Object.values({
-        name: hideWorkspaceDetails ? (
-          ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
-            <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
-              {workspace.name}
-            </Link>
+        name:
+          hideWorkspaceDetails && !globalWs ? (
+            ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
+              <Link
+                replace
+                to={`/insights/inventory/workspaces/${workspace.id}`}
+                key={`${workspace.id}-inventory-link`}
+                className="rbac-m-hide-on-sm"
+              >
+                {workspace.name}
+              </Link>
+            ) : (
+              workspace.name
+            )
           ) : (
-            workspace.name
-          )
-        ) : (
-          <AppLink
-            to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id)}
-            key={`${workspace.id}-detail`}
-            className="rbac-m-hide-on-sm"
-          >
-            {workspace.name}
-          </AppLink>
-        ),
+            <AppLink
+              to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id)}
+              key={`${workspace.id}-detail`}
+              className="rbac-m-hide-on-sm"
+            >
+              {workspace.name}
+            </AppLink>
+          ),
         description: workspace.description,
         rowActions: {
           cell: (
