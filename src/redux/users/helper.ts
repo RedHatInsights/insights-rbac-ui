@@ -199,7 +199,7 @@ export async function changeUsersStatus(users: User[], config?: Config, itless?:
   if (config && config.accountId && config.token && !itless) {
     return Promise.all(
       users.map((user) => {
-        const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${String(config.accountId)}/users/${user.uuid}/status`;
+        const currURL = `${getITApiUrl(config.isProd)}/account/v1/accounts/${String(config.accountId)}/users/${user.id}/status`;
         return fetch(currURL, {
           method: 'POST',
           body: JSON.stringify({

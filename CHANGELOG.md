@@ -1,3 +1,38 @@
+## [1.57.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.2...v1.57.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* update background image path in overview component ([#1934](https://github.com/RedHatInsights/insights-rbac-ui/issues/1934)) ([42e576d](https://github.com/RedHatInsights/insights-rbac-ui/commit/42e576da03e208341cc67169b62d58cf169c4696))
+
+## [1.57.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.1...v1.57.2) (2025-09-29)
+
+
+### Bug Fixes
+
+* remove unused @redhat-cloud-services/cost-management-client and update axios to 1.12.0 ([88a42e9](https://github.com/RedHatInsights/insights-rbac-ui/commit/88a42e9e3c402c10386b036ce856a72ee22d638e))
+
+## [1.57.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.0...v1.57.1) (2025-09-29)
+
+
+### Bug Fixes
+
+* **cost-settings:** do not send resource definitions ([#1929](https://github.com/RedHatInsights/insights-rbac-ui/issues/1929)) ([0e5727c](https://github.com/RedHatInsights/insights-rbac-ui/commit/0e5727c85a38d2cfe0c70f843b0368ddcec07e09))
+
+# [1.57.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.1...v1.57.0) (2025-09-26)
+
+
+### Features
+
+* **search:** add org admin global search entry ([17d4811](https://github.com/RedHatInsights/insights-rbac-ui/commit/17d48111fa3fc49024208fa9dcda3d97318e91b2))
+
+## [1.56.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.0...v1.56.1) (2025-09-25)
+
+
+### Bug Fixes
+
+* **disable-users:** use user ID instead of user UUID ([#1927](https://github.com/RedHatInsights/insights-rbac-ui/issues/1927)) ([afefa4c](https://github.com/RedHatInsights/insights-rbac-ui/commit/afefa4c3b2d91382f25b294ca25f77172c48c185))
+
 # [1.56.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.55.0...v1.56.0) (2025-09-24)
 
 

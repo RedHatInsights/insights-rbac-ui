@@ -16,11 +16,21 @@ objects:
       API:
         versions:
           - v1
+        specs:
+          - url: https://console.redhat.com/api/rbac/v1/openapi.json
+            bundleLabels: ["iam"]
       frontend:
         paths:
           - /apps/rbac
       image: ${IMAGE}:${IMAGE_TAG}
       feoConfigEnabled: true
+      searchEntries:
+        - id: rbac-org-admin
+          title: Org Admins
+          href: /iam/user-access/users
+          description: Manage your organization's administrator users.
+          alt_title:
+            - org administrator
       serviceTiles:
         - section: iam
           group: iam

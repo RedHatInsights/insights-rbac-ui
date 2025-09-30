@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "private": false,
   "engines": {
-    "node": ">=20.0.0",
+    "node": ">=22.0.0",
     "npm": ">=7.0.0"
   },
   "dependencies": {
@@ -22,7 +22,6 @@
     "@patternfly/react-table": "^5.1.1",
     "@patternfly/react-tokens": "^5.1.1",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
-    "@redhat-cloud-services/cost-management-client": "^1.0.112",
     "@redhat-cloud-services/frontend-components": "^4.2.3",
     "@redhat-cloud-services/frontend-components-notifications": "^4.1.0",
     "@redhat-cloud-services/frontend-components-utilities": "^4.0.2",
