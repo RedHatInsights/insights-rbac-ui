@@ -16,6 +16,9 @@ objects:
       API:
         versions:
           - v1
+        specs:
+          - url: https://console.redhat.com/api/rbac/v1/openapi.json
+            bundleLabels: ["iam"]
       frontend:
         paths:
           - /apps/rbac
