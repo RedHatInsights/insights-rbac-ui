@@ -1,3 +1,10 @@
+## [1.57.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.2...v1.57.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* update background image path in overview component ([#1934](https://github.com/RedHatInsights/insights-rbac-ui/issues/1934)) ([42e576d](https://github.com/RedHatInsights/insights-rbac-ui/commit/42e576da03e208341cc67169b62d58cf169c4696))
+
 ## [1.57.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.1...v1.57.2) (2025-09-29)
 
 
