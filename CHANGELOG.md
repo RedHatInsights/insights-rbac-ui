@@ -1,3 +1,11 @@
+## [1.57.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.3...v1.57.4) (2025-10-01)
+
+
+### Bug Fixes
+
+* crashes when running the app in dev mode ([f0a9942](https://github.com/RedHatInsights/insights-rbac-ui/commit/f0a994236eff2af3d1ce6fa01cd02691f4592e37))
+* rename groups.scss to Groups.scss for case sensitivity ([f003895](https://github.com/RedHatInsights/insights-rbac-ui/commit/f003895d37c4adecaabbbbc48bf0cc19a0b24189))
+
 ## [1.57.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.2...v1.57.3) (2025-09-30)
 
 
