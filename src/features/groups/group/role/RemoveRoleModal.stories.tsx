@@ -41,9 +41,7 @@ const RemoveRolesWrapper: React.FC<any> = (props) => {
 
 const meta: Meta<typeof RemoveRoleModal> = {
   component: RemoveRoleModal,
-  parameters: {
-    layout: 'centered',
-  },
+  parameters: {},
   tags: ['autodocs'],
   render: (args) => <RemoveRolesWrapper {...args} />,
   argTypes: {

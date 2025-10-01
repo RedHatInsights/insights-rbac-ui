@@ -45,7 +45,6 @@ const meta: Meta<typeof EditGroupUsersTable> = {
   component: EditGroupUsersTable,
   tags: ['access-management-form'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

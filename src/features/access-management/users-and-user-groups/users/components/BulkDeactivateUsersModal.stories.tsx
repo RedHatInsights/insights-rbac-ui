@@ -8,7 +8,6 @@ const meta: Meta<typeof BulkDeactivateUsersModal> = {
   component: BulkDeactivateUsersModal,
   tags: ['autodocs', 'bulk-deactivate-modal'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

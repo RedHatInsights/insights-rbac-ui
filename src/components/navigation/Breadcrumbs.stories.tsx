@@ -8,7 +8,6 @@ const meta: Meta<typeof RbacBreadcrumbs> = {
   component: RbacBreadcrumbs,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

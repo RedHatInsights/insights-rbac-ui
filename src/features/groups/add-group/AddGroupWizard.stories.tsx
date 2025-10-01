@@ -632,7 +632,6 @@ const meta: Meta<typeof AddGroupWizardWithRouter> = {
   component: AddGroupWizardWithRouter,
   tags: ['add-group-wizard'],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: mockHandlers,
     },

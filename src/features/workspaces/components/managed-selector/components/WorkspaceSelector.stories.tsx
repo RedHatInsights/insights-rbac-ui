@@ -13,7 +13,6 @@ const meta: Meta<typeof WorkspaceSelector> = {
   component: WorkspaceSelector,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'padded',
     docs: {
       story: {
         height: '400px',

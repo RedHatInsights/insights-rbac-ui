@@ -6,7 +6,6 @@ import { OrgAdminDropdown } from './OrgAdminDropdown';
 const meta: Meta<typeof OrgAdminDropdown> = {
   component: OrgAdminDropdown,
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: 'A dropdown component for toggling organization administrator status of users. Provides a clean interface with Yes/No options.',

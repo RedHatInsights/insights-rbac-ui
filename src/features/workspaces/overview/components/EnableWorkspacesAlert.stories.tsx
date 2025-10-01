@@ -12,7 +12,6 @@ const meta: Meta<typeof EnableWorkspacesAlert> = {
   component: EnableWorkspacesAlert,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'padded',
     backgrounds: {
       default: 'console',
     },

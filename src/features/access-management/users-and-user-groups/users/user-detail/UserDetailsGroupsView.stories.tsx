@@ -22,7 +22,6 @@ const meta: Meta<typeof UserDetailsGroupsView> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

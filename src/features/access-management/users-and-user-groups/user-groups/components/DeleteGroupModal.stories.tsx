@@ -39,7 +39,6 @@ const meta: Meta<typeof DeleteGroupModal> = {
   component: DeleteGroupModal,
   tags: ['autodocs', 'delete-group-modal'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

@@ -53,7 +53,6 @@ const meta: Meta<typeof GroupServiceAccountsWrapper> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: [
         // Group API handler - provides basic group data

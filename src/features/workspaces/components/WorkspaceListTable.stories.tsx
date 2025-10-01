@@ -29,7 +29,6 @@ const meta: Meta<typeof WorkspaceListTable> = {
   component: WorkspaceListTable,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

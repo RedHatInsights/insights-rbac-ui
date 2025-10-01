@@ -11,7 +11,6 @@ const meta: Meta<typeof GroupDetailsDrawer> = {
   component: GroupDetailsDrawer,
   tags: ['access-management-drawer'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

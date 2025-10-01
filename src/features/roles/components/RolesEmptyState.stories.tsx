@@ -8,7 +8,6 @@ const meta: Meta<typeof RolesEmptyState> = {
   title: 'Features/Roles/Components/RolesEmptyState',
   component: RolesEmptyState,
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `

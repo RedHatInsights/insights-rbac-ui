@@ -30,7 +30,6 @@ const meta: Meta<typeof CombinedToolbar> = {
   component: CombinedToolbar,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

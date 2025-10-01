@@ -76,7 +76,6 @@ const meta: Meta<typeof Users> = {
   tags: ['users-container'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     // Use global providers for these (configured in .storybook/preview.tsx)
     permissions: {
       orgAdmin: true, // Default for testing

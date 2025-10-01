@@ -26,7 +26,6 @@ const meta: Meta<typeof AllPlaceholders> = {
   component: AllPlaceholders,
   tags: ['autodocs'],
   parameters: {
-    layout: 'padded',
     backgrounds: {
       default: 'console',
     },

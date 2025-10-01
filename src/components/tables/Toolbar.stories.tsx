@@ -7,7 +7,6 @@ const meta: Meta<typeof Toolbar> = {
   component: Toolbar,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: 'A versatile toolbar component that provides filtering, pagination, bulk selection, and action buttons for data tables.',

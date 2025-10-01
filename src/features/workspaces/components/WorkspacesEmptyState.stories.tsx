@@ -8,7 +8,6 @@ const meta: Meta<typeof WorkspacesEmptyState> = {
   title: 'Features/Workspaces/Components/WorkspacesEmptyState',
   component: WorkspacesEmptyState,
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `

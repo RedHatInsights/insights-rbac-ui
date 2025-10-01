@@ -29,7 +29,6 @@ const meta: Meta<typeof ActivateToggle> = {
   component: ActivateToggle,
   tags: ['autodocs'],
   parameters: {
-    layout: 'padded',
     backgrounds: {
       default: 'console',
     },

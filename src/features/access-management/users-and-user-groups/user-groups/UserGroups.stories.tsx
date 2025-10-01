@@ -70,7 +70,6 @@ const meta: Meta<typeof UserGroups> = {
   tags: ['user-groups-container'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     permissions: { orgAdmin: true },
     chrome: {
       environment: 'prod',

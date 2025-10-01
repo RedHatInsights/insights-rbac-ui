@@ -67,7 +67,6 @@ const meta: Meta<typeof AddUserToGroupModal> = {
     ),
   ],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

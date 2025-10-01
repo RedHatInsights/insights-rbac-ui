@@ -8,7 +8,6 @@ const meta: Meta<typeof UserGroupsEmptyState> = {
   title: 'Features/Access-Management/UserGroups/Components/UserGroupsEmptyState',
   component: UserGroupsEmptyState,
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `

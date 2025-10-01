@@ -103,7 +103,6 @@ const meta: Meta<typeof Roles> = {
   tags: ['roles-container'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

@@ -8,7 +8,6 @@ const meta: Meta<typeof ResourceDefinitionsLink> = {
   component: ResourceDefinitionsLink,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
     backgrounds: {
       default: 'console',
     },

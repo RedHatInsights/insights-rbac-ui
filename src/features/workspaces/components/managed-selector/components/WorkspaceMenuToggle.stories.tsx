@@ -7,7 +7,6 @@ const meta: Meta<typeof WorkspaceMenuToggle> = {
   component: WorkspaceMenuToggle,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: 'A menu toggle component for workspace selection. Displays loading state, selected workspace name, or placeholder text.',

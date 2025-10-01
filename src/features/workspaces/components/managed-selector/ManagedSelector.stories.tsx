@@ -52,7 +52,6 @@ const meta: Meta<typeof ManagedSelector> = {
   component: ManagedSelector,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

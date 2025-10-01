@@ -10,7 +10,6 @@ const meta: Meta<typeof MyUserAccess> = {
   component: MyUserAccess,
   tags: ['my-user-access'], // NO autodocs on meta
   parameters: {
-    layout: 'fullscreen',
     // Use existing Chrome provider to mock user and entitlements
     chrome: {
       auth: {

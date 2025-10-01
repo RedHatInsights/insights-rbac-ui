@@ -102,7 +102,6 @@ const meta: Meta<typeof GroupRolesWrapper> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     groupId: 'test-group-id',
   },
 };

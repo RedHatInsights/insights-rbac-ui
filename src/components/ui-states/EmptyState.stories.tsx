@@ -12,7 +12,6 @@ const meta: Meta<typeof EmptyWithAction> = {
   component: EmptyWithAction,
   tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

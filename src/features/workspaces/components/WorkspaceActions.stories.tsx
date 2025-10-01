@@ -41,7 +41,6 @@ const meta: Meta<typeof WorkspaceActions> = {
   tags: ['autodocs', 'workspaces', 'workspace-actions'],
   decorators: [withProviders],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

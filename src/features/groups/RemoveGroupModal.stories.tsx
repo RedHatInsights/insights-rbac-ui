@@ -44,7 +44,6 @@ const meta: Meta<typeof RemoveGroupModalWrapper> = {
     },
   },
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: [
         // Group API handler - only called for single groups (not multiple)
