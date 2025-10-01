@@ -90,7 +90,7 @@ const SetRolesWithForm: React.FC<{
 const meta: Meta<typeof SetRolesWithForm> = {
   title: 'Features/Groups/AddGroup/SetRoles',
   component: SetRolesWithForm,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'custom-css'],
   parameters: {
     docs: {
       description: {

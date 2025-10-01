@@ -61,7 +61,6 @@ const mockGroups = [
 
 const meta: Meta<typeof UsersAndUserGroups> = {
   component: UsersAndUserGroups,
-  tags: ['access-management-container'],
   decorators: [
     () => (
       <MemoryRouter initialEntries={['/iam/access-management/users-and-user-groups/users']}>

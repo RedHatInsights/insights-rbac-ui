@@ -43,7 +43,6 @@ const mockUsers = [
 
 const meta: Meta<typeof EditGroupUsersTable> = {
   component: EditGroupUsersTable,
-  tags: ['access-management-form'],
   parameters: {
     docs: {
       description: {

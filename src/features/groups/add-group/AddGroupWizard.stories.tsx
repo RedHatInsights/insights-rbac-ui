@@ -630,7 +630,14 @@ const mockHandlers = createMockHandlersWithSpies();
 
 const meta: Meta<typeof AddGroupWizardWithRouter> = {
   component: AddGroupWizardWithRouter,
-  tags: ['add-group-wizard'],
+  tags: [
+    'ff:platform.rbac.itless',
+    'ff:platform.rbac.workspaces',
+    'ff:platform.rbac.group-service-accounts',
+    'ff:platform.rbac.group-service-accounts.stable',
+    'perm:org-admin',
+    'perm:user-access-admin',
+  ],
   parameters: {
     msw: {
       handlers: mockHandlers,

@@ -37,7 +37,7 @@ const mockGroups: Group[] = [
 
 const meta: Meta<typeof DeleteGroupModal> = {
   component: DeleteGroupModal,
-  tags: ['autodocs', 'delete-group-modal'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

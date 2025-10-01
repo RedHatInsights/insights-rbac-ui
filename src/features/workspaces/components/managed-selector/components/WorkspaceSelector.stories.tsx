@@ -11,7 +11,7 @@ import { Alert, AlertVariant } from '@patternfly/react-core/dist/dynamic/compone
 
 const meta: Meta<typeof WorkspaceSelector> = {
   component: WorkspaceSelector,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs', 'custom-css'],
   parameters: {
     docs: {
       story: {

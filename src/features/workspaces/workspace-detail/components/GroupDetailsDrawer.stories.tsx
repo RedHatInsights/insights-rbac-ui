@@ -145,7 +145,7 @@ const withWrapper = () => {
 
 const meta: Meta<typeof GroupDetailsDrawer> = {
   component: GroupDetailsDrawer,
-  tags: ['autodocs', 'workspaces', 'group-details-drawer'],
+  tags: ['autodocs'],
   decorators: [withWrapper()],
   parameters: {
     msw: {

@@ -10,7 +10,7 @@ interface FeatureFlagContextArgs {
 
 const meta: Meta<typeof EnableWorkspacesAlert> = {
   component: EnableWorkspacesAlert,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs', 'custom-css'],
   parameters: {
     backgrounds: {
       default: 'console',

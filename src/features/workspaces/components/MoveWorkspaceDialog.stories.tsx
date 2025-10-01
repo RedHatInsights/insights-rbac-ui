@@ -116,7 +116,7 @@ const withProviders = (Story: any) => {
 
 const meta: Meta<typeof MoveWorkspaceDialog> = {
   component: MoveWorkspaceDialog,
-  tags: ['autodocs', 'workspaces', 'move-workspace-dialog'],
+  tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
     msw: {

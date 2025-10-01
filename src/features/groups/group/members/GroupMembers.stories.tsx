@@ -229,6 +229,7 @@ type Story = StoryObj<typeof GroupMembers>;
 
 // Simple test to verify Outlet context works
 export const SimpleContextTest: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: createMockHandlers(),
     permissions: {
@@ -305,6 +306,7 @@ For testing specific scenarios, see these additional stories:
 
 // Member list WITH permissions (interactive)
 export const WithPermissions: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: {
       handlers: createMockHandlers(),
@@ -450,6 +452,7 @@ export const DefaultPlatformGroup: Story = {
 
 // Test filtering functionality (requires permissions)
 export const FilterMembers: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: {
       handlers: [
@@ -526,6 +529,7 @@ export const FilterMembers: Story = {
 
 // Test Add member button and toolbar functionality
 export const AddMemberButton: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: {
       handlers: createMockHandlers(),
@@ -567,6 +571,7 @@ export const AddMemberButton: Story = {
 
 // Test bulk selection functionality
 export const BulkSelection: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: createMockHandlers(),
     permissions: {
@@ -621,6 +626,7 @@ export const BulkSelection: Story = {
 
 // Test toolbar actions state based on selection
 export const ToolbarActionsState: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: {
       handlers: createMockHandlers(),
@@ -684,6 +690,7 @@ export const ToolbarActionsState: Story = {
 
 // Test individual row actions
 export const RowActions: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     msw: {
       handlers: createMockHandlers(),

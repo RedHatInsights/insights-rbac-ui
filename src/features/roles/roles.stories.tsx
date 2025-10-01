@@ -100,7 +100,6 @@ const withRouter = (Story: any) => (
 
 const meta: Meta<typeof Roles> = {
   component: Roles,
-  tags: ['roles-container'],
   decorators: [withRouter],
   parameters: {
     docs: {
@@ -128,7 +127,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AdminUserWithRoles: Story = {
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -305,6 +304,7 @@ After the fix is applied, this test should **PASS** with zero API calls.
 };
 
 export const LoadingState: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -341,6 +341,7 @@ export const LoadingState: Story = {
 };
 
 export const EmptyRoles: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -382,6 +383,7 @@ const filterSpy = fn();
 const sortSpy = fn();
 
 export const AdminUserWithRolesFiltering: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -473,6 +475,7 @@ export const AdminUserWithRolesFiltering: Story = {
 };
 
 export const AdminUserWithRolesExpandableContent: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -570,6 +573,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
 };
 
 export const AdminUserWithRolesSorting: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -690,6 +694,7 @@ export const AdminUserWithRolesSorting: Story = {
 };
 
 export const AdminUserWithRolesPrimaryActions: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     docs: {
       description: {

@@ -94,7 +94,7 @@ const defaultArgs = {
 
 const meta: Meta<typeof UserGroupsTable> = {
   component: UserGroupsTable,
-  tags: ['autodocs', 'user-groups-table'],
+  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <MemoryRouter>

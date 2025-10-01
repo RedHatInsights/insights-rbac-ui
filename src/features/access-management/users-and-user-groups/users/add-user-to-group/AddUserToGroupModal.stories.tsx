@@ -56,7 +56,7 @@ const mockGroups = [
 
 const meta: Meta<typeof AddUserToGroupModal> = {
   component: AddUserToGroupModal,
-  tags: ['autodocs', 'add-user-to-group-modal'],
+  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <MemoryRouter>

@@ -9,7 +9,6 @@ import { GroupDetailsServiceAccountsView } from './GroupDetailsServiceAccountsVi
 
 const meta: Meta<typeof GroupDetailsServiceAccountsView> = {
   component: GroupDetailsServiceAccountsView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>

@@ -53,7 +53,6 @@ const EditGroupModalWrapper: React.FC<any> = (props) => {
 
 const meta: Meta<typeof EditGroupModalWrapper> = {
   component: EditGroupModalWrapper,
-  tags: ['edit-group-modal'], // NO autodocs on meta
   decorators: [
     (Story, context) => {
       const { initialRoute } = context.args;

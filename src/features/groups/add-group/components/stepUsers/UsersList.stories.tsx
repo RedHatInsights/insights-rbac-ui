@@ -120,7 +120,6 @@ const UsersListWithData: React.FC<{
 const meta: Meta<typeof UsersListWithData> = {
   title: 'Features/Groups/AddGroup/UsersList',
   component: UsersListWithData,
-  tags: ['users-list'],
   parameters: {
     docs: {
       description: {
@@ -202,6 +201,7 @@ export const WithLinks: Story = {
 };
 
 export const OrgAdmin: Story = {
+  tags: ['perm:org-admin'],
   args: {
     selectedUsers: [],
     setSelectedUsers: fn(),

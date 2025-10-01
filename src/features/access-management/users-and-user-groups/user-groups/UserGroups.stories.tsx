@@ -67,7 +67,7 @@ const withRouter = () => {
 
 const meta: Meta<typeof UserGroups> = {
   component: UserGroups,
-  tags: ['user-groups-container'],
+  tags: ['ff:platform.rbac.groups', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
     permissions: { orgAdmin: true },
@@ -742,6 +742,7 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
 
 // Delete modal integration
 export const DeleteModalIntegration: StoryObj<typeof meta> = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: {
       environment: 'stage', // Use non-production to enable delete actions
@@ -946,6 +947,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
 
 // System group protection
 export const SystemGroupProtection: StoryObj<typeof meta> = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: {
       environment: 'stage', // Use non-production to test disabled state logic

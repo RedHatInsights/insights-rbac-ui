@@ -34,7 +34,6 @@ const mockServiceAccounts = [
 
 const meta: Meta<typeof EditGroupServiceAccountsTable> = {
   component: EditGroupServiceAccountsTable,
-  tags: ['access-management-form'],
   parameters: {
     docs: {
       description: {

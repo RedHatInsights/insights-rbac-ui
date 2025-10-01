@@ -42,7 +42,7 @@ const GroupServiceAccountsWrapper: React.FC = () => {
 
 const meta: Meta<typeof GroupServiceAccountsWrapper> = {
   component: GroupServiceAccountsWrapper,
-  tags: ['group-service-accounts'], // NO autodocs on meta
+  tags: ['custom-css'], // NO autodocs on meta
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/service-accounts']}>
@@ -332,6 +332,7 @@ export const AdminDefault: Story = {
 };
 
 export const WithSelection: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     permissions: {
       orgAdmin: true,
@@ -362,6 +363,7 @@ export const WithSelection: Story = {
 // 🚨 NEW COMPREHENSIVE STORIES TO FIX CRITICAL GAPS
 
 export const ServiceAccountWorkflows: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     permissions: {
       orgAdmin: true,
@@ -448,6 +450,7 @@ export const ServiceAccountWorkflows: Story = {
 };
 
 export const ServiceAccountsFilteringWithData: Story = {
+  tags: ['perm:org-admin'],
   parameters: {
     permissions: {
       orgAdmin: true,
@@ -608,6 +611,7 @@ export const ServiceAccountsFilteringWithData: Story = {
  */
 export const AddServiceAccountLinkTest: Story = {
   name: 'Add Service Account Link Test',
+  tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story
     permissions: {
@@ -673,6 +677,7 @@ export const AddServiceAccountLinkTest: Story = {
  */
 export const BulkActionsTest: Story = {
   name: 'Bulk Actions Test',
+  tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
     permissions: {
@@ -796,6 +801,7 @@ export const BulkActionsTest: Story = {
  */
 export const SelectAllTest: Story = {
   name: 'Select All Functionality Test',
+  tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
     permissions: {
@@ -936,6 +942,7 @@ export const SelectAllTest: Story = {
 
 export const ActionsTest: Story = {
   name: 'Actions Test',
+  tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true }, // Hide from docs as this is a test story
     permissions: {

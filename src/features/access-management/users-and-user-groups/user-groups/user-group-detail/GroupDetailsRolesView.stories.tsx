@@ -9,7 +9,6 @@ import { GroupDetailsRolesView } from './GroupDetailsRolesView';
 
 const meta: Meta<typeof GroupDetailsRolesView> = {
   component: GroupDetailsRolesView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>

@@ -30,7 +30,6 @@ const RemoveGroupModalWrapper: React.FC<any> = ({ postMethod, initialRoute, ...p
 
 const meta: Meta<typeof RemoveGroupModalWrapper> = {
   component: RemoveGroupModalWrapper,
-  tags: ['remove-group-modal'], // NO autodocs on meta
   args: {
     postMethod: fn(),
   },

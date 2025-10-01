@@ -43,7 +43,7 @@ const ModalWrapper = ({ ...storyArgs }: any) => {
 
 const meta: Meta<typeof DeleteUserModal> = {
   component: DeleteUserModal,
-  tags: ['autodocs', 'delete-user-modal'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

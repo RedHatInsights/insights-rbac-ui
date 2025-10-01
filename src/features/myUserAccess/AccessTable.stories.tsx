@@ -24,7 +24,6 @@ const mockPermissions = [
 
 const meta: Meta<typeof AccessTable> = {
   component: AccessTable,
-  tags: ['access-table'], // NO autodocs on meta
   parameters: {},
   args: {
     apps: ['advisor', 'compliance', 'vulnerability'],

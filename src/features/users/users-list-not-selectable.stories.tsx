@@ -65,7 +65,6 @@ const withRouter = (Story: any) => (
 
 const meta: Meta<typeof UsersListNotSelectable> = {
   component: UsersListNotSelectable,
-  tags: ['users-container'],
   decorators: [withRouter],
   parameters: {
     docs: {
@@ -111,7 +110,7 @@ export default meta;
 type Story = StoryObj<typeof meta>;
 
 export const AdminUserWithUsers: Story = {
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {
@@ -257,6 +256,7 @@ After the fix is applied, this test should **PASS** with zero API calls.
 };
 
 export const LoadingState: Story = {
+  tags: ['perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {
@@ -290,6 +290,7 @@ export const LoadingState: Story = {
 };
 
 export const EmptyUsers: Story = {
+  tags: ['perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {
@@ -323,6 +324,7 @@ export const EmptyUsers: Story = {
 };
 
 export const AdminUserWithUsersFiltering: Story = {
+  tags: ['perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {
@@ -394,6 +396,7 @@ export const AdminUserWithUsersFiltering: Story = {
 };
 
 export const AdminUserWithUsersSorting: Story = {
+  tags: ['perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {
@@ -471,6 +474,7 @@ export const AdminUserWithUsersSorting: Story = {
 };
 
 export const AdminUserWithUsersTableContent: Story = {
+  tags: ['perm:org-admin'],
   args: defaultArgs,
   parameters: {
     docs: {

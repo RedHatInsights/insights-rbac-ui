@@ -8,7 +8,7 @@ import { MyUserAccess } from './MyUserAccess';
 
 const meta: Meta<typeof MyUserAccess> = {
   component: MyUserAccess,
-  tags: ['my-user-access'], // NO autodocs on meta
+  tags: ['custom-css'], // NO autodocs on meta
   parameters: {
     // Use existing Chrome provider to mock user and entitlements
     chrome: {
@@ -847,6 +847,7 @@ Tests that filters are properly reset when navigating between bundles.
 
 // Additional story for admin user experience
 export const OrgAdminView: Story = {
+  tags: ['perm:org-admin'],
   args: {
     // Test with default bundle logic for admin user
     bundle: undefined,
@@ -1004,6 +1005,7 @@ export const LimitedEntitlements: Story = {
 
 // Responsive navigation story for small viewports
 export const ResponsiveNavigation: Story = {
+  tags: ['perm:org-admin'],
   globals: {
     viewport: { value: 'mobile2' }, // Large mobile viewport for responsive breakpoint
   },

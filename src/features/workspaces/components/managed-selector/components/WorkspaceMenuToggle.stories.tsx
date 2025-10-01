@@ -5,7 +5,7 @@ import { WorkspaceMenuToggle } from './WorkspaceMenuToggle';
 
 const meta: Meta<typeof WorkspaceMenuToggle> = {
   component: WorkspaceMenuToggle,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

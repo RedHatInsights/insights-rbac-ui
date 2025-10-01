@@ -42,7 +42,6 @@ const mockRolePermissions = [
 
 const meta: Meta<typeof RolesTable> = {
   component: RolesTable,
-  tags: ['roles-table'], // NO autodocs on meta
   parameters: {
     msw: {
       handlers: [
