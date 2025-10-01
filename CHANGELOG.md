@@ -1,3 +1,10 @@
+## [1.57.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.4...v1.57.5) (2025-10-01)
+
+
+### Bug Fixes
+
+* prevent unauthorized API calls causing error toast spam for non-admin users ([55e0ddc](https://github.com/RedHatInsights/insights-rbac-ui/commit/55e0ddc662ce6069c40624c81cc2bcdff8235d16))
+
 ## [1.57.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.3...v1.57.4) (2025-10-01)
 
 
