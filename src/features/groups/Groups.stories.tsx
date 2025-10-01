@@ -1,67 +1,10 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { MemoryRouter, Route, Routes, useOutletContext } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { HttpResponse, delay, http } from 'msw';
 import { Groups } from './Groups';
 import { chromeAppNavClickSpy } from '../../../.storybook/context-providers';
-
-// Mock components for route testing
-const MockAddGroup: React.FC = () => {
-  const context = useOutletContext() as any;
-  return (
-    <div data-testid="add-group-route">
-      <h2>Add Group Modal</h2>
-      <div data-testid="context-data">
-        <div>OrderBy: {context?.['add-group']?.orderBy}</div>
-        <div>PostMethod: {typeof context?.['add-group']?.postMethod}</div>
-      </div>
-      <button data-testid="call-post-method" onClick={() => context?.['add-group']?.postMethod?.({ test: 'config' })}>
-        Call Post Method
-      </button>
-    </div>
-  );
-};
-
-const MockEditGroup: React.FC = () => {
-  const context = useOutletContext() as any;
-  const cancelRoute = context?.['edit/:groupId']?.cancelRoute;
-  const submitRoute = context?.['edit/:groupId']?.submitRoute;
-
-  return (
-    <div data-testid="edit-group-route">
-      <h2>Edit Group Modal</h2>
-      <div data-testid="context-data">
-        <div>CancelRoute: {typeof cancelRoute === 'object' ? JSON.stringify(cancelRoute) : cancelRoute}</div>
-        <div>SubmitRoute: {typeof submitRoute === 'object' ? JSON.stringify(submitRoute) : submitRoute}</div>
-        <div>PostMethod: {typeof context?.['edit/:groupId']?.postMethod}</div>
-      </div>
-      <button data-testid="call-post-method" onClick={() => context?.['edit/:groupId']?.postMethod?.({ test: 'config' })}>
-        Call Post Method
-      </button>
-    </div>
-  );
-};
-
-const MockRemoveGroup: React.FC = () => {
-  const context = useOutletContext() as any;
-  const cancelRoute = context?.['remove-group/:groupId']?.cancelRoute;
-  const submitRoute = context?.['remove-group/:groupId']?.submitRoute;
-
-  return (
-    <div data-testid="remove-group-route">
-      <h2>Remove Group Modal</h2>
-      <div data-testid="context-data">
-        <div>CancelRoute: {typeof cancelRoute === 'object' ? JSON.stringify(cancelRoute) : cancelRoute}</div>
-        <div>SubmitRoute: {typeof submitRoute === 'object' ? JSON.stringify(submitRoute) : submitRoute}</div>
-        <div>PostMethod: {typeof context?.['remove-group/:groupId']?.postMethod}</div>
-      </div>
-      <button data-testid="call-post-method" onClick={() => context?.['remove-group/:groupId']?.postMethod?.(['group-1'], { test: 'config' })}>
-        Call Post Method
-      </button>
-    </div>
-  );
-};
 
 // Mock groups data
 const mockGroups = [
@@ -243,11 +186,7 @@ const meta: Meta<typeof Groups> = {
       return (
         <MemoryRouter initialEntries={initialEntries}>
           <Routes>
-            <Route path="/groups" element={<Story />}>
-              <Route path="add-group" element={<MockAddGroup />} />
-              <Route path="edit/:groupId" element={<MockEditGroup />} />
-              <Route path="remove-group/:groupId" element={<MockRemoveGroup />} />
-            </Route>
+            <Route path="/groups" element={<Story />} />
           </Routes>
         </MemoryRouter>
       );
@@ -849,135 +788,6 @@ export const DefaultGroupsBehavior: Story = {
     expect(within(systemGroupRow).getByText(/Jan.*2024/)).toBeInTheDocument(); // Should show formatted date
   },
 };
-
-// Add group route modal
-export const AddGroupRoute: Story = {
-  parameters: {
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: ['/groups/add-group'],
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
-
-    // Wait for main groups data to load
-    expect(await canvas.findByText('Test Group 1')).toBeInTheDocument();
-
-    // Verify that the add group route is rendered
-    expect(await canvas.findByTestId('add-group-route')).toBeInTheDocument();
-    expect(await canvas.findByText('Add Group Modal')).toBeInTheDocument();
-
-    // Verify context data is passed correctly
-    const contextData = await canvas.findByTestId('context-data');
-    expect(within(contextData).getByText(/OrderBy: name/)).toBeInTheDocument();
-    expect(within(contextData).getByText(/PostMethod: function/)).toBeInTheDocument();
-
-    // Test calling the postMethod
-    const postMethodButton = await canvas.findByTestId('call-post-method');
-
-    // Clear the API spy before testing
-    groupsApiCallSpy.mockClear();
-
-    // Click the button to trigger postMethod
-    await userEvent.click(postMethodButton);
-
-    // Verify that the postMethod triggers a new API call and clears filters
-    await waitFor(() => {
-      expect(groupsApiCallSpy).toHaveBeenCalled();
-      const calls = groupsApiCallSpy.mock.calls;
-      const recentCalls = calls.slice(-3); // Check last few calls for the new one
-      const hasNewCall = recentCalls.some((call) => call[0].name === ''); // Filter cleared
-      expect(hasNewCall).toBe(true);
-    });
-  },
-};
-
-// Edit group route modal
-export const EditGroupRoute: Story = {
-  parameters: {
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: ['/groups/edit/group-1'],
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
-
-    // Wait for main groups data to load
-    expect(await canvas.findByText('Test Group 1')).toBeInTheDocument();
-
-    // Verify that the edit group route is rendered
-    expect(await canvas.findByTestId('edit-group-route')).toBeInTheDocument();
-    expect(await canvas.findByText('Edit Group Modal')).toBeInTheDocument();
-
-    // Verify context data is passed correctly - the essential functionality
-    const contextData = await canvas.findByTestId('context-data');
-    expect(within(contextData).getByText(/CancelRoute:/)).toBeInTheDocument();
-    expect(within(contextData).getByText(/SubmitRoute:/)).toBeInTheDocument();
-    expect(within(contextData).getByText(/PostMethod: function/)).toBeInTheDocument();
-    // Most importantly, verify the postMethod button works
-    const postMethodButton = await canvas.findByTestId('call-post-method');
-    expect(postMethodButton).toBeInTheDocument();
-
-    // Clear the API spy before testing
-    groupsApiCallSpy.mockClear();
-
-    // Click the button to trigger postMethod
-    await userEvent.click(postMethodButton);
-
-    // Verify that the postMethod triggers a new API call and clears filters
-    await waitFor(() => {
-      expect(groupsApiCallSpy).toHaveBeenCalled();
-      const calls = groupsApiCallSpy.mock.calls;
-      const recentCalls = calls.slice(-3); // Check last few calls for the new one
-      const hasNewCall = recentCalls.some((call) => call[0].name === ''); // Filter cleared
-      expect(hasNewCall).toBe(true);
-    });
-  },
-};
-
-// Remove group route modal
-export const RemoveGroupRoute: Story = {
-  parameters: {
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    routerInitialEntries: ['/groups/remove-group/group-1'],
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
-
-    // Wait for main groups data to load
-    expect(await canvas.findByText('Test Group 1')).toBeInTheDocument();
-
-    // Verify that the remove group route is rendered
-    expect(await canvas.findByTestId('remove-group-route')).toBeInTheDocument();
-    expect(await canvas.findByText('Remove Group Modal')).toBeInTheDocument();
-
-    // Verify context data is passed correctly - the essential functionality
-    const contextData = await canvas.findByTestId('context-data');
-    expect(within(contextData).getByText(/CancelRoute:/)).toBeInTheDocument();
-    expect(within(contextData).getByText(/SubmitRoute:/)).toBeInTheDocument();
-    expect(within(contextData).getByText(/PostMethod: function/)).toBeInTheDocument();
-    // Most importantly, verify the postMethod button works
-    const postMethodButton = await canvas.findByTestId('call-post-method');
-    expect(postMethodButton).toBeInTheDocument();
-
-    // Clear the API spy before testing
-    groupsApiCallSpy.mockClear();
-
-    // Click the button to trigger postMethod
-    await userEvent.click(postMethodButton);
-
-    // Verify that the postMethod triggers a new API call and clears filters
-    await waitFor(() => {
-      expect(groupsApiCallSpy).toHaveBeenCalled();
-      const calls = groupsApiCallSpy.mock.calls;
-      const recentCalls = calls.slice(-3); // Check last few calls for the new one
-      const hasNewCall = recentCalls.some((call) => call[0].name === ''); // Filter cleared
-      expect(hasNewCall).toBe(true);
-    });
-  },
-};
-
 // 🚨 PRODUCTION BUG REPRODUCTION: User in org with lots of groups but no groups permissions
 export const ProductionBugReproduction: Story = {
   tags: ['test-spy', 'production-bug'],
