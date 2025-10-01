@@ -1,3 +1,10 @@
+## [1.57.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.6...v1.57.7) (2025-10-01)
+
+
+### Bug Fixes
+
+* do not checkout the repo from the GH cache action ([a7ee1fd](https://github.com/RedHatInsights/insights-rbac-ui/commit/a7ee1fdb25e777cd21e5ffd2bfd468690554e10b))
+
 ## [1.57.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.5...v1.57.6) (2025-10-01)
 
 
