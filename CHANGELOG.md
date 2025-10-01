@@ -1,3 +1,10 @@
+## [1.57.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.5...v1.57.6) (2025-10-01)
+
+
+### Bug Fixes
+
+* test-storybook must run on the same code used by chromatic-deployment ([2902d20](https://github.com/RedHatInsights/insights-rbac-ui/commit/2902d201a28466631736da5dc93c08d9a080c154))
+
 ## [1.57.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.4...v1.57.5) (2025-10-01)
 
 
