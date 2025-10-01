@@ -7,13 +7,15 @@ import configureStore from 'redux-mock-store';
 import thunk from 'redux-thunk';
 import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
+import { HttpResponse, http } from 'msw';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
 import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
-import { Button, Card, CardBody } from '@patternfly/react-core';
-import { HttpResponse, http } from 'msw';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
 
 // Redux store setup
 const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];

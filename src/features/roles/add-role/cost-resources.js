@@ -1,6 +1,11 @@
 import React, { useEffect, useReducer } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { FormGroup, Grid, GridItem, Text, TextVariants, Tooltip } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { Select, SelectOption, SelectVariant } from '@patternfly/react-core/deprecated';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';

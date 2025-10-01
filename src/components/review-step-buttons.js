@@ -1,4 +1,4 @@
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import React, { Fragment, useContext } from 'react';
 import PropTypes from 'prop-types';
 import get from 'lodash/get';

@@ -1,5 +1,6 @@
 import React from 'react';
-import { Tab, Tabs } from '@patternfly/react-core';
+import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { useLocation, useNavigate } from 'react-router-dom';
 import './AppTabs.scss';
 

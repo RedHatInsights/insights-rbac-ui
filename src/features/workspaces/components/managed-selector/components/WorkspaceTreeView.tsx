@@ -2,7 +2,9 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
 import { TreeView, TreeViewDataItem } from '@patternfly/react-core/dist/dynamic/components/TreeView';
-import { Alert, AlertVariant, Bullseye } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { AlertVariant } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core';
 
 export interface Workspace {
   id: string;

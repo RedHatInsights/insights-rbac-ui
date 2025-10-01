@@ -1,16 +1,17 @@
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { PageSection, PageSectionVariants, Spinner } from '@patternfly/react-core';
-import React, { useEffect, useMemo, useState } from 'react';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageSectionVariants } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import Messages from '../../../../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/groups/actions';
 import { RBACStore } from '../../../../../redux/store';
-import { Group } from '../../../../../redux/groups/reducer';
-import { User } from '../../../../../redux/users/reducer';
+import { Group, Member, ServiceAccount } from '../../../../../redux/groups/reducer';
 
 import { useParams } from 'react-router-dom';
 import { EditGroupUsersAndServiceAccounts } from './EditUserGroupUsersAndServiceAccounts';
@@ -41,10 +42,16 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     serviceAccounts?: string[];
   } | null>(null);
 
-  const group = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup);
-  const allGroups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
-  const groupUsers = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.members?.data || []);
-  const groupServiceAccounts = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.serviceAccounts?.data || []);
+  // Memoized selector to prevent unnecessary re-renders
+  const { group, allGroups, groupUsers, groupServiceAccounts } = useSelector(
+    (state: RBACStore) => ({
+      group: state.groupReducer?.selectedGroup,
+      allGroups: state.groupReducer?.groups?.data || [],
+      groupUsers: state.groupReducer?.selectedGroup?.members?.data || [],
+      groupServiceAccounts: state.groupReducer?.selectedGroup?.serviceAccounts?.data || [],
+    }),
+    shallowEqual,
+  );
 
   const breadcrumbsList = useMemo(
     () => [
@@ -60,27 +67,53 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     [intl, pageTitle],
   );
 
+  const fetchData = useCallback(async () => {
+    try {
+      await Promise.all([
+        dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true })),
+        groupId ? dispatch(fetchGroup(groupId)) : Promise.resolve(),
+      ]);
+    } finally {
+      setIsLoading(false);
+    }
+  }, [dispatch, groupId]);
+
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await Promise.all([
-          dispatch(fetchGroups({ limit: 1000, offset: 0, orderBy: 'name', usesMetaInURL: true })),
-          groupId ? dispatch(fetchGroup(groupId)) : Promise.resolve(),
-        ]);
-      } finally {
-        if (group) {
-          setInitialFormData({
-            name: group.name,
-            description: group.description,
-            users: groupUsers.map((user: User) => user.username),
-            serviceAccounts: groupServiceAccounts.map((sa: { clientId: string }) => sa.clientId),
-          });
-        }
-        setIsLoading(false);
-      }
-    };
     fetchData();
-  }, [dispatch, groupId, group?.uuid]);
+  }, [fetchData]);
+
+  // Update form data when group data changes
+  useEffect(() => {
+    if (group && !createNewGroup) {
+      const newFormData = {
+        name: group.name,
+        description: group.description,
+        users: groupUsers.map((user: Member) => user.username),
+        serviceAccounts: groupServiceAccounts.map((sa: ServiceAccount) => sa.clientId).filter((clientId): clientId is string => Boolean(clientId)),
+      };
+
+      // Only update if the data actually changed
+      setInitialFormData((prevData) => {
+        if (
+          !prevData ||
+          prevData.name !== newFormData.name ||
+          prevData.description !== newFormData.description ||
+          JSON.stringify(prevData.users) !== JSON.stringify(newFormData.users) ||
+          JSON.stringify(prevData.serviceAccounts) !== JSON.stringify(newFormData.serviceAccounts)
+        ) {
+          return newFormData;
+        }
+        return prevData;
+      });
+    } else if (createNewGroup && !initialFormData) {
+      setInitialFormData({
+        name: '',
+        description: '',
+        users: [],
+        serviceAccounts: [],
+      });
+    }
+  }, [group?.uuid, group?.name, group?.description, groupUsers.length, groupServiceAccounts.length, createNewGroup, initialFormData]);
 
   const schema = useMemo(
     () => ({

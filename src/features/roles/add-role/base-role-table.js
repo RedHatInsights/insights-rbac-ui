@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
-import { Alert, Radio } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Radio } from '@patternfly/react-core/dist/dynamic/components/Radio';
 import { TableToolbarView } from '../../../components/tables/TableToolbarView';
 import { fetchRolesForWizard } from '../../../redux/roles/actions';
 import { mappedProps } from '../../../helpers/dataUtilities';

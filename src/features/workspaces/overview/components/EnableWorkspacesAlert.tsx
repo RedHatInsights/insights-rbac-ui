@@ -1,20 +1,19 @@
 import React from 'react';
-import { UsersIcon } from '@patternfly/react-icons';
-import {
-  Alert,
-  Button,
-  ButtonVariant,
-  Checkbox,
-  Modal,
-  ModalVariant,
-  Stack,
-  StackItem,
-  Switch,
-  Text,
-  TextVariants,
-  Title,
-  TitleSizes,
-} from '@patternfly/react-core';
+import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
+import { ModalVariant } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { TitleSizes } from '@patternfly/react-core';
+import {} from '@patternfly/react-core';
 import { useIntl } from 'react-intl';
 import messages from '../../../../Messages';
 import './EnableWorkspacesAlert.scss';

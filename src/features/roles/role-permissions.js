@@ -1,7 +1,10 @@
 import React, { useEffect, useReducer, useState } from 'react';
 import PropTypes from 'prop-types';
-import { cellWidth, info } from '@patternfly/react-table';
-import { Button, ButtonVariant, Tooltip } from '@patternfly/react-core';
+import { cellWidth } from '@patternfly/react-table';
+import { info } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';

@@ -1,10 +1,16 @@
 import React, { useEffect, useState } from 'react';
 import PropTypes from 'prop-types';
 import { useIntl } from 'react-intl';
-import { FormHelperText, HelperText, HelperTextItem, Stack, StackItem } from '@patternfly/react-core';
+import { FormHelperText } from '@patternfly/react-core';
+import { HelperText } from '@patternfly/react-core';
+import { HelperTextItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { FormGroup, TextArea, TextInput } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { TextArea } from '@patternfly/react-core/dist/dynamic/components/TextArea';
+import { TextInput } from '@patternfly/react-core';
 import { debouncedAsyncValidator } from './validators';
 import { trimAll } from '../../../helpers/stringUtilities';
 import messages from '../../../Messages';

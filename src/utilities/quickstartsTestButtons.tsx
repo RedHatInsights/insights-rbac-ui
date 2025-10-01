@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import pathnames from './pathnames';
 import monitorSampleAppQuickStart from './sampleQuickstart';

@@ -4,6 +4,25 @@ import userEvent from '@testing-library/user-event';
 import { Toolbar, activeFiltersConfigBuilder, bulkSelectBuilder, filterConfigBuilder, paginationBuilder } from './Toolbar';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 
+// Mock intl object for testing
+const mockIntl = {
+  formatMessage: (message, values = {}) => {
+    // Handle message objects with defaultMessage property
+    if (typeof message === 'object' && message.defaultMessage) {
+      let text = message.defaultMessage;
+      // Replace placeholders with values only if values are provided
+      Object.entries(values).forEach(([key, value]) => {
+        if (value !== undefined) {
+          text = text.replace(new RegExp(`{${key}}`, 'g'), value);
+        }
+      });
+      return text;
+    }
+    // Fallback for string messages
+    return message;
+  },
+};
+
 const testPagination = {
   itemCount: 0,
   page: 1,
@@ -29,7 +48,7 @@ const testFilter = {
         id: 'filter-by-string',
         isDisabled: undefined,
         key: 'filter-by-string',
-        placeholder: 'Filter by {key}',
+        placeholder: 'Filter by ',
         value: '',
       },
       label: '',
@@ -165,14 +184,14 @@ describe('paginationBuilder', () => {
 
 describe('bulkSelectBuilder', () => {
   it('should return correct config - NO DATA', () => {
-    const config = bulkSelectBuilder();
+    const config = bulkSelectBuilder(mockIntl);
     expect(config).toMatchObject(testBulkSelect);
   });
 });
 
 describe('filterConfigBuilder', () => {
   it('should return correct config - NO DATA', () => {
-    const config = filterConfigBuilder();
+    const config = filterConfigBuilder(mockIntl);
     expect(config).toMatchObject(testFilter);
   });
 });

@@ -1,4 +1,6 @@
-import { FormGroup, Tab, Tabs } from '@patternfly/react-core';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import React, { useEffect, useState } from 'react';
 import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
 import { EditGroupServiceAccountsTable } from './EditUserGroupServiceAccounts';

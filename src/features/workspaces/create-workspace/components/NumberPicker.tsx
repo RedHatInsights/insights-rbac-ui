@@ -1,5 +1,6 @@
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
-import { NumberInput, NumberInputProps } from '@patternfly/react-core';
+import { NumberInput } from '@patternfly/react-core/dist/dynamic/components/NumberInput';
+import { NumberInputProps } from '@patternfly/react-core';
 import React from 'react';
 
 export interface NumberPickerProps extends Omit<NumberInputProps, 'name'>, UseFieldApiConfig {}

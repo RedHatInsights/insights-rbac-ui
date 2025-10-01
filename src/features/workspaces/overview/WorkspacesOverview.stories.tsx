@@ -117,6 +117,30 @@ export const Default: Story = {
   },
 };
 
+export const ExpandedMigrationSection: Story = {
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Tests the basic layout when migration visualization section is not available. The expandable section is currently commented out in the component as it awaits visual assets.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify the main service cards are present since migration section is commented out
+    // Look for service card titles specifically (they have ouia-component-id attributes)
+    await expect(canvas.getByRole('heading', { level: 2, name: 'Workspaces' })).toBeInTheDocument();
+    await expect(canvas.getAllByText('Groups')[0]).toBeInTheDocument(); // Service card title
+    await expect(canvas.getAllByText('Role')[0]).toBeInTheDocument(); // Service card title
+    await expect(canvas.getAllByText('Bindings')[0]).toBeInTheDocument(); // Service card title
+
+    // Verify recommended content section is present
+    await expect(canvas.getByText('Recommended content')).toBeInTheDocument();
+    await expect(canvas.getByText('Create a workspace and grant access')).toBeInTheDocument();
+  },
+};
 export const ServiceCardNavigation: Story = {
   parameters: {
     docs: {

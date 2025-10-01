@@ -1,9 +1,10 @@
 import type { Preview } from '@storybook/react-webpack5';
 import '@patternfly/react-core/dist/styles/base.css';
 import '@patternfly/patternfly/patternfly-addons.css';
-import React from 'react';
+import React, { Fragment } from 'react';
 import { IntlProvider } from 'react-intl';
 import { Provider } from 'react-redux';
+import NotificationPortal from '@redhat-cloud-services/frontend-components-notifications/NotificationPortal/';
 import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
@@ -108,7 +109,10 @@ const preview: Preview = {
               <FeatureFlagsProvider value={featureFlags}>
                 <PermissionsContext.Provider value={permissions}>
                   <IntlProvider locale={locale} messages={messages[locale]}>
-                    <Story />
+                    <Fragment>
+                      <NotificationPortal />
+                      <Story />
+                    </Fragment>
                   </IntlProvider>
                 </PermissionsContext.Provider>
               </FeatureFlagsProvider>

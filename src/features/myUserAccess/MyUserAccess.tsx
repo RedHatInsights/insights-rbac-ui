@@ -4,7 +4,8 @@ import { Dropdown, DropdownItem, DropdownToggle } from '@patternfly/react-core/d
 
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { Spinner, Text } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import StatusLabel from './components/StatusLabel';
 import PermissionsContext from '../../utilities/permissionsContext';
 import { bundleData } from './bundleData';
