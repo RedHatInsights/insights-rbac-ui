@@ -8,7 +8,6 @@ const meta: Meta<typeof UsersEmptyState> = {
   title: 'Features/Access-Management/Users/Components/UsersEmptyState',
   component: UsersEmptyState,
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `

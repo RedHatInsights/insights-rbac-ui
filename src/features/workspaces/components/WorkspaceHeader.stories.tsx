@@ -49,7 +49,6 @@ const meta: Meta<typeof WorkspaceHeader> = {
   tags: ['autodocs', 'workspaces', 'workspace-header'],
   decorators: [withProviders],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

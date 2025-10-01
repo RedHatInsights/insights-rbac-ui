@@ -50,7 +50,6 @@ const meta: Meta<typeof EditUserGroup> = {
     },
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

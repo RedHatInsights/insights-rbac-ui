@@ -58,9 +58,7 @@ const meta: Meta<typeof Group> = {
   component: Group,
   tags: ['group-container'], // NO autodocs on meta
   decorators: [withRouter],
-  parameters: {
-    layout: 'fullscreen',
-  },
+  parameters: {},
 };
 
 export default meta;

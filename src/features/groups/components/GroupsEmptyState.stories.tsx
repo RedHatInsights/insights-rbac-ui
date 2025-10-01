@@ -6,9 +6,7 @@ import { GroupsEmptyState } from './GroupsEmptyState';
 const meta: Meta<typeof GroupsEmptyState> = {
   title: 'Features/Groups/Components/GroupsEmptyState',
   component: GroupsEmptyState,
-  parameters: {
-    layout: 'centered',
-  },
+  parameters: {},
   tags: ['autodocs'],
   decorators: [
     (Story) => (

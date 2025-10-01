@@ -1,31 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
-import { Provider } from 'react-redux';
-// @ts-ignore - redux-mock-store doesn't have TypeScript definitions
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
-import { IntlProvider } from 'react-intl';
 import { Group } from '../../../../redux/groups/reducer';
 import { HttpResponse, http } from 'msw';
-
-// Redux store setup
-const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
-const mockStore = configureStore(middlewares);
-
-const createInitialState = (overrides: Record<string, unknown> = {}) => ({
-  groupReducer: {
-    selectedGroup: {
-      members: { data: [], isLoading: false },
-      roles: { data: [], isLoading: false },
-      error: null,
-    },
-    ...overrides,
-  },
-});
 
 // Mock group data
 const mockGroups: Group[] = [
@@ -109,28 +86,10 @@ const groupDetailsHandlers = [
   }),
 ];
 
-// Story decorator to provide necessary context
-const withProviders = (Story: React.ComponentType, context: { parameters?: { mockState?: { groupReducer?: Record<string, unknown> } } }) => {
-  const initialState = createInitialState(context.parameters?.mockState?.groupReducer || {});
-  const store = mockStore(initialState);
-
-  return (
-    <Provider store={store}>
-      <IntlProvider locale="en" messages={{}}>
-        <div style={{ height: '600px', padding: '16px' }}>
-          <Story />
-        </div>
-      </IntlProvider>
-    </Provider>
-  );
-};
-
 const meta: Meta<typeof RoleAssignmentsTable> = {
   component: RoleAssignmentsTable,
   tags: ['autodocs', 'workspaces', 'role-assignments-table'],
-  decorators: [withProviders],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: groupDetailsHandlers,
     },

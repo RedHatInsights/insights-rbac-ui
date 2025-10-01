@@ -110,14 +110,6 @@ export const Default: Story = {
           'Default edit modal with workspace data loaded from Redux. Users should see the workspace name and description pre-populated in the form fields. Tests the complete edit workflow with form validation and submission.',
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        selectedWorkspace: mockWorkspace,
-        workspaces: mockWorkspaces,
-        error: '',
-      },
-    },
     msw: {
       handlers: [
         http.get('/api/rbac/v2/workspaces/', () => {
@@ -190,14 +182,6 @@ export const CancelOperation: Story = {
       description: {
         story:
           'Tests the cancel operation functionality. Verifies that the onCancel callback is triggered and no form submission occurs when users click the cancel button.',
-      },
-    },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        selectedWorkspace: mockWorkspace,
-        workspaces: mockWorkspaces,
-        error: '',
       },
     },
     msw: {

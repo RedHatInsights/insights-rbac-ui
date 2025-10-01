@@ -10,7 +10,6 @@ const meta: Meta<typeof UserDetailsDrawer> = {
   component: UserDetailsDrawer,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component:

@@ -22,7 +22,6 @@ const meta: Meta<typeof UserDetailsRolesView> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

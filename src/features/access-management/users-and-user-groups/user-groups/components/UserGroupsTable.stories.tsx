@@ -108,7 +108,6 @@ const meta: Meta<typeof UserGroupsTable> = {
   ],
   args: defaultArgs,
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

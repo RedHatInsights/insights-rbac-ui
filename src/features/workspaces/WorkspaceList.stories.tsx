@@ -27,7 +27,6 @@ const meta: Meta<typeof WorkspaceList> = {
   tags: ['workspaces', 'workspace-list'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     // Use global providers for these (configured in .storybook/preview.tsx)
     permissions: {
       orgAdmin: true, // Default for testing
@@ -86,13 +85,6 @@ For testing specific scenarios, see these additional stories:
         `,
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        workspaces: mockWorkspaces,
-        error: '',
-      },
-    },
     msw: {
       handlers: [
         http.get('/api/rbac/v2/workspaces/', () => {
@@ -126,13 +118,6 @@ export const Loading: Story = {
           'Tests container Redux integration for loading states. The component should show skeleton loading indicators while data is being fetched through Redux state management.',
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: true,
-        workspaces: [],
-        error: '',
-      },
-    },
     msw: {
       handlers: [
         // Never resolve to keep component in loading state
@@ -158,13 +143,6 @@ export const Empty: Story = {
       description: {
         story:
           'Tests container handling of empty workspace data from Redux. When no workspaces are available, the container should coordinate with the table to display appropriate empty state messaging.',
-      },
-    },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        workspaces: [],
-        error: '',
       },
     },
     msw: {
@@ -233,13 +211,6 @@ export const PermissionIntegration: Story = {
           'Tests container permission integration with Chrome API. Users should see permission-based action enablement that matches table component behavior, but delivered through real Chrome.getUserPermissions() flow. Validates container fetches and filters permissions correctly.',
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        workspaces: mockWorkspaces, // Use same data as table stories
-        error: '',
-      },
-    },
     // Mock Chrome permissions similar to table NoPermissions story
     chrome: {
       environment: 'prod',
@@ -247,7 +218,7 @@ export const PermissionIntegration: Story = {
     },
     msw: {
       handlers: [
-        // Mock API to return data that matches our Redux state
+        // Mock API to return data through Redux orchestration
         http.get('/api/rbac/v2/workspaces/', () => {
           return HttpResponse.json({
             data: mockWorkspaces.map((ws) => ({ ...ws, children: undefined })), // API format
@@ -280,13 +251,6 @@ export const MoveWorkspaceModal: Story = {
           'Tests the complete move workspace flow through the container. Users can open the move modal from table actions, select a destination workspace, and submit the move request. Validates that container properly handles modal state, calls the correct moveWorkspace API with proper parameters, and refreshes data after successful operation.',
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: false,
-        workspaces: mockWorkspaces,
-        error: '',
-      },
-    },
     chrome: {
       environment: 'stage', // Change to stage to enable move functionality
       getUserPermissions: () =>
@@ -299,7 +263,7 @@ export const MoveWorkspaceModal: Story = {
     },
     msw: {
       handlers: [
-        // Mock get workspaces API
+        // Mock get workspaces API - Redux will fetch this on mount
         http.get('/api/rbac/v2/workspaces/', () => {
           return HttpResponse.json({
             data: mockWorkspaces,

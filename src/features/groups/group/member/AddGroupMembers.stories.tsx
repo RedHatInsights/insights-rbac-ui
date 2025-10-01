@@ -57,7 +57,6 @@ const meta: Meta<any> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: [
         // 🎯 CRITICAL: Enhanced Users API with filtering and pagination support

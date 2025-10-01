@@ -85,7 +85,6 @@ const meta: Meta<typeof EditGroupUsersAndServiceAccounts> = {
   component: EditGroupUsersAndServiceAccounts,
   tags: ['access-management-form'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

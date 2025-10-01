@@ -57,7 +57,6 @@ const meta: Meta<typeof UserDetailsDrawer> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

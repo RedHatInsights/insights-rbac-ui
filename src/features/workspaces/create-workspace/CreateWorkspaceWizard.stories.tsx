@@ -2,13 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { CreateWorkspaceWizard } from './CreateWorkspaceWizard';
-import { Provider } from 'react-redux';
 import { MemoryRouter } from 'react-router-dom';
-// @ts-ignore - redux-mock-store doesn't have TypeScript definitions
-import configureStore from 'redux-mock-store';
-import thunk from 'redux-thunk';
-import promiseMiddleware from 'redux-promise-middleware';
-import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 
@@ -30,51 +24,38 @@ const mockWorkspaces = [
   },
 ];
 
-// Redux store setup following the add-group wizard test pattern
-const middlewares = [thunk, promiseMiddleware, notificationsMiddleware()];
-const mockStore = configureStore(middlewares);
-
-const createInitialState = (overrides: any = {}) => ({
-  workspacesReducer: {
-    isLoading: false,
-    workspaces: mockWorkspaces,
-    error: '',
-    ...overrides.workspacesReducer,
-  },
-  ...overrides,
-});
-
-// Modal wizard wrapper component following modal testing rules
-const WizardWrapper = ({ storyArgs, storeState }: { storyArgs: any; storeState: any }) => {
+// Modal wizard wrapper component - uses global Redux from preview.tsx
+const WizardWrapper = ({ storyArgs }: { storyArgs: any }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const initialState = createInitialState(storeState);
-  const store = mockStore(initialState);
 
   return (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={['/iam/access-management/workspaces/new']} initialIndex={0}>
-        <div>
-          <Button data-testid="open-wizard-button" onClick={() => setIsOpen(true)}>
-            Open Create Workspace Wizard
-          </Button>
-          {isOpen && (
-            <CreateWorkspaceWizard
-              {...storyArgs}
-              afterSubmit={() => {
-                setIsOpen(false);
-                storyArgs.afterSubmit();
-              }}
-              onCancel={() => {
-                setIsOpen(false);
-                storyArgs.onCancel();
-              }}
-            />
-          )}
-        </div>
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={['/iam/access-management/workspaces/new']} initialIndex={0}>
+      <div>
+        <Button data-testid="open-wizard-button" onClick={() => setIsOpen(true)}>
+          Open Create Workspace Wizard
+        </Button>
+        {isOpen && (
+          <CreateWorkspaceWizard
+            {...storyArgs}
+            afterSubmit={() => {
+              setIsOpen(false);
+              storyArgs.afterSubmit();
+            }}
+            onCancel={() => {
+              setIsOpen(false);
+              storyArgs.onCancel();
+            }}
+          />
+        )}
+      </div>
+    </MemoryRouter>
   );
 };
+
+// API spy for tracking workspace creation
+// TODO: Add a story that tests full wizard submission flow
+// Example: Fill form → Click Next → Review → Submit → Verify createWorkspaceSpy was called
+const createWorkspaceSpy = fn();
 
 const meta: Meta<typeof CreateWorkspaceWizard> = {
   component: CreateWorkspaceWizard,
@@ -104,7 +85,7 @@ Since this is a modal wizard, these stories use a button wrapper pattern where y
       },
     },
   },
-  render: (args, { parameters }) => <WizardWrapper storyArgs={args} storeState={parameters.storeState} />,
+  render: (args) => <WizardWrapper storyArgs={args} />,
 };
 
 export default meta;
@@ -137,6 +118,10 @@ export const Default: Story = {
         }),
         http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
           const body = (await request.json()) as Record<string, any>;
+
+          // Track workspace creation with spy
+          createWorkspaceSpy(body);
+
           return HttpResponse.json({
             id: 'new-workspace',
             name: body.name,
@@ -208,6 +193,10 @@ export const WithBillingFeatures: Story = {
         }),
         http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
           const body = (await request.json()) as Record<string, any>;
+
+          // Track workspace creation with spy
+          createWorkspaceSpy(body);
+
           return HttpResponse.json({
             id: 'new-workspace-with-billing',
             name: body.name,
@@ -254,13 +243,6 @@ export const LoadingWorkspaces: Story = {
         story: 'Tests the wizard behavior when workspace data is loading. Shows loading states and skeleton components.',
       },
     },
-    storeState: {
-      workspacesReducer: {
-        isLoading: true,
-        workspaces: [],
-        error: '',
-      },
-    },
     featureFlags: {
       'platform.rbac.workspaces-billing-features': false,
       'platform.rbac.workspace-hierarchy': true,
@@ -268,7 +250,7 @@ export const LoadingWorkspaces: Story = {
     },
     msw: {
       handlers: [
-        // Simulate slow loading
+        // Simulate slow loading - wizard will dispatch fetch action on mount
         http.get('/api/rbac/v2/workspaces/', async () => {
           await delay('infinite');
           return HttpResponse.json({

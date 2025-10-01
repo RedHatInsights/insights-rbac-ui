@@ -132,7 +132,6 @@ const meta: Meta<typeof RolesListTestWrapper> = {
   component: RolesListTestWrapper,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

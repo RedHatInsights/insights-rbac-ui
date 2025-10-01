@@ -68,7 +68,6 @@ const meta: Meta<typeof UsersListNotSelectable> = {
   tags: ['users-container'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

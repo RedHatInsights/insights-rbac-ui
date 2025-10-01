@@ -12,7 +12,6 @@ const meta: Meta<AdminViewStoryArgs> = {
   tags: ['autodocs'],
   parameters: {
     // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout
-    layout: 'centered',
     docs: {
       description: {
         component: `

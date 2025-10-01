@@ -119,7 +119,6 @@ const meta: Meta<typeof MoveWorkspaceDialog> = {
   tags: ['autodocs', 'workspaces', 'move-workspace-dialog'],
   decorators: [withProviders],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: workspaceApiHandlers,
     },

@@ -153,7 +153,6 @@ const meta: Meta<any> = {
   component: AddGroupRolesWithData,
   tags: ['add-group-roles', 'modal-testing', 'filtering-pagination'],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: [
         // 🎯 CRITICAL: Group data handler that populates selectedGroup in Redux
@@ -1170,24 +1169,41 @@ export const AddRolesToGroupAPITest = {
     );
 
     // Select the first available role by clicking its checkbox
-    const checkboxes = modalContent.getAllByRole('checkbox');
-    // Find the first data row checkbox (has aria-label like "Select row 0")
-    const firstRoleCheckbox = checkboxes.find(
-      (checkbox) => checkbox.hasAttribute('aria-label') && checkbox.getAttribute('aria-label')?.includes('Select row'),
+    // Wait for checkboxes to be available and interactive
+    let firstRoleCheckbox: HTMLElement | undefined;
+    await waitFor(
+      () => {
+        const checkboxes = modalContent.getAllByRole('checkbox');
+        // Find the first data row checkbox (has aria-label like "Select row 0")
+        firstRoleCheckbox = checkboxes.find(
+          (checkbox) => checkbox.hasAttribute('aria-label') && checkbox.getAttribute('aria-label')?.includes('Select row'),
+        );
+        expect(firstRoleCheckbox).toBeTruthy();
+      },
+      { timeout: 5000 },
     );
 
-    if (firstRoleCheckbox) {
-      await userEvent.click(firstRoleCheckbox);
+    await userEvent.click(firstRoleCheckbox!);
 
-      // Verify the checkbox is checked
-      expect(firstRoleCheckbox).toBeChecked();
-    } else {
-    }
+    // Verify the checkbox is checked
+    await waitFor(
+      () => {
+        expect(firstRoleCheckbox).toBeChecked();
+      },
+      { timeout: 2000 },
+    );
 
-    // Find and click the "Add to Group" button
+    // Find the "Add to Group" button and wait for it to become enabled
     const addButton = await modalContent.findByRole('button', { name: /add to group/i });
     expect(addButton).toBeInTheDocument();
-    expect(addButton).not.toBeDisabled();
+
+    // Wait for button to become enabled after role selection (fixes race condition)
+    await waitFor(
+      () => {
+        expect(addButton).not.toBeDisabled();
+      },
+      { timeout: 5000 },
+    );
 
     await userEvent.click(addButton);
 

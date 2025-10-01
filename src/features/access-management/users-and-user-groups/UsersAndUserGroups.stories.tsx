@@ -75,9 +75,7 @@ const meta: Meta<typeof UsersAndUserGroups> = {
       </MemoryRouter>
     ),
   ],
-  parameters: {
-    layout: 'fullscreen',
-  },
+  parameters: {},
 };
 
 export default meta;

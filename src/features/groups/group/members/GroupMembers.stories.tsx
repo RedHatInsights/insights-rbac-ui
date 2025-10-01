@@ -55,9 +55,6 @@ const mockDefaultPlatformGroup = {
 // Track API calls for parameter verification
 const getMembersSpy = fn();
 const getGroupSpy = fn();
-const removeMemberSpy = fn();
-const getGroupsSpy = fn();
-const addMemberSpy = fn();
 
 // Mock route components for testing nested routes
 // Mock components for outlet routes
@@ -159,30 +156,6 @@ const createMockHandlers = () => [
       data: filteredMembers,
       meta: { count: filteredMembers.length, limit, offset },
     });
-  }),
-  // Remove member from group
-  http.delete('/api/rbac/v1/groups/:groupId/principals/', ({ params }) => {
-    removeMemberSpy({ groupId: params.groupId });
-    return HttpResponse.json({}, { status: 204 });
-  }),
-  // Fetch groups list (for remove group postMethod)
-  http.get('/api/rbac/v1/groups/', ({ request }) => {
-    const url = new URL(request.url);
-    const name = url.searchParams.get('name') || '';
-    const limit = parseInt(url.searchParams.get('limit') || '20');
-    const offset = parseInt(url.searchParams.get('offset') || '0');
-
-    getGroupsSpy({ name, limit, offset });
-
-    return HttpResponse.json({
-      data: [mockGroup],
-      meta: { count: 1, limit, offset },
-    });
-  }),
-  // Add members to group (for add members functionality)
-  http.post('/api/rbac/v1/groups/:groupId/principals/', ({ params }) => {
-    addMemberSpy({ groupId: params.groupId });
-    return HttpResponse.json({}, { status: 201 });
   }),
 ];
 

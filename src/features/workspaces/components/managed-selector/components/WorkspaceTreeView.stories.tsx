@@ -7,7 +7,6 @@ const meta: Meta<typeof WorkspaceTreeView> = {
   component: WorkspaceTreeView,
   tags: ['autodocs', 'workspaces'],
   parameters: {
-    layout: 'padded',
     // Chromatic configuration to reduce flakiness
     chromatic: {
       delay: 500, // Wait for TreeView to fully render

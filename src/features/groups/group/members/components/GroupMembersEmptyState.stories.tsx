@@ -8,7 +8,6 @@ const meta: Meta<typeof GroupMembersEmptyState> = {
   title: 'Features/Groups/Members/Components/GroupMembersEmptyState',
   component: GroupMembersEmptyState,
   parameters: {
-    layout: 'padded',
     docs: {
       description: {
         component: `
