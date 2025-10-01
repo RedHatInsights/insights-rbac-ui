@@ -1,7 +1,9 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import { ContentHeader } from '@patternfly/react-component-groups';
-import { Breadcrumb, BreadcrumbItem, Skeleton } from '@patternfly/react-core';
+import { Breadcrumb } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { BreadcrumbItem } from '@patternfly/react-core/dist/dynamic/components/Breadcrumb';
+import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
 import { WorkspaceActions } from './WorkspaceActions';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import messages from '../../../Messages';

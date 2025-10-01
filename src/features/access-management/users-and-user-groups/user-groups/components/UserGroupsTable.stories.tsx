@@ -409,6 +409,14 @@ export const BulkSelection: Story = {
     allCheckboxes.forEach(async (checkbox) => {
       await expect(checkbox).toBeChecked();
     });
+
+    // TEST DESELECT: Click bulk select again to deselect all
+    await userEvent.click(bulkSelectButton);
+
+    // After clicking bulk select again, all checkboxes should be unchecked
+    allCheckboxes.forEach(async (checkbox) => {
+      await expect(checkbox).not.toBeChecked();
+    });
   },
 };
 

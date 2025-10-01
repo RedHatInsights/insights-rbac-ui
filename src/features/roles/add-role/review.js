@@ -1,6 +1,11 @@
 import React from 'react';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import { Grid, GridItem, Stack, StackItem, Text, TextVariants } from '@patternfly/react-core';
+import { Grid } from '@patternfly/react-core';
+import { GridItem } from '@patternfly/react-core';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 import './review.scss';

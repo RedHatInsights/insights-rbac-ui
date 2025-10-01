@@ -1,14 +1,30 @@
 ---
-type: auto_attached
+type: required
 description: "Storybook story development guidelines including component documentation, user interaction testing, play functions, feature flag handling, and story organization standards."
 patterns:
   - "**/*.stories.tsx"
   - "**/*.stories.ts"
 tags:
   - storybook
+priority: critical
 ---
 
-# Storybook Development Guidelines
+# MANDATORY Storybook Development Guidelines
+## 🚨 CRITICAL ENFORCEMENT RULES (AI MUST FOLLOW) 
+
+**⚠️ NEVER IGNORE THESE RULES FOR .stories.tsx FILES ⚠️**
+
+### ABSOLUTE REQUIREMENTS FOR ALL .stories.tsx FILES
+1. **IMPORT RULE**: `import { userEvent, within, expect, fn, waitFor } from 'storybook/test';` - NEVER from @storybook/test
+2. **QUERY RULE**: Use `await canvas.findByText()` - NEVER `canvas.getByText()` in play functions
+3. **MODAL RULE**: Use `screen.getByRole('dialog')` - Modals render to document.body, NOT canvas
+4. **AWAIT RULE**: ALWAYS `await expect(...)` in play functions for Interactions panel
+5. **CONTAINER RULE**: Single autodocs pattern - meta has NO autodocs, default story ONLY
+6. **MSW RULE**: Use MSW handlers - NEVER storeState for container stories
+7. **ARGS RULE**: Only remove `args` parameter if story doesn't use it
+8. **API SPY RULE**: For container stories - ALWAYS use `const apiSpy = fn()` + call in MSW handlers + test with `expect(apiSpy).toHaveBeenCalled()`
+9. **REACT-DATA-VIEW RULE**: Use exact patterns - BulkSelect from react-component-groups, useDataViewSelection with matchOption, conditional selection prop
+
 ## Quick Reference (AI Priority)
 
 ### Story Types & Patterns
@@ -226,9 +242,36 @@ export const LoadingState: Story = {
     },
   },
   play: async ({ canvasElement }) => {
-    // Test loading behavior
+    // Test skeleton loading state (standard pattern)
+    await waitFor(
+      async () => {
+        const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+        await expect(skeletonElements.length).toBeGreaterThan(0);
+      },
+      { timeout: 10000 },
+    );
   },
 };
+```
+
+### Loading State Testing Requirements
+- **REQUIRED**: All loading states must test for skeleton elements using the standard pattern
+- **NEVER** test for absence of data - always test for presence of skeleton loading indicators
+- Use `canvasElement.querySelectorAll('[class*="skeleton"]')` to find skeleton elements
+- Always wrap in `waitFor` with appropriate timeout for async loading behavior
+
+**Standard Loading State Test Pattern:**
+```typescript
+play: async ({ canvasElement }) => {
+  // Test skeleton loading state (check for skeleton class)
+  await waitFor(
+    async () => {
+      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletonElements.length).toBeGreaterThan(0);
+    },
+    { timeout: 10000 },
+  );
+},
 ```
 
 ### User Interaction Testing Requirements
@@ -362,8 +405,6 @@ export const ClickableStory: Story = {
 - **Test both positive and negative cases**
 - **Never add play functions to comparison stories**
 
-### Spy Testing with Async Operations (NEW)
-
 #### Debounced API Calls
 When testing spies for debounced operations (filtering, search), use `waitFor()`:
 
@@ -406,6 +447,1020 @@ expect(clickSpy).toHaveBeenCalled(); // Immediate assertion OK
 await userEvent.click(sortHeader);
 expect(sortSpy).toHaveBeenCalledWith('display_name'); // Immediate assertion OK
 ```
+
+=======
+## API Call Testing with MSW Spies (CRITICAL PATTERN)
+
+### The Problem: Testing API Integration
+- Components make API calls via Redux actions or direct fetch
+- Need to verify correct API calls are made with proper parameters
+- MSW handlers mock responses but don't track calls by default
+
+### The Solution: API Spy Pattern
+**ALWAYS** use this 3-step pattern to test API calls in container stories:
+
+#### Step 1: Create API Spies
+```typescript
+// At the top of your story file (outside meta/stories)
+const groupsApiSpy = fn();
+const createGroupSpy = fn();
+const updateGroupSpy = fn();
+const deleteGroupSpy = fn();
+```
+
+#### Step 2: Call Spies in MSW Handlers
+```typescript
+const meta: Meta<typeof Component> = {
+  parameters: {
+    msw: {
+      handlers: [
+        // GET endpoint - spy tracks parameters
+        http.get('/api/rbac/v1/groups/', ({ request }) => {
+          const url = new URL(request.url);
+          const name = url.searchParams.get('name') || '';
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+          
+          // CRITICAL: Call spy with parameters for testing
+          groupsApiSpy({
+            name,
+            limit: limit.toString(),
+            offset: offset.toString(),
+            order_by: url.searchParams.get('order_by') || 'name',
+          });
+          
+          return HttpResponse.json({ data: mockData, meta: { count: 1, limit, offset } });
+        }),
+        
+        // POST endpoint - spy tracks request body
+        http.post('/api/rbac/v1/groups/', async ({ request }) => {
+          const body = await request.json();
+          
+          // CRITICAL: Call spy with body for testing
+          createGroupSpy({
+            name: body.name,
+            description: body.description,
+          });
+          
+          return HttpResponse.json({ uuid: 'new-group-id', ...body });
+        }),
+        
+        // PUT endpoint - spy tracks both params and body
+        http.put('/api/rbac/v1/groups/:groupId/', async ({ params, request }) => {
+          const body = await request.json();
+          
+          // CRITICAL: Call spy with both params and body
+          updateGroupSpy({
+            groupId: params.groupId,
+            updates: body,
+          });
+          
+          return HttpResponse.json({ uuid: params.groupId, ...body });
+        }),
+        
+        // DELETE endpoint - spy tracks params
+        http.delete('/api/rbac/v1/groups/:groupId/', ({ params }) => {
+          // CRITICAL: Call spy with deletion info
+          deleteGroupSpy({ groupId: params.groupId });
+          
+          return HttpResponse.json({}, { status: 204 });
+        }),
+      ],
+    },
+  },
+};
+```
+
+#### Step 3: Test Spies in Play Functions
+```typescript
+export const TestAPIIntegration: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Wait for initial API calls
+    await delay(300);
+    
+    // CRITICAL: Verify initial load API call
+    expect(groupsApiSpy).toHaveBeenCalledWith({
+      name: '',
+      limit: '20', 
+      offset: '0',
+      order_by: 'name',
+    });
+    
+    // Test user interaction that triggers API call
+    const createButton = await canvas.findByRole('button', { name: /create/i });
+    await userEvent.click(createButton);
+    
+    // Fill and submit form
+    const nameInput = await canvas.findByLabelText(/group name/i);
+    await userEvent.type(nameInput, 'New Test Group');
+    
+    const submitButton = await canvas.findByRole('button', { name: /save/i });
+    await userEvent.click(submitButton);
+    
+    // CRITICAL: Verify create API call was made with correct data
+    await waitFor(async () => {
+      expect(createGroupSpy).toHaveBeenCalledWith({
+        name: 'New Test Group',
+        description: '', // or expected value
+      });
+    });
+    
+    // CRITICAL: Verify refresh API call after creation
+    expect(groupsApiSpy).toHaveBeenCalledTimes(2); // Initial + refresh
+  },
+};
+```
+
+### API Spy Pattern Best Practices
+
+#### Required Spy Naming Convention
+- Use descriptive names ending with `Spy`: `groupsApiSpy`, `createGroupSpy`
+- Match the API endpoint purpose: `getUsersSpy`, `deleteUserSpy`
+- Group related spies together in the same story file
+
+#### MSW Handler Requirements
+- **ALWAYS** call the spy inside the handler function
+- **ALWAYS** extract and pass meaningful parameters to spy
+- **ALWAYS** return appropriate mock data after spy call
+- Use `request.json()` for POST/PUT bodies, `params` for path params, `url.searchParams` for query params
+
+#### Play Function Requirements
+- **ALWAYS** test that spies were called: `expect(apiSpy).toHaveBeenCalled()`
+- **ALWAYS** verify spy parameters: `expect(apiSpy).toHaveBeenCalledWith({ expected: 'params' })`
+- **ALWAYS** use `toHaveBeenCalledTimes(n)` when testing multiple calls
+- **ALWAYS** wrap spy assertions in `waitFor` for async operations
+
+### Common API Spy Patterns
+
+#### Pattern 1: Query Parameter Testing
+```typescript
+// MSW Handler
+groupsApiSpy({
+  name: url.searchParams.get('name') || '',
+  limit: url.searchParams.get('limit') || '20',
+  admin_default: url.searchParams.get('admin_default'),
+});
+
+// Play Function Test  
+expect(groupsApiSpy).toHaveBeenCalledWith({
+  name: 'test-filter',
+  limit: '10',
+  admin_default: 'true',
+});
+```
+
+#### Pattern 2: Request Body Testing
+```typescript
+// MSW Handler
+const body = await request.json();
+createUserSpy({
+  username: body.username,
+  email: body.email,
+  roles: body.roles || [],
+});
+
+// Play Function Test
+expect(createUserSpy).toHaveBeenCalledWith({
+  username: 'john.doe',
+  email: 'john@example.com', 
+  roles: ['user', 'admin'],
+});
+```
+
+#### Pattern 3: Multiple Call Verification
+```typescript
+// Play Function Test
+expect(groupsApiSpy).toHaveBeenCalledTimes(2);
+expect(groupsApiSpy).toHaveBeenNthCalledWith(1, { name: '', limit: '20' });
+expect(groupsApiSpy).toHaveBeenNthCalledWith(2, { name: 'filtered', limit: '20' });
+```
+
+### Integration with Global Spies
+
+Some spies are defined globally in `.storybook/context-providers.tsx`:
+```typescript
+import { chromeAppNavClickSpy } from '../../../.storybook/context-providers';
+
+// Test Chrome integration
+expect(chromeAppNavClickSpy).toHaveBeenCalledWith({ 
+  id: 'groups', 
+  secondaryNav: true 
+});
+```
+
+### Why This Pattern Works
+- **Real API Testing**: Tests actual API integration, not pre-populated state
+- **Parameter Validation**: Ensures correct data is sent to APIs
+- **Integration Verification**: Tests the complete Redux action → API → response flow
+- **Regression Prevention**: Catches API contract changes and parameter bugs
+- **Documentation**: Serves as living documentation of API usage patterns
+
+## React-Data-View Usage & Testing Patterns (CRITICAL)
+
+### The Problem: Common AI React-Data-View Mistakes
+The AI frequently gets these react-data-view patterns wrong:
+
+1. **Bulk Select**: Doesn't work or works only partially
+2. **Toolbar Action Dropdown**: Often missing or not working properly
+3. **Table Row Actions**: Missing action dropdowns
+4. **Search/Pagination/Sorting**: Wrong implementation and missing tests
+
+### Required Imports & Dependencies
+```typescript
+// Core DataView components - ALWAYS use these exact imports
+import { DataView, DataViewState } from '@patternfly/react-data-view';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
+import { DataViewTextFilter } from '@patternfly/react-data-view';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+
+// Hooks - ALWAYS use these exact imports
+import { useDataViewFilters, useDataViewSelection, useDataViewPagination } from '@patternfly/react-data-view';
+
+// BulkSelect - CRITICAL: From react-component-groups, NOT react-core
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+
+// Skeleton components
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+```
+
+### 1. BULK SELECT PATTERN (CRITICAL)
+
+#### Hook Setup - REQUIRED Pattern
+```typescript
+// CRITICAL: Use exact hook pattern
+const selection = useDataViewSelection({
+  matchOption: (a, b) => a.id === b.id, // REQUIRED for proper selection matching
+});
+
+// CRITICAL: BulkSelect handler with all required cases
+const handleBulkSelect = useCallback(
+  (value: BulkSelectValue) => {
+    if (value === BulkSelectValue.none) {
+      selection.onSelect(false); // Clear all selections
+    } else if (value === BulkSelectValue.page) {
+      selection.onSelect(true, tableRows); // CRITICAL: Pass tableRows, not raw data
+    } else if (value === BulkSelectValue.nonePage) {
+      selection.onSelect(false, tableRows);
+    }
+    // Note: 'all' across pages handled differently if needed
+  },
+  [selection, tableRows] // CRITICAL: Include tableRows in dependencies
+);
+```
+
+#### Component Structure - REQUIRED Pattern
+```typescript
+// CRITICAL: Memoized BulkSelect component to prevent infinite loops
+const bulkSelectComponent = useMemo(() => {
+  if (!hasPermissions || isAdminDefault) {
+    return undefined; // No bulk select for restricted users
+  }
+
+  const selectedCount = selection.selected?.length || 0;
+  const totalCount = items.length;
+
+  return (
+    <BulkSelect
+      isDataPaginated={false} // Set true if using pagination
+      selectedCount={selectedCount}
+      totalCount={totalCount}
+      pageCount={totalCount} // For current page count
+      onSelect={handleBulkSelect}
+    />
+  );
+}, [hasPermissions, isAdminDefault, selection.selected?.length, items.length, handleBulkSelect]);
+
+// DataView component - CRITICAL selection prop
+<DataView
+  activeState={activeState}
+  selection={hasPermissions ? selection : undefined} // CRITICAL: Conditional selection
+>
+  <DataViewToolbar
+    bulkSelect={bulkSelectComponent} // CRITICAL: Pass memoized component
+    // ... other toolbar props
+  />
+</DataView>
+```
+
+#### BulkSelect Testing Pattern - MANDATORY
+```typescript
+export const BulkSelection: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Wait for table and data
+    await canvas.findByRole('grid');
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    
+    // CRITICAL: Find bulk select checkbox (first checkbox)
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    const bulkSelectCheckbox = checkboxes[0]; // First is bulk select
+    expect(bulkSelectCheckbox).not.toBeChecked();
+    
+    // CRITICAL: Test bulk selection
+    await userEvent.click(bulkSelectCheckbox);
+    expect(bulkSelectCheckbox).toBeChecked();
+    
+    // CRITICAL: Verify individual rows are selected
+    const rowCheckboxes = checkboxes.filter((cb) => cb !== bulkSelectCheckbox);
+    rowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).toBeChecked();
+    });
+    
+    // CRITICAL: Test deselection
+    await userEvent.click(bulkSelectCheckbox);
+    expect(bulkSelectCheckbox).not.toBeChecked();
+    rowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).not.toBeChecked();
+    });
+  },
+};
+```
+
+### 2. TOOLBAR ACTION DROPDOWN PATTERN
+
+#### Component Structure - REQUIRED Pattern
+```typescript
+// CRITICAL: Conditional toolbar actions based on selection
+const toolbarActions = useMemo(() => {
+  if (!hasPermissions) return undefined;
+  
+  return (
+    <>
+      {/* Primary actions - ALWAYS outside kebab menu */}
+      <Button variant="primary" onClick={handleAddItem}>
+        Add Item
+      </Button>
+      
+      {/* Secondary actions - CONDITIONAL based on selection */}
+      {selection.selected.length > 0 && (
+        <Button
+          variant="secondary"
+          onClick={() => handleBulkAction(selection.selected)}
+        >
+          Remove ({selection.selected.length})
+        </Button>
+      )}
+      
+      {/* Kebab menu for additional actions */}
+      <KebabActionsMenu
+        selectedItems={selection.selected}
+        onRemove={handleRemove}
+        // ... other actions
+      />
+    </>
+  );
+}, [hasPermissions, selection.selected, handleAddItem, handleBulkAction]);
+
+<DataViewToolbar
+  bulkSelect={bulkSelectComponent}
+  actions={toolbarActions} // CRITICAL: Conditional actions
+  // ... other props
+/>
+```
+
+#### Toolbar Actions Testing - MANDATORY
+```typescript
+export const ToolbarActionsState: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // CRITICAL: Test primary button (always visible)
+    const addButton = await canvas.findByRole('button', { name: 'Add Item' });
+    expect(addButton).not.toHaveAttribute('disabled');
+    
+    // CRITICAL: Test kebab menu (initial state - no selection)
+    const kebabButtons = await canvas.findAllByLabelText('Kebab toggle');
+    const toolbarKebab = kebabButtons[0]; // First is toolbar kebab
+    await userEvent.click(toolbarKebab);
+    
+    // CRITICAL: Verify disabled state when no selection
+    const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
+    expect(removeOption).toHaveAttribute('disabled');
+    
+    // Close menu and select item
+    await userEvent.click(canvasElement);
+    
+    // CRITICAL: Select a row to test enabled state
+    const firstRow = (await canvas.findByText('alice.johnson')).closest('tr');
+    const rowCheckbox = within(firstRow).getByRole('checkbox');
+    await userEvent.click(rowCheckbox);
+    
+    // CRITICAL: Test enabled state after selection
+    await userEvent.click(toolbarKebab);
+    const removeAfter = await canvas.findByRole('menuitem', { name: 'Remove' });
+    expect(removeAfter).not.toHaveAttribute('disabled');
+  },
+};
+```
+
+### 3. TABLE ROW ACTION DROPDOWN PATTERN
+
+#### Row Actions Component - REQUIRED Pattern
+```typescript
+// CRITICAL: Individual row actions component
+const RowActionsMenu: React.FC<{ item: ItemType; onRemove: (item: ItemType) => void }> = ({ item, onRemove }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  
+  return (
+    <Dropdown
+      isOpen={isOpen}
+      onSelect={() => setIsOpen(false)}
+      toggle={
+        <MenuToggle
+          aria-label="Kebab toggle"
+          variant="plain"
+          onClick={() => setIsOpen(!isOpen)}
+        >
+          <EllipsisVIcon />
+        </MenuToggle>
+      }
+    >
+      <DropdownList>
+        <DropdownItem onClick={() => onRemove(item)}>
+          Remove
+        </DropdownItem>
+        {/* Additional actions */}
+      </DropdownList>
+    </Dropdown>
+  );
+};
+
+// CRITICAL: Table rows with actions column
+const tableRows = useMemo(() => {
+  return items.map((item) => ({
+    id: item.id, // CRITICAL: Must have id for selection
+    cells: [
+      item.name,
+      item.status,
+      // CRITICAL: Actions cell as last column
+      hasPermissions ? (
+        <RowActionsMenu item={item} onRemove={handleRemove} />
+      ) : null,
+    ],
+  }));
+}, [items, hasPermissions, handleRemove]);
+```
+
+#### Row Actions Testing - MANDATORY
+```typescript
+export const RowActions: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Wait for table data
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    
+    // CRITICAL: Find row and its action button
+    const aliceRow = (await canvas.findByText('alice.johnson')).closest('tr');
+    const rowKebab = within(aliceRow).getByLabelText('Kebab toggle');
+    expect(rowKebab).toBeInTheDocument();
+    
+    // CRITICAL: Test row action menu
+    await userEvent.click(rowKebab);
+    
+    // CRITICAL: Verify row actions are available and enabled
+    const removeAction = await canvas.findByRole('menuitem', { name: 'Remove' });
+    expect(removeAction).not.toHaveAttribute('disabled');
+    
+    // CRITICAL: Verify menu positioning
+    const menu = removeAction.closest('[role="menu"]');
+    expect(menu).toBeInTheDocument();
+  },
+};
+```
+
+### 4. FILTERING & SEARCH PATTERN
+
+#### Filter Hook Setup - REQUIRED Pattern
+```typescript
+// CRITICAL: Filter types interface
+interface DataViewFilters {
+  name: string;
+  status?: string;
+}
+
+// CRITICAL: useDataViewFilters hook
+const filters = useDataViewFilters<DataViewFilters>({
+  initialFilters: {
+    name: '', // REQUIRED: Initialize all filters
+    status: '',
+  },
+});
+
+// CRITICAL: Debounced filter handler
+const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+
+const handleFilterChange = useCallback(
+  (_event: any, newFilters: DataViewFilters) => {
+    filters.onSetFilters(newFilters); // Update filter state
+    debouncedFetchData(newFilters.name, { offset: 0 }); // Reset to page 1
+  },
+  [filters, debouncedFetchData]
+);
+
+// CRITICAL: Clear filters handler
+const handleClearAllFilters = useCallback(() => {
+  filters.onSetFilters({ name: '', status: '' });
+  fetchData(undefined, { offset: 0 });
+}, [filters, fetchData]);
+
+// CRITICAL: Active filters detection
+const hasActiveFilters = useMemo(() => {
+  return Object.values(filters.filters).some(value => value && value.trim() !== '');
+}, [filters.filters]);
+```
+
+#### Filter Component Structure - REQUIRED Pattern
+```typescript
+<DataViewToolbar
+  filters={
+    <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
+      <DataViewTextFilter
+        filterId="name" // CRITICAL: Must match filter interface
+        title="Name"
+        placeholder="Filter by name"
+      />
+      <DataViewTextFilter
+        filterId="status"
+        title="Status" 
+        placeholder="Filter by status"
+      />
+    </DataViewFilters>
+  }
+  clearAllFilters={hasActiveFilters ? handleClearAllFilters : undefined} // CRITICAL: Conditional
+  // ... other props
+/>
+```
+
+#### Filter Testing Pattern - MANDATORY
+```typescript
+export const FilterMembers: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Wait for initial data
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+    
+    // CRITICAL: Test filter input
+    const filterInput = await canvas.findByPlaceholderText('Filter by name');
+    await userEvent.type(filterInput, 'alice');
+    
+    // CRITICAL: Wait for debounced filter to complete
+    await delay(600); // Wait longer than debounce delay
+    
+    // CRITICAL: Verify filtered results
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    expect(canvas.queryByText('bob.smith')).not.toBeInTheDocument();
+    
+    // CRITICAL: Test clear filters button
+    const clearFiltersButton = await canvas.findByRole('button', { name: /clear.*filter/i });
+    await userEvent.click(clearFiltersButton);
+    
+    // CRITICAL: Verify all data returns
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+  },
+};
+```
+
+### 5. PAGINATION PATTERN
+
+#### Pagination Hook - REQUIRED Pattern
+```typescript
+// CRITICAL: Pagination hook setup
+const pagination = useDataViewPagination({
+  perPage: 20, // Default page size
+});
+
+// CRITICAL: Fetch with pagination parameters
+const fetchData = useCallback((filters = {}, apiProps = {}) => {
+  const options = {
+    ...defaultSettings,
+    limit: pagination.perPage, // CRITICAL: Use hook's perPage
+    offset: (pagination.page - 1) * pagination.perPage, // CRITICAL: Calculate offset
+    ...apiProps,
+  };
+  
+  dispatch(fetchItems(groupId, filters, options));
+}, [dispatch, groupId, pagination.perPage, pagination.page]);
+```
+
+### 6. LOADING & EMPTY STATES PATTERN (CRITICAL)
+
+#### State Management - REQUIRED Pattern
+```typescript
+// CRITICAL: DataView state calculation
+const activeState = useMemo(() => {
+  if (isLoading) return DataViewState.loading;
+  if (items.length === 0) return DataViewState.empty;
+  return undefined; // Show normal table
+}, [isLoading, items.length]);
+
+// CRITICAL: Skeleton components
+const loadingHeader = useMemo(
+  () => <SkeletonTableHead columns={columns.map(col => col.cell)} />,
+  [columns]
+);
+
+const loadingBody = useMemo(
+  () => <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
+  [columns.length]
+);
+
+// CRITICAL: Empty state component with conditional logic
+const emptyState = useMemo(
+  () => <ItemsEmptyState colSpan={columns.length} hasActiveFilters={hasActiveFilters} />,
+  [columns.length, hasActiveFilters]
+);
+
+// CRITICAL: DataView with states
+<DataView activeState={activeState} selection={selection}>
+  <DataViewTable
+    columns={columns}
+    rows={tableRows}
+    headStates={{ loading: loadingHeader }} // CRITICAL: Loading states
+    bodyStates={{
+      loading: loadingBody,
+      empty: emptyState, // CRITICAL: Conditional empty state
+    }}
+  />
+</DataView>
+```
+
+#### Empty State Component Pattern - REQUIRED Structure
+```typescript
+import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, EmptyStateActions, EmptyStateFooter } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Tbody, Td, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon';
+import { UsersIcon } from '@patternfly/react-icons/dist/dynamic/icons/users-icon'; // Domain-appropriate icon
+
+interface ItemsEmptyStateProps {
+  colSpan: number; // CRITICAL: Must match table column count
+  hasActiveFilters: boolean; // CRITICAL: Determines which empty state to show
+  title?: string; // Optional custom title for no-data state
+  description?: string; // Optional custom description
+}
+
+export const ItemsEmptyState: React.FC<ItemsEmptyStateProps> = ({ 
+  colSpan, 
+  hasActiveFilters,
+  title = "Configure items",
+  description = "Create at least one item to get started."
+}) => {
+  const intl = useIntl();
+
+  return (
+    <Tbody>
+      <Tr>
+        <Td colSpan={colSpan}> {/* CRITICAL: Proper table structure */}
+          {hasActiveFilters ? (
+            // NO RESULTS STATE: When filtering returns empty results
+            <EmptyState>
+              <EmptyStateHeader
+                titleText="No items match your search"
+                headingLevel="h4"
+                icon={<EmptyStateIcon icon={SearchIcon} />} {/* CRITICAL: SearchIcon for filter results */}
+              />
+              <EmptyStateBody>
+                Try adjusting your search filters to find the items you're looking for.
+              </EmptyStateBody>
+            </EmptyState>
+          ) : (
+            // NO DATA STATE: When there's genuinely no data
+            <EmptyState>
+              <EmptyStateHeader
+                titleText={title}
+                headingLevel="h4"
+                icon={<EmptyStateIcon icon={UsersIcon} />} {/* CRITICAL: Domain icon for no-data */}
+              />
+              <EmptyStateBody>{description}</EmptyStateBody>
+              {hasPermissions && (
+                <EmptyStateFooter>
+                  <EmptyStateActions>
+                    <Button variant="primary" onClick={handleCreateItem}>
+                      Create Item
+                    </Button>
+                  </EmptyStateActions>
+                </EmptyStateFooter>
+              )}
+            </EmptyState>
+          )}
+        </Td>
+      </Tr>
+    </Tbody>
+  );
+};
+```
+
+#### Empty State Props Calculation - REQUIRED Pattern
+```typescript
+// CRITICAL: Calculate empty state props based on filters and permissions
+const emptyStateProps = useMemo(() => {
+  return {
+    colSpan: columns.length, // CRITICAL: Match actual column count
+    hasActiveFilters, // CRITICAL: Determines empty state type
+    title: hasPermissions 
+      ? `Configure ${intl.formatMessage(messages.items).toLowerCase()}`
+      : `No ${intl.formatMessage(messages.items).toLowerCase()} available`,
+    description: hasPermissions
+      ? intl.formatMessage(messages.createAtLeastOneItem, { 
+          item: intl.formatMessage(messages.item).toLowerCase() 
+        })
+      : intl.formatMessage(messages.noAccessToViewItems),
+  };
+}, [columns.length, hasActiveFilters, hasPermissions, intl]);
+
+// CRITICAL: Pass props to empty state component
+const emptyState = useMemo(
+  () => <ItemsEmptyState {...emptyStateProps} />,
+  [emptyStateProps]
+);
+```
+
+#### Domain-Specific Icons - REQUIRED Mapping
+```typescript
+// CRITICAL: Use appropriate icons for different domains
+import { UsersIcon } from '@patternfly/react-icons/dist/dynamic/icons/users-icon'; // Groups/Members
+import { CubesIcon } from '@patternfly/react-icons/dist/dynamic/icons/cubes-icon'; // Roles
+import { ServiceCatalogIcon } from '@patternfly/react-icons/dist/dynamic/icons/service-catalog-icon'; // Service Accounts
+import { SearchIcon } from '@patternfly/react-icons/dist/dynamic/icons/search-icon'; // ALWAYS for filter results
+
+// Domain mapping:
+// - Groups/Members: UsersIcon
+// - Roles/Permissions: CubesIcon  
+// - Service Accounts: ServiceCatalogIcon
+// - Filter Results: ALWAYS SearchIcon
+```
+
+#### Empty State Testing Pattern - MANDATORY
+```typescript
+export const EmptyState: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // CRITICAL: Return empty data to trigger empty state
+        http.get('/api/endpoint/', () => {
+          return HttpResponse.json({
+            data: [], // CRITICAL: Empty array
+            meta: { count: 0, limit: 20, offset: 0 },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // CRITICAL: Wait for table to load
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    
+    // CRITICAL: Test NO DATA empty state (no active filters)
+    expect(await canvas.findByText(/configure.*items/i)).toBeInTheDocument();
+    
+    // CRITICAL: Verify domain-appropriate icon (not SearchIcon for no-data)
+    // Look for empty state container and verify it doesn't have search icon
+    const emptyStateContainer = (await canvas.findByText(/configure.*items/i)).closest('[class*="pf-v5-c-empty-state"]');
+    expect(emptyStateContainer).toBeInTheDocument();
+    
+    // CRITICAL: Test create button for admin users (if applicable)
+    if (hasPermissions) {
+      expect(await canvas.findByRole('button', { name: /create/i })).toBeInTheDocument();
+    }
+  },
+};
+
+export const NoResultsAfterFilter: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        // CRITICAL: Return empty results for filtered queries
+        http.get('/api/endpoint/', ({ request }) => {
+          const url = new URL(request.url);
+          const hasFilter = url.searchParams.get('name') && url.searchParams.get('name') !== '';
+          
+          if (hasFilter) {
+            return HttpResponse.json({
+              data: [], // CRITICAL: Empty results for filter
+              meta: { count: 0, limit: 20, offset: 0 },
+            });
+          }
+          
+          return HttpResponse.json({
+            data: mockData, // Return data if no filter
+            meta: { count: mockData.length, limit: 20, offset: 0 },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // Wait for initial data load
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    
+    // CRITICAL: Apply filter that returns no results
+    const filterInput = await canvas.findByPlaceholderText('Filter by name');
+    await userEvent.type(filterInput, 'nonexistent');
+    
+    // CRITICAL: Wait for debounced filter
+    await delay(600);
+    
+    // CRITICAL: Test NO RESULTS empty state (has active filters)
+    expect(await canvas.findByText(/no.*items.*match.*search/i)).toBeInTheDocument();
+    
+    // CRITICAL: Verify SearchIcon is used for filter results
+    const searchEmptyState = (await canvas.findByText(/no.*items.*match.*search/i)).closest('[class*="pf-v5-c-empty-state"]');
+    expect(searchEmptyState?.querySelector('svg')).toBeInTheDocument(); // Should have search icon
+    
+    // CRITICAL: Verify filter suggestion text
+    expect(await canvas.findByText(/try adjusting.*search filters/i)).toBeInTheDocument();
+  },
+};
+```
+
+#### Empty State vs Loading State Distinction
+```typescript
+// CRITICAL: Clear distinction between loading and empty
+export const Loading: Story = {
+  parameters: {
+    msw: {
+      handlers: [
+        http.get('/api/endpoint/', () => new Promise(() => {})), // Never resolves
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    
+    // CRITICAL: Should show skeleton, NOT empty state
+    await waitFor(async () => {
+      const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"]');
+      await expect(skeletonElements.length).toBeGreaterThan(0);
+    });
+    
+    // CRITICAL: Should NOT show empty state content
+    expect(canvas.queryByText(/configure.*items/i)).not.toBeInTheDocument();
+    expect(canvas.queryByText(/no.*items.*match/i)).not.toBeInTheDocument();
+  },
+};
+```
+
+### Empty State Anti-Patterns to Avoid
+
+#### ❌ Common Mistakes
+```typescript
+// ❌ WRONG: Using SearchIcon for no-data state
+<EmptyStateIcon icon={SearchIcon} /> // Should use domain icon (UsersIcon, CubesIcon, etc.)
+
+// ❌ WRONG: Same message for both empty states
+const title = "No items found"; // Should differentiate between no-data vs no-results
+
+// ❌ WRONG: Missing table structure
+return <EmptyState>...</EmptyState>; // Should wrap in <Tbody><Tr><Td colSpan={colSpan}>
+
+// ❌ WRONG: Incorrect colSpan
+<Td colSpan={5}> // Should match actual column count dynamically
+
+// ❌ WRONG: Not handling hasActiveFilters
+const emptyState = <GenericEmptyState />; // Should pass hasActiveFilters
+
+// ❌ WRONG: Testing empty state with loading query
+expect(canvas.getByText('Configure items')).toBeInTheDocument(); // Should use findByText
+
+// ❌ WRONG: Not distinguishing between loading and empty in tests
+// Both states show "no content" but are fundamentally different
+```
+
+### 7. CRITICAL TESTING REQUIREMENTS
+
+#### Story Structure Requirements
+```typescript
+// CRITICAL: Container story pattern for DataView components
+const meta: Meta<typeof DataViewComponent> = {
+  component: DataViewComponent,
+  tags: ['dataview-container'], // NO autodocs on meta
+  parameters: {
+    msw: {
+      handlers: [
+        // CRITICAL: API spy pattern for testing
+        http.get('/api/endpoint/', ({ request }) => {
+          apiSpy({ /* track parameters */ });
+          return HttpResponse.json({ data: mockData });
+        }),
+      ],
+    },
+  },
+};
+
+export const Default: Story = {
+  tags: ['autodocs'], // ONLY story with autodocs
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**DataView Container** with comprehensive react-data-view functionality.
+
+## Features Tested
+- ✅ **Bulk Selection** - Select all/none/page functionality
+- ✅ **Toolbar Actions** - Conditional actions based on selection
+- ✅ **Row Actions** - Individual item action menus  
+- ✅ **Filtering** - Real-time search with debouncing
+- ✅ **Pagination** - Page size and navigation
+- ✅ **Loading States** - Skeleton loading indicators
+- ✅ **Empty States** - Both no-data and no-results scenarios
+
+## Additional Test Stories
+- **[BulkSelection](?path=/story/path--bulk-selection)**: Bulk select functionality
+- **[ToolbarActions](?path=/story/path--toolbar-actions)**: Toolbar state management
+- **[RowActions](?path=/story/path--row-actions)**: Individual row actions
+- **[FilterItems](?path=/story/path--filter-items)**: Search and filtering
+- **[EmptyState](?path=/story/path--empty-state)**: No-data scenario with domain icon
+- **[NoResultsAfterFilter](?path=/story/path--no-results-after-filter)**: Filter results with SearchIcon
+- **[Loading](?path=/story/path--loading)**: Skeleton loading state
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    // CRITICAL: Comprehensive testing of all DataView features
+    const canvas = within(canvasElement);
+    
+    // Test initial load
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    
+    // Test toolbar elements
+    expect(await canvas.findByRole('button', { name: 'Add Item' })).toBeInTheDocument();
+    
+    // Test bulk select
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    expect(checkboxes.length).toBeGreaterThan(1);
+    
+    // Test row actions
+    const kebabButtons = await canvas.findAllByLabelText('Kebab toggle');
+    expect(kebabButtons.length).toBeGreaterThan(1); // Toolbar + row kebabs
+  },
+};
+```
+
+### 8. ANTI-PATTERNS TO AVOID
+
+#### ❌ Common Mistakes
+```typescript
+// ❌ WRONG: Missing matchOption in selection hook
+const selection = useDataViewSelection(); // Missing matchOption
+
+// ❌ WRONG: Passing raw data to bulk selection
+selection.onSelect(true, rawData); // Should pass tableRows
+
+// ❌ WRONG: BulkSelect from wrong package
+import { BulkSelect } from '@patternfly/react-core'; // Wrong package
+
+// ❌ WRONG: Non-conditional selection in DataView
+<DataView selection={selection}> // Should be conditional based on permissions
+
+// ❌ WRONG: Missing row actions for admin users
+const tableRows = items.map(item => ({
+  id: item.id,
+  cells: [item.name, item.status] // Missing actions column
+}));
+
+// ❌ WRONG: Synchronous queries in DataView testing
+expect(canvas.getByRole('grid')).toBeInTheDocument(); // Should use findByRole
+
+// ❌ WRONG: Not testing bulk select checkbox state
+// Must test checked/unchecked states for both bulk and individual checkboxes
+```
+
+### React-Data-View Checklist for Stories
+
+#### Required Testing Coverage
+- [ ] ✅ **Bulk Selection**: Test select all, select none, individual selection
+- [ ] ✅ **Toolbar Actions**: Test conditional enable/disable based on selection
+- [ ] ✅ **Row Actions**: Test individual item action menus
+- [ ] ✅ **Filtering**: Test debounced search with real API calls  
+- [ ] ✅ **Pagination**: Test page navigation and size changes
+- [ ] ✅ **Loading States**: Test skeleton loading indicators
+- [ ] ✅ **Empty States**: Test BOTH no-data and no-results scenarios with correct icons
+- [ ] ✅ **Permissions**: Test admin vs non-admin functionality
+- [ ] ✅ **API Integration**: Test with API spies, not pre-populated state
+
+### Critical Empty State Testing Requirements
+Every DataView component MUST have these specific stories:
+
+- **EmptyState**: Tests no-data scenario with domain icon and create button
+- **NoResultsAfterFilter**: Tests filter results with SearchIcon and filter guidance
+- **Loading**: Tests skeleton indicators, NOT empty states
+
+This comprehensive react-data-view documentation prevents the common AI mistakes and ensures proper implementation and testing of all interactive features.
 
 ### Args Parameter Management
 **CRITICAL**: Only remove `args` parameter if the story doesn't use it.
@@ -1303,5 +2358,60 @@ When updating existing stories:
 - [ ] Remove redundant `waitFor()` wrappers around `findBy*` queries
 - [ ] Make `waitFor` callbacks `async` if they contain `await` expressions
 - [ ] Remove unused `waitFor` imports when no longer needed
+
+## 🔒 MANDATORY PRE-FLIGHT CHECKLIST FOR AI
+
+**BEFORE creating or editing ANY .stories.tsx file, I MUST verify:**
+
+### Import Verification
+- [ ] ✅ Using `storybook/test` imports (NOT @storybook/test)
+- [ ] ✅ All testing utilities imported from single source
+
+### Query Pattern Verification  
+- [ ] ✅ ALL queries in play functions use `await canvas.findBy*()` 
+- [ ] ✅ NO `canvas.getBy*()` queries in play functions
+- [ ] ✅ Modal testing uses `screen.getByRole('dialog')`
+- [ ] ✅ PatternFly tables use `role="grid"`, not `role="table"`
+
+### Story Structure Verification
+- [ ] ✅ Container stories: Meta has NO autodocs, Default story ONLY has autodocs
+- [ ] ✅ Presentational stories: All stories have autodocs
+- [ ] ✅ MSW handlers used instead of storeState for containers
+- [ ] ✅ Args parameter kept if story uses it, removed if not
+
+### Play Function Verification
+- [ ] ✅ ALL `expect()` calls are awaited: `await expect(...)`
+- [ ] ✅ User interactions test real workflows, not just events
+- [ ] ✅ Loading states test for skeleton elements
+- [ ] ✅ Proper scoping used for complex components
+
+### API Spy Testing Verification (For Container Stories)
+- [ ] ✅ API spies created with `const apiSpy = fn()` pattern
+- [ ] ✅ Spies called inside MSW handlers with meaningful parameters
+- [ ] ✅ Spy assertions use `expect(apiSpy).toHaveBeenCalledWith({ params })`
+- [ ] ✅ Multiple API calls tested with `toHaveBeenCalledTimes(n)`
+- [ ] ✅ Async spy testing wrapped in `waitFor()` when needed
+
+### React-Data-View Verification (For DataView Components)
+- [ ] ✅ BulkSelect imported from `@patternfly/react-component-groups`, NOT react-core
+- [ ] ✅ useDataViewSelection hook includes `matchOption: (a, b) => a.id === b.id`
+- [ ] ✅ DataView selection prop is conditional: `selection={hasPermissions ? selection : undefined}`
+- [ ] ✅ BulkSelect handler passes `tableRows` not raw data: `selection.onSelect(true, tableRows)`
+- [ ] ✅ Toolbar actions are conditional based on selection state
+- [ ] ✅ Row actions column included for admin users with proper kebab menus
+- [ ] ✅ Filtering uses debounced handlers and proper API integration
+- [ ] ✅ Testing covers bulk select, toolbar actions, row actions, and filtering
+
+### Empty States Verification (CRITICAL)
+- [ ] ✅ Empty state component receives `hasActiveFilters` prop to determine state type
+- [ ] ✅ NO RESULTS state uses SearchIcon and "No items match your search" message
+- [ ] ✅ NO DATA state uses domain icon (UsersIcon, CubesIcon) and "Configure items" message  
+- [ ] ✅ Empty state wrapped in proper table structure: `<Tbody><Tr><Td colSpan={colSpan}>`
+- [ ] ✅ colSpan matches actual table column count dynamically
+- [ ] ✅ No-data state includes create button for admin users with permissions
+- [ ] ✅ Testing covers both empty state types: EmptyState and NoResultsAfterFilter stories
+- [ ] ✅ Loading state testing shows skeletons, NOT empty states
+
+**I MUST NOT proceed without completing this checklist for every .stories.tsx file.**
 
 

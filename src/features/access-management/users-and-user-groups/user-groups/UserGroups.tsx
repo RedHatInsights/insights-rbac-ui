@@ -1,35 +1,22 @@
-import React, { Fragment, Suspense, useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { Fragment, Suspense, useCallback, useContext, useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { Outlet, useSearchParams } from 'react-router-dom';
-import {
-  DataViewEventsProvider,
-  EventTypes,
-  useDataViewEventsContext,
-  useDataViewFilters,
-  useDataViewPagination,
-  useDataViewSelection,
-  useDataViewSort,
-} from '@patternfly/react-data-view';
-import { TabContent } from '@patternfly/react-core';
+import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view';
+import { TabContent } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 
-import { mappedProps } from '../../../../helpers/dataUtilities';
-import { RBACStore } from '../../../../redux/store';
-import { fetchGroups, removeGroups } from '../../../../redux/groups/actions';
+import { removeGroups } from '../../../../redux/groups/actions';
 import { Group } from '../../../../redux/groups/reducer';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import pathnames from '../../../../utilities/pathnames';
+import { useUserGroups } from './useUserGroups';
 import { UserGroupsTable } from './components/UserGroupsTable';
 import { GroupDetailsDrawer } from './components/GroupDetailsDrawer';
 import { GroupDetailsRolesView } from './user-group-detail/GroupDetailsRolesView';
 import { GroupDetailsServiceAccountsView } from './user-group-detail/GroupDetailsServiceAccountsView';
 import { GroupDetailsUsersView } from './user-group-detail/GroupDetailsUsersView';
 import { DeleteGroupModal } from './components/DeleteGroupModal';
-
-interface UserGroupsFilters {
-  name: string;
-}
 
 interface UserGroupsProps {
   groupsRef?: React.RefObject<HTMLDivElement>;
@@ -40,10 +27,26 @@ interface UserGroupsProps {
 export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPage = 20, ouiaId = 'iam-user-groups-table' }) => {
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
-  // Focus state for group details drawer
-  const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
+  // Use the custom hook for all UserGroups business logic
+  const {
+    groups,
+    isLoading,
+    totalCount,
+    filters,
+    sortBy,
+    direction,
+    onSort,
+    pagination,
+    selection,
+    focusedGroup,
+    setFocusedGroup,
+    fetchData,
+    handleRowClick,
+    clearAllFilters,
+    onSetFilters,
+  } = useUserGroups({ enableAdminFeatures: true });
 
   // Tab state for group details drawer
   const [activeTabKey, setActiveTabKey] = useState<string | number>(0);
@@ -53,95 +56,31 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentGroups, setCurrentGroups] = useState<Group[]>([]);
 
-  // Redux state - using separate selectors to avoid creating new objects
-  const groups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
-  const totalCount = useSelector((state: RBACStore) => state.groupReducer?.groups?.meta.count || 0);
-  const isLoading = useSelector((state: RBACStore) => state.groupReducer?.isLoading || false);
+  // Note: focusedGroup is now properly typed as Group | undefined from the hook
 
   // Permission and environment context
   const { orgAdmin } = useContext(PermissionsContext);
   const { isProd } = useChrome();
 
-  // Data view hooks - managing state in container
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'name',
-      direction: 'asc',
-    },
-  });
-
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<UserGroupsFilters>({
-    initialFilters: { name: '' },
-    searchParams,
-    setSearchParams,
-  });
-
-  const pagination = useDataViewPagination({
-    perPage: defaultPerPage,
-    searchParams,
-    setSearchParams,
-  });
-
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
 
-  // Parse current pagination and sorting from URL params
-  const currentPage = parseInt(searchParams.get('page') || '1', 10);
-  const currentPerPage = parseInt(searchParams.get('per_page') || defaultPerPage.toString(), 10);
-  const currentSortBy = searchParams.get('sort_by') || 'name';
-  const currentDirection = searchParams.get('sort_direction') || 'asc';
-
-  // Memoize filters to prevent infinite re-renders
-  const currentFilters: UserGroupsFilters = useMemo(
-    () => ({
-      name: searchParams.get('name') || '',
-    }),
-    [searchParams],
-  );
-
-  // Data fetching function
-  const fetchData = useCallback(
-    (apiProps: { count: number; limit: number; offset: number; orderBy: string; filters: UserGroupsFilters }) => {
-      const { count, limit, offset, orderBy, filters } = apiProps;
-      const orderDirection = currentDirection === 'desc' ? '-' : '';
-      dispatch(
-        fetchGroups({
-          ...mappedProps({ count, limit, offset, orderBy: `${orderDirection}${orderBy}` as any, filters }),
-          usesMetaInURL: true,
-          system: false,
-        }),
-      );
-    },
-    [dispatch, currentDirection],
-  );
-
-  // Fetch data when URL params change
-  useEffect(() => {
-    fetchData({
-      limit: currentPerPage,
-      offset: (currentPage - 1) * currentPerPage,
-      orderBy: currentSortBy,
-      count: totalCount || 0,
-      filters: currentFilters,
-    });
-  }, [fetchData, currentPage, currentPerPage, currentSortBy, currentFilters]);
-
-  // Handle row click for group focus
-  const handleRowClick = useCallback((group: Group | undefined) => {
-    setFocusedGroup(group);
-  }, []);
+  // Note: Data fetching and state management is now handled by the useUserGroups hook automatically
 
   // Handle DataView events context for drawer
   const context = useDataViewEventsContext();
   useEffect(() => {
     const unsubscribe = context.subscribe(EventTypes.rowClick, (group: Group | undefined) => {
+      // Use the hook's handler for focus state
+      if (group) {
+        handleRowClick(group);
+      }
+      // Set focus state using the hook
       setFocusedGroup(group);
       drawerRef.current?.focus();
     });
 
     return () => unsubscribe();
-  }, [context]);
+  }, [context, handleRowClick]);
 
   // Handle edit group navigation
   const handleEditGroup = useCallback(
@@ -171,18 +110,18 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
       setIsDeleteModalOpen(false);
       setCurrentGroups([]);
 
-      // Refresh data after deletion
+      // Refresh data after deletion - use hook's fetchData
+      const { page: currentPage, perPage: currentPerPage } = pagination;
       fetchData({
         limit: currentPerPage,
         offset: (currentPage - 1) * currentPerPage,
-        orderBy: currentSortBy,
-        count: totalCount || 0,
-        filters: currentFilters,
+        orderBy: (sortBy || 'name') as any, // Cast to satisfy enum requirement
+        filters,
       });
     } catch (error) {
       console.error('Failed to delete groups:', error);
     }
-  }, [dispatch, currentGroups, fetchData, currentPage, currentPerPage, currentSortBy, totalCount, currentFilters]);
+  }, [dispatch, currentGroups, fetchData, pagination, sortBy, filters]);
 
   // Close delete modal
   const handleCloseDeleteModal = useCallback(() => {
@@ -190,10 +129,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
     setCurrentGroups([]);
   }, []);
 
-  // Selection for bulk operations
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.row[0] === b.row[0], // Match based on group name (first column)
-  });
+  // Note: Selection is now managed by the useUserGroups hook
 
   // Delete modal component
   const deleteModal = (
@@ -260,7 +196,12 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
               onSetPage={onSetPage}
               onPerPageSelect={onPerPageSelect}
               pagination={pagination}
-              onRowClick={handleRowClick}
+              onRowClick={(group: Group | undefined) => {
+                setFocusedGroup(group);
+                if (group) {
+                  handleRowClick(group);
+                }
+              }}
               onEditGroup={handleEditGroup}
               onDeleteGroup={handleDeleteGroup}
               selection={selection}
@@ -283,7 +224,7 @@ export const UserGroups: React.FC<UserGroupsProps> = ({ groupsRef, defaultPerPag
                   search: searchParams.toString(),
                 }),
               enableRoles: false,
-              pagination: { limit: currentPerPage },
+              pagination: { limit: perPage },
               filters: {},
               postMethod: fetchData,
             },

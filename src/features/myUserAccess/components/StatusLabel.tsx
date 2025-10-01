@@ -2,7 +2,9 @@ import React from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
 
-import { Label, Tooltip, TooltipPosition } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
+import { TooltipPosition } from '@patternfly/react-core';
 
 interface StatusLabelProps {
   isOrgAdmin?: boolean;

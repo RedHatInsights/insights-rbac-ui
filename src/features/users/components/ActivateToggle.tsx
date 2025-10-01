@@ -1,7 +1,7 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import { Switch } from '@patternfly/react-core';
+import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 
 interface UserProps {
   username: string;

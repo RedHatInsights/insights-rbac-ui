@@ -1,6 +1,6 @@
-import React, { RefObject } from 'react';
+import React, { RefObject, useMemo } from 'react';
 import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryToolbar';
-import { useIntl } from 'react-intl';
+import { IntlShape, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { pickBy } from 'lodash';
 import { calculateChecked, debouncedFetch, selectedRows } from '../../helpers/dataUtilities';
@@ -117,6 +117,7 @@ export const paginationBuilder = (
 });
 
 export const bulkSelectBuilder = (
+  intl: IntlShape,
   isLoading: boolean,
   checkedRows: any[] = [],
   setCheckedItems: ((items: any[]) => void) | ((callback: (selected: any[]) => void) => void) = () => undefined,
@@ -124,8 +125,6 @@ export const bulkSelectBuilder = (
   tableId?: string,
   isRowSelectable: (row: any) => boolean = () => true,
 ): BulkSelectConfig => {
-  const intl = useIntl();
-
   const items: BulkSelectItem[] = [
     {
       title: intl.formatMessage(messages.selectNone),
@@ -167,6 +166,7 @@ export const bulkSelectBuilder = (
 };
 
 export const filterConfigBuilder = (
+  intl: IntlShape,
   isLoading: boolean,
   setFilterValue: (value: any) => void = () => undefined,
   fetchData: (params: any) => Promise<any> | void = () => undefined,
@@ -188,7 +188,6 @@ export const filterConfigBuilder = (
   // TODO: PatternFly PrimaryToolbar sets generic "Options menu" aria-label for filter dropdowns
   // This is an accessibility issue - screen readers should hear "Filter by Status" not "Options menu"
   // Requires investigation into PatternFly's proper API for custom aria-labels
-  const intl = useIntl();
   return {
     onChange,
     value,
@@ -365,12 +364,17 @@ const Toolbar: React.FC<ToolbarProps> = ({
   tableId,
   textFilterRef,
   toolbarChildren = () => null,
-}) => (
-  <PrimaryToolbar
-    {...(isSelectable && {
-      bulkSelect: bulkSelectBuilder(isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable),
-    })}
-    filterConfig={filterConfigBuilder(
+}) => {
+  const intl = useIntl();
+  // Memoize bulk select config to prevent recreation on every render
+  const bulkSelectConfig = useMemo(() => {
+    return isSelectable ? bulkSelectBuilder(intl, isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable) : undefined;
+  }, [intl, isSelectable, isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable]);
+
+  // Memoize filter config to prevent recreation on every render
+  const filterConfig = useMemo(() => {
+    return filterConfigBuilder(
+      intl,
       isLoading,
       setFilterValue,
       fetchData,
@@ -388,20 +392,54 @@ const Toolbar: React.FC<ToolbarProps> = ({
       value,
       sortBy,
       textFilterRef,
-    )}
-    actionsConfig={{
-      actions: toolbarButtons(),
-    }}
-    {...(!isLoading && {
-      pagination: paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps),
-    })}
-    {...(((typeof filterValue === 'string' ? filterValue.length > 0 : filterValue.length > 0) || (filters && filters.length > 0)) &&
-      !hideFilterChips && {
-        activeFiltersConfig: activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy),
-      })}
-  >
-    {toolbarChildren()}
-  </PrimaryToolbar>
-);
+    );
+  }, [
+    intl,
+    isLoading,
+    setFilterValue,
+    fetchData,
+    filterValue,
+    pagination,
+    titleSingular,
+    filterPlaceholder,
+    filterItems,
+    filters,
+    isFilterable,
+    onShowMore,
+    showMoreTitle,
+    onFilter,
+    onChange,
+    value,
+    sortBy,
+    textFilterRef,
+  ]);
+
+  // Memoize pagination config to prevent recreation on every render
+  const paginationConfig = useMemo(() => {
+    return !isLoading ? paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps) : undefined;
+  }, [isLoading, pagination, fetchData, filterValue, sortBy, paginationProps]);
+
+  // Memoize active filters config to prevent recreation on every render
+  const activeFiltersConfig = useMemo(() => {
+    const hasActiveFilters =
+      ((typeof filterValue === 'string' ? filterValue.length > 0 : filterValue.length > 0) || (filters && filters.length > 0)) && !hideFilterChips;
+    return hasActiveFilters ? activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy) : undefined;
+  }, [filterValue, filters, pagination, setFilterValue, fetchData, sortBy, hideFilterChips]);
+
+  // Memoize toolbar actions to prevent recreation on every render
+  const actions = useMemo(() => toolbarButtons(), [toolbarButtons]);
+
+  return (
+    <PrimaryToolbar
+      {...(bulkSelectConfig && { bulkSelect: bulkSelectConfig })}
+      filterConfig={filterConfig}
+      actionsConfig={{ actions }}
+      {...(paginationConfig && { pagination: paginationConfig })}
+      {...(activeFiltersConfig && { activeFiltersConfig })}
+    >
+      {toolbarChildren()}
+    </PrimaryToolbar>
+  );
+};
 
 export { Toolbar };

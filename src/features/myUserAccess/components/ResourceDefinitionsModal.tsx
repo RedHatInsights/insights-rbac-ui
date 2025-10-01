@@ -1,12 +1,18 @@
-import { Button, EmptyState, EmptyStateActions, EmptyStateBody, EmptyStateHeader, EmptyStateIcon, Modal } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { Modal } from '@patternfly/react-core/dist/dynamic/components/Modal';
 import React, { useState } from 'react';
 import { DataViewTh } from '@patternfly/react-data-view';
 import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
-import { SearchInput } from '@patternfly/react-core';
+import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
 import { FormattedMessage, useIntl } from 'react-intl';
-import { SearchIcon } from '@patternfly/react-icons';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import messages from '../../../Messages';
 import type { ResourceDefinition } from '../types';
 

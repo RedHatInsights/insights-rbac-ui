@@ -1,5 +1,6 @@
 import React, { ReactElement, useContext } from 'react';
-import { Button, ButtonVariant } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
 import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { useIntl } from 'react-intl';
 import { ErrorState } from '@patternfly/react-component-groups';

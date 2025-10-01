@@ -1,6 +1,11 @@
 import React from 'react';
 import { useIntl } from 'react-intl';
-import { NumberInput, Stack, StackItem, Text, TextContent, Title } from '@patternfly/react-core';
+import { NumberInput } from '@patternfly/react-core/dist/dynamic/components/NumberInput';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import useFieldApi, { UseFieldApiConfig } from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { WORKSPACE_ACCOUNT } from '../schema';

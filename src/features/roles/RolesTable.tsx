@@ -1,33 +1,25 @@
-import React, { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
-import { useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import React, { Suspense, useCallback, useMemo, useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { DataView, DataViewState } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import { DataViewEventsProvider, EventTypes, useDataViewEventsContext } from '@patternfly/react-data-view/dist/dynamic/DataViewEventsContext';
-import { useDataViewSort } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import {
-  ButtonVariant,
-  Drawer,
-  DrawerContent,
-  DrawerContentBody,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  PageSection,
-  Pagination,
-} from '@patternfly/react-core';
-import { ActionsColumn, TableVariant, ThProps } from '@patternfly/react-table';
+import { ButtonVariant } from '@patternfly/react-core';
+import { Drawer } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContent } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { DrawerContentBody } from '@patternfly/react-core/dist/dynamic/components/Drawer';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { ActionsColumn } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { ThProps } from '@patternfly/react-table';
 import ContentHeader from '@patternfly/react-component-groups/dist/esm/ContentHeader';
-import { fetchRolesWithPolicies, removeRole } from '../../redux/roles/actions';
+import { removeRole } from '../../redux/roles/actions';
 import { FormattedMessage, useIntl } from 'react-intl';
 import messages from '../../Messages';
-import { debouncedFetch, mappedProps } from '../../helpers/dataUtilities';
 import { Role } from '../../redux/roles/reducer';
-import { RBACStore } from '../../redux/store';
-import { Outlet, useSearchParams } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
 import paths from '../../utilities/pathnames';
 import RolesDetails from './RolesTableDetails';
 import {
@@ -38,31 +30,12 @@ import {
   SkeletonTableHead,
   WarningModal,
 } from '@patternfly/react-component-groups';
-import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject, useDataViewFilters } from '@patternfly/react-data-view';
+import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject } from '@patternfly/react-data-view';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
-import { SearchIcon } from '@patternfly/react-icons';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
-
-const EmptyTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
-  return (
-    <EmptyState>
-      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['rolesEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
-  );
-};
-
-interface RoleFilters {
-  display_name: string;
-}
+import { useRoles } from './useRoles';
+import { RolesEmptyState } from './components/RolesEmptyState';
 
 const ouiaId = 'RolesTable';
 
@@ -73,15 +46,28 @@ interface RolesTableProps {
 const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) => {
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentRoles, setCurrentRoles] = useState<Role[]>([]);
-  const { roles, totalCount, isLoading } = useSelector((state: RBACStore) => ({
-    roles: state.roleReducer.roles.data || [],
-    totalCount: state.roleReducer.roles.meta.count,
-    isLoading: state.roleReducer.isLoading,
-  }));
+
+  // Use the custom hook for all Roles business logic
+  const {
+    roles,
+    isLoading,
+    totalCount,
+    filters,
+    sortBy,
+    direction,
+    onSort,
+    pagination,
+    selection,
+
+    handleRowClick: hookHandleRowClick,
+    clearAllFilters,
+    onSetFilters,
+  } = useRoles({ enableAdminFeatures: true });
 
   const { trigger } = useDataViewEventsContext();
 
   const intl = useIntl();
+  const dispatch = useDispatch();
 
   const handleModalToggle = (roles: Role[]) => {
     setCurrentRoles(roles);
@@ -97,70 +83,23 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     { label: intl.formatMessage(messages.lastModified), key: 'modified', index: 5, isSortable: true },
   ];
 
-  const dispatch = useDispatch();
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
-    initialFilters: { display_name: '' },
-    searchParams,
-    setSearchParams,
-  });
-
   const navigate = useAppNavigate();
-
-  const handleEditRole = useCallback((role: Role) => {
-    if (!role) {
-      return;
-    }
-    navigate(paths['edit-role'].path.replace(':roleId', role.uuid));
-  }, []);
-
-  const { sortBy, direction, onSort } = useDataViewSort({ searchParams, setSearchParams });
-  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
-
-  const pagination = useDataViewPagination({ perPage: 20, searchParams, setSearchParams });
   const { page, perPage, onSetPage, onPerPageSelect } = pagination;
-
-  const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
-  const fetchData = useCallback(
-    (apiProps: { limit: number; offset: number; orderBy: string; filters: RoleFilters }) => {
-      const { limit, offset, orderBy, filters } = apiProps;
-      dispatch(fetchRolesWithPolicies({ ...mappedProps({ limit, offset, orderBy, filters }) }));
+  // Note: Data fetching and state management is now handled by the useRoles hook automatically
+
+  const handleEditRole = useCallback(
+    (role: Role) => {
+      if (!role) {
+        return;
+      }
+      navigate(paths['edit-role'].path.replace(':roleId', role.uuid));
     },
-    [dispatch],
+    [navigate],
   );
 
-  useEffect(() => {
-    fetchData({
-      limit: perPage,
-      offset: (page - 1) * perPage,
-      orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
-      filters: filters,
-    });
-  }, [fetchData, page, perPage, sortBy, direction]);
-
-  useEffect(() => {
-    if (isLoading) {
-      setActiveState(DataViewState.loading);
-    } else {
-      totalCount === 0 ? setActiveState(DataViewState.empty) : setActiveState(undefined);
-    }
-  }, [totalCount, isLoading]);
-
-  useEffect(() => {
-    debouncedFetch(
-      () =>
-        fetchData({
-          limit: perPage,
-          offset: (page - 1) * perPage,
-          orderBy: `${direction === 'desc' ? '-' : ''}${sortBy}`,
-          filters: filters,
-        }),
-      800,
-    );
-  }, [debouncedFetch, filters, onSetFilters]);
+  const sortByIndex = useMemo(() => COLUMNHEADERS.findIndex((item) => (item.isSortable ? item.key === sortBy : '')), [sortBy]);
 
   const getSortParams = (columnIndex: number): ThProps['sort'] => ({
     sortBy: {
@@ -183,6 +122,10 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
   const rows: DataViewTr[] = useMemo(() => {
     const handleRowClick = (event: any, role: Role | undefined) => {
       (event.target.matches('td') || event.target.matches('tr')) && trigger(EventTypes.rowClick, role);
+      // Also use the hook's handler
+      if (role) {
+        hookHandleRowClick(role);
+      }
     };
 
     return roles.map((role: Role) => ({
@@ -216,7 +159,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
         isRowSelected: selectedRole?.name === role.name,
       },
     }));
-  }, [roles, handleModalToggle, trigger, selectedRole, selectedRole?.display_name, sortBy, onSort, direction, filters, onSetFilters]);
+  }, [roles, handleModalToggle, trigger, selectedRole, hookHandleRowClick, handleEditRole]);
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
@@ -232,6 +175,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
     const role = roles.find((role: Role) => role.uuid === selectedRow.id);
     return role?.platform_default || role?.system;
   };
+
+  const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
 
   return (
     <React.Fragment>
@@ -329,7 +274,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
               bodyStates={{
                 loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-                empty: <EmptyTable titleText={intl.formatMessage(messages.rolesEmptyStateTitle)} />,
+                empty: <RolesEmptyState />,
               }}
             />
           )}

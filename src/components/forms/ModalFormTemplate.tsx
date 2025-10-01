@@ -71,7 +71,7 @@ interface ModalFormTemplateProps {
 }
 
 export const ModalFormTemplate: React.FC<ModalFormTemplateProps> = ({ ModalProps, saveLabel, cancelLabel, alert, ...props }) => (
-  <Modal role="dialog" {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
+  <Modal {...ModalProps} footer={<CustomButtons saveLabel={saveLabel} cancelLabel={cancelLabel} />}>
     {alert?.()}
     <FormTemplate {...(props as any)} showFormControls={false} FormWrapper={CustomFormWrapper} />
   </Modal>

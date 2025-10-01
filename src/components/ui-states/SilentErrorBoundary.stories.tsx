@@ -1,6 +1,7 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { Alert, Button } from '@patternfly/react-core';
+import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { SilentErrorBoundary } from './SilentErrorBoundary';
 
 const meta: Meta<typeof SilentErrorBoundary> = {

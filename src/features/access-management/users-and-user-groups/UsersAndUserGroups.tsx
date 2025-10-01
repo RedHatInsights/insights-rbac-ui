@@ -1,7 +1,10 @@
 import React, { useEffect, useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { Outlet, useLocation } from 'react-router-dom';
-import { PageSection, PageSectionVariants, Tab, Tabs } from '@patternfly/react-core';
+import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { PageSectionVariants } from '@patternfly/react-core/dist/dynamic/components/Page';
+import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
+import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import useAppNavigate from '../../../hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
