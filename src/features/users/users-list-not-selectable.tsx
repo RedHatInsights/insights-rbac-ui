@@ -29,6 +29,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { WarningModal } from '@patternfly/react-component-groups';
+import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
 
 interface UsersListNotSelectable {
   userLinks: boolean;
@@ -129,8 +130,12 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
       newFilters.status = [newFilters.status];
     }
     setFilters(newFilters);
-    fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
-  }, []);
+
+    // Only make API calls if user has proper permissions
+    if (orgAdmin) {
+      fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+    }
+  }, [orgAdmin]);
 
   useEffect(() => {
     if (usesMetaInURL) {
@@ -205,6 +210,11 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
     handleToggle(null, userStatus, selectedUsers);
     userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
   };
+
+  // Show NotAuthorized component for users without proper permissions
+  if (!orgAdmin) {
+    return <NotAuthorized serviceName="User Access Administration" description="You need Organization Administrator permissions to view users." />;
+  }
 
   return (
     <React.Fragment>

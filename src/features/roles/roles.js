@@ -2,6 +2,7 @@ import React, { Suspense, useContext, useEffect, useRef, useState } from 'react'
 import { useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
 import { cellWidth } from '@patternfly/react-table';
 import { compoundExpand } from '@patternfly/react-table';
 import { nowrap } from '@patternfly/react-table';
@@ -101,9 +102,13 @@ const Roles = () => {
     const { display_name } = syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
     chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    dispatch(fetchAdminGroup({ chrome }));
-    fetchData({ limit, offset, orderBy, filters: { display_name } });
-  }, []);
+
+    // Only make API calls if user has proper permissions
+    if (orgAdmin || userAccessAdministrator) {
+      dispatch(fetchAdminGroup({ chrome }));
+      fetchData({ limit, offset, orderBy, filters: { display_name } });
+    }
+  }, [orgAdmin, userAccessAdministrator]);
 
   useEffect(() => {
     if (!location.pathname.includes('detail')) {
@@ -190,6 +195,16 @@ const Roles = () => {
   const rows = createRows(roles, selectedRows, intl, expanded, adminGroup);
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeRolesList.length;
+
+  // Show NotAuthorized component for users without proper permissions
+  if (!orgAdmin && !userAccessAdministrator) {
+    return (
+      <NotAuthorized
+        serviceName="User Access Administration"
+        description="You need User Access Administrator or Organization Administrator permissions to view roles."
+      />
+    );
+  }
 
   return (
     <Stack className="rbac-c-roles">
