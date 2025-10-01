@@ -136,7 +136,7 @@ const workspaceDetailHandlers = [
 
 const meta: Meta<typeof WorkspaceDetail> = {
   component: WorkspaceDetail,
-  tags: ['workspaces', 'workspace-detail'],
+  tags: ['ff:platform.rbac.workspaces-role-bindings'],
   decorators: [withRouter],
   parameters: {
     chrome: {

@@ -54,7 +54,7 @@ const defaultArgs = {
 
 const meta: Meta<typeof UsersTable> = {
   component: UsersTable,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:org-admin'],
   parameters: {
     docs: {
       description: {

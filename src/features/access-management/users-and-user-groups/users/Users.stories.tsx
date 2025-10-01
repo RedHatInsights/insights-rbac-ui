@@ -73,7 +73,7 @@ const stableAuthMock = {
 
 const meta: Meta<typeof Users> = {
   component: Users,
-  tags: ['users-container'],
+  tags: ['ff:platform.rbac.common-auth-model', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
     // Use global providers for these (configured in .storybook/preview.tsx)
@@ -411,6 +411,7 @@ export const AddToGroupModalIntegration: Story = {
 
 // Container delete user modal integration test
 export const DeleteUserModalIntegration: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     docs: {
       description: {

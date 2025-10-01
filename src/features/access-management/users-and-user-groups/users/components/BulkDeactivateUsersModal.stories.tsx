@@ -6,7 +6,7 @@ import { BulkDeactivateUsersModal } from './BulkDeactivateUsersModal';
 
 const meta: Meta<typeof BulkDeactivateUsersModal> = {
   component: BulkDeactivateUsersModal,
-  tags: ['autodocs', 'bulk-deactivate-modal'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

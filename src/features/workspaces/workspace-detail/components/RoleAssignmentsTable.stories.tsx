@@ -88,7 +88,7 @@ const groupDetailsHandlers = [
 
 const meta: Meta<typeof RoleAssignmentsTable> = {
   component: RoleAssignmentsTable,
-  tags: ['autodocs', 'workspaces', 'role-assignments-table'],
+  tags: ['autodocs'],
   parameters: {
     msw: {
       handlers: groupDetailsHandlers,

@@ -6,7 +6,7 @@ import { BrowserRouter } from 'react-router-dom';
 
 const meta: Meta<typeof WorkspacesOverview> = {
   component: WorkspacesOverview,
-  tags: ['autodocs', 'workspaces', 'workspaces-overview'],
+  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <BrowserRouter>

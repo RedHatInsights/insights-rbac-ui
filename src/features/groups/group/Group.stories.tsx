@@ -56,7 +56,7 @@ const withRouter = (Story: any) => {
 
 const meta: Meta<typeof Group> = {
   component: Group,
-  tags: ['group-container'], // NO autodocs on meta
+  tags: ['custom-css'], // NO autodocs on meta
   decorators: [withRouter],
   parameters: {},
 };

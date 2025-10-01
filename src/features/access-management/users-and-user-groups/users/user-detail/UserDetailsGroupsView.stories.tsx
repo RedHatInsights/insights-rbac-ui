@@ -9,7 +9,6 @@ import { UserDetailsGroupsView } from './UserDetailsGroupsView';
 
 const meta: Meta<typeof UserDetailsGroupsView> = {
   component: UserDetailsGroupsView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>

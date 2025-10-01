@@ -32,7 +32,6 @@ const mockGroups = [
 
 const meta: Meta<typeof EditUserGroup> = {
   component: EditUserGroup,
-  tags: ['access-management-feature'],
   decorators: [
     (Story, { parameters }) => {
       const routePath = parameters?.route?.path || '/access-management/user-groups/:groupId/edit';

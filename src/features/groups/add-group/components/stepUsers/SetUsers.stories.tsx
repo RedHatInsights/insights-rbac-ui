@@ -73,7 +73,7 @@ const SetUsersWithForm: React.FC<{
 const meta: Meta<typeof SetUsersWithForm> = {
   title: 'Features/Groups/AddGroup/SetUsers',
   component: SetUsersWithForm,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'ff:platform.rbac.itless', 'custom-css'],
   parameters: {
     docs: {
       description: {

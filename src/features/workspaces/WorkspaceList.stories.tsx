@@ -24,7 +24,7 @@ const withRouter = (Story: any) => {
 
 const meta: Meta<typeof WorkspaceList> = {
   component: WorkspaceList,
-  tags: ['workspaces', 'workspace-list'],
+  tags: ['ff:platform.rbac.workspaces', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
     // Use global providers for these (configured in .storybook/preview.tsx)
@@ -244,6 +244,7 @@ export const PermissionIntegration: Story = {
 const moveWorkspaceSpy = fn();
 
 export const MoveWorkspaceModal: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     docs: {
       description: {

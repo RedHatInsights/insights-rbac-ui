@@ -164,12 +164,128 @@ Stories can override default context values through args:
 - Stories must test actual user workflows, not just trigger events
 - Cover all interactive states: hover, focus, disabled, error, etc.
 
+### Story Tagging Requirements (MANDATORY)
+
+**CRITICAL**: All stories MUST include appropriate metadata tags to enable filtering and categorization in Storybook UI.
+
+#### Required Tag Types
+
+1. **Feature Flag Tags** (`ff:*`)
+   - **REQUIRED** for any story that sets feature flags via `parameters.featureFlags` or `args`
+   - Format: `ff:full.feature.flag.name`
+   - Examples: `ff:platform.rbac.itless`, `ff:platform.rbac.workspaces`, `ff:platform.rbac.groups`
+   ```typescript
+   export const StoryWithFlags: Story = {
+     tags: ['ff:platform.rbac.itless', 'ff:platform.rbac.workspaces'],
+     parameters: {
+       featureFlags: {
+         'platform.rbac.itless': true,
+         'platform.rbac.workspaces': true,
+       },
+     },
+   };
+   ```
+
+2. **Environment Tags** (`env:*`)
+   - **REQUIRED** for any story that sets `chrome.environment` parameter
+   - Format: `env:environment-name`
+   - Common values: `env:prod`, `env:stage`, `env:ci-beta`
+   ```typescript
+   export const ProductionStory: Story = {
+     tags: ['env:prod'],
+     parameters: {
+       chrome: { environment: 'prod' },
+     },
+   };
+   ```
+
+3. **Permission Tags** (`perm:*`)
+   - **REQUIRED** for any story that sets permissions to `true` via `parameters.permissions` or `args`
+   - Only tag when permission is explicitly `true` (default is `false`)
+   - Tags: `perm:org-admin` for `orgAdmin: true`, `perm:user-access-admin` for `userAccessAdministrator: true`
+   - Tag placement: Apply at meta level if permissions are in meta parameters, or at story level if in story parameters/args
+   ```typescript
+   // Story-level permissions → story-level tags
+   export const AdminStory: Story = {
+     tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
+     parameters: {
+       chrome: { environment: 'stage' },
+       permissions: { 
+         orgAdmin: true, 
+         userAccessAdministrator: true 
+       },
+     },
+   };
+   
+   // Meta-level permissions → meta-level tags
+   const meta: Meta<typeof Component> = {
+     component: Component,
+     tags: ['autodocs', 'perm:org-admin'],
+     parameters: {
+       permissions: { orgAdmin: true },
+     },
+   };
+   ```
+
+4. **Custom CSS Tags** (`custom-css`)
+   - **REQUIRED** for any component that imports `.scss` files
+   - Check the component file (not the story file) for CSS imports
+   - Tag: `custom-css`
+   ```typescript
+   // If component imports './Component.scss'
+   const meta: Meta<typeof Component> = {
+     component: Component,
+     tags: ['autodocs', 'custom-css'],
+   };
+   ```
+
+#### Tag Application Rules
+
+- **Meta-level tags**: Apply to all stories in the file
+  ```typescript
+  const meta: Meta<typeof Component> = {
+    component: Component,
+    tags: ['autodocs', 'ff:platform.rbac.workspaces', 'custom-css'],
+  };
+  ```
+
+- **Story-level tags**: Apply to individual stories, merge with meta tags
+  ```typescript
+  export const AdminProduction: Story = {
+    tags: ['env:prod', 'perm:org-admin'], // Merges with meta tags
+    parameters: {
+      chrome: { environment: 'prod' },
+      permissions: { orgAdmin: true },
+    },
+  };
+  ```
+
+#### Tag Naming Conventions
+
+- **Use full flag names**: `ff:platform.rbac.itless` not `ff:itless`
+- **Use lowercase with hyphens**: `perm:org-admin` not `perm:orgAdmin`
+- **Be specific**: `env:stage` not `env:staging`
+- **No test-targeting tags**: Don't add internal tags (removed: `test-spy`, `production-bug`, `modal-testing`, `filtering-pagination`, `workspaces`, `users-container`, `roles-container`, `access-management-container`, etc.)
+
+#### Tag Verification Checklist
+
+Before submitting stories, verify:
+- [ ] All feature flags have `ff:*` tags with full flag names
+- [ ] All environment settings have `env:*` tags
+- [ ] All `true` permissions have `perm:*` tags
+- [ ] Components with CSS imports have `custom-css` tag
+- [ ] No internal/test-targeting tags remain in code
+
+**WHY THIS MATTERS**: These tags enable developers to quickly filter and find relevant stories in Storybook UI based on feature flags, environments, permissions, and styling requirements.
+
 ### Container Story Requirements (SPECIAL PATTERN)
 - **Container stories** with multiple stories should use **single autodocs pattern**:
-  - Remove `autodocs` from meta: `tags: ['container-name']` (NO autodocs)
+  - Remove `autodocs` from meta (NO autodocs on meta)
   - Add `autodocs` only to default story: `tags: ['autodocs']`
   - Default story must include comprehensive directory of all other stories with clickable links
+  - Apply appropriate `ff:*`, `env:*`, `perm:*`, and `custom-css` tags to meta or individual stories as needed
 - **NEVER** use `storeState` to pre-populate Redux in container stories
+- **NEVER** add internal test-targeting tags (removed: `workspaces`, `users-container`, `roles-container`, etc.)
 - **ALWAYS** use real API orchestration with MSW handlers for container testing
 
 ### Story Structure Template

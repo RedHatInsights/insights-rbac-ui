@@ -91,7 +91,7 @@ const GroupRolesWrapper: React.FC<{ groupId?: string }> = () => {
 
 const meta: Meta<typeof GroupRolesWrapper> = {
   component: GroupRolesWrapper,
-  tags: ['group-roles'], // NO autodocs on meta
+  tags: ['custom-css'], // NO autodocs on meta
   decorators: [
     (Story, { parameters }) => (
       <MemoryRouter initialEntries={[`/groups/detail/${parameters?.groupId || 'test-group-id'}/roles`]}>
@@ -110,7 +110,7 @@ export default meta;
 type Story = StoryObj<typeof GroupRolesWrapper>;
 
 export const Default: Story = {
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:user-access-admin'],
   parameters: {
     docs: {
       description: {
@@ -250,6 +250,7 @@ export const WithoutPermissions: Story = {
 };
 
 export const DefaultGroupRoles: Story = {
+  tags: ['perm:user-access-admin'],
   parameters: {
     groupId: 'default-group-id',
     permissions: {
@@ -316,6 +317,7 @@ export const DefaultGroupRoles: Story = {
 };
 
 export const BulkSelection: Story = {
+  tags: ['perm:user-access-admin'],
   parameters: {
     permissions: {
       userAccessAdministrator: true,
@@ -423,6 +425,7 @@ export const LoadingState: Story = {
 };
 
 export const EmptyState: Story = {
+  tags: ['perm:user-access-admin'],
   parameters: {
     permissions: {
       userAccessAdministrator: true,

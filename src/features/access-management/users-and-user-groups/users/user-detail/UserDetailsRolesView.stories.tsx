@@ -9,7 +9,6 @@ import { UserDetailsRolesView } from './UserDetailsRolesView';
 
 const meta: Meta<typeof UserDetailsRolesView> = {
   component: UserDetailsRolesView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>

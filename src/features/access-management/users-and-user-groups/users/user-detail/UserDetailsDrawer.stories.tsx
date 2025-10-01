@@ -44,7 +44,6 @@ const TestDataViewTable: React.FC<{ onUserSelect: (user: User) => void }> = ({ o
 
 const meta: Meta<typeof UserDetailsDrawer> = {
   component: UserDetailsDrawer,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>

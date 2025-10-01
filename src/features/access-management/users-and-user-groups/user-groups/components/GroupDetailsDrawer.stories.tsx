@@ -9,7 +9,6 @@ import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 
 const meta: Meta<typeof GroupDetailsDrawer> = {
   component: GroupDetailsDrawer,
-  tags: ['access-management-drawer'],
   parameters: {
     docs: {
       description: {

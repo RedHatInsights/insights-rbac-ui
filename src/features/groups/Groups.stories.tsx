@@ -93,6 +93,7 @@ const groupsApiCallSpy = fn();
 const meta: Meta<typeof Groups> = {
   title: 'Features/Groups/Groups',
   component: Groups, // Update component reference
+  tags: ['custom-css'],
   parameters: {
     msw: {
       handlers: [
@@ -198,7 +199,7 @@ export default meta;
 type Story = StoryObj<typeof Groups>;
 
 export const Default: Story = {
-  tags: ['autodocs'], // ONLY story with autodocs
+  tags: ['autodocs', 'env:stage', 'perm:org-admin', 'perm:user-access-admin'], // ONLY story with autodocs
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -226,6 +227,7 @@ export const Default: Story = {
 
 // Basic loading state
 export const Loading: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     // ✅ Loading state now handled by MSW delayed response
     chrome: { environment: 'stage' },
@@ -253,6 +255,7 @@ export const Loading: Story = {
 
 // Non-admin user view
 export const NonAdminUserView: Story = {
+  tags: ['env:stage'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: false, userAccessAdministrator: false }, // Non-admin user
@@ -355,6 +358,7 @@ export const NonAdminUserView: Story = {
 
 // Admin user view with full permissions
 export const AdminUserView: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -389,6 +393,7 @@ export const AdminUserView: Story = {
 
 // Bulk selection and actions
 export const BulkSelectionAndActions: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -431,6 +436,7 @@ export const BulkSelectionAndActions: Story = {
 
 // Bulk select checkbox functionality
 export const BulkSelectCheckbox: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -479,6 +485,7 @@ export const BulkSelectCheckbox: Story = {
 
 // Roles expansion functionality
 export const RolesExpansion: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -522,6 +529,7 @@ export const RolesExpansion: Story = {
 
 // Members expansion functionality
 export const MembersExpansion: Story = {
+  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: true },
@@ -565,6 +573,7 @@ export const MembersExpansion: Story = {
 
 // Filtering interaction
 export const FilteringInteraction: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: false },
@@ -641,6 +650,7 @@ export const FilteringInteraction: Story = {
 
 // Sorting interaction
 export const SortingInteraction: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: { environment: 'stage' },
     permissions: { orgAdmin: true, userAccessAdministrator: false },
@@ -729,6 +739,7 @@ export const SortingInteraction: Story = {
 
 // Default groups behavior (admin and platform default)
 export const DefaultGroupsBehavior: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     // ✅ Group data now provided by MSW handlers
     chrome: { environment: 'stage' },
@@ -790,7 +801,7 @@ export const DefaultGroupsBehavior: Story = {
 };
 // 🚨 PRODUCTION BUG REPRODUCTION: User in org with lots of groups but no groups permissions
 export const ProductionBugReproduction: Story = {
-  tags: ['test-spy', 'production-bug'],
+  tags: ['env:prod'],
   parameters: {
     // ✅ Empty state handled by MSW 403 response
     chrome: { environment: 'prod' }, // Production environment

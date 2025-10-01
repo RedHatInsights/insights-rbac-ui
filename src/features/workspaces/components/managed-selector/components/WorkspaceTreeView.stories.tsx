@@ -5,7 +5,7 @@ import { TreeViewWorkspaceItem, WorkspaceTreeView } from './WorkspaceTreeView';
 
 const meta: Meta<typeof WorkspaceTreeView> = {
   component: WorkspaceTreeView,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs'],
   parameters: {
     // Chromatic configuration to reduce flakiness
     chromatic: {

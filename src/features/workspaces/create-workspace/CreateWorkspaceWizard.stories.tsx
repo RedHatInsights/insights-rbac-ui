@@ -59,7 +59,7 @@ const createWorkspaceSpy = fn();
 
 const meta: Meta<typeof CreateWorkspaceWizard> = {
   component: CreateWorkspaceWizard,
-  tags: ['autodocs', 'workspaces', 'create-workspace-wizard'],
+  tags: ['autodocs', 'ff:platform.rbac.workspaces', 'ff:platform.rbac.workspace-hierarchy', 'ff:platform.rbac.workspaces-billing-features'],
   parameters: {
     docs: {
       description: {

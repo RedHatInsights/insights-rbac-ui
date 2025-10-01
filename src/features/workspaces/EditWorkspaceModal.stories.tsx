@@ -71,7 +71,7 @@ const ModalWrapper = ({ storyArgs }: { storyArgs: any }) => {
 
 const meta: Meta<typeof EditWorkspaceModal> = {
   component: EditWorkspaceModal,
-  tags: ['autodocs', 'workspaces', 'workspace-edit-modal'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

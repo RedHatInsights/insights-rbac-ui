@@ -151,7 +151,7 @@ const AddGroupRolesWithData = (props: any) => {
 
 const meta: Meta<any> = {
   component: AddGroupRolesWithData,
-  tags: ['add-group-roles', 'modal-testing', 'filtering-pagination'],
+  tags: ['custom-css'],
   parameters: {
     msw: {
       handlers: [

@@ -48,7 +48,7 @@ const AddGroupMembersWrapper = (props: any) => {
 
 const meta: Meta<any> = {
   component: AddGroupMembersWrapper,
-  tags: ['add-group-members'], // NO autodocs on meta
+  tags: ['ff:platform.rbac.itless'], // NO autodocs on meta
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/members']}>
