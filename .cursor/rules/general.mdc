@@ -145,6 +145,50 @@ npm run test-storybook:ci -- "UserTable.stories.tsx"
 - `npm run storybook` - Start Storybook development server
 - `npm test` - Run test suite
 
+## MANDATORY VALIDATION CHECKLIST
+
+### ❌ NEVER MARK WORK AS COMPLETE WITHOUT RUNNING ALL VALIDATION COMMANDS
+
+**CRITICAL**: Before claiming any task is "COMPLETED", "DONE", "FINISHED", or similar, you MUST run and verify ALL of the following commands pass successfully:
+
+### Required Validation Commands (MUST RUN ALL)
+```bash
+# 1. TypeScript compilation check
+npm run build
+
+# 2. Linting check  
+npm run lint:js
+
+# 3. Test suite
+npm test
+
+# 4. Storybook test suite
+npm run test-storybook:ci
+```
+
+### Validation Rules
+- **ALL commands must pass with exit code 0**
+- **NO warnings or errors allowed** - any failures mean work is NOT complete
+- **Run commands in sequence** - don't claim completion until all pass
+- **If any command fails** - fix the issues and re-run ALL commands
+- **Only after ALL commands pass** - then and only then can work be marked complete
+
+### What This Prevents
+- ❌ Claiming "COMPLETED" when build fails
+- ❌ Claiming "SUCCESS" when linting has errors  
+- ❌ Claiming "DONE" when tests are broken
+- ❌ Claiming "FINISHED" when Storybook tests fail
+- ❌ Any premature completion declarations
+
+### What This Ensures
+- ✅ Code actually compiles
+- ✅ Code passes all linting rules
+- ✅ All tests pass
+- ✅ Storybook stories work correctly
+- ✅ Work is truly complete and functional
+
+**REMEMBER**: The user has repeatedly had to remind AI to run these validation commands. This rule exists because AI has a pattern of claiming completion without proper validation. Follow this rule religiously.
+
 ## Architecture
 
 ### Key Directories

@@ -53,6 +53,9 @@ const mockAvailableRoles = [
   },
 ];
 
+// 🎯 API SPIES: Proper spy pattern for testing API calls
+const postRolesSpy = fn();
+
 // 🎯 CRITICAL: Shared handler for group roles with addRoles support
 // This handles the /groups/:groupId/roles/ endpoint with excluded parameter
 const createGroupRolesHandler = (availableRoles = mockAvailableRoles) => {
@@ -63,8 +66,6 @@ const createGroupRolesHandler = (availableRoles = mockAvailableRoles) => {
     const offset = parseInt(url.searchParams.get('offset') || '0');
     const orderBy = url.searchParams.get('order_by');
     const name = url.searchParams.get('name'); // 🎯 ADD: Name filtering support
-
-    console.log('🎯 GROUP ROLES HANDLER:', { exclude, limit, offset, orderBy, name, url: request.url });
 
     if (exclude === 'true') {
       // Available roles that can be added (not already assigned)
@@ -176,44 +177,29 @@ const meta: Meta<any> = {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '10');
           const offset = parseInt(url.searchParams.get('offset') || '0');
-          const nameMatch = url.searchParams.get('name_match');
           const name = url.searchParams.get('name'); // 🎯 ADD: Name filtering support
-          const scope = url.searchParams.get('scope');
-          const orderBy = url.searchParams.get('order_by');
-          const addFields = url.searchParams.get('add_fields');
-          const externalTenant = url.searchParams.get('external_tenant');
-
-          console.log('🎯 ROLES API HANDLER:', {
-            url: request.url,
-            limit,
-            offset,
-            nameMatch,
-            name, // 🎯 ADD: Log name parameter
-            scope,
-            orderBy,
-            addFields,
-            externalTenant,
-          });
+          // const scope = url.searchParams.get('scope');
+          // const orderBy = url.searchParams.get('order_by');
+          // const addFields = url.searchParams.get('add_fields');
+          // const externalTenant = url.searchParams.get('external_tenant');
 
           // Use available roles for the specific modal query patterns
           let roles = [...mockAvailableRoles];
 
-          // 🎯 APPLY NAME FILTERING if provided (either 'name' or 'name_match' parameter)
-          // Special handling for name_match=partial (ignore it, return all roles)
-          const filterValue = name || (nameMatch && nameMatch !== 'partial' ? nameMatch : '');
-          if (filterValue && filterValue.trim() !== '') {
+          // 🎯 APPLY NAME FILTERING if provided
+          if (name && name.trim() !== '') {
             roles = roles.filter(
               (role) =>
-                role.display_name.toLowerCase().includes(filterValue.toLowerCase()) ||
-                role.name.toLowerCase().includes(filterValue.toLowerCase()) ||
-                (role.description && role.description.toLowerCase().includes(filterValue.toLowerCase())),
+                role.display_name.toLowerCase().includes(name.toLowerCase()) ||
+                role.name.toLowerCase().includes(name.toLowerCase()) ||
+                (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
             );
           }
 
           // Apply sorting if requested
-          if (orderBy === 'display_name') {
-            roles.sort((a, b) => a.display_name.localeCompare(b.display_name));
-          }
+          // if (orderBy === 'display_name') {
+          //   roles.sort((a, b) => a.display_name.localeCompare(b.display_name));
+          // }
 
           // Apply pagination
           const paginatedRoles = roles.slice(offset, offset + limit);
@@ -631,6 +617,8 @@ export const Loading: Story = {
         }),
         // 🎯 LOADING STORY: Make roles API slow so modal shows loading content inside
         http.get('/api/rbac/v1/groups/:groupId/roles/', () => new Promise(() => {})), // Never resolves - shows loading in modal
+        // 🎯 LOADING STORY: Add missing general roles API handler
+        http.get('/api/rbac/v1/roles/', () => new Promise(() => {})), // Never resolves - shows loading in modal
       ],
     },
   },
@@ -704,7 +692,6 @@ export const CancelNotification: Story = {
         http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
           const exclude = url.searchParams.get('exclude');
-          console.log('🎯 GROUP ROLES HANDLER:', { exclude, url: request.url });
 
           if (exclude === 'true') {
             return HttpResponse.json({
@@ -720,8 +707,6 @@ export const CancelNotification: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const name = url.searchParams.get('name') || url.searchParams.get('name_match');
-
-          console.log('🎯 COMPREHENSIVE GENERAL ROLES API (CANCEL STORY):', { url: request.url, limit, offset, name });
 
           let filteredRoles = mockAvailableRoles;
           if (name && name !== 'partial') {
@@ -820,8 +805,6 @@ export const RoleFilteringTest = {
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
 
-          console.log('🔍 FILTERING API SPY:', { exclude, name, limit, offset, url: request.url });
-
           if (exclude === 'true') {
             let filteredRoles = [...mockAvailableRoles];
 
@@ -845,16 +828,31 @@ export const RoleFilteringTest = {
           return HttpResponse.json({ data: [], meta: { count: 0, limit, offset } });
         }),
 
-        // 🎯 CRITICAL FIX: General roles API handler (missing from this story!)
+        // 🎯 CRITICAL FIX: General roles API handler with proper filtering
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
-          const name = url.searchParams.get('name') || url.searchParams.get('name_match');
-          console.log('🔍 GENERAL ROLES API (FILTERING STORY):', { url: request.url, name });
+          const displayName = url.searchParams.get('display_name');
+          const name = url.searchParams.get('name');
+          const nameMatch = url.searchParams.get('name_match');
 
-          let filteredRoles = mockAvailableRoles;
-          if (name && name !== 'partial') {
-            filteredRoles = mockAvailableRoles.filter(
-              (role) => role.display_name.toLowerCase().includes(name.toLowerCase()) || role.name.toLowerCase().includes(name.toLowerCase()),
+          let filteredRoles = [...mockAvailableRoles];
+
+          // Apply filtering when display_name is provided (this is what the component actually sends)
+          if (displayName && displayName.trim() !== '') {
+            filteredRoles = filteredRoles.filter(
+              (role) =>
+                role.display_name.toLowerCase().includes(displayName.toLowerCase()) ||
+                role.name.toLowerCase().includes(displayName.toLowerCase()) ||
+                (role.description && role.description.toLowerCase().includes(displayName.toLowerCase())),
+            );
+          }
+          // Fallback: Apply filtering when name_match=partial and name is provided
+          else if (nameMatch === 'partial' && name && name.trim() !== '') {
+            filteredRoles = filteredRoles.filter(
+              (role) =>
+                role.display_name.toLowerCase().includes(name.toLowerCase()) ||
+                role.name.toLowerCase().includes(name.toLowerCase()) ||
+                (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
             );
           }
 
@@ -900,13 +898,15 @@ export const RoleFilteringTest = {
     // Type in filter - search for "aud" (should match "Auditor" role)
     await userEvent.type(filterInput, 'aud');
 
-    // Wait for filtered results
-    const filteredRows = await modalContent.findAllByRole('row');
-    const filteredRowCount = filteredRows.length - 1; // Subtract header row
+    // Wait for filtered results with debounced API call
+    await waitFor(() => {
+      const filteredRows = modalContent.getAllByRole('row');
+      const filteredRowCount = filteredRows.length - 1; // Subtract header row
 
-    // Should have fewer roles now
-    expect(filteredRowCount).toBeLessThan(initialRowCount);
-    expect(filteredRowCount).toBeGreaterThan(0); // Should still have the Auditor role
+      // Should have fewer roles now (filtering should work)
+      expect(filteredRowCount).toBeLessThan(initialRowCount);
+      expect(filteredRowCount).toBeGreaterThan(0); // Should still have the Auditor role
+    });
 
     // Verify the Auditor role is visible
     expect(await modalContent.findByText('Auditor')).toBeInTheDocument();
@@ -915,19 +915,15 @@ export const RoleFilteringTest = {
     await userEvent.clear(filterInput);
     await userEvent.type(filterInput, '{backspace}'); // Force trigger event
 
-    // Add a small delay to ensure debounced API call completes
-    await new Promise((resolve) => setTimeout(resolve, 800));
+    await waitFor(() => {
+      const clearedRows = modalContent.getAllByRole('row');
+      const clearedRowCount = clearedRows.length - 1; // Subtract header row
 
-    const clearedRows = await modalContent.findAllByRole('row');
-    const clearedRowCount = clearedRows.length - 1; // Subtract header row
-
-    // Should have all roles back (at least as many as initial, allowing for MSW handler variations)
-    expect(clearedRowCount).toBeGreaterThanOrEqual(Math.min(initialRowCount, 2)); // At least 2 roles after clear
+      // Should have all roles back (at least as many as initial, allowing for MSW handler variations)
+      expect(clearedRowCount).toBeGreaterThanOrEqual(Math.min(initialRowCount, 2)); // At least 2 roles after clear
+    });
     // Verify specific roles are visible after clearing filter
     expect(await modalContent.findByText('Content Manager')).toBeInTheDocument();
-
-    // Verify console logs show the filtering API calls
-    console.log('✅ Role filtering test completed successfully - check browser console for API spy logs');
   },
 };
 
@@ -977,7 +973,9 @@ export const ClearFiltersButtonTest = {
         }),
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
-          const name = url.searchParams.get('name') || url.searchParams.get('name_match');
+          const displayName = url.searchParams.get('display_name');
+          const name = url.searchParams.get('name');
+          const nameMatch = url.searchParams.get('name_match');
 
           let filteredRoles = [
             { uuid: 'role-4', display_name: 'Content Manager', name: 'content-manager', description: 'Can manage content' },
@@ -985,11 +983,24 @@ export const ClearFiltersButtonTest = {
             { uuid: 'role-6', display_name: 'Developer', name: 'developer', description: 'Can deploy applications' },
           ];
 
-          if (name && name !== 'partial') {
-            filteredRoles = filteredRoles.filter((role) => role.display_name.toLowerCase().includes(name.toLowerCase()));
+          // Apply filtering when display_name is provided (this is what the component actually sends)
+          if (displayName && displayName.trim() !== '') {
+            filteredRoles = filteredRoles.filter(
+              (role) =>
+                role.display_name.toLowerCase().includes(displayName.toLowerCase()) ||
+                role.name.toLowerCase().includes(displayName.toLowerCase()) ||
+                (role.description && role.description.toLowerCase().includes(displayName.toLowerCase())),
+            );
           }
-
-          console.log('🔍 CLEAR BUTTON TEST API:', { name, resultCount: filteredRoles.length });
+          // Fallback: Apply filtering when name_match=partial and name is provided
+          else if (nameMatch === 'partial' && name && name.trim() !== '') {
+            filteredRoles = filteredRoles.filter(
+              (role) =>
+                role.display_name.toLowerCase().includes(name.toLowerCase()) ||
+                role.name.toLowerCase().includes(name.toLowerCase()) ||
+                (role.description && role.description.toLowerCase().includes(name.toLowerCase())),
+            );
+          }
 
           return HttpResponse.json({
             data: filteredRoles,
@@ -1017,10 +1028,12 @@ export const ClearFiltersButtonTest = {
     const filterInput = await modalContent.findByPlaceholderText('Filter by role name');
     await userEvent.type(filterInput, 'audit');
 
-    // Wait for filtered results
-    const filteredRows = await modalContent.findAllByRole('row');
-    expect(filteredRows.length - 1).toBe(1); // Should have just Auditor
-    expect(await modalContent.findByText('Auditor')).toBeInTheDocument();
+    // Wait for filtered results with debounced API call
+    await waitFor(() => {
+      const filteredRows = modalContent.getAllByRole('row');
+      expect(filteredRows.length - 1).toBe(1); // Should have just Auditor
+      expect(modalContent.getByText('Auditor')).toBeInTheDocument();
+    });
 
     // 🎯 NOW TEST THE ACTUAL "CLEAR FILTERS" BUTTON CLICK
     const clearFiltersButton = await modalContent.findByRole('button', { name: /clear filters/i });
@@ -1029,11 +1042,14 @@ export const ClearFiltersButtonTest = {
     await userEvent.click(clearFiltersButton);
 
     // Verify that clicking the button actually clears the filter and shows all roles
-    const clearedRows = await modalContent.findAllByRole('row');
-    const clearedRowCount = clearedRows.length - 1; // Subtract header
+    // Wait for debounced API call to complete
+    await waitFor(() => {
+      const clearedRows = modalContent.getAllByRole('row');
+      const clearedRowCount = clearedRows.length - 1; // Subtract header
 
-    // Should have all roles back
-    expect(clearedRowCount).toBeGreaterThanOrEqual(2); // At least Content Manager + others
+      // Should have all roles back
+      expect(clearedRowCount).toBeGreaterThanOrEqual(2); // At least Content Manager + others
+    });
     expect(await modalContent.findByText('Content Manager')).toBeInTheDocument();
     expect(await modalContent.findByText('Developer')).toBeInTheDocument();
 
@@ -1064,7 +1080,6 @@ export const AddRolesToGroupAPITest = {
       handlers: [
         // Mock group endpoint
         http.get('/api/rbac/v1/groups/:groupId', ({ params }) => {
-          console.log('📥 GET Group API called:', params.groupId);
           return HttpResponse.json({
             uuid: params.groupId,
             name: 'Test Group for API Calls',
@@ -1075,11 +1090,9 @@ export const AddRolesToGroupAPITest = {
         }),
 
         // Mock available roles for selection
-        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request, params }) => {
+        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
           const url = new URL(request.url);
           const exclude = url.searchParams.get('excluded') || url.searchParams.get('exclude');
-
-          console.log('📥 GET Group Roles API called:', { groupId: params.groupId, exclude, url: request.url });
 
           if (exclude === 'true') {
             // Return available roles to add
@@ -1096,38 +1109,20 @@ export const AddRolesToGroupAPITest = {
           });
         }),
 
-        // 🎯 SPY-ENABLED: Add roles POST endpoint with detailed logging and spy capture
+        // 🎯 SPY-ENABLED: Add roles POST endpoint with spy tracking
         http.post('/api/rbac/v1/groups/:groupId/roles/', async ({ request, params }) => {
           const requestBody = (await request.json()) as { roles?: string[] };
 
-          // 🔍 SPY CAPTURE: Store the request data for test assertions
-          (window as any).postRolesSpy = {
+          // 🔍 CRITICAL: Call spy with request data for test assertions
+          postRolesSpy({
             groupId: params.groupId,
             requestBody,
-            url: request.url,
-            method: request.method,
-            timestamp: Date.now(),
-          };
-
-          console.log('🚀 POST Add Roles API called with data:', {
-            groupId: params.groupId,
-            requestBody,
-            url: request.url,
-            method: request.method,
-            headers: Object.fromEntries(request.headers.entries()),
           });
 
           // Validate the request structure
           if (!requestBody || !Array.isArray(requestBody.roles)) {
-            console.error('❌ Invalid request body - roles should be an array:', requestBody);
             return HttpResponse.json({ error: 'Invalid request body' }, { status: 400 });
           }
-
-          // Log successful validation
-          console.log('✅ POST request validation passed:', {
-            rolesCount: requestBody.roles.length,
-            roleIds: requestBody.roles,
-          });
 
           return HttpResponse.json({
             message: 'Roles added successfully',
@@ -1136,10 +1131,7 @@ export const AddRolesToGroupAPITest = {
         }),
 
         // Mock general roles endpoint (fallback)
-        http.get('/api/rbac/v1/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          console.log('📥 GET General Roles API called:', url.searchParams.toString());
-
+        http.get('/api/rbac/v1/roles/', () => {
           return HttpResponse.json({
             data: mockAvailableRoles,
             meta: { count: mockAvailableRoles.length, limit: 20, offset: 0 },
@@ -1152,10 +1144,8 @@ export const AddRolesToGroupAPITest = {
     await delay(300); // Wait for MSW handlers to initialize
     const canvas = within(canvasElement);
 
-    // 🔍 Clear any previous spy data
-    (window as any).postRolesSpy = null;
-
-    console.log('🧪 Starting Add Roles API Test...');
+    // 🔍 Reset spy before test
+    postRolesSpy.mockClear();
 
     // Click the button to open the modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Roles Modal' });
@@ -1187,13 +1177,11 @@ export const AddRolesToGroupAPITest = {
     );
 
     if (firstRoleCheckbox) {
-      console.log('🔘 Selecting first role...', firstRoleCheckbox.getAttribute('aria-label'));
       await userEvent.click(firstRoleCheckbox);
 
       // Verify the checkbox is checked
       expect(firstRoleCheckbox).toBeChecked();
     } else {
-      console.error('❌ Could not find first role checkbox');
     }
 
     // Find and click the "Add to Group" button
@@ -1201,19 +1189,18 @@ export const AddRolesToGroupAPITest = {
     expect(addButton).toBeInTheDocument();
     expect(addButton).not.toBeDisabled();
 
-    console.log('🚀 Clicking Add to Group button...');
     await userEvent.click(addButton);
 
-    // 🔍 VERIFY POST API CALL: Check that the correct role UUID was sent to the API
+    // 🔍 VERIFY POST API CALL: Check that the spy was called with correct parameters
     await waitFor(
       () => {
-        const spy = (window as any).postRolesSpy;
-        expect(spy).toBeTruthy();
-        expect(spy.groupId).toBe('test-group-id');
-        expect(spy.requestBody).toBeTruthy();
-        expect(Array.isArray(spy.requestBody.roles)).toBe(true);
-        expect(spy.requestBody.roles).toContain('role-4'); // First role (Content Manager) UUID
-        console.log('✅ POST API Body Verified:', spy.requestBody);
+        expect(postRolesSpy).toHaveBeenCalled();
+        expect(postRolesSpy).toHaveBeenCalledWith({
+          groupId: 'test-group-id',
+          requestBody: expect.objectContaining({
+            roles: expect.arrayContaining(['role-4']), // First role (Content Manager) UUID
+          }),
+        });
       },
       { timeout: 5000 },
     );
@@ -1226,7 +1213,6 @@ export const AddRolesToGroupAPITest = {
 
         const successAlert = notificationPortal?.querySelector('.pf-v5-c-alert.pf-m-success');
         expect(successAlert).toBeInTheDocument();
-        console.log('✅ Success Notification Verified');
       },
       { timeout: 5000 },
     );
@@ -1238,12 +1224,5 @@ export const AddRolesToGroupAPITest = {
       },
       { timeout: 10000 },
     );
-
-    console.log('✅ Add Roles API test completed - check browser console for detailed API spy logs');
-    console.log('📋 Expected API calls:');
-    console.log('  1. GET /api/rbac/v1/groups/{groupId} - Fetch group details');
-    console.log('  2. GET /api/rbac/v1/groups/{groupId}/roles?excluded=true - Fetch available roles');
-    console.log('  3. POST /api/rbac/v1/groups/{groupId}/roles/ - Add roles to group');
-    console.log('  4. GET /api/rbac/v1/groups/{groupId}/roles/ - Refresh group roles after POST');
   },
 };

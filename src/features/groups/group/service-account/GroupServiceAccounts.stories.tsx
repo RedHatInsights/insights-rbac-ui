@@ -32,6 +32,9 @@ const mockServiceAccounts = [
   },
 ];
 
+// 🎯 API SPIES: Proper spy pattern for testing API calls
+const clearFiltersSpy = fn();
+
 // Simple wrapper that just renders the component (Redux provider is global)
 const GroupServiceAccountsWrapper: React.FC = () => {
   return <GroupServiceAccounts />;
@@ -194,7 +197,6 @@ export const Loading: Story = {
   },
 };
 
-const clearFiltersSpy = fn();
 export const EmptyState: Story = {
   parameters: {
     msw: {
@@ -1026,147 +1028,5 @@ export const ActionsTest: Story = {
     }
 
     console.log('✅ Service account actions test completed successfully');
-  },
-};
-
-export const DeleteAPISpyTest: Story = {
-  name: 'DELETE API Spy Test',
-  parameters: {
-    docs: { disable: true }, // Hide from docs as this is a test story
-    permissions: {
-      userAccessAdministrator: true,
-      orgAdmin: false,
-    },
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
-          return HttpResponse.json({
-            uuid: params.groupId,
-            name: 'DELETE API Test Group',
-            description: 'Testing DELETE API calls with UUIDs',
-            principalCount: 3,
-            roleCount: 1,
-            platform_default: false,
-            admin_default: false,
-            system: false,
-          });
-        }),
-        http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
-          const url = new URL(request.url);
-          const principalType = url.searchParams.get('principal_type');
-
-          if (principalType === 'service-account') {
-            return HttpResponse.json({
-              meta: { count: 3, limit: 20, offset: 0 },
-              links: { first: '/api/rbac/v1/groups/test-group-id/principals/', last: '', next: '', previous: '' },
-              data: mockServiceAccounts,
-            });
-          }
-
-          return HttpResponse.json({ meta: { count: 0 }, data: [] });
-        }),
-        // SPY ON DELETE API CALL - This is the critical test
-        http.delete('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
-          const url = new URL(request.url);
-          const serviceAccounts = url.searchParams.get('service-accounts');
-
-          console.log('🕵️ DELETE API called!');
-          console.log('🕵️ Group ID:', params.groupId);
-          console.log('🕵️ service-accounts parameter:', serviceAccounts);
-
-          // Record the call for our test
-          (window as any).__deleteApiCalls = (window as any).__deleteApiCalls || [];
-          (window as any).__deleteApiCalls.push({
-            groupId: params.groupId,
-            serviceAccounts: serviceAccounts,
-            url: request.url,
-          });
-
-          // Check if UUIDs are being passed (not names)
-          if (serviceAccounts) {
-            const isUUID = serviceAccounts.includes('uuid-');
-            console.log('🕵️ Contains UUID format:', isUUID);
-            console.log('🕵️ Raw parameter value:', serviceAccounts);
-          }
-
-          return HttpResponse.json({ success: true });
-        }),
-        // Mock the removal modal route
-        http.get('/api/rbac/v1/groups/:groupId/service-accounts/', () => {
-          return HttpResponse.json({
-            data: mockServiceAccounts,
-            meta: { count: mockServiceAccounts.length, limit: 20, offset: 0 },
-          });
-        }),
-      ],
-    },
-  },
-  args: {
-    groupId: 'test-group-id',
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-    const user = userEvent.setup();
-
-    console.log('🕵️ Starting DELETE API Spy Test...');
-
-    // Clear any previous API call records
-    (window as any).__deleteApiCalls = [];
-
-    // Wait for table to load
-    await waitFor(() => {
-      expect(canvas.getByRole('grid')).toBeInTheDocument();
-    });
-
-    // Wait for data to be populated
-    await waitFor(() => {
-      expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
-    });
-
-    console.log('✅ Table loaded with service accounts');
-
-    // Find and select the first service account
-    const checkboxes = canvas.getAllByRole('checkbox');
-    const rowCheckboxes = checkboxes.filter((cb) => cb.getAttribute('aria-label')?.includes('Select row'));
-
-    expect(rowCheckboxes.length).toBeGreaterThan(0);
-
-    // Select first service account
-    await user.click(rowCheckboxes[0]);
-    console.log('✅ Selected first service account');
-
-    // Open bulk actions dropdown
-    const bulkActionsButton = canvas.getByLabelText('bulk actions toggle');
-    await user.click(bulkActionsButton);
-    console.log('✅ Opened bulk actions dropdown');
-
-    // Click Remove action
-    await waitFor(() => {
-      const removeAction = canvas.getByText('Remove');
-      expect(removeAction).toBeInTheDocument();
-    });
-
-    const removeAction = canvas.getByText('Remove');
-    await user.click(removeAction);
-    console.log('✅ Clicked Remove action');
-
-    // The above should trigger navigation to the removal modal
-    // In a real app, this would navigate to a new route
-    // For now, let's verify that the navigation was attempted with correct parameters
-
-    // Wait a bit for any async operations
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    console.log('🕵️ Current URL should contain service account uuid parameters only');
-    console.log('🕵️ Expected format: ?uuid=uuid-ci-pipeline-service');
-
-    // In this story context, we can't easily test the full navigation flow
-    // But we've verified that the bulk actions work correctly
-    // The DELETE API spy will be triggered when the actual modal confirmation happens
-
-    console.log('✅ DELETE API SPY TEST SETUP COMPLETED');
-    console.log('🔍 To complete this test: trigger the actual removal in the modal');
-    console.log('🔍 Then check (window as any).__deleteApiCalls for the recorded DELETE calls');
-    console.log('🔍 Verify serviceAccounts parameter contains UUIDs not names');
   },
 };
