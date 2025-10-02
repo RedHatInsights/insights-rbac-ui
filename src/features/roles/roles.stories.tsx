@@ -192,6 +192,9 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    // Wait for debounced functions to settle
+    await delay(300);
+
     // Add debugging to see what's happening
     console.log('🔍 PLAY: Starting admin roles test');
 
@@ -354,8 +357,9 @@ export const EmptyRoles: Story = {
     },
     msw: {
       handlers: [
-        // Return empty data
-        http.get('/api/rbac/v1/roles/', () => {
+        // Return empty data for roles
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          console.log('🔍 EmptyRoles: Roles API called', request.url);
           return HttpResponse.json({
             data: [],
             meta: { count: 0 },
@@ -372,6 +376,9 @@ export const EmptyRoles: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
+    // Wait for debounced functions to settle
+    await delay(300);
 
     // Should show empty state message for no roles
     await expect(canvas.findByText(/Configure roles/i)).resolves.toBeInTheDocument();
@@ -440,7 +447,13 @@ export const AdminUserWithRolesFiltering: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    // Wait for debounced functions to settle
+    await delay(300);
+
     console.log('🧪 FILTERING: Starting role filtering test');
+
+    // Clear spy to ensure clean state (spies persist across stories)
+    filterSpy.mockClear();
 
     // Wait for initial data load
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
@@ -454,6 +467,9 @@ export const AdminUserWithRolesFiltering: Story = {
     await userEvent.clear(filterInput);
     await userEvent.type(filterInput, 'Platform');
 
+    // Wait for debounce to complete (250ms debounce + buffer)
+    await delay(400);
+
     await waitFor(() => {
       // Verify filter API was called with correct parameter
       expect(filterSpy).toHaveBeenCalledWith('Platform');
@@ -462,6 +478,9 @@ export const AdminUserWithRolesFiltering: Story = {
     // Test 2: Filter by "Management"
     await userEvent.clear(filterInput);
     await userEvent.type(filterInput, 'Management');
+
+    // Wait for debounce to complete (250ms debounce + buffer)
+    await delay(400);
 
     await waitFor(() => {
       expect(filterSpy).toHaveBeenCalledWith('Management');
@@ -512,6 +531,9 @@ export const AdminUserWithRolesExpandableContent: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
+    // Wait for debounced functions to settle
+    await delay(300);
 
     console.log('🧪 EXPANDABLE: Starting expandable content test');
 
@@ -622,6 +644,9 @@ export const AdminUserWithRolesSorting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    // Wait for debounced functions to settle
+    await delay(300);
+
     console.log('🧪 SORTING: Starting column sorting test');
 
     // Wait for initial data load
@@ -731,6 +756,9 @@ export const AdminUserWithRolesPrimaryActions: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+
+    // Wait for debounced functions to settle
+    await delay(300);
 
     console.log('🧪 ACTIONS: Starting primary actions test');
 

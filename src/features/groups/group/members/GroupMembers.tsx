@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../../../utilities/debounce';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
@@ -16,6 +16,7 @@ import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { fetchGroup, fetchGroups } from '../../../../redux/groups/actions';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 
 import { getBackRoute } from '../../../../helpers/navigation';
 import pathnames from '../../../../utilities/pathnames';
@@ -63,6 +64,7 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
     fetchData,
     handleRemoveMembers,
     emptyStateProps,
+    pagination,
   } = useGroupMembers();
 
   // Additional selectors not in hook
@@ -83,7 +85,7 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
   const emptyState = <GroupMembersEmptyState {...emptyStateProps} />;
 
   // Debounced version for filter changes
-  const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
 
   // Cleanup debounced function on unmount
   useEffect(() => {
@@ -119,17 +121,46 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
   // Bulk selection handling using DataView selection
   const handleBulkSelect = useCallback(
     (value: BulkSelectValue) => {
-      if (value === 'none') {
+      if (value === BulkSelectValue.none) {
         selection.onSelect(false);
-      } else if (value === 'page') {
+      } else if (value === BulkSelectValue.page) {
         selection.onSelect(true, tableRows);
-      } else if (value === 'nonePage') {
+      } else if (value === BulkSelectValue.nonePage) {
         selection.onSelect(false, tableRows);
       }
-      // Note: 'all' across all pages not implemented yet
     },
     [selection, tableRows],
   );
+
+  // Pagination handlers
+  const handleSetPage = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
+      const offset = (newPage - 1) * pagination.perPage;
+      fetchData(undefined, { offset, limit: pagination.perPage });
+    },
+    [fetchData, pagination.perPage],
+  );
+
+  const handlePerPageSelect = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
+      fetchData(undefined, { offset: 0, limit: newPerPage });
+    },
+    [fetchData],
+  );
+
+  // Pagination component
+  const paginationComponent = useMemo(() => {
+    return (
+      <Pagination
+        itemCount={totalCount}
+        perPage={pagination.perPage}
+        page={pagination.page}
+        onSetPage={handleSetPage}
+        onPerPageSelect={handlePerPageSelect}
+        isCompact
+      />
+    );
+  }, [totalCount, pagination.perPage, pagination.page, handleSetPage, handlePerPageSelect]);
 
   // Navigation handlers
   const handleAddMembers = useCallback(() => {
@@ -163,6 +194,7 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
                 />
               ) : undefined
             }
+            pagination={paginationComponent}
             filters={
               <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
                 <DataViewTextFilter
@@ -232,6 +264,7 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
               empty: emptyState,
             }}
           />
+          <DataViewToolbar pagination={paginationComponent} />
         </DataView>
       )}
 

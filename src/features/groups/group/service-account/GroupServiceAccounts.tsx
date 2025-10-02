@@ -11,6 +11,7 @@ import { DataViewTextFilter } from '@patternfly/react-data-view';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 
 // Component imports
 import { GroupServiceAccountsEmptyState } from './components/GroupServiceAccountsEmptyState';
@@ -45,6 +46,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     emptyStateProps,
     toolbarButtons,
     group,
+    pagination,
   } = useGroupServiceAccounts(props);
 
   // Filter change handler
@@ -74,7 +76,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     (value: BulkSelectValue) => {
       if (value === BulkSelectValue.none) {
         selection.onSelect(false);
-      } else if (value === BulkSelectValue.all || value === BulkSelectValue.page) {
+      } else if (value === BulkSelectValue.page) {
         selection.onSelect(true, tableRows);
       } else if (value === BulkSelectValue.nonePage) {
         selection.onSelect(false, tableRows);
@@ -91,6 +93,37 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
   // Empty state component
   const emptyState = useMemo(() => <GroupServiceAccountsEmptyState {...emptyStateProps} />, [emptyStateProps]);
 
+  // Pagination handlers
+  const handleSetPage = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
+      const offset = (newPage - 1) * pagination.limit;
+      fetchData({ offset, limit: pagination.limit });
+    },
+    [fetchData, pagination.limit],
+  );
+
+  const handlePerPageSelect = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
+      fetchData({ offset: 0, limit: newPerPage });
+    },
+    [fetchData],
+  );
+
+  // Pagination component
+  const paginationComponent = useMemo(() => {
+    const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
+    return (
+      <Pagination
+        itemCount={pagination.count || 0}
+        perPage={pagination.limit}
+        page={currentPage}
+        onSetPage={handleSetPage}
+        onPerPageSelect={handlePerPageSelect}
+        isCompact
+      />
+    );
+  }, [pagination.count, pagination.limit, pagination.offset, handleSetPage, handlePerPageSelect]);
+
   // Bulk select component
   const bulkSelectComponent = useMemo(() => {
     if (!hasPermissions || isAdminDefault || isPlatformDefault) {
@@ -98,12 +131,26 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     }
 
     const selectedCount = selection.selected?.length || 0;
-    const totalCount = serviceAccounts.length;
+    const totalCount = pagination.count || 0;
+    const currentPageCount = serviceAccounts.length;
+
+    // Calculate if all/some items on current page are selected
+    const selectedOnPage = tableRows.filter((row) => selection.selected?.some((sel: any) => sel.id === row.id)).length;
+    const pageSelected = selectedOnPage > 0 && selectedOnPage === currentPageCount;
+    const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < currentPageCount;
 
     return (
-      <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
+      <BulkSelect
+        isDataPaginated={true}
+        selectedCount={selectedCount}
+        totalCount={totalCount}
+        pageCount={currentPageCount}
+        pageSelected={pageSelected}
+        pagePartiallySelected={pagePartiallySelected}
+        onSelect={handleBulkSelect}
+      />
     );
-  }, [hasPermissions, isAdminDefault, isPlatformDefault, selection.selected?.length, serviceAccounts.length, handleBulkSelect]);
+  }, [hasPermissions, isAdminDefault, isPlatformDefault, selection.selected, pagination.count, serviceAccounts.length, tableRows, handleBulkSelect]);
 
   // Determine active state
   const activeState = isLoading ? DataViewState.loading : serviceAccounts.length === 0 ? DataViewState.empty : undefined;
@@ -131,6 +178,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
             <DataView activeState={activeState} selection={hasPermissions ? selection : undefined}>
               <DataViewToolbar
                 bulkSelect={bulkSelectComponent}
+                pagination={paginationComponent}
                 actions={toolbarButtons}
                 filters={
                   <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
@@ -149,6 +197,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
                   empty: emptyState,
                 }}
               />
+              <DataViewToolbar pagination={paginationComponent} />
             </DataView>
           </>
         )}

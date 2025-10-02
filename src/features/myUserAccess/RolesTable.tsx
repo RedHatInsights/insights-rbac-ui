@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { fetchRoleForPrincipal, fetchRoles } from '../../redux/roles/actions';
@@ -251,7 +251,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   );
 
   // Debounced version for filter changes to prevent excessive API calls
-  const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
 
   // Cleanup debounced function on unmount
   useEffect(() => {

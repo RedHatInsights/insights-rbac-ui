@@ -610,16 +610,50 @@ const selection = useDataViewSelection({
 
 const handleBulkSelect = useCallback(
   (value: BulkSelectValue) => {
-    if (value === 'none') {
+    if (value === BulkSelectValue.none) {
       selection.onSelect(false);
-    } else if (value === 'page') {
+    } else if (value === BulkSelectValue.page) {
+      // Select all items on current page
       selection.onSelect(true, tableRows);
-    } else if (value === 'nonePage') {
+    } else if (value === BulkSelectValue.nonePage) {
+      // Deselect all items on current page
       selection.onSelect(false, tableRows);
     }
   },
   [selection, tableRows],
 );
+
+// BulkSelect component configuration
+const bulkSelectComponent = useMemo(() => {
+  if (!hasPermissions) {
+    return undefined;
+  }
+
+  const selectedCount = selection.selected?.length || 0;
+  const currentPageCount = items.length; // Items on current page
+  const totalCount = pagination.count || 0; // Total items across all pages
+
+  // Calculate if all/some items on current page are selected
+  const selectedOnPage = tableRows.filter((row) => selection.selected?.some((sel) => sel.id === row.id)).length;
+  const pageSelected = selectedOnPage > 0 && selectedOnPage === currentPageCount;
+  const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < currentPageCount;
+
+  return (
+    <BulkSelect
+      isDataPaginated={true}
+      selectedCount={selectedCount}
+      totalCount={totalCount}
+      pageCount={currentPageCount}
+      pageSelected={pageSelected}
+      pagePartiallySelected={pagePartiallySelected}
+      onSelect={handleBulkSelect}
+    />
+  );
+}, [hasPermissions, selection.selected, items.length, pagination.count, tableRows, handleBulkSelect]);
+
+// IMPORTANT: Do NOT use canSelectAll={true}
+// useDataViewSelection doesn't support cross-page "select all" - it only works with items you pass to it
+// BulkSelectValue.page is the correct option for selecting all on the current page
 
 // Clear selection after actions
 const handleDelete = useCallback(async (items) => {

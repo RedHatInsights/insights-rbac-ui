@@ -148,7 +148,7 @@ export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListPro
     if (value === BulkSelectValue.none) {
       onSelect([]);
       dataViewOnSelect(false);
-    } else if (value === BulkSelectValue.all || value === BulkSelectValue.page) {
+    } else if (value === BulkSelectValue.page) {
       onSelect(selectableServiceAccounts);
       const dataViewItems = selectableServiceAccounts.map((sa) => ({ id: sa.uuid }));
       dataViewOnSelect(true, dataViewItems);

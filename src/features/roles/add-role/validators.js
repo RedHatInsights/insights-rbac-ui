@@ -1,7 +1,7 @@
 import { useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { fetchRoles } from '../../../redux/roles/helper';
-import asyncDebounce from '../../../utilities/async-debounce';
+import { debounceAsync as asyncDebounce } from '../../../utilities/debounce';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../../Messages';

@@ -1,5 +1,5 @@
 import { fetchGroups } from '../../redux/groups/helper';
-import asyncDebounce from '../../utilities/async-debounce';
+import { debounceAsync as asyncDebounce } from '../../utilities/debounce';
 import { createIntl, createIntlCache } from 'react-intl';
 import messages from '../../Messages';
 import providerMessages from '../../locales/data.json';
@@ -34,4 +34,4 @@ export const asyncValidator = async (groupName: string, idKey: string, id?: stri
   return undefined;
 };
 
-export const debouncedAsyncValidator = asyncDebounce((value: string, idKey: string, id?: string) => asyncValidator(value, idKey, id), 300);
+export const debouncedAsyncValidator = asyncDebounce((value: string, idKey: string, id?: string) => asyncValidator(value, idKey, id), 250);

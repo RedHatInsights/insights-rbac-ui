@@ -1152,46 +1152,21 @@ export const AddRolesToGroupAPITest = {
 
     // Wait for the modal to load
     const modal = await screen.findByRole('dialog', undefined, { timeout: 10000 });
-    expect(modal).toBeInTheDocument();
+    const modalContent = within(modal);
 
     // Wait for the roles grid to load within the modal (DataViewTable uses role="grid")
-    const modalContent = within(modal);
     const table = await modalContent.findByRole('grid', undefined, { timeout: 5000 });
-    expect(table).toBeInTheDocument();
-
-    // Wait for roles to be loaded
-    await waitFor(
-      async () => {
-        const rows = modalContent.getAllByRole('row');
-        expect(rows.length).toBeGreaterThan(1); // At least header + some data rows
-      },
-      { timeout: 5000 },
-    );
 
     // Select the first available role by clicking its checkbox
-    // Wait for checkboxes to be available and interactive
-    let firstRoleCheckbox: HTMLElement | undefined;
-    await waitFor(
-      () => {
-        const checkboxes = modalContent.getAllByRole('checkbox');
-        // Find the first data row checkbox (has aria-label like "Select row 0")
-        firstRoleCheckbox = checkboxes.find(
-          (checkbox) => checkbox.hasAttribute('aria-label') && checkbox.getAttribute('aria-label')?.includes('Select row'),
-        );
-        expect(firstRoleCheckbox).toBeTruthy();
-      },
-      { timeout: 5000 },
-    );
+    // Scope checkbox query to the table - findAllByRole waits for checkboxes to be available
+    const tableContext = within(table);
+    const checkboxes = await tableContext.findAllByRole('checkbox');
+    const firstRoleCheckbox = checkboxes[0];
 
-    await userEvent.click(firstRoleCheckbox!);
+    await userEvent.click(firstRoleCheckbox);
 
-    // Verify the checkbox is checked
-    await waitFor(
-      () => {
-        expect(firstRoleCheckbox).toBeChecked();
-      },
-      { timeout: 2000 },
-    );
+    // Checkbox should be checked immediately after click
+    expect(firstRoleCheckbox).toBeChecked();
 
     // Find the "Add to Group" button and wait for it to become enabled
     const addButton = await modalContent.findByRole('button', { name: /add to group/i });

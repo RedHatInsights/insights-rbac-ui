@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/access-management/actions';
 import { defaultSettings } from '../../helpers/pagination';
@@ -141,7 +141,7 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
   );
 
   // Debounced version for filter changes to prevent excessive API calls
-  const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
 
   // Cleanup debounced function on unmount
   useEffect(() => {

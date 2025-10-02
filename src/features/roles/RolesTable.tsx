@@ -163,9 +163,8 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
 
   const handleBulkSelect = (value: BulkSelectValue) => {
     value === BulkSelectValue.none && onSelect(false);
-    value === BulkSelectValue.all && onSelect(true, roles);
-    value === BulkSelectValue.nonePage && onSelect(false, rows);
     value === BulkSelectValue.page && onSelect(true, rows);
+    value === BulkSelectValue.nonePage && onSelect(false, rows);
   };
 
   const pageSelected = rows.length > 0 && rows.every(isSelected);

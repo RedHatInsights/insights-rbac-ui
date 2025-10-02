@@ -1,5 +1,3 @@
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
-
 export const BAD_UUID = 'bad uuid';
 
 // Type for table row data that must have a uuid field
@@ -16,9 +14,6 @@ export const mappedProps = <T extends Record<string, unknown>>(apiProps: T): Par
     }
     return acc;
   }, {} as Partial<T>);
-
-// @ts-expect-error: debouncePromise is a JS utility with a flexible signature
-export const debouncedFetch = debouncePromise((callback: () => unknown) => callback());
 
 export const calculateChecked = (
   rows: RowData[] = [],

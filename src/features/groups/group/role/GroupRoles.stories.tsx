@@ -360,35 +360,114 @@ export const BulkSelection: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
+    // Wait for table to load and get first row checkbox
+    const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
+    const tableContext = within(table);
+    const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+
+    await userEvent.click(firstRoleCheckbox);
+    expect(firstRoleCheckbox).toBeChecked();
+
+    // Verify bulk actions toggle button appears after selecting a row
+    await canvas.findByLabelText('Bulk select toggle');
+
+    // Test bulk select page - click the bulk select checkbox (selects all on current page)
+    const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
+    await userEvent.click(bulkSelectCheckbox);
+
+    // All row checkboxes should now be checked
+    const row1Checkbox = tableContext.getByLabelText('Select row 1');
+    const row2Checkbox = tableContext.getByLabelText('Select row 2');
+    expect(firstRoleCheckbox).toBeChecked();
+    expect(row1Checkbox).toBeChecked();
+    expect(row2Checkbox).toBeChecked();
+  },
+};
+
+// Generate many roles for pagination testing
+const generateManyRoles = (count: number) => {
+  return Array.from({ length: count }, (_, i) => ({
+    uuid: `role-${i + 1}`,
+    name: `Role ${i + 1}`,
+    display_name: `Role ${i + 1}`,
+    description: `Description for role ${i + 1}`,
+    system: false,
+    platform_default: false,
+    created: new Date(2023, 0, i + 1).toISOString(),
+    modified: new Date(2023, 1, i + 1).toISOString(),
+    policyCount: Math.floor(Math.random() * 20) + 1,
+    accessCount: Math.floor(Math.random() * 50) + 1,
+  }));
+};
+
+const manyRoles = generateManyRoles(25);
+
+export const BulkSelectionPaginated: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+          const pageData = manyRoles.slice(offset, offset + limit);
+
+          return HttpResponse.json({
+            data: pageData,
+            meta: { count: manyRoles.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
     // Wait for table to load
     const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
-    expect(table).toBeInTheDocument();
+    const tableContext = within(table);
 
-    // Test individual role selection
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    const firstRoleCheckbox = checkboxes.find((cb) => !cb.hasAttribute('aria-label')); // Not the bulk select checkbox
+    // Select first role on page 1
+    const firstRoleCheckbox = await tableContext.findByLabelText('Select row 0');
+    await userEvent.click(firstRoleCheckbox);
+    expect(firstRoleCheckbox).toBeChecked();
 
-    if (firstRoleCheckbox) {
-      await userEvent.click(firstRoleCheckbox);
-      expect(firstRoleCheckbox).toBeChecked();
+    // Click the bulk select checkbox to select all on current page
+    const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
+    await userEvent.click(bulkSelectCheckbox);
 
-      // Verify bulk actions dropdown appears
-      const bulkActionsToggle = await canvas.findByRole('button', { name: /bulk actions toggle/i });
-      expect(bulkActionsToggle).toBeInTheDocument();
+    // Verify multiple rows are checked on page 1 (20 items)
+    const row1Checkbox = tableContext.getByLabelText('Select row 1');
+    const row5Checkbox = tableContext.getByLabelText('Select row 5');
+    const row10Checkbox = tableContext.getByLabelText('Select row 10');
+    expect(firstRoleCheckbox).toBeChecked();
+    expect(row1Checkbox).toBeChecked();
+    expect(row5Checkbox).toBeChecked();
+    expect(row10Checkbox).toBeChecked();
 
-      // Test bulk select all
-      const bulkSelectToggle = canvas.getAllByRole('checkbox')[0]; // First checkbox should be bulk select
-      await userEvent.click(bulkSelectToggle);
+    // Navigate to page 2 using pagination (use getAllByLabelText since we have top and bottom pagination)
+    const nextPageButtons = canvas.getAllByLabelText('Go to next page');
+    await userEvent.click(nextPageButtons[0]); // Click the first (top) pagination button
 
-      // Verify all checkboxes are selected
-      await waitFor(() => {
-        const allCheckboxes = canvas.getAllByRole('checkbox');
-        const roleCheckboxes = allCheckboxes.slice(1); // Skip bulk select checkbox
-        roleCheckboxes.forEach((checkbox) => {
-          expect(checkbox).toBeChecked();
-        });
-      });
-    }
+    // Wait for page 2 to load - should have 5 items (25 total - 20 on page 1)
+    const page2FirstCheckbox = await tableContext.findByLabelText('Select row 0');
+
+    // Page 2 items should NOT be selected (page-level selection only)
+    expect(page2FirstCheckbox).not.toBeChecked();
   },
 };
 
