@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteUserModal } from './DeleteUserModal';
 
 // Wrapper component that manages modal state and provides trigger button
@@ -43,7 +43,7 @@ const ModalWrapper = ({ ...storyArgs }: any) => {
 
 const meta: Meta<typeof DeleteUserModal> = {
   component: DeleteUserModal,
-  tags: ['autodocs', 'delete-user-modal'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

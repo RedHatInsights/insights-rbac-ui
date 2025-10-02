@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useIntl } from 'react-intl';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { UsersEmptyState } from './UsersEmptyState';
 import { DataViewState, DataViewTextFilter, DataViewTh, useDataViewSelection } from '@patternfly/react-data-view';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { ResponsiveAction } from '@patternfly/react-component-groups/dist/dynamic/ResponsiveAction';
@@ -9,23 +10,17 @@ import { DataView } from '@patternfly/react-data-view/dist/dynamic/DataView';
 import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
 import { DataViewTable } from '@patternfly/react-data-view/dist/dynamic/DataViewTable';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
-import {
-  Dropdown,
-  DropdownItem,
-  DropdownList,
-  EmptyState,
-  EmptyStateBody,
-  EmptyStateHeader,
-  EmptyStateIcon,
-  MenuToggle,
-  MenuToggleElement,
-  Pagination,
-  Split,
-  SplitItem,
-  Switch,
-} from '@patternfly/react-core';
+import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
+import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { Split } from '@patternfly/react-core';
+import { SplitItem } from '@patternfly/react-core';
+import { Switch } from '@patternfly/react-core/dist/dynamic/components/Switch';
 import { ThProps } from '@patternfly/react-table';
-import { EllipsisVIcon, SearchIcon } from '@patternfly/react-icons';
+import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import messages from '../../../../../Messages';
 import { User } from '../../../../../redux/users/reducer';
 
@@ -121,13 +116,6 @@ interface UsersTableProps {
   // Children prop for modals and other container components
   children?: React.ReactNode;
 }
-
-const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <EmptyState>
-    <EmptyStateHeader titleText={titleText} icon={<EmptyStateIcon icon={SearchIcon} />} headingLevel="h4" />
-    <EmptyStateBody>{titleText}</EmptyStateBody>
-  </EmptyState>
-);
 
 export const UsersTable: React.FC<UsersTableProps> = ({
   users,
@@ -424,7 +412,7 @@ export const UsersTable: React.FC<UsersTableProps> = ({
           columns={sortableColumns}
           rows={rows}
           headStates={{ loading: loadingHeader }}
-          bodyStates={{ loading: loadingBody, empty: <EmptyTable titleText={intl.formatMessage(messages.usersEmptyStateTitle)} /> }}
+          bodyStates={{ loading: loadingBody, empty: <UsersEmptyState /> }}
         />
         <DataViewToolbar
           ouiaId={`${ouiaId}-footer-toolbar`}

@@ -1,6 +1,10 @@
 import React, { useContext, useEffect } from 'react';
 import PropTypes from 'prop-types';
-import { Bullseye, Spinner, Text, TextContent, Title } from '@patternfly/react-core';
+import { Bullseye } from '@patternfly/react-core';
+import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
 import { asyncValidator } from './validators';
 import './review.scss';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';

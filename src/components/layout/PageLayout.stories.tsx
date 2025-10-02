@@ -1,7 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { Button, Label } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { PageLayout, PageTitle } from './PageLayout';
 
 interface BreadcrumbItemProps {
@@ -29,7 +30,6 @@ const meta: Meta<typeof CombinedToolbar> = {
   component: CombinedToolbar,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

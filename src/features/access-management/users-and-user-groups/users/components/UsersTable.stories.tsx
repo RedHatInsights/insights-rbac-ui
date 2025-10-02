@@ -54,7 +54,7 @@ const defaultArgs = {
 
 const meta: Meta<typeof UsersTable> = {
   component: UsersTable,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:org-admin'],
   parameters: {
     docs: {
       description: {
@@ -261,9 +261,38 @@ export const BulkSelection: Story = {
     // Find and click bulk select checkbox
     const bulkSelectCheckbox = await canvas.findByLabelText('Select page');
     await expect(bulkSelectCheckbox).toBeInTheDocument();
+    await expect(bulkSelectCheckbox).not.toBeChecked();
 
     // Click the checkbox to test bulk selection
     await userEvent.click(bulkSelectCheckbox);
+
+    // Verify bulk select is now checked
+    await expect(bulkSelectCheckbox).toBeChecked();
+
+    // Verify individual row checkboxes are also checked
+    // Only check row selection checkboxes (not org admin toggles, status switches, etc.)
+    const allCheckboxes = await canvas.findAllByRole('checkbox');
+    const rowCheckboxes = allCheckboxes.filter(
+      (cb) =>
+        cb !== bulkSelectCheckbox &&
+        !cb.getAttribute('aria-label')?.includes('Toggle') && // Exclude toggle switches
+        !cb.getAttribute('id')?.includes('switch'), // Exclude switch elements
+    );
+
+    rowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).toBeChecked();
+    });
+
+    // TEST DESELECT: Click bulk select again to deselect all
+    await userEvent.click(bulkSelectCheckbox);
+
+    // Verify bulk select is now unchecked
+    await expect(bulkSelectCheckbox).not.toBeChecked();
+
+    // Verify individual row checkboxes are also unchecked
+    rowCheckboxes.forEach((checkbox) => {
+      expect(checkbox).not.toBeChecked();
+    });
   },
 };
 

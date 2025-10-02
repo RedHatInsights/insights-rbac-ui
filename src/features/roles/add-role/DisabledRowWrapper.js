@@ -1,6 +1,6 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Tooltip } from '@patternfly/react-core';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import { RowWrapper } from '@patternfly/react-table';
 
 export const DisabledRowWrapper = ({ row, ...props }) =>

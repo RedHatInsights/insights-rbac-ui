@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
 import { fn } from 'storybook/test';
 import React from 'react';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { UserDetailsDrawer } from './UserDetailsDrawer';
 import { User } from '../../../redux/users/reducer';
 
@@ -10,7 +10,6 @@ const meta: Meta<typeof UserDetailsDrawer> = {
   component: UserDetailsDrawer,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component:

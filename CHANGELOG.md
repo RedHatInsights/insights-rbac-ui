@@ -1,3 +1,121 @@
+## [1.57.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.7...v1.57.8) (2025-10-02)
+
+
+### Bug Fixes
+
+* **debounce:** resolve flaky test and consolidate utilities ([e1b2cce](https://github.com/RedHatInsights/insights-rbac-ui/commit/e1b2cce0383e5594edbda1bc246c7695078f5ed6))
+
+## [1.57.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.6...v1.57.7) (2025-10-01)
+
+
+### Bug Fixes
+
+* do not checkout the repo from the GH cache action ([a7ee1fd](https://github.com/RedHatInsights/insights-rbac-ui/commit/a7ee1fdb25e777cd21e5ffd2bfd468690554e10b))
+
+## [1.57.6](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.5...v1.57.6) (2025-10-01)
+
+
+### Bug Fixes
+
+* test-storybook must run on the same code used by chromatic-deployment ([2902d20](https://github.com/RedHatInsights/insights-rbac-ui/commit/2902d201a28466631736da5dc93c08d9a080c154))
+
+## [1.57.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.4...v1.57.5) (2025-10-01)
+
+
+### Bug Fixes
+
+* prevent unauthorized API calls causing error toast spam for non-admin users ([55e0ddc](https://github.com/RedHatInsights/insights-rbac-ui/commit/55e0ddc662ce6069c40624c81cc2bcdff8235d16))
+
+## [1.57.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.3...v1.57.4) (2025-10-01)
+
+
+### Bug Fixes
+
+* crashes when running the app in dev mode ([f0a9942](https://github.com/RedHatInsights/insights-rbac-ui/commit/f0a994236eff2af3d1ce6fa01cd02691f4592e37))
+* rename groups.scss to Groups.scss for case sensitivity ([f003895](https://github.com/RedHatInsights/insights-rbac-ui/commit/f003895d37c4adecaabbbbc48bf0cc19a0b24189))
+
+## [1.57.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.2...v1.57.3) (2025-09-30)
+
+
+### Bug Fixes
+
+* update background image path in overview component ([#1934](https://github.com/RedHatInsights/insights-rbac-ui/issues/1934)) ([42e576d](https://github.com/RedHatInsights/insights-rbac-ui/commit/42e576da03e208341cc67169b62d58cf169c4696))
+
+## [1.57.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.1...v1.57.2) (2025-09-29)
+
+
+### Bug Fixes
+
+* remove unused @redhat-cloud-services/cost-management-client and update axios to 1.12.0 ([88a42e9](https://github.com/RedHatInsights/insights-rbac-ui/commit/88a42e9e3c402c10386b036ce856a72ee22d638e))
+
+## [1.57.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.0...v1.57.1) (2025-09-29)
+
+
+### Bug Fixes
+
+* **cost-settings:** do not send resource definitions ([#1929](https://github.com/RedHatInsights/insights-rbac-ui/issues/1929)) ([0e5727c](https://github.com/RedHatInsights/insights-rbac-ui/commit/0e5727c85a38d2cfe0c70f843b0368ddcec07e09))
+
+# [1.57.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.1...v1.57.0) (2025-09-26)
+
+
+### Features
+
+* **search:** add org admin global search entry ([17d4811](https://github.com/RedHatInsights/insights-rbac-ui/commit/17d48111fa3fc49024208fa9dcda3d97318e91b2))
+
+## [1.56.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.56.0...v1.56.1) (2025-09-25)
+
+
+### Bug Fixes
+
+* **disable-users:** use user ID instead of user UUID ([#1927](https://github.com/RedHatInsights/insights-rbac-ui/issues/1927)) ([afefa4c](https://github.com/RedHatInsights/insights-rbac-ui/commit/afefa4c3b2d91382f25b294ca25f77172c48c185))
+
+# [1.56.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.55.0...v1.56.0) (2025-09-24)
+
+
+### Features
+
+* **dev-proxy:** use dev proxy when running start ([#1923](https://github.com/RedHatInsights/insights-rbac-ui/issues/1923)) ([19fedeb](https://github.com/RedHatInsights/insights-rbac-ui/commit/19fedeb8954a0d674f6636ded7ed6c7ce211234d))
+
+# [1.55.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.54.0...v1.55.0) (2025-09-23)
+
+
+### Features
+
+* add disabled edit access button to WS details drawer ([#1918](https://github.com/RedHatInsights/insights-rbac-ui/issues/1918)) ([8b59ac4](https://github.com/RedHatInsights/insights-rbac-ui/commit/8b59ac4666c993fbc35c7c7fb509f632eb03c68d))
+
+# [1.54.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.1...v1.54.0) (2025-09-18)
+
+
+### Bug Fixes
+
+* **deps:** bump tmp and inquirer ([#1915](https://github.com/RedHatInsights/insights-rbac-ui/issues/1915)) ([5484280](https://github.com/RedHatInsights/insights-rbac-ui/commit/5484280bc43c435c941283b1b5b8eee322c0f608))
+
+
+### Features
+
+* replace custom SVG icons with PatternFly icons in WorkspacesOverview ([#1913](https://github.com/RedHatInsights/insights-rbac-ui/issues/1913)) ([f50bbbb](https://github.com/RedHatInsights/insights-rbac-ui/commit/f50bbbb36321fcae5ed3dc460c78f7d53975f533))
+
+## [1.53.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.53.0...v1.53.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* run npx playwright install before running the tests for PRs ([c20a44a](https://github.com/RedHatInsights/insights-rbac-ui/commit/c20a44aa65171b8984b5d4e5a2134e01d266a60e))
+
+# [1.53.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.52.0...v1.53.0) (2025-09-16)
+
+
+### Features
+
+* run test-storybook against Chromatic's build ([f0838dc](https://github.com/RedHatInsights/insights-rbac-ui/commit/f0838dc4f22f2a59d82240d228952d0523c8e0d0))
+
+# [1.52.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.51.0...v1.52.0) (2025-09-10)
+
+
+### Features
+
+* update technology icon path ([#1912](https://github.com/RedHatInsights/insights-rbac-ui/issues/1912)) ([b9d14e2](https://github.com/RedHatInsights/insights-rbac-ui/commit/b9d14e24c9d9f76690ad0a621ab9aadd07066ce6))
+
 # [1.51.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.50.2...v1.51.0) (2025-09-04)
 
 

@@ -1,12 +1,12 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
-import { expect, userEvent, within } from 'storybook/test';
+import { expect, within } from 'storybook/test';
 import { WorkspacesOverview } from './WorkspacesOverview';
 import { BrowserRouter } from 'react-router-dom';
 
 const meta: Meta<typeof WorkspacesOverview> = {
   component: WorkspacesOverview,
-  tags: ['autodocs', 'workspaces', 'workspaces-overview'],
+  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <BrowserRouter>
@@ -15,7 +15,6 @@ const meta: Meta<typeof WorkspacesOverview> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `
@@ -122,34 +121,25 @@ export const ExpandedMigrationSection: Story = {
     docs: {
       description: {
         story:
-          'Tests the expandable migration visualization section. Shows how users can expand and collapse the section to view information about how assets and permissions will be organized into workspaces.',
+          'Tests the basic layout when migration visualization section is not available. The expandable section is currently commented out in the component as it awaits visual assets.',
       },
     },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    const user = userEvent.setup();
 
-    // Find and click the expandable section toggle
-    const expandToggle = await canvas.findByText('Show me how my assets and permissions will be organized into workspaces');
-    await expect(expandToggle).toBeInTheDocument();
+    // Verify the main service cards are present since migration section is commented out
+    // Look for service card titles specifically (they have ouia-component-id attributes)
+    await expect(canvas.getByRole('heading', { level: 2, name: 'Workspaces' })).toBeInTheDocument();
+    await expect(canvas.getAllByText('Groups')[0]).toBeInTheDocument(); // Service card title
+    await expect(canvas.getAllByText('Role')[0]).toBeInTheDocument(); // Service card title
+    await expect(canvas.getAllByText('Bindings')[0]).toBeInTheDocument(); // Service card title
 
-    // Expand the section
-    await user.click(expandToggle);
-
-    // Verify expanded content is visible
-    await expect(canvas.findByText('A cool animation')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('will go here')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('when its ready')).resolves.toBeInTheDocument();
-
-    // Collapse the section
-    await user.click(expandToggle);
-
-    // Note: PatternFly ExpandableSection might use different text when collapsed,
-    // but the animation content should no longer be in the DOM or be hidden
+    // Verify recommended content section is present
+    await expect(canvas.getByText('Recommended content')).toBeInTheDocument();
+    await expect(canvas.getByText('Create a workspace and grant access')).toBeInTheDocument();
   },
 };
-
 export const ServiceCardNavigation: Story = {
   parameters: {
     docs: {

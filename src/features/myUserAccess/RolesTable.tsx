@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, lazy, useCallback, useEffect, useMemo, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { fetchRoleForPrincipal, fetchRoles } from '../../redux/roles/actions';
@@ -10,16 +10,26 @@ import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataVi
 import { DataViewCheckboxFilter, DataViewTextFilter, useDataViewFilters } from '@patternfly/react-data-view';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { Button, EmptyStateActions } from '@patternfly/react-core';
-import { PlusCircleIcon } from '@patternfly/react-icons';
-import { ExpandableRowContent, Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { EmptyStateActions } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import PlusCircleIcon from '@patternfly/react-icons/dist/js/icons/plus-circle-icon';
+import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 
 const ResourceDefinitionsModal = lazy(() =>
   import('./components/ResourceDefinitionsModal').then((module) => ({ default: module.ResourceDefinitionsModal })),
 );
 
-import { TableVariant, cellWidth, compoundExpand, sortable } from '@patternfly/react-table';
+import { TableVariant } from '@patternfly/react-table';
+import { cellWidth } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
 import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
 import { ResourceDefinitionsConfig, SortByState } from './types';
 
@@ -241,7 +251,7 @@ export const RolesTable: React.FC<RolesTableProps> = ({ apps, showResourceDefini
   );
 
   // Debounced version for filter changes to prevent excessive API calls
-  const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
 
   // Cleanup debounced function on unmount
   useEffect(() => {

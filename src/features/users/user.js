@@ -2,18 +2,27 @@ import React, { Fragment, Suspense, useContext, useEffect, useState } from 'reac
 import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useNavigationType, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
-import { Button, Label, Stack, StackItem, Text, TextContent, TextVariants } from '@patternfly/react-core';
-import { TableVariant, compoundExpand } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
+import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TextVariants } from '@patternfly/react-core/dist/dynamic/components/Text';
+import { TableVariant } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
-import { CheckIcon, CloseIcon } from '@patternfly/react-icons';
+import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
+import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import { RbacBreadcrumbs } from '../../components/navigation/Breadcrumbs';
 import { EmptyWithAction } from '../../components/ui-states/EmptyState';
 import PermissionsContext from '../../utilities/permissionsContext';
@@ -42,6 +51,7 @@ const User = () => {
   const [loadingRolesTemp, setLoadingRolesTemp] = useState(false);
   const [selectedAddRoles, setSelectedAddRoles] = useState([]);
   const chrome = useChrome();
+  const toAppLink = useAppLink();
 
   const selector = ({
     roleReducer: { error, roles, isLoading: isLoadingRoles, rolesWithAccess },
@@ -73,9 +83,8 @@ const User = () => {
     fetchRolesData({ limit: 20, offset: 0, username });
     setLoadingRolesTemp(true);
     fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(() => setLoadingRolesTemp(false));
-    debouncedFetch = debounce(
-      (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
-      500,
+    debouncedFetch = debounce((limit, offset, name, addFields, username) =>
+      fetchRolesData({ limit, offset, displayName: name, addFields, username }),
     );
     return () => chrome.appObjectId(undefined);
   }, []);
@@ -212,7 +221,7 @@ const User = () => {
   };
 
   const breadcrumbsList = [
-    { title: intl.formatMessage(messages.users), to: mergeToBasename(pathnames.users.link) },
+    { title: intl.formatMessage(messages.users), to: toAppLink(pathnames.users.link) },
     { title: userExists ? username : intl.formatMessage(messages.invalidUser), isActive: true },
   ];
 

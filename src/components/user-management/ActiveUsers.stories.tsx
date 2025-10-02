@@ -66,6 +66,7 @@ type Story = StoryObj<ActiveUsersStoryArgs>;
  * Default story showing NonAdminView (most common case)
  */
 export const Default: Story = {
+  tags: ['env:prod'],
   args: {
     orgAdmin: false,
     userAccessAdministrator: false,
@@ -78,6 +79,7 @@ export const Default: Story = {
  * Org admin user in production - shows AdminView with no prefix
  */
 export const OrgAdminProduction: Story = {
+  tags: ['env:prod', 'perm:org-admin'],
   args: {
     orgAdmin: true,
     userAccessAdministrator: false,
@@ -92,6 +94,7 @@ export const OrgAdminProduction: Story = {
  * Org admin user in staging - shows AdminView with environment prefix
  */
 export const OrgAdminStaging: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
   args: {
     orgAdmin: true,
     userAccessAdministrator: false,
@@ -106,6 +109,7 @@ export const OrgAdminStaging: Story = {
  * ITLess mode enabled - always shows NonAdminView regardless of permissions
  */
 export const ITLessMode: Story = {
+  tags: ['env:prod', 'perm:org-admin'],
   args: {
     orgAdmin: true, // Even though user is orgAdmin...
     userAccessAdministrator: false,
@@ -119,6 +123,7 @@ export const ITLessMode: Story = {
  * Note: userAccessAdministrator permission doesn't trigger AdminView, only orgAdmin does
  */
 export const UserAccessAdmin: Story = {
+  tags: ['env:prod'],
   args: {
     orgAdmin: false,
     userAccessAdministrator: true,
@@ -131,6 +136,7 @@ export const UserAccessAdmin: Story = {
  * Development environment example
  */
 export const DevelopmentEnvironment: Story = {
+  tags: ['env:ci-beta', 'perm:org-admin'],
   args: {
     orgAdmin: true,
     userAccessAdministrator: false,

@@ -46,10 +46,9 @@ const withProviders = (Story: any) => {
 
 const meta: Meta<typeof WorkspaceHeader> = {
   component: WorkspaceHeader,
-  tags: ['autodocs', 'workspaces', 'workspace-header'],
+  tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

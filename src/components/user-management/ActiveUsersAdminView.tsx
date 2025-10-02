@@ -8,28 +8,33 @@ type ActiveUserAdminProps = {
   linkDescription?: string;
   linkTitle?: string;
   prefix: string;
+  children?: React.ReactNode;
 };
 
 export const ActiveUsersAdminView: FunctionComponent<ActiveUserAdminProps> = ({
   linkDescription = '',
   linkTitle = ' user management list ',
   prefix,
+  children,
 }) => {
   const intl = useIntl();
   return (
-    <Text className="pf-v5-u-mt-0" component={TextVariants.h6}>
-      {`${intl.formatMessage(messages.usersDescription)} `}
-      {linkDescription}
-      <Text
-        component={TextVariants.a}
-        href={`https://www.${prefix}redhat.com/wapps/ugc/protected/usermgt/userList.html`}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        {linkTitle}
-        <ExternalLinkAltIcon />
+    <>
+      <Text className="pf-v5-u-mt-0" component={TextVariants.h6}>
+        {`${intl.formatMessage(messages.usersDescription)} `}
+        {linkDescription}
+        <Text
+          component={TextVariants.a}
+          href={`https://www.${prefix}redhat.com/wapps/ugc/protected/usermgt/userList.html`}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          {linkTitle}
+          <ExternalLinkAltIcon />
+        </Text>
+        .
       </Text>
-      .
-    </Text>
+      {children}
+    </>
   );
 };

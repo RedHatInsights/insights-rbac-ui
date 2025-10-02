@@ -9,7 +9,6 @@ import { UserDetailsRolesView } from './UserDetailsRolesView';
 
 const meta: Meta<typeof UserDetailsRolesView> = {
   component: UserDetailsRolesView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
       <MemoryRouter>
@@ -22,7 +21,6 @@ const meta: Meta<typeof UserDetailsRolesView> = {
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

@@ -94,7 +94,7 @@ const defaultArgs = {
 
 const meta: Meta<typeof UserGroupsTable> = {
   component: UserGroupsTable,
-  tags: ['autodocs', 'user-groups-table'],
+  tags: ['autodocs'],
   decorators: [
     (Story) => (
       <MemoryRouter>
@@ -108,7 +108,6 @@ const meta: Meta<typeof UserGroupsTable> = {
   ],
   args: defaultArgs,
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `
@@ -408,6 +407,14 @@ export const BulkSelection: Story = {
     const allCheckboxes = await canvas.findAllByRole('checkbox');
     allCheckboxes.forEach(async (checkbox) => {
       await expect(checkbox).toBeChecked();
+    });
+
+    // TEST DESELECT: Click bulk select again to deselect all
+    await userEvent.click(bulkSelectButton);
+
+    // After clicking bulk select again, all checkboxes should be unchecked
+    allCheckboxes.forEach(async (checkbox) => {
+      await expect(checkbox).not.toBeChecked();
     });
   },
 };

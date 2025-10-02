@@ -27,9 +27,8 @@ const defaultProps = {
 
 const meta: Meta<typeof WorkspaceListTable> = {
   component: WorkspaceListTable,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

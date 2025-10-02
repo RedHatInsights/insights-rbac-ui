@@ -1,5 +1,9 @@
 import { UseFieldApiConfig, useFieldApi, useFormApi } from '@data-driven-forms/react-form-renderer';
-import { EmptyState, EmptyStateHeader, EmptyStateIcon, FormGroup, Pagination } from '@patternfly/react-core';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { FormGroup } from '@patternfly/react-core/dist/dynamic/components/Form';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import {
   DataView,
   DataViewState,
@@ -11,7 +15,7 @@ import {
   useDataViewPagination,
   useDataViewSelection,
 } from '@patternfly/react-data-view';
-import { SearchIcon } from '@patternfly/react-icons';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';

@@ -4,7 +4,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
-import debouncePromise from '@redhat-cloud-services/frontend-components-utilities/debounce';
+import { debounceAsync } from '../../../utilities/debounce';
 import usePermissions from '@redhat-cloud-services/frontend-components-utilities/RBACHook';
 import { TableToolbarView } from '../../../components/tables/TableToolbarView';
 import { expandSplats, listPermissionOptions, listPermissions, resetExpandSplats } from '../../../redux/permissions/actions';
@@ -132,38 +132,32 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
     }));
 
   const debouncedGetApplicationOptions = useCallback(
-    debouncePromise(
-      ({ applications, resources, operations }) =>
-        fetchOptions({
-          field: 'application',
-          limit: 50,
-          application: applications.join(),
-          resourceType: resources.join(),
-          verb: operations.join(),
-        }),
-      2000,
+    debounceAsync(({ applications, resources, operations }) =>
+      fetchOptions({
+        field: 'application',
+        limit: 50,
+        application: applications.join(),
+        resourceType: resources.join(),
+        verb: operations.join(),
+      }),
     ),
     [],
   );
   const debouncedGetResourceOptions = useCallback(
-    debouncePromise(
-      ({ applications, resources, operations }) =>
-        fetchOptions({
-          field: 'resource_type',
-          limit: 50,
-          application: applications.join(),
-          resourceType: resources.join(),
-          verb: operations.join(),
-        }),
-      2000,
+    debounceAsync(({ applications, resources, operations }) =>
+      fetchOptions({
+        field: 'resource_type',
+        limit: 50,
+        application: applications.join(),
+        resourceType: resources.join(),
+        verb: operations.join(),
+      }),
     ),
     [],
   );
   const debouncedGetOperationOptions = useCallback(
-    debouncePromise(
-      ({ applications, resources, operations }) =>
-        fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
-      2000,
+    debounceAsync(({ applications, resources, operations }) =>
+      fetchOptions({ field: 'verb', limit: 50, application: applications.join(), resourceType: resources.join(), verb: operations.join() }),
     ),
     [],
   );

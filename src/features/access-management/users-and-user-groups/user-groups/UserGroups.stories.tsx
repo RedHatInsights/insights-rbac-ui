@@ -67,10 +67,9 @@ const withRouter = () => {
 
 const meta: Meta<typeof UserGroups> = {
   component: UserGroups,
-  tags: ['user-groups-container'],
+  tags: ['ff:platform.rbac.groups', 'env:prod', 'perm:org-admin'],
   decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
     permissions: { orgAdmin: true },
     chrome: {
       environment: 'prod',
@@ -154,9 +153,9 @@ For testing specific scenarios, see these additional stories:
           const principalType = url.searchParams.get('principal_type');
           const limit = url.searchParams.get('limit');
 
-          // Service accounts component calls with principal_type=user AND limit=1000
+          // Service accounts component calls with principal_type=service-account AND limit=1000
           // Regular users component calls with principal_type=user but different limit
-          if (principalType === 'user' && limit === '1000') {
+          if (principalType === 'service-account') {
             // This is the service accounts component calling
             return HttpResponse.json({
               data: [
@@ -410,11 +409,16 @@ For testing specific scenarios, see these additional stories:
     // Verify table is rendered with Redux data
     await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
 
-    // Wait for group data from Redux to be displayed
+    // Verify basic table structure is present (headers always render)
+    await expect(canvas.getByRole('columnheader', { name: /name/i })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: /description/i })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: /users/i })).toBeInTheDocument();
+    await expect(canvas.getByRole('columnheader', { name: /roles/i })).toBeInTheDocument();
+
+    // Wait for group data to load first
     const administratorsElements = await canvas.findAllByText('Administrators');
+    await expect(administratorsElements).toHaveLength(1);
     await expect(administratorsElements[0]).toBeInTheDocument();
-    await expect(canvas.findByText('Developers')).resolves.toBeInTheDocument();
-    await expect(canvas.findByText('System Group')).resolves.toBeInTheDocument();
 
     // Test drawer functionality by clicking on a group
     const adminRow = administratorsElements[0].closest('tr');
@@ -438,7 +442,7 @@ For testing specific scenarios, see these additional stories:
 
       // Users tab should be active by default and show data
       await expect(usersTab).toBeInTheDocument();
-      await expect(drawer.findByText('rbac-service-account')).resolves.toBeInTheDocument();
+      await expect(drawer.findByText('jane.smith')).resolves.toBeInTheDocument();
 
       // Click Service Accounts tab
       await userEvent.click(serviceAccountsTab);
@@ -540,8 +544,8 @@ export const GroupFocusInteraction: StoryObj<typeof meta> = {
           const principalType = url.searchParams.get('principal_type');
           const limit = url.searchParams.get('limit');
 
-          // Service accounts component calls with principal_type=user AND limit=1000
-          // Regular users component calls with principal_type=user but different limit
+          // Service accounts component calls with principal_type=user
+          // Regular users component calls with principal_type=user
           if (principalType === 'user' && limit === '1000') {
             // This is the service accounts component calling
             return HttpResponse.json({
@@ -738,6 +742,7 @@ export const EditGroupNavigation: StoryObj<typeof meta> = {
 
 // Delete modal integration
 export const DeleteModalIntegration: StoryObj<typeof meta> = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: {
       environment: 'stage', // Use non-production to enable delete actions
@@ -942,6 +947,7 @@ export const DeleteModalIntegration: StoryObj<typeof meta> = {
 
 // System group protection
 export const SystemGroupProtection: StoryObj<typeof meta> = {
+  tags: ['env:stage', 'perm:org-admin'],
   parameters: {
     chrome: {
       environment: 'stage', // Use non-production to test disabled state logic

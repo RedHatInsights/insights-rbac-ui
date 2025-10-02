@@ -59,7 +59,6 @@ const meta: Meta<ErrorCatcherStoryArgs> = {
   component: ErrorReducerCatcher,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

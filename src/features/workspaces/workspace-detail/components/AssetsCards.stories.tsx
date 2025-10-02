@@ -5,7 +5,7 @@ import AssetsCards from './AssetsCards';
 
 const meta: Meta<typeof AssetsCards> = {
   component: AssetsCards,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs'],
   parameters: {
     docs: {
       description: {

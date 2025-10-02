@@ -67,7 +67,22 @@ interface RolesFetchOptions {
   isAdminDefault?: boolean;
 }
 
-const handleUuidError = (err: ErrorResponse) => {
+const handleUuidError = (err: any) => {
+  // Handle 404 errors (non-existent group with valid UUID)
+  if (err?.status === 404 || err?.response?.status === 404) {
+    return { error: BAD_UUID };
+  }
+
+  // Handle 400 errors from axios (malformed UUID)
+  if (err?.response?.status === 400) {
+    const errorData = err.response.data;
+    const error = errorData?.errors?.[0] || {};
+    if (error.status === '400' && error.source === 'group uuid validation') {
+      return { error: BAD_UUID };
+    }
+  }
+
+  // Handle 400 errors from direct ErrorResponse format (malformed UUID)
   const error = err?.errors?.[0] || {};
   if (error.status === '400' && error.source === 'group uuid validation') {
     return { error: BAD_UUID };

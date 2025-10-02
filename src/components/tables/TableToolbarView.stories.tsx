@@ -1,9 +1,10 @@
 import React from 'react';
 import { Meta, StoryObj } from '@storybook/react-webpack5';
-import { compoundExpand, sortable } from '@patternfly/react-table';
-import { Button } from '@patternfly/react-core';
+import { compoundExpand } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { TableToolbarView } from './TableToolbarView';
-import { PlusIcon } from '@patternfly/react-icons';
+import PlusIcon from '@patternfly/react-icons/dist/js/icons/plus-icon';
 import { cellWidth } from '@patternfly/react-table';
 import { action } from 'storybook/actions';
 

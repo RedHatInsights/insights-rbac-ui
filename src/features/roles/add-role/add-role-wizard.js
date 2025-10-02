@@ -118,7 +118,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
           ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => {
             let attributeFilter;
 
-            if (permission.includes('cost-management')) {
+            if (permission.includes('cost-management') && costResources?.find((r) => r.permission === permission)?.resources.length > 0) {
               attributeFilter = {
                 key: `cost-management.${permission.split(':')[1]}`,
                 operation: 'in',

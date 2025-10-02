@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, userEvent, within } from 'storybook/test';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { ModalFormTemplate } from './ModalFormTemplate';
 import FormRenderer from '@data-driven-forms/react-form-renderer/form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';

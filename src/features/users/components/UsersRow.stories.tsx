@@ -1,6 +1,6 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { Label } from '@patternfly/react-core';
+import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Table, TableBody, TableHeader } from '@patternfly/react-table/deprecated';
 import { UsersRow } from './UsersRow';
 

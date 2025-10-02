@@ -7,7 +7,7 @@ import { IntlProvider } from 'react-intl';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { TreeViewWorkspaceItem } from './managed-selector/TreeViewWorkspaceItem';
 import WorkspaceType from './managed-selector/WorkspaceType';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { HttpResponse, delay, http } from 'msw';
 
 // Mock workspace data
@@ -116,10 +116,9 @@ const withProviders = (Story: any) => {
 
 const meta: Meta<typeof MoveWorkspaceDialog> = {
   component: MoveWorkspaceDialog,
-  tags: ['autodocs', 'workspaces', 'move-workspace-dialog'],
+  tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
-    layout: 'fullscreen',
     msw: {
       handlers: workspaceApiHandlers,
     },

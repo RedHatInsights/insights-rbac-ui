@@ -24,7 +24,7 @@ const OverviewWithFeatureFlags: React.FC<OverviewArgs> = ({ isWorkspacesEnabled,
 
 const meta: Meta<OverviewArgs> = {
   component: Overview,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'custom-css'],
   argTypes: {
     isWorkspacesEnabled: {
       control: 'boolean',

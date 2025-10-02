@@ -1,9 +1,15 @@
-import React, { Suspense, useContext, useEffect, useRef, useState } from 'react';
+import React, { Suspense, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
-import { cellWidth, compoundExpand, nowrap, sortable } from '@patternfly/react-table';
-import { Button, Stack, StackItem } from '@patternfly/react-core';
+import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
+import { cellWidth } from '@patternfly/react-table';
+import { compoundExpand } from '@patternfly/react-table';
+import { nowrap } from '@patternfly/react-table';
+import { sortable } from '@patternfly/react-table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Stack } from '@patternfly/react-core';
+import { StackItem } from '@patternfly/react-core';
 import { isSmallScreen, useScreenSize } from '@redhat-cloud-services/frontend-components/useScreenSize';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import Section from '@redhat-cloud-services/frontend-components/Section';
@@ -14,6 +20,7 @@ import { fetchRolesWithPolicies } from '../../redux/roles/actions';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { TableToolbarView } from '../../components/tables/TableToolbarView';
 import PermissionsContext from '../../utilities/permissionsContext';
+import { useOrderBy } from '../../hooks/useOrderBy';
 import {
   applyPaginationToUrl,
   defaultAdminSettings,
@@ -21,9 +28,10 @@ import {
   isPaginationPresentInUrl,
   syncDefaultPaginationWithUrl,
 } from '../../helpers/pagination';
-import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
+import { areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
 import RoleRowWrapper from './role-row-wrapper';
-import { AppLink, mergeToBasename } from '../../components/navigation/AppLink';
+import { AppLink } from '../../components/navigation/AppLink';
+import { useAppLink } from '../../hooks/useAppLink';
 import messages from '../../Messages';
 import paths from '../../utilities/pathnames';
 import './roles.scss';
@@ -40,8 +48,15 @@ const Roles = () => {
   const location = useLocation();
   const screenSize = useScreenSize();
   const chrome = useChrome();
+  const toAppLink = useAppLink();
 
-  const { roles, filters, pagination, isLoading, adminGroup } = useSelector(
+  const {
+    roles,
+    filters,
+    pagination: rawPagination,
+    isLoading,
+    adminGroup,
+  } = useSelector(
     ({
       roleReducer: {
         roles: { data, filters, pagination },
@@ -52,51 +67,80 @@ const Roles = () => {
       adminGroup,
       roles: data,
       filters,
-      pagination: {
-        limit: pagination.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-        offset: pagination.offset ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-        count: pagination.count,
-        redirected: pagination.redirected,
-      },
+      pagination,
       isLoading,
     }),
     shallowEqual,
   );
 
-  const columns = [
-    { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
-    { title: intl.formatMessage(messages.description) },
-    { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
-    { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
-    { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
-  ];
-  const fetchData = (options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true, chrome }));
+  // Apply pagination defaults outside the selector to avoid creating new objects
+  const pagination = useMemo(() => {
+    const paginationDefaults = orgAdmin ? defaultAdminSettings : defaultSettings;
+    return {
+      limit: rawPagination.limit ?? paginationDefaults.limit,
+      offset: rawPagination.offset ?? paginationDefaults.offset,
+      count: rawPagination.count,
+      redirected: rawPagination.redirected,
+    };
+  }, [rawPagination.limit, rawPagination.offset, rawPagination.count, rawPagination.redirected, orgAdmin]);
 
-  const isSelectable = orgAdmin || userAccessAdministrator;
+  // Memoize isSelectable to prevent unnecessary recalculations
+  const isSelectable = useMemo(() => orgAdmin || userAccessAdministrator, [orgAdmin, userAccessAdministrator]);
+
+  // Memoize columns to prevent orderBy recalculation on every render
+  const columns = useMemo(
+    () => [
+      { title: intl.formatMessage(messages.name), key: 'display_name', transforms: [cellWidth(20), sortable] },
+      { title: intl.formatMessage(messages.description) },
+      { title: intl.formatMessage(messages.groups), cellTransforms: [compoundExpand], transforms: [nowrap] },
+      { title: intl.formatMessage(messages.permissions), cellTransforms: [compoundExpand], transforms: [nowrap] },
+      { title: intl.formatMessage(messages.lastModified), key: 'modified', transforms: [nowrap, sortable] },
+    ],
+    [intl],
+  );
+
   const [filterValue, setFilterValue] = useState(filters.display_name || '');
   const [sortByState, setSortByState] = useState({ index: Number(isSelectable), direction: 'asc' });
   const [expanded, setExpanded] = useState({});
   const [removeRolesList, setRemoveRolesList] = useState([]);
   const [selectedAddRoles, setSelectedAddRoles] = useState([]);
 
-  const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isSelectable)].key}`;
+  // Memoize fetchData to prevent recreation and preserve debouncing chain
+  // Note: chrome is captured from closure, not included in deps to maintain stability
+  const fetchData = useCallback((options) => dispatch(fetchRolesWithPolicies({ ...options, usesMetaInURL: true, chrome })), [dispatch]);
 
+  // Use generic hook for orderBy calculation
+  const orderBy = useOrderBy(columns, sortByState, isSelectable);
+
+  // Wrapper for fetchData to transform parameters
+  // Kept inline since it's specific to this component's structure
+  // Note: URL sync happens separately in useEffect, not here
+  const wrappedFetchData = useCallback(
+    ({ name, limit, offset }) => {
+      return fetchData(mappedProps({ limit, offset, orderBy, filters: { display_name: name } }));
+    },
+    [fetchData, orderBy],
+  );
+
+  // Sync pagination to URL on changes
+  // Note: Only limit/offset affect URL params - count/redirected are metadata
+  // Note: location/navigate are stable refs, excluded from deps to prevent infinite loops
   useEffect(() => {
     applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
-  }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
-
-  useEffect(() => {
-    applyFiltersToUrl(location, navigate, { display_name: filterValue });
-  }, [filterValue]);
+  }, [pagination.limit, pagination.offset]);
 
   useEffect(() => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
     const { display_name } = syncDefaultFiltersWithUrl(location, navigate, ['display_name'], { display_name: filterValue });
     setFilterValue(display_name);
     chrome.appNavClick({ id: 'roles', secondaryNav: true });
-    dispatch(fetchAdminGroup({ chrome }));
-    fetchData({ limit, offset, orderBy, filters: { display_name } });
-  }, []);
+
+    // Only make API calls if user has proper permissions
+    if (orgAdmin || userAccessAdministrator) {
+      dispatch(fetchAdminGroup({ chrome }));
+      fetchData({ limit, offset, orderBy, filters: { display_name } });
+    }
+  }, [orgAdmin, userAccessAdministrator]);
 
   useEffect(() => {
     if (!location.pathname.includes('detail')) {
@@ -115,13 +159,13 @@ const Roles = () => {
       : [
           {
             title: intl.formatMessage(messages.edit),
-            onClick: (_event, _rowId, role) => navigate(mergeToBasename(paths['edit-role'].link.replace(':roleId', role.uuid))),
+            onClick: (_event, _rowId, role) => navigate(toAppLink(paths['edit-role'].link.replace(':roleId', role.uuid))),
           },
           {
             title: intl.formatMessage(messages.delete),
             onClick: (_event, _rowId, role) => {
               setRemoveRolesList([role]);
-              navigate(mergeToBasename(paths['remove-role'].link.replace(':roleId', role.uuid)));
+              navigate(toAppLink(paths['remove-role'].link.replace(':roleId', role.uuid)));
             },
           },
         ];
@@ -138,7 +182,7 @@ const Roles = () => {
             ? [
                 {
                   label: intl.formatMessage(messages.createRole),
-                  onClick: () => navigate(mergeToBasename(paths['add-role'].link)),
+                  onClick: () => navigate(toAppLink(paths['add-role'].link)),
                 },
               ]
             : []),
@@ -147,7 +191,7 @@ const Roles = () => {
             props: {
               isDisabled: !(selectedRows.length === 1),
             },
-            onClick: () => navigate(mergeToBasename(paths['edit-role'].link.replace(':roleId', selectedRows[0].uuid))),
+            onClick: () => navigate(toAppLink(paths['edit-role'].link.replace(':roleId', selectedRows[0].uuid))),
           },
           {
             label: intl.formatMessage(messages.delete),
@@ -157,7 +201,7 @@ const Roles = () => {
             onClick: () => {
               setRemoveRolesList(selectedRows);
               navigate(
-                mergeToBasename(
+                toAppLink(
                   paths['remove-role'].link.replace(
                     ':roleId',
                     selectedRows.map(({ uuid }) => uuid),
@@ -184,6 +228,16 @@ const Roles = () => {
   // used for (not) reseting the filters after submit
   const removingAllRows = pagination.count === removeRolesList.length;
 
+  // Show NotAuthorized component for users without proper permissions
+  if (!orgAdmin && !userAccessAdministrator) {
+    return (
+      <NotAuthorized
+        serviceName="User Access Administration"
+        description="You need User Access Administrator or Organization Administrator permissions to view roles."
+      />
+    );
+  }
+
   return (
     <Stack className="rbac-c-roles">
       <StackItem>
@@ -206,14 +260,11 @@ const Roles = () => {
             rows={rows}
             data={roles}
             filterValue={filterValue}
-            fetchData={({ name, limit, offset }) => {
-              applyFiltersToUrl(location, navigate, { display_name: name });
-              return fetchData(mappedProps({ limit, offset, orderBy, filters: { display_name: name } }));
-            }}
+            fetchData={wrappedFetchData}
             setFilterValue={({ name = '' }) => setFilterValue(name)}
             isExpandable
             onExpand={onExpand}
-            isLoading={!isLoading && roles?.length === 0 && filterValue?.length === 0 ? true : isLoading}
+            isLoading={isLoading}
             pagination={pagination}
             ouiaId="roles-table"
             titlePlural={intl.formatMessage(messages.roles).toLowerCase()}

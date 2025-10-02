@@ -1,18 +1,17 @@
-import {
-  Brand,
-  Button,
-  Card,
-  CardBody,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  Gallery,
-  Panel,
-  PanelHeader,
-  PanelMain,
-  PanelMainBody,
-} from '@patternfly/react-core';
-import { ArrowRightIcon } from '@patternfly/react-icons';
+import { Brand } from '@patternfly/react-core/dist/dynamic/components/Brand';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Card } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardBody } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardFooter } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardHeader } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { CardTitle } from '@patternfly/react-core/dist/dynamic/components/Card';
+import { Gallery } from '@patternfly/react-core';
+import { Panel } from '@patternfly/react-core/dist/dynamic/components/Panel';
+import { PanelHeader } from '@patternfly/react-core/dist/dynamic/components/Panel';
+import { PanelMain } from '@patternfly/react-core/dist/dynamic/components/Panel';
+import { PanelMainBody } from '@patternfly/react-core/dist/dynamic/components/Panel';
+import {} from '@patternfly/react-core';
+import ArrowRightIcon from '@patternfly/react-icons/dist/js/icons/arrow-right-icon';
 import Messages from '../../../../Messages';
 import React from 'react';
 import { useIntl } from 'react-intl';
@@ -22,7 +21,7 @@ interface AssetsCardsProps {
 }
 
 const AssetsCards: React.FunctionComponent<AssetsCardsProps> = ({ workspaceName }: AssetsCardsProps) => {
-  const InsightsIcon = '/apps/frontend-assets/console-landing/insights.svg';
+  const InsightsIcon = '/apps/frontend-assets/technology-icons/insights.svg';
   const InsightsNavURL = `/insights/inventory?workspace=${workspaceName}`;
   const intl = useIntl();
   const AssetsCardsWidths = {

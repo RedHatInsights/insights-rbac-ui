@@ -12,7 +12,7 @@ interface BundleCardProps {
 
 const meta: Meta<BundleCardProps> = {
   component: BundleCard,
-  tags: ['autodocs'],
+  tags: ['autodocs', 'custom-css'],
   parameters: {
     docs: {
       description: {

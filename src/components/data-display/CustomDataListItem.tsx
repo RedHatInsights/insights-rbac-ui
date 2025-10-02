@@ -1,18 +1,17 @@
-import {
-  Button,
-  DataListAction,
-  DataListCell,
-  DataListContent,
-  DataListItem,
-  DataListItemCells,
-  DataListItemRow,
-  DataListToggle,
-  Divider,
-  Flex,
-  FlexItem,
-  Icon,
-  Title,
-} from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { DataListAction } from '@patternfly/react-core';
+import { DataListCell } from '@patternfly/react-core';
+import { DataListContent } from '@patternfly/react-core';
+import { DataListItem } from '@patternfly/react-core';
+import { DataListItemCells } from '@patternfly/react-core';
+import { DataListItemRow } from '@patternfly/react-core';
+import { DataListToggle } from '@patternfly/react-core';
+import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
+import { Flex } from '@patternfly/react-core';
+import { FlexItem } from '@patternfly/react-core';
+import { Icon } from '@patternfly/react-core/dist/dynamic/components/Icon';
+import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import {} from '@patternfly/react-core';
 import React from 'react';
 
 interface CustomDataListItemProps {

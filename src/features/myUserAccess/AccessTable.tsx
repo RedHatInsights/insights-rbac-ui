@@ -1,5 +1,5 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { getPrincipalAccess } from '../../redux/access-management/actions';
 import { defaultSettings } from '../../helpers/pagination';
@@ -9,15 +9,20 @@ import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataVi
 import { DataViewCheckboxFilter, useDataViewFilters } from '@patternfly/react-data-view';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
-import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
-import { SearchIcon } from '@patternfly/react-icons';
+import { EmptyState } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateBody } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateHeader } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import { EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { ResourceDefinitionsModal } from './components/ResourceDefinitionsModal';
 import { ResourceDefinitionsLink } from './components/ResourceDefinitionsLink';
 import { sortable } from '@patternfly/react-table';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import type { ResourceDefinition, ResourceDefinitionsConfig, SortByState } from './types';
-import { Tbody, Td, Tr } from '@patternfly/react-table';
+import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Td } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 
 const EmptyWithFilters: React.FC = () => (
   <EmptyState>
@@ -136,7 +141,7 @@ export const AccessTable: React.FC<AccessTableProps> = ({ apps, showResourceDefi
   );
 
   // Debounced version for filter changes to prevent excessive API calls
-  const debouncedFetchData = useMemo(() => debounce(fetchData, 500), [fetchData]);
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
 
   // Cleanup debounced function on unmount
   useEffect(() => {

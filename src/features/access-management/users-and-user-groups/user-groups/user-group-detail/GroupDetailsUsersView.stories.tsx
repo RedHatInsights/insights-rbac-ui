@@ -2,48 +2,25 @@ import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
 import { MemoryRouter } from 'react-router-dom';
-import { Provider } from 'react-redux';
 import { DataViewEventsProvider } from '@patternfly/react-data-view';
-import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
-import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
-import promiseMiddleware from 'redux-promise-middleware';
-import thunk from 'redux-thunk';
 import { HttpResponse, delay, http } from 'msw';
 
 import { GroupDetailsUsersView } from './GroupDetailsUsersView';
-import groupReducer from '../../../../../redux/groups/reducer';
-
-// Create mock Redux store - let MSW handle data
-const createMockStore = () => {
-  const reducers = {
-    groupReducer: applyReducerHash(groupReducer),
-    notifications: notificationsReducer,
-  };
-
-  const registry = new ReducerRegistry({}, [promiseMiddleware, thunk].filter(Boolean));
-
-  registry.register(reducers);
-  return registry.getStore();
-};
 
 const meta: Meta<typeof GroupDetailsUsersView> = {
   component: GroupDetailsUsersView,
-  tags: ['access-management-container'],
   decorators: [
     (Story) => (
-      <Provider store={createMockStore()}>
-        <MemoryRouter>
-          <DataViewEventsProvider>
-            <div style={{ height: '500px', padding: '1rem' }}>
-              <Story />
-            </div>
-          </DataViewEventsProvider>
-        </MemoryRouter>
-      </Provider>
+      <MemoryRouter>
+        <DataViewEventsProvider>
+          <div style={{ height: '500px', padding: '1rem' }}>
+            <Story />
+          </div>
+        </DataViewEventsProvider>
+      </MemoryRouter>
     ),
   ],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, userEvent, within } from 'storybook/test';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import WizardContext from '@data-driven-forms/react-form-renderer/wizard-context';
 import { WizardError } from './WizardError';
 

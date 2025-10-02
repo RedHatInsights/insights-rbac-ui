@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { MemoryRouter } from 'react-router-dom';
+import { expect, within } from 'storybook/test';
 import { RbacBreadcrumbs } from './Breadcrumbs';
 
 const meta: Meta<typeof RbacBreadcrumbs> = {
   component: RbacBreadcrumbs,
   tags: ['autodocs'],
   parameters: {
-    layout: 'fullscreen',
     docs: {
       description: {
         component: `
@@ -194,4 +194,44 @@ export const Interactive: Story = {
       </div>
     </div>
   ),
+};
+
+/**
+ * Test story to verify links are properly constructed with basename
+ */
+export const LinkGenerationTest: Story = {
+  name: 'Link Generation Test',
+  args: {
+    breadcrumbs: [
+      {
+        title: 'Groups',
+        to: '/groups',
+      },
+      {
+        title: 'Test Group',
+        to: '/groups/detail/test-id/roles',
+      },
+      {
+        title: 'Current Page',
+        isActive: true,
+      },
+    ],
+  },
+  parameters: {
+    docs: { disable: true }, // Hide from docs as this is a test story
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Find the breadcrumb links
+    const groupsLink = await canvas.findByRole('link', { name: 'Groups' });
+    const testGroupLink = await canvas.findByRole('link', { name: 'Test Group' });
+
+    // Verify that links have proper basename prefixes
+    // The useAppLink hook should convert "/groups" to "/iam/user-access/groups"
+    expect(groupsLink.getAttribute('href')).toBe('/iam/user-access/groups');
+    expect(testGroupLink.getAttribute('href')).toBe('/iam/user-access/groups/detail/test-id/roles');
+
+    console.log('✅ Breadcrumb links properly generated with basename');
+  },
 };

@@ -38,10 +38,9 @@ const withProviders = (Story: any) => {
 
 const meta: Meta<typeof WorkspaceActions> = {
   component: WorkspaceActions,
-  tags: ['autodocs', 'workspaces', 'workspace-actions'],
+  tags: ['autodocs'],
   decorators: [withProviders],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

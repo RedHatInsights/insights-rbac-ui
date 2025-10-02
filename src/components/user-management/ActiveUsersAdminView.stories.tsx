@@ -9,10 +9,9 @@ type AdminViewStoryArgs = StoryArgs<React.ComponentProps<typeof ActiveUsersAdmin
 const meta: Meta<AdminViewStoryArgs> = {
   component: ActiveUsersAdminView,
   // This component will have an automatically generated Autodocs entry: https://storybook.js.org/docs/writing-docs/autodocs
-  tags: ['autodocs'],
+  tags: ['autodocs', 'perm:org-admin'],
   parameters: {
     // More on how to position stories at: https://storybook.js.org/docs/configure/story-layout
-    layout: 'centered',
     docs: {
       description: {
         component: `
@@ -141,6 +140,7 @@ export const FullyCustomized: Story = {
  * User Access Administrator permissions (different from orgAdmin)
  */
 export const UserAccessAdmin: Story = {
+  tags: ['perm:user-access-admin'],
   parameters: {
     permissions: {
       userAccessAdministrator: true,

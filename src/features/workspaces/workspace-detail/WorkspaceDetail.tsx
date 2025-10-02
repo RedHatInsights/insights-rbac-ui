@@ -148,6 +148,9 @@ export const WorkspaceDetail = () => {
             roleCount: binding.roles?.length || 0,
             created: binding.last_modified,
             modified: binding.last_modified,
+            platform_default: false,
+            system: false,
+            admin_default: false,
           }),
         ) || [];
 
@@ -192,6 +195,9 @@ export const WorkspaceDetail = () => {
       // Store result in parent state and add inheritance information
       const groupsWithInheritance = (result.data || []).map((group) => ({
         ...group,
+        platform_default: group.platform_default ?? false,
+        system: group.system ?? false,
+        admin_default: group.admin_default ?? false,
         inheritedFrom: {
           workspaceId: '',
           workspaceName: '',

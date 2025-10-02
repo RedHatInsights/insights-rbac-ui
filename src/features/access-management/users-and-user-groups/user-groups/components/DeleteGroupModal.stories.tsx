@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
-import { Button } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { DeleteGroupModal } from './DeleteGroupModal';
 import { Group } from '../../../../../redux/groups/reducer';
 
@@ -37,9 +37,8 @@ const mockGroups: Group[] = [
 
 const meta: Meta<typeof DeleteGroupModal> = {
   component: DeleteGroupModal,
-  tags: ['autodocs', 'delete-group-modal'],
+  tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

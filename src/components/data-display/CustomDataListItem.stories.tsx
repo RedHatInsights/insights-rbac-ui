@@ -1,7 +1,9 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { expect, within } from 'storybook/test';
-import { CloudIcon, DatabaseIcon, ServerIcon } from '@patternfly/react-icons';
+import CloudIcon from '@patternfly/react-icons/dist/js/icons/cloud-icon';
+import DatabaseIcon from '@patternfly/react-icons/dist/js/icons/database-icon';
+import ServerIcon from '@patternfly/react-icons/dist/js/icons/server-icon';
 import CustomDataListItem from './CustomDataListItem';
 
 const meta: Meta<typeof CustomDataListItem> = {

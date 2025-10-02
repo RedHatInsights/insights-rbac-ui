@@ -20,33 +20,57 @@ jobs:
   # Job for push events to master
   chromatic-deployment-push:
     if: github.event_name == 'push'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
+    outputs:
+      storybookUrl: ${{ steps.chromatic-deployment.outputs.storybookUrl }}
+      buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
+      - uses: './.github/actions/setup-environment'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Storybook and deploy to Chromatic
+        id: chromatic-deployment
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
           exitZeroOnChanges: true
 
+  # Test Storybook against deployed Chromatic build (for push events)
+  test-storybook-push:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-24.04
+    needs: [chromatic-deployment-push]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: './.github/actions/setup-environment'
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+
+      - name: Run Storybook tests
+        run: npm run test-storybook:ci -- --url ${{ needs.chromatic-deployment-push.outputs.storybookUrl }}
+        env:
+          CI: true
+
   # Job to check if user has repository access (simpler approach)
   check-permissions:
     if: github.event_name == 'pull_request_target'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     outputs:
       has-access: ${{ steps.check-access.outputs.has-access }}
     steps:
@@ -82,8 +106,11 @@ jobs:
   # Job for PR events from users with repository access
   chromatic-deployment-pr:
     if: github.event_name == 'pull_request_target' && needs.check-permissions.outputs.has-access == 'true'
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     needs: [check-permissions]
+    outputs:
+      storybookUrl: ${{ steps.chromatic-deployment.outputs.storybookUrl }}
+      buildUrl: ${{ steps.chromatic-deployment.outputs.buildUrl }}
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -93,18 +120,40 @@ jobs:
           # Fetch full history for Chromatic
           fetch-depth: 0
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 'lts/*'
-          cache: 'npm'
+      - uses: './.github/actions/setup-environment'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build Storybook and deploy to Chromatic
+        id: chromatic-deployment
         uses: chromaui/action@latest
         with:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           buildScriptName: build-storybook
-          exitZeroOnChanges: true 
+          exitZeroOnChanges: true
+
+  # Test Storybook against deployed Chromatic build (for PR events)
+  test-storybook-pr:
+    runs-on: ubuntu-24.04
+    needs: [chromatic-deployment-pr]
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          # For pull_request_target, checkout the PR head
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+          
+      - uses: './.github/actions/setup-environment'
+
+      - name: Install dependencies
+        run: npm ci
+        
+      - name: Install Playwright
+        run: npx playwright install --with-deps
+        
+      - name: Run Storybook tests
+        run: npm run test-storybook:ci -- --url ${{ needs.chromatic-deployment-pr.outputs.storybookUrl }}
+        env:
+          CI: true

@@ -13,7 +13,7 @@ import {
   isPaginationPresentInUrl,
   syncDefaultPaginationWithUrl,
 } from '../../helpers/pagination';
-import { applyFiltersToUrl, areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
+import { areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../helpers/urlFilters';
 import { useIntl } from 'react-intl';
 import messages from '../../Messages';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
@@ -21,11 +21,15 @@ import { UserProps, createRows } from './user-table-helpers';
 import { ISortBy } from '@patternfly/react-table';
 import { UserFilters } from '../../redux/users/reducer';
 import { AppLink } from '../../components/navigation/AppLink';
-import { Button, ButtonVariant, List, ListItem } from '@patternfly/react-core';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { ButtonVariant } from '@patternfly/react-core';
+import { List } from '@patternfly/react-core/dist/dynamic/components/List';
+import { ListItem } from '@patternfly/react-core/dist/dynamic/components/List';
 import { useFlag } from '@unleash/proxy-client-react';
 import useAppNavigate from '../../hooks/useAppNavigate';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { WarningModal } from '@patternfly/react-component-groups';
+import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
 
 interface UsersListNotSelectable {
   userLinks: boolean;
@@ -91,16 +95,6 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);
 
-  const columns = [
-    ...(isCommonAuthModel ? [{ title: '', key: 'select' }] : []),
-    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
-    { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
-    { title: intl.formatMessage(messages.email) },
-    { title: intl.formatMessage(messages.firstName) },
-    { title: intl.formatMessage(messages.lastName) },
-    { title: intl.formatMessage(messages.status) },
-  ];
-
   const [sortByState, setSortByState] = useState<ISortBy>({ index: 1, direction: 'asc' });
 
   const [filters, setFilters] = useState<UserFilters>(
@@ -113,9 +107,10 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
         },
   );
 
+  // Sync pagination to URL - only limit/offset affect URL params, count/redirected are metadata
   useEffect(() => {
     usesMetaInURL && applyPaginationToUrl(location, navigate, pagination.limit, pagination.offset);
-  }, [pagination.offset, pagination.limit, pagination.count, pagination.redirected]);
+  }, [pagination.offset, pagination.limit, usesMetaInURL]);
 
   useEffect(() => {
     const { limit, offset } = syncDefaultPaginationWithUrl(location, navigate, pagination);
@@ -126,8 +121,12 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
       newFilters.status = [newFilters.status];
     }
     setFilters(newFilters);
-    fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
-  }, []);
+
+    // Only make API calls if user has proper permissions
+    if (orgAdmin) {
+      fetchData({ ...mappedProps({ limit, offset, filters: newFilters }), usesMetaInURL });
+    }
+  }, [orgAdmin]);
 
   useEffect(() => {
     if (usesMetaInURL) {
@@ -138,10 +137,51 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
     }
   });
 
-  const updateFilters = (payload: any) => {
+  const updateFilters = (payload: Partial<UserFilters>) => {
     usesMetaInURL && updateStateFilters(payload);
     setFilters({ username: '', ...payload });
   };
+
+  // Wrapper for fetchData with focus management
+  // Kept inline since it's specific to this component's filter structure
+  // Note: URL sync happens separately in useEffect hooks, not here
+  interface FetchConfig {
+    username?: string;
+    email?: string;
+    status?: string[];
+    count?: number;
+    limit?: number;
+    offset?: number;
+    orderBy?: string;
+  }
+
+  const wrappedFetchData = useCallback(
+    async (config: FetchConfig) => {
+      const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
+      const { username, email, count, limit = 0, offset = 0, orderBy } = config;
+
+      await fetchData({
+        ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }),
+        usesMetaInURL,
+      });
+
+      // Focus management after successful fetch
+      if (innerRef?.current) {
+        innerRef.current.focus();
+      }
+    },
+    [filters.status, fetchData, usesMetaInURL, innerRef],
+  );
+
+  const columns = [
+    ...(isCommonAuthModel ? [{ title: '', key: 'select' }] : []),
+    { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
+    { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
+    { title: intl.formatMessage(messages.email) },
+    { title: intl.formatMessage(messages.firstName) },
+    { title: intl.formatMessage(messages.lastName) },
+    { title: intl.formatMessage(messages.status) },
+  ];
 
   const toolbarButtons = () =>
     orgAdmin && isCommonAuthModel
@@ -202,6 +242,11 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
     handleToggle(null, userStatus, selectedUsers);
     userStatus ? setIsActivateModalOpen(false) : setIsDeactivateModalOpen(false);
   };
+
+  // Show NotAuthorized component for users without proper permissions
+  if (!orgAdmin) {
+    return <NotAuthorized serviceName="User Access Administration" description="You need Organization Administrator permissions to view users." />;
+  }
 
   return (
     <React.Fragment>
@@ -277,20 +322,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
           fetchData({ ...pagination, filters, usesMetaInURL, orderBy });
         }}
         ouiaId="users-table"
-        fetchData={(config) => {
-          const status = Object.prototype.hasOwnProperty.call(config, 'status') ? config.status : filters.status;
-          const { username, email, count, limit, offset, orderBy } = config;
-
-          Promise.resolve(fetchData({ ...mappedProps({ count, limit, offset, orderBy, filters: { username, email, status } }), usesMetaInURL })).then(
-            () => {
-              if (innerRef !== null && innerRef.current !== null) {
-                innerRef.current.focus();
-              }
-            },
-          );
-          applyPaginationToUrl(location, navigate, limit || 0, offset || 0);
-          usesMetaInURL && applyFiltersToUrl(location, navigate, { username, email, status });
-        }}
+        fetchData={wrappedFetchData}
         emptyFilters={{ username: '', email: '', status: [] }}
         setFilterValue={({ username, email, status }) => {
           updateFilters({

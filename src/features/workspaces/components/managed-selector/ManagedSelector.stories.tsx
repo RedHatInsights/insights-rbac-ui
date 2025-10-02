@@ -50,9 +50,8 @@ const duplicateWorkspacesHandler = http.get('/api/rbac/v2/workspaces/*', () => {
 
 const meta: Meta<typeof ManagedSelector> = {
   component: ManagedSelector,
-  tags: ['autodocs', 'workspaces'],
+  tags: ['autodocs'],
   parameters: {
-    layout: 'centered',
     docs: {
       description: {
         component: `

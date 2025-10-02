@@ -6,10 +6,8 @@ import { UserAccessLayout } from './UserAccessLayout';
 
 const meta: Meta<typeof UserAccessLayout> = {
   component: UserAccessLayout,
-  tags: ['autodocs'],
-  parameters: {
-    layout: 'fullscreen',
-  },
+  tags: ['autodocs', 'custom-css'],
+  parameters: {},
   decorators: [
     (Story: React.ComponentType) => (
       <MemoryRouter>

@@ -1,21 +1,8 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import React, { useMemo } from 'react';
+import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceDetail } from './WorkspaceDetail';
-import { Provider } from 'react-redux';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
-import { IntlProvider } from 'react-intl';
-
-import { ChromeProvider, FeatureFlagsProvider } from '../../../../.storybook/context-providers';
-import ReducerRegistry, { applyReducerHash } from '@redhat-cloud-services/frontend-components-utilities/ReducerRegistry';
-import { notificationsReducer } from '@redhat-cloud-services/frontend-components-notifications/redux';
-import notificationsMiddleware from '@redhat-cloud-services/frontend-components-notifications/notificationsMiddleware';
-import { compose } from 'redux';
-import promiseMiddleware from 'redux-promise-middleware';
-import thunk from 'redux-thunk';
-import workspacesReducer, { workspacesInitialState } from '../../../redux/workspaces/reducer';
-import groupReducer, { groupsInitialState } from '../../../redux/groups/reducer';
-import errorReducer from '../../../redux/api-error/error-reducer';
 import { HttpResponse, delay, http } from 'msw';
 import { waitForSkeletonToDisappear } from '../workspaceTestHelpers';
 
@@ -79,62 +66,18 @@ const mockGroups = [
   },
 ];
 
-// Create a store with the same structure as the real app
-const createStoreWithState = (customWorkspacesState = {}, customGroupsState = {}) => {
-  const middlewares = [
-    thunk,
-    promiseMiddleware,
-    notificationsMiddleware({
-      errorTitleKey: ['statusText', 'message', 'errors[0].status'],
-      errorDescriptionKey: ['errors[0].detail', 'errors', 'stack'],
-    }),
-  ].filter((middleware) => typeof middleware === 'function');
-
-  const composeEnhancers = compose;
-  const registry = new ReducerRegistry({}, middlewares, composeEnhancers);
-
-  registry.register({
-    workspacesReducer: applyReducerHash(workspacesReducer, {
-      ...workspacesInitialState,
-      ...customWorkspacesState,
-    }),
-    groupReducer: applyReducerHash(groupReducer, {
-      ...groupsInitialState,
-      ...customGroupsState,
-    }),
-    errorReducer: applyReducerHash(errorReducer),
-    notifications: notificationsReducer,
-  });
-
-  return registry.getStore();
-};
-
-// Story decorator with providers
-const withProviders = (Story: any, context: any) => {
-  const workspacesState = context.parameters?.storeState?.workspacesReducer || {};
-  const groupsState = context.parameters?.storeState?.groupReducer || {};
-  const featureFlags = context.parameters?.featureFlags || {};
+// Simple router wrapper - all other providers come from global .storybook/preview.tsx
+const withRouter = (Story: any, context: any) => {
   const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-2';
 
-  // Memoize store creation to prevent re-renders
-  const store = useMemo(() => createStoreWithState(workspacesState, groupsState), [JSON.stringify(workspacesState), JSON.stringify(groupsState)]);
-
   return (
-    <Provider store={store}>
-      <MemoryRouter initialEntries={[route]}>
-        <IntlProvider locale="en" messages={{}}>
-          <FeatureFlagsProvider value={featureFlags}>
-            <ChromeProvider value={{ environment: 'prod' }}>
-              <div style={{ minHeight: '600px' }}>
-                <Routes>
-                  <Route path="/iam/access-management/workspaces/detail/:workspaceId" element={<Story />} />
-                </Routes>
-              </div>
-            </ChromeProvider>
-          </FeatureFlagsProvider>
-        </IntlProvider>
-      </MemoryRouter>
-    </Provider>
+    <MemoryRouter initialEntries={[route]}>
+      <div style={{ minHeight: '600px' }}>
+        <Routes>
+          <Route path="/iam/access-management/workspaces/detail/:workspaceId" element={<Story />} />
+        </Routes>
+      </div>
+    </MemoryRouter>
   );
 };
 
@@ -179,12 +122,12 @@ const workspaceDetailHandlers = [
     });
   }),
   // Add handlers for static assets
-  http.get('/apps/frontend-assets/console-landing/insights.svg', () => {
+  http.get('/apps/frontend-assets/technology-icons/insights.svg', () => {
     return HttpResponse.text('<svg></svg>', {
       headers: { 'Content-Type': 'image/svg+xml' },
     });
   }),
-  http.get('/apps/frontend-assets/console-landing/openshift.svg', () => {
+  http.get('/apps/frontend-assets/technology-icons/openshift.svg', () => {
     return HttpResponse.text('<svg></svg>', {
       headers: { 'Content-Type': 'image/svg+xml' },
     });
@@ -193,10 +136,12 @@ const workspaceDetailHandlers = [
 
 const meta: Meta<typeof WorkspaceDetail> = {
   component: WorkspaceDetail,
-  tags: ['workspaces', 'workspace-detail'],
-  decorators: [withProviders],
+  tags: ['ff:platform.rbac.workspaces-role-bindings'],
+  decorators: [withRouter],
   parameters: {
-    layout: 'fullscreen',
+    chrome: {
+      environment: 'prod',
+    },
     msw: {
       handlers: workspaceDetailHandlers,
     },
@@ -231,22 +176,6 @@ type Story = StoryObj<typeof meta>;
 export const Default: Story = {
   tags: ['autodocs'],
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: mockWorkspaces,
-        selectedWorkspace: mockWorkspaces[1], // Web Services workspace
-        isLoading: false,
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: mockGroups,
-          meta: { count: mockGroups.length },
-        },
-        isLoading: false,
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=assets',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': false,
@@ -293,22 +222,6 @@ For testing specific scenarios, see these additional stories:
 
 export const WithRolesEnabled: Story = {
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: mockWorkspaces,
-        selectedWorkspace: mockWorkspaces[1], // Web Services workspace
-        isLoading: false,
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: mockGroups,
-          meta: { count: mockGroups.length },
-        },
-        isLoading: false,
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': true,
@@ -341,22 +254,6 @@ export const WithRolesEnabled: Story = {
 
 export const TabSwitching: Story = {
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: mockWorkspaces,
-        selectedWorkspace: mockWorkspaces[1],
-        isLoading: false,
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: mockGroups,
-          meta: { count: mockGroups.length },
-        },
-        isLoading: false,
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=assets',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': true,
@@ -388,22 +285,6 @@ export const TabSwitching: Story = {
 
 export const LoadingState: Story = {
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: [],
-        selectedWorkspace: null,
-        isLoading: false, // Start with false, let API calls trigger loading
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: [],
-          meta: { count: 0 },
-        },
-        isLoading: false, // Start with false, let API calls trigger loading
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-2',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': true,
@@ -472,22 +353,6 @@ export const LoadingState: Story = {
 
 export const RootWorkspace: Story = {
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: mockWorkspaces,
-        selectedWorkspace: mockWorkspaces[0], // Production Environment (root)
-        isLoading: false,
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: mockGroups,
-          meta: { count: mockGroups.length },
-        },
-        isLoading: false,
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-1?activeTab=assets',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': false,
@@ -520,22 +385,6 @@ export const RootWorkspace: Story = {
 
 export const EmptyGroupsState: Story = {
   parameters: {
-    storeState: {
-      workspacesReducer: {
-        workspaces: mockWorkspaces,
-        selectedWorkspace: mockWorkspaces[1],
-        isLoading: false,
-        error: '',
-      },
-      groupReducer: {
-        groups: {
-          data: [],
-          meta: { count: 0 },
-        },
-        isLoading: false,
-        error: null,
-      },
-    },
     route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles',
     featureFlags: {
       'platform.rbac.workspaces-role-bindings': true,
