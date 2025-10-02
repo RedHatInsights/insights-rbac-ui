@@ -1,3 +1,10 @@
+## [1.57.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.7...v1.57.8) (2025-10-02)
+
+
+### Bug Fixes
+
+* **debounce:** resolve flaky test and consolidate utilities ([e1b2cce](https://github.com/RedHatInsights/insights-rbac-ui/commit/e1b2cce0383e5594edbda1bc246c7695078f5ed6))
+
 ## [1.57.7](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.6...v1.57.7) (2025-10-01)
 
 
