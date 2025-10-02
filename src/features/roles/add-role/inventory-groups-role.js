@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from 'react';
+import React, { useCallback, useEffect, useMemo, useReducer } from 'react';
 import { Badge } from '@patternfly/react-core';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Chip } from '@patternfly/react-core/dist/dynamic/components/Chip';
@@ -25,7 +25,7 @@ import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
 import useFormApi from '@data-driven-forms/react-form-renderer/use-form-api';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { fetchInventoryGroups } from '../../../redux/inventory/actions';
-import { debouncedFetch } from '../../../helpers/dataUtilities';
+import { debounce } from '../../../utilities/debounce';
 import messages from '../../../Messages';
 import './cost-resources.scss';
 import { useFlag } from '@unleash/proxy-client-react';
@@ -135,7 +135,17 @@ const InventoryGroupsRole = (props) => {
       .values['add-permissions-table'].filter(({ uuid }) => uuid.split(':')[0].includes('inventory'))
       .map(({ uuid }) => uuid) || [];
 
-  const fetchData = (permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps));
+  const fetchData = useCallback((permissions, apiProps) => dispatch(fetchInventoryGroups(permissions, apiProps)), [dispatch]);
+
+  // Memoize debounced fetchData to maintain consistent cancellation/flush behavior
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedFetchData?.cancel();
+    };
+  }, [debouncedFetchData]);
 
   const onSelect = (_event, selection, selectAll, key) => {
     const ungroupedSystems = { id: null, name: 'null' };
@@ -182,7 +192,7 @@ const InventoryGroupsRole = (props) => {
 
   const onTextInputChange = (_event, value, permissionID) => {
     dispatchLocally({ type: 'setFilter', key: permissionID, filterValue: value });
-    debouncedFetch(() => fetchData([permissionID], { name: value }), 2000);
+    debouncedFetchData([permissionID], { name: value });
   };
 
   const toggle = (toggleRef, permissionID) => (

@@ -16,7 +16,7 @@ import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
-import debounce from 'lodash/debounce';
+import { debounce } from '../../utilities/debounce';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
 import Skeleton, { SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
@@ -83,9 +83,8 @@ const User = () => {
     fetchRolesData({ limit: 20, offset: 0, username });
     setLoadingRolesTemp(true);
     fetchRolesData({ limit: 20, offset: 0, addFields: ['groups_in'], username }).then(() => setLoadingRolesTemp(false));
-    debouncedFetch = debounce(
-      (limit, offset, name, addFields, username) => fetchRolesData({ limit, offset, displayName: name, addFields, username }),
-      500,
+    debouncedFetch = debounce((limit, offset, name, addFields, username) =>
+      fetchRolesData({ limit, offset, displayName: name, addFields, username }),
     );
     return () => chrome.appObjectId(undefined);
   }, []);

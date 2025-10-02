@@ -3,9 +3,10 @@ import PrimaryToolbar from '@redhat-cloud-services/frontend-components/PrimaryTo
 import { IntlShape, useIntl } from 'react-intl';
 import messages from '../../Messages';
 import { pickBy } from 'lodash';
-import { calculateChecked, debouncedFetch, selectedRows } from '../../helpers/dataUtilities';
+import { calculateChecked, selectedRows } from '../../helpers/dataUtilities';
 import { firstUpperCase } from '../../helpers/stringUtilities';
 import { PER_PAGE_OPTIONS, calculateOffset, calculatePage, defaultSettings } from '../../helpers/pagination';
+import { useDebouncedFetch } from '../../hooks/useDebouncedFetch';
 
 // Type definitions
 interface PaginationData {
@@ -216,24 +217,20 @@ export const filterConfigBuilder = (
                   offset: 0,
                   [key]: newFilter,
                 });
-                debouncedFetch(() =>
-                  fetchData({
-                    ...pagination,
-                    offset: 0,
-                    orderBy: sortBy,
-                    ...filters.reduce(
-                      (acc, curr) => ({
-                        ...acc,
-                        [curr.key]: curr.value,
-                      }),
-                      {},
-                    ),
-                    [key]: newFilter,
-                  }),
-                ).then((data) => {
-                  innerRef?.current?.focus();
-                  return data;
+                fetchData({
+                  ...pagination,
+                  offset: 0,
+                  orderBy: sortBy,
+                  ...filters.reduce(
+                    (acc, curr) => ({
+                      ...acc,
+                      [curr.key]: curr.value,
+                    }),
+                    {},
+                  ),
+                  [key]: newFilter,
                 });
+                innerRef?.current?.focus();
               },
               isDisabled: isLoading,
             },
@@ -254,17 +251,13 @@ export const filterConfigBuilder = (
                     offset: 0,
                     name: value,
                   });
-                  debouncedFetch(() =>
-                    fetchData({
-                      ...pagination,
-                      offset: 0,
-                      name: value,
-                      orderBy: sortBy,
-                    }),
-                  ).then((data) => {
-                    textFilterRef?.current?.focus();
-                    return data;
+                  fetchData?.({
+                    ...pagination,
+                    offset: 0,
+                    name: value,
+                    orderBy: sortBy,
                   });
+                  textFilterRef?.current?.focus();
                 },
                 isDisabled: isLoading,
               },
@@ -366,6 +359,10 @@ const Toolbar: React.FC<ToolbarProps> = ({
   toolbarChildren = () => null,
 }) => {
   const intl = useIntl();
+
+  // Use custom hook for debounced fetch with automatic cleanup
+  const debouncedFetchData = useDebouncedFetch(fetchData);
+
   // Memoize bulk select config to prevent recreation on every render
   const bulkSelectConfig = useMemo(() => {
     return isSelectable ? bulkSelectBuilder(intl, isLoading, checkedRows, setCheckedItems, data, tableId, isRowSelectable) : undefined;
@@ -377,7 +374,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
       intl,
       isLoading,
       setFilterValue,
-      fetchData,
+      debouncedFetchData,
       filterValue,
       pagination,
       titleSingular,
@@ -397,7 +394,7 @@ const Toolbar: React.FC<ToolbarProps> = ({
     intl,
     isLoading,
     setFilterValue,
-    fetchData,
+    debouncedFetchData,
     filterValue,
     pagination,
     titleSingular,
@@ -416,14 +413,16 @@ const Toolbar: React.FC<ToolbarProps> = ({
 
   // Memoize pagination config to prevent recreation on every render
   const paginationConfig = useMemo(() => {
-    return !isLoading ? paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps) : undefined;
+    return !isLoading && fetchData ? paginationBuilder(pagination, fetchData, filterValue, sortBy, paginationProps) : undefined;
   }, [isLoading, pagination, fetchData, filterValue, sortBy, paginationProps]);
 
   // Memoize active filters config to prevent recreation on every render
   const activeFiltersConfig = useMemo(() => {
     const hasActiveFilters =
       ((typeof filterValue === 'string' ? filterValue.length > 0 : filterValue.length > 0) || (filters && filters.length > 0)) && !hideFilterChips;
-    return hasActiveFilters ? activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy) : undefined;
+    return hasActiveFilters && fetchData
+      ? activeFiltersConfigBuilder(filterValue, filters, pagination, setFilterValue, fetchData, sortBy)
+      : undefined;
   }, [filterValue, filters, pagination, setFilterValue, fetchData, sortBy, hideFilterChips]);
 
   // Memoize toolbar actions to prevent recreation on every render

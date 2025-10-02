@@ -2,6 +2,7 @@ import React, { Fragment, Suspense, useCallback, useMemo } from 'react';
 import { useDispatch } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import Section from '@redhat-cloud-services/frontend-components/Section';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 
 // DataView imports
 import { DataView, DataViewState } from '@patternfly/react-data-view';
@@ -68,10 +69,11 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
       if (value === BulkSelectValue.none) {
         selection.onSelect(false);
       } else if (value === BulkSelectValue.page) {
-        // Use tableRows for bulk selection - this matches individual selection format
+        // Select all items on current page
         selection.onSelect(true, tableRows);
       } else if (value === BulkSelectValue.nonePage) {
-        selection.onSelect(false);
+        // Deselect all items on current page
+        selection.onSelect(false, tableRows);
       }
     },
     [selection, tableRows],
@@ -92,12 +94,26 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     }
 
     const selectedCount = selection.selected?.length || 0;
-    const totalCount = roles.length;
+    const currentPageCount = roles.length; // Items on current page
+    const totalCount = pagination.count || 0; // Total items across all pages
+
+    // Calculate if all/some items on current page are selected
+    const selectedOnPage = tableRows.filter((row) => selection.selected?.some((sel) => sel.id === row.id)).length;
+    const pageSelected = selectedOnPage > 0 && selectedOnPage === currentPageCount;
+    const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < currentPageCount;
 
     return (
-      <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
+      <BulkSelect
+        isDataPaginated={true}
+        selectedCount={selectedCount}
+        totalCount={totalCount}
+        pageCount={currentPageCount}
+        pageSelected={pageSelected}
+        pagePartiallySelected={pagePartiallySelected}
+        onSelect={handleBulkSelect}
+      />
     );
-  }, [hasPermissions, isAdminDefault, selection.selected?.length, roles.length, handleBulkSelect]);
+  }, [hasPermissions, isAdminDefault, selection.selected, roles.length, pagination.count, tableRows, handleBulkSelect]);
 
   // Toolbar actions - use the buttons directly from the hook
   const toolbarActions = useMemo(() => {
@@ -106,6 +122,37 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     }
     return toolbarButtons;
   }, [hasPermissions, isAdminDefault, toolbarButtons]);
+
+  // Pagination handlers
+  const handleSetPage = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPage: number) => {
+      const offset = (newPage - 1) * pagination.limit;
+      fetchData({ offset, limit: pagination.limit });
+    },
+    [fetchData, pagination.limit],
+  );
+
+  const handlePerPageSelect = useCallback(
+    (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
+      fetchData({ offset: 0, limit: newPerPage });
+    },
+    [fetchData],
+  );
+
+  // Pagination component
+  const paginationComponent = useMemo(() => {
+    const currentPage = Math.floor(pagination.offset / pagination.limit) + 1;
+    return (
+      <Pagination
+        itemCount={pagination.count || 0}
+        perPage={pagination.limit}
+        page={currentPage}
+        onSetPage={handleSetPage}
+        onPerPageSelect={handlePerPageSelect}
+        isCompact
+      />
+    );
+  }, [pagination.count, pagination.limit, pagination.offset, handleSetPage, handlePerPageSelect]);
 
   // Determine active state
   const activeState = isLoading ? DataViewState.loading : roles.length === 0 ? DataViewState.empty : undefined;
@@ -116,6 +163,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         <DataView activeState={activeState} selection={hasPermissions && !isAdminDefault ? selection : undefined}>
           <DataViewToolbar
             bulkSelect={bulkSelectComponent}
+            pagination={paginationComponent}
             filters={
               <DataViewFilters onChange={handleFilterChange} values={filters.filters}>
                 <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
@@ -133,6 +181,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
               empty: emptyState,
             }}
           />
+          <DataViewToolbar pagination={paginationComponent} />
         </DataView>
       </Section>
 

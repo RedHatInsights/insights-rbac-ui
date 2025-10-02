@@ -3,7 +3,8 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { defaultSettings } from '../../../../../helpers/pagination';
-import { debouncedFetch, mappedProps } from '../../../../../helpers/dataUtilities';
+import { debounce } from '../../../../../utilities/debounce';
+import { mappedProps } from '../../../../../helpers/dataUtilities';
 import { fetchRolesWithPolicies } from '../../../../../redux/roles/actions';
 import { fetchAddRolesForGroup } from '../../../../../redux/groups/actions';
 import type { RBACStore } from '../../../../../redux/store.d';
@@ -132,9 +133,10 @@ export const useRolesList = ({
   );
 
   // Debounced fetch for filtering with explicit filter value
-  const debouncedFetchData = useCallback(
-    (apiProps: Record<string, unknown> = {}, nameFilter?: string) => {
-      return debouncedFetch(() => {
+  // Note: filters.filters.name is captured from closure, not in deps to maintain debounce stability
+  const debouncedFetchData = useMemo(
+    () =>
+      debounce((apiProps: Record<string, unknown> = {}, nameFilter?: string) => {
         if (rolesExcluded && groupUuid) {
           // Group-specific roles fetching - doesn't need URL management
           return dispatch(fetchAddRolesForGroup(groupUuid, apiProps));
@@ -154,9 +156,8 @@ export const useRolesList = ({
           };
           return dispatch(fetchRolesWithPolicies(mappedProps(finalConfig)));
         }
-      });
-    },
-    [rolesExcluded, groupUuid, dispatch, usesMetaInURL, filters.filters.name],
+      }),
+    [rolesExcluded, groupUuid, dispatch, usesMetaInURL],
   );
 
   // Initial data fetch (run only once on mount to prevent infinite loops)

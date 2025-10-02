@@ -12,7 +12,7 @@ import FormRenderer from '../../components/forms/FormRenderer';
 import useIsMounted from '../../hooks/useIsMounted';
 import { roleSelector } from './role-selectors';
 import { fetchRole, fetchRoles } from '../../redux/roles/helper';
-import asyncDebounce from '../../utilities/async-debounce';
+import { debounceAsync as asyncDebounce } from '../../utilities/debounce';
 import { patchRole } from '../../redux/roles/actions';
 import messages from '../../Messages';
 

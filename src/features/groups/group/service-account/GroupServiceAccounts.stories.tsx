@@ -796,11 +796,11 @@ export const BulkActionsTest: Story = {
 };
 
 /**
- * Test to verify select all functionality works correctly.
- * This test specifically checks that the "Select all" checkbox can select and deselect all items.
+ * Test to verify select page functionality works correctly.
+ * This test specifically checks that the "Select page" checkbox can select and deselect all items on the current page.
  */
 export const SelectAllTest: Story = {
-  name: 'Select All Functionality Test',
+  name: 'Select Page Functionality Test',
   tags: ['perm:user-access-admin'],
   parameters: {
     docs: { disable: true },
@@ -862,22 +862,22 @@ export const SelectAllTest: Story = {
 
     console.log('✅ Service accounts loaded');
 
-    // Find the "Select all" checkbox
-    const selectAllCheckbox = canvas.getByLabelText('Select all');
+    // Find the "Select page" checkbox (selects all on current page)
+    const selectAllCheckbox = canvas.getByLabelText('Select page');
     expect(selectAllCheckbox).toBeInTheDocument();
     expect(selectAllCheckbox).not.toBeChecked();
 
-    console.log('✅ Select all checkbox found and unchecked');
+    console.log('✅ Select page checkbox found and unchecked');
 
-    // Click select all
+    // Click select page
     await user.click(selectAllCheckbox);
 
-    console.log('✅ Clicked select all checkbox');
+    console.log('✅ Clicked select page checkbox');
 
     // Verify all individual checkboxes are now checked
     await waitFor(() => {
       const allCheckboxes = canvas.getAllByRole('checkbox');
-      // Filter out the "Select all" checkbox
+      // Filter out the "Select page" checkbox
       const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
 
       console.log(`🔍 Found ${rowCheckboxes.length} row checkboxes`);
@@ -904,7 +904,7 @@ export const SelectAllTest: Story = {
     // Verify all individual checkboxes are now unchecked
     await waitFor(() => {
       const allCheckboxes = canvas.getAllByRole('checkbox');
-      // Filter out the "Select all" checkbox
+      // Filter out the "Select page" checkbox
       const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
 
       rowCheckboxes.forEach((checkbox, index) => {

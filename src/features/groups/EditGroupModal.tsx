@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useMemo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { Skeleton } from '@patternfly/react-core/dist/dynamic/components/Skeleton';
@@ -70,38 +70,43 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
     }
   };
 
-  const schema = {
-    fields: [
-      {
-        component: componentTypes.TEXT_FIELD,
-        name: 'name',
-        type: 'text',
-        label: 'Group name',
-        placeholder: 'Enter group name',
-        isRequired: true,
-        autoFocus: true,
-        validate: [
-          { type: validatorTypes.REQUIRED },
-          { type: validatorTypes.MAX_LENGTH, threshold: 150 },
-          {
-            type: validatorTypes.PATTERN,
-            pattern: /^[A-Za-z0-9]+[A-Za-z0-9\s_-]*$/,
-            message: 'Group name must start with alphanumeric character and can contain alphanumeric characters, spaces, hyphens, and underscores',
-          },
-          // Pass current group UUID to validator to exclude it from "already taken" check
-          (value: string) => debouncedAsyncValidator(value, 'uuid', selectedGroup?.uuid),
-        ],
-      },
-      {
-        component: componentTypes.TEXTAREA,
-        name: 'description',
-        type: 'text',
-        label: 'Description',
-        placeholder: 'Enter group description (optional)',
-        validate: [{ type: validatorTypes.MAX_LENGTH, threshold: 150 }],
-      },
-    ],
-  };
+  // Memoize schema to prevent recreation on every render
+  // This is critical for async validators to maintain their debounce state
+  const schema = useMemo(
+    () => ({
+      fields: [
+        {
+          component: componentTypes.TEXT_FIELD,
+          name: 'name',
+          type: 'text',
+          label: 'Group name',
+          placeholder: 'Enter group name',
+          isRequired: true,
+          autoFocus: true,
+          validate: [
+            { type: validatorTypes.REQUIRED },
+            { type: validatorTypes.MAX_LENGTH, threshold: 150 },
+            {
+              type: validatorTypes.PATTERN,
+              pattern: /^[A-Za-z0-9]+[A-Za-z0-9\s_-]*$/,
+              message: 'Group name must start with alphanumeric character and can contain alphanumeric characters, spaces, hyphens, and underscores',
+            },
+            // Pass current group UUID to validator to exclude it from "already taken" check
+            (value: string) => debouncedAsyncValidator(value, 'uuid', selectedGroup?.uuid),
+          ],
+        },
+        {
+          component: componentTypes.TEXTAREA,
+          name: 'description',
+          type: 'text',
+          label: 'Description',
+          placeholder: 'Enter group description (optional)',
+          validate: [{ type: validatorTypes.MAX_LENGTH, threshold: 150 }],
+        },
+      ],
+    }),
+    [selectedGroup?.uuid],
+  );
 
   const onCancel = () => {
     // Call onClose if provided (for stories/tests), otherwise just navigate
