@@ -4,18 +4,26 @@ const config: TestRunnerConfig = {
   async preVisit(page, {id}) {
     // force the same viewport Chromatic uses
     await page.setViewportSize({ width: 1200, height: 500 });
+    
+    // Attach a listener to capture all browser console messages
+    page.on('console', async (msg) => {
+      const text = msg.text();
+      const type = msg.type();
+      
+      // Ignore React Router warnings as per project rules
+      if (text.includes('React Router')) {
+        return;
+      }
+      
+      // Only log warnings and errors to keep output clean
+      if (type === 'warning' || type === 'error') {
+        console.log(`[BROWSER ${type.toUpperCase()}]: ${text}`);
+      }
+    });
   },
   // Hook to execute after each story is tested
   async postVisit(page, context) {
-    // Add any custom assertions or checks here
-    // For example, check for console errors
-    const logs = await page.evaluate(() => {
-      return window.console.errors || [];
-    });
-    
-    if (logs.length > 0) {
-      console.warn(`Console errors in story ${context.title}/${context.name}:`, logs);
-    }
+    // Cleanup if needed
   },
   
   // Configure tags to skip certain stories if needed

@@ -73,13 +73,18 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
                   >
                     <CardHeader
                       selectableActions={{
-                        selectableActionId: '',
+                        selectableActionId: `bundle-card-${key}`,
+                        selectableActionAriaLabelledby: `bundle-card-title-${key}`,
                         name: data.title,
                         variant: 'single',
                         onChange: (event: React.FormEvent<HTMLInputElement>) => onChange(event as React.ChangeEvent<HTMLInputElement>),
                       }}
                     >
-                      <CardTitle className="pf-v5-u-font-weight-light" data-ouia-component-id={`${data.title}-card-title`}>
+                      <CardTitle
+                        id={`bundle-card-title-${key}`}
+                        className="pf-v5-u-font-weight-light"
+                        data-ouia-component-id={`${data.title}-card-title`}
+                      >
                         {data.title}
                       </CardTitle>
                     </CardHeader>

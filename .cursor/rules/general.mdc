@@ -189,6 +189,60 @@ npm run test-storybook:ci
 
 **REMEMBER**: The user has repeatedly had to remind AI to run these validation commands. This rule exists because AI has a pattern of claiming completion without proper validation. Follow this rule religiously.
 
+## Console Warnings and Errors
+
+### Critical Rule: Address All Console Warnings
+
+**Browser console warnings MUST be addressed, not ignored.** Common warnings include:
+
+#### ❌ Do NOT Ignore:
+- **Redux selector warnings** - "Selector returned a different result..."
+- **Missing ARIA labels** - "Table headers must have an accessible name..."
+- **React warnings** - Key props, hook dependencies, etc.
+- **Performance warnings** - "Too many re-renders", "Memory leak", etc.
+- **Browser security errors** - "The operation is insecure", rate limiting
+
+#### ✅ Exception: React Router Warnings
+- React Router deprecation warnings are known and acceptable
+- These will be fixed in a planned React Router upgrade
+
+#### How to Check:
+```bash
+# Run tests with full console output
+npm run test-storybook 2>&1 | grep -i "warn"
+
+# Or check browser console in Storybook
+npm run storybook
+# Open browser DevTools → Console
+```
+
+#### Common Fixes:
+- **ARIA warnings**: Add `screenReaderText` or `aria-label` to PatternFly components
+- **Redux selectors**: Memoize with `useMemo` or return stable references
+- **Excessive navigate calls**: Check `useEffect` dependencies, don't include metadata like `count`/`redirected` that don't affect URL params
+
+### Rate Limiting: Browser Security Errors
+
+**Critical**: Browsers rate-limit `history.pushState()` / `history.replaceState()` calls:
+- Multiple rapid `navigate()` calls → `DOMException: The operation is insecure`
+- Typical cause: `useEffect` with wrong dependencies triggering cascading updates
+
+**Example of incorrect pattern**:
+```javascript
+// ❌ BAD - count/redirected trigger unnecessary URL updates
+useEffect(() => {
+  applyPaginationToUrl(location, navigate, limit, offset);
+}, [limit, offset, count, redirected]); // count/redirected don't affect URL!
+```
+
+**Correct pattern**:
+```javascript
+// ✅ GOOD - only include params that affect URL
+useEffect(() => {
+  applyPaginationToUrl(location, navigate, limit, offset);
+}, [limit, offset]); // count/redirected are metadata, not URL params
+```
+
 ## Architecture
 
 ### Key Directories

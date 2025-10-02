@@ -1,5 +1,5 @@
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
 import { mappedProps } from '../../helpers/dataUtilities';
 import { TableComposableToolbarView } from '../../components/tables/TableComposableToolbarView';
@@ -71,13 +71,16 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
   }, [auth]);
 
   // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
-  const pagination = useSelector(({ userReducer: { users } }) => ({
-    limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-    offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-    count: (usesMetaInURL ? users.pagination.count : users.meta.count) ?? 0,
-    redirected: usesMetaInURL && users.pagination.redirected,
-    itemCount: 0,
-  }));
+  const pagination = useSelector(
+    ({ userReducer: { users } }) => ({
+      limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+      offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+      count: (usesMetaInURL ? users.pagination.count : users.meta.count) ?? 0,
+      redirected: usesMetaInURL && users.pagination.redirected,
+      itemCount: 0,
+    }),
+    shallowEqual,
+  );
 
   const { users, isLoading, stateFilters } = useSelector(
     ({
@@ -90,6 +93,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
       isLoading: isUserDataLoading,
       stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
     }),
+    shallowEqual,
   );
 
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
@@ -174,7 +178,7 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
   );
 
   const columns = [
-    ...(isCommonAuthModel ? [{ title: '', key: 'select' }] : []),
+    ...(isCommonAuthModel ? [{ title: '', key: 'select', screenReaderText: 'Row selection' }] : []),
     { title: intl.formatMessage(messages.orgAdministrator), key: 'org-admin' },
     { title: intl.formatMessage(messages.username), key: 'username', sortable: true },
     { title: intl.formatMessage(messages.email) },

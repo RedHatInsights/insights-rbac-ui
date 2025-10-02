@@ -221,7 +221,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
 }) => {
   const intl = useIntl();
 
-  const columns = [
+  const columns: Array<{ title: string; key: string; screenReaderText?: string }> = [
     { title: intl.formatMessage(messages.name), key: 'name' },
     { title: intl.formatMessage(messages.roles), key: 'roles' },
     { title: intl.formatMessage(messages.members), key: 'members' },
@@ -229,7 +229,9 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   ];
 
   // Add selection and actions columns for admin users
-  const allColumns = isAdmin ? [{ title: '', key: 'selection' }, ...columns, { title: '', key: 'actions' }] : [...columns];
+  const allColumns: Array<{ title: string; key: string; screenReaderText?: string }> = isAdmin
+    ? [{ title: '', key: 'selection', screenReaderText: 'Row selection' }, ...columns, { title: '', key: 'actions', screenReaderText: 'Row actions' }]
+    : [...columns];
 
   // const handleSelectAll = (isChecking: boolean) => {
   //   if (isChecking) {
@@ -289,7 +291,9 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
         <Thead>
           <Tr>
             {allColumns.map((column, index) => (
-              <Th key={index}>{column.title}</Th>
+              <Th key={index} screenReaderText={column.screenReaderText || (column.title !== '' ? column.title : undefined)}>
+                {column.title}
+              </Th>
             ))}
           </Tr>
         </Thead>
