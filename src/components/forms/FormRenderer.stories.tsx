@@ -186,7 +186,11 @@ The FormRenderer component handles this injection internally, so users don't nee
         The FormRenderer component automatically injects the FormButtons component into the form template. Users interact with FormRenderer, and
         FormButtons is handled internally.
       </p>
-      <FormRenderer schema={createFormSchema()} onSubmit={() => console.log('Form submitted')} onCancel={() => console.log('Form cancelled')} />
+      <FormRenderer
+        schema={createFormSchema()}
+        onSubmit={() => console.log('SB: Form submitted')}
+        onCancel={() => console.log('SB: Form cancelled')}
+      />
     </div>
   ),
 };

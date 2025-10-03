@@ -7,7 +7,7 @@ import { useDataViewSelection } from '@patternfly/react-data-view';
 import { UserGroupsTable } from '../../user-groups/components/UserGroupsTable';
 import { useDispatch, useSelector } from 'react-redux';
 import { addMembersToGroup, fetchGroups } from '../../../../../redux/groups/actions';
-import { RBACStore } from '../../../../../redux/store';
+import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../../../redux/groups/selectors';
 import messages from '../../../../../Messages';
 
 interface AddUserToGroupModalProps {
@@ -22,12 +22,10 @@ export const AddUserToGroupModal: React.FunctionComponent<AddUserToGroupModalPro
     matchOption: (a: any, b: any) => a.id === b.id, // Match based on row id (group uuid)
   });
 
-  // Get groups data from Redux
-  const { groups, totalCount, isLoading } = useSelector((state: RBACStore) => ({
-    groups: state.groupReducer?.groups?.data || [],
-    totalCount: state.groupReducer?.groups?.meta.count || 0,
-    isLoading: state.groupReducer?.isLoading || false,
-  }));
+  // Get groups data from Redux - using memoized selectors
+  const groups = useSelector(selectGroups);
+  const totalCount = useSelector(selectGroupsTotalCount);
+  const isLoading = useSelector(selectIsGroupsLoading);
 
   // Local state for modal - no URL management needed
   const [modalSort, setModalSort] = React.useState<{ sortBy: string; direction: 'asc' | 'desc' }>({ sortBy: 'name', direction: 'asc' });

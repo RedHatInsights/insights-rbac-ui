@@ -21,6 +21,8 @@ const RemoveGroupModalWrapper: React.FC<any> = ({ postMethod, initialRoute, ...p
               path="/groups/remove-group/:groupId"
               element={<RemoveGroupModal postMethod={postMethod} pagination={{ limit: 20 }} cancelRoute="/groups" submitRoute="/groups" {...props} />}
             />
+            {/* Route for useAppNavigate with /iam/user-access basename */}
+            <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
           </Routes>
         </MemoryRouter>
       )}

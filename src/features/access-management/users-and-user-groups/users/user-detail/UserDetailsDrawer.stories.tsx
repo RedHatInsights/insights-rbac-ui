@@ -119,7 +119,7 @@ export const Default: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User groups API called for username:', username);
+          console.log('SB: MSW: User groups API called for username:', username);
 
           return HttpResponse.json({
             data: [
@@ -143,7 +143,7 @@ export const Default: Story = {
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User roles API called for username:', username);
+          console.log('SB: MSW: User roles API called for username:', username);
 
           return HttpResponse.json({
             data: [
@@ -237,7 +237,7 @@ export const WithSelectedUser: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User groups API called for username:', username);
+          console.log('SB: MSW: User groups API called for username:', username);
 
           return HttpResponse.json({
             data: [
@@ -261,7 +261,7 @@ export const WithSelectedUser: Story = {
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User roles API called for username:', username);
+          console.log('SB: MSW: User roles API called for username:', username);
 
           return HttpResponse.json({
             data: [
@@ -344,7 +344,7 @@ export const DataViewIntegration: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User groups API called for username:', username);
+          console.log('SB: MSW: User groups API called for username:', username);
 
           return HttpResponse.json({
             data: [
@@ -368,7 +368,7 @@ export const DataViewIntegration: Story = {
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const username = url.searchParams.get('username');
-          console.log('MSW: User roles API called for username:', username);
+          console.log('SB: MSW: User roles API called for username:', username);
 
           return HttpResponse.json({
             data: [

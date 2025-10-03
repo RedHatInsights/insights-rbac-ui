@@ -16,13 +16,19 @@ export const UsersEmptyState: React.FC<UsersEmptyStateProps> = ({ titleText }) =
   const intl = useIntl();
 
   return (
-    <EmptyState>
-      <EmptyStateHeader
-        titleText={titleText || intl.formatMessage(messages.usersEmptyStateTitle)}
-        headingLevel="h4"
-        icon={<EmptyStateIcon icon={SearchIcon} />}
-      />
-      <EmptyStateBody>{intl.formatMessage(messages.usersEmptyStateSubtitle)}</EmptyStateBody>
-    </EmptyState>
+    <tbody>
+      <tr>
+        <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
+          <EmptyState>
+            <EmptyStateHeader
+              titleText={titleText || intl.formatMessage(messages.usersEmptyStateTitle)}
+              headingLevel="h4"
+              icon={<EmptyStateIcon icon={SearchIcon} />}
+            />
+            <EmptyStateBody>{intl.formatMessage(messages.usersEmptyStateSubtitle)}</EmptyStateBody>
+          </EmptyState>
+        </td>
+      </tr>
+    </tbody>
   );
 };

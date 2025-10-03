@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
 
-import type { RBACStore } from '../../../../redux/store';
 import { fetchGroups } from '../../../../redux/groups/actions';
 import { FetchGroupsParams } from '../../../../redux/groups/helper';
+import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../../redux/groups/selectors';
 import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
 import { mappedProps } from '../../../../helpers/dataUtilities';
 import { defaultSettings } from '../../../../helpers/pagination';
@@ -90,10 +90,10 @@ export const useUserGroups = (options: UseUserGroupsOptions = {}): UseUserGroups
     matchOption: (a, b) => a.uuid === b.uuid,
   });
 
-  // Redux selectors with proper typing
-  const groups = useSelector((state: RBACStore) => state.groupReducer.groups.data || [], shallowEqual);
-  const isLoading = useSelector((state: RBACStore) => state.groupReducer.isLoading || false);
-  const totalCount = useSelector((state: RBACStore) => state.groupReducer.groups.meta?.count || 0);
+  // Redux selectors with proper typing - using memoized selectors
+  const groups = useSelector(selectGroups);
+  const isLoading = useSelector(selectIsGroupsLoading);
+  const totalCount = useSelector(selectGroupsTotalCount);
 
   // Permission context
   const orgAdmin = enableAdminFeatures; // Simplified for now

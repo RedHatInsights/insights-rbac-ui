@@ -187,11 +187,11 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
     );
   } catch {
     // No service accounts step - go to review
-    // console.log('🎯 WIZARD HELPER: No service accounts step - going to review');
+    // console.log('SB: 🎯 WIZARD HELPER: No service accounts step - going to review');
   }
 
   if (hasServiceAccountsStep) {
-    // console.log('🎯 WIZARD HELPER: Step 4 - Service accounts step found');
+    // console.log('SB: 🎯 WIZARD HELPER: Step 4 - Service accounts step found');
 
     if (data.selectServiceAccounts) {
       const saCheckboxes = body.queryAllByRole('checkbox');
@@ -231,7 +231,7 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
     { timeout: 8000 },
   );
 
-  // console.log('🎯 WIZARD HELPER: Final step - Review step reached');
+  // console.log('SB: 🎯 WIZARD HELPER: Final step - Review step reached');
 
   // Click the Create/Submit button
   const createButton = await waitFor(
@@ -249,12 +249,12 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
     { timeout: 5000 },
   );
 
-  // console.log('🎯 WIZARD HELPER: Submitting form...');
+  // console.log('SB: 🎯 WIZARD HELPER: Submitting form...');
   await userEvent.click(createButton);
 
   // VALIDATION: Use spies if provided, otherwise use UI indicators
   if (spies) {
-    // console.log('🎯 WIZARD HELPER: Using API spies for validation...');
+    // console.log('SB: 🎯 WIZARD HELPER: Using API spies for validation...');
     await waitFor(
       () => {
         // Verify that the group creation API was called with EXACT data from HAR file
@@ -284,7 +284,7 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
       { timeout: 10000 },
     );
 
-    // console.log('✅ WIZARD HELPER: Form submitted with validated API spies');
+    // console.log('SB: ✅ WIZARD HELPER: Form submitted with validated API spies');
   } else {
     // Fallback to UI success indicators when no spies provided
     await waitFor(
@@ -303,7 +303,7 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
         const hasSuccessIndicator = successNotification || backToGroupsList || wizardClosed;
 
         if (hasSuccessIndicator) {
-          // console.log('🎉 WIZARD HELPER: Success indicator found - form submission validated');
+          // console.log('SB: 🎉 WIZARD HELPER: Success indicator found - form submission validated');
           expect(hasSuccessIndicator).toBeTruthy();
           return true;
         }
@@ -313,7 +313,7 @@ async function fillAddGroupWizardForm(data: GroupFormData, spies?: APISpies): Pr
       { timeout: 10000 },
     );
 
-    // console.log('✅ WIZARD HELPER: Form submitted successfully');
+    // console.log('SB: ✅ WIZARD HELPER: Form submitted successfully');
   }
 }
 
@@ -492,6 +492,9 @@ const AddGroupWizardWithRouter: React.FC = () => {
       <Routes>
         <Route path="/groups" element={<GroupsPage />} />
         <Route path="/groups/add-group" element={<AddGroupWizard />} />
+        {/* Routes for useAppNavigate with /iam/user-access basename */}
+        <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
+        <Route path="/iam/user-access/groups/add-group" element={<AddGroupWizard />} />
       </Routes>
     </MemoryRouter>
   );
@@ -765,7 +768,7 @@ export const ServiceAccountsEnabled: Story = {
       { timeout: 5000 },
     );
 
-    // console.log('✅ SERVICE ACCOUNTS ENABLED: Wizard navigation includes service accounts step!');
+    // console.log('SB: ✅ SERVICE ACCOUNTS ENABLED: Wizard navigation includes service accounts step!');
   },
 };
 
@@ -797,7 +800,7 @@ export const WorkspacesEnabled: Story = {
       { timeout: 5000 },
     );
 
-    // console.log('✅ WORKSPACES MODE: Wizard opened successfully');
+    // console.log('SB: ✅ WORKSPACES MODE: Wizard opened successfully');
 
     // Fill name to enable next button
     const nameInput = document.getElementById('group-name') as HTMLInputElement;
@@ -835,7 +838,7 @@ export const WorkspacesEnabled: Story = {
       { timeout: 5000 },
     );
 
-    // console.log('✅ WORKSPACES MODE: Successfully tested step progression (roles step skipped)');
+    // console.log('SB: ✅ WORKSPACES MODE: Successfully tested step progression (roles step skipped)');
   },
 };
 
@@ -922,7 +925,7 @@ export const FormValidation: Story = {
       });
     }
 
-    // console.log('✅ Form validation tests completed!');
+    // console.log('SB: ✅ Form validation tests completed!');
   },
 };
 
@@ -949,7 +952,7 @@ export const CancelWarning: Story = {
       { timeout: 5000 },
     );
 
-    // console.log('✅ CANCEL WARNING: Wizard opened successfully');
+    // console.log('SB: ✅ CANCEL WARNING: Wizard opened successfully');
 
     // Fill in some form data to make cancellation meaningful
     const nameInput = document.getElementById('group-name') as HTMLInputElement;
@@ -987,7 +990,7 @@ export const CancelWarning: Story = {
       { timeout: 5000 },
     );
 
-    // console.log('✅ CANCEL WARNING: Warning dialog appeared with correct content');
+    // console.log('SB: ✅ CANCEL WARNING: Warning dialog appeared with correct content');
 
     // Find and click the "Exit" button in the warning dialog
     const exitButton = await waitFor(
@@ -1020,9 +1023,16 @@ export const CancelWarning: Story = {
     const wizardStillExists = document.querySelector('[data-ouia-component-id="add-group-wizard"]');
     expect(wizardStillExists).toBeNull();
 
-    // console.log('✅ CANCEL WARNING: Wizard closed successfully after confirming exit');
+    // Verify navigation back to groups list after cancellation
+    await waitFor(
+      () => {
+        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
+        expect(groupsListPage).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
 
-    // console.log('✅ CANCEL WARNING: Successfully tested cancel functionality');
+    // console.log('SB: ✅ CANCEL WARNING: Wizard closed and navigated to groups list successfully');
   },
 };
 
@@ -1076,6 +1086,15 @@ export const FullWizardFlow: Story = {
       fullWizardFlowSpies,
     );
 
-    console.log('✅ Full wizard flow completed with all API validations!');
+    // Verify navigation to groups list after completion
+    await waitFor(
+      () => {
+        const groupsListPage = document.querySelector('[data-testid="groups-list"]');
+        expect(groupsListPage).toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    console.log('SB: ✅ Full wizard flow completed with all API validations and navigation!');
   },
 };

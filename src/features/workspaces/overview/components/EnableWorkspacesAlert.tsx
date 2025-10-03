@@ -50,6 +50,7 @@ export const EnableWorkspacesAlert: React.FC = () => {
       <Modal
         variant={ModalVariant.large}
         header={header}
+        aria-label={intl.formatMessage(messages.enableWorkspacesWizardTitle)}
         isOpen={isModalOpen}
         onClose={onClose}
         onEscapePress={onClose}

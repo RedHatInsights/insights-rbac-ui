@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { defaultCompactSettings } from '../../../../helpers/pagination';
 import { mappedProps } from '../../../../helpers/dataUtilities';
 import { fetchRolesWithPolicies } from '../../../../redux/roles/actions';
 import { fetchAddRolesForGroup } from '../../../../redux/groups/actions';
-import type { RBACStore } from '../../../../redux/store.d';
+import { selectIsRolesLoading, selectRoles, selectRolesMeta } from '../../../../redux/roles/selectors';
 
 // Types
 interface Role {
@@ -63,14 +63,10 @@ export const useRolesList = ({ rolesExcluded = false, groupId: groupUuid, usesMe
   const chrome = useChrome();
   const dispatch = useDispatch();
 
-  // Redux selectors
-  const selector = ({ roleReducer }: RBACStore) => ({
-    roles: roleReducer?.roles?.data || [],
-    pagination: roleReducer?.roles?.meta,
-    isLoading: roleReducer?.isLoading || false,
-  });
-
-  const { roles, pagination, isLoading } = useSelector(selector, shallowEqual);
+  // Redux selectors - using memoized selectors to prevent unnecessary re-renders
+  const roles = useSelector(selectRoles);
+  const pagination = useSelector(selectRolesMeta);
+  const isLoading = useSelector(selectIsRolesLoading);
 
   // DataView hooks
   const filters = useDataViewFilters<RoleFilters>({

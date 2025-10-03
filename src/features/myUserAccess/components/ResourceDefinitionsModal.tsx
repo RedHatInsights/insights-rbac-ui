@@ -59,26 +59,38 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
   const isEmpty = allRows.length === 0;
   const isFilteredEmpty = filteredRows.length === 0;
 
-  // Empty state components
+  // Empty state components (wrapped for table context)
   const EmptyNoData = () => (
-    <EmptyState>
-      <EmptyStateHeader titleText="No resource definitions" headingLevel="h4" />
-      <EmptyStateBody>{intl.formatMessage(messages.noResourceDefinitions, { permission })}</EmptyStateBody>
-    </EmptyState>
+    <tbody>
+      <tr>
+        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
+          <EmptyState>
+            <EmptyStateHeader titleText="No resource definitions" headingLevel="h4" />
+            <EmptyStateBody>{intl.formatMessage(messages.noResourceDefinitions, { permission })}</EmptyStateBody>
+          </EmptyState>
+        </td>
+      </tr>
+    </tbody>
   );
 
   const EmptyWithFilters = () => (
-    <EmptyState>
-      <EmptyStateHeader titleText={intl.formatMessage(messages.noResultsFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        {intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} {intl.formatMessage(messages.tryChangingFilters)}
-      </EmptyStateBody>
-      <EmptyStateActions>
-        <Button variant="link" onClick={handleClearFilter}>
-          Clear filter
-        </Button>
-      </EmptyStateActions>
-    </EmptyState>
+    <tbody>
+      <tr>
+        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
+          <EmptyState>
+            <EmptyStateHeader titleText={intl.formatMessage(messages.noResultsFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+            <EmptyStateBody>
+              {intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} {intl.formatMessage(messages.tryChangingFilters)}
+            </EmptyStateBody>
+            <EmptyStateActions>
+              <Button variant="link" onClick={handleClearFilter}>
+                Clear filter
+              </Button>
+            </EmptyStateActions>
+          </EmptyState>
+        </td>
+      </tr>
+    </tbody>
   );
 
   let activeState: DataViewState | undefined;
