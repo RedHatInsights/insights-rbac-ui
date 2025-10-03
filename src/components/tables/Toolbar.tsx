@@ -200,7 +200,6 @@ export const filterConfigBuilder = (
             filterValues: {
               innerRef,
               id: `filter-by-${key}`,
-              key: `filter-by-${key}`,
               placeholder: placeholder ? placeholder : intl.formatMessage(messages.filterByKey, { key }),
               value,
               selected,
@@ -242,7 +241,6 @@ export const filterConfigBuilder = (
               filterValues: {
                 innerRef: textFilterRef,
                 id: 'filter-by-string',
-                key: 'filter-by-string',
                 placeholder: intl.formatMessage(messages.filterByKey, { key: filterPlaceholder || titleSingular }),
                 value: filterValue,
                 onChange: (_e: any, value: string) => {

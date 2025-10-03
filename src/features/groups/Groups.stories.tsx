@@ -927,11 +927,9 @@ export const ProductionBugReproduction: Story = {
     );
 
     // 🚨 DETECT RATE LIMITING PATTERNS:
-    // 1. Too many calls too quickly (< 100ms apart)
+    // 1. Too many calls too quickly (< 100ms apart) - should be 0
     const rapidCalls = callIntervals.filter((interval) => interval < 100).length;
-    if (rapidCalls > 0) {
-      console.error(`🚨 RATE LIMITING PATTERN: ${rapidCalls} API calls made < 100ms apart!`);
-    }
+    expect(rapidCalls).toBe(0);
 
     // 2. Monitor for continued calling after initial load
     console.log('🚨 MONITORING: Watching for continued API calls (production bug pattern)...');
