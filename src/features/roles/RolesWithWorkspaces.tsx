@@ -21,7 +21,7 @@ import messages from '../../Messages';
 import { Role } from '../../redux/roles/reducer';
 import { Outlet } from 'react-router-dom';
 import paths from '../../utilities/pathnames';
-import RolesDetails from './RolesTableDetails';
+import RolesDetails from './RolesWithWorkspacesDetails';
 import {
   ResponsiveAction,
   ResponsiveActions,
@@ -34,7 +34,7 @@ import { DataViewTextFilter, DataViewTh, DataViewTr, DataViewTrObject } from '@p
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import pathnames from '../../utilities/pathnames';
 import useAppNavigate from '../../hooks/useAppNavigate';
-import { useRoles } from './useRoles';
+import { useRoles } from './useRolesWithWorkspaces';
 import { RolesEmptyState } from './components/RolesEmptyState';
 
 const ouiaId = 'RolesTable';
@@ -273,7 +273,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
               headStates={{ loading: <SkeletonTableHead columns={columns} /> }}
               bodyStates={{
                 loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
-                empty: <RolesEmptyState />,
+                empty: <RolesEmptyState colSpan={columns.length} hasActiveFilters={false} />,
               }}
             />
           )}

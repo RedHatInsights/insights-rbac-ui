@@ -21,7 +21,7 @@ const AddUserToGroup = lazy(() => import('./features/users/add-user-to-group/add
 const InviteUsersModal = lazy(() => import('./features/users/invite-users/invite-users-modal'));
 const InviteUsersModalCommonAuth = lazy(() => import('./features/users/invite-users/invite-users-modal-common-auth'));
 
-const Roles = lazy(() => import('./features/roles/roles'));
+const Roles = lazy(() => import('./features/roles/Roles'));
 const Role = lazy(() => import('./features/roles/role'));
 const AddRoleWizard = lazy(() => import('./features/roles/add-role/add-role-wizard'));
 const EditRole = lazy(() => import('./features/roles/edit-role-modal'));
@@ -29,7 +29,7 @@ const RemoveRole = lazy(() => import('./features/roles/remove-role-modal'));
 const AddRolePermissionWizard = lazy(() => import('./features/roles/add-role-permissions/add-role-permission-wizard'));
 const ResourceDefinitions = lazy(() => import('./features/roles/role-resource-definitions'));
 const EditResourceDefinitionsModal = lazy(() => import('./features/roles/edit-resource-definitions-modal'));
-const newRolesTable = lazy(() => import('./features/roles/RolesTable'));
+const RolesWithWorkspaces = lazy(() => import('./features/roles/RolesWithWorkspaces'));
 const newEditRole = lazy(() => import('./features/roles/edit-role/edit-role'));
 
 const Groups = lazy(() => import('./features/groups/Groups'));
@@ -170,7 +170,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
     ? [
         {
           path: pathnames.roles.path,
-          element: newRolesTable,
+          element: RolesWithWorkspaces,
           childRoutes: [
             {
               path: pathnames['add-role'].path,
