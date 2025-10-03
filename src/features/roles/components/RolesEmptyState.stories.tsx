@@ -1,129 +1,111 @@
 import React from 'react';
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
-import { IntlProvider } from 'react-intl';
-import { DataView, DataViewTable } from '@patternfly/react-data-view';
+import { BrowserRouter } from 'react-router-dom';
+import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { RolesEmptyState } from './RolesEmptyState';
+import { fn } from 'storybook/test';
 
 const meta: Meta<typeof RolesEmptyState> = {
-  title: 'Features/Roles/Components/RolesEmptyState',
   component: RolesEmptyState,
   parameters: {
     docs: {
       description: {
         component: `
-**RolesEmptyState** is an empty state component for the Roles table with custom formatted subtitle content.
+**RolesEmptyState** displays empty state messages for the roles table.
 
-### Key Features
-- **Custom EmptyState**: Uses PatternFly's EmptyState components for consistency
-- **Internationalization**: Uses react-intl for localized messages with formatted content
-- **Customizable**: Supports custom title text and subtitle content overrides
-- **Table Layout Compatibility**: Works within DataViewTable bodyStates
-- **Rich Content**: Supports line breaks and formatted text in subtitle
-
-### Usage
-This component is designed to be used within \`DataViewTable\` bodyStates configuration:
-
-\`\`\`tsx
-<DataViewTable
-  bodyStates={{
-    empty: <RolesEmptyState />
-  }}
-/>
-\`\`\`
-
-The component automatically handles:
-- Default localized title and subtitle from messages
-- Formatted subtitle content with line breaks
-- Proper table layout compatibility
-- Consistent styling with other empty states
+## Responsibilities
+- **No Data State**: Shows when no roles exist at all
+- **Filtered State**: Shows when filtering results in no matches
+- **Admin Actions**: Provides "Create Role" button for admin users
+- **Table Context**: Renders as \`<Tbody>\` to work within PatternFly table structure
         `,
       },
     },
   },
-  args: {
-    titleText: undefined,
-    subtitleContent: undefined,
-  },
-  argTypes: {
-    titleText: {
-      control: 'text',
-      description: 'Custom title text (optional, defaults to localized message)',
-    },
-    subtitleContent: {
-      control: 'text',
-      description: 'Custom subtitle content (optional, defaults to formatted message)',
-    },
-  },
   decorators: [
     (Story) => (
-      <IntlProvider locale="en">
-        <DataView>
-          <DataViewTable
-            aria-label="Example roles table"
-            columns={[{ cell: 'Role Name' }, { cell: 'Permissions' }, { cell: 'Groups' }, { cell: 'Actions' }]}
-            rows={[]}
-            bodyStates={{
-              empty: <Story />,
-            }}
-          />
-        </DataView>
-      </IntlProvider>
+      <BrowserRouter>
+        <Table aria-label="Empty state demo">
+          <Thead>
+            <Tr>
+              <Th>Name</Th>
+              <Th>Description</Th>
+              <Th>Groups</Th>
+              <Th>Permissions</Th>
+              <Th>Last Modified</Th>
+            </Tr>
+          </Thead>
+          <Story />
+        </Table>
+      </BrowserRouter>
     ),
   ],
-  tags: ['autodocs'],
 };
 
 export default meta;
-type Story = StoryObj<typeof meta>;
+type Story = StoryObj<typeof RolesEmptyState>;
 
-/**
- * Default empty state with standard localized messages and formatted subtitle
- */
-export const Default: Story = {
+export const NoRoles: Story = {
   args: {
-    titleText: undefined,
-    subtitleContent: undefined,
+    colSpan: 5,
+    hasActiveFilters: false,
+    isAdmin: false,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Empty state when no roles exist in the system.',
+      },
+    },
   },
 };
 
-/**
- * Empty state with custom title text but default subtitle
- */
-export const CustomTitle: Story = {
+export const NoRolesAdmin: Story = {
   args: {
-    titleText: 'No roles available',
-    subtitleContent: undefined,
+    colSpan: 6,
+    hasActiveFilters: false,
+    isAdmin: true,
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Empty state for admin users with "Create Role" action button.',
+      },
+    },
   },
 };
 
-/**
- * Empty state with both custom title and subtitle content
- */
-export const CustomContent: Story = {
+export const NoMatchingRoles: Story = {
   args: {
-    titleText: 'Get started with roles',
-    subtitleContent: (
-      <>
-        Create roles to define sets of permissions for your users.
-        <br />
-        Contact your administrator if you need help getting started.
-      </>
-    ),
+    colSpan: 5,
+    hasActiveFilters: true,
+    isAdmin: false,
+    onClearFilters: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Empty state when filtering results in no matches.',
+      },
+    },
   },
 };
 
-/**
- * Empty state with very long custom content to test text wrapping
- */
-export const LongContent: Story = {
+export const NoMatchingRolesAdmin: Story = {
   args: {
-    titleText: 'No roles have been configured for your organization yet',
-    subtitleContent: (
-      <>
-        Roles help you organize permissions into logical groups that can be assigned to users and user groups.
-        <br />
-        Contact your system administrator to create your first role or check if you have the necessary permissions.
-      </>
-    ),
+    colSpan: 6,
+    hasActiveFilters: true,
+    isAdmin: true,
+    onClearFilters: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Filtered empty state for admin users with clear filters action.',
+      },
+    },
   },
 };

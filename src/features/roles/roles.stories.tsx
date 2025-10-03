@@ -3,7 +3,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import { BrowserRouter } from 'react-router-dom';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, delay, http } from 'msw';
-import Roles from './roles';
+import { Roles } from './Roles';
 
 // Spy functions to track API calls
 const fetchRolesSpy = fn();
@@ -557,7 +557,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     await userEvent.click(groupsButton);
 
     // Scope queries to the nested groups table within the expanded row
-    const expandedGroupsRow = within(await row.findByLabelText('Compound groups table'));
+    const expandedGroupsRow = within(await row.findByLabelText(/Groups for role/i));
 
     // Test nested groups table headers (they're <th> elements, not role="columnheader")
     expect(await expandedGroupsRow.findByText('Group name')).toBeInTheDocument();
@@ -577,7 +577,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     await userEvent.click(permissionsButton);
 
     // Scope queries to the nested permissions table within the expanded row
-    const expandedPermissionsRow = within(await row.findByLabelText('Compound permissions table'));
+    const expandedPermissionsRow = within(await row.findByLabelText(/Permissions for role/i));
 
     // Test nested permissions table headers (they're <th> elements, not role="columnheader")
     expect(await expandedPermissionsRow.findByText('Application')).toBeInTheDocument();
@@ -771,13 +771,98 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     expect(createRoleButton).not.toBeDisabled();
 
     // Test row actions (kebab menus) availability
-    const kebabMenus = canvas.getAllByLabelText(/kebab toggle/i);
+    const kebabMenus = canvas.getAllByLabelText(/Actions for role/i);
     expect(kebabMenus.length).toBeGreaterThan(0);
 
     // Test first row kebab menu interaction
-    const firstRowKebab = kebabMenus[0];
+    const firstRowKebab = kebabMenus[0]; // Actions dropdown;
     await userEvent.click(firstRowKebab);
 
     console.log('SB: 🧪 ACTIONS: Primary actions test completed');
+  },
+};
+
+// Sorting interaction test
+export const SortingInteraction: Story = {
+  tags: ['env:stage', 'perm:org-admin'],
+  parameters: {
+    chrome: { environment: 'stage' },
+    permissions: { orgAdmin: true, userAccessAdministrator: false },
+    msw: {
+      handlers: [
+        // Override to spy on API calls
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const orderBy = url.searchParams.get('order_by');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+
+          // Call the spy
+          fetchRolesSpy({ order_by: orderBy, limit, offset });
+
+          return HttpResponse.json({
+            meta: { count: mockRoles.length, limit, offset },
+            data: mockRoles,
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          fetchAdminGroupSpy();
+          return HttpResponse.json({
+            meta: { count: 1, limit: 20, offset: 0 },
+            data: [{ uuid: 'admin-group', name: 'Default admin access', platform_default: false, admin_default: true, system: false }],
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Initial load should call API with default sorting
+    await waitFor(() => {
+      expect(fetchRolesSpy).toHaveBeenCalled();
+      const { calls } = fetchRolesSpy.mock;
+      const hasDefaultSort = calls.some((call) => call[0].order_by === 'display_name');
+      expect(hasDefaultSort).toBe(true);
+    });
+
+    // Wait for data to load
+    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
+
+    // Test clicking Name column header for descending sort
+    const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
+    const nameButton = await within(nameHeader).findByRole('button');
+
+    fetchRolesSpy.mockClear();
+    await userEvent.click(nameButton);
+
+    // Wait for API call and verify descending sort
+    await waitFor(
+      () => {
+        expect(fetchRolesSpy).toHaveBeenCalled();
+        const { calls } = fetchRolesSpy.mock;
+        const hasDescendingSort = calls.some((call) => call[0].order_by === '-display_name');
+        expect(hasDescendingSort).toBe(true);
+      },
+      { timeout: 2000 },
+    );
+
+    // Test clicking Last Modified column header
+    const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
+    const modifiedButton = await within(modifiedHeader).findByRole('button');
+
+    fetchRolesSpy.mockClear();
+    await userEvent.click(modifiedButton);
+
+    // Wait for API call and verify modified sort
+    await waitFor(
+      () => {
+        expect(fetchRolesSpy).toHaveBeenCalled();
+        const { calls } = fetchRolesSpy.mock;
+        const hasModifiedSort = calls.some((call) => call[0].order_by === 'modified');
+        expect(hasModifiedSort).toBe(true);
+      },
+      { timeout: 2000 },
+    );
   },
 };
