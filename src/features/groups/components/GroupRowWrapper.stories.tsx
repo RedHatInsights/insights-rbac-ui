@@ -55,11 +55,13 @@ export const Default: Story = {
       <p>
         <strong>Applied CSS Classes:</strong>
       </p>
-      <GroupRowWrapper {...args}>
-        <div style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px' }}>
-          Sample row content - inspect element to see applied classes
-        </div>
-      </GroupRowWrapper>
+      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+        <tbody>
+          <GroupRowWrapper {...args}>
+            <td style={{ padding: '8px' }}>Sample row content - inspect element to see applied classes</td>
+          </GroupRowWrapper>
+        </tbody>
+      </table>
     </div>
   ),
 };
@@ -85,11 +87,15 @@ export const PlatformDefault: Story = {
       <p>
         <strong>Applied CSS Classes (should include &apos;rbac-c-group-default&apos;):</strong>
       </p>
-      <GroupRowWrapper {...args}>
-        <div style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f0f8ff' }}>
-          Platform default group - inspect element to see &apos;rbac-c-group-default&apos; class
-        </div>
-      </GroupRowWrapper>
+      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+        <tbody>
+          <GroupRowWrapper {...args}>
+            <td style={{ padding: '8px', backgroundColor: '#f0f8ff' }}>
+              Platform default group - inspect element to see &apos;rbac-c-group-default&apos; class
+            </td>
+          </GroupRowWrapper>
+        </tbody>
+      </table>
     </div>
   ),
 };
@@ -115,11 +121,15 @@ export const AdminDefault: Story = {
       <p>
         <strong>Applied CSS Classes (should include &apos;rbac-c-group-default&apos;):</strong>
       </p>
-      <GroupRowWrapper {...args}>
-        <div style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#fff0f5' }}>
-          Admin default group - inspect element to see &apos;rbac-c-group-default&apos; class
-        </div>
-      </GroupRowWrapper>
+      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+        <tbody>
+          <GroupRowWrapper {...args}>
+            <td style={{ padding: '8px', backgroundColor: '#fff0f5' }}>
+              Admin default group - inspect element to see &apos;rbac-c-group-default&apos; class
+            </td>
+          </GroupRowWrapper>
+        </tbody>
+      </table>
     </div>
   ),
 };
@@ -146,11 +156,15 @@ export const WithCustomClassName: Story = {
       <p>
         <strong>Applied CSS Classes (should include custom class):</strong>
       </p>
-      <GroupRowWrapper {...args}>
-        <div style={{ padding: '8px', border: '1px solid #ccc', borderRadius: '4px', backgroundColor: '#f5f5f5' }}>
-          Custom className example - inspect element to see &apos;custom-row-class&apos;
-        </div>
-      </GroupRowWrapper>
+      <table style={{ width: '100%', border: '1px solid #ccc' }}>
+        <tbody>
+          <GroupRowWrapper {...args}>
+            <td style={{ padding: '8px', backgroundColor: '#f5f5f5' }}>
+              Custom className example - inspect element to see &apos;custom-row-class&apos;
+            </td>
+          </GroupRowWrapper>
+        </tbody>
+      </table>
     </div>
   ),
 };
@@ -169,19 +183,21 @@ export const InteractiveTest: Story = {
       <p>
         <strong>Interactive Test:</strong> Click the element below to test onClick handler
       </p>
-      <GroupRowWrapper {...args}>
-        <div
-          style={{
-            padding: '12px',
-            border: '2px solid #007bff',
-            borderRadius: '4px',
-            cursor: 'pointer',
-            backgroundColor: '#e3f2fd',
-          }}
-        >
-          Click me to test interaction
-        </div>
-      </GroupRowWrapper>
+      <table style={{ width: '100%', border: '2px solid #007bff' }}>
+        <tbody>
+          <GroupRowWrapper {...args}>
+            <td
+              style={{
+                padding: '12px',
+                cursor: 'pointer',
+                backgroundColor: '#e3f2fd',
+              }}
+            >
+              Click me to test interaction
+            </td>
+          </GroupRowWrapper>
+        </tbody>
+      </table>
     </div>
   ),
   play: async ({ args, canvasElement }) => {

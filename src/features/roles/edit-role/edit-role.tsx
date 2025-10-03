@@ -9,7 +9,7 @@ import pathnames from '../../../utilities/pathnames';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { fetchRole, updateRole } from '../../../redux/roles/actions';
-import { RBACStore } from '../../../redux/store';
+import { selectSelectedRole } from '../../../redux/roles/selectors';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
@@ -24,7 +24,7 @@ export const EditRole: FunctionComponent = () => {
   const [isLoading, setIsLoading] = useState(true);
   const pageTitle = intl.formatMessage(Messages.edit);
   const [initialFormData, setInitialFormData] = useState<any>(null);
-  const { selectedRole } = useSelector((state: RBACStore) => state.roleReducer);
+  const selectedRole = useSelector(selectSelectedRole);
 
   const navigateToRoles = () => {
     if (roleId) {

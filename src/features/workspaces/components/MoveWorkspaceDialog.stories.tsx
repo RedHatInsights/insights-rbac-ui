@@ -320,7 +320,7 @@ export const SubmissionWorkflow: Story = {
       async () => {
         // Check if we can find any workspace options (ManagedSelector should load the API data)
         const workspaceOptions = body.queryAllByText(/Environment/);
-        console.log('Found workspace options:', workspaceOptions.length);
+        console.log('SB: Found workspace options:', workspaceOptions.length);
         await expect(workspaceOptions.length).toBeGreaterThan(0);
       },
       { timeout: 5000 },

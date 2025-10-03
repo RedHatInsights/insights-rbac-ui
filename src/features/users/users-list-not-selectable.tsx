@@ -1,6 +1,7 @@
 import React, { Suspense, useCallback, useContext, useEffect, useRef, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { createSelector } from 'reselect';
 import { mappedProps } from '../../helpers/dataUtilities';
 import { TableComposableToolbarView } from '../../components/tables/TableComposableToolbarView';
 import { changeUsersStatus, fetchUsers, updateUsersFilters } from '../../redux/users/actions';
@@ -40,6 +41,17 @@ interface UsersListNotSelectable {
   };
 }
 
+// Memoized selectors to prevent unnecessary re-renders
+const selectUserState = (state: any) => state.userReducer.users;
+const selectIsUserDataLoading = (state: any) => state.userReducer.isUserDataLoading;
+
+// Memoized selector for user data
+const selectUsersData = createSelector([selectUserState, selectIsUserDataLoading], (users, isUserDataLoading) => ({
+  users: users.data?.map?.((data: any) => ({ ...data, uuid: data.username })),
+  isLoading: isUserDataLoading,
+  reduxFilters: users.filters || {},
+}));
+
 const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, props, usesMetaInURL }) => {
   const intl = useIntl();
   const navigate = useNavigate();
@@ -70,31 +82,20 @@ const UsersListNotSelectable: React.FC<UsersListNotSelectable> = ({ userLinks, p
     getToken();
   }, [auth]);
 
-  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
-  const pagination = useSelector(
-    ({ userReducer: { users } }) => ({
-      limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-      offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-      count: (usesMetaInURL ? users.pagination.count : users.meta.count) ?? 0,
-      redirected: usesMetaInURL && users.pagination.redirected,
-      itemCount: 0,
-    }),
-    shallowEqual,
-  );
+  // Use memoized selectors
+  const { users, isLoading, reduxFilters } = useSelector(selectUsersData);
 
-  const { users, isLoading, stateFilters } = useSelector(
-    ({
-      userReducer: {
-        users: { data, filters = {} },
-        isUserDataLoading,
-      },
-    }) => ({
-      users: data?.map?.((data: any) => ({ ...data, uuid: data.username })),
-      isLoading: isUserDataLoading,
-      stateFilters: location.search.length > 0 || Object.keys(filters).length > 0 ? filters : { status: ['Active'] },
-    }),
-    shallowEqual,
-  );
+  // for usesMetaInURL (Users page) store pagination settings in Redux, otherwise use results from meta
+  const userState = useSelector(selectUserState);
+  const pagination = {
+    limit: (usesMetaInURL ? userState.pagination.limit : userState.meta.limit) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+    offset: (usesMetaInURL ? userState.pagination.offset : userState.meta.offset) ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+    count: (usesMetaInURL ? userState.pagination.count : userState.meta.count) ?? 0,
+    redirected: usesMetaInURL && userState.pagination.redirected,
+    itemCount: 0,
+  };
+
+  const stateFilters = location.search.length > 0 || Object.keys(reduxFilters).length > 0 ? reduxFilters : { status: ['Active'] };
 
   const fetchData = useCallback((apiProps: Parameters<typeof fetchUsers>[0]) => dispatch(fetchUsers(apiProps)), [dispatch]);
   const updateStateFilters = useCallback((filters: Parameters<typeof updateUsersFilters>[0]) => dispatch(updateUsersFilters(filters)), [dispatch]);

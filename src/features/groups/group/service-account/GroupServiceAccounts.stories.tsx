@@ -210,7 +210,7 @@ export const EmptyState: Story = {
           });
         }),
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
-          console.log(`🎯 EMPTY STATE HANDLER: ${request.url}`);
+          console.log(`SB: 🎯 EMPTY STATE HANDLER: ${request.url}`);
           const url = new URL(request.url);
 
           // Only call spy on the second request that has filter params
@@ -667,8 +667,8 @@ export const AddServiceAccountLinkTest: Story = {
     // We can't easily mock navigate in this context, but we can verify the button exists and is clickable
     await userEvent.hover(addButton); // This will trigger any hover states and validate the button is interactive
 
-    console.log('✅ Add service account button found and is interactive');
-    console.log('✅ The path parameter replacement fix should resolve the :groupId issue');
+    console.log('SB: ✅ Add service account button found and is interactive');
+    console.log('SB: ✅ The path parameter replacement fix should resolve the :groupId issue');
   },
 };
 
@@ -731,13 +731,13 @@ export const BulkActionsTest: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    console.log('🔍 BULK ACTIONS TEST STARTING...');
+    console.log('SB: 🔍 BULK ACTIONS TEST STARTING...');
 
     // 1. Verify initial state - bulk actions visible but enabled (so users can open dropdown)
     let bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
     expect(bulkActionButton).toBeInTheDocument();
     expect(bulkActionButton).not.toBeDisabled();
-    console.log('✅ INITIAL STATE: Bulk actions dropdown visible and enabled (correct)');
+    console.log('SB: ✅ INITIAL STATE: Bulk actions dropdown visible and enabled (correct)');
 
     // 2. Get table and checkboxes
     const table = await canvas.findByRole('grid');
@@ -749,16 +749,16 @@ export const BulkActionsTest: Story = {
       return label.includes('Select row');
     });
 
-    console.log(`🔍 Found ${allCheckboxes.length} total checkboxes, ${rowCheckboxes.length} row checkboxes`);
+    console.log(`SB: 🔍 Found ${allCheckboxes.length} total checkboxes, ${rowCheckboxes.length} row checkboxes`);
     expect(rowCheckboxes.length).toBeGreaterThan(0);
 
     // 3. Select first service account
-    console.log('🔍 Clicking first service account checkbox...');
+    console.log('SB: 🔍 Clicking first service account checkbox...');
     await userEvent.click(rowCheckboxes[0]);
 
     // 4. Verify checkbox is checked
     expect(rowCheckboxes[0]).toBeChecked();
-    console.log('✅ First service account selected');
+    console.log('SB: ✅ First service account selected');
 
     // 5. Wait for bulk actions dropdown to become enabled
     await waitFor(
@@ -766,22 +766,22 @@ export const BulkActionsTest: Story = {
         bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
         expect(bulkActionButton).toBeInTheDocument();
         expect(bulkActionButton).not.toBeDisabled();
-        console.log('✅ CRITICAL: Bulk actions dropdown became enabled after selection!');
+        console.log('SB: ✅ CRITICAL: Bulk actions dropdown became enabled after selection!');
       },
       { timeout: 3000 },
     );
 
     // 6. Click bulk actions dropdown
-    console.log('🔍 Opening bulk actions dropdown...');
+    console.log('SB: 🔍 Opening bulk actions dropdown...');
     await userEvent.click(bulkActionButton!);
 
     // 7. Verify Remove option is present
     const removeOption = await canvas.findByText('Remove');
     expect(removeOption).toBeInTheDocument();
-    console.log('✅ Remove option found in bulk actions dropdown');
+    console.log('SB: ✅ Remove option found in bulk actions dropdown');
 
     // 8. Test deselection - bulk actions should disappear
-    console.log('🔍 Deselecting service account...');
+    console.log('SB: 🔍 Deselecting service account...');
     await userEvent.click(rowCheckboxes[0]); // Deselect
     expect(rowCheckboxes[0]).not.toBeChecked();
 
@@ -789,9 +789,9 @@ export const BulkActionsTest: Story = {
     bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
     expect(bulkActionButton).toBeInTheDocument();
     expect(bulkActionButton).not.toBeDisabled();
-    console.log('✅ CORRECT: Bulk actions dropdown remains enabled after deselection (users can open dropdown)');
+    console.log('SB: ✅ CORRECT: Bulk actions dropdown remains enabled after deselection (users can open dropdown)');
 
-    console.log('🎉 BULK ACTIONS TEST COMPLETED SUCCESSFULLY!');
+    console.log('SB: 🎉 BULK ACTIONS TEST COMPLETED SUCCESSFULLY!');
   },
 };
 
@@ -846,33 +846,33 @@ export const SelectAllTest: Story = {
     const canvas = within(canvasElement);
     const user = userEvent.setup();
 
-    console.log('🧪 Starting Select All Test...');
+    console.log('SB: 🧪 Starting Select All Test...');
 
     // Wait for table to load
     await waitFor(() => {
       expect(canvas.getByRole('grid')).toBeInTheDocument();
     });
 
-    console.log('✅ Table loaded');
+    console.log('SB: ✅ Table loaded');
 
     // Wait for data to be populated
     await waitFor(() => {
       expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
     });
 
-    console.log('✅ Service accounts loaded');
+    console.log('SB: ✅ Service accounts loaded');
 
     // Find the "Select page" checkbox (selects all on current page)
     const selectAllCheckbox = canvas.getByLabelText('Select page');
     expect(selectAllCheckbox).toBeInTheDocument();
     expect(selectAllCheckbox).not.toBeChecked();
 
-    console.log('✅ Select page checkbox found and unchecked');
+    console.log('SB: ✅ Select page checkbox found and unchecked');
 
     // Click select page
     await user.click(selectAllCheckbox);
 
-    console.log('✅ Clicked select page checkbox');
+    console.log('SB: ✅ Clicked select page checkbox');
 
     // Verify all individual checkboxes are now checked
     await waitFor(() => {
@@ -880,26 +880,26 @@ export const SelectAllTest: Story = {
       // Filter out the "Select page" checkbox
       const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
 
-      console.log(`🔍 Found ${rowCheckboxes.length} row checkboxes`);
+      console.log(`SB: 🔍 Found ${rowCheckboxes.length} row checkboxes`);
 
       rowCheckboxes.forEach((checkbox, index) => {
-        console.log(`🔍 Row checkbox ${index + 1} checked:`, (checkbox as HTMLInputElement).checked);
+        console.log(`SB: 🔍 Row checkbox ${index + 1} checked:`, (checkbox as HTMLInputElement).checked);
         expect(checkbox).toBeChecked();
       });
     });
 
-    console.log('✅ All row checkboxes are checked');
+    console.log('SB: ✅ All row checkboxes are checked');
 
     // Verify the bulk actions button is now enabled
     const bulkActionsButton = canvas.getByLabelText('Bulk select toggle');
     expect(bulkActionsButton).toBeEnabled();
 
-    console.log('✅ Bulk actions button is enabled');
+    console.log('SB: ✅ Bulk actions button is enabled');
 
     // Click select all again to deselect all
     await user.click(selectAllCheckbox);
 
-    console.log('✅ Clicked select all checkbox again to deselect');
+    console.log('SB: ✅ Clicked select all checkbox again to deselect');
 
     // Verify all individual checkboxes are now unchecked
     await waitFor(() => {
@@ -908,13 +908,13 @@ export const SelectAllTest: Story = {
       const rowCheckboxes = allCheckboxes.filter((cb) => cb !== selectAllCheckbox);
 
       rowCheckboxes.forEach((checkbox, index) => {
-        console.log(`🔍 Row checkbox ${index + 1} unchecked:`, !(checkbox as HTMLInputElement).checked);
+        console.log(`SB: 🔍 Row checkbox ${index + 1} unchecked:`, !(checkbox as HTMLInputElement).checked);
         expect(checkbox).not.toBeChecked();
       });
     });
 
-    console.log('✅ All row checkboxes are unchecked');
-    console.log('🎉 SELECT ALL TEST COMPLETED SUCCESSFULLY!');
+    console.log('SB: ✅ All row checkboxes are unchecked');
+    console.log('SB: 🎉 SELECT ALL TEST COMPLETED SUCCESSFULLY!');
   },
 };
 
@@ -1003,7 +1003,7 @@ export const ActionsTest: Story = {
     const rowActionButtons = within(table).queryAllByRole('button', { name: /actions for service account/i });
     expect(rowActionButtons.length).toBeGreaterThan(0);
 
-    console.log(`✅ Found ${rowActionButtons.length} individual row action buttons (kebab menus)`);
+    console.log(`SB: ✅ Found ${rowActionButtons.length} individual row action buttons (kebab menus)`);
 
     // 4. Test row selection to make bulk actions appear
     const checkboxes = within(table).getAllByRole('checkbox');
@@ -1018,7 +1018,7 @@ export const ActionsTest: Story = {
         async () => {
           const bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
           expect(bulkActionButton).toBeInTheDocument();
-          console.log('✅ Bulk actions dropdown appeared after selecting a service account');
+          console.log('SB: ✅ Bulk actions dropdown appeared after selecting a service account');
         },
         { timeout: 2000 },
       );
@@ -1030,9 +1030,9 @@ export const ActionsTest: Story = {
       // 7. Verify Remove option in bulk actions dropdown
       const removeOption = await canvas.findByText('Remove');
       expect(removeOption).toBeInTheDocument();
-      console.log('✅ Remove option found in bulk actions dropdown');
+      console.log('SB: ✅ Remove option found in bulk actions dropdown');
     }
 
-    console.log('✅ Service account actions test completed successfully');
+    console.log('SB: ✅ Service account actions test completed successfully');
   },
 };

@@ -10,6 +10,7 @@ import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
 import FormRenderer from '../../components/forms/FormRenderer';
 import { fetchGroup, updateGroup } from '../../redux/groups/actions';
 import { debouncedAsyncValidator } from './validators';
+import { selectIsGroupRecordLoading, selectSelectedGroup } from '../../redux/groups/selectors';
 
 interface Group {
   uuid: string;
@@ -30,9 +31,9 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
   const { groupId } = useParams<{ groupId: string }>();
   const dispatch = useDispatch();
 
-  // Get group data and loading state from Redux (like other components do)
-  const selectedGroup = useSelector((state: any) => state.groupReducer?.selectedGroup) || group;
-  const isLoading = useSelector((state: any) => state.groupReducer?.isRecordLoading);
+  // Get group data and loading state from Redux using memoized selectors
+  const selectedGroup = useSelector(selectSelectedGroup) || group;
+  const isLoading = useSelector(selectIsGroupRecordLoading);
 
   // Fetch group data on mount (standard Redux pattern)
   useEffect(() => {

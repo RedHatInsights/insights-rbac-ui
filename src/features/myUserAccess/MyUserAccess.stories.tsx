@@ -307,10 +307,10 @@ const TestHelpers = {
 
     if (shouldBeSelected) {
       expect(cardElement).not.toHaveClass('pf-m-flat');
-      console.log(`✅ ${bundleName} card is selected`);
+      console.log(`SB: ✅ ${bundleName} card is selected`);
     } else {
       expect(cardElement).toHaveClass('pf-m-flat');
-      console.log(`✅ ${bundleName} card is not selected`);
+      console.log(`SB: ✅ ${bundleName} card is not selected`);
     }
 
     return { cardElement, cardTitle };
@@ -331,7 +331,7 @@ const TestHelpers = {
       expect(tableContent.queryByText(permission)).not.toBeInTheDocument();
     }
 
-    console.log(`✅ Table permissions verified: ${expectedPermissions.join(', ')}`);
+    console.log(`SB: ✅ Table permissions verified: ${expectedPermissions.join(', ')}`);
     return { table, tableContent };
   },
 
@@ -364,7 +364,7 @@ const TestHelpers = {
       expect(filterChip).toBeInTheDocument();
     });
 
-    console.log(`✅ Filter applied: ${filterValue}`);
+    console.log(`SB: ✅ Filter applied: ${filterValue}`);
   },
 
   /**
@@ -379,7 +379,7 @@ const TestHelpers = {
       { timeout: 3000 },
     ); // Give more time for filter reset to take effect
 
-    console.log('✅ Filter reset verified');
+    console.log('SB: ✅ Filter reset verified');
   },
 
   /**
@@ -396,7 +396,7 @@ const TestHelpers = {
     bundleCardLink && (await userEvent.click(bundleCardLink));
     await TestHelpers.delay(300); // Allow navigation to complete
 
-    console.log(`✅ Clicked ${bundleName} bundle card`);
+    console.log(`SB: ✅ Clicked ${bundleName} bundle card`);
   },
 };
 
@@ -462,7 +462,7 @@ first visit the page without any bundle selection.
     const canvas = within(canvasElement);
     await TestHelpers.delay(700); // Extra time for setSearchParams
 
-    console.log('Testing default bundle selection...');
+    console.log('SB: Testing default bundle selection...');
 
     // Verify layout renders
     expect(await canvas.findByTestId('entitle-section')).toBeInTheDocument();
@@ -477,7 +477,7 @@ first visit the page without any bundle selection.
     // Verify RHEL permissions are loaded
     await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
 
-    console.log('✅ Default bundle test completed');
+    console.log('SB: ✅ Default bundle test completed');
   },
 };
 
@@ -532,7 +532,7 @@ Tests the visual selection state and basic navigation functionality of bundle ca
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    console.log('Testing bundle selection...');
+    console.log('SB: Testing bundle selection...');
 
     // Verify layout and RHEL is initially selected
     await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux');
@@ -546,7 +546,7 @@ Tests the visual selection state and basic navigation functionality of bundle ca
     await TestHelpers.verifyBundleSelected(canvas, 'OpenShift');
     await TestHelpers.verifyBundleSelected(canvas, 'Red Hat Enterprise Linux', false);
 
-    console.log('✅ Bundle selection test completed');
+    console.log('SB: ✅ Bundle selection test completed');
   },
 };
 
@@ -666,7 +666,7 @@ Tests that table content changes correctly when switching between bundles.
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    console.log('Testing table data refresh...');
+    console.log('SB: Testing table data refresh...');
 
     // Verify initial RHEL permissions
     await TestHelpers.verifyTablePermissions(canvas, ['advisor', 'compliance']);
@@ -681,7 +681,7 @@ Tests that table content changes correctly when switching between bundles.
       ['vulnerability', 'patch'], // RHEL permissions that should be gone
     );
 
-    console.log('✅ Table data refresh test completed');
+    console.log('SB: ✅ Table data refresh test completed');
   },
 };
 
@@ -728,7 +728,7 @@ export const FilterResetOnNavigation: Story = {
 
           let bundlePermissions = [];
 
-          console.log('MSW: Filter reset test - application param:', application);
+          console.log('SB: MSW: Filter reset test - application param:', application);
 
           if (application && application.includes('cost-management')) {
             // OpenShift bundle (cost-management is unique to OpenShift)
@@ -780,7 +780,7 @@ export const FilterResetOnNavigation: Story = {
             ];
           }
 
-          console.log('MSW: Returning bundle permissions:', bundlePermissions);
+          console.log('SB: MSW: Returning bundle permissions:', bundlePermissions);
 
           return HttpResponse.json({
             data: bundlePermissions,
@@ -807,13 +807,13 @@ Tests that filters are properly reset when navigating between bundles.
   play: async ({ canvasElement }) => {
     await delay(300);
     const canvas = within(canvasElement);
-    console.log('Testing filter reset on navigation...');
+    console.log('SB: Testing filter reset on navigation...');
 
     // Wait for initial table data to load (RHEL bundle data)
     await waitFor(() => {
       expect(canvasElement.querySelector('.pf-v5-c-skeleton')).toBeNull();
     });
-    console.log('✅ Initial table data loaded');
+    console.log('SB: ✅ Initial table data loaded');
 
     // Apply a filter
     await TestHelpers.applyFilter(canvas, 'advisor');
@@ -825,7 +825,7 @@ Tests that filters are properly reset when navigating between bundles.
     await waitFor(() => {
       expect(canvas.getByText('cluster')).toBeInTheDocument();
     });
-    console.log('✅ New bundle data loaded');
+    console.log('SB: ✅ New bundle data loaded');
 
     // Verify filter was reset
     await TestHelpers.verifyFilterReset(canvas);
@@ -841,7 +841,7 @@ Tests that filters are properly reset when navigating between bundles.
     });
 
     await userEvent.keyboard('{Escape}');
-    console.log('✅ Filter reset test completed');
+    console.log('SB: ✅ Filter reset test completed');
   },
 };
 
@@ -1071,7 +1071,7 @@ remains usable across all device sizes while maintaining full functionality.
     const canvas = within(canvasElement);
     await delay(500); // Wait for component initialization
 
-    console.log('🔍 Testing responsive navigation on small viewport...');
+    console.log('SB: 🔍 Testing responsive navigation on small viewport...');
 
     // Wait for entitlements to load - check for admin label
     expect(await canvas.findByText('My User Access')).toBeInTheDocument();

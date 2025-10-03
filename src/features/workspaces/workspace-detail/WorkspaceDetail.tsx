@@ -3,11 +3,12 @@ import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
 import { fetchGroups } from '../../../redux/groups/actions';
+import { selectWorkspacesFullState } from '../../../redux/workspaces/selectors';
+import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../redux/groups/selectors';
 import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
 import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
-import { RBACStore } from '../../../redux/store';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
@@ -53,12 +54,12 @@ export const WorkspaceDetail = () => {
   const assetsRef = React.createRef<HTMLElement>();
 
   const dispatch = useDispatch();
-  const { isLoading, workspaces, selectedWorkspace } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const { isLoading, workspaces, selectedWorkspace } = useSelector(selectWorkspacesFullState);
 
-  // Groups data for RoleAssignmentsTable
-  const groups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
-  const groupsTotalCount = useSelector((state: RBACStore) => state.groupReducer?.groups?.meta.count || 0);
-  const groupsIsLoading = useSelector((state: RBACStore) => state.groupReducer?.isLoading);
+  // Groups data for RoleAssignmentsTable - using memoized selectors
+  const groups = useSelector(selectGroups);
+  const groupsTotalCount = useSelector(selectGroupsTotalCount);
+  const groupsIsLoading = useSelector(selectIsGroupsLoading);
 
   // Separate parent groups data for RoleAssignmentsTable with inheritance
   const [parentGroups, setParentGroups] = useState<GroupWithInheritance[]>([]);
@@ -312,7 +313,7 @@ export const WorkspaceDetail = () => {
       </Tabs>
       <PageSection>
         {activeTabString === 'assets' ? (
-          <AssetsCards workspaceName={selectedWorkspace?.name} />
+          <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
         ) : (
           enableRoles && (
             <>

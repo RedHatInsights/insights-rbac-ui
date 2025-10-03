@@ -7,15 +7,15 @@ import { ModalVariant } from '@patternfly/react-core';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import { useLocation, useParams } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
 import { addRolesToGroup as addRolesToGroupAction, fetchGroup, fetchRolesForGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
+import { selectIsGroupRecordLoading, selectSelectedGroupName } from '../../../../redux/groups/selectors';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import messages from '../../../../Messages';
-import type { RBACStore } from '../../../../redux/store.d';
 import '../../../../App.scss';
 import './add-group-roles.scss';
 
@@ -67,13 +67,9 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
 
   // Internal state for selected roles
   const [selectedRoles, setSelectedRoles] = useState<Role[]>(initialSelectedRoles || []);
-  const { groupName, isRecordLoading } = useSelector(({ groupReducer }: RBACStore) => {
-    const { selectedGroup, isRecordLoading } = groupReducer;
-    return {
-      groupName: name || state?.name || selectedGroup?.name,
-      isRecordLoading,
-    };
-  }, shallowEqual);
+  const selectedGroupName = useSelector(selectSelectedGroupName);
+  const isRecordLoading = useSelector(selectIsGroupRecordLoading);
+  const groupName = name || state?.name || selectedGroupName;
 
   useEffect(() => {
     if (!name) {

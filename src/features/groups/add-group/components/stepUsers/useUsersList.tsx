@@ -1,5 +1,5 @@
 import { useCallback, useContext, useEffect, useMemo } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
@@ -7,6 +7,13 @@ import React, { Fragment } from 'react';
 import CheckIcon from '@patternfly/react-icons/dist/js/icons/check-icon';
 import CloseIcon from '@patternfly/react-icons/dist/js/icons/close-icon';
 import { fetchUsers, updateUsersFilters } from '../../../../../redux/users/actions';
+import {
+  selectIsUsersLoading,
+  selectUsersFilters,
+  selectUsersPaginationFromMeta,
+  selectUsersPaginationFromPagination,
+  selectUsersRawData,
+} from '../../../../../redux/users/selectors';
 import PermissionsContext from '../../../../../utilities/permissionsContext';
 import { isPaginationPresentInUrl, syncDefaultPaginationWithUrl } from '../../../../../helpers/pagination';
 import { areFiltersPresentInUrl, syncDefaultFiltersWithUrl } from '../../../../../helpers/urlFilters';
@@ -68,35 +75,22 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
   useContext(PermissionsContext);
 
   // Redux selectors - use 50 as default for members step
-  const pagination = useSelector(({ userReducer }: any) => {
-    const { users } = userReducer;
-    return {
-      limit: (usesMetaInURL ? users.pagination.limit : users.meta.limit) ?? 50, // Always use 50 for members
-      offset: (usesMetaInURL ? users.pagination.offset : users.meta.offset) ?? 0,
-      count: usesMetaInURL ? users.pagination.count : users.meta.count,
-      redirected: usesMetaInURL && users.pagination.redirected,
-    };
-  }, shallowEqual);
+  const paginationFromMeta = useSelector(selectUsersPaginationFromMeta);
+  const paginationFromPagination = useSelector(selectUsersPaginationFromPagination);
+  const pagination = usesMetaInURL ? paginationFromPagination : paginationFromMeta;
 
-  // Memoize the default filters and empty array to prevent new object creation
-  const defaultFilters = useMemo(() => ({ status: ['Active'] }), []);
-  const emptyUsers = useMemo(() => [], []);
+  // Memoize the default filters to prevent new object creation
+  const defaultFilters = useMemo<{ username?: string; email?: string; status: string[] }>(() => ({ status: ['Active'] }), []);
 
   // Memoize location search check to prevent selector instability
   const hasUrlSearch = useMemo(() => location.search.length > 0, [location.search]);
 
-  const { rawUsers, isLoading, stateFilters } = useSelector(({ userReducer }: any) => {
-    const {
-      users: { data, filters = {} },
-      isUserDataLoading,
-    } = userReducer;
-    const hasFilters = Object.keys(filters).length > 0;
-    return {
-      rawUsers: data || emptyUsers,
-      isLoading: isUserDataLoading || false,
-      stateFilters: hasUrlSearch || hasFilters ? filters : defaultFilters,
-    };
-  }, shallowEqual);
+  const rawUsers = useSelector(selectUsersRawData);
+  const isLoading = useSelector(selectIsUsersLoading);
+  const reduxFilters = useSelector(selectUsersFilters);
+
+  const hasFilters = Object.keys(reduxFilters).length > 0;
+  const stateFilters: { username?: string; email?: string; status?: string[] } = hasUrlSearch || hasFilters ? reduxFilters : defaultFilters;
 
   // Memoize the users transformation to prevent infinite re-renders
   const users = useMemo(() => {
@@ -131,17 +125,18 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
     return (
       users?.filter?.((user: User) =>
         Object.keys(stateFilters).every((key: string) => {
-          if (!stateFilters[key] || (Array.isArray(stateFilters[key]) && stateFilters[key].length === 0)) {
+          const filterValue = (stateFilters as any)[key];
+          if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) {
             return true;
           }
           if (key === 'status') {
-            return stateFilters[key].includes(user.is_active ? 'Active' : 'Inactive');
+            return filterValue.includes(user.is_active ? 'Active' : 'Inactive');
           }
           if (key === 'username') {
-            return user.username?.toLowerCase().includes(stateFilters[key].toLowerCase());
+            return user.username?.toLowerCase().includes(filterValue.toLowerCase());
           }
           if (key === 'email') {
-            return user.email?.toLowerCase().includes(stateFilters[key].toLowerCase());
+            return user.email?.toLowerCase().includes(filterValue.toLowerCase());
           }
           return true;
         }),

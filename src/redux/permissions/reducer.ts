@@ -3,7 +3,7 @@ import { LIST_APPLICATION_OPTIONS, LIST_OPERATION_OPTIONS, LIST_PERMISSIONS, LIS
 import { PaginationDefaultI, defaultSettings } from '../../helpers/pagination';
 
 // Type definitions for permissions
-interface Permission {
+export interface Permission {
   permission: string;
   application: string;
   resource_type: string;
@@ -11,7 +11,7 @@ interface Permission {
   [key: string]: unknown;
 }
 
-interface PermissionData {
+export interface PermissionData {
   data: Permission[];
   meta: PaginationDefaultI;
 }

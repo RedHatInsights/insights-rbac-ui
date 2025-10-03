@@ -17,7 +17,7 @@ import { mappedProps } from '../../../../../helpers/dataUtilities';
 import Messages from '../../../../../Messages';
 import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
 import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
-import { ServiceAccountsState } from '../../../../../redux/service-accounts/reducer';
+import { selectServiceAccountsFullState } from '../../../../../redux/service-accounts/selectors';
 import { TableState } from './EditUserGroupUsersAndServiceAccounts';
 
 const EmptyTable: React.FunctionComponent<{ titleText: string; subtitleText?: string }> = ({ titleText, subtitleText }) => {
@@ -49,14 +49,6 @@ const PER_PAGE_OPTIONS = [
   { title: '100', value: 100 },
 ];
 
-const reducer = ({ serviceAccountReducer }: { serviceAccountReducer: ServiceAccountsState }) => ({
-  serviceAccounts: serviceAccountReducer.serviceAccounts,
-  status: serviceAccountReducer.status,
-  isLoading: serviceAccountReducer.isLoading,
-  limit: serviceAccountReducer.limit,
-  offset: serviceAccountReducer.offset,
-});
-
 const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAccountsTableProps> = ({
   groupId,
   onChange,
@@ -85,7 +77,7 @@ const EditGroupServiceAccountsTable: React.FunctionComponent<EditGroupServiceAcc
   });
   const { onSelect, selected } = selection;
 
-  const { serviceAccounts, status, isLoading } = useSelector(reducer);
+  const { serviceAccounts, status, isLoading } = useSelector(selectServiceAccountsFullState);
 
   // Initialize selection when service accounts are loaded
   useEffect(() => {

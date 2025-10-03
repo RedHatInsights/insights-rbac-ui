@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
@@ -8,7 +8,6 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { EllipsisVIcon } from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
 
-import { RBACStore } from '../../../../redux/store';
 import { defaultSettings } from '../../../../helpers/pagination';
 import { fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../../redux/groups/actions';
 import { FetchMembersForGroupParams } from '../../../../redux/groups/helper';
@@ -16,6 +15,14 @@ import { Group } from '../../../../redux/groups/reducer';
 import PermissionsContext from '../../../../utilities/permissionsContext';
 import messages from '../../../../Messages';
 import type { GroupMembersFilters, Member, MemberTableRow, SortByState } from './types';
+import {
+  selectGroupMembers,
+  selectGroupMembersMeta,
+  selectIsAdminDefaultGroup,
+  selectIsGroupMembersLoading,
+  selectIsPlatformDefaultGroup,
+  selectSelectedGroup,
+} from '../../../../redux/groups/selectors';
 
 // Member row actions component (moved from GroupMembers.tsx)
 interface MemberRowActionsProps {
@@ -143,14 +150,14 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     direction: 'asc',
   });
 
-  // Memoized selectors to prevent infinite re-renders
-  const members = useSelector((state: RBACStore) => state.groupReducer.selectedGroup?.members?.data || [], shallowEqual);
-  const reduxPagination = useSelector((state: RBACStore) => state.groupReducer.selectedGroup?.members?.meta || defaultSettings, shallowEqual);
+  // Use shared memoized selectors to prevent infinite re-renders
+  const members = useSelector(selectGroupMembers);
+  const reduxPagination = useSelector(selectGroupMembersMeta);
   const totalCount = reduxPagination.count || 0;
-  const isLoading = useSelector((state: RBACStore) => state.groupReducer.selectedGroup?.members?.isLoading || false);
-  const group = useSelector((state: RBACStore) => state.groupReducer.selectedGroup, shallowEqual);
-  const adminDefault = useSelector((state: RBACStore) => state.groupReducer.selectedGroup?.admin_default || false);
-  const platformDefault = useSelector((state: RBACStore) => state.groupReducer.selectedGroup?.platform_default || false);
+  const isLoading = useSelector(selectIsGroupMembersLoading);
+  const group = useSelector(selectSelectedGroup);
+  const adminDefault = useSelector(selectIsAdminDefaultGroup);
+  const platformDefault = useSelector(selectIsPlatformDefaultGroup);
 
   // Calculate if there are active filters
   const hasActiveFilters = useMemo(() => {
@@ -258,7 +265,7 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     // Data
     members,
     isLoading,
-    group,
+    group: group as Group | undefined, // Cast to Group for compatibility with hook interface
     adminDefault,
     platformDefault,
     pagination,

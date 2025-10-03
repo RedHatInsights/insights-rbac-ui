@@ -11,7 +11,7 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import UsersIcon from '@patternfly/react-icons/dist/js/icons/users-icon';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
 import { fetchGroups } from '../../../../../redux/groups/actions';
-import { RBACStore } from '../../../../../redux/store';
+import { selectGroups, selectGroupsErrorState, selectIsGroupsLoading } from '../../../../../redux/groups/selectors';
 import messages from '../../../../../Messages';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 
@@ -25,9 +25,9 @@ const UserDetailsGroupsView: React.FunctionComponent<UserGroupsViewProps> = ({ u
   const intl = useIntl();
   const columns: string[] = [intl.formatMessage(messages.userGroup), intl.formatMessage(messages.users)];
 
-  const groups = useSelector((state: RBACStore) => state.groupReducer?.groups?.data || []);
-  const isLoading = useSelector((state: RBACStore) => state.groupReducer?.isLoading || false);
-  const error = useSelector((state: RBACStore) => state.groupReducer?.groups?.error);
+  const groups = useSelector(selectGroups);
+  const isLoading = useSelector(selectIsGroupsLoading);
+  const error = useSelector(selectGroupsErrorState);
 
   const fetchData = useCallback(() => {
     dispatch(fetchGroups({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false }));

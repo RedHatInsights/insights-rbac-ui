@@ -68,7 +68,7 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
       <Tbody>
         {group.roles.length > 0 ? (
           group.roles.map((role: Role, index: number) => (
-            <Tr key={index}>
+            <Tr key={`${group.uuid}-role-${role.name || index}`}>
               <Td dataLabel={compoundRolesCells[0]}>{role.name}</Td>
               <Td dataLabel={compoundRolesCells[1]}>{role.description}</Td>
               <Td dataLabel={compoundRolesCells[2]}>
@@ -128,7 +128,7 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
       <Tbody>
         {group.members.length > 0 ? (
           group.members.map((member: any, index: number) => (
-            <Tr key={index}>
+            <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
               <Td dataLabel={compoundMembersCells[0]}>{member.is_org_admin ? 'Yes' : 'No'}</Td>
               <Td dataLabel={compoundMembersCells[1]}>{member.first_name}</Td>
               <Td dataLabel={compoundMembersCells[2]}>{member.last_name}</Td>
@@ -313,7 +313,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   // const someSelectableSelected = selectableGroups.some((group) => isRowSelected(group));
 
   return (
-    <Table isExpandable aria-label={intl.formatMessage(messages.groups)}>
+    <Table aria-label={intl.formatMessage(messages.groups)}>
       <Thead>
         <Tr>
           {isAdmin && (

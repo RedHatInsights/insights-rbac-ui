@@ -583,14 +583,34 @@ export const FilteringInteraction: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
 
           // Call the spy with API parameters
           groupsApiCallSpy({
             name,
-            limit: url.searchParams.get('limit'),
-            offset: url.searchParams.get('offset'),
+            limit: limit.toString(),
+            offset: offset.toString(),
             order_by: url.searchParams.get('order_by'),
           });
+
+          // Handle admin default groups query
+          if (adminDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockAdminGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Handle platform default groups query
+          if (platformDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockSystemGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
 
           // Return filtered mock data based on name parameter
           let filteredGroups = mockGroups;
@@ -602,8 +622,8 @@ export const FilteringInteraction: Story = {
             data: filteredGroups,
             meta: {
               count: filteredGroups.length,
-              limit: parseInt(url.searchParams.get('limit') || '20'),
-              offset: parseInt(url.searchParams.get('offset') || '0'),
+              limit,
+              offset,
             },
           });
         }),
@@ -660,21 +680,41 @@ export const SortingInteraction: Story = {
         http.get('/api/rbac/v1/groups/', ({ request }) => {
           const url = new URL(request.url);
           const name = url.searchParams.get('name') || '';
+          const adminDefault = url.searchParams.get('admin_default');
+          const platformDefault = url.searchParams.get('platform_default');
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
 
           // Call the spy with API parameters
           groupsApiCallSpy({
             name,
-            limit: url.searchParams.get('limit'),
-            offset: url.searchParams.get('offset'),
+            limit: limit.toString(),
+            offset: offset.toString(),
             order_by: url.searchParams.get('order_by'),
           });
+
+          // Handle admin default groups query
+          if (adminDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockAdminGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
+
+          // Handle platform default groups query
+          if (platformDefault === 'true') {
+            return HttpResponse.json({
+              data: [mockSystemGroup],
+              meta: { count: 1, limit, offset },
+            });
+          }
 
           return HttpResponse.json({
             data: mockGroups,
             meta: {
               count: mockGroups.length,
-              limit: parseInt(url.searchParams.get('limit') || '20'),
-              offset: parseInt(url.searchParams.get('offset') || '0'),
+              limit,
+              offset,
             },
           });
         }),
@@ -824,7 +864,7 @@ export const ProductionBugReproduction: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '50');
           const offset = parseInt(url.searchParams.get('offset') || '0');
 
-          console.log('🚨 PRODUCTION BUG TEST - Groups API called:', {
+          console.log('SB: 🚨 PRODUCTION BUG TEST - Groups API called:', {
             limit: limit,
             offset: offset,
             order_by: url.searchParams.get('order_by'),
@@ -886,7 +926,7 @@ export const ProductionBugReproduction: Story = {
 
     await delay(500); // Allow initial render
 
-    console.log('🚨 PRODUCTION BUG TEST: Simulating user in org with 573 groups but no permissions...');
+    console.log('SB: 🚨 PRODUCTION BUG TEST: Simulating user in org with 573 groups but no permissions...');
 
     // ✅ Verify component handles 403 gracefully
     await waitFor(
@@ -899,7 +939,7 @@ export const ProductionBugReproduction: Story = {
           canvas.queryByText(/forbidden/i);
         if (emptyStateText) {
           expect(emptyStateText).toBeInTheDocument();
-          console.log('✅ Empty state or error message displayed');
+          console.log('SB: ✅ Empty state or error message displayed');
         }
       },
       { timeout: 3000 },
@@ -909,58 +949,47 @@ export const ProductionBugReproduction: Story = {
     expect(canvas.queryByText('Test Group 1')).not.toBeInTheDocument();
     expect(canvas.queryByText('Test Group 2')).not.toBeInTheDocument();
 
-    // 🎯 PRODUCTION BUG DETECTION: Look for rate limiting patterns
+    // 🎯 PRODUCTION BUG DETECTION: Check for notification loop from repeated API calls
     const initialCallCount = groupsApiCallSpy.mock.calls.length;
-    console.log(`📊 Initial API calls: ${initialCallCount}`);
+    console.log(`SB: 📊 Initial API calls: ${initialCallCount}`);
 
-    // Get call timestamps to detect rapid-fire requests
-    const callTimestamps = groupsApiCallSpy.mock.calls.map((call) => call[0].timestamp);
-    const callIntervals = [];
-    for (let i = 1; i < callTimestamps.length; i++) {
-      callIntervals.push(callTimestamps[i] - callTimestamps[i - 1]);
-    }
-
-    console.log('📊 Call intervals (ms):', callIntervals);
     console.log(
-      '📊 API call details:',
+      'SB: 📊 API call details:',
       groupsApiCallSpy.mock.calls.map((call, i) => `Call ${i + 1}: ${JSON.stringify({ ...call[0], timestamp: undefined })}`),
     );
 
-    // 🚨 DETECT RATE LIMITING PATTERNS:
-    // 1. Too many calls too quickly (< 100ms apart) - should be 0
-    const rapidCalls = callIntervals.filter((interval) => interval < 100).length;
-    expect(rapidCalls).toBe(0);
+    // ✅ EXPECTED: 3 total API calls (regular groups, admin_default, platform_default)
+    expect(initialCallCount).toBe(3);
 
     // 2. Monitor for continued calling after initial load
-    console.log('🚨 MONITORING: Watching for continued API calls (production bug pattern)...');
+    console.log('SB: 🚨 MONITORING: Watching for continued API calls (production bug pattern)...');
 
     await new Promise((resolve) => setTimeout(resolve, 3000)); // Wait 3 seconds
 
     const finalCallCount = groupsApiCallSpy.mock.calls.length;
     const additionalCalls = finalCallCount - initialCallCount;
 
-    console.log(`📊 PRODUCTION TEST RESULTS:`);
-    console.log(`   Initial calls: ${initialCallCount}`);
-    console.log(`   Final calls: ${finalCallCount}`);
-    console.log(`   Additional calls during monitoring: ${additionalCalls}`);
+    console.log(`SB: 📊 PRODUCTION TEST RESULTS:`);
+    console.log(`SB:    Initial calls: ${initialCallCount}`);
+    console.log(`SB:    Final calls: ${finalCallCount}`);
+    console.log(`SB:    Additional calls during monitoring: ${additionalCalls}`);
 
     // 🚨 PRODUCTION BUG DETECTION LOGIC:
     if (additionalCalls > 0) {
-      console.error(`🚨🚨🚨 PRODUCTION BUG DETECTED! 🚨🚨🚨`);
-      console.error(`Component made ${additionalCalls} additional API calls after initial load`);
-      console.error('This matches the production bug pattern: infinite API retries causing rate limiting');
-      console.error('Recent calls:', groupsApiCallSpy.mock.calls.slice(-additionalCalls));
+      console.log(`SB: 🚨🚨🚨 PRODUCTION BUG DETECTED! 🚨🚨🚨`);
+      console.log(`SB: Component made ${additionalCalls} additional API calls after initial load`);
+      console.log('SB: This matches the production bug pattern: infinite API retries causing rate limiting and notification loops');
+      console.log('SB: Recent calls:', groupsApiCallSpy.mock.calls.slice(-additionalCalls));
     } else {
-      console.log('✅ PRODUCTION BUG NOT DETECTED: No additional calls after initial load');
+      console.log('SB: ✅ PRODUCTION BUG NOT DETECTED: No additional calls after initial load');
     }
 
-    // For non-admin users, we expect fewer calls (no admin/platform group calls)
-    // But should never have infinite loops
-    expect(finalCallCount).toBeLessThan(10); // Allow some retries but not infinite loop
+    // ✅ EXPECTED: Still only 3 calls total (no additional calls after initial load)
+    expect(finalCallCount).toBe(3);
 
     if (additionalCalls === 0) {
-      console.log('🤔 INVESTIGATION RESULT: Current implementation handles 403 correctly');
-      console.log('🤔 Production bug may require specific trigger conditions not simulated here');
+      console.log('SB: 🤔 INVESTIGATION RESULT: Current implementation handles 403 correctly');
+      console.log('SB: 🤔 Production bug may require specific trigger conditions not simulated here');
     }
   },
 };

@@ -1,6 +1,6 @@
 import React, { Fragment, Suspense, useContext, useMemo, useState } from 'react';
 import { Outlet } from 'react-router-dom';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
 
 // PatternFly imports
@@ -26,6 +26,7 @@ import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome'
 
 // Redux imports
 import { fetchGroups } from '../../redux/groups/actions';
+import { selectGroupsFilters, selectGroupsPagination, selectIsGroupsLoading, selectMergedGroupsWithDefaults } from '../../redux/groups/selectors';
 
 // Helper imports
 import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
@@ -36,7 +37,7 @@ import PermissionsContext from '../../utilities/permissionsContext';
 import { PER_PAGE_OPTIONS } from '../../helpers/pagination';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
-import type { Group, RBACStore } from './types';
+import type { Group } from './types';
 import { GroupsEmptyState } from './components/GroupsEmptyState';
 import { GroupsTableContent } from './components/GroupsTableContent';
 import { GroupsSkeletonTable } from './components/GroupsSkeletonTable';
@@ -87,32 +88,20 @@ export const Groups: React.FC<GroupsProps> = () => {
   const orderBy = `${sortByState?.direction === 'desc' ? '-' : ''}${columns[sortByState?.index - Number(isAdmin)]?.key || 'name'}`;
 
   // Redux state selectors for groups data and loading state
-  const { groups, pagination, filters, isLoading } = useSelector(
-    ({
-      groupReducer: {
-        groups: { data, filters, pagination },
-        isLoading,
-        adminGroup,
-        systemGroup,
-      },
-    }: RBACStore) => ({
-      groups: [
-        ...(adminGroup?.name?.match(new RegExp(filters?.name || '', 'i')) ? [adminGroup] : []),
-        ...(systemGroup?.name?.match(new RegExp(filters?.name || '', 'i')) ? [systemGroup] : []),
-        ...(data?.filter(
-          ({ platform_default, admin_default }: { platform_default?: boolean; admin_default?: boolean } = {}) => !(platform_default || admin_default),
-        ) || []),
-      ],
-      pagination: {
-        limit: pagination?.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
-        offset: pagination?.offset ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
-        count: pagination?.count,
-        redirected: pagination?.redirected,
-      },
-      filters: filters,
-      isLoading,
+  const groups = useSelector(selectMergedGroupsWithDefaults);
+  const rawPagination = useSelector(selectGroupsPagination);
+  const filters = useSelector(selectGroupsFilters);
+  const isLoading = useSelector(selectIsGroupsLoading);
+
+  // Memoize pagination with defaults to prevent new object creation
+  const pagination = useMemo(
+    () => ({
+      limit: rawPagination?.limit ?? (orgAdmin ? defaultAdminSettings : defaultSettings).limit,
+      offset: rawPagination?.offset ?? (orgAdmin ? defaultAdminSettings : defaultSettings).offset,
+      count: rawPagination?.count ?? 0,
+      redirected: (rawPagination as any)?.redirected,
     }),
-    shallowEqual,
+    [rawPagination, orgAdmin],
   );
 
   const [filterValue, setFilterValue] = useState(filters?.name || '');

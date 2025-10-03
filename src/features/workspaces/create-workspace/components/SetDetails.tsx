@@ -16,8 +16,8 @@ import { useDispatch, useSelector } from 'react-redux';
 import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../components/forms/InputHelpPopover';
 import { fetchWorkspaces } from '../../../../redux/workspaces/actions';
+import { selectWorkspacesForForm } from '../../../../redux/workspaces/selectors';
 
-import { RBACStore } from '../../../../redux/store';
 import { ManagedSelector } from '../../components/managed-selector/ManagedSelector';
 import { instanceOfTreeViewWorkspaceItem } from '../../components/managed-selector/TreeViewWorkspaceItem';
 import { WORKSPACE_ACCOUNT, WORKSPACE_PARENT } from '../schema';
@@ -30,7 +30,7 @@ export const SetDetails = () => {
   const enableWorkspaces = useFlag('platform.rbac.workspaces');
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
-  const { isLoading, workspaces } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const { isLoading, workspaces } = useSelector(selectWorkspacesForForm);
 
   const isWorkspaceSelectorEnabled = enableWorkspaceHierarchy || enableWorkspaces;
 
