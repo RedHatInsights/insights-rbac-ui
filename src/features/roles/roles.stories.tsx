@@ -155,7 +155,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
       handlers: [
         // Roles API - successful response for admin users
         http.get('/api/rbac/v1/roles/', ({ request }) => {
-          console.log('🔍 MSW: Roles API called', request.url);
+          console.log('SB: 🔍 MSW: Roles API called', request.url);
           fetchRolesSpy(request);
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20', 10);
@@ -173,17 +173,17 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
 
         // Admin group API - successful response for admin users
         http.get('/api/rbac/v1/groups/', ({ request }) => {
-          console.log('🔍 MSW: Groups API called', request.url);
+          console.log('SB: 🔍 MSW: Groups API called', request.url);
           const url = new URL(request.url);
           if (url.searchParams.get('admin_default') === 'true') {
-            console.log('🔍 MSW: Admin group API matched');
+            console.log('SB: 🔍 MSW: Admin group API matched');
             fetchAdminGroupSpy(request);
             return HttpResponse.json({
               data: [mockAdminGroup],
               meta: { count: 1 },
             });
           }
-          console.log('🔍 MSW: Groups API - not admin_default request');
+          console.log('SB: 🔍 MSW: Groups API - not admin_default request');
           return HttpResponse.json({ data: [], meta: { count: 0 } });
         }),
       ],
@@ -196,11 +196,11 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     await delay(300);
 
     // Add debugging to see what's happening
-    console.log('🔍 PLAY: Starting admin roles test');
+    console.log('SB: 🔍 PLAY: Starting admin roles test');
 
     // Debug: Check spy call counts
-    console.log('🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
+    console.log('SB: 🔍 Roles spy calls:', fetchRolesSpy.mock.calls.length);
+    console.log('SB: 🔍 Admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
 
     // Wait for container to load data through Redux
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
@@ -291,8 +291,8 @@ After the fix is applied, this test should **PASS** with zero API calls.
 
     await delay(300);
 
-    console.log('🐛 BUG TEST: Non-admin roles spy calls:', fetchRolesSpy.mock.calls.length);
-    console.log('🐛 BUG TEST: Non-admin admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
+    console.log('SB: 🐛 BUG TEST: Non-admin roles spy calls:', fetchRolesSpy.mock.calls.length);
+    console.log('SB: 🐛 BUG TEST: Non-admin admin group spy calls:', fetchAdminGroupSpy.mock.calls.length);
 
     // 🐛 BUG DEMONSTRATION: These tests currently FAIL because unauthorized API calls are made
     // This proves the bug exists - non-admin users trigger API calls when they shouldn't
@@ -302,7 +302,7 @@ After the fix is applied, this test should **PASS** with zero API calls.
     // After fix: Verify NotAuthorized component is shown instead of making API calls
     expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
 
-    console.log('🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
+    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
   },
 };
 
@@ -359,7 +359,7 @@ export const EmptyRoles: Story = {
       handlers: [
         // Return empty data for roles
         http.get('/api/rbac/v1/roles/', ({ request }) => {
-          console.log('🔍 EmptyRoles: Roles API called', request.url);
+          console.log('SB: 🔍 EmptyRoles: Roles API called', request.url);
           return HttpResponse.json({
             data: [],
             meta: { count: 0 },
@@ -408,7 +408,7 @@ export const AdminUserWithRolesFiltering: Story = {
           const url = new URL(request.url);
           const displayNameFilter = url.searchParams.get('display_name');
 
-          console.log('🔍 MSW: Roles API called with display_name filter:', displayNameFilter);
+          console.log('SB: 🔍 MSW: Roles API called with display_name filter:', displayNameFilter);
           fetchRolesSpy(request);
 
           if (displayNameFilter) {
@@ -450,7 +450,7 @@ export const AdminUserWithRolesFiltering: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    console.log('🧪 FILTERING: Starting role filtering test');
+    console.log('SB: 🧪 FILTERING: Starting role filtering test');
 
     // Clear spy to ensure clean state (spies persist across stories)
     filterSpy.mockClear();
@@ -489,7 +489,7 @@ export const AdminUserWithRolesFiltering: Story = {
     // Test 3: Clear filter
     await userEvent.clear(filterInput);
 
-    console.log('🧪 FILTERING: Role filtering test completed');
+    console.log('SB: 🧪 FILTERING: Role filtering test completed');
   },
 };
 
@@ -535,7 +535,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    console.log('🧪 EXPANDABLE: Starting expandable content test');
+    console.log('SB: 🧪 EXPANDABLE: Starting expandable content test');
 
     // Wait for initial data load
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
@@ -549,7 +549,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     }
 
     // Test groups expandable content
-    console.log('🧪 Testing groups expandable...');
+    console.log('SB: 🧪 Testing groups expandable...');
     const groupsButton = within(platformAdminRow).getByRole('button', { name: '3' });
     expect(groupsButton).toBeInTheDocument();
     const row = within(groupsButton.closest('tbody') as HTMLElement);
@@ -570,7 +570,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     expect(await expandedGroupsRow.findByText('Super Users')).toBeInTheDocument();
 
     // Test permissions expandable content
-    console.log('🧪 Testing permissions expandable...');
+    console.log('SB: 🧪 Testing permissions expandable...');
     const permissionsButton = within(platformAdminRow).getByRole('button', { name: '25' });
     expect(permissionsButton).toBeInTheDocument();
 
@@ -590,7 +590,7 @@ export const AdminUserWithRolesExpandableContent: Story = {
     expect(await expandedPermissionsRow.findByText('inventory')).toBeInTheDocument();
     expect(await expandedPermissionsRow.findByText('cost-management')).toBeInTheDocument();
 
-    console.log('🧪 EXPANDABLE: Expandable content test completed');
+    console.log('SB: 🧪 EXPANDABLE: Expandable content test completed');
   },
 };
 
@@ -613,7 +613,7 @@ export const AdminUserWithRolesSorting: Story = {
           const url = new URL(request.url);
           const orderBy = url.searchParams.get('order_by');
 
-          console.log('🔍 MSW: Roles API called with order_by:', orderBy);
+          console.log('SB: 🔍 MSW: Roles API called with order_by:', orderBy);
           fetchRolesSpy(request);
 
           if (orderBy) {
@@ -647,13 +647,13 @@ export const AdminUserWithRolesSorting: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    console.log('🧪 SORTING: Starting column sorting test');
+    console.log('SB: 🧪 SORTING: Starting column sorting test');
 
     // Wait for initial data load
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
 
     // Test sorting by Name column (display_name)
-    console.log('🧪 Testing Name column sorting...');
+    console.log('SB: 🧪 Testing Name column sorting...');
     let nameColumnHeader = await canvas.findByRole('columnheader', { name: /name/i });
     let nameButton = await within(nameColumnHeader).findByRole('button');
 
@@ -684,7 +684,7 @@ export const AdminUserWithRolesSorting: Story = {
     });
 
     // Test sorting by Last Modified column
-    console.log('🧪 Testing Last Modified column sorting...');
+    console.log('SB: 🧪 Testing Last Modified column sorting...');
     let lastModifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
     let lastModifiedButton = await within(lastModifiedHeader).findByRole('button');
 
@@ -714,7 +714,7 @@ export const AdminUserWithRolesSorting: Story = {
       expect(sortSpy).toHaveBeenCalledWith('-modified');
     });
 
-    console.log('🧪 SORTING: Column sorting test completed');
+    console.log('SB: 🧪 SORTING: Column sorting test completed');
   },
 };
 
@@ -760,7 +760,7 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     // Wait for debounced functions to settle
     await delay(300);
 
-    console.log('🧪 ACTIONS: Starting primary actions test');
+    console.log('SB: 🧪 ACTIONS: Starting primary actions test');
 
     // Wait for data load
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
@@ -778,6 +778,6 @@ export const AdminUserWithRolesPrimaryActions: Story = {
     const firstRowKebab = kebabMenus[0];
     await userEvent.click(firstRowKebab);
 
-    console.log('🧪 ACTIONS: Primary actions test completed');
+    console.log('SB: 🧪 ACTIONS: Primary actions test completed');
   },
 };

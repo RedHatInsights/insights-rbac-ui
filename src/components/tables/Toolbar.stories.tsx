@@ -266,7 +266,7 @@ export const WithDisabledButtons: Story = {
       await expect(deleteMenuItem).toBeDisabled();
     } catch {
       // If the menuitem is not rendered when disabled, that's also acceptable behavior
-      console.log('Delete Selected menuitem not rendered when disabled - this may be expected PatternFly behavior');
+      console.log('SB: Delete Selected menuitem not rendered when disabled - this may be expected PatternFly behavior');
     }
   },
 };

@@ -115,9 +115,16 @@ const TableContent: React.FC<{
 
     if (!rolePermissions) {
       return (
-        <div style={{ padding: '1rem' }}>
+        <Table ouiaId="permissions-in-role-nested-table" aria-label="Permissions Table" borders={false} variant={TableVariant.compact}>
+          <Thead>
+            <Tr>
+              {compoundPermissionsCells.map((cell, index) => (
+                <Th key={index}>{cell}</Th>
+              ))}
+            </Tr>
+          </Thead>
           <SkeletonTableBody rowsCount={role.accessCount || 3} columnsCount={compoundPermissionsCells.length} />
-        </div>
+        </Table>
       );
     }
 
@@ -132,7 +139,7 @@ const TableContent: React.FC<{
         </Thead>
         <Tbody>
           {rolePermissions.access.map((access: RoleAccess, index: number) => (
-            <Tr key={index}>
+            <Tr key={`${role.uuid}-permission-${access.permission || index}`}>
               {access.permission.split(':').map((part, partIndex) => (
                 <Td key={partIndex}>{part}</Td>
               ))}
@@ -149,7 +156,7 @@ const TableContent: React.FC<{
   };
 
   return (
-    <Table isExpandable aria-label={intl.formatMessage(messages.roles)}>
+    <Table aria-label={intl.formatMessage(messages.roles)}>
       <Thead>
         <Tr>
           <Th {...(columns[0].key ? getSortParams(0) : {})}>{columns[0].title}</Th>

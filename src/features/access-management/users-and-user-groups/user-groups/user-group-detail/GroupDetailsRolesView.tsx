@@ -8,10 +8,10 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../../../redux/store';
 import messages from '../../../../../Messages';
 import { useIntl } from 'react-intl';
 import { fetchRolesForGroup } from '../../../../../redux/groups/actions';
+import { selectGroupRoles, selectGroupRolesError, selectIsGroupRolesLoading } from '../../../../../redux/groups/selectors';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 
 interface GroupRolesViewProps {
@@ -24,11 +24,9 @@ const GroupDetailsRolesView: React.FunctionComponent<GroupRolesViewProps> = ({ g
   const intl = useIntl();
   const GROUP_ROLES_COLUMNS: string[] = [intl.formatMessage(messages.roles), intl.formatMessage(messages.workspace)];
 
-  const roles = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.data || []);
-  const isLoading = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.isLoading || false);
-  const error = useSelector(
-    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.roles as any)?.error,
-  );
+  const roles = useSelector(selectGroupRoles);
+  const isLoading = useSelector(selectIsGroupRolesLoading);
+  const error = useSelector(selectGroupRolesError);
 
   const fetchData = useCallback(() => {
     dispatch(fetchRolesForGroup(groupId, { limit: 1000 }));

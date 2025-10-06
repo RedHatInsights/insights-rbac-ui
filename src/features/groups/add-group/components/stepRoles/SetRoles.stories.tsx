@@ -292,7 +292,7 @@ export const FilterRoles: Story = {
         }
       } catch (clearError) {
         // If clear fails, just proceed with typing
-        console.warn('Clear failed, proceeding with direct typing:', (clearError as Error).message);
+        console.log('SB: Clear failed, proceeding with direct typing:', (clearError as Error).message);
       }
 
       await userEvent.type(nameFilter, 'viewer');

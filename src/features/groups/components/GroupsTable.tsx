@@ -68,7 +68,7 @@ const RolesTable: React.FC<{ group: Group }> = ({ group }) => {
       <Tbody>
         {group.roles.length > 0 ? (
           group.roles.map((role: Role, index: number) => (
-            <Tr key={index}>
+            <Tr key={`${group.uuid}-role-${role.name || index}`}>
               <Td dataLabel={compoundRolesCells[0]}>{role.name}</Td>
               <Td dataLabel={compoundRolesCells[1]}>{role.description}</Td>
               <Td dataLabel={compoundRolesCells[2]}>
@@ -128,7 +128,7 @@ const MembersTable: React.FC<{ group: Group }> = ({ group }) => {
       <Tbody>
         {group.members.length > 0 ? (
           group.members.map((member: any, index: number) => (
-            <Tr key={index}>
+            <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
               <Td dataLabel={compoundMembersCells[0]}>{member.is_org_admin ? 'Yes' : 'No'}</Td>
               <Td dataLabel={compoundMembersCells[1]}>{member.first_name}</Td>
               <Td dataLabel={compoundMembersCells[2]}>{member.last_name}</Td>
@@ -221,7 +221,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
 }) => {
   const intl = useIntl();
 
-  const columns = [
+  const columns: Array<{ title: string; key: string; screenReaderText?: string }> = [
     { title: intl.formatMessage(messages.name), key: 'name' },
     { title: intl.formatMessage(messages.roles), key: 'roles' },
     { title: intl.formatMessage(messages.members), key: 'members' },
@@ -229,7 +229,9 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   ];
 
   // Add selection and actions columns for admin users
-  const allColumns = isAdmin ? [{ title: '', key: 'selection' }, ...columns, { title: '', key: 'actions' }] : [...columns];
+  const allColumns: Array<{ title: string; key: string; screenReaderText?: string }> = isAdmin
+    ? [{ title: '', key: 'selection', screenReaderText: 'Row selection' }, ...columns, { title: '', key: 'actions', screenReaderText: 'Row actions' }]
+    : [...columns];
 
   // const handleSelectAll = (isChecking: boolean) => {
   //   if (isChecking) {
@@ -289,7 +291,9 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
         <Thead>
           <Tr>
             {allColumns.map((column, index) => (
-              <Th key={index}>{column.title}</Th>
+              <Th key={index} screenReaderText={column.screenReaderText || (column.title !== '' ? column.title : undefined)}>
+                {column.title}
+              </Th>
             ))}
           </Tr>
         </Thead>
@@ -309,7 +313,7 @@ export const GroupsTable: React.FC<GroupsTableProps> = ({
   // const someSelectableSelected = selectableGroups.some((group) => isRowSelected(group));
 
   return (
-    <Table isExpandable aria-label={intl.formatMessage(messages.groups)}>
+    <Table aria-label={intl.formatMessage(messages.groups)}>
       <Thead>
         <Tr>
           {isAdmin && (

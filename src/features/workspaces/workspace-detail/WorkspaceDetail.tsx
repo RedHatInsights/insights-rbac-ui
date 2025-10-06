@@ -4,7 +4,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
 import { getRoleBindingsForSubject } from '../../../redux/workspaces/helper';
 import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
-import { RBACStore } from '../../../redux/store';
+import { selectWorkspacesFullState } from '../../../redux/workspaces/selectors';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
@@ -51,7 +51,7 @@ export const WorkspaceDetail = () => {
   const assetsRef = React.createRef<HTMLElement>();
 
   const dispatch = useDispatch();
-  const { isLoading, workspaces, selectedWorkspace } = useSelector((state: RBACStore) => state.workspacesReducer);
+  const { isLoading, workspaces, selectedWorkspace } = useSelector(selectWorkspacesFullState);
 
   // Role bindings data for RoleAssignmentsTable (transformed to Group structure)
   const [roleBindings, setRoleBindings] = useState<Group[]>([]);
@@ -327,7 +327,7 @@ export const WorkspaceDetail = () => {
       </Tabs>
       <PageSection>
         {activeTabString === 'assets' ? (
-          <AssetsCards workspaceName={selectedWorkspace?.name} />
+          <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
         ) : (
           enableRoles && (
             <>

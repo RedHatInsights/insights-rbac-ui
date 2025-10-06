@@ -64,6 +64,11 @@ const ModalWrapper = ({ storyArgs }: { storyArgs: any }) => {
             </div>
           }
         />
+        {/* Route for useAppNavigate with /iam/user-access basename */}
+        <Route
+          path="/iam/user-access/workspaces/detail/:workspaceId"
+          element={<div data-testid="workspace-detail-page">Workspace Detail Page</div>}
+        />
       </Routes>
     </MemoryRouter>
   );
@@ -107,7 +112,35 @@ export const Default: Story = {
     docs: {
       description: {
         story:
-          'Default edit modal with workspace data loaded from Redux. Users should see the workspace name and description pre-populated in the form fields. Tests the complete edit workflow with form validation and submission.',
+          'Default render of edit modal with workspace data loaded from Redux. Click "Open Edit Modal" button to see the modal with pre-populated form fields. Useful for manual testing and visual inspection.',
+      },
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v2/workspaces/', () => {
+          return HttpResponse.json({
+            data: mockWorkspaces,
+            meta: { count: mockWorkspaces.length, limit: 10000, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v2/workspaces/workspace-1/', () => {
+          return HttpResponse.json(mockWorkspace);
+        }),
+      ],
+    },
+  },
+};
+
+export const InteractiveEdit: Story = {
+  args: {
+    afterSubmit: fn(),
+    onCancel: fn(),
+  },
+  parameters: {
+    docs: {
+      description: {
+        story:
+          'Interactive test of the complete edit workflow. Tests form population, validation, editing, and submission with callbacks verification.',
       },
     },
     msw: {
@@ -305,7 +338,7 @@ export const CancelNotification: Story = {
     } catch (error) {
       // If notification test fails, that's okay - we verified the callback was called
       // which means the notification dispatch code was executed
-      console.log('Notification test skipped - callback was verified:', error);
+      console.log('SB: Notification test skipped - callback was verified:', error);
     }
   },
 };

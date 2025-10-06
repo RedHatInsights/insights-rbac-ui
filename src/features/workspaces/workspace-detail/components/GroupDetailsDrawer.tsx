@@ -25,7 +25,14 @@ import { DataView, DataViewTable } from '@patternfly/react-data-view';
 
 import { Group } from '../../../../redux/groups/reducer';
 import { fetchMembersForGroup, fetchRolesForGroup } from '../../../../redux/groups/actions';
-import { RBACStore } from '../../../../redux/store';
+import {
+  selectGroupMembers,
+  selectGroupMembersError,
+  selectGroupRoles,
+  selectGroupRolesError,
+  selectIsGroupMembersLoading,
+  selectIsGroupRolesLoading,
+} from '../../../../redux/groups/selectors';
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
 import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
@@ -67,20 +74,14 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   const dispatch = useDispatch();
   const [activeTab, setActiveTab] = useState<string | number>(0);
 
-  // Redux state for group data
-  const members = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.members?.data || []);
-  const membersLoading = useSelector(
-    (state: RBACStore) => (state.groupReducer?.selectedGroup?.members as { isLoading?: boolean })?.isLoading || false,
-  );
-  const membersError = useSelector(
-    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.members as { error?: unknown })?.error,
-  );
+  // Redux state for group data - using memoized selectors
+  const members = useSelector(selectGroupMembers);
+  const membersLoading = useSelector(selectIsGroupMembersLoading);
+  const membersError = useSelector(selectGroupMembersError);
 
-  const roles = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.data || []);
-  const rolesLoading = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.roles?.isLoading || false);
-  const rolesError = useSelector(
-    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.roles as { error?: unknown })?.error,
-  );
+  const roles = useSelector(selectGroupRoles);
+  const rolesLoading = useSelector(selectIsGroupRolesLoading);
+  const rolesError = useSelector(selectGroupRolesError);
 
   // Fetch data when group changes
   useEffect(() => {

@@ -60,6 +60,8 @@ const meta: Meta<typeof EditGroupModalWrapper> = {
         <MemoryRouter initialEntries={[initialRoute]}>
           <Routes>
             <Route path="/groups/edit/:groupId" element={<Story />} />
+            {/* Route for useAppNavigate with /iam/user-access basename */}
+            <Route path="/iam/user-access/groups" element={<div data-testid="groups-list">Groups List Page</div>} />
           </Routes>
         </MemoryRouter>
       );
@@ -253,7 +255,7 @@ export const FormSubmission: Story = {
             expectedFields: ['uuid', 'name', 'description'],
           });
 
-          console.log('🕵️ PUT Update Group API called!', {
+          console.log('SB: 🕵️ PUT Update Group API called!', {
             groupId,
             requestBody: body,
             expectedFields: ['uuid', 'name', 'description'],
@@ -287,7 +289,7 @@ export const FormSubmission: Story = {
     // 🔍 Clear any previous spy data
     updateGroupApiSpy.mockClear();
 
-    console.log('🧪 Starting Edit Group Form Submission Test...');
+    console.log('SB: 🧪 Starting Edit Group Form Submission Test...');
 
     // Click button to open modal
     const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
@@ -315,7 +317,7 @@ export const FormSubmission: Story = {
     await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
 
     // Submit the form
-    console.log('🚀 Submitting form...');
+    console.log('SB: 🚀 Submitting form...');
     await userEvent.click(saveButton);
 
     // ✅ VERIFY PUT API CALL: Check that the correct group data was sent
@@ -331,7 +333,7 @@ export const FormSubmission: Story = {
           },
           expectedFields: ['uuid', 'name', 'description'],
         });
-        console.log('✅ PUT API Spy Verified with correct parameters');
+        console.log('SB: ✅ PUT API Spy Verified with correct parameters');
       },
       { timeout: 5000 },
     );
@@ -356,10 +358,10 @@ export const FormSubmission: Story = {
       { timeout: 5000 },
     );
 
-    console.log('✅ Edit Group Form Submission test completed - check browser console for detailed API spy logs');
-    console.log('📋 Expected API calls:');
-    console.log('  1. GET /api/rbac/v1/groups/{groupId} - Fetch group details');
-    console.log('  2. PUT /api/rbac/v1/groups/{groupId} - Update group with new data');
+    console.log('SB: ✅ Edit Group Form Submission test completed - check browser console for detailed API spy logs');
+    console.log('SB: 📋 Expected API calls:');
+    console.log('SB:   1. GET /api/rbac/v1/groups/{groupId} - Fetch group details');
+    console.log('SB:   2. PUT /api/rbac/v1/groups/{groupId} - Update group with new data');
   },
 };
 
