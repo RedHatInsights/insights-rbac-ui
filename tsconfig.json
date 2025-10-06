@@ -14,7 +14,7 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
     "resolveJsonModule": true,
-    "types": ["src/redux/store.d.ts"]
+    "types": ["src/redux/store.d.ts", "jest"]
   },
   "include": [
     "src/**/*.ts",

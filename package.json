@@ -43,36 +43,6 @@
     "redux-promise-middleware": "^6.1.3",
     "redux-thunk": "^2.4.2"
   },
-  "jest": {
-    "coverageDirectory": "./coverage/",
-    "collectCoverage": true,
-    "collectCoverageFrom": [
-      "src/**/*.js",
-      "src/**/*.ts",
-      "src/**/*.tsx",
-      "!src/**/stories/*"
-    ],
-    "testEnvironment": "jsdom",
-    "transform": {
-      "^.+\\.jsx?$": "babel-jest",
-      "^.+\\.tsx?$": "ts-jest"
-    },
-    "transformIgnorePatterns": [],
-    "coveragePathIgnorePatterns": [
-      "<rootDir>/src/entry.js",
-      "<rootDir>/src/entry-dev.js",
-      "<rootDir>/src/logout.js"
-    ],
-    "setupFilesAfterEnv": [
-      "<rootDir>/config/setupTests.js"
-    ],
-    "roots": [
-      "<rootDir>/src/"
-    ],
-    "moduleNameMapper": {
-      "\\.(css|scss)$": "identity-obj-proxy"
-    }
-  },
   "devDependencies": {
     "@babel/core": "^7.23.3",
     "@babel/plugin-proposal-class-properties": "^7.16.7",
@@ -102,6 +72,7 @@
     "@testing-library/jest-dom": "^6.1.4",
     "@testing-library/react": "^14.1.0",
     "@testing-library/user-event": "^14.5.1",
+    "@types/jest": "^30.0.0",
     "@types/react-router-dom": "^5.3.3",
     "@typescript-eslint/eslint-plugin": "^8.32.1",
     "@typescript-eslint/parser": "^8.32.1",
@@ -147,6 +118,7 @@
     "cypress": "cypress",
     "cypress:run": "cypress run --browser electron",
     "test": "TZ=UTC jest --verbose",
+    "test:coverage": "TZ=UTC jest --verbose --coverage",
     "test:e2e": "node scripts/e2e.js",
     "test:ct": "node ./cypress/run-test.js",
     "lint": "npm-run-all lint:*",
@@ -159,8 +131,8 @@
     "translations:compile": "npx formatjs compile ./locales/translation-template.json --out-file ./src/locales/translations.json",
     "translations:datafile": "node scripts/createDataJson.js",
     "circular-dependencies": "madge --circular --extensions ts,js ./src",
-    "deploy": "npm-run-all build circular-dependencies lint test",
-    "verify": "npm-run-all build circular-dependencies lint test test-storybook:ci",
+    "deploy": "npm-run-all build circular-dependencies lint test:coverage",
+    "verify": "npm-run-all build circular-dependencies lint test:coverage test-storybook:ci",
     "nightly": "npm run deploy",
     "postinstall": "ts-patch install && rm -rf .cache",
     "storybook": "storybook dev -p 6006",
