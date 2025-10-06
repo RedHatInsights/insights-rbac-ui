@@ -1,6 +1,5 @@
-import React, { Fragment, useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { useFlag } from '@unleash/proxy-client-react';
-import { Form } from '@patternfly/react-core/dist/dynamic/components/Form';
 import { Stack } from '@patternfly/react-core';
 import { StackItem } from '@patternfly/react-core';
 import useFieldApi from '@data-driven-forms/react-form-renderer/use-field-api';
@@ -39,20 +38,16 @@ export const SetUsers: React.FC<SetUsersProps> = (props) => {
   };
 
   return (
-    <Fragment>
-      <Form>
-        <Stack hasGutter>
-          <StackItem>
-            {isITLess ? (
-              <UsersList initialSelectedUsers={selectedUsers} onSelect={handleUserSelection} displayNarrow={true} />
-            ) : (
-              <ActiveUsers {...activeUserProps}>
-                <UsersList initialSelectedUsers={selectedUsers} onSelect={handleUserSelection} displayNarrow={true} />
-              </ActiveUsers>
-            )}
-          </StackItem>
-        </Stack>
-      </Form>
-    </Fragment>
+    <Stack hasGutter>
+      <StackItem>
+        {isITLess ? (
+          <UsersList initialSelectedUsers={selectedUsers} onSelect={handleUserSelection} displayNarrow={true} />
+        ) : (
+          <ActiveUsers {...activeUserProps}>
+            <UsersList initialSelectedUsers={selectedUsers} onSelect={handleUserSelection} displayNarrow={true} />
+          </ActiveUsers>
+        )}
+      </StackItem>
+    </Stack>
   );
 };

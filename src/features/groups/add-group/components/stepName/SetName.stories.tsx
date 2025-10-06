@@ -73,7 +73,7 @@ The component uses PatternFly form components and integrates with the broader Ad
           const name = url.searchParams.get('name');
           const nameMatch = url.searchParams.get('name_match');
 
-          console.log('🔍 Group validation API called:', { name, nameMatch });
+          console.log('SB: 🔍 Group validation API called:', { name, nameMatch });
 
           // Simulate existing group names for validation testing
           const existingNames = ['Admin Group', 'Test Group', 'existing-group'];

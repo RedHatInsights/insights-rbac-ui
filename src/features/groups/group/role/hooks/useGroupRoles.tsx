@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -10,8 +10,18 @@ import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuT
 import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
-import { defaultSettings } from '../../../../../helpers/pagination';
-import { fetchRolesForGroup, removeRolesFromGroup } from '../../../../../redux/groups/actions';
+import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../../redux/groups/actions';
+import {
+  selectGroupRoles,
+  selectGroupRolesMeta,
+  selectIsAdminDefaultGroup,
+  selectIsChangedDefaultGroup,
+  selectIsGroupRolesLoading,
+  selectIsPlatformDefaultGroup,
+  selectSelectedGroup,
+  selectShouldDisableAddRoles,
+  selectSystemGroupUUID,
+} from '../../../../../redux/groups/selectors';
 import PermissionsContext from '../../../../../utilities/permissionsContext';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../utilities/constants';
 import messages from '../../../../../Messages';
@@ -19,7 +29,6 @@ import pathnames from '../../../../../utilities/pathnames';
 import useAppNavigate from '../../../../../hooks/useAppNavigate';
 import type { GroupRolesProps } from '../types';
 import type { RoleWithAccess as Role } from '@redhat-cloud-services/rbac-client/types';
-import type { RBACStore } from '../../../../../redux/store.d';
 
 // Types
 interface GroupRoleTableRow {
@@ -128,30 +137,6 @@ const GroupRoleActions: React.FC<GroupRoleActionsProps> = ({ role, onRemove, has
   );
 };
 
-const reducer = ({ groupReducer }: RBACStore) => {
-  const { selectedGroup, systemGroup, groups } = groupReducer;
-  return {
-    roles: selectedGroup?.roles?.data || [],
-    pagination: { ...defaultSettings, ...((selectedGroup?.roles as any)?.meta || {}) },
-    groupsPagination: groups?.pagination || groups?.meta,
-    groupsFilters: groups?.filters,
-    isLoading: selectedGroup?.roles?.isLoading || false,
-    isPlatformDefault: selectedGroup?.platform_default || false,
-    isAdminDefault: selectedGroup?.admin_default || false,
-    isChanged: Boolean((selectedGroup?.admin_default || selectedGroup?.platform_default) && !selectedGroup?.system),
-    disableAddRoles:
-      /**
-       * First validate if the pagination object exists and is not empty.
-       * If empty or undefined, the disable condition will be always true
-       */
-      Object.keys(selectedGroup?.addRoles?.pagination || {}).length > 0
-        ? !(selectedGroup?.addRoles?.pagination && (selectedGroup?.addRoles?.pagination?.count || 0) > 0) || !!selectedGroup?.admin_default
-        : !!selectedGroup?.admin_default,
-    systemGroupUuid: systemGroup?.uuid,
-    group: selectedGroup,
-  };
-};
-
 export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -160,11 +145,16 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
   const { userAccessAdministrator, orgAdmin } = useContext(PermissionsContext);
   const hasPermissions = orgAdmin || userAccessAdministrator;
 
-  // Redux selectors
-  const { roles, pagination, isLoading, isPlatformDefault, isAdminDefault, isChanged, disableAddRoles, systemGroupUuid, group } = useSelector(
-    reducer,
-    shallowEqual,
-  );
+  // Redux selectors - using memoized selectors to prevent unnecessary re-renders
+  const roles = useSelector(selectGroupRoles);
+  const pagination = useSelector(selectGroupRolesMeta);
+  const isLoading = useSelector(selectIsGroupRolesLoading);
+  const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
+  const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
+  const isChanged = useSelector(selectIsChangedDefaultGroup);
+  const disableAddRoles = useSelector(selectShouldDisableAddRoles);
+  const systemGroupUuid = useSelector(selectSystemGroupUUID);
+  const group = useSelector(selectSelectedGroup);
 
   // DataView hooks
   const filters = useDataViewFilters<GroupRoleFilters>({
@@ -201,6 +191,14 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
   useEffect(() => {
     fetchData();
   }, [systemGroupUuid]);
+
+  // Fetch available roles for "Add Roles" button (roles not already in group)
+  useEffect(() => {
+    const actualGroupId = groupId !== DEFAULT_ACCESS_GROUP_ID ? groupId! : systemGroupUuid;
+    if (actualGroupId) {
+      dispatch(fetchAddRolesForGroup(actualGroupId, { limit: 20, offset: 0 }));
+    }
+  }, [dispatch, groupId, systemGroupUuid]);
 
   // Handle default group changes
   useEffect(() => {

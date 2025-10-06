@@ -47,7 +47,6 @@ const testFilter = {
       filterValues: {
         id: 'filter-by-string',
         isDisabled: undefined,
-        key: 'filter-by-string',
         placeholder: 'Filter by ',
         value: '',
       },

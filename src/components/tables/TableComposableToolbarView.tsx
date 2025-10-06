@@ -57,7 +57,7 @@ interface TableProps extends MainTableProps {
 }
 
 interface MainTableProps {
-  columns: Array<{ title: string; key?: string; sortable?: boolean }>;
+  columns: Array<{ title: string; key?: string; sortable?: boolean; screenReaderText?: string }>;
   isSelectable: boolean;
   isLoading: boolean;
   noData?: boolean;
@@ -175,7 +175,11 @@ const MainTable = ({
           <Thead>
             <Tr>
               {columns.map((column, i) => (
-                <Th key={i} sort={column?.sortable ? { columnIndex: i, sortBy, onSort } : undefined}>
+                <Th
+                  key={i}
+                  sort={column?.sortable ? { columnIndex: i, sortBy, onSort } : undefined}
+                  screenReaderText={column.screenReaderText || (column.title !== '' ? column.title : undefined)}
+                >
                   {column.title}
                 </Th>
               ))}

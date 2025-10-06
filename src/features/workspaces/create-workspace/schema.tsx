@@ -9,7 +9,7 @@ import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
 import InputHelpPopover from '../../../components/forms/InputHelpPopover';
 import { Workspace, isWorkspace } from '../../../redux/workspaces/reducer';
-import { RBACStore } from '../../../redux/store';
+import { selectWorkspaces } from '../../../redux/workspaces/selectors';
 
 // hardcoded for now
 export const BUNDLES = [
@@ -44,7 +44,7 @@ export interface CreateWorkspaceFormValues {
 export const schemaBuilder = (enableBillingFeatures: boolean) => {
   const cache = createIntlCache();
   const intl = createIntl({ locale, messages: providerMessages as any }, cache); // eslint-disable-line @typescript-eslint/no-explicit-any
-  const allWorkspaces = useSelector((state: RBACStore) => state.workspacesReducer.workspaces || []);
+  const allWorkspaces = useSelector(selectWorkspaces);
 
   return {
     fields: [

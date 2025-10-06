@@ -76,17 +76,35 @@ const mapWorkspacesToHierarchy = (workspaceData: Workspace[]): Workspace | undef
 
 const EmptyWorkspacesTable: React.FunctionComponent<{ titleText: string }> = ({ titleText }) => {
   return (
-    <EmptyState>
-      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-      <EmptyStateBody>
-        <FormattedMessage
-          {...messages['workspaceEmptyStateSubtitle']}
-          values={{
-            br: <br />,
-          }}
-        />
-      </EmptyStateBody>
-    </EmptyState>
+    <tbody>
+      <tr>
+        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+          <EmptyState>
+            <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+            <EmptyStateBody>
+              <FormattedMessage
+                {...messages['workspaceEmptyStateSubtitle']}
+                values={{
+                  br: <br />,
+                }}
+              />
+            </EmptyStateBody>
+          </EmptyState>
+        </td>
+      </tr>
+    </tbody>
+  );
+};
+
+const ErrorStateTable: React.FunctionComponent<{ errorTitle: string; errorDescription?: string }> = ({ errorTitle, errorDescription }) => {
+  return (
+    <tbody>
+      <tr>
+        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+          <ErrorState errorTitle={errorTitle} errorDescription={errorDescription} />
+        </td>
+      </tr>
+    </tbody>
   );
 };
 
@@ -266,8 +284,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
         subtitle={intl.formatMessage(messages.workspacesSubtitle)}
         linkProps={{
           label: intl.formatMessage(messages.workspacesLearnMore),
-          isExternal: true,
           href: '#', //TODO: URL to be specified by UX team later
+          // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
         }}
       />
       <PageSection>
@@ -336,7 +354,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             bodyStates={{
               loading: <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />,
               empty: <EmptyWorkspacesTable titleText={intl.formatMessage(messages.workspaceEmptyStateTitle)} />,
-              error: <ErrorState errorTitle="Failed to load workspaces" errorDescription={error} />,
+              error: <ErrorStateTable errorTitle="Failed to load workspaces" errorDescription={error} />,
             }}
           />
         </DataView>

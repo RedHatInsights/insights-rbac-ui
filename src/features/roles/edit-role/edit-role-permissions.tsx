@@ -21,12 +21,12 @@ import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-componen
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
-import { RBACStore } from '../../../redux/store';
 import { useSearchParams } from 'react-router-dom';
 import messages from '../../../Messages';
 import { PER_PAGE_OPTIONS } from '../../../helpers/pagination';
 import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
 import { listPermissions } from '../../../redux/permissions/actions';
+import { selectPermissionsFullState } from '../../../redux/permissions/selectors';
 
 interface PermissionsFilters {
   application: string;
@@ -39,9 +39,15 @@ interface ExtendedUseFieldApiConfig extends UseFieldApiConfig {
 }
 
 const EmptyTable: React.FC<{ titleText: string }> = ({ titleText }) => (
-  <EmptyState>
-    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-  </EmptyState>
+  <tbody>
+    <tr>
+      <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
+        <EmptyState>
+          <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+        </EmptyState>
+      </td>
+    </tr>
+  </tbody>
 );
 
 export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) => {
@@ -88,11 +94,7 @@ export const EditRolePermissions: React.FC<ExtendedUseFieldApiConfig> = (props) 
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
   const { selected, onSelect, isSelected } = selection;
 
-  const { permissions, totalCount, isLoading } = useSelector((state: RBACStore) => ({
-    permissions: state?.permissionReducer?.permission?.data,
-    totalCount: state?.permissionReducer?.permission?.meta?.count || 0,
-    isLoading: state.permissionReducer?.isLoading,
-  }));
+  const { permissions, totalCount, isLoading } = useSelector(selectPermissionsFullState);
 
   const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.label)} />;
   const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;

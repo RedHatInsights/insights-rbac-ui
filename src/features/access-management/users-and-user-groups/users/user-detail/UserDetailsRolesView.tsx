@@ -9,10 +9,10 @@ import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclama
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
 import { useDispatch, useSelector } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { RBACStore } from '../../../../../redux/store';
 import messages from '../../../../../Messages';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 import { fetchRoles } from '../../../../../redux/roles/actions';
+import { selectIsRolesLoading, selectRoles, selectRolesErrorState } from '../../../../../redux/roles/selectors';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
 
 interface UserRolesViewProps {
@@ -29,9 +29,9 @@ const UserDetailsRolesView: React.FunctionComponent<UserRolesViewProps> = ({ use
     intl.formatMessage(messages.workspace),
   ];
 
-  const roles = useSelector((state: RBACStore) => state.roleReducer?.roles?.data || []);
-  const isLoading = useSelector((state: RBACStore) => state.roleReducer?.isLoading || false);
-  const error = useSelector((state: RBACStore) => state.roleReducer?.roles?.error);
+  const roles = useSelector(selectRoles);
+  const isLoading = useSelector(selectIsRolesLoading);
+  const error = useSelector(selectRolesErrorState);
 
   const fetchData = useCallback(() => {
     dispatch(fetchRoles({ ...mappedProps({ username: userId }), usesMetaInURL: true, system: false }));

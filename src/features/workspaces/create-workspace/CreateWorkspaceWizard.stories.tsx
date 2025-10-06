@@ -460,7 +460,7 @@ export const CancelNotification: Story = {
       } catch (error) {
         // If notification test fails, that's okay - we verified the callback was called
         // which means the notification dispatch code was executed
-        console.log('Notification test skipped - callback was verified:', error);
+        console.log('SB: Notification test skipped - callback was verified:', error);
       }
     } else {
       // If no cancel button found, just verify the wizard opened

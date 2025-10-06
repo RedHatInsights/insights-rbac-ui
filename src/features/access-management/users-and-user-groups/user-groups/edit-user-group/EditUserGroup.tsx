@@ -8,9 +8,9 @@ import Messages from '../../../../../Messages';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormTemplate } from '@data-driven-forms/pf4-component-mapper';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { addGroup, fetchGroup, fetchGroups, updateGroup } from '../../../../../redux/groups/actions';
-import { RBACStore } from '../../../../../redux/store';
+import { selectGroupMembers, selectGroupServiceAccounts, selectGroups, selectSelectedGroup } from '../../../../../redux/groups/selectors';
 import { Group, Member, ServiceAccount } from '../../../../../redux/groups/reducer';
 
 import { useParams } from 'react-router-dom';
@@ -42,16 +42,11 @@ export const EditUserGroup: React.FunctionComponent<EditUserGroupProps> = ({ cre
     serviceAccounts?: string[];
   } | null>(null);
 
-  // Memoized selector to prevent unnecessary re-renders
-  const { group, allGroups, groupUsers, groupServiceAccounts } = useSelector(
-    (state: RBACStore) => ({
-      group: state.groupReducer?.selectedGroup,
-      allGroups: state.groupReducer?.groups?.data || [],
-      groupUsers: state.groupReducer?.selectedGroup?.members?.data || [],
-      groupServiceAccounts: state.groupReducer?.selectedGroup?.serviceAccounts?.data || [],
-    }),
-    shallowEqual,
-  );
+  // Memoized selectors to prevent unnecessary re-renders
+  const group = useSelector(selectSelectedGroup);
+  const allGroups = useSelector(selectGroups);
+  const groupUsers = useSelector(selectGroupMembers);
+  const groupServiceAccounts = useSelector(selectGroupServiceAccounts);
 
   const breadcrumbsList = useMemo(
     () => [

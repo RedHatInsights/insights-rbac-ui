@@ -61,12 +61,12 @@ export const GroupsEmptyState: React.FC<GroupsEmptyStateProps> = ({ hasActiveFil
     <Table role="grid" aria-label="Empty groups">
       <Thead>
         <Tr>
-          {isAdmin && <Th />}
+          {isAdmin && <Th screenReaderText="Row selection" />}
           <Th>{intl.formatMessage(messages.name)}</Th>
           <Th>{intl.formatMessage(messages.roles)}</Th>
           <Th>{intl.formatMessage(messages.members)}</Th>
           <Th>{intl.formatMessage(messages.lastModified)}</Th>
-          <Th />
+          <Th screenReaderText="Row actions" />
         </Tr>
       </Thead>
       <Tbody>

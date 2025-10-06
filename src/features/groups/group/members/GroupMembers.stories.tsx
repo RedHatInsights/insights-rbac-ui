@@ -247,7 +247,7 @@ export const SimpleContextTest: Story = {
     // Check if members are displayed (basic functionality)
     expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
 
-    console.log('SimpleContextTest passed - component renders correctly');
+    console.log('SB: SimpleContextTest passed - component renders correctly');
   },
 };
 

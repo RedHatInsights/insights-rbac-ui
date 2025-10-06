@@ -1,11 +1,11 @@
 import { useCallback, useEffect, useState } from 'react';
-import { shallowEqual, useDispatch, useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
 
-import type { RBACStore } from '../../../../redux/store';
 import { fetchUsers } from '../../../../redux/users/actions';
+import { selectIsUsersLoading, selectUsers, selectUsersTotalCount } from '../../../../redux/users/selectors';
 import { mappedProps } from '../../../../helpers/dataUtilities';
 import { defaultSettings } from '../../../../helpers/pagination';
 import { User } from '../../../../redux/users/reducer';
@@ -101,10 +101,10 @@ export const useUsers = (options: UseUsersOptions = {}): UseUsersReturn => {
     matchOption: (a, b) => a.username === b.username,
   });
 
-  // Redux selectors with proper typing
-  const users = useSelector((state: RBACStore) => state.userReducer.users.data || [], shallowEqual);
-  const isLoading = useSelector((state: RBACStore) => state.userReducer.isUserDataLoading || false);
-  const totalCount = useSelector((state: RBACStore) => state.userReducer.users.meta?.count || 0);
+  // Redux selectors with proper typing - using memoized selectors
+  const users = useSelector(selectUsers);
+  const isLoading = useSelector(selectIsUsersLoading);
+  const totalCount = useSelector(selectUsersTotalCount);
 
   // Permission context
   const orgAdmin = enableAdminFeatures; // Simplified for now
