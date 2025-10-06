@@ -40,6 +40,8 @@ export const SetRoles: React.FC<SetRolesProps> = (props) => {
     setSelectedRoles(roles);
   }, []);
 
+  console.log({ selectedRoles });
+
   return (
     <Fragment>
       <Stack hasGutter>

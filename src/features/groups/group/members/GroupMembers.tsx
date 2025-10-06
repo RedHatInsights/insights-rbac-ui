@@ -1,6 +1,6 @@
 import React, { Fragment, Suspense, useCallback, useEffect, useMemo } from 'react';
 import { debounce } from '../../../../utilities/debounce';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { Outlet, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 
@@ -27,7 +27,7 @@ import { DefaultMembersCard } from '../../components/DefaultMembersCard';
 
 import { useGroupMembers } from './useGroupMembers';
 import type { GroupMembersFilters, Member, MemberTableRow } from './types';
-import { selectGroupsFilters, selectGroupsPagination } from '../../../../redux/groups/selectors';
+import type { RBACStore } from '../../../../redux/store.d';
 
 interface GroupMembersProps {
   // This container has no props - all data comes from Redux and URL params
@@ -68,9 +68,11 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
   } = useGroupMembers();
 
   // Additional selectors not in hook
-  // Use shared memoized selectors
-  const groupsPagination = useSelector(selectGroupsPagination);
-  const groupsFilters = useSelector(selectGroupsFilters);
+  const groupsPagination = useSelector(
+    (state: RBACStore) => state.groupReducer.groups.pagination || state.groupReducer.groups.meta || {},
+    shallowEqual,
+  );
+  const groupsFilters = useSelector((state: RBACStore) => state.groupReducer.groups.filters || {}, shallowEqual);
 
   // Show default cards for admin/platform default groups
   const showDefaultCard = adminDefault || platformDefault;

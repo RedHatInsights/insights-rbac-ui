@@ -139,7 +139,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
       handlers: [
         // Users API (principals endpoint) - successful response for admin users
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: 🔍 MSW: Principals API called by admin user');
+          console.log('🔍 MSW: Principals API called by admin user');
           fetchUsersSpy(request);
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20', 10);
@@ -171,7 +171,7 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
 
     // Debug: Check spy call count
-    console.log('SB: 🔍 Total spy calls so far:', fetchUsersSpy.mock.calls.length);
+    console.log('🔍 Total spy calls so far:', fetchUsersSpy.mock.calls.length);
 
     // Verify admin users trigger API calls (expected behavior)
     // Note: Since component makes API call on mount, spy should already have been called
@@ -242,7 +242,7 @@ After the fix is applied, this test should **PASS** with zero API calls.
     // Wait for component to mount and potentially make API calls
     await delay(300);
 
-    console.log('SB: 🐛 BUG TEST: Non-admin user spy calls:', fetchUsersSpy.mock.calls.length);
+    console.log('🐛 BUG TEST: Non-admin user spy calls:', fetchUsersSpy.mock.calls.length);
 
     // 🐛 BUG DEMONSTRATION: This test currently FAILS because unauthorized API calls are made
     // This proves the bug exists - non-admin users trigger API calls when they shouldn't
@@ -251,7 +251,7 @@ After the fix is applied, this test should **PASS** with zero API calls.
     // After fix: Verify NotAuthorized component is shown instead of making API calls
     expect(await canvas.findByText(/You do not have access to User Access Administration/i)).toBeInTheDocument();
 
-    console.log('SB: 🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
+    console.log('🧪 NON-ADMIN: NotAuthorized component shown, no unauthorized API calls made');
   },
 };
 
@@ -342,7 +342,7 @@ export const AdminUserWithUsersFiltering: Story = {
           const url = new URL(request.url);
           const usernames = url.searchParams.get('usernames');
 
-          console.log('SB: 🔍 MSW: Users API called with usernames filter:', usernames);
+          console.log('🔍 MSW: Users API called with usernames filter:', usernames);
           fetchUsersSpy(request);
 
           if (usernames) {
@@ -363,7 +363,7 @@ export const AdminUserWithUsersFiltering: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 FILTERING: Starting username filtering test');
+    console.log('🧪 FILTERING: Starting username filtering test');
 
     // Wait for initial data load
     expect(await canvas.findByText('john.doe')).toBeInTheDocument();
@@ -391,7 +391,7 @@ export const AdminUserWithUsersFiltering: Story = {
     // Test 3: Clear filter
     await userEvent.clear(filterInput);
 
-    console.log('SB: 🧪 FILTERING: Username filtering test completed');
+    console.log('🧪 FILTERING: Username filtering test completed');
   },
 };
 
@@ -414,7 +414,7 @@ export const AdminUserWithUsersSorting: Story = {
           const url = new URL(request.url);
           const sortOrder = url.searchParams.get('sort_order');
 
-          console.log('SB: 🔍 MSW: Users API called with sort_order:', sortOrder);
+          console.log('🔍 MSW: Users API called with sort_order:', sortOrder);
           fetchUsersSpy(request);
 
           if (sortOrder) {
@@ -433,13 +433,13 @@ export const AdminUserWithUsersSorting: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 SORTING: Starting username column sorting test');
+    console.log('🧪 SORTING: Starting username column sorting test');
 
     // Wait for initial data load
     expect(await canvas.findByText('john.doe')).toBeInTheDocument();
 
     // Test sorting by Username column (default sorted ascending)
-    console.log('SB: 🧪 Testing Username column sorting...');
+    console.log('🧪 Testing Username column sorting...');
     let usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
     let usernameButton = await within(usernameColumnHeader).findByRole('button');
 
@@ -469,7 +469,7 @@ export const AdminUserWithUsersSorting: Story = {
       expect(sortSpy).toHaveBeenCalledWith('asc');
     });
 
-    console.log('SB: 🧪 SORTING: Username column sorting test completed');
+    console.log('🧪 SORTING: Username column sorting test completed');
   },
 };
 
@@ -501,7 +501,7 @@ export const AdminUserWithUsersTableContent: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
 
-    console.log('SB: 🧪 TABLE CONTENT: Starting table content test');
+    console.log('🧪 TABLE CONTENT: Starting table content test');
 
     // Wait for initial data load
     const table = await canvas.findByRole('grid', { name: /users table/i });
@@ -537,6 +537,6 @@ export const AdminUserWithUsersTableContent: Story = {
     expect(activeLabels).toHaveLength(2); // john.doe and jane.admin
     expect(inactiveLabels).toHaveLength(1); // bob.smith
 
-    console.log('SB: 🧪 TABLE CONTENT: Table content test completed');
+    console.log('🧪 TABLE CONTENT: Table content test completed');
   },
 };

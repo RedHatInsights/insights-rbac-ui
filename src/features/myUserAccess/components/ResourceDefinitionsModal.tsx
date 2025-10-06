@@ -59,38 +59,26 @@ export const ResourceDefinitionsModal: React.FC<ResourceDefinitionsModalProps> =
   const isEmpty = allRows.length === 0;
   const isFilteredEmpty = filteredRows.length === 0;
 
-  // Empty state components (wrapped for table context)
+  // Empty state components
   const EmptyNoData = () => (
-    <tbody>
-      <tr>
-        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText="No resource definitions" headingLevel="h4" />
-            <EmptyStateBody>{intl.formatMessage(messages.noResourceDefinitions, { permission })}</EmptyStateBody>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
+    <EmptyState>
+      <EmptyStateHeader titleText="No resource definitions" headingLevel="h4" />
+      <EmptyStateBody>{intl.formatMessage(messages.noResourceDefinitions, { permission })}</EmptyStateBody>
+    </EmptyState>
   );
 
   const EmptyWithFilters = () => (
-    <tbody>
-      <tr>
-        <td colSpan={1} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText={intl.formatMessage(messages.noResultsFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-            <EmptyStateBody>
-              {intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} {intl.formatMessage(messages.tryChangingFilters)}
-            </EmptyStateBody>
-            <EmptyStateActions>
-              <Button variant="link" onClick={handleClearFilter}>
-                Clear filter
-              </Button>
-            </EmptyStateActions>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
+    <EmptyState>
+      <EmptyStateHeader titleText={intl.formatMessage(messages.noResultsFound)} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>
+        {intl.formatMessage(messages.filterMatchesNoItems, { items: 'resource definitions' })} {intl.formatMessage(messages.tryChangingFilters)}
+      </EmptyStateBody>
+      <EmptyStateActions>
+        <Button variant="link" onClick={handleClearFilter}>
+          Clear filter
+        </Button>
+      </EmptyStateActions>
+    </EmptyState>
   );
 
   let activeState: DataViewState | undefined;

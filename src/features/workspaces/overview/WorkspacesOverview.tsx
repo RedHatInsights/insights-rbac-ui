@@ -47,8 +47,8 @@ export const WorkspacesOverview = () => {
         icon={<img src={workspacesIcon} alt="workspaces-header-icon" />}
         linkProps={{
           label: intl.formatMessage(messages.learnMore),
+          isExternal: true,
           // to do - add learn more url once available
-          // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
         }}
       />
       <PageSection>

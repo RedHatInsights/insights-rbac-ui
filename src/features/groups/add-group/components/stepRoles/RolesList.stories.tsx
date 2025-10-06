@@ -77,7 +77,7 @@ const createRolesHandler = (roles = mockRoles, responseDelay = 0) =>
     const offset = parseInt(url.searchParams.get('offset') || '0');
     const name = url.searchParams.get('name') || url.searchParams.get('name_match') || '';
 
-    console.log('SB: 🎯 Roles API called:', {
+    console.log('🎯 Roles API called:', {
       url: request.url,
       limit,
       offset,
@@ -181,7 +181,7 @@ export const Default: Story = {
     // Verify search filter is present
     expect(await canvas.findByPlaceholderText(/filter by role name/i)).toBeInTheDocument();
 
-    console.log('SB: ✅ Default story - All roles loaded and displayed');
+    console.log('✅ Default story - All roles loaded and displayed');
   },
 };
 
@@ -214,9 +214,9 @@ export const WithInitialSelection: Story = {
 
     // Note: Initial selection state depends on the parent component's state management
     // The component receives initialSelectedRoles but selection display is controlled by parent
-    console.log('SB: Initial selection props passed to component successfully');
+    console.log('Initial selection props passed to component successfully');
 
-    console.log('SB: ✅ Initial selection story - Pre-selected roles are checked');
+    console.log('✅ Initial selection story - Pre-selected roles are checked');
   },
 };
 
@@ -269,7 +269,7 @@ export const FilteringTest: Story = {
       { timeout: 3000 },
     );
 
-    console.log('SB: ✅ Filtering story - Search and clear filters working');
+    console.log('✅ Filtering story - Search and clear filters working');
   },
 };
 
@@ -307,7 +307,7 @@ export const SelectionTest: Story = {
       );
 
       // Note: Checkbox state depends on external state management via onSelect prop
-      console.log('SB: Individual selection triggered successfully');
+      console.log('Individual selection triggered successfully');
     }
 
     // Test bulk select dropdown
@@ -330,9 +330,9 @@ export const SelectionTest: Story = {
       { timeout: 1000 },
     );
 
-    console.log('SB: Bulk selection triggered successfully');
+    console.log('Bulk selection triggered successfully');
 
-    console.log('SB: ✅ Selection story - Individual and bulk selection working');
+    console.log('✅ Selection story - Individual and bulk selection working');
   },
 };
 
@@ -371,7 +371,7 @@ export const PaginationTest: Story = {
       }
     }
 
-    console.log('SB: ✅ Pagination story - Controls are functional');
+    console.log('✅ Pagination story - Controls are functional');
   },
 };
 
@@ -415,7 +415,7 @@ export const ClearFiltersTest: Story = {
       { timeout: 3000 },
     );
 
-    console.log('SB: ✅ Clear filters story - Button clears all filters');
+    console.log('✅ Clear filters story - Button clears all filters');
   },
 };
 
@@ -437,7 +437,7 @@ export const LoadingState: Story = {
     const skeletons = canvas.queryAllByRole('row');
     expect(skeletons.length).toBeGreaterThan(1); // Should have header + skeleton rows
 
-    console.log('SB: ✅ Loading story - Skeleton state displayed while loading');
+    console.log('✅ Loading story - Skeleton state displayed while loading');
   },
 };
 
@@ -465,7 +465,7 @@ export const EmptyState: Story = {
     const table = await canvas.findByRole('grid');
     expect(table).toBeInTheDocument();
 
-    console.log('SB: ✅ Empty state story - No roles message displayed');
+    console.log('✅ Empty state story - No roles message displayed');
   },
 };
 
@@ -496,6 +496,6 @@ export const ErrorState: Story = {
     expect(canvas.queryByText('Console Administrator')).not.toBeInTheDocument();
     expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
 
-    console.log('SB: ✅ Error story - Handles API failures gracefully');
+    console.log('✅ Error story - Handles API failures gracefully');
   },
 };

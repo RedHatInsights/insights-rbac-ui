@@ -52,7 +52,7 @@ export const GroupsMembersTable: React.FC<GroupsMembersTableProps> = ({ group })
       <Tbody>
         {group.members.length > 0 ? (
           group.members.map((member: any, index: number) => (
-            <Tr key={`${group.uuid}-member-${member.username || member.email || index}`}>
+            <Tr key={index}>
               <Td dataLabel={compoundMembersCells[0]}>
                 <TextContent>
                   {member?.is_org_admin ? (

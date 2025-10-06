@@ -6,8 +6,8 @@ import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagin
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { DataView, DataViewState, DataViewTable, DataViewToolbar, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { useDispatch, useSelector } from 'react-redux';
+import { RBACStore } from '../../../../../redux/store';
 import { fetchUsers } from '../../../../../redux/users/actions';
-import { selectIsUsersLoading, selectUserStatus, selectUsers, selectUsersTotalCount } from '../../../../../redux/users/selectors';
 import { ERROR } from '../../../../../redux/users/action-types';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
 import { BulkSelect, BulkSelectValue, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
@@ -80,10 +80,12 @@ const EditGroupUsersTable: React.FunctionComponent<EditGroupUsersTableProps> = (
   });
   const { selected, onSelect, isSelected } = selection;
 
-  const users = useSelector(selectUsers);
-  const totalCount = useSelector(selectUsersTotalCount);
-  const isLoading = useSelector(selectIsUsersLoading);
-  const status = useSelector(selectUserStatus);
+  const { users, totalCount, isLoading, status } = useSelector((state: RBACStore) => ({
+    users: state.userReducer?.users?.data || [],
+    totalCount: state.userReducer?.users?.meta?.count,
+    isLoading: state.userReducer?.isUserDataLoading,
+    status: state.userReducer?.status,
+  }));
 
   // Initialize selection when users are loaded
   useEffect(() => {

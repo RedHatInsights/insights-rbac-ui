@@ -94,14 +94,14 @@ export const Default: Story = {
       handlers: [
         // Service accounts API endpoint
         http.get('*/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for checking service account assignments
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called:', request.url, 'Type:', principalType);
+          console.log('MSW: Group principals API called:', request.url, 'Type:', principalType);
 
           if (principalType === 'user') {
             // Return empty users for this group
@@ -203,14 +203,14 @@ export const EmptyState: Story = {
       handlers: [
         // Service accounts API endpoint returning empty array
         http.get('*/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called (empty):', request.url);
+          console.log('MSW: Service accounts API called (empty):', request.url);
           return HttpResponse.json([]);
         }),
         // Group principals endpoint returning empty
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called (empty):', request.url, 'Type:', principalType);
+          console.log('MSW: Group principals API called (empty):', request.url, 'Type:', principalType);
           return HttpResponse.json({
             data: [],
             status: 'results',
@@ -241,14 +241,14 @@ export const ServiceAccountSelection: Story = {
       handlers: [
         // Service accounts API endpoint
         http.get('*/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for checking service account assignments
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called:', request.url, 'Type:', principalType);
+          console.log('MSW: Group principals API called:', request.url, 'Type:', principalType);
 
           if (principalType === 'user') {
             // Return empty users for this group
@@ -332,12 +332,12 @@ export const PreSelectedServiceAccounts: Story = {
       handlers: [
         // Service accounts API endpoint
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for checking service account assignments
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
-          console.log('SB: MSW: Group principals API called:', request.url);
+          console.log('MSW: Group principals API called:', request.url);
           return HttpResponse.json({
             data: [
               {
@@ -410,24 +410,24 @@ export const APIError: Story = {
       handlers: [
         // Service accounts API endpoint returning error - matches exact URL with any query params
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called (error):', request.url);
+          console.log('MSW: Service accounts API called (error):', request.url);
           return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
         }),
         // Alternative pattern for service accounts API
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called (error fallback):', request.url);
+          console.log('MSW: Service accounts API called (error fallback):', request.url);
           return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
         }),
         // Catch any additional user principals API calls and error them too
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: User principals API called (error):', request.url);
+          console.log('MSW: User principals API called (error):', request.url);
           return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
         }),
         // Group principals endpoint returning error
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called (error):', request.url, 'Type:', principalType);
+          console.log('MSW: Group principals API called (error):', request.url, 'Type:', principalType);
           return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
         }),
       ],
@@ -460,7 +460,7 @@ export const NewGroup: Story = {
       handlers: [
         // Service accounts API endpoint for new group
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called (new group):', request.url);
+          console.log('MSW: Service accounts API called (new group):', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // No group service accounts endpoint call for new groups

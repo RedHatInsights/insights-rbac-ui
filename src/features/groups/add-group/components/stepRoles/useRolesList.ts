@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { defaultSettings } from '../../../../../helpers/pagination';
@@ -7,7 +7,7 @@ import { debounce } from '../../../../../utilities/debounce';
 import { mappedProps } from '../../../../../helpers/dataUtilities';
 import { fetchRolesWithPolicies } from '../../../../../redux/roles/actions';
 import { fetchAddRolesForGroup } from '../../../../../redux/groups/actions';
-import { selectIsRolesLoading, selectRoles, selectRolesMeta } from '../../../../../redux/roles/selectors';
+import type { RBACStore } from '../../../../../redux/store.d';
 
 // Types
 interface Role {
@@ -73,10 +73,16 @@ export const useRolesList = ({
   const chrome = useChrome();
   const dispatch = useDispatch();
 
-  // Redux selectors - using memoized selectors to prevent unnecessary re-renders
-  const roles = useSelector(selectRoles);
-  const pagination = useSelector(selectRolesMeta);
-  const isLoading = useSelector(selectIsRolesLoading);
+  // Redux selectors - AddGroupRoles modal uses general roles API, so data is always in roleReducer
+  const selector = ({ roleReducer }: RBACStore) => {
+    return {
+      roles: roleReducer?.roles?.data || [],
+      pagination: roleReducer?.roles?.meta,
+      isLoading: roleReducer?.isLoading || false,
+    };
+  };
+
+  const { roles, pagination, isLoading } = useSelector(selector, shallowEqual);
 
   // DataView hooks
   const filters = useDataViewFilters<RoleFilters>({

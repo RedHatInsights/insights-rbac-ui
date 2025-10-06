@@ -57,14 +57,6 @@ export interface Member {
   is_active: boolean;
 }
 
-// Resource collection with loading state - used for members, roles, serviceAccounts
-export interface ResourceCollection<T> {
-  isLoading: boolean;
-  data: T[];
-  error?: ApiError;
-  meta?: any;
-}
-
 // GroupState interface - base group data structure
 export interface GroupState {
   uuid: string;
@@ -88,24 +80,9 @@ export interface Group extends GroupState {
   isLoadingMembers?: boolean;
 }
 
-// SelectedGroupState - extends GroupState with resource collections
-export interface SelectedGroupState extends GroupState {
-  members?: ResourceCollection<Member>;
-  roles?: ResourceCollection<any>; // RoleWithAccess from @redhat-cloud-services/rbac-client
-  serviceAccounts?: ResourceCollection<ServiceAccount>;
-  addRoles?: {
-    loaded?: boolean;
-    roles?: any[];
-    pagination?: any;
-  };
-  error?: ApiError;
-  loaded?: boolean;
-  pagination?: any;
-}
-
 // Group reducer state interface
 export interface GroupReducerState {
-  selectedGroup?: SelectedGroupState;
+  selectedGroup?: GroupState;
   isRecordLoading: boolean;
   isLoading: boolean;
   groups: {
@@ -138,19 +115,43 @@ export interface LegacyGroup {
   members?: Member[];
 }
 
-// Extends Record<string, unknown> for compatibility with applyReducerHash from frontend-components-utilities
 export interface GroupStore extends Record<string, unknown> {
   groups: {
     data: Group[];
     meta: PaginationDefaultI;
     filters: GroupFilters;
-    pagination: PaginationDefaultI & { redirected?: boolean };
+    pagination: { count: number };
     error?: ApiError;
   };
-  selectedGroup?: SelectedGroupState;
+  selectedGroup?: Group & {
+    addRoles: {
+      loaded: boolean;
+      roles?: RoleWithAccess[];
+      pagination?: PaginationDefaultI;
+    };
+    members: {
+      meta: PaginationDefaultI;
+      data?: Member[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
+    serviceAccounts: {
+      meta: PaginationDefaultI;
+      data?: ServiceAccount[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
+    pagination: PaginationDefaultI;
+    roles?: {
+      data: RoleWithAccess[];
+      isLoading: boolean;
+      error?: ApiError;
+    };
+    loaded?: boolean;
+    error?: ApiError;
+  };
   isLoading: boolean;
   isRecordLoading: boolean;
-  error?: string; // Root-level error for single group operations (e.g., BAD_UUID)
   adminGroup?: Group;
   systemGroup?: Group;
   isSystemGroupLoading?: boolean;
@@ -435,7 +436,7 @@ const addNewGroup = (state: GroupStore, { payload }: any) => ({
     data: [payload, ...state.groups.data], // Add new group to beginning of list
     pagination: {
       ...state.groups.pagination,
-      count: (state.groups.pagination.count ?? 0) + 1,
+      count: state.groups.pagination.count + 1,
     },
   },
   isLoading: false,

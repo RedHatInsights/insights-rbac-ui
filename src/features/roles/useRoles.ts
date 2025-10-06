@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
 
+import type { RBACStore } from '../../redux/store';
 import { fetchRolesWithPolicies } from '../../redux/roles/actions';
 import { FetchRolesWithPoliciesParams } from '../../redux/roles/helper';
 import { mappedProps } from '../../helpers/dataUtilities';
 import { defaultSettings } from '../../helpers/pagination';
 import { Role } from '../../redux/roles/reducer';
-import { selectIsRolesLoading, selectRoles, selectRolesTotalCount } from '../../redux/roles/selectors';
 
 export interface RoleFilters {
   display_name: string;
@@ -90,10 +90,9 @@ export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
   });
 
   // Redux selectors with proper typing
-  // Use memoized selectors
-  const roles = useSelector(selectRoles);
-  const isLoading = useSelector(selectIsRolesLoading);
-  const totalCount = useSelector(selectRolesTotalCount);
+  const roles = useSelector((state: RBACStore) => state.roleReducer.roles.data || [], shallowEqual);
+  const isLoading = useSelector((state: RBACStore) => state.roleReducer.isLoading || false);
+  const totalCount = useSelector((state: RBACStore) => state.roleReducer.roles.meta?.count || 0);
 
   // Permission context
   const orgAdmin = enableAdminFeatures; // Simplified for now

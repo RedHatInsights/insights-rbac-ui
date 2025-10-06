@@ -191,7 +191,6 @@ const TableToolbarView: React.FC<TableToolbarViewProps> = ({
 
   const renderTable = () => {
     const orderBy = `${sortBy?.direction === 'desc' ? '-' : ''}${columns[sortBy?.index || 0]?.key}`;
-
     return (
       <Fragment>
         <Toolbar

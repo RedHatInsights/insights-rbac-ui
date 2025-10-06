@@ -224,8 +224,6 @@ const meta: Meta<any> = {
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/roles/add-roles']}>
         <Routes>
           <Route path="/groups/detail/:groupId/roles/add-roles" element={<Story />} />
-          {/* Route for useAppNavigate with /iam/user-access basename */}
-          <Route path="/iam/user-access/groups/detail/:groupId/roles" element={<div data-testid="group-roles-page">Group Roles Page</div>} />
         </Routes>
       </MemoryRouter>
     ),

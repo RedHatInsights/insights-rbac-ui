@@ -274,7 +274,7 @@ export const WorkspaceDetail = () => {
   };
 
   const hasAssets = useMemo(() => {
-    return workspaces.filter((ws: Workspace) => ws.parent_id === workspaceId).length > 0 ? true : false;
+    return workspaces.filter((ws) => ws.parent_id === workspaceId).length > 0 ? true : false;
   }, [selectedWorkspace, workspaces, workspaceId]);
 
   const handleTabSelect = (_: React.MouseEvent<HTMLElement, MouseEvent>, key: string | number) => {
@@ -327,7 +327,7 @@ export const WorkspaceDetail = () => {
       </Tabs>
       <PageSection>
         {activeTabString === 'assets' ? (
-          <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
+          <AssetsCards workspaceName={selectedWorkspace?.name} />
         ) : (
           enableRoles && (
             <>

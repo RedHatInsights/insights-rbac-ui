@@ -55,8 +55,7 @@ const mockServiceAccounts = [
 ];
 
 // Create a FormRenderer wrapper for testing the component
-// Note: Named TestFormWrapper (not FormWrapper) to avoid conflicts with data-driven-forms prop names
-const TestFormWrapper: React.FC<{
+const FormWrapper: React.FC<{
   initialUsers?: string[];
   initialServiceAccounts?: string[];
   groupId?: string;
@@ -129,7 +128,7 @@ The component manages a form value with the following structure:
     },
   },
   // Render the component within a form context for proper testing
-  render: (args) => <TestFormWrapper {...args} />,
+  render: (args) => <FormWrapper {...args} />,
   argTypes: {
     groupId: {
       description: 'UUID of the group being edited',
@@ -172,7 +171,7 @@ export const Default: Story = {
         }),
         // Service accounts API endpoint
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for service account assignments
@@ -261,13 +260,13 @@ export const NewGroup: Story = {
         }),
         // Service accounts API endpoint
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for new groups
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request }) => {
           const url = new URL(request.url);
-          console.log('SB: MSW: Group principals API called (new group):', request.url, 'Type:', url.searchParams.get('principal_type'));
+          console.log('MSW: Group principals API called (new group):', request.url, 'Type:', url.searchParams.get('principal_type'));
           return HttpResponse.json({
             data: [],
             meta: { count: 0, limit: 20, offset: 0 },
@@ -331,7 +330,7 @@ export const TabSwitchingWithSelections: Story = {
         }),
         // Service accounts API endpoint
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for service account assignments
@@ -433,7 +432,7 @@ export const PrePopulatedGroup: Story = {
         }),
         // Service accounts API endpoint
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json(mockServiceAccounts);
         }),
         // Group principals endpoint for both users and service accounts

@@ -63,7 +63,7 @@ export interface WorkspacesStore {
   selectedWorkspace: Workspace;
 }
 
-export interface RoleBindingsStore {
+export interface RoleBindingsBySubjectStore {
   isLoading: boolean;
   roleBindings: RoleBindingBySubject[];
   error: string;

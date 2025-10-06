@@ -232,6 +232,6 @@ export const LinkGenerationTest: Story = {
     expect(groupsLink.getAttribute('href')).toBe('/iam/user-access/groups');
     expect(testGroupLink.getAttribute('href')).toBe('/iam/user-access/groups/detail/test-id/roles');
 
-    console.log('SB: ✅ Breadcrumb links properly generated with basename');
+    console.log('✅ Breadcrumb links properly generated with basename');
   },
 };

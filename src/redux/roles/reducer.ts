@@ -33,7 +33,7 @@ export interface Role {
 }
 
 export interface RoleStore extends Record<string, unknown> {
-  selectedRole?: Role;
+  selectedRole: Record<string, unknown>;
   isLoading: boolean;
   isRecordLoading: boolean;
   roles: {
@@ -63,7 +63,7 @@ export const rolesInitialState: RoleStore = {
     data: [],
     meta: defaultSettings,
   },
-  selectedRole: undefined,
+  selectedRole: {},
 };
 
 const setLoadingState = (state: RoleStore): RoleStore => ({ ...state, isLoading: true, error: undefined });

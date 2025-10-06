@@ -21,9 +21,9 @@ import { ServiceAccount } from '../../../../../redux/service-accounts/types';
 import { getDateFormat } from '../../../../../helpers/stringUtilities';
 import messages from '../../../../../Messages';
 import { fetchServiceAccounts } from '../../../../../redux/service-accounts/actions';
+import { ServiceAccountsState } from '../../../../../redux/service-accounts/reducer';
 import { PaginationProps } from '../../../group/service-account/AddGroupServiceAccounts';
 import { PER_PAGE_OPTIONS } from '../../../../../helpers/pagination';
-import { selectServiceAccountsFullState, selectServiceAccountsLimit } from '../../../../../redux/service-accounts/selectors';
 import './serviceAccountsList.scss';
 
 interface ServiceAccountsListProps {
@@ -32,25 +32,26 @@ interface ServiceAccountsListProps {
   groupId?: string;
 }
 
+const reducer = ({ serviceAccountReducer }: { serviceAccountReducer: ServiceAccountsState }) => ({
+  serviceAccounts: serviceAccountReducer.serviceAccounts,
+  status: serviceAccountReducer.status,
+  isLoading: serviceAccountReducer.isLoading,
+  limit: serviceAccountReducer.limit,
+  offset: serviceAccountReducer.offset,
+});
+
 const EmptyTable: React.FunctionComponent<{ titleText: string; bodyText: string }> = ({ titleText, bodyText }) => {
   return (
-    <tbody>
-      <tr>
-        <td colSpan={5} style={{ textAlign: 'center', padding: '2rem' }}>
-          <EmptyState>
-            <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<SearchIcon />} />
-            <EmptyStateBody>{bodyText}</EmptyStateBody>
-          </EmptyState>
-        </td>
-      </tr>
-    </tbody>
+    <EmptyState>
+      <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<SearchIcon />} />
+      <EmptyStateBody>{bodyText}</EmptyStateBody>
+    </EmptyState>
   );
 };
 
 export const ServiceAccountsList: React.FunctionComponent<ServiceAccountsListProps> = ({ initialSelectedServiceAccounts, onSelect, groupId }) => {
   const { auth, getEnvironmentDetails } = useChrome();
-  const { serviceAccounts, status, offset, isLoading } = useSelector(selectServiceAccountsFullState);
-  const limit = useSelector(selectServiceAccountsLimit);
+  const { serviceAccounts, status, limit, offset, isLoading } = useSelector(reducer);
   const [activeState, setActiveState] = useState<DataViewState | undefined>(DataViewState.loading);
 
   const dispatch = useDispatch();

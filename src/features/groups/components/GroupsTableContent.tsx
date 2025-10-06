@@ -35,7 +35,7 @@ export const GroupsTableContent: React.FC<GroupsTableContentProps> = ({
   const intl = useIntl();
 
   return (
-    <Table role="grid" aria-label={intl.formatMessage(messages.groups)}>
+    <Table role="grid" isExpandable aria-label={intl.formatMessage(messages.groups)}>
       <Thead>
         <Tr>
           {isAdmin && <Th screenReaderText="Row selection" />}

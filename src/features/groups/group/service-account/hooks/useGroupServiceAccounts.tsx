@@ -1,5 +1,5 @@
 import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { createSearchParams, useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
@@ -7,16 +7,8 @@ import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dis
 import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
+import { defaultSettings } from '../../../../../helpers/pagination';
 import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
-import {
-  selectGroupServiceAccounts,
-  selectGroupServiceAccountsMeta,
-  selectIsAdminDefaultGroup,
-  selectIsGroupServiceAccountsLoading,
-  selectIsPlatformDefaultGroup,
-  selectSelectedGroup,
-  selectSystemGroupUUID,
-} from '../../../../../redux/groups/selectors';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../../../utilities/constants';
 import PermissionsContext from '../../../../../utilities/permissionsContext';
 import useAppNavigate from '../../../../../hooks/useAppNavigate';
@@ -24,6 +16,7 @@ import messages from '../../../../../Messages';
 import pathnames from '../../../../../utilities/pathnames';
 // import { mergeToBasename } from '../../../../../helpers/mergeToBasename';
 import type { GroupServiceAccountsProps, ServiceAccount } from '../types';
+import type { RBACStore } from '../../../../../redux/store.d';
 
 // Row actions dropdown for individual service accounts
 const ServiceAccountRowActions: React.FC<{
@@ -135,6 +128,21 @@ export interface UseGroupServiceAccountsReturn {
   };
 }
 
+const reducer = ({ groupReducer }: RBACStore) => {
+  const { selectedGroup, systemGroup, groups } = groupReducer;
+  return {
+    serviceAccounts: selectedGroup?.serviceAccounts?.data || [],
+    pagination: { ...defaultSettings, ...(selectedGroup?.serviceAccounts?.meta || {}) },
+    groupsPagination: groups?.pagination || groups?.meta,
+    groupsFilters: groups?.filters,
+    isLoading: selectedGroup?.serviceAccounts?.isLoading || false,
+    isAdminDefault: selectedGroup?.admin_default || false,
+    systemGroupUuid: systemGroup?.uuid,
+    group: selectedGroup,
+    isPlatformDefault: selectedGroup?.platform_default || false,
+  };
+};
+
 export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps): UseGroupServiceAccountsReturn => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -147,14 +155,8 @@ export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps):
   // Dropdown state for bulk actions
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
-  // Redux selectors - using memoized selectors to prevent unnecessary re-renders
-  const serviceAccounts = useSelector(selectGroupServiceAccounts);
-  const pagination = useSelector(selectGroupServiceAccountsMeta);
-  const isLoading = useSelector(selectIsGroupServiceAccountsLoading);
-  const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
-  const systemGroupUuid = useSelector(selectSystemGroupUUID);
-  const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
-  const group = useSelector(selectSelectedGroup);
+  // Redux selectors
+  const { serviceAccounts, pagination, isLoading, isAdminDefault, systemGroupUuid, isPlatformDefault, group } = useSelector(reducer, shallowEqual);
 
   // DataView hooks
   const filters = useDataViewFilters<GroupServiceAccountDataViewFilters>({

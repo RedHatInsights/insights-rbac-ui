@@ -131,11 +131,11 @@ export const moveWorkspace = (workspaceData: WorkspacesMoveParams, { name }: { n
           title: intl.formatMessage(messages.moveWorkspaceSuccessTitle),
           dismissDelay: 8000,
           dismissable: true,
-          description: intl.formatMessage(messages.moveWorkspaceSuccessDescription, { name }),
+          description: intl.formatMessage(messages.moveWorkspaceSuccessDescription, { workspace: name }),
         },
         rejected: {
           variant: 'danger',
-          title: intl.formatMessage(messages.moveWorkspaceErrorTitle, { name }),
+          title: intl.formatMessage(messages.moveWorkspaceErrorTitle),
           dismissDelay: 8000,
           dismissable: true,
           description: intl.formatMessage(messages.moveWorkspaceErrorDescription, { workspace: name }),

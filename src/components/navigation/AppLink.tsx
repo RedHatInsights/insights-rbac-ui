@@ -10,11 +10,10 @@ interface AppLinkProps extends LinkProps {
 const AppLink: React.FC<React.PropsWithChildren<AppLinkProps & { className?: string }>> = React.forwardRef(
   (props: React.PropsWithChildren<AppLinkProps>, ref: LegacyRef<HTMLSpanElement>) => {
     const toAppLink = useAppLink();
-    const { linkBasename, ...linkProps } = props;
-    const to = toAppLink(props.to, linkBasename);
+    const to = toAppLink(props.to, props.linkBasename);
     return (
       <span ref={ref}>
-        <Link {...linkProps} to={to} />
+        <Link {...props} to={to} />
       </span>
     );
   },

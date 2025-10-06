@@ -43,11 +43,6 @@ const meta: Meta<typeof EditUserGroup> = {
             <Route path={routePath} element={<Story />} />
             <Route path="/access-management/user-groups/create" element={<Story />} />
             <Route path="/access-management/user-groups" element={<div>User Groups List</div>} />
-            {/* Route for useAppNavigate with /iam/user-access basename */}
-            <Route
-              path="/iam/user-access/users-and-user-groups/user-groups"
-              element={<div data-testid="user-groups-list">User Groups List Page</div>}
-            />
           </Routes>
         </MemoryRouter>
       );
@@ -144,7 +139,7 @@ For testing specific feature scenarios, see these additional stories:
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const status = url.searchParams.get('status');
-          console.log('SB: MSW: Users API called:', request.url, 'Status:', status);
+          console.log('MSW: Users API called:', request.url, 'Status:', status);
           return HttpResponse.json({
             data: [
               { username: 'developer1', first_name: 'Dev', last_name: 'User1', email: 'dev1@example.com' },
@@ -157,7 +152,7 @@ For testing specific feature scenarios, see these additional stories:
 
         // Service accounts API for the embedded users and service accounts component
         http.get('https://sso.redhat.com/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json([
             {
               id: '1',
@@ -217,7 +212,7 @@ For testing specific feature scenarios, see these additional stories:
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called:', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
+          console.log('MSW: Group principals API called:', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
 
           if (principalType === 'user') {
             return HttpResponse.json({
@@ -241,7 +236,7 @@ For testing specific feature scenarios, see these additional stories:
         // Update group
         http.put('/api/rbac/v1/groups/:groupId/', async ({ request, params }) => {
           const requestBody = (await request.json()) as Record<string, any>;
-          console.log('SB: MSW: Update group called:', params.groupId, requestBody);
+          console.log('MSW: Update group called:', params.groupId, requestBody);
 
           // Call the spy with the API call data
           updateGroupSpy(params.groupId, requestBody);
@@ -368,7 +363,7 @@ This story demonstrates:
         // Create new group
         http.post('/api/rbac/v1/groups/', async ({ request }) => {
           const requestBody = (await request.json()) as Record<string, any>;
-          console.log('SB: MSW: Create group called:', requestBody);
+          console.log('MSW: Create group called:', requestBody);
 
           // Call the spy with the API call data
           createGroupSpy(requestBody);
@@ -384,7 +379,7 @@ This story demonstrates:
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const status = url.searchParams.get('status');
-          console.log('SB: MSW: Users API called:', request.url, 'Status:', status);
+          console.log('MSW: Users API called:', request.url, 'Status:', status);
           return HttpResponse.json({
             data: [
               { username: 'developer1', first_name: 'Dev', last_name: 'User1', email: 'dev1@example.com' },
@@ -397,7 +392,7 @@ This story demonstrates:
 
         // Service accounts API for the embedded users and service accounts component
         http.get('*/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json([
             {
               id: '1',
@@ -422,7 +417,7 @@ This story demonstrates:
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called (new group):', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
+          console.log('MSW: Group principals API called (new group):', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
 
           // New groups have no existing members
           return HttpResponse.json({
@@ -649,7 +644,7 @@ export const ValidationErrors: Story = {
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const status = url.searchParams.get('status');
-          console.log('SB: MSW: Users API called:', request.url, 'Status:', status);
+          console.log('MSW: Users API called:', request.url, 'Status:', status);
           return HttpResponse.json({
             data: [
               { username: 'developer1', first_name: 'Dev', last_name: 'User1', email: 'dev1@example.com' },
@@ -661,7 +656,7 @@ export const ValidationErrors: Story = {
 
         // Service accounts API for the embedded users and service accounts component
         http.get('*/realms/redhat-external/apis/service_accounts/v1', ({ request }) => {
-          console.log('SB: MSW: Service accounts API called:', request.url);
+          console.log('MSW: Service accounts API called:', request.url);
           return HttpResponse.json([
             {
               id: '1',
@@ -678,7 +673,7 @@ export const ValidationErrors: Story = {
         http.get('/api/rbac/v1/groups/:groupId/principals/', ({ request, params }) => {
           const url = new URL(request.url);
           const principalType = url.searchParams.get('principal_type');
-          console.log('SB: MSW: Group principals API called (validation):', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
+          console.log('MSW: Group principals API called (validation):', request.url, 'Type:', principalType, 'GroupId:', params.groupId);
 
           // Return empty for validation testing
           return HttpResponse.json({

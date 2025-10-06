@@ -780,7 +780,7 @@ export const SubmitNotification: Story = {
           await userEvent.click(submitButton);
         } catch (error) {
           // If click fails due to disabled state, just continue
-          console.log('SB: Button click failed, possibly disabled:', error);
+          console.log('Button click failed, possibly disabled:', error);
         }
       }
     }
@@ -806,7 +806,7 @@ export const SubmitNotification: Story = {
         );
       } catch {
         // If notification doesn't appear, just verify the modal functionality worked
-        console.log('SB: Notification not found, checking modal functionality instead');
+        console.log('Notification not found, checking modal functionality instead');
         expect(within(modal).getByText('Add members')).toBeInTheDocument();
         expect(rowCheckboxes.length).toBeGreaterThan(0);
       }

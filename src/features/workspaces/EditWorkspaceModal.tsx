@@ -1,7 +1,7 @@
 import componentMapper from '@data-driven-forms/pf4-component-mapper/component-mapper';
 import { FormRenderer, componentTypes, validatorTypes } from '@data-driven-forms/react-form-renderer';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
@@ -9,7 +9,7 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 import messages from '../../Messages';
 import { fetchWorkspace, fetchWorkspaces, updateWorkspace } from '../../redux/workspaces/actions';
 import { Workspace, isWorkspace } from '../../redux/workspaces/reducer';
-import { selectSelectedWorkspace, selectWorkspaces } from '../../redux/workspaces/selectors';
+import { RBACStore } from '../../redux/store';
 import paths from '../../utilities/pathnames';
 import { ModalFormTemplate } from '../../components/forms/ModalFormTemplate';
 
@@ -24,27 +24,24 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
   const dispatch = useDispatch();
   const params = useParams();
   const workspaceId = params.workspaceId;
-  const workspace = useSelector(selectSelectedWorkspace);
-  const allWorkspaces = useSelector(selectWorkspaces);
-
-  // Derive initial form data from workspace (no setState needed)
-  const initialFormData = useMemo(() => {
-    if (workspace) {
-      return {
-        name: workspace.name,
-        description: workspace.description,
-      };
-    }
-    return null;
-  }, [workspace]);
+  const [initialFormData, setInitialFormData] = useState<{
+    name?: string;
+    description?: string;
+  } | null>(null);
+  const workspace = useSelector((state: RBACStore) => state.workspacesReducer.selectedWorkspace);
+  const allWorkspaces = useSelector((state: RBACStore) => state.workspacesReducer.workspaces || []);
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         await Promise.all([dispatch(fetchWorkspaces()), workspaceId ? dispatch(fetchWorkspace(workspaceId)) : Promise.resolve()]);
-      } catch (error) {
-        // Handle fetch error
-        console.error('Failed to fetch workspace data:', error);
+      } finally {
+        if (workspace) {
+          setInitialFormData({
+            name: workspace.name,
+            description: workspace.description,
+          });
+        }
       }
     };
     fetchData();
@@ -82,7 +79,7 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
         },
       ],
     }),
-    [initialFormData, workspaceId, intl, allWorkspaces],
+    [initialFormData, workspaceId, intl],
   );
 
   const returnToPreviousPage = () => {
@@ -111,16 +108,11 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     afterSubmit();
   };
 
-  // Use memoized plain object for initialValues to prevent re-renders
-  const formInitialValues = useMemo(() => {
-    return workspace ? { ...workspace } : {};
-  }, [workspace]);
-
   return (
     <FormRenderer
       schema={createEditWorkspaceSchema}
       componentMapper={{ ...componentMapper }}
-      initialValues={formInitialValues}
+      initialValues={workspace}
       onSubmit={handleSubmit}
       onCancel={handleCancel}
       FormTemplate={(props: any) => (
@@ -136,6 +128,9 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
       )}
       FormTemplateProps={{
         disableSubmit: ['pristine', 'invalid'],
+      }}
+      debug={(values) => {
+        console.log('values:', values);
       }}
     />
   );

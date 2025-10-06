@@ -24,8 +24,8 @@ const Overview: React.FC = () => {
         icon={<img src="/apps/frontend-assets/technology-icons/iam.svg" className="rbac-overview-icon" alt="RBAC landing page icon" />}
         linkProps={{
           label: intl.formatMessage(messages.learnMore),
+          isExternal: true,
           href: 'https://access.redhat.com/documentation/en-us/red_hat_hybrid_cloud_console/2023/html/user_access_configuration_guide_for_role-based_access_control_rbac/index',
-          // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
         }}
       />
       <PageSection>

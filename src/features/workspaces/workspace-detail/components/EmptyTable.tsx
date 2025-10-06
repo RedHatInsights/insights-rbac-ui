@@ -14,14 +14,8 @@ export const EmptyTable: React.FC<EmptyTableProps> = ({
   titleText,
   bodyText = 'No user groups match the filter criteria. Remove all filters or clear all to show results.',
 }) => (
-  <tbody>
-    <tr>
-      <td colSpan={6} style={{ textAlign: 'center', padding: '2rem' }}>
-        <EmptyState>
-          <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
-          <EmptyStateBody>{bodyText}</EmptyStateBody>
-        </EmptyState>
-      </td>
-    </tr>
-  </tbody>
+  <EmptyState>
+    <EmptyStateHeader titleText={titleText} headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+    <EmptyStateBody>{bodyText}</EmptyStateBody>
+  </EmptyState>
 );

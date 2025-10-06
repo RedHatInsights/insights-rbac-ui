@@ -9,13 +9,9 @@ import ServiceIcon from '@patternfly/react-icons/dist/js/icons/service-icon';
 import { useIntl } from 'react-intl';
 import React, { useCallback, useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
+import { RBACStore } from '../../../../../redux/store';
 import messages from '../../../../../Messages';
 import { fetchServiceAccountsForGroup } from '../../../../../redux/groups/actions';
-import {
-  selectGroupServiceAccounts,
-  selectGroupServiceAccountsError,
-  selectIsGroupServiceAccountsLoading,
-} from '../../../../../redux/groups/selectors';
 import { extractErrorMessage } from '../../../../../utilities/errorUtils';
 
 interface GroupDetailsServiceAccountsViewProps {
@@ -32,9 +28,11 @@ const GroupDetailsServiceAccountsView: React.FunctionComponent<GroupDetailsServi
     intl.formatMessage(messages.owner),
   ];
 
-  const serviceAccounts = useSelector(selectGroupServiceAccounts);
-  const isLoading = useSelector(selectIsGroupServiceAccountsLoading);
-  const error = useSelector(selectGroupServiceAccountsError);
+  const serviceAccounts = useSelector((state: RBACStore) => state.groupReducer?.selectedGroup?.serviceAccounts?.data || []);
+  const isLoading = useSelector((state: RBACStore) => (state.groupReducer?.selectedGroup?.serviceAccounts as any)?.isLoading || false);
+  const error = useSelector(
+    (state: RBACStore) => state.groupReducer?.selectedGroup?.error || (state.groupReducer?.selectedGroup?.serviceAccounts as any)?.error,
+  );
 
   const fetchData = useCallback(() => {
     dispatch(fetchServiceAccountsForGroup(groupId, { limit: 1000 }));

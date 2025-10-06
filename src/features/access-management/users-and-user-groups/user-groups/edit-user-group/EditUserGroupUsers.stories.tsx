@@ -101,7 +101,7 @@ export const Default: Story = {
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: Users principals API called (default):', request.url);
+          console.log('MSW: Users principals API called (default):', request.url);
           return HttpResponse.json({
             data: mockUsers,
             meta: { count: mockUsers.length, limit: 20, offset: 0 },
@@ -175,7 +175,7 @@ export const EmptyState: Story = {
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: Users principals API called (empty):', request.url);
+          console.log('MSW: Users principals API called (empty):', request.url);
           return HttpResponse.json({
             data: [],
             meta: { count: 0, limit: 20, offset: 0 },
@@ -207,7 +207,7 @@ export const UserSelection: Story = {
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: Users principals API called:', request.url);
+          console.log('MSW: Users principals API called:', request.url);
           return HttpResponse.json({
             data: mockUsers,
             meta: { count: mockUsers.length, limit: 20, offset: 0 },
@@ -269,7 +269,7 @@ export const PreSelectedUsers: Story = {
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: Users principals API called (selection):', request.url);
+          console.log('MSW: Users principals API called (selection):', request.url);
           return HttpResponse.json({
             data: mockUsers,
             meta: { count: mockUsers.length, limit: 20, offset: 0 },
@@ -316,7 +316,7 @@ export const APIError: Story = {
     msw: {
       handlers: [
         http.get('/api/rbac/v1/principals/', ({ request }) => {
-          console.log('SB: MSW: Users principals API called (error):', request.url);
+          console.log('MSW: Users principals API called (error):', request.url);
           return HttpResponse.json({ message: 'Internal server error' }, { status: 500 });
         }),
       ],

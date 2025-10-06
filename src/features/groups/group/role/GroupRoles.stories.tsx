@@ -7,7 +7,6 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { GroupRoles } from './GroupRoles';
 import { fetchGroup } from '../../../../redux/groups/actions';
 
-// Regular group roles (custom roles assigned by admins)
 const mockRoles = [
   {
     uuid: 'role-1',
@@ -44,106 +43,6 @@ const mockRoles = [
     modified: '2023-01-18T08:45:00.000Z',
     policyCount: 8,
     accessCount: 20,
-  },
-];
-
-// Admin default group roles (system/platform defaults that apply to ALL users)
-const mockDefaultGroupRoles = [
-  {
-    uuid: 'default-role-1',
-    name: 'User Access administrator',
-    display_name: 'User Access administrator',
-    description: 'Perform any available operation against any User Access resource',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 25,
-  },
-  {
-    uuid: 'default-role-2',
-    name: 'Inventory Hosts Viewer',
-    display_name: 'Inventory Hosts Viewer',
-    description: 'A viewer role that grants read permissions on Inventory Hosts and groups',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 8,
-  },
-  {
-    uuid: 'default-role-3',
-    name: 'Automation Analytics Viewer',
-    display_name: 'Automation Analytics Viewer',
-    description: 'A viewer role that grants read permissions on Automation Analytics',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 5,
-  },
-  {
-    uuid: 'default-role-4',
-    name: 'Compliance Viewer',
-    display_name: 'Compliance Viewer',
-    description: 'A viewer role that grants read permissions on Compliance',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 12,
-  },
-  {
-    uuid: 'default-role-5',
-    name: 'Remediations User',
-    display_name: 'Remediations User',
-    description: 'A user role that grants read and execute permissions on Remediations',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 15,
-  },
-  {
-    uuid: 'default-role-6',
-    name: 'Subscriptions Viewer',
-    display_name: 'Subscriptions Viewer',
-    description: 'A viewer role that grants read permissions on Subscriptions',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 6,
-  },
-  {
-    uuid: 'default-role-7',
-    name: 'Cost Price List Viewer',
-    display_name: 'Cost Price List Viewer',
-    description: 'A viewer role that grants read permissions on Cost Management Price List',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 4,
-  },
-  {
-    uuid: 'default-role-8',
-    name: 'Advisor Viewer',
-    display_name: 'Advisor Viewer',
-    description: 'A viewer role that grants read permissions on Insights Advisor',
-    system: true,
-    platform_default: true,
-    created: '2020-01-01T00:00:00.000Z',
-    modified: '2020-01-01T00:00:00.000Z',
-    policyCount: 1,
-    accessCount: 10,
   },
 ];
 
@@ -249,21 +148,7 @@ For testing specific scenarios, see these additional stories:
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
-          const excluded = url.searchParams.get('excluded');
 
-          // Handle fetchAddRolesForGroup (excluded=true) - available roles not in group
-          if (excluded === 'true') {
-            const availableRoles = [
-              { uuid: 'role-4', name: 'Cost Administrator', display_name: 'Cost Administrator', description: 'Manage cost data' },
-              { uuid: 'role-5', name: 'Compliance Viewer', display_name: 'Compliance Viewer', description: 'View compliance reports' },
-            ];
-            return HttpResponse.json({
-              data: availableRoles.slice(offset, offset + limit),
-              meta: { count: availableRoles.length, limit, offset },
-            });
-          }
-
-          // Handle fetchRolesForGroup (excluded=false/undefined) - roles in group
           return HttpResponse.json({
             data: mockRoles.slice(offset, offset + limit),
             meta: {
@@ -293,7 +178,7 @@ For testing specific scenarios, see these additional stories:
         // Mock remove role action
         http.delete('/api/rbac/v1/groups/:groupId/roles/', async ({ request, params }) => {
           const requestBody = (await request.json()) as { roles: string[] };
-          console.log('SB: 🗑️ Remove roles API called:', { groupId: params.groupId, roles: requestBody.roles });
+          console.log('🗑️ Remove roles API called:', { groupId: params.groupId, roles: requestBody.roles });
           return HttpResponse.json({ message: 'Roles removed successfully' });
         }),
       ],
@@ -311,18 +196,8 @@ For testing specific scenarios, see these additional stories:
     expect(await canvas.findByText('Organization Administrator')).toBeInTheDocument();
     expect(await canvas.findByText('Insights Viewer')).toBeInTheDocument();
 
-    // CRITICAL: Verify Add role button is present AND enabled (production bug fix)
-    // The bug was that fetchAddRolesForGroup wasn't called on mount, causing button to be disabled
-    const addRoleButton = await canvas.findByRole('button', { name: /add role/i });
-    expect(addRoleButton).toBeInTheDocument();
-
-    // Wait for addRoles state to populate (from fetchAddRolesForGroup call on mount)
-    await waitFor(
-      () => {
-        expect(addRoleButton).not.toBeDisabled();
-      },
-      { timeout: 5000 },
-    );
+    // Verify Add role button is present
+    expect(await canvas.findByRole('button', { name: /add role/i })).toBeInTheDocument();
 
     // Test individual role actions - find actions menu for Console Administrator role
     const actionButton = await canvas.findByRole('button', { name: /actions for role console administrator/i });
@@ -332,21 +207,6 @@ For testing specific scenarios, see these additional stories:
 
 export const WithoutPermissions: Story = {
   parameters: {
-    docs: {
-      description: {
-        story: `
-**Read-Only View**: User without permissions sees roles but cannot edit.
-
-**Key Behavior**:
-- ❌ No "Add Role" button (user lacks \`user-access-admin\` permission)
-- ❌ No checkboxes for selection (no edit permissions)
-- ✅ Can view role list (read-only access)
-- ❌ No kebab menu actions on individual roles
-
-**Contrast with DefaultGroupRoles**: That story shows a user WITH permissions viewing an admin default group, where the button exists but is disabled.
-        `,
-      },
-    },
     permissions: {
       userAccessAdministrator: false,
       orgAdmin: false,
@@ -356,18 +216,7 @@ export const WithoutPermissions: Story = {
         http.get('/api/rbac/v1/groups/:groupId/', () => {
           return HttpResponse.json(mockGroup);
         }),
-        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const excluded = url.searchParams.get('excluded');
-
-          // Even though user can't add roles, the API call still happens on mount
-          if (excluded === 'true') {
-            return HttpResponse.json({
-              data: [{ uuid: 'role-4', name: 'Cost Administrator', display_name: 'Cost Administrator' }],
-              meta: { count: 1, limit: 20, offset: 0 },
-            });
-          }
-
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
           return HttpResponse.json({
             data: mockRoles,
             meta: { count: mockRoles.length, limit: 20, offset: 0 },
@@ -392,41 +241,17 @@ export const WithoutPermissions: Story = {
     // Verify role data is displayed (read-only view)
     expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
 
-    // CRITICAL: Verify no Add role button (no permissions means button not rendered at all)
+    // Verify no Add role button (no permissions)
     expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
 
-    // Verify no bulk select checkbox (no edit permissions)
+    // Verify no bulk select checkbox
     expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
-
-    // Verify no kebab menu actions (read-only)
-    expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
   },
 };
 
 export const DefaultGroupRoles: Story = {
   tags: ['perm:user-access-admin'],
   parameters: {
-    docs: {
-      description: {
-        story: `
-**Admin Default Group**: User WITH permissions viewing a system default group.
-
-**Key Behavior** (visually identical to WithoutPermissions but for different reason):
-- ❌ "Add Role" button NOT RENDERED (admin_default group protection - see line 311 in useGroupRoles.tsx)
-- ❌ No checkboxes for selection (default groups are protected)
-- ❌ No kebab menu actions (default groups are protected)
-
-**Why this story exists**:
-Although the UI looks the same as WithoutPermissions, the code path is different:
-- \`WithoutPermissions\`: \`!hasPermissions = true\` → button not rendered
-- \`DefaultGroupRoles\`: \`isAdminDefault = true\` → button not rendered
-
-**Business Rule**: Admin default groups contain roles that apply to all users in the organization. Even users WITH admin permissions cannot modify them to prevent accidental changes to baseline permissions.
-
-**Code**: \`if (!hasPermissions || isAdminDefault) { return []; }\` in useGroupRoles.tsx line 311
-        `,
-      },
-    },
     groupId: 'default-group-id',
     permissions: {
       userAccessAdministrator: true,
@@ -437,22 +262,10 @@ Although the UI looks the same as WithoutPermissions, the code path is different
         http.get('/api/rbac/v1/groups/:groupId/', () => {
           return HttpResponse.json(mockDefaultGroup);
         }),
-        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
-          const url = new URL(request.url);
-          const excluded = url.searchParams.get('excluded');
-
-          // Handle fetchAddRolesForGroup - No available roles (all system roles already in default group)
-          if (excluded === 'true') {
-            return HttpResponse.json({
-              data: [], // No roles to add - all system defaults already included
-              meta: { count: 0, limit: 20, offset: 0 },
-            });
-          }
-
-          // Handle fetchRolesForGroup - return SYSTEM/PLATFORM DEFAULT roles (8 roles)
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
           return HttpResponse.json({
-            data: mockDefaultGroupRoles,
-            meta: { count: mockDefaultGroupRoles.length, limit: 20, offset: 0 },
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
           });
         }),
         http.get('/api/rbac/v1/groups/', ({ request }) => {
@@ -481,32 +294,25 @@ Although the UI looks the same as WithoutPermissions, the code path is different
     const table = await canvas.findByRole('grid', undefined, { timeout: 10000 });
     expect(table).toBeInTheDocument();
 
-    // CRITICAL: Verify DIFFERENT roles than WithoutPermissions (system/platform defaults, not custom roles)
-    // This proves we're actually testing admin default group behavior, not just permissions
-    expect(await canvas.findByText('User Access administrator')).toBeInTheDocument();
-    expect(await canvas.findByText('Inventory Hosts Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Automation Analytics Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Compliance Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Remediations User')).toBeInTheDocument();
-    expect(await canvas.findByText('Subscriptions Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Cost Price List Viewer')).toBeInTheDocument();
-    expect(await canvas.findByText('Advisor Viewer')).toBeInTheDocument();
+    // Verify role data is displayed
+    expect(await canvas.findByText('Console Administrator')).toBeInTheDocument();
 
-    // Verify these are NOT the same roles as WithoutPermissions story
-    expect(canvas.queryByText('Console Administrator')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
+    // For admin default groups, Add role button should be disabled or hidden
+    // Wait a moment for Redux state to update with group data
+    await waitFor(
+      async () => {
+        const addButton = canvas.queryByRole('button', { name: /add role/i });
+        // Admin default groups should not have an add role button, or if present it should be disabled
+        if (addButton) {
+          expect(addButton).toBeDisabled();
+        }
+        // If no button, that's also acceptable for admin default groups
+      },
+      { timeout: 5000 },
+    );
 
-    // CRITICAL: For admin default groups, button is NOT rendered (line 311: if (!hasPermissions || isAdminDefault))
-    // This is IDENTICAL behavior to WithoutPermissions, but code path is different:
-    // - WithoutPermissions: !hasPermissions = true → no button
-    // - DefaultGroupRoles: isAdminDefault = true → no button
-    expect(canvas.queryByRole('button', { name: /add role/i })).not.toBeInTheDocument();
-
-    // Verify no bulk select for admin default groups (protected from modifications)
+    // Verify no bulk select for system default groups
     expect(canvas.queryByRole('checkbox')).not.toBeInTheDocument();
-
-    // Verify no individual role actions (protected from modifications)
-    expect(canvas.queryByRole('button', { name: /actions for role/i })).not.toBeInTheDocument();
   },
 };
 
@@ -537,12 +343,12 @@ export const BulkSelection: Story = {
         // Mock bulk remove
         http.delete('/api/rbac/v1/groups/:groupId/roles/', async ({ request, params }) => {
           const requestBody = (await request.json()) as { roles: string[] };
-          console.log('SB: 🗑️ Bulk remove roles API called:', { groupId: params.groupId, roles: requestBody.roles });
+          console.log('🗑️ Bulk remove roles API called:', { groupId: params.groupId, roles: requestBody.roles });
           return HttpResponse.json({ message: `${requestBody.roles.length} roles removed successfully` });
         }),
         // Mock refresh after remove
         http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
-          console.log('SB: 🔄 Refreshing roles after remove');
+          console.log('🔄 Refreshing roles after remove');
           return HttpResponse.json({
             data: mockRoles.slice(1), // Remove first role to simulate deletion
             meta: { count: mockRoles.length - 1, limit: 20, offset: 0 },

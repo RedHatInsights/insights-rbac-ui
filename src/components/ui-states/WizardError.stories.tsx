@@ -17,7 +17,7 @@ const WizardErrorWrapper: React.FC<{
   const mockContext = {
     setWizardError: () => {
       setErrorCleared(true);
-      console.log('SB: Wizard error cleared');
+      console.log('Wizard error cleared');
     },
   };
 
@@ -25,7 +25,7 @@ const WizardErrorWrapper: React.FC<{
   const mockWizardContextValue = {
     jumpToStep: (step: number) => {
       setJumpedToStep(step);
-      console.log(`SB: Jumped to step: ${step}`);
+      console.log(`Jumped to step: ${step}`);
     },
     formOptions: {} as any,
     crossroads: [],
@@ -137,13 +137,13 @@ export const CustomFooter: Story = {
   render: () => {
     const customFooter = (
       <div style={{ display: 'flex', gap: '12px' }}>
-        <Button variant="primary" onClick={() => console.log('SB: Custom retry')}>
+        <Button variant="primary" onClick={() => console.log('Custom retry')}>
           Try Again
         </Button>
-        <Button variant="secondary" onClick={() => console.log('SB: Contact support')}>
+        <Button variant="secondary" onClick={() => console.log('Contact support')}>
           Contact Support
         </Button>
-        <Button variant="link" onClick={() => console.log('SB: Cancel')}>
+        <Button variant="link" onClick={() => console.log('Cancel')}>
           Cancel
         </Button>
       </div>

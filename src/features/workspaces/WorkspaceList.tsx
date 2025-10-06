@@ -2,8 +2,8 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { WorkspaceListTable } from './components/WorkspaceListTable';
 import { deleteWorkspace, fetchWorkspaces, moveWorkspace } from '../../redux/workspaces/actions';
+import { RBACStore } from '../../redux/store';
 import { Workspace } from '../../redux/workspaces/reducer';
-import { selectIsWorkspacesLoading, selectWorkspaces, selectWorkspacesError } from '../../redux/workspaces/selectors';
 import useChrome from '@redhat-cloud-services/frontend-components/useChrome';
 import { MoveWorkspaceDialog } from './components/MoveWorkspaceDialog';
 import { TreeViewWorkspaceItem } from './components/managed-selector/TreeViewWorkspaceItem';
@@ -26,10 +26,10 @@ export const WorkspaceList = () => {
   const dispatch = useDispatch();
   const chrome = useChrome();
 
-  // All Redux selectors moved from WorkspaceListTable - using memoized selectors
-  const workspaces = useSelector(selectWorkspaces);
-  const error = useSelector(selectWorkspacesError);
-  const isLoading = useSelector(selectIsWorkspacesLoading);
+  // All Redux selectors moved from WorkspaceListTable
+  const workspaces = useSelector((state: RBACStore) => state.workspacesReducer.workspaces || []);
+  const error = useSelector((state: RBACStore) => state.workspacesReducer.error);
+  const isLoading = useSelector((state: RBACStore) => state.workspacesReducer.isLoading);
 
   // User permissions state moved from WorkspaceListTable
   const [userPermissions, setUserPermissions] = useState<Permission>({

@@ -1,17 +1,3 @@
-# [1.58.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.8...v1.58.0) (2025-10-03)
-
-
-### Bug Fixes
-
-* address console.warns ([c6d342d](https://github.com/RedHatInsights/insights-rbac-ui/commit/c6d342d3ab2cc9a328294964b68bfcc479853755))
-* **console:** address all warnings and errors ([6ba7480](https://github.com/RedHatInsights/insights-rbac-ui/commit/6ba74806fd4150c3201c9cddb96604efeabdc1fb))
-* key prop spreading error ([25340d6](https://github.com/RedHatInsights/insights-rbac-ui/commit/25340d65cae9fb0835aea40d2359f15747c59899))
-
-
-### Features
-
-* **Storybook:** detect problematic console messages and flag them as test errors ([a79dcbb](https://github.com/RedHatInsights/insights-rbac-ui/commit/a79dcbb5d1a00d7fe1e5766a9684394af5d30331))
-
 ## [1.57.8](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.7...v1.57.8) (2025-10-02)
 
 
