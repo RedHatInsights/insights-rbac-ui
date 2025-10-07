@@ -1,3 +1,4 @@
+import { RoleBindingsRole } from '@redhat-cloud-services/rbac-client/v2/types';
 import { FETCH_WORKSPACE, FETCH_WORKSPACES } from './action-types';
 
 export interface WorkspaceCreateBody {
@@ -14,12 +15,67 @@ export interface Workspace extends WorkspaceCreateBody {
   parent_id: string;
 }
 
+export interface RoleBindingsUser {
+  username: string;
+}
+
+export interface RoleBindingsGroup {
+  name: string;
+  description?: string;
+  user_count?: number;
+}
+
+export interface RoleBindingsSubject {
+  id: string;
+  type: 'user' | 'group';
+  user?: RoleBindingsUser;
+  group?: RoleBindingsGroup;
+}
+
+export interface RoleBindingsProject {
+  name: string;
+  description?: string;
+}
+
+export interface RoleBindingsWorkspace {
+  name: string;
+  type: string;
+  description?: string;
+}
+
+export interface RoleBindingsResource {
+  id: string;
+  type: 'project' | 'workspace';
+  project?: RoleBindingsProject;
+  workspace?: RoleBindingsWorkspace;
+}
+
+export interface RoleBindingBySubject {
+  last_modified: string;
+  subject: RoleBindingsSubject;
+  roles: RoleBindingsRole[];
+  resource: RoleBindingsResource;
+}
 export interface WorkspacesStore {
   isLoading: boolean;
   workspaces: Workspace[];
   error: string;
   selectedWorkspace: Workspace;
 }
+
+export interface RoleBindingsStore {
+  isLoading: boolean;
+  roleBindings: RoleBindingBySubject[];
+  error: string;
+  selectedRoleBinding: RoleBindingBySubject;
+}
+
+export const RoleBindingsInitialState = {
+  isLoading: false,
+  roleBindings: [],
+  error: '',
+  selectedRoleBinding: undefined,
+};
 
 export const workspacesInitialState = {
   isLoading: false,

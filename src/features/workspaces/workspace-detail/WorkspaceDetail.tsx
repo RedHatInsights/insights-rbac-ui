@@ -2,13 +2,9 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchWorkspace, fetchWorkspaces } from '../../../redux/workspaces/actions';
-import { fetchGroups } from '../../../redux/groups/actions';
+import { getRoleBindingsForSubject } from '../../../redux/workspaces/helper';
+import { Divider, PageSection, Tab, Tabs } from '@patternfly/react-core';
 import { selectWorkspacesFullState } from '../../../redux/workspaces/selectors';
-import { selectGroups, selectGroupsTotalCount, selectIsGroupsLoading } from '../../../redux/groups/selectors';
-import { Divider } from '@patternfly/react-core/dist/dynamic/components/Divider';
-import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page';
-import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
-import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { useParams, useSearchParams } from 'react-router-dom';
 import { useDataViewFilters, useDataViewPagination, useDataViewSort } from '@patternfly/react-data-view';
 import messages from '../../../Messages';
@@ -18,6 +14,7 @@ import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
 import { useFlag } from '@unleash/proxy-client-react';
 import { Workspace } from '../../../redux/workspaces/reducer';
+import { Group } from '../../../redux/groups/reducer';
 import { mappedProps } from '../../../helpers/dataUtilities';
 import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
 import { fetchGroups as fetchGroupsHelper } from '../../../redux/groups/helper';
@@ -56,10 +53,10 @@ export const WorkspaceDetail = () => {
   const dispatch = useDispatch();
   const { isLoading, workspaces, selectedWorkspace } = useSelector(selectWorkspacesFullState);
 
-  // Groups data for RoleAssignmentsTable - using memoized selectors
-  const groups = useSelector(selectGroups);
-  const groupsTotalCount = useSelector(selectGroupsTotalCount);
-  const groupsIsLoading = useSelector(selectIsGroupsLoading);
+  // Role bindings data for RoleAssignmentsTable (transformed to Group structure)
+  const [roleBindings, setRoleBindings] = useState<Group[]>([]);
+  const [roleBindingsTotalCount, setRoleBindingsTotalCount] = useState(0);
+  const [roleBindingsIsLoading, setRoleBindingsIsLoading] = useState(false);
 
   // Separate parent groups data for RoleAssignmentsTable with inheritance
   const [parentGroups, setParentGroups] = useState<GroupWithInheritance[]>([]);
@@ -127,32 +124,46 @@ export const WorkspaceDetail = () => {
     setSearchParams: setParentSearchParams,
   });
 
-  // Groups data fetching
-  const fetchGroupsData = useCallback(() => {
-    const offset = (page - 1) * perPage;
-    const orderBy = sortBy && direction ? `${direction === 'desc' ? '-' : ''}${sortBy}` : 'name';
-    const nameFilter = filters?.name?.trim() || '';
+  // Role bindings data fetching
+  const fetchRoleBindingsData = useCallback(async () => {
+    if (!workspaceId) return;
 
-    dispatch(
-      fetchGroups({
-        ...mappedProps({
-          count: groupsTotalCount || 0,
-          limit: perPage,
-          offset,
-          orderBy: orderBy as ListGroupsOrderByEnum,
-        }),
-        // Pass filter parameters correctly according to the API
-        ...(nameFilter
-          ? {
-              filters: { name: nameFilter },
-              nameMatch: 'partial' as const, // Enable partial matching for the filter
-            }
-          : {}),
-        usesMetaInURL: true,
-        system: false,
-      }),
-    );
-  }, [dispatch, groupsTotalCount, page, perPage, sortBy, direction, filters]);
+    setRoleBindingsIsLoading(true);
+    try {
+      const result = await getRoleBindingsForSubject({
+        limit: perPage,
+        subjectType: 'group',
+        resourceType: 'workspace',
+        subjectId: workspaceId,
+      });
+
+      // Transform role bindings data to match the expected Group structure
+      const transformedData: Group[] =
+        result.data?.map(
+          (binding: any): Group => ({
+            uuid: binding.subject.id,
+            name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
+            description: binding.subject.group?.description || '',
+            principalCount: binding.subject.group?.user_count || 0,
+            roleCount: binding.roles?.length || 0,
+            created: binding.last_modified,
+            modified: binding.last_modified,
+            platform_default: false,
+            system: false,
+            admin_default: false,
+          }),
+        ) || [];
+
+      setRoleBindings(transformedData);
+      setRoleBindingsTotalCount(result.meta?.count || 0);
+    } catch (error) {
+      console.error('Error fetching role bindings:', error);
+      setRoleBindings([]);
+      setRoleBindingsTotalCount(0);
+    } finally {
+      setRoleBindingsIsLoading(false);
+    }
+  }, [workspaceId, page, perPage, sortBy, direction, filters]);
 
   const fetchParentGroupsData = useCallback(async () => {
     const offset = (parentPage - 1) * parentPerPage;
@@ -182,8 +193,11 @@ export const WorkspaceDetail = () => {
       });
 
       // Store result in parent state and add inheritance information
-      const groupsWithInheritance = (result.data || []).map((group: any) => ({
+      const groupsWithInheritance = (result.data || []).map((group) => ({
         ...group,
+        platform_default: group.platform_default ?? false,
+        system: group.system ?? false,
+        admin_default: group.admin_default ?? false,
         inheritedFrom: {
           workspaceId: '',
           workspaceName: '',
@@ -204,7 +218,7 @@ export const WorkspaceDetail = () => {
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
       if (activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
-        fetchGroupsData();
+        fetchRoleBindingsData();
       } else if (activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
         // Reset parent data when switching to parent tab
         setParentGroups([]);
@@ -212,14 +226,14 @@ export const WorkspaceDetail = () => {
         fetchParentGroupsData();
       }
     }
-  }, [activeTabString, enableRoles, activeRoleAssignmentTabString]);
+  }, [activeTabString, enableRoles, activeRoleAssignmentTabString, fetchRoleBindingsData]);
 
   // Fetch workspace data when workspace table parameters change
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-workspace') {
-      fetchGroupsData();
+      fetchRoleBindingsData();
     }
-  }, [fetchGroupsData, activeTabString, enableRoles, activeRoleAssignmentTabString]);
+  }, [fetchRoleBindingsData, activeTabString, enableRoles, activeRoleAssignmentTabString]);
 
   // Fetch parent data when parent table parameters change
   useEffect(() => {
@@ -338,9 +352,9 @@ export const WorkspaceDetail = () => {
                 <div className="pf-v5-u-background-color-100">
                   {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
                     <RoleAssignmentsTable
-                      groups={groups}
-                      totalCount={groupsTotalCount}
-                      isLoading={groupsIsLoading}
+                      groups={roleBindings}
+                      totalCount={roleBindingsTotalCount}
+                      isLoading={roleBindingsIsLoading}
                       page={page}
                       perPage={perPage}
                       onSetPage={onSetPage}
