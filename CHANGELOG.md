@@ -1,3 +1,10 @@
+# [1.60.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.59.0...v1.60.0) (2025-10-07)
+
+
+### Features
+
+* **Rolebindings:** add Role binding api ([#1914](https://github.com/RedHatInsights/insights-rbac-ui/issues/1914)) ([9d0d0b3](https://github.com/RedHatInsights/insights-rbac-ui/commit/9d0d0b31cd064bed1237e2046c603b4fd9381ff0))
+
 # [1.59.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.58.0...v1.59.0) (2025-10-07)
 
 
