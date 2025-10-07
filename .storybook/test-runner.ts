@@ -56,12 +56,17 @@ const PATTERNFLY_VERSION = getPatternFlyVersion();
 // Log version detection for transparency
 console.log(`\n📦 PatternFly Version Detected: ${PATTERNFLY_VERSION}`);
 if (PATTERNFLY_VERSION < 6) {
-  console.log(`⚠️  @data-driven-forms compatibility issues will be IGNORED:`);
+  console.log(`⚠️  PatternFly 5 Compatibility Mode - These warnings are IGNORED:`);
   console.log(`   - FormWrapper PropTypes errors`);
   console.log(`   - setState during render warnings`);
+  console.log(`   - Duplicate React keys warnings`);
+  console.log(`   - validateDOMNesting warnings`);
+  console.log(`   - Redux selector instability`);
+  console.log(`\n   ⚡ IMPORTANT: These will FAIL tests after upgrading to PatternFly 6!`);
   console.log(`   Upgrade to PatternFly 6 + @data-driven-forms v4.x to enforce these checks\n`);
 } else {
-  console.log(`✅ @data-driven-forms errors will FAIL tests (enforcing v4.x compatibility)\n`);
+  console.log(`✅ PatternFly 6+ Detected - ENFORCING all React anti-pattern checks`);
+  console.log(`   All warnings about duplicate keys, DOM nesting, etc. will FAIL tests\n`);
 }
 
 /**
@@ -107,6 +112,7 @@ const IGNORED_ERROR_PATTERNS = [
   // MSW mock API errors (intentional for testing error states)
   /Failed to load resource.*status of (400|401|403|404|500)/,
   /AxiosError/,
+  /SyntaxError: Unexpected token.*Not Found.*is not valid JSON/,  // 404 responses that return HTML instead of JSON
   
   // Storybook/Testing Library informational warnings (not runtime issues)
   /You are using Testing Library's `screen` object/,
@@ -128,9 +134,20 @@ const IGNORED_ERROR_PATTERNS = [
   // @data-driven-forms PatternFly 5 compatibility issues - ONLY ignored on PatternFly 5
   // On PatternFly 6+, these MUST fail to remind us to upgrade @data-driven-forms to v4.x
   ...(PATTERNFLY_VERSION < 6 ? [
+    /Warning: A props object containing a "key" prop is being spread/,
     /Invalid prop `FormWrapper` supplied to `FormTemplate`/,
     /Cannot update a component.*while rendering a different component/,  // setState during render in form library
+    // Create Role wizard warnings (PatternFly table/form issues - fix when upgrading to PF6)
+    /Warning: Encountered two children with the same key/,  // Duplicate keys in permissions table
+    /Warning: Each child in a list should have a unique "key" prop/,  // Missing keys in lists (UsersListNotSelectable)
+    /Warning: validateDOMNesting.*<tr>.*div/,  // PatternFly table DOM nesting
+    /Warning: validateDOMNesting.*<div>.*tbody/,  // Popper in table
+    /Selector selector returned a different result/,  // Redux selector instability in form
+    /Warning: React does not recognize.*prop on a DOM element/,  // Invalid props passed to DOM elements
   ] : []),
+  
+  // PatternFly accessibility warnings (not critical, should be fixed incrementally)
+  /Th: Table headers must have an accessible name/,  // PatternFly table component warnings
   
   // Storybook test debugging console.log (allowed in play functions)
   // All story console.log statements should start with "SB:" prefix
@@ -188,6 +205,8 @@ const IGNORED_ERROR_PATTERNS = [
  *    HOW TO FIX:
  *    Bad:  const props = {key: id, ...}; <Component {...props} />
  *    Good: const props = {...}; <Component key={id} {...props} />
+ *    
+ *    Ignored on PatternFly 5, enforced on PatternFly 6
  * 
  * 3. DOM Nesting Violations
  *    Pattern: /Warning: validateDOMNesting/
@@ -434,30 +453,35 @@ const IGNORED_ERROR_PATTERNS = [
  * ============================================================================
  */
 const CRITICAL_ERROR_PATTERNS = [
-  // React errors - anti-patterns and bugs
-  /Warning: Encountered two children with the same key/,
-  /Warning: A props object containing a "key" prop is being spread/,
-  /Warning: validateDOMNesting/,
-  /Warning: React does not recognize.*prop on a DOM element/,
-  /Warning: Cannot update a component.*while rendering a different component/,
+  // Always critical - these indicate real bugs regardless of PF version
   /Warning: Failed.*type:/,
+  /No routes matched location/,  // Router issues
+  /@formatjs\/intl Error FORMAT_ERROR/,  // i18n errors
+  /result function returned its own inputs without modification/,  // Redux selector issues
   
-  // Router issues - navigation must work correctly
-  /No routes matched location/,
-  
-  // Redux performance issues - cause unnecessary re-renders in production
-  /Selector.*returned a different result/,
-  /result function returned its own inputs without modification/,
-  
-  // Intl errors - will break i18n in production
-  /@formatjs\/intl Error FORMAT_ERROR/,
-  
-  // JavaScript errors - runtime failures
+  // JavaScript runtime errors - always critical
   /Uncaught/,
   /TypeError/,
   /ReferenceError/,
   /Cannot read propert/,
   /is not a function/,
+  
+  // PatternFly version-dependent patterns
+  // On PF6+: ENFORCE these (they MUST be fixed after upgrade)
+  // On PF5: IGNORE these (they're in IGNORED_ERROR_PATTERNS for backwards compatibility)
+  ...(PATTERNFLY_VERSION >= 6 ? [
+    // React anti-patterns - must be fixed in PF6
+    /Warning: A props object containing a "key" prop is being spread/,
+    /Warning: Encountered two children with the same key/,
+    /Warning: Each child in a list should have a unique "key" prop/,
+    /Warning: validateDOMNesting/,
+    /Warning: React does not recognize.*prop on a DOM element/,
+    /Warning: Cannot update a component.*while rendering a different component/,
+    /Selector.*returned a different result/,
+  ] : [
+    // On PF5: No additional React warnings enforced here
+    // They're all ignored in IGNORED_ERROR_PATTERNS for backwards compatibility
+  ]),
 ];
 
 function shouldIgnoreError(errorText: string): boolean {

@@ -8,6 +8,7 @@ import messages from '../../../Messages';
 import providerMessages from '../../../locales/data.json';
 import { locale } from '../../../locales/locale';
 import { AddGroupWizardContext } from './add-group-wizard-context';
+import { getModalContainer } from '../../../helpers/modal-container';
 
 export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => {
   const cache = createIntlCache();
@@ -23,7 +24,7 @@ export const schemaBuilder = (container, enableServiceAccounts, enableRoles) => 
         showTitles: true,
         title: intl.formatMessage(messages.createGroup),
         'data-ouia-component-id': 'add-group-wizard',
-        container,
+        container: getModalContainer(container),
         fields: [
           {
             name: 'name-and-description',

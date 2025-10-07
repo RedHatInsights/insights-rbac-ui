@@ -7,6 +7,7 @@ import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { useFlag } from '@unleash/proxy-client-react';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 import UsersListNotSelectable from './users-list-not-selectable';
+import { Users as UsersWithDrawer } from '../access-management/users-and-user-groups/users/Users';
 import { ActiveUsers } from '../../components/user-management/ActiveUsers';
 import PermissionsContext, { PermissionsContextType } from '../../utilities/permissionsContext';
 import messages from '../../Messages';
@@ -46,15 +47,7 @@ const Users: React.FC = () => {
       </StackItem>
       <StackItem>
         <Section type="content" id="users">
-          {!commonUsersTable ? (
-            isITLess ? (
-              <UsersListNotSelectable {...usersListProps} />
-            ) : (
-              <UsersListNotSelectable {...usersListProps} />
-            )
-          ) : (
-            <UsersListNotSelectable {...usersListProps} />
-          )}
+          {commonUsersTable ? <UsersWithDrawer /> : <UsersListNotSelectable {...usersListProps} />}
         </Section>
       </StackItem>
     </Stack>

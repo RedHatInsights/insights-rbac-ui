@@ -167,6 +167,7 @@
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "test-storybook": "test-storybook",
+    "test-storybook:fast": "CI=true test-storybook",
     "test-storybook:ci": "test-storybook --ci"
   },
   "insights": {

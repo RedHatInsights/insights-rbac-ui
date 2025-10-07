@@ -384,7 +384,8 @@ export const AddToGroupModalIntegration: Story = {
     await expect(within(modal).getByText(/Add to user group/i)).toBeInTheDocument();
 
     // Wait for groups to load in modal, then test group selection and API call
-    await expect(within(modal).getByText(/Test Group 1/i)).toBeInTheDocument();
+    // Use findByText to wait for the groups to load (important for CI environments)
+    await expect(within(modal).findByText(/Test Group 1/i)).resolves.toBeInTheDocument();
 
     // Select a group and submit to test the API call
     const groupCheckboxes = within(modal).getAllByRole('checkbox');

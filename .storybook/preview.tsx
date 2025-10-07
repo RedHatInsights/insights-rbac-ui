@@ -46,6 +46,12 @@ const preview: Preview = {
   },
   loaders: [mswLoader],
   parameters: {
+    options: {
+      storySort: {
+        method: 'alphabetical',
+        order: ['User Journeys', '*'],
+      },
+    },
     layout: 'fullscreen',
     parameters: {
       // Sets the delay (in milliseconds) at the component level for all stories.

@@ -59,6 +59,19 @@ export function registryFactory() {
   return registry;
 }
 
-const registry = registryFactory();
+// Singleton registry instance used by all code
+let registry = registryFactory();
+
+// Function to replace the module's registry with a fresh instance
+// This is used by Storybook to get fresh state on each story replay
+export function resetRegistry() {
+  registry = registryFactory();
+  return registry;
+}
+
+// Getter function that always returns the current registry
+export function getRegistry() {
+  return registry;
+}
 
 export default registry;

@@ -1,9 +1,9 @@
 import axios, { AxiosError } from 'axios';
 import { API_ERROR } from '../redux/api-error/action-types';
-import registry from '../utilities/store';
+import { getRegistry } from '../utilities/store';
 
 const interceptor403 = (error: AxiosError) => {
-  const store = registry.getStore();
+  const store = getRegistry().getStore();
 
   if (error.response && error.response.status === 403) {
     store.dispatch({ type: API_ERROR, payload: 403 });
@@ -21,7 +21,7 @@ const interceptor401 = (error: AxiosError) => {
 };
 
 const interceptor500 = (error: AxiosError) => {
-  const store = registry.getStore();
+  const store = getRegistry().getStore();
 
   if (error.response && error.response.status >= 500) {
     store.dispatch({ type: API_ERROR, payload: 500 });
