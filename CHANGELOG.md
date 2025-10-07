@@ -1,3 +1,10 @@
+# [1.59.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.58.0...v1.59.0) (2025-10-07)
+
+
+### Features
+
+* **roles:** migrate roles list to TypeScript and fix race condition ([a0bd3e1](https://github.com/RedHatInsights/insights-rbac-ui/commit/a0bd3e1c81958f0e1eb5aeb8b0f3b62cdd67cf28))
+
 # [1.58.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.57.8...v1.58.0) (2025-10-03)
 
 
