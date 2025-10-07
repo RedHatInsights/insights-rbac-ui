@@ -2232,6 +2232,21 @@ export default defineMessages({
     description: 'Create role label',
     defaultMessage: 'Create role',
   },
+  noRolesFound: {
+    id: 'noRolesFound',
+    description: 'Empty state title when no roles match filters',
+    defaultMessage: 'No roles found',
+  },
+  noFilteredRoles: {
+    id: 'noFilteredRoles',
+    description: 'Empty state body when no roles match filters',
+    defaultMessage: 'No roles match the filter criteria. Remove all filters or clear all to show results.',
+  },
+  configureRoles: {
+    id: 'configureRoles',
+    description: 'Empty state title when no roles exist',
+    defaultMessage: 'Configure roles',
+  },
   defineCostResources: {
     id: 'defineCostResources',
     description: 'Define Cost Management resources label',

@@ -1,166 +1,264 @@
-import { useCallback, useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import { useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
-
-import { useDataViewFilters, useDataViewPagination, useDataViewSelection, useDataViewSort } from '@patternfly/react-data-view';
-
+import { useIntl } from 'react-intl';
+import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { fetchRolesWithPolicies } from '../../redux/roles/actions';
-import { FetchRolesWithPoliciesParams } from '../../redux/roles/helper';
+import { fetchAdminGroup } from '../../redux/groups/actions';
 import { mappedProps } from '../../helpers/dataUtilities';
-import { defaultSettings } from '../../helpers/pagination';
-import { Role } from '../../redux/roles/reducer';
-import { selectIsRolesLoading, selectRoles, selectRolesTotalCount } from '../../redux/roles/selectors';
-
-export interface RoleFilters {
-  display_name: string;
-}
-
-export interface UseRolesOptions {
-  /** Whether to enable admin functionality */
-  enableAdminFeatures?: boolean;
-}
+import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
+import PermissionsContext from '../../utilities/permissionsContext';
+import messages from '../../Messages';
+import type { RBACStore } from '../../redux/store';
+import type { Role } from '../../redux/roles/reducer';
+import type { ExpandedCells, SortByState } from './types';
+import type { Group } from '../../redux/groups/reducer';
+import type { FetchRolesWithPoliciesParams } from '../../redux/roles/helper';
 
 export interface UseRolesReturn {
-  // Data
+  // Core data
   roles: Role[];
   isLoading: boolean;
   totalCount: number;
 
   // Permissions
-  orgAdmin: boolean;
-  userAccessAdministrator: boolean;
+  isAdmin: boolean;
 
-  // DataView hooks
-  filters: ReturnType<typeof useDataViewFilters<RoleFilters>>['filters'];
-  sortBy: string;
-  direction: 'asc' | 'desc';
-  onSort: ReturnType<typeof useDataViewSort>['onSort'];
-  pagination: ReturnType<typeof useDataViewPagination>;
-  selection: ReturnType<typeof useDataViewSelection>;
+  // Filter state
+  filterValue: string;
+  setFilterValue: (value: string) => void;
+  hasActiveFilters: boolean;
 
-  // Focus state
-  focusedRole: Role | null;
-  setFocusedRole: (role: Role | null) => void;
+  // Pagination
+  page: number;
+  perPage: number;
+  setPage: (page: number) => void;
+  setPerPage: (perPage: number) => void;
+
+  // Sorting
+  sortByState: SortByState;
+  setSortByState: (state: SortByState) => void;
+  orderBy: string;
+
+  // Expansion (compound expandable)
+  expandedCells: ExpandedCells;
+  setExpandedCells: (cells: ExpandedCells) => void;
+
+  // Selection
+  selectedRows: Array<{ uuid: string; label: string }>;
+  setSelectedRows: React.Dispatch<React.SetStateAction<Array<{ uuid: string; label: string }>>>;
+
+  // Computed values
+  columns: Array<{ title: string; key?: string }>;
+  isSelectable: boolean;
 
   // Actions
-  fetchData: (params: FetchRolesWithPoliciesParams) => void;
-  handleRowClick: (role: Role) => void;
+  fetchData: (options?: Partial<FetchRolesWithPoliciesParams>) => void;
+  handleClearFilters: () => void;
 
-  // Clear all filters
-  clearAllFilters: () => void;
-  onSetFilters: ReturnType<typeof useDataViewFilters<RoleFilters>>['onSetFilters'];
+  // Additional state
+  adminGroup: Group | undefined;
 }
 
-/**
- * Custom hook for managing Roles business logic
- */
-export const useRoles = (options: UseRolesOptions = {}): UseRolesReturn => {
-  const { enableAdminFeatures = true } = options;
-
+export const useRoles = (): UseRolesReturn => {
+  const intl = useIntl();
   const dispatch = useDispatch();
+  const chrome = useChrome();
   const [searchParams, setSearchParams] = useSearchParams();
 
-  // Focus state for drawer
-  const [focusedRole, setFocusedRole] = useState<Role | null>(null);
+  const { orgAdmin, userAccessAdministrator } = useContext(PermissionsContext);
+  const isAdmin = orgAdmin || userAccessAdministrator;
 
-  // Data view hooks - use search params for persistence
-  const { sortBy, direction, onSort } = useDataViewSort({
-    searchParams,
-    setSearchParams,
-    initialSort: {
-      sortBy: 'display_name',
-      direction: 'asc',
-    },
-  });
+  // Redux selectors
+  const {
+    roles,
+    filters: reduxFilters,
+    pagination: rawPagination,
+    isLoading,
+    adminGroup,
+  } = useSelector(
+    (state: RBACStore) => ({
+      adminGroup: state.groupReducer?.adminGroup,
+      roles: state.roleReducer?.roles?.data || [],
+      filters: state.roleReducer?.roles?.filters || {},
+      pagination: state.roleReducer?.roles?.pagination || {},
+      isLoading: state.roleReducer?.isLoading || false,
+    }),
+    shallowEqual,
+  );
 
-  const { filters, onSetFilters, clearAllFilters } = useDataViewFilters<RoleFilters>({
-    initialFilters: { display_name: '' },
-    searchParams,
-    setSearchParams,
-  });
+  // Apply pagination defaults
+  const paginationDefaults = orgAdmin ? defaultAdminSettings : defaultSettings;
+  const rawLimit = rawPagination.limit ?? paginationDefaults.limit;
+  const rawOffset = rawPagination.offset ?? paginationDefaults.offset;
+  const totalCount = rawPagination.count || 0;
 
-  const pagination = useDataViewPagination({
-    perPage: defaultSettings.limit,
-    searchParams,
-    setSearchParams,
-  });
+  // Local state
+  const [filterValue, setFilterValue] = useState(reduxFilters.display_name || '');
+  const [expandedCells, setExpandedCells] = useState<ExpandedCells>({});
+  const [selectedRows, setSelectedRows] = useState<Array<{ uuid: string; label: string }>>([]);
 
-  const selection = useDataViewSelection({
-    matchOption: (a, b) => a.uuid === b.uuid,
-  });
+  // Initialize permissions check
+  const isSelectable = useMemo(() => orgAdmin || userAccessAdministrator, [orgAdmin, userAccessAdministrator]);
 
-  // Redux selectors with proper typing
-  // Use memoized selectors
-  const roles = useSelector(selectRoles);
-  const isLoading = useSelector(selectIsRolesLoading);
-  const totalCount = useSelector(selectRolesTotalCount);
+  // Initialize sort state - index accounts for optional selection column
+  // When isSelectable=true: [checkbox, Name, ...] so Name is at index 1
+  // When isSelectable=false: [Name, ...] so Name is at index 0
+  const [sortByState, setSortByState] = useState<SortByState>(() => ({
+    index: isSelectable ? 1 : 0,
+    direction: 'asc',
+  }));
 
-  // Permission context
-  const orgAdmin = enableAdminFeatures; // Simplified for now
-  const userAccessAdministrator = enableAdminFeatures; // Simplified for now
+  // Columns definition
+  const columns = useMemo(
+    () => [
+      { title: intl.formatMessage(messages.name), key: 'display_name' },
+      { title: intl.formatMessage(messages.description) },
+      { title: intl.formatMessage(messages.groups) },
+      { title: intl.formatMessage(messages.permissions) },
+      { title: intl.formatMessage(messages.lastModified), key: 'modified' },
+    ],
+    [intl],
+  );
 
-  // Fetch data function
+  // Map sort indices to column keys for resilience
+  const sortIndexToKey = useMemo(() => {
+    const mapping: Record<number, string> = {};
+    columns.forEach((col, idx) => {
+      // Adjust index if selection column is present
+      const adjustedIdx = idx + Number(isSelectable);
+      mapping[adjustedIdx] = col.key || 'display_name';
+    });
+    return mapping;
+  }, [columns, isSelectable]);
+
+  // Calculate orderBy from sort state using the mapping
+  const orderBy = useMemo(() => {
+    const key = sortIndexToKey[sortByState.index] || 'display_name';
+    return `${sortByState.direction === 'desc' ? '-' : ''}${key}`;
+  }, [sortByState, sortIndexToKey]);
+
+  // Get pagination from URL
+  const urlPage = parseInt(searchParams.get('page') || '1', 10);
+  const urlPerPage = parseInt(searchParams.get('per_page') || String(paginationDefaults.limit), 10);
+
+  // Calculate current page and perPage
+  const page = Math.floor(rawOffset / rawLimit) + 1;
+  const perPage = rawLimit;
+
+  // Memoized fetch function
   const fetchData = useCallback(
-    (params: FetchRolesWithPoliciesParams) => {
-      // mappedProps expects Record<string, unknown>, so we cast back
-      const mappedParams = mappedProps(params as Record<string, unknown>);
-      const payload: FetchRolesWithPoliciesParams = {
-        ...mappedParams,
-        usesMetaInURL: true,
+    (options: Partial<FetchRolesWithPoliciesParams> = {}) => {
+      const defaultOptions = {
+        limit: perPage,
+        offset: (page - 1) * perPage,
+        orderBy,
+        filters: { display_name: filterValue },
       };
-      dispatch(fetchRolesWithPolicies(payload));
+
+      dispatch(fetchRolesWithPolicies({ ...mappedProps({ ...defaultOptions, ...options }), usesMetaInURL: true, chrome }));
     },
-    [dispatch],
+    [dispatch, chrome, perPage, page, orderBy, filterValue],
   );
 
-  // Auto-fetch when dependencies change
+  // Set page (update URL and trigger fetch)
+  const setPage = useCallback(
+    (newPage: number) => {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('page', String(newPage));
+      setSearchParams(newParams, { replace: true });
+
+      // Fetch with new offset
+      const newOffset = (newPage - 1) * perPage;
+      fetchData({ offset: newOffset });
+    },
+    [searchParams, setSearchParams, perPage, fetchData],
+  );
+
+  // Set perPage (update URL and trigger fetch)
+  const setPerPage = useCallback(
+    (newPerPage: number) => {
+      const newParams = new URLSearchParams(searchParams);
+      newParams.set('per_page', String(newPerPage));
+      newParams.set('page', '1'); // Reset to page 1 when changing page size
+      setSearchParams(newParams, { replace: true });
+
+      // Fetch with new limit and reset offset
+      fetchData({ limit: newPerPage, offset: 0 });
+    },
+    [searchParams, setSearchParams, fetchData],
+  );
+
+  // Initialize from URL and fetch data on mount
   useEffect(() => {
-    const { page, perPage } = pagination;
-    const limit = perPage;
-    const offset = (page - 1) * perPage;
-    const orderBy = sortBy || 'display_name';
-    const filtersForApi = filters;
+    chrome.appNavClick?.({ id: 'roles', secondaryNav: true });
 
-    fetchData({ limit, offset, orderBy, filters: filtersForApi });
-  }, [fetchData, pagination.page, pagination.perPage, sortBy, filters.display_name]);
+    // Only make API calls if user has proper permissions
+    if (orgAdmin || userAccessAdministrator) {
+      dispatch(fetchAdminGroup({ chrome }));
 
-  // Handle row click for role focus and drawer events
-  const handleRowClick = useCallback(
-    (role: Role) => {
-      setFocusedRole(role);
-      // Note: DataView events context integration can be added later if needed
-    },
-    [setFocusedRole],
-  );
+      // Use URL params for initial fetch
+      const offset = (urlPage - 1) * urlPerPage;
+      fetchData({ limit: urlPerPage, offset });
+    }
+  }, []); // Run once on mount - no navigation triggered!
+
+  // Handle filter changes
+  const handleClearFilters = useCallback(() => {
+    setFilterValue('');
+    fetchData({ filters: { display_name: '' }, offset: 0 });
+
+    // Reset to page 1 when clearing filters
+    const newParams = new URLSearchParams(searchParams);
+    newParams.set('page', '1');
+    setSearchParams(newParams, { replace: true });
+  }, [searchParams, setSearchParams, fetchData]);
+
+  // Computed values
+  const hasActiveFilters = filterValue.length > 0;
 
   return {
-    // Data
+    // Core data
     roles,
     isLoading,
     totalCount,
 
     // Permissions
-    orgAdmin: enableAdminFeatures && orgAdmin,
-    userAccessAdministrator: enableAdminFeatures && userAccessAdministrator,
+    isAdmin,
 
-    // DataView hooks
-    filters,
-    sortBy: sortBy || 'display_name',
-    direction: direction || 'asc',
-    onSort,
-    pagination,
-    selection,
+    // Filter state
+    filterValue,
+    setFilterValue,
+    hasActiveFilters,
 
-    // Focus state
-    focusedRole,
-    setFocusedRole,
+    // Pagination
+    page,
+    perPage,
+    setPage,
+    setPerPage,
+
+    // Sorting
+    sortByState,
+    setSortByState,
+    orderBy,
+
+    // Expansion
+    expandedCells,
+    setExpandedCells,
+
+    // Selection
+    selectedRows,
+    setSelectedRows,
+
+    // Computed values
+    columns,
+    isSelectable,
 
     // Actions
     fetchData,
-    handleRowClick,
+    handleClearFilters,
 
-    // Clear all filters
-    clearAllFilters,
-    onSetFilters,
+    // Additional state
+    adminGroup,
   };
 };
