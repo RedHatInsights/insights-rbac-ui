@@ -207,7 +207,12 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
 
     // Map roles to rows with conditional inheritance information
     const roleRows = roles.map((role) => {
-      const baseRow: (string | React.ReactElement)[] = [role.display_name || role.name || ''];
+      const roleLink = (
+        <a href={`/iam/user-access/roles/detail/${role.uuid}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+          {role.display_name || role.name || ''}
+        </a>
+      );
+      const baseRow: (string | React.ReactElement)[] = [roleLink];
 
       if (showInheritance) {
         // Use the group's inheritance info since roles inherit from the same workspace
