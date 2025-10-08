@@ -36,6 +36,7 @@ import {
 import { extractErrorMessage } from '../../../../utilities/errorUtils';
 import { Role } from '../../../../redux/roles/reducer';
 import messages from '../../../../Messages';
+import { AppLink } from '../../../../components/navigation/AppLink';
 
 // Extended Group interface to optionally include inheritedFrom data
 export interface GroupWithInheritance extends Group {
@@ -208,9 +209,9 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     // Map roles to rows with conditional inheritance information
     const roleRows = roles.map((role) => {
       const roleLink = (
-        <a href={`/iam/user-access/roles/detail/${role.uuid}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+        <AppLink to={`/roles/detail/${role.uuid}`} className="pf-v5-c-button pf-m-link pf-m-inline">
           {role.display_name || role.name || ''}
-        </a>
+        </AppLink>
       );
       const baseRow: (string | React.ReactElement)[] = [roleLink];
 
