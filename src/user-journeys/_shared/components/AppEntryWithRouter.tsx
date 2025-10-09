@@ -1,9 +1,10 @@
-import React from 'react';
+import React, { Suspense } from 'react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import AppEntry from '../../../AppEntry';
 import MyUserAccess from '../../../features/myUserAccess/MyUserAccess';
 import { FakeAddressBar } from './FakeAddressBar';
 import { LeftNavigation } from './LeftNavigation';
+import { Masthead, MastheadMain, Page, PageSidebar, PageSidebarBody } from '@patternfly/react-core';
 
 interface AppEntryWithRouterProps {
   initialRoute?: string;
@@ -23,21 +24,36 @@ interface AppEntryWithRouterProps {
 export const AppEntryWithRouter: React.FC<AppEntryWithRouterProps> = ({ initialRoute = '/iam/user-access/groups' }) => {
   return (
     <MemoryRouter initialEntries={[initialRoute]}>
-      <FakeAddressBar />
-      <LeftNavigation />
-      <div style={{ paddingTop: '40px', marginLeft: '250px', minHeight: '100vh', backgroundColor: '#f0f0f0' }}>
-        <Routes>
-          <Route
-            path="/iam/my-user-access"
-            element={
-              <div style={{ padding: 0, margin: 0 }}>
-                <MyUserAccess />
-              </div>
-            }
-          />
-          <Route path="/iam/user-access/*" element={<AppEntry />} />
-        </Routes>
-      </div>
+      <Page
+        header={
+          <Masthead>
+            <MastheadMain>
+              <FakeAddressBar />
+            </MastheadMain>
+          </Masthead>
+        }
+        sidebar={
+          <PageSidebar>
+            <PageSidebarBody>
+              <LeftNavigation />
+            </PageSidebarBody>
+          </PageSidebar>
+        }
+      >
+        <Suspense fallback={<div>Loading...</div>}>
+          <Routes>
+            <Route
+              path="/iam/my-user-access"
+              element={
+                <div style={{ padding: 0, margin: 0 }}>
+                  <MyUserAccess />
+                </div>
+              }
+            />
+            <Route path="/iam/user-access/*" element={<AppEntry />} />
+          </Routes>
+        </Suspense>
+      </Page>
     </MemoryRouter>
   );
 };

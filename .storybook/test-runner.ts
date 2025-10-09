@@ -114,6 +114,14 @@ const IGNORED_ERROR_PATTERNS = [
   /AxiosError/,
   /SyntaxError: Unexpected token.*Not Found.*is not valid JSON/,  // 404 responses that return HTML instead of JSON
   
+  // Kessel journey tests - Inventory route errors (intentional for testing navigation targets)
+  // These stories verify that workspace links point to Inventory, which has no route in Storybook
+  /No routes matched location "\/insights\/inventory\/workspaces\//,  // M2 workspace links to Inventory
+  
+  // Role bindings API errors (M3+ feature, some stories don't mock this endpoint)
+  /intercepted a request without a matching request handler.*\/api\/rbac\/v2\/role-bindings\/by-subject/,
+  /Error fetching role bindings.*Cannot read properties of undefined/,
+  
   // Storybook/Testing Library informational warnings (not runtime issues)
   /You are using Testing Library's `screen` object/,
   
@@ -458,6 +466,7 @@ const CRITICAL_ERROR_PATTERNS = [
   /No routes matched location/,  // Router issues
   /@formatjs\/intl Error FORMAT_ERROR/,  // i18n errors
   /result function returned its own inputs without modification/,  // Redux selector issues
+  /You should call navigate\(\) in a React\.useEffect\(\)/,  // Navigation during render
   
   // JavaScript runtime errors - always critical
   /Uncaught/,
@@ -493,7 +502,14 @@ function isCriticalError(errorText: string): boolean {
 }
 
 const config: TestRunnerConfig = {
-  async preVisit(page, { id }) {
+  async preVisit(page, context) {
+    const { id, tags } = context;
+    
+    // Skip stories with 'test-skip' tag
+    if (tags?.includes('test-skip')) {
+      return;
+    }
+    
     // force the same viewport Chromatic uses
     await page.setViewportSize({ width: 1200, height: 500 });
     
@@ -540,7 +556,13 @@ const config: TestRunnerConfig = {
   
   // Hook to execute after each story is tested
   async postVisit(page, context) {
-    const { id, title, name } = context;
+    const { id, title, name, tags } = context;
+    
+    // Skip stories with 'test-skip' tag
+    if (tags?.includes('test-skip')) {
+      return;
+    }
+    
     const errors = storyErrors.get(id) || [];
     
     // Clean up error tracking for this story

@@ -15,6 +15,10 @@ export const ENVIRONMENTS = {
    * - No workspaces
    */
   PROD_ORG_ADMIN: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: true,
@@ -40,6 +44,10 @@ export const ENVIRONMENTS = {
    * - No workspaces
    */
   PROD_ORG_USER: {
+    permissions: {
+      orgAdmin: false,
+      userAccessAdministrator: false,
+    },
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: false,
@@ -64,6 +72,10 @@ export const ENVIRONMENTS = {
    * - Workspaces feature flag enabled
    */
   WORKSPACES_ENABLED: {
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
     chrome: makeChrome({
       environment: 'prod',
       isOrgAdmin: true,

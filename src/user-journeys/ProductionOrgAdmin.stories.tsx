@@ -7,7 +7,6 @@ import { ENVIRONMENTS } from './_shared/environments';
 import {
   clickMenuItem,
   confirmDeleteModal,
-  createManualTestingStory,
   navigateToPage,
   openDetailPageActionsMenu,
   openRoleActionsMenu,
@@ -69,7 +68,8 @@ const meta = {
     (Story: any, context: any) => {
       // Apply dynamic environment parameters based on current args
       const dynamicEnv = createDynamicEnvironment(context.args);
-      Object.assign(context.parameters, dynamicEnv);
+      // Replace parameters entirely instead of mutating to ensure React sees the change
+      context.parameters = { ...context.parameters, ...dynamicEnv };
       return <Story />;
     },
   ],
@@ -121,13 +121,9 @@ const meta = {
   args: {
     // Default values (Production Org Admin environment)
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: true,
-    userAccessAdministrator: false,
-    'platform.rbac.workspaces': false,
-    'platform.rbac.group-service-accounts': false,
-    'platform.rbac.group-service-accounts.stable': false,
-    'platform.rbac.common-auth-model': true,
-    'platform.rbac.common.userstable': false,
+    // Note: orgAdmin, userAccessAdministrator, and feature flags are set via
+    // parameters (permissions/featureFlags), not args, to allow story-level
+    // overrides without control conflicts. Controls can still modify them.
   },
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_ADMIN,
@@ -173,16 +169,73 @@ State resets automatically on story replay using the replay button.
 export default meta;
 
 /**
- * Manual Testing Entry Point
- *
- * Use this story to manually explore and test the Production Org Admin environment.
- * All feature flags and permissions are pre-configured for this scenario.
+ * Manual Testing Entry Point with automated verification
+ * Production environment uses its own manual testing story
  */
 export const ManualTesting: Story = {
-  ...createManualTestingStory('Production: Org Admin'),
-  tags: ['autodocs'],
+  name: 'Manual Testing',
   args: {
     initialRoute: '/iam/my-user-access',
+  },
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Manual Testing Entry Point
+
+This story provides an entry point for manual testing and exploration of the Production Org Admin environment.
+
+### Environment Configuration
+
+This environment is pre-configured with:
+- Full admin permissions
+- Production feature flags
+- MSW handlers for API mocking
+- Mock data for groups, users, and roles
+
+### Automated Checks
+
+This story includes automated verification:
+- ✅ My User Access page loads successfully
+- ✅ Roles table is displayed with data
+- ✅ Specific roles like "Administrator" are present
+- ✅ Navigation works correctly
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Verify we're on My User Access page
+    await navigateToPage(user, canvas, 'My User Access');
+
+    // Scope queries to main content area (not navigation)
+    const mainElement = document.querySelector('main') || context.canvasElement;
+    const mainContent = within(mainElement as HTMLElement);
+
+    // Verify the page loaded - look for the unique subtitle text
+    const subtitle = await mainContent.findByText(/select applications to view your personal/i);
+    expect(subtitle).toBeInTheDocument();
+
+    // Verify the table is present with actual data
+    const table = await mainContent.findByRole('grid');
+    expect(table).toBeInTheDocument();
+
+    // Verify table has roles data (admin view)
+    const tableContent = within(table);
+
+    // Check for "Administrator" role (specific to production admin view)
+    const adminRole = await tableContent.findByText(/^administrator$/i);
+    expect(adminRole).toBeInTheDocument();
+
+    // Verify at least one role row exists
+    const tbody = tableContent.getAllByRole('rowgroup').find((rg) => rg.tagName === 'TBODY');
+    expect(tbody).toBeInTheDocument();
+    const dataRows = within(tbody!).getAllByRole('row');
+    expect(dataRows.length).toBeGreaterThan(0);
   },
 };
 
@@ -238,13 +291,10 @@ export const CreateGroupJourney: Story = {
     await user.click(createButton);
 
     // Wait for wizard to open
-    await waitFor(
-      async () => {
-        const nameInput = document.getElementById('group-name');
-        await expect(nameInput).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      const nameInput = document.getElementById('group-name');
+      await expect(nameInput).toBeInTheDocument();
+    });
 
     // Fill and submit the wizard
     await fillAddGroupWizardForm(
@@ -261,13 +311,10 @@ export const CreateGroupJourney: Story = {
     );
 
     // Wait for wizard to close
-    await waitFor(
-      () => {
-        const wizard = document.querySelector('[role="dialog"]');
-        expect(wizard).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(() => {
+      const wizard = document.querySelector('[role="dialog"]');
+      expect(wizard).not.toBeInTheDocument();
+    });
 
     // Verify success notification
     await verifySuccessNotification();
@@ -313,13 +360,10 @@ export const EditGroupFromList: Story = {
     await navigateToPage(user, canvas, 'Groups');
 
     // Wait for groups list to load with original unedited state
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText('Support Team')).toBeInTheDocument();
-        expect(canvas.queryByText('Customer Support Team')).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByText('Support Team')).toBeInTheDocument();
+      expect(canvas.queryByText('Customer Support Team')).not.toBeInTheDocument();
+    });
 
     // Open row actions menu and click Edit
     await openRowActionsMenu(user, canvas, 'Support Team');
@@ -337,13 +381,10 @@ export const EditGroupFromList: Story = {
 
     // Verify success and updated group name in list
     await verifySuccessNotification();
-    await waitFor(
-      () => {
-        expect(canvas.getByText('Customer Support Team')).toBeInTheDocument();
-        expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(() => {
+      expect(canvas.getByText('Customer Support Team')).toBeInTheDocument();
+      expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -394,13 +435,10 @@ export const EditGroupFromDetailPage: Story = {
     await delay(300);
 
     // Wait for group detail page to load with original unedited state
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
-        expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
+      expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
+    });
 
     // Verify we're on the detail page
     await expect(canvas.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
@@ -423,14 +461,11 @@ export const EditGroupFromDetailPage: Story = {
     // Wait for both notification and title update (happen simultaneously)
     await Promise.all([
       verifySuccessNotification(),
-      waitFor(
-        () => {
-          const updatedHeading = canvas.queryByRole('heading', { name: 'Customer Support Team' });
-          expect(updatedHeading).toBeInTheDocument();
-          expect(canvas.queryByRole('heading', { name: 'Support Team' })).not.toBeInTheDocument();
-        },
-        { timeout: 10000 },
-      ),
+      waitFor(() => {
+        const updatedHeading = canvas.queryByRole('heading', { name: 'Customer Support Team' });
+        expect(updatedHeading).toBeInTheDocument();
+        expect(canvas.queryByRole('heading', { name: 'Support Team' })).not.toBeInTheDocument();
+      }),
     ]);
   },
 };
@@ -485,12 +520,9 @@ export const DeleteGroupFromList: Story = {
 
     // Verify success and group removal
     await verifySuccessNotification();
-    await waitFor(
-      () => {
-        expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(() => {
+      expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -545,12 +577,9 @@ export const DeleteGroupFromDetailPage: Story = {
     await delay(300);
 
     // Wait for group detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
+    });
 
     // Verify we're on the detail page and click Members tab to ensure we're on the right tab
     await expect(canvas.getByRole('tab', { name: /members/i })).toBeInTheDocument();
@@ -559,12 +588,9 @@ export const DeleteGroupFromDetailPage: Story = {
     await delay(300);
 
     // Wait for Actions button to be available before trying to interact with it
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
+    });
 
     // Open detail page actions menu and delete the group
     await openDetailPageActionsMenu(user, canvas);
@@ -573,16 +599,13 @@ export const DeleteGroupFromDetailPage: Story = {
 
     // Verify success and redirection to groups list
     await verifySuccessNotification();
-    await waitFor(
-      async () => {
-        // Should show other groups in the list
-        await expect(canvas.getByText('Platform Admins')).toBeInTheDocument();
-        await expect(canvas.getByText('Engineering')).toBeInTheDocument();
-        // But NOT the deleted group
-        expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      // Should show other groups in the list
+      await expect(canvas.getByText('Platform Admins')).toBeInTheDocument();
+      await expect(canvas.getByText('Engineering')).toBeInTheDocument();
+      // But NOT the deleted group
+      expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -647,12 +670,9 @@ Tests the full flow of adding members to an existing group.
     await delay(300);
 
     // Step 1: Wait for group detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
+    });
 
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
@@ -670,22 +690,16 @@ Tests the full flow of adding members to an existing group.
     // Step 5: Verify success notification (notifications are rendered at document.body level)
     // Note: There are two notifications - "Adding members" (info) and "Success adding members" (success)
     const body = within(document.body);
-    await waitFor(
-      async () => {
-        const notification = body.getByText(/success adding members to group/i);
-        await expect(notification).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      const notification = body.getByText(/success adding members to group/i);
+      await expect(notification).toBeInTheDocument();
+    });
 
     // Step 6: Verify members appear in the list
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText('john.doe')).toBeInTheDocument();
-        await expect(canvas.getByText('jane.smith')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByText('john.doe')).toBeInTheDocument();
+      await expect(canvas.getByText('jane.smith')).toBeInTheDocument();
+    });
   },
 };
 
@@ -749,12 +763,9 @@ Tests the full flow of removing members from a group.
     await delay(300);
 
     // Wait for group detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Platform Admins' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Platform Admins' })).toBeInTheDocument();
+    });
 
     // Click Members tab
     const membersTab = canvas.getByRole('tab', { name: /members/i });
@@ -775,23 +786,17 @@ Tests the full flow of removing members from a group.
 
     // Verify success notification (notifications are rendered at document.body level)
     const body = within(document.body);
-    await waitFor(
-      async () => {
-        const notification = body.getByText(/success removing members from group/i);
-        await expect(notification).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      const notification = body.getByText(/success removing members from group/i);
+      await expect(notification).toBeInTheDocument();
+    });
 
     // Verify the member is no longer in the list (table should have refreshed)
-    await waitFor(
-      async () => {
-        // After removing first member (john.doe), only jane.smith should remain
-        await expect(canvas.getByText('jane.smith')).toBeInTheDocument();
-        expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      // After removing first member (john.doe), only jane.smith should remain
+      await expect(canvas.getByText('jane.smith')).toBeInTheDocument();
+      expect(canvas.queryByText('john.doe')).not.toBeInTheDocument();
+    });
   },
 };
 
@@ -856,12 +861,9 @@ Tests the full flow of adding roles to an existing group.
     await delay(300);
 
     // Step 1: Wait for group detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
+    });
 
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
@@ -870,14 +872,11 @@ Tests the full flow of adding roles to an existing group.
 
     // Step 2: Wait for roles tab to fully load
     // Wait for empty state message or roles to appear (group starts with no roles)
-    await waitFor(
-      async () => {
-        // Either we see the empty state or the add button
-        const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
-        expect(addRoleBtn).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      // Either we see the empty state or the add button
+      const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
+      expect(addRoleBtn).toBeInTheDocument();
+    });
 
     // Give the page time to fetch available roles count and enable the button
     await delay(2000);
@@ -893,22 +892,16 @@ Tests the full flow of adding roles to an existing group.
 
     // Step 5: Verify success notification (notifications are rendered at document.body level)
     const body = within(document.body);
-    await waitFor(
-      async () => {
-        const notification = body.getByText(/success adding roles to group/i);
-        await expect(notification).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      const notification = body.getByText(/success adding roles to group/i);
+      await expect(notification).toBeInTheDocument();
+    });
 
     // Step 6: Verify roles appear in the list
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText('Administrator')).toBeInTheDocument();
-        await expect(canvas.getByText('Viewer')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByText('Administrator')).toBeInTheDocument();
+      await expect(canvas.getByText('Viewer')).toBeInTheDocument();
+    });
   },
 };
 
@@ -972,12 +965,9 @@ Tests the full flow of removing roles from a group.
     await delay(300);
 
     // Wait for group detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Platform Admins' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Platform Admins' })).toBeInTheDocument();
+    });
 
     // Click Roles tab
     const rolesTab = canvas.getByRole('tab', { name: /roles/i });
@@ -985,13 +975,10 @@ Tests the full flow of removing roles from a group.
     await delay(300);
 
     // Wait for roles tab content to load - verify roles appear
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText('Administrator')).toBeInTheDocument();
-        await expect(canvas.getByText('Viewer')).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByText('Administrator')).toBeInTheDocument();
+      await expect(canvas.getByText('Viewer')).toBeInTheDocument();
+    });
 
     await delay(300);
 
@@ -1005,23 +992,17 @@ Tests the full flow of removing roles from a group.
 
     // Verify success notification (notifications are rendered at document.body level)
     const body = within(document.body);
-    await waitFor(
-      async () => {
-        const notification = body.getByText(/success removing roles from group/i);
-        await expect(notification).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
+    await waitFor(async () => {
+      const notification = body.getByText(/success removing roles from group/i);
+      await expect(notification).toBeInTheDocument();
+    });
 
     // Verify the role is removed from the list (component should refresh automatically)
-    await waitFor(
-      () => {
-        // Verify Administrator is gone and only Viewer remains
-        expect(canvas.queryByText('Administrator')).not.toBeInTheDocument();
-        expect(canvas.queryByText('Viewer')).toBeInTheDocument();
-      },
-      { timeout: 15000 },
-    );
+    await waitFor(() => {
+      // Verify Administrator is gone and only Viewer remains
+      expect(canvas.queryByText('Administrator')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Viewer')).toBeInTheDocument();
+    });
   },
 };
 
@@ -1149,12 +1130,9 @@ This story verifies:
     await delay(500);
 
     // Verify the updated role appears in the list
-    await waitFor(
-      async () => {
-        await expect(canvas.getByText('Updated Viewer Role')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByText('Updated Viewer Role')).toBeInTheDocument();
+    });
   },
 };
 
@@ -1216,12 +1194,9 @@ This story verifies:
     await delay(300);
 
     // Wait for role detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Custom Role' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Custom Role' })).toBeInTheDocument();
+    });
 
     // Open the Actions dropdown and click "Edit"
     await openDetailPageActionsMenu(user, canvas);
@@ -1234,12 +1209,9 @@ This story verifies:
     await Promise.all([
       verifySuccessNotification(),
       // Wait for the header to update
-      waitFor(
-        async () => {
-          await expect(canvas.getByRole('heading', { name: 'Updated Custom Role' })).toBeInTheDocument();
-        },
-        { timeout: 10000 },
-      ),
+      waitFor(async () => {
+        await expect(canvas.getByRole('heading', { name: 'Updated Custom Role' })).toBeInTheDocument();
+      }),
     ]);
   },
 };
@@ -1305,14 +1277,11 @@ This story verifies:
     await verifySuccessNotification();
 
     // Verify the role is removed from the list
-    await waitFor(
-      () => {
-        expect(canvas.queryByText('Viewer')).not.toBeInTheDocument();
-        // Administrator should still be there
-        expect(canvas.getByText('Administrator')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(() => {
+      expect(canvas.queryByText('Viewer')).not.toBeInTheDocument();
+      // Administrator should still be there
+      expect(canvas.getByText('Administrator')).toBeInTheDocument();
+    });
   },
 };
 
@@ -1374,12 +1343,9 @@ This story verifies:
     await delay(300);
 
     // Wait for role detail page to load
-    await waitFor(
-      async () => {
-        await expect(canvas.getByRole('heading', { name: 'Custom Role' })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Custom Role' })).toBeInTheDocument();
+    });
 
     // Open the Actions dropdown and click "Delete"
     await openDetailPageActionsMenu(user, canvas);
@@ -1395,13 +1361,10 @@ This story verifies:
     await waitForPageToLoad(canvas, 'Administrator');
 
     // Verify the deleted role is not in the list
-    await waitFor(
-      () => {
-        expect(canvas.queryByText('Custom Role')).not.toBeInTheDocument();
-        expect(canvas.getByText('Administrator')).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(() => {
+      expect(canvas.queryByText('Custom Role')).not.toBeInTheDocument();
+      expect(canvas.getByText('Administrator')).toBeInTheDocument();
+    });
   },
 };
 
@@ -1527,14 +1490,11 @@ Tests adding a user to groups from the user detail page.
     await delay(500);
 
     // Modal should open - find it in document body
-    const modal = await waitFor(
-      () => {
-        const dialog = document.querySelector('[role="dialog"]');
-        expect(dialog).toBeInTheDocument();
-        return dialog as HTMLElement;
-      },
-      { timeout: 5000 },
-    );
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
 
     const modalContent = within(modal);
 
@@ -1617,14 +1577,11 @@ Tests deactivating users from the users list.
     await delay(500);
 
     // Modal opens - check the confirmation checkbox first
-    const modal = await waitFor(
-      () => {
-        const dialog = document.querySelector('[role="dialog"]');
-        expect(dialog).toBeInTheDocument();
-        return dialog as HTMLElement;
-      },
-      { timeout: 5000 },
-    );
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
 
     const modalContent = within(modal);
 
@@ -1706,14 +1663,11 @@ Tests activating inactive users from the users list.
     await delay(500);
 
     // Modal opens - check the confirmation checkbox first
-    const modal = await waitFor(
-      () => {
-        const dialog = document.querySelector('[role="dialog"]');
-        expect(dialog).toBeInTheDocument();
-        return dialog as HTMLElement;
-      },
-      { timeout: 5000 },
-    );
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
 
     const modalContent = within(modal);
 
@@ -1789,14 +1743,11 @@ Tests inviting new users to the organization.
     await delay(500);
 
     // Modal should open
-    const modal = await waitFor(
-      () => {
-        const dialog = document.querySelector('[role="dialog"]');
-        expect(dialog).toBeInTheDocument();
-        return dialog as HTMLElement;
-      },
-      { timeout: 5000 },
-    );
+    const modal = await waitFor(() => {
+      const dialog = document.querySelector('[role="dialog"]');
+      expect(dialog).toBeInTheDocument();
+      return dialog as HTMLElement;
+    });
 
     const modalContent = within(modal);
 
@@ -1820,7 +1771,7 @@ Tests inviting new users to the organization.
 
     // Submit the form
     const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
-    await waitFor(() => expect(submitButton).toBeEnabled(), { timeout: 5000 });
+    await waitFor(() => expect(submitButton).toBeEnabled());
     await user.click(submitButton);
     await delay(300);
 
