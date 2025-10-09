@@ -140,6 +140,7 @@ export const WorkspaceList = () => {
               availableWorkspaces={workspaces}
               isSubmitting={isMoveSubmitting}
               initialSelectedWorkspace={convertToTreeViewItem(initialSelectedWorkspace)}
+              sourceWorkspace={convertToTreeViewItem(currentMoveWorkspace)}
             />
           );
         })()}

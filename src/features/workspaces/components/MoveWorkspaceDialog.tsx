@@ -24,6 +24,8 @@ export interface MoveWorkspaceDialogProps {
   isSubmitting?: boolean;
   /** Initial selected workspace (typically the current parent) */
   initialSelectedWorkspace: TreeViewWorkspaceItem;
+  /** Source workspace being moved (for exclusion from selector) */
+  sourceWorkspace?: TreeViewWorkspaceItem;
 }
 
 export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
@@ -34,6 +36,7 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
   availableWorkspaces,
   isSubmitting = false,
   initialSelectedWorkspace,
+  sourceWorkspace,
 }) => {
   const intl = useIntl();
 
@@ -105,6 +108,7 @@ export const MoveWorkspaceDialog: React.FC<MoveWorkspaceDialogProps> = ({
               }
             }}
             initialSelectedWorkspace={initialSelectedWorkspace}
+            sourceWorkspace={sourceWorkspace}
           />
         </div>
 

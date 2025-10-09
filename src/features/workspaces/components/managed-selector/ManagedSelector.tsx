@@ -54,12 +54,15 @@ export const filterWorkspaceItems = (item: TreeViewDataItem | TreeViewWorkspaceI
 };
 
 // Exported function to create a workspace data fetcher with store integration
-export const createWorkspaceDataFetcher = (storeActions: {
-  setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
-  setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
-  setFetchedWorkspaces: (workspaces: Workspace[]) => void;
-  setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
-}) => {
+export const createWorkspaceDataFetcher = (
+  storeActions: {
+    setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
+    setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
+    setFetchedWorkspaces: (workspaces: Workspace[]) => void;
+    setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
+  },
+  excludeWorkspaceIds?: string[],
+) => {
   return React.useCallback(() => {
     storeActions.setIsFetchingWorkspacesFromRBAC(true);
     storeActions.setIsFetchingWorkspacesFromRBACError(false);
@@ -73,7 +76,7 @@ export const createWorkspaceDataFetcher = (storeActions: {
         storeActions.setFetchedWorkspaces(rbacResponse.data.data);
 
         // Build the tree of workspaces with the fetched results.
-        const tree = buildWorkspaceTree(rbacResponse.data.data);
+        const tree = buildWorkspaceTree(rbacResponse.data.data, excludeWorkspaceIds);
         storeActions.setWorkspaceTree(tree);
       })
       .catch((error) => {
@@ -118,10 +121,11 @@ export const createWorkspaceSearchFilter = (
 interface ManagedSelectorProps {
   onSelect?: (workspace: TreeViewDataItem) => void;
   initialSelectedWorkspace?: TreeViewWorkspaceItem;
+  sourceWorkspace?: TreeViewWorkspaceItem;
 }
 
 // Internal component that uses the store
-const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace }) => {
+const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace, sourceWorkspace }) => {
   const {
     isWorkspacesMenuExpanded,
     setIsWorkspacesMenuExpanded,
@@ -141,12 +145,15 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
   const [areElementsFiltered, setElementsAreFiltered] = React.useState<boolean>(false);
 
   // Use the exported data fetcher function
-  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher({
-    setIsFetchingWorkspacesFromRBAC,
-    setIsFetchingWorkspacesFromRBACError,
-    setFetchedWorkspaces,
-    setWorkspaceTree,
-  });
+  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher(
+    {
+      setIsFetchingWorkspacesFromRBAC,
+      setIsFetchingWorkspacesFromRBACError,
+      setFetchedWorkspaces,
+      setWorkspaceTree,
+    },
+    sourceWorkspace && sourceWorkspace.id ? [sourceWorkspace.id] : undefined,
+  );
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
@@ -229,10 +236,10 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
 };
 
 // Main component that provides the store context
-export const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace }) => {
+export const ManagedSelector: React.FC<ManagedSelectorProps> = ({ onSelect, initialSelectedWorkspace, sourceWorkspace }) => {
   return (
     <WorkspacesStoreProvider>
-      <ManagedSelectorInternal onSelect={onSelect} initialSelectedWorkspace={initialSelectedWorkspace} />
+      <ManagedSelectorInternal onSelect={onSelect} initialSelectedWorkspace={initialSelectedWorkspace} sourceWorkspace={sourceWorkspace} />
     </WorkspacesStoreProvider>
   );
 };
