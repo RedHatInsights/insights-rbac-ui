@@ -463,6 +463,11 @@ export const SortingInteraction: Story = {
       { timeout: 2000 },
     );
 
+    // Wait for skeleton loading to complete and real content to appear
+    const applicationHeaderCheck = await canvas.findByRole('columnheader', { name: /application/i });
+    const buttons = within(applicationHeaderCheck).queryAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+
     // Test clicking Application column header for descending sort
     const applicationHeader = await canvas.findByRole('columnheader', { name: /application/i });
     const applicationButton = await within(applicationHeader).findByRole('button');
