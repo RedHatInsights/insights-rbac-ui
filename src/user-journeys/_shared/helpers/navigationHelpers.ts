@@ -2,6 +2,22 @@ import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 
 /**
+ * Expands a workspace row in the hierarchical table if it's collapsed
+ */
+export async function expandWorkspaceRow(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, workspaceName: string) {
+  const workspaceRow = canvas.getByText(workspaceName).closest('tr') as HTMLElement;
+  expect(workspaceRow).toBeInTheDocument();
+
+  const toggleButton = workspaceRow.querySelector('.pf-v5-c-table__toggle button') as HTMLButtonElement;
+  expect(toggleButton).toBeInTheDocument();
+
+  if (toggleButton.getAttribute('aria-expanded') === 'false') {
+    await user.click(toggleButton);
+    await delay(500);
+  }
+}
+
+/**
  * Opens a row's kebab menu (actions dropdown) by the row's name
  */
 export async function openRowActionsMenu(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>, rowName: string) {
@@ -10,13 +26,10 @@ export async function openRowActionsMenu(user: ReturnType<typeof userEvent.setup
   await delay(200);
 
   // Wait for menu to appear
-  await waitFor(
-    async () => {
-      const menuItem = document.querySelector('[role="menuitem"]');
-      await expect(menuItem).toBeInTheDocument();
-    },
-    { timeout: 3000 },
-  );
+  await waitFor(async () => {
+    const menuItem = document.querySelector('[role="menuitem"]');
+    await expect(menuItem).toBeInTheDocument();
+  });
 }
 
 /**
@@ -28,13 +41,10 @@ export async function openRoleActionsMenu(user: ReturnType<typeof userEvent.setu
   await delay(200);
 
   // Wait for menu to appear
-  await waitFor(
-    async () => {
-      const menuItem = document.querySelector('[role="menuitem"]');
-      await expect(menuItem).toBeInTheDocument();
-    },
-    { timeout: 3000 },
-  );
+  await waitFor(async () => {
+    const menuItem = document.querySelector('[role="menuitem"]');
+    await expect(menuItem).toBeInTheDocument();
+  });
 }
 
 /**
@@ -61,13 +71,10 @@ export async function clickMenuItem(user: ReturnType<typeof userEvent.setup>, me
  */
 export async function confirmDeleteModal(user: ReturnType<typeof userEvent.setup>, confirmationText: string, buttonText: string = 'Remove') {
   // Wait for confirmation modal to appear
-  await waitFor(
-    () => {
-      const modal = document.querySelector('[role="dialog"]');
-      expect(modal).toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+  await waitFor(() => {
+    const modal = document.querySelector('[role="dialog"]');
+    expect(modal).toBeInTheDocument();
+  });
 
   await delay(300); // Give user time to "read" the confirmation
 
@@ -77,44 +84,35 @@ export async function confirmDeleteModal(user: ReturnType<typeof userEvent.setup
   await user.click(confirmButton);
 
   // Wait for modal to close
-  await waitFor(
-    () => {
-      const modal = document.querySelector('[role="dialog"]');
-      expect(modal).not.toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+  await waitFor(() => {
+    const modal = document.querySelector('[role="dialog"]');
+    expect(modal).not.toBeInTheDocument();
+  });
 }
 
 /**
  * Verifies a success notification appears and no error/warning notifications
  */
 export async function verifySuccessNotification() {
-  await waitFor(
-    () => {
-      const successNotification = document.querySelector('.pf-v5-c-alert.pf-m-success');
-      expect(successNotification).toBeInTheDocument();
+  await waitFor(() => {
+    const successNotification = document.querySelector('.pf-v5-c-alert.pf-m-success');
+    expect(successNotification).toBeInTheDocument();
 
-      // Verify no error or warning notifications
-      const errorNotification = document.querySelector('.pf-v5-c-alert.pf-m-danger');
-      const warningNotification = document.querySelector('.pf-v5-c-alert.pf-m-warning');
-      expect(errorNotification).not.toBeInTheDocument();
-      expect(warningNotification).not.toBeInTheDocument();
-    },
-    { timeout: 5000 },
-  );
+    // Verify no error or warning notifications
+    const errorNotification = document.querySelector('.pf-v5-c-alert.pf-m-danger');
+    const warningNotification = document.querySelector('.pf-v5-c-alert.pf-m-warning');
+    expect(errorNotification).not.toBeInTheDocument();
+    expect(warningNotification).not.toBeInTheDocument();
+  });
 }
 
 /**
  * Waits for a page/list to load by checking for a specific element
  */
-export async function waitForPageToLoad(canvas: ReturnType<typeof within>, elementText: string, timeout: number = 10000) {
-  await waitFor(
-    async () => {
-      await expect(canvas.getByText(elementText)).toBeInTheDocument();
-    },
-    { timeout },
-  );
+export async function waitForPageToLoad(canvas: ReturnType<typeof within>, elementText: string) {
+  await waitFor(async () => {
+    await expect(canvas.getByText(elementText)).toBeInTheDocument();
+  });
 }
 
 /**

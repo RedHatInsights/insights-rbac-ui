@@ -70,6 +70,7 @@ export const createWorkspaceDataFetcher = (storeActions: {
         storeActions.setIsFetchingWorkspacesFromRBACError(false);
 
         // Store the RAW fetched workspaces from RBAC in the state variable
+        // Axios wraps response in .data, API returns { data: Workspace[], meta: {...} }
         storeActions.setFetchedWorkspaces(rbacResponse.data.data);
 
         // Build the tree of workspaces with the fetched results.

@@ -132,12 +132,9 @@ For automated test journeys, see the environment-specific story folders.
     const canvas = within(context.canvasElement);
 
     // Simple verification that the page loads
-    await waitFor(
-      async () => {
-        // Wait for My User Access page to load - check for the main heading
-        await expect(canvas.getByRole('heading', { name: /my user access/i })).toBeInTheDocument();
-      },
-      { timeout: 10000 },
-    );
+    await waitFor(async () => {
+      // Wait for My User Access page to load - check for the main heading
+      await expect(canvas.getByRole('heading', { name: /my user access/i })).toBeInTheDocument();
+    });
   },
 };

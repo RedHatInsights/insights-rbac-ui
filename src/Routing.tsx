@@ -344,7 +344,8 @@ const Routing = () => {
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
   const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
   const wsList = useFlag('platform.rbac.workspaces-list');
-  const hideWorkspaceDetails = wsList && !isWorkspacesFlag;
+  const enableRoleBindings = useFlag('platform.rbac.workspaces-role-bindings');
+  const hideWorkspaceDetails = wsList && !isWorkspacesFlag && !enableRoleBindings;
   const toAppLink = useAppLink();
 
   useEffect(() => {
