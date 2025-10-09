@@ -4,7 +4,7 @@ import { Provider } from 'react-redux';
 import { IntlProvider } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 
-import registry, { RegistryContext } from '../utilities/store';
+import { RegistryContext, getRegistry } from '../utilities/store';
 import messages from '../locales/data.json';
 import ErroReducerCatcher from '../components/ui-states/ErrorReducerCatcher';
 import PermissionsContext from '../utilities/permissionsContext';
@@ -49,18 +49,23 @@ const MuaApp = () => {
   );
 };
 
-const SettingsMua = () => (
-  <IntlProvider locale={locale} messages={messages[locale]}>
-    <RegistryContext.Provider
-      value={{
-        getRegistry: () => registry,
-      }}
-    >
-      <Provider store={registry.getStore()}>
-        <MuaApp />
-      </Provider>
-    </RegistryContext.Provider>
-  </IntlProvider>
-);
+const SettingsMua = () => {
+  // Always get the current registry instance (supports resetRegistry() in Storybook)
+  const registry = getRegistry();
+
+  return (
+    <IntlProvider locale={locale} messages={messages[locale]}>
+      <RegistryContext.Provider
+        value={{
+          getRegistry,
+        }}
+      >
+        <Provider store={registry.getStore()}>
+          <MuaApp />
+        </Provider>
+      </RegistryContext.Provider>
+    </IntlProvider>
+  );
+};
 
 export default SettingsMua;

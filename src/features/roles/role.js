@@ -9,6 +9,7 @@ import { LevelItem } from '@patternfly/react-core';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { TextContent } from '@patternfly/react-core/dist/dynamic/components/Text';
 import { Dropdown, DropdownItem, KebabToggle } from '@patternfly/react-core/deprecated';
+import NotAuthorized from '@patternfly/react-component-groups/dist/dynamic/NotAuthorized';
 import { PageHeaderTitle } from '@redhat-cloud-services/frontend-components/PageHeader';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
 import { fetchRole, fetchRolesWithPolicies } from '../../redux/roles/actions';
@@ -162,6 +163,16 @@ const Role = ({ onDelete }) => {
       key="delete-role"
     />,
   ];
+
+  // Show NotAuthorized component for users without proper permissions
+  if (!orgAdmin && !userAccessAdministrator) {
+    return (
+      <NotAuthorized
+        serviceName="User Access Administration"
+        description="You need User Access Administrator or Organization Administrator permissions to view roles."
+      />
+    );
+  }
 
   return (
     <Fragment>

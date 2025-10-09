@@ -5,6 +5,7 @@ import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { delay } from 'msw';
 import { HttpResponse, http } from 'msw';
 import { EditGroupModal } from './EditGroupModal';
+import { fillEditGroupModal } from './EditGroupModal.helpers';
 
 // 🕵️ API SPIES: Create spies for testing API calls
 const updateGroupApiSpy = fn();
@@ -295,30 +296,15 @@ export const FormSubmission: Story = {
     const openButton = await canvas.findByRole('button', { name: 'Edit Group' });
     await userEvent.click(openButton);
 
-    // ✅ Modal renders to document.body via portal
-    const modal = await screen.findByRole('dialog');
-    await expect(modal).toBeInTheDocument();
-
-    // Wait for form to be fully loaded
-    await expect(within(modal).findByDisplayValue('Test Group')).resolves.toBeInTheDocument();
-
-    // Modify form fields
-    const nameField = await within(modal).findByLabelText(/group name/i);
-    const descriptionField = await within(modal).findByLabelText(/description/i);
-
-    await userEvent.clear(nameField);
-    await userEvent.type(nameField, 'Updated Group Name');
-
-    await userEvent.clear(descriptionField);
-    await userEvent.type(descriptionField, 'Updated description');
-
-    // Wait for validation to complete and save button to be enabled
-    const saveButton = await within(modal).findByRole('button', { name: /save/i });
-    await waitFor(() => expect(saveButton).toBeEnabled(), { timeout: 10000 });
-
-    // Submit the form
+    // Use the reusable helper to fill and submit the form
     console.log('SB: 🚀 Submitting form...');
-    await userEvent.click(saveButton);
+    await fillEditGroupModal(
+      {
+        name: 'Updated Group Name',
+        description: 'Updated description',
+      },
+      false,
+    ); // Don't wait for completion - we'll verify API calls ourselves
 
     // ✅ VERIFY PUT API CALL: Check that the correct group data was sent
     await waitFor(

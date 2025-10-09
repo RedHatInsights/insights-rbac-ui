@@ -15,6 +15,7 @@ import * as GroupActions from '../../redux/groups/actions';
 import { getRoleApi } from '../../api/roleApi';
 import { defaultSettings } from '../../helpers/pagination';
 import RemoveRoleModal from '../../features/roles/remove-role-modal';
+import * as useUserDataModule from '../../hooks/useUserData';
 
 describe('role', () => {
   const middlewares = [promiseMiddleware];
@@ -30,6 +31,10 @@ describe('role', () => {
   const updateRoleSpy = jest.spyOn(roleApi, 'updateRole');
   const removeRolePermissionsSpy = jest.spyOn(RoleActions, 'removeRolePermissions');
 
+  // Mock useUserData to return orgAdmin permissions
+  const useUserDataSpy = jest.spyOn(useUserDataModule, 'default');
+  useUserDataSpy.mockReturnValue({ orgAdmin: true, userAccessAdministrator: false });
+
   removeRolePermissionsSpy.mockImplementation(() => ({ type: UPDATE_ROLE, payload: Promise.resolve({}) }));
 
   afterEach(() => {
@@ -38,6 +43,7 @@ describe('role', () => {
     fetchGroupSpy.mockReset();
     getRoleAccessSpy.mockReset();
     updateRoleSpy.mockReset();
+    useUserDataSpy.mockReset();
   });
 
   beforeEach(() => {
@@ -98,6 +104,9 @@ describe('role', () => {
         loadingResources: 0,
       },
     };
+
+    // Re-apply useUserData mock after reset
+    useUserDataSpy.mockReturnValue({ orgAdmin: true, userAccessAdministrator: false });
   });
 
   describe('role and group', () => {

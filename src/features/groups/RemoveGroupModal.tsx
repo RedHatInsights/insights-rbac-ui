@@ -44,11 +44,9 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
       await postMethod(groupsToRemove, { limit: pagination?.limit });
 
       // Navigate back to the route
-      console.log('🔍 Navigating to submitRoute:', submitRoute);
       if (submitRoute) {
         navigate(submitRoute);
       } else {
-        console.warn('⚠️ submitRoute is undefined, falling back to cancelRoute');
         navigate(cancelRoute);
       }
     } catch (error) {
@@ -70,7 +68,6 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
 
   const onCancel = () => {
     try {
-      console.log('🔍 Navigating to cancelRoute:', cancelRoute);
       navigate(cancelRoute);
     } catch (navError) {
       console.error('Cancel navigation error:', navError);
