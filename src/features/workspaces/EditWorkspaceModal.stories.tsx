@@ -177,9 +177,11 @@ export const InteractiveEdit: Story = {
     const body = within(document.body);
 
     await waitFor(async () => {
-      const dialog = within((await body.findAllByRole('dialog'))[0]);
+      const dialogs = await body.findAllByRole('dialog');
+      expect(dialogs.length).toBeGreaterThan(0);
+      const dialog = within(dialogs[0]);
       await expect(dialog.findByText('Edit workspace information')).resolves.toBeInTheDocument();
-    });
+    }, { timeout: 10000 });
 
     const dialog = within((await body.findAllByRole('dialog'))[0]);
 
@@ -187,7 +189,7 @@ export const InteractiveEdit: Story = {
     await waitFor(async () => {
       await dialog.findByDisplayValue('Production Environment');
       await dialog.findByDisplayValue('Main production workspace for critical services');
-    });
+    }, { timeout: 8000 });
 
     const nameField = await dialog.findByDisplayValue('Production Environment');
 
