@@ -1,3 +1,15 @@
+# [1.62.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.61.0...v1.62.0) (2025-10-09)
+
+
+### Bug Fixes
+
+* correct move workspace notification message variables ([3b2af5b](https://github.com/RedHatInsights/insights-rbac-ui/commit/3b2af5b5bd08300bbb7d72bcd0f85e93bf698bf1))
+
+
+### Features
+
+* prevent workspace movement to child nodes ([594fafa](https://github.com/RedHatInsights/insights-rbac-ui/commit/594fafa1af77948645614eafcc8b910c656211bc))
+
 # [1.61.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.60.0...v1.61.0) (2025-10-09)
 
 
