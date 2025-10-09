@@ -1,3 +1,10 @@
+# [1.61.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.60.0...v1.61.0) (2025-10-09)
+
+
+### Features
+
+* **Storybook:** mocked E2E test ([f107580](https://github.com/RedHatInsights/insights-rbac-ui/commit/f107580e36901b3595c64f4041ab5dc6cf7f876e))
+
 # [1.60.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.59.0...v1.60.0) (2025-10-07)
 
 
