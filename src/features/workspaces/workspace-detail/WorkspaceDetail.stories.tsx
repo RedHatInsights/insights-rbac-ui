@@ -121,6 +121,78 @@ const workspaceDetailHandlers = [
       },
     });
   }),
+  // Role bindings endpoint for workspace-specific role assignments (M3+ feature)
+  http.get('/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
+    const url = new URL(request.url);
+    const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+
+    // Mock role bindings for workspace-2 (Web Services)
+    const mockRoleBindings = [
+      {
+        last_modified: '2024-08-24T15:45:00Z',
+        subject: {
+          id: 'group-1',
+          type: 'group',
+          group: {
+            name: 'Platform Team',
+            description: 'Core platform development team',
+            user_count: 8,
+          },
+        },
+        roles: [
+          {
+            id: 'role-1',
+            name: 'Workspace Administrator',
+          },
+        ],
+        resource: {
+          id: resourceId || 'workspace-2',
+          type: 'workspace',
+          workspace: {
+            name: 'Web Services',
+            type: 'standard',
+            description: 'Frontend web applications and services',
+          },
+        },
+      },
+      {
+        last_modified: '2024-08-23T10:00:00Z',
+        subject: {
+          id: 'group-2',
+          type: 'group',
+          group: {
+            name: 'QE Team',
+            description: 'Quality engineering and testing team',
+            user_count: 5,
+          },
+        },
+        roles: [
+          {
+            id: 'role-2',
+            name: 'Workspace Viewer',
+          },
+        ],
+        resource: {
+          id: resourceId || 'workspace-2',
+          type: 'workspace',
+          workspace: {
+            name: 'Web Services',
+            type: 'standard',
+            description: 'Frontend web applications and services',
+          },
+        },
+      },
+    ];
+
+    return HttpResponse.json({
+      data: mockRoleBindings,
+      meta: {
+        count: mockRoleBindings.length,
+        limit: 20,
+        offset: 0,
+      },
+    });
+  }),
   // Add handlers for static assets
   http.get('/apps/frontend-assets/technology-icons/insights.svg', () => {
     return HttpResponse.text('<svg></svg>', {
@@ -314,6 +386,18 @@ export const LoadingState: Story = {
             data: mockGroups,
             meta: {
               count: mockGroups.length,
+              limit: 20,
+              offset: 0,
+            },
+          });
+        }),
+        // Role bindings endpoint (M3+ feature) - also with infinite delay for loading state
+        http.get('/api/rbac/v2/role-bindings/by-subject', async () => {
+          await delay('infinite');
+          return HttpResponse.json({
+            data: [],
+            meta: {
+              count: 0,
               limit: 20,
               offset: 0,
             },

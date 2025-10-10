@@ -143,15 +143,21 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
 
   const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
   const globalWs = useFlag('platform.rbac.workspaces');
+  const enableRoleBindings = useFlag('platform.rbac.workspaces-role-bindings');
 
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete') => {
+  // Check if user has write permissions at all
+  const hasWritePermissions = () => {
+    return ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission);
+  };
+
+  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete' | 'create') => {
     if (
-      ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission) &&
+      hasWritePermissions() &&
       (userPermissions.resourceDefinitions.length === 0 ||
         userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id)))
     ) {
@@ -160,6 +166,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       } else if (action === 'move' && isValidMoveType(workspace)) {
         return true;
       } else if (action === 'delete' && isValidDeleteType(workspace)) {
+        return true;
+      } else if (action === 'create') {
         return true;
       }
     }
@@ -171,7 +179,7 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       id: workspace.id,
       row: Object.values({
         name:
-          hideWorkspaceDetails && !globalWs ? (
+          hideWorkspaceDetails && !globalWs && !enableRoleBindings ? (
             ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
               <Link
                 replace
@@ -201,17 +209,19 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    navigate(pathnames['edit-workspace'].path.replace(':workspaceId', workspace.id));
+                    navigate(pathnames['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                   isDisabled: !canModify(workspace, 'edit'),
                 },
                 {
                   title: 'Create workspace',
-                  onClick: () => navigate(pathnames['create-workspace'].path.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Create subworkspace',
-                  onClick: () => navigate(pathnames['create-workspace'].path.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Move workspace',
@@ -333,11 +343,11 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!hasWritePermissions()}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
                 {globalWs && (
-                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)}>
+                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!hasWritePermissions()}>
                     {intl.formatMessage(messages.deleteWorkspacesAction)}
                   </Button>
                 )}

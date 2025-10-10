@@ -245,7 +245,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   }, [intl, ouiaId, roles, rolesError, rolesLoading, showInheritance, group]);
 
   return (
-    <Drawer isExpanded={isOpen}>
+    <Drawer isExpanded={isOpen} style={{ height: '100%' }}>
       <DrawerContent
         panelContent={
           group ? (

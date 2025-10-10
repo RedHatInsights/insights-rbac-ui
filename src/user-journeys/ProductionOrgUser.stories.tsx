@@ -4,7 +4,7 @@ import { expect, userEvent, within } from 'storybook/test';
 import { delay } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS } from './_shared/environments';
-import { createManualTestingStory, navigateToPage, resetStoryState, waitForPageToLoad } from './_shared/helpers';
+import { navigateToPage, resetStoryState, waitForPageToLoad } from './_shared/helpers';
 import { createStatefulHandlers } from '../../.storybook/helpers/stateful-handlers';
 import { defaultGroups } from '../../.storybook/fixtures/groups';
 import { defaultUsers } from '../../.storybook/fixtures/users';
@@ -49,7 +49,8 @@ const meta = {
     (Story: any, context: any) => {
       // Apply dynamic environment parameters based on current args
       const dynamicEnv = createDynamicEnvironment(context.args);
-      Object.assign(context.parameters, dynamicEnv);
+      // Replace parameters entirely instead of mutating to ensure React sees the change
+      context.parameters = { ...context.parameters, ...dynamicEnv };
       return <Story />;
     },
   ],
@@ -101,13 +102,9 @@ const meta = {
   args: {
     // Default values (Production Org User environment - non-admin)
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    orgAdmin: false,
-    userAccessAdministrator: false,
-    'platform.rbac.workspaces': false,
-    'platform.rbac.group-service-accounts': false,
-    'platform.rbac.group-service-accounts.stable': false,
-    'platform.rbac.common-auth-model': false,
-    'platform.rbac.common.userstable': false,
+    // Note: orgAdmin, userAccessAdministrator, and feature flags are set via
+    // parameters (permissions/featureFlags), not args, to allow story-level
+    // overrides without control conflicts. Controls can still modify them.
   },
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_USER,
@@ -165,16 +162,79 @@ State resets automatically on story replay using the replay button.
 export default meta;
 
 /**
- * Manual Testing Entry Point
- *
- * Use this story to manually explore and test the Production Org User environment.
- * All feature flags and permissions are pre-configured for non-admin scenario.
+ * Manual Testing Entry Point with automated verification
+ * Production environment uses its own manual testing story
  */
 export const ManualTesting: Story = {
-  ...createManualTestingStory('Production: Org User'),
-  tags: ['autodocs'],
+  name: 'Manual Testing',
   args: {
     initialRoute: '/iam/my-user-access',
+  },
+  tags: ['autodocs'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+## Manual Testing Entry Point
+
+This story provides an entry point for manual testing and exploration of the Production Org User (read-only) environment.
+
+### Environment Configuration
+
+This environment is pre-configured with:
+- Read-only permissions
+- Production feature flags
+- MSW handlers for API mocking
+- Mock data for groups, users, and roles
+
+### Automated Checks
+
+This story includes automated verification:
+- ✅ My User Access page loads successfully
+- ✅ Permissions table is displayed with data
+- ✅ Specific permissions like "rbac:group:read" are present
+- ✅ Navigation works correctly
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    // Verify we're on My User Access page
+    await navigateToPage(user, canvas, 'My User Access');
+
+    // Scope queries to main content area (not navigation)
+    const mainElement = document.querySelector('main') || context.canvasElement;
+    const mainContent = within(mainElement as HTMLElement);
+
+    // Verify the page loaded - look for the unique subtitle text
+    const subtitle = await mainContent.findByText(/select applications to view your personal/i);
+    expect(subtitle).toBeInTheDocument();
+
+    // Verify the table is present with actual data
+    const table = await mainContent.findByRole('grid');
+    expect(table).toBeInTheDocument();
+
+    // Verify table has permissions data (read-only view)
+    const tableContent = within(table);
+
+    // Check for specific permission entries (read-only view shows app:resource:operation)
+    const rbacCells = tableContent.getAllByText('rbac');
+    expect(rbacCells.length).toBeGreaterThanOrEqual(1);
+
+    const groupCell = tableContent.getByText('group');
+    expect(groupCell).toBeInTheDocument();
+
+    const roleCell = tableContent.getByText('role');
+    expect(roleCell).toBeInTheDocument();
+
+    // Verify at least one permission row exists
+    const tbody = tableContent.getAllByRole('rowgroup').find((rg) => rg.tagName === 'TBODY');
+    expect(tbody).toBeInTheDocument();
+    const dataRows = within(tbody!).getAllByRole('row');
+    expect(dataRows.length).toBeGreaterThan(0);
   },
 };
 
@@ -459,7 +519,7 @@ Tests that regular users receive an appropriate access denied message when tryin
     await delay(300);
 
     // Should see access denied message (not a broken page)
-    const accessDeniedMessage = await canvas.findByText(/you do not have access to user access administration/i, {}, { timeout: 10000 });
+    const accessDeniedMessage = await canvas.findByText(/you do not have access to user access administration/i);
     expect(accessDeniedMessage).toBeInTheDocument();
 
     // Verify this is not an error page, but a proper access denied screen

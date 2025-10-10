@@ -8,6 +8,7 @@ export const FakeAddressBar: React.FC = () => {
   const location = useLocation();
   return (
     <div
+      data-testid="fake-address-bar"
       style={{
         position: 'fixed',
         top: 0,
