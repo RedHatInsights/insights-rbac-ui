@@ -1,8 +1,11 @@
+import React from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
+import { canViewWorkspaceById, WorkspacePermissionsObject } from './WorkspacePermissions';
 import WorkspaceType from './WorkspaceType';
+import { Text } from '@patternfly/react-core';
 
-function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined {
+function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePermissionsObject | undefined): TreeViewWorkspaceItem | undefined {
   if (wps.length == 0) {
     return undefined;
   }
@@ -47,6 +50,11 @@ function buildWorkspaceTree(wps: Workspace[]): TreeViewWorkspaceItem | undefined
   const nodes: TreeViewWorkspaceItem[] = [rootWorkspace];
   while (nodes.length > 0) {
     const node = nodes.pop();
+
+    // TODO PF tree view list item does not currently support disabling the parent list item button programatically
+    if (node && node.id && workspacePermissions && !canViewWorkspaceById(node.workspace.id, workspacePermissions)) {
+      node.name = <Text className="pf-v6-u-text-color-disabled" onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); e }}>{node.name}</Text>;
+    }
 
     // Find all the children workspaces of the given node by looping through
     // all the available workspaces.

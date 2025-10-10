@@ -8,6 +8,7 @@ import Workspace, { isWorkspace } from './Workspace';
 interface TreeViewWorkspaceItem extends TreeViewDataItem {
   parentTreeViewItem?: TreeViewWorkspaceItem;
   workspace: Workspace;
+  disabled?: boolean;
 }
 
 /**

@@ -8,6 +8,7 @@ import { WorkspacesStoreProvider, useWorkspacesStore } from './WorkspacesStore';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import { WorkspaceMenuToggle } from './components/WorkspaceMenuToggle';
 import { WorkspaceSelector } from './components/WorkspaceSelector';
+import { useWorkspacePermissions, WorkspacePermissionsObject } from './WorkspacePermissions';
 
 export interface RBACListWorkspacesResponse {
   data: Workspace[];
@@ -59,7 +60,9 @@ export const createWorkspaceDataFetcher = (storeActions: {
   setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
   setFetchedWorkspaces: (workspaces: Workspace[]) => void;
   setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
-}) => {
+  },
+  workspacePermissions: WorkspacePermissionsObject | undefined,
+) => {
   return React.useCallback(() => {
     storeActions.setIsFetchingWorkspacesFromRBAC(true);
     storeActions.setIsFetchingWorkspacesFromRBACError(false);
@@ -73,7 +76,7 @@ export const createWorkspaceDataFetcher = (storeActions: {
         storeActions.setFetchedWorkspaces(rbacResponse.data.data);
 
         // Build the tree of workspaces with the fetched results.
-        const tree = buildWorkspaceTree(rbacResponse.data.data);
+        const tree = buildWorkspaceTree(rbacResponse.data.data, workspacePermissions);
         storeActions.setWorkspaceTree(tree);
       })
       .catch((error) => {
@@ -135,6 +138,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
     workspaceTree,
     setWorkspaceTree,
   } = useWorkspacesStore();
+  const [workspacePermissions, _] = useWorkspacePermissions();
 
   const [searchInputValue, setSearchInputValue] = React.useState<string>('');
   const [filteredTreeElements, setFilteredTreeElements] = React.useState<TreeViewWorkspaceItem[]>(workspaceTree ? [workspaceTree] : []);
@@ -146,7 +150,7 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
     setIsFetchingWorkspacesFromRBACError,
     setFetchedWorkspaces,
     setWorkspaceTree,
-  });
+  }, workspacePermissions);
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);
