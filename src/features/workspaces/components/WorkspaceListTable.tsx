@@ -284,8 +284,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
         subtitle={intl.formatMessage(messages.workspacesSubtitle)}
         linkProps={{
           label: intl.formatMessage(messages.workspacesLearnMore),
-          href: '#', //TODO: URL to be specified by UX team later
-          // isExternal removed - PatternFly ContentHeader doesn't properly handle this prop
+          href: 'https://docs.redhat.com/en/documentation/red_hat_insights/1-latest/html/viewing_and_managing_system_inventory/deploying-insights-with-rhca_user-access',
+          isExternal: true,
         }}
       />
       <PageSection>
