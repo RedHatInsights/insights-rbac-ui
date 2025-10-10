@@ -33,7 +33,7 @@ const Overview: React.FC = () => {
         <SupportingFeaturesSection className="pf-v5-u-mb-lg" />
         <RecommendedContentTable className="pf-v5-u-mb-lg" />
         <a
-          href="https://console.redhat.com/settings/learning-resources?quickstart=rbac-admin-vuln-permissions"
+          href="https://console.redhat.com/iam/learning-resources"
           className="pf-v5-u-mb-lg"
           data-ouia-component-id="overview-view-all-resources-button"
         >

@@ -239,7 +239,7 @@
     "groupNotFound": "Group not found",
     "groups": "Groups",
     "groupsServiceCardDescription": "Create user groups of both end-users and service accounts. Tailor these groups to mirror your organization's structure.",
-    "iamLearningResourcesLink": "View all Identity and Access Management Learning Resources.",
+    "iamLearningResourcesLink": "View all Identity and Access Management Learning Resources",
     "inactive": "Inactive",
     "invGroupsLabel": "Select a group to add permissions for",
     "invalidGroup": "Invalid group",

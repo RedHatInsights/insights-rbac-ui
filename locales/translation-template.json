@@ -956,7 +956,7 @@
     "description": "groups service card description"
   },
   "iamLearningResourcesLink": {
-    "defaultMessage": "View all Identity and Access Management Learning Resources.",
+    "defaultMessage": "View all Identity and Access Management Learning Resources",
     "description": "Identity and Access Management Learning Resources link"
   },
   "inactive": {
