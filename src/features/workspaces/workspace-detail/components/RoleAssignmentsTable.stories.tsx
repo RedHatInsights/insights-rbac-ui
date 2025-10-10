@@ -1,5 +1,7 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
+import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
+import { MemoryRouter } from 'react-router-dom';
 import { RoleAssignmentsTable } from './RoleAssignmentsTable';
 import { Group } from '../../../../redux/groups/reducer';
 import { HttpResponse, http } from 'msw';
@@ -86,9 +88,21 @@ const groupDetailsHandlers = [
   }),
 ];
 
+// Router wrapper for components that use AppLink
+const withRouter = () => {
+  const RouterWrapper = (Story: React.ComponentType) => (
+    <MemoryRouter initialEntries={['/']}>
+      <Story />
+    </MemoryRouter>
+  );
+  RouterWrapper.displayName = 'RouterWrapper';
+  return RouterWrapper;
+};
+
 const meta: Meta<typeof RoleAssignmentsTable> = {
   component: RoleAssignmentsTable,
   tags: ['autodocs'],
+  decorators: [withRouter()],
   parameters: {
     msw: {
       handlers: groupDetailsHandlers,

@@ -2,6 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { HttpResponse, http } from 'msw';
+import { MemoryRouter } from 'react-router-dom';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { Group } from '../../../../redux/groups/reducer';
 import { User } from '../../../../redux/users/reducer';
@@ -132,12 +133,14 @@ const groupDetailsHandlers = [
   }),
 ];
 
-// Drawer components need a sized container for proper rendering
+// Drawer components need a sized container and Router context for proper rendering
 const withWrapper = () => {
   const Wrapper = (Story: React.ComponentType) => (
-    <div style={{ height: '600px', padding: '16px' }}>
-      <Story />
-    </div>
+    <MemoryRouter initialEntries={['/']}>
+      <div style={{ height: '600px', padding: '16px' }}>
+        <Story />
+      </div>
+    </MemoryRouter>
   );
   Wrapper.displayName = 'GroupDetailsDrawerWrapper';
   return Wrapper;
@@ -284,6 +287,18 @@ export const Default: Story = {
     await expect(canvas.findByText('Administrator')).resolves.toBeInTheDocument();
     await expect(canvas.findByText('User Manager')).resolves.toBeInTheDocument();
 
+    // Verify role links have correct href attributes
+    const adminRoleLink = await canvas.findByRole('link', { name: 'Administrator' });
+    const userManagerRoleLink = await canvas.findByRole('link', { name: 'User Manager' });
+
+    await expect(adminRoleLink).toBeInTheDocument();
+    await expect(userManagerRoleLink).toBeInTheDocument();
+
+    expect(adminRoleLink).toHaveAttribute('href');
+    expect(userManagerRoleLink).toHaveAttribute('href');
+    expect(adminRoleLink.getAttribute('href')).toContain('/roles/detail/1');
+    expect(userManagerRoleLink.getAttribute('href')).toContain('/roles/detail/2');
+
     // Switch to Users tab
     await userEvent.click(usersTab);
 
@@ -397,6 +412,49 @@ export const EmptyState: Story = {
     await userEvent.click(usersTab);
 
     await expect(canvas.findByText(/currently has no users assigned/i)).resolves.toBeInTheDocument();
+  },
+};
+
+// Role Links story - specifically for testing role link functionality
+export const RoleLinks: Story = {
+  render: (args) => <DrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-role-links',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Tests that role names are rendered as clickable links with correct href attributes pointing to role detail pages.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for roles to load and verify they are links
+    const adminRoleLink = await canvas.findByRole('link', { name: 'Administrator' });
+    const userManagerRoleLink = await canvas.findByRole('link', { name: 'User Manager' });
+
+    // Verify links exist
+    await expect(adminRoleLink).toBeInTheDocument();
+    await expect(userManagerRoleLink).toBeInTheDocument();
+
+    // Verify href attributes point to correct role detail pages
+    expect(adminRoleLink).toHaveAttribute('href');
+    expect(userManagerRoleLink).toHaveAttribute('href');
+    expect(adminRoleLink.getAttribute('href')).toContain('/roles/detail/1');
+    expect(userManagerRoleLink.getAttribute('href')).toContain('/roles/detail/2');
+
+    // Verify links have correct styling classes
+    expect(adminRoleLink).toHaveClass('pf-v5-c-button', 'pf-m-link', 'pf-m-inline');
+    expect(userManagerRoleLink).toHaveClass('pf-v5-c-button', 'pf-m-link', 'pf-m-inline');
+
+    // Verify role text content matches expected values
+    expect(adminRoleLink).toHaveTextContent('Administrator');
+    expect(userManagerRoleLink).toHaveTextContent('User Manager');
   },
 };
 

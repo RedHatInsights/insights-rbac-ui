@@ -18,6 +18,7 @@ import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
 import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
 import { EmptyTable } from './EmptyTable';
+import { AppLink } from '../../../../components/navigation/AppLink';
 
 const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
   return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
@@ -146,9 +147,9 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
       // Add inheritance column if this group has inheritance data
       if (isGroupWithInheritance(group)) {
         const inheritanceCell = group.inheritedFrom ? (
-          <a href={`#/workspaces/${group.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+          <AppLink to={`#/workspaces/${group.inheritedFrom.workspaceId}`} linkBasename="/iam" className="pf-v5-c-button pf-m-link pf-m-inline">
             {group.inheritedFrom.workspaceName}
-          </a>
+          </AppLink>
         ) : (
           <div className="pf-v5-u-color-400">-</div>
         );

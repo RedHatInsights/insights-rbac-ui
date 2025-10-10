@@ -829,6 +829,11 @@ export const SortingInteraction: Story = {
     // Wait for data to load
     expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
 
+    // Wait for skeleton loading to complete and real content to appear
+    const nameHeaderCheck = await canvas.findByRole('columnheader', { name: /name/i });
+    const buttons = within(nameHeaderCheck).queryAllByRole('button');
+    expect(buttons.length).toBeGreaterThan(0);
+
     // Test clicking Name column header for descending sort
     const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
     const nameButton = await within(nameHeader).findByRole('button');
