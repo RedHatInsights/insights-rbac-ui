@@ -2888,6 +2888,21 @@ export default defineMessages({
     description: 'Select roles step title',
     defaultMessage: 'Select role(s)',
   },
+  selectUserGroupsDescription: {
+    id: 'selectUserGroupsDescription',
+    description: 'Select user groups step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
+  selectRolesDescription: {
+    id: 'selectRolesDescription',
+    description: 'Select roles step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
+  reviewDescription: {
+    id: 'reviewDescription',
+    description: 'Review step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
   editAccessForThisWorkspace: {
     id: 'editAccessForThisWorkspace',
     description: 'Edit access for this workspace button text',
