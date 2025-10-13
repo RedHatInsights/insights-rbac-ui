@@ -1,3 +1,17 @@
+# [1.63.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.62.0...v1.63.0) (2025-10-13)
+
+
+### Bug Fixes
+
+* **rolesdrawer:** replace a tag with applink ([b80e6e8](https://github.com/RedHatInsights/insights-rbac-ui/commit/b80e6e8783a74a5761d805e988d48b524fb6f54b))
+* **storybook:** remove waitFor timeouts; fix failing tests ([ba6aeb6](https://github.com/RedHatInsights/insights-rbac-ui/commit/ba6aeb64fb564c9b00645f0d5d58778522669922))
+* **tests:** fix console errors in storybook stories ([116813d](https://github.com/RedHatInsights/insights-rbac-ui/commit/116813deccabe6d317d5ac877ba2b67e0b51c45d))
+
+
+### Features
+
+* **rolesdrawer:** make roles clickable ([c60f075](https://github.com/RedHatInsights/insights-rbac-ui/commit/c60f0757fe57a9f8fbe90fe65fc76210662b630f))
+
 # [1.62.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.61.0...v1.62.0) (2025-10-09)
 
 
