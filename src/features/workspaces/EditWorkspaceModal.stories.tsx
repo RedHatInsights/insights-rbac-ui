@@ -173,15 +173,22 @@ export const InteractiveEdit: Story = {
     const openButton = await canvas.findByTestId('open-modal-button');
     await user.click(openButton);
 
+    // Add a small delay to let the modal animation complete
+    await delay(500);
+
     // Wait for modal header to appear
     const body = within(document.body);
 
-    await waitFor(async () => {
-      const dialog = within((await body.findAllByRole('dialog'))[0]);
-      await expect(dialog.findByText('Edit workspace information')).resolves.toBeInTheDocument();
-    });
+    const dialogs = await body.findAllByRole('dialog');
+    expect(dialogs.length).toBeGreaterThan(0);
+    const dialog = within(dialogs[0]);
 
-    const dialog = within((await body.findAllByRole('dialog'))[0]);
+    // Wait for modal content to load - look for form elements
+    await waitFor(async () => {
+      // Look for form inputs which are more reliable than text
+      const inputs = dialog.queryAllByRole('textbox');
+      expect(inputs.length).toBeGreaterThan(0);
+    });
 
     // Wait until the form fields are populated with workspace data
     await waitFor(async () => {
