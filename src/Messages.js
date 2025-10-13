@@ -2873,6 +2873,21 @@ export default defineMessages({
     description: 'Grant access button text',
     defaultMessage: 'Grant access',
   },
+  grantAccessInWorkspace: {
+    id: 'grantAccessInWorkspace',
+    description: 'Grant access in workspace wizard title',
+    defaultMessage: 'Grant access in Workspace {workspaceName}',
+  },
+  selectUserGroups: {
+    id: 'selectUserGroups',
+    description: 'Select user groups step title',
+    defaultMessage: 'Select user group(s)',
+  },
+  selectRoles: {
+    id: 'selectRoles',
+    description: 'Select roles step title',
+    defaultMessage: 'Select role(s)',
+  },
   editAccessForThisWorkspace: {
     id: 'editAccessForThisWorkspace',
     description: 'Edit access for this workspace button text',

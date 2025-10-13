@@ -365,6 +365,7 @@ export const WorkspaceDetail = () => {
                       filters={filters}
                       onSetFilters={onSetFilters}
                       clearAllFilters={clearAllFilters}
+                      workspaceName={selectedWorkspace?.name}
                     />
                   ) : (
                     <RoleAssignmentsTable
@@ -381,6 +382,7 @@ export const WorkspaceDetail = () => {
                       filters={parentFilters}
                       onSetFilters={parentOnSetFilters}
                       clearAllFilters={parentClearAllFilters}
+                      workspaceName={selectedWorkspace?.name}
                       ouiaId="parent-role-assignments-table"
                     />
                   )}

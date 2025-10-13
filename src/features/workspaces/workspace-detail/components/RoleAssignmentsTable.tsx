@@ -13,12 +13,14 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
+import { useFlag } from '@unleash/proxy-client-react';
 
 import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
 import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
 import { EmptyTable } from './EmptyTable';
 import { AppLink } from '../../../../components/navigation/AppLink';
+import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
 
 const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
   return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
@@ -44,6 +46,8 @@ interface RoleAssignmentsTableProps {
   onSetFilters: (filters: Partial<{ name: string; inheritedFrom?: string }>) => void;
   clearAllFilters: () => void;
 
+  workspaceName?: string;
+
   // UI configuration props
   ouiaId?: string;
 }
@@ -62,12 +66,15 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   filters,
   onSetFilters,
   clearAllFilters,
+  workspaceName,
   ouiaId = 'iam-role-assignments-table',
 }) => {
   const intl = useIntl();
 
-  // Local state for drawer only
+  const grantAccessWizard = useFlag('platform.rbac.grant-access-wizard');
+
   const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
+  const [isGrantAccessWizardOpen, setIsGrantAccessWizardOpen] = useState(false);
 
   // Selection hook
   const selection = useDataViewSelection({ matchOption: (a, b) => a.id === b.id });
@@ -218,7 +225,12 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
             </DataViewFilters>
           }
           actions={
-            <Button variant="primary" isDisabled ouiaId={`${ouiaId}-grant-access-button`}>
+            <Button
+              variant="primary"
+              isDisabled={!grantAccessWizard}
+              onClick={() => setIsGrantAccessWizardOpen(true)}
+              ouiaId={`${ouiaId}-grant-access-button`}
+            >
               {intl.formatMessage(messages.grantAccess)}
             </Button>
           }
@@ -241,6 +253,13 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
           pagination={<Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} />}
         />
       </DataView>
+      {isGrantAccessWizardOpen && workspaceName && (
+        <GrantAccessWizard
+          workspaceName={workspaceName}
+          afterSubmit={() => setIsGrantAccessWizardOpen(false)}
+          onCancel={() => setIsGrantAccessWizardOpen(false)}
+        />
+      )}
     </GroupDetailsDrawer>
   );
 };
