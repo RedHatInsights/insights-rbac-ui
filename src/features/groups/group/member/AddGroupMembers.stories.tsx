@@ -1,9 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useState } from 'react';
 import { MemoryRouter } from 'react-router-dom';
-import { HttpResponse, http } from 'msw';
-import { expect, screen, userEvent, waitFor, within } from 'storybook/test';
+import { HttpResponse, delay, http } from 'msw';
+import { expect, fn, screen, userEvent, waitFor, within } from 'storybook/test';
 import { AddGroupMembers } from './AddGroupMembers';
+
+// API spy for tracking filter and search calls
+const usersApiSpy = fn();
+const clearFiltersSpy = fn();
 
 // Mock users data for testing
 const mockUsers = [
@@ -59,43 +63,23 @@ const meta: Meta<any> = {
   parameters: {
     msw: {
       handlers: [
-        // 🎯 CRITICAL: Enhanced Users API with filtering and pagination support
-        http.get('/api/rbac/v1/users/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-          const status = url.searchParams.get('status') || 'enabled';
-          const email = url.searchParams.get('email') || '';
-          const username = url.searchParams.get('username') || '';
-
-          // Filter active users
-          let filteredUsers = status === 'enabled' ? mockUsers : [];
-
-          // Apply text filters
-          if (email) {
-            filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(email.toLowerCase()));
-          }
-          if (username) {
-            filteredUsers = filteredUsers.filter((user) => user.username.toLowerCase().includes(username.toLowerCase()));
-          }
-
-          const paginatedUsers = filteredUsers.slice(offset, offset + limit);
-
-          return HttpResponse.json({
-            data: paginatedUsers.map((user) => ({ ...user, uuid: user.username })),
-            meta: {
-              count: filteredUsers.length,
-              limit,
-              offset,
-            },
-          });
-        }),
-        // 🎯 CRITICAL: Comprehensive principals API handler
+        // 🎯 CRITICAL: Principals API with spy support for filter testing
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
+
+          // CRITICAL: Call spy for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           // Convert mockUsers to principals format
           const allPrincipals = mockUsers.map((user) => ({
@@ -215,25 +199,23 @@ export const WithUsers: Story = {
     },
     msw: {
       handlers: [
-        // Override with different user data for this story
-        http.get('/api/rbac/v1/users/', () => {
-          const expandedUsers = [
-            { username: 'alice.admin', first_name: 'Alice', last_name: 'Admin', email: 'alice@example.com', is_active: true },
-            { username: 'bob.user', first_name: 'Bob', last_name: 'User', email: 'bob@example.com', is_active: true },
-            { username: 'charlie.dev', first_name: 'Charlie', last_name: 'Developer', email: 'charlie@example.com', is_active: true },
-          ];
-
-          return HttpResponse.json({
-            data: expandedUsers.map((user) => ({ ...user, uuid: user.username })),
-            meta: { count: expandedUsers.length },
-          });
-        }),
         // Principals handler for WithUsers story
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
+
+          // CRITICAL: Call spy for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           const expandedUsers = [
             { username: 'alice.admin', first_name: 'Alice', last_name: 'Admin', email: 'alice@example.com', is_active: true, uuid: 'alice.admin' },
@@ -299,47 +281,29 @@ export const WithFiltering: Story = {
    - Results should update dynamically as you type
    - Try typing "doe" to see different filtering results
 
-**This story tests:** Search and filter functionality for finding users.
+**This story tests:** Search and filter functionality for finding users with API spy verification.
         `,
       },
     },
     msw: {
       handlers: [
-        // Enhanced filtering handler for both /users/ and /principals/ endpoints
-        http.get('/api/rbac/v1/users/', ({ request }) => {
-          const url = new URL(request.url);
-          const username = url.searchParams.get('username') || '';
-          const email = url.searchParams.get('email') || '';
-
-          const filterableUsers = [
-            { username: 'john.doe', first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', is_active: true },
-            { username: 'jane.admin', first_name: 'Jane', last_name: 'Admin', email: 'jane.admin@company.com', is_active: true },
-            { username: 'alice.manager', first_name: 'Alice', last_name: 'Manager', email: 'alice@example.com', is_active: true },
-            { username: 'bob.admin', first_name: 'Bob', last_name: 'Admin', email: 'bob.admin@company.com', is_active: true },
-            { username: 'charlie.doe', first_name: 'Charlie', last_name: 'Doe', email: 'charlie.doe@example.com', is_active: true },
-          ];
-
-          let filteredUsers = filterableUsers;
-
-          if (username) {
-            filteredUsers = filteredUsers.filter((user) => user.username.toLowerCase().includes(username.toLowerCase()));
-          }
-
-          if (email) {
-            filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(email.toLowerCase()));
-          }
-
-          return HttpResponse.json({
-            data: filteredUsers.map((user) => ({ ...user, uuid: user.username })),
-            meta: { count: filteredUsers.length },
-          });
-        }),
-        // Enhanced principals handler for filtering story
+        // Enhanced filtering handler with API spy
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
           const status = url.searchParams.get('status') || 'enabled';
+          
+          // CRITICAL: Call spy with API parameters for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           const filterableUsers = [
             { username: 'john.doe', first_name: 'John', last_name: 'Doe', email: 'john.doe@example.com', is_active: true },
@@ -349,7 +313,22 @@ export const WithFiltering: Story = {
             { username: 'charlie.doe', first_name: 'Charlie', last_name: 'Doe', email: 'charlie.doe@example.com', is_active: true },
           ].map((user) => ({ ...user, uuid: user.username }));
 
-          let filteredUsers = status === 'enabled' ? filterableUsers : [];
+          // Filter by username
+          let filteredUsers = filterableUsers;
+          if (username) {
+            filteredUsers = filteredUsers.filter((user) => user.username.toLowerCase().includes(username.toLowerCase()));
+          }
+          
+          // Filter by email
+          if (email) {
+            filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(email.toLowerCase()));
+          }
+          
+          // Filter by status
+          if (status !== 'enabled') {
+            filteredUsers = [];
+          }
+
           const paginatedUsers = filteredUsers.slice(offset, offset + limit);
 
           return HttpResponse.json({
@@ -366,6 +345,9 @@ export const WithFiltering: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
+    
+    // Clear spy to ensure clean state
+    usersApiSpy.mockClear();
 
     // 🎯 MODAL TESTING: Click button to open modal
     const openButton = await canvas.findByRole('button', { name: 'Open Add Members Modal' });
@@ -378,26 +360,71 @@ export const WithFiltering: Story = {
     // Test modal content
     expect(within(modal).getByText('Add members')).toBeInTheDocument();
 
+    // Wait for initial load (debounce + data load)
+    await delay(300);
+    
+    // CRITICAL: Verify initial API call
+    await waitFor(() => {
+      expect(usersApiSpy).toHaveBeenCalled();
+      const initialCall = usersApiSpy.mock.calls[0][0];
+      expect(initialCall.username).toBe('');
+      expect(initialCall.email).toBe('');
+    });
+
     // Wait for initial user list to load
     await waitFor(async () => {
       const userElements = within(modal).queryAllByText(/john\.doe|jane\.admin|alice\.manager/);
       expect(userElements.length).toBeGreaterThan(0);
     });
 
-    // 🎯 FILTERING TEST: Look for search input (may be in toolbar)
-    const searchInputs = modal.querySelectorAll('input[type="text"], input[placeholder*="filter"], input[placeholder*="search"]');
-    if (searchInputs.length > 0) {
-      const searchInput = searchInputs[0];
+    // 🎯 FILTERING TEST: Find username filter input
+    const usernameInput = await within(modal).findByPlaceholderText(/filter by username/i);
+    expect(usernameInput).toBeInTheDocument();
 
-      // Test filtering by typing "admin"
-      await userEvent.type(searchInput, 'admin');
+    // Clear spy before testing filter
+    usersApiSpy.mockClear();
 
-      // Wait for filtered results
-      await waitFor(async () => {
-        const modal = screen.getByRole('dialog');
-        expect(modal).toBeInTheDocument(); // Modal should remain functional during filtering
-      });
-    }
+    // Test filtering by username "admin"
+    await userEvent.type(usernameInput, 'admin');
+
+    // Wait for debounced filter (useUsersList uses debounce)
+    await delay(600);
+    
+    // CRITICAL: Verify filter API call with username parameter
+    await waitFor(() => {
+      expect(usersApiSpy).toHaveBeenCalled();
+      const filterCall = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0];
+      expect(filterCall.username).toBe('admin');
+    });
+
+    // Verify filtered results appear
+    await waitFor(async () => {
+      expect(within(modal).queryByText(/jane\.admin|bob\.admin/)).toBeInTheDocument();
+    });
+    
+    // Clear spy before testing clear
+    usersApiSpy.mockClear();
+
+    // 🎯 CLEAR FILTERS TEST: Find and click clear filters button
+    const clearButton = await within(modal).findByRole('button', { name: /clear.*filter/i });
+    await userEvent.click(clearButton);
+
+    // Wait for API call after clear
+    await delay(300);
+    
+    // CRITICAL: Verify clear filters API call
+    await waitFor(() => {
+      expect(usersApiSpy).toHaveBeenCalled();
+      const clearCall = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0];
+      expect(clearCall.username).toBe('');
+      expect(clearCall.email).toBe('');
+    });
+
+    // Verify all users return
+    await waitFor(async () => {
+      const allUserElements = within(modal).queryAllByText(/john\.doe|jane\.admin|alice\.manager|bob\.admin|charlie\.doe/);
+      expect(allUserElements.length).toBeGreaterThanOrEqual(3);
+    });
   },
 };
 
@@ -422,38 +449,23 @@ export const WithPagination: Story = {
     },
     msw: {
       handlers: [
-        // Large dataset handler for pagination testing
-        http.get('/api/rbac/v1/users/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '10');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          // Generate 50 test users for pagination
-          const largeUserDataset = Array.from({ length: 50 }, (_, i) => ({
-            username: `user${i + 1}`,
-            first_name: `User`,
-            last_name: `${i + 1}`,
-            email: `user${i + 1}@company.com`,
-            is_active: true,
-          }));
-
-          const paginatedUsers = largeUserDataset.slice(offset, offset + limit);
-
-          return HttpResponse.json({
-            data: paginatedUsers.map((user) => ({ ...user, uuid: user.username })),
-            meta: {
-              count: largeUserDataset.length,
-              limit,
-              offset,
-            },
-          });
-        }),
         // Large dataset principals handler for pagination testing
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '10');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
+
+          // CRITICAL: Call spy for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           // Generate 50 test users for pagination
           const largeUserDataset = Array.from({ length: 50 }, (_, i) => ({
@@ -595,22 +607,23 @@ export const ITLessMode: Story = {
     },
     msw: {
       handlers: [
-        // IT-less specific data
-        http.get('/api/rbac/v1/users/', () => {
-          return HttpResponse.json({
-            data: [
-              { username: 'itless.user', first_name: 'ITLess', last_name: 'User', email: 'itless@example.com', is_active: true },
-              { username: 'simple.user', first_name: 'Simple', last_name: 'User', email: 'simple@example.com', is_active: true },
-            ].map((user) => ({ ...user, uuid: user.username })),
-            meta: { count: 2 },
-          });
-        }),
         // IT-less principals handler
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
+
+          // CRITICAL: Call spy for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           const itlessUsers = [
             { username: 'itless.user', first_name: 'ITLess', last_name: 'User', email: 'itless@example.com', is_active: true, uuid: 'itless.user' },
@@ -662,28 +675,23 @@ export const SubmitNotification: Story = {
     },
     msw: {
       handlers: [
-        // Same users handler as default
-        http.get('/api/rbac/v1/users/', ({ request }) => {
-          const url = new URL(request.url);
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-          const status = url.searchParams.get('status') || 'enabled';
-
-          let filteredUsers = status === 'enabled' ? mockUsers : [];
-          const paginatedUsers = filteredUsers.slice(offset, offset + limit);
-
-          return HttpResponse.json({
-            data: paginatedUsers.map((user) => ({ ...user, uuid: user.username })),
-            meta: { count: filteredUsers.length, limit, offset },
-          });
-        }),
-
         // Same principals handler as default
         http.get('/api/rbac/v1/principals/', ({ request }) => {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
+          const username = url.searchParams.get('username') || '';
+          const email = url.searchParams.get('email') || '';
+
+          // CRITICAL: Call spy for testing
+          usersApiSpy({
+            username,
+            email,
+            status,
+            limit: limit.toString(),
+            offset: offset.toString(),
+          });
 
           let filteredUsers = status === 'enabled' ? mockUsers : [];
           const paginatedUsers = filteredUsers.slice(offset, offset + limit);
