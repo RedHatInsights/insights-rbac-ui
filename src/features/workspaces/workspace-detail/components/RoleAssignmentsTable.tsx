@@ -13,7 +13,6 @@ import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip'
 import { ThProps } from '@patternfly/react-table';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
-import { useFlag } from '@unleash/proxy-client-react';
 
 import { Group } from '../../../../redux/groups/reducer';
 import messages from '../../../../Messages';
@@ -21,6 +20,7 @@ import { GroupDetailsDrawer, GroupWithInheritance } from './GroupDetailsDrawer';
 import { EmptyTable } from './EmptyTable';
 import { AppLink } from '../../../../components/navigation/AppLink';
 import { GrantAccessWizard } from '../../grant-access/GrantAccessWizard';
+import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
 
 const isGroupWithInheritance = (group: Group | GroupWithInheritance): group is GroupWithInheritance => {
   return 'inheritedFrom' in group && group.inheritedFrom !== undefined;
@@ -71,7 +71,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
 }) => {
   const intl = useIntl();
 
-  const grantAccessWizard = useFlag('platform.rbac.grant-access-wizard');
+  const grantAccessWizard = useWorkspacesFlag('m5');
 
   const [focusedGroup, setFocusedGroup] = useState<Group | undefined>();
   const [isGrantAccessWizardOpen, setIsGrantAccessWizardOpen] = useState(false);
