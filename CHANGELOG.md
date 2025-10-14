@@ -1,3 +1,10 @@
+## [1.63.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.0...v1.63.1) (2025-10-14)
+
+
+### Bug Fixes
+
+* **AddGroupMembers:** restored filtering capabilities ([0ba659a](https://github.com/RedHatInsights/insights-rbac-ui/commit/0ba659a6a5c8f7f3120cdc13716340bb62da6987))
+
 # [1.63.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.62.0...v1.63.0) (2025-10-13)
 
 
