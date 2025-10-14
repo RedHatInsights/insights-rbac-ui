@@ -1,4 +1,5 @@
 import React, { Fragment, useCallback, useEffect, useMemo } from 'react';
+import { debounce } from '../../../../../utilities/debounce';
 
 // DataView imports
 import { DataView, DataViewState } from '@patternfly/react-data-view';
@@ -18,7 +19,7 @@ import type { User, UsersListProps } from './types';
 
 export const UsersList: React.FC<UsersListProps> = (props) => {
   // Use custom hook for ALL business logic
-  const { users, isLoading, filters, selection, tableRows, columns, hasActiveFilters, fetchData, emptyStateProps, pagination } = useUsersList({
+  const { users, isLoading, filters, selection, tableRows, columns, fetchData, emptyStateProps, pagination } = useUsersList({
     usesMetaInURL: props.usesMetaInURL,
     displayNarrow: props.displayNarrow,
     initialSelectedUsers: props.initialSelectedUsers,
@@ -46,24 +47,56 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
     [fetchData],
   );
 
-  // Filter change handler (avoid unstable dependencies)
+  // Debounced version for filter changes to prevent excessive API calls
+  const debouncedFetchData = useMemo(() => debounce(fetchData), [fetchData]);
+
+  // Cleanup debounced function on unmount
+  useEffect(() => {
+    return () => {
+      debouncedFetchData.cancel();
+    };
+  }, [debouncedFetchData]);
+
+  // Filter change handler
   const handleFilterChange = useCallback(
-    (key: string, newValues: Partial<{ username: string; email: string; status: string[] }>) => {
-      const newFilters = { ...filters.filters, ...newValues };
+    (_event: any, newFilters: Partial<{ username: string; email: string; status: string[] }>) => {
+      // Update filter state immediately for UI responsiveness
       filters.onSetFilters(newFilters);
-      fetchData({ username: newFilters.username, email: newFilters.email, status: newFilters.status, offset: 0 });
+
+      // Merge new filters with existing ones to preserve all filter values
+      // This is needed because PatternFly DataViewFilters only passes the active filter
+      // when switching between filter types, losing other filter values
+      const mergedFilters = {
+        ...filters.filters,
+        ...newFilters,
+      };
+
+      // Debounce API calls to prevent excessive requests - pass params directly, NOT nested under 'filters'
+      debouncedFetchData({
+        username: mergedFilters.username,
+        email: mergedFilters.email,
+        status: mergedFilters.status,
+        offset: 0,
+      });
     },
-    [], // Remove unstable dependencies to prevent infinite loops - rely on closure
+    [filters, debouncedFetchData],
   );
 
-  // Clear all filters (avoid unstable dependencies)
+  // Clear all filters
   const clearAllFilters = useCallback(() => {
-    const defaultFilters = { username: '', email: '', status: ['Active'] };
-    filters.onSetFilters(defaultFilters);
-    fetchData({ ...defaultFilters, offset: 0 });
-  }, []); // Remove unstable dependencies to prevent infinite loops - rely on closure
+    // Use onSetFilters directly to set empty filter values
+    const emptyFilters = { username: '', email: '', status: [] };
+    filters.onSetFilters(emptyFilters);
+    // Trigger API call immediately (no debounce for button clicks)
+    fetchData({
+      username: '',
+      email: '',
+      status: [],
+      offset: 0,
+    });
+  }, [filters, fetchData]);
 
-  // Bulk select handler (avoid unstable dependencies)
+  // Bulk select handler
   const handleBulkSelect = useCallback(
     (value: BulkSelectValue) => {
       if (value === BulkSelectValue.none) {
@@ -74,7 +107,7 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
         selection.onSelect(false, tableRows);
       }
     },
-    [], // Remove unstable dependencies to prevent infinite loops - rely on closure
+    [selection, tableRows],
   );
 
   // Skeleton states
@@ -85,7 +118,7 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
   // Empty state component
   const emptyState = useMemo(() => <UsersListEmptyState {...emptyStateProps} />, [emptyStateProps]);
 
-  // Bulk select component (avoid depending on unstable handleBulkSelect)
+  // Bulk select component
   const bulkSelectComponent = useMemo(() => {
     const selectedCount = props.initialSelectedUsers.length;
     const totalCount = users.length;
@@ -93,7 +126,7 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
     return (
       <BulkSelect isDataPaginated={false} selectedCount={selectedCount} totalCount={totalCount} onSelect={handleBulkSelect} pageCount={totalCount} />
     );
-  }, [props.initialSelectedUsers.length, users.length]); // Removed handleBulkSelect dependency
+  }, [props.initialSelectedUsers.length, users.length, handleBulkSelect]);
 
   // Handle selection changes - call onSelect when selection changes
   useEffect(() => {
@@ -138,7 +171,7 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
               />
             </DataViewFilters>
           }
-          clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
+          clearAllFilters={clearAllFilters}
         />
         <DataViewTable
           columns={columns}

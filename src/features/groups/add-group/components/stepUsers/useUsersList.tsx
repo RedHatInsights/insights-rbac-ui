@@ -29,7 +29,7 @@ interface DataViewUserFilters {
 
 interface UserTableRow {
   id: string;
-  row: [React.ReactNode, string, string, string, string]; // First column can be JSX (Org Admin icons)
+  row: [React.ReactNode, string, string, string, string, string]; // First column can be JSX (Org Admin icons), last is Status
   item: User;
 }
 
@@ -121,11 +121,14 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
   }, [selection.selected, users, onSelect]);
 
   // Filter users based on current filters
+  // CRITICAL: Use filters.filters (DataView state) NOT stateFilters (Redux state) for client-side filtering
+  // This ensures the UI reflects the actual current filter state, not stale Redux state
   const filteredUsers = useMemo(() => {
+    const currentFilters = filters.filters; // Use DataView filter state
     return (
       users?.filter?.((user: User) =>
-        Object.keys(stateFilters).every((key: string) => {
-          const filterValue = (stateFilters as any)[key];
+        Object.keys(currentFilters).every((key: string) => {
+          const filterValue = (currentFilters as any)[key];
           if (!filterValue || (Array.isArray(filterValue) && filterValue.length === 0)) {
             return true;
           }
@@ -142,22 +145,29 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
         }),
       ) || []
     );
-  }, [users, stateFilters]);
+  }, [users, filters.filters]);
 
   // Fetch data function
   const fetchData = useCallback(
-    (config: Record<string, unknown> = {}) => {
+    (apiProps: Record<string, unknown> = {}) => {
+      const statusValue = apiProps.status !== undefined ? (apiProps.status as string[]) : ['Active'];
       const finalConfig = {
         ...pagination,
-        filters: stateFilters,
-        ...config,
+        ...apiProps,
+        // Wrap username, email, status under 'filters' key for the Redux action
+        filters: {
+          username: (apiProps.username as string) || '',
+          email: (apiProps.email as string) || '',
+          // CRITICAL: Use nullish coalescing to preserve empty arrays
+          status: statusValue,
+        },
       };
       if (usesMetaInURL) {
         dispatch(updateUsersFilters(finalConfig));
       }
       dispatch(fetchUsers(finalConfig));
     },
-    [dispatch, usesMetaInURL, pagination, stateFilters],
+    [dispatch, usesMetaInURL, pagination],
   );
 
   // Initial data fetch and URL sync
@@ -190,11 +200,12 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
           user.email || '',
           user.first_name || '',
           user.last_name || '',
+          user.is_active ? intl.formatMessage(messages.active) : intl.formatMessage(messages.inactive),
         ],
         item: user,
       }),
     );
-  }, [filteredUsers]);
+  }, [filteredUsers, intl]);
 
   // Column definitions
   const columns = useMemo(
@@ -204,6 +215,7 @@ export const useUsersList = ({ usesMetaInURL = false, initialSelectedUsers, onSe
       { cell: intl.formatMessage(messages.email), props: { width: 25 } },
       { cell: intl.formatMessage(messages.firstName) },
       { cell: intl.formatMessage(messages.lastName) },
+      { cell: intl.formatMessage(messages.status) },
     ],
     [intl],
   );

@@ -7,7 +7,6 @@ import { AddGroupMembers } from './AddGroupMembers';
 
 // API spy for tracking filter and search calls
 const usersApiSpy = fn();
-const clearFiltersSpy = fn();
 
 // Mock users data for testing
 const mockUsers = [
@@ -32,6 +31,20 @@ const mockUsers = [
     email: 'alice@example.com',
     is_active: true,
   },
+  {
+    username: 'bob.jones',
+    first_name: 'Bob',
+    last_name: 'Jones',
+    email: 'bob.jones@example.com',
+    is_active: false,
+  },
+  {
+    username: 'charlie.brown',
+    first_name: 'Charlie',
+    last_name: 'Brown',
+    email: 'charlie.brown@example.com',
+    is_active: false,
+  },
 ];
 
 // Mock principals data (what the UsersList component actually calls)
@@ -52,7 +65,7 @@ const AddGroupMembersWrapper = (props: any) => {
 
 const meta: Meta<any> = {
   component: AddGroupMembersWrapper,
-  tags: ['ff:platform.rbac.itless'], // NO autodocs on meta
+  // NO autodocs on meta
   decorators: [
     (Story) => (
       <MemoryRouter initialEntries={['/groups/detail/test-group-id/members']}>
@@ -68,8 +81,8 @@ const meta: Meta<any> = {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
-          const status = url.searchParams.get('status') || 'enabled';
-          const username = url.searchParams.get('username') || '';
+          const status = url.searchParams.get('status') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
 
           // CRITICAL: Call spy for testing
@@ -91,8 +104,24 @@ const meta: Meta<any> = {
             uuid: user.username,
           }));
 
-          // Filter by status
-          let filteredUsers = status === 'enabled' ? allPrincipals : [];
+          // Filter by status - 'all' or empty shows all users
+          let filteredUsers = allPrincipals;
+          if (status === 'enabled') {
+            filteredUsers = allPrincipals.filter((u) => u.is_active);
+          } else if (status === 'disabled') {
+            filteredUsers = allPrincipals.filter((u) => !u.is_active);
+          }
+          // If status is 'all' or empty or any other value, show all users
+
+          // Filter by username
+          if (username) {
+            filteredUsers = filteredUsers.filter((user) => user.username.toLowerCase().includes(username.toLowerCase()));
+          }
+
+          // Filter by email
+          if (email) {
+            filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(email.toLowerCase()));
+          }
 
           // Apply pagination
           const paginatedUsers = filteredUsers.slice(offset, offset + limit);
@@ -205,7 +234,7 @@ export const WithUsers: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
-          const username = url.searchParams.get('username') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
 
           // CRITICAL: Call spy for testing
@@ -276,12 +305,12 @@ export const WithFiltering: Story = {
 **What you should see:**
 1. Click "Open Add Members Modal" button
 2. Modal opens with:
-   - Search/filter input field in the toolbar
-   - Type "admin" to filter users containing "admin" in username/email
-   - Results should update dynamically as you type
-   - Try typing "doe" to see different filtering results
+   - Filter dropdown with Username, Email, and Status options
+   - Type in filters to see results update dynamically
+   - Switch between filter types using the dropdown
+   - Clear filters button appears when filters are active
 
-**This story tests:** Search and filter functionality for finding users with API spy verification.
+**This story tests:** Username filter and clear filters functionality with API spy verification.
         `,
       },
     },
@@ -292,10 +321,10 @@ export const WithFiltering: Story = {
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
-          const username = url.searchParams.get('username') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
-          const status = url.searchParams.get('status') || 'enabled';
-          
+          const status = url.searchParams.get('status') || '';
+
           // CRITICAL: Call spy with API parameters for testing
           usersApiSpy({
             username,
@@ -310,23 +339,29 @@ export const WithFiltering: Story = {
             { username: 'jane.admin', first_name: 'Jane', last_name: 'Admin', email: 'jane.admin@company.com', is_active: true },
             { username: 'alice.manager', first_name: 'Alice', last_name: 'Manager', email: 'alice@example.com', is_active: true },
             { username: 'bob.admin', first_name: 'Bob', last_name: 'Admin', email: 'bob.admin@company.com', is_active: true },
-            { username: 'charlie.doe', first_name: 'Charlie', last_name: 'Doe', email: 'charlie.doe@example.com', is_active: true },
+            { username: 'charlie.doe', first_name: 'Charlie', last_name: 'Doe', email: 'charlie.doe@example.com', is_active: false },
+            { username: 'bob.smith', first_name: 'Bob', last_name: 'Smith', email: 'bob.smith@example.com', is_active: false },
+            { username: 'david.jones', first_name: 'David', last_name: 'Jones', email: 'david.jones@example.com', is_active: false },
           ].map((user) => ({ ...user, uuid: user.username }));
 
-          // Filter by username
+          // Filter by status - 'all' or empty shows all users
           let filteredUsers = filterableUsers;
+          if (status === 'enabled') {
+            filteredUsers = filterableUsers.filter((u) => u.is_active);
+          } else if (status === 'disabled') {
+            filteredUsers = filterableUsers.filter((u) => !u.is_active);
+          } else {
+          }
+          // If status is 'all' or empty or any other value, show all users
+
+          // Filter by username
           if (username) {
             filteredUsers = filteredUsers.filter((user) => user.username.toLowerCase().includes(username.toLowerCase()));
           }
-          
+
           // Filter by email
           if (email) {
             filteredUsers = filteredUsers.filter((user) => user.email.toLowerCase().includes(email.toLowerCase()));
-          }
-          
-          // Filter by status
-          if (status !== 'enabled') {
-            filteredUsers = [];
           }
 
           const paginatedUsers = filteredUsers.slice(offset, offset + limit);
@@ -345,7 +380,7 @@ export const WithFiltering: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    
+
     // Clear spy to ensure clean state
     usersApiSpy.mockClear();
 
@@ -362,7 +397,7 @@ export const WithFiltering: Story = {
 
     // Wait for initial load (debounce + data load)
     await delay(300);
-    
+
     // CRITICAL: Verify initial API call
     await waitFor(() => {
       expect(usersApiSpy).toHaveBeenCalled();
@@ -377,7 +412,8 @@ export const WithFiltering: Story = {
       expect(userElements.length).toBeGreaterThan(0);
     });
 
-    // 🎯 FILTERING TEST: Find username filter input
+    // 🎯 TEST 1: USERNAME FILTER
+    // Find username filter input (default filter)
     const usernameInput = await within(modal).findByPlaceholderText(/filter by username/i);
     expect(usernameInput).toBeInTheDocument();
 
@@ -387,9 +423,9 @@ export const WithFiltering: Story = {
     // Test filtering by username "admin"
     await userEvent.type(usernameInput, 'admin');
 
-    // Wait for debounced filter (useUsersList uses debounce)
+    // Wait for debounced filter
     await delay(600);
-    
+
     // CRITICAL: Verify filter API call with username parameter
     await waitFor(() => {
       expect(usersApiSpy).toHaveBeenCalled();
@@ -397,21 +433,24 @@ export const WithFiltering: Story = {
       expect(filterCall.username).toBe('admin');
     });
 
-    // Verify filtered results appear
+    // Verify filtered results appear (should show jane.admin and bob.admin, but NOT john.doe or alice.manager)
     await waitFor(async () => {
-      expect(within(modal).queryByText(/jane\.admin|bob\.admin/)).toBeInTheDocument();
+      // Check that non-matching users are NOT shown
+      expect(within(modal).queryByText('john.doe')).not.toBeInTheDocument();
+      expect(within(modal).queryByText('alice.manager')).not.toBeInTheDocument();
     });
-    
+
+    // 🎯 TEST 2: CLEAR FILTERS
     // Clear spy before testing clear
     usersApiSpy.mockClear();
 
-    // 🎯 CLEAR FILTERS TEST: Find and click clear filters button
+    // Find and click clear filters button
     const clearButton = await within(modal).findByRole('button', { name: /clear.*filter/i });
     await userEvent.click(clearButton);
 
     // Wait for API call after clear
     await delay(300);
-    
+
     // CRITICAL: Verify clear filters API call
     await waitFor(() => {
       expect(usersApiSpy).toHaveBeenCalled();
@@ -420,11 +459,76 @@ export const WithFiltering: Story = {
       expect(clearCall.email).toBe('');
     });
 
-    // Verify all users return
+    // Wait for API call to complete and table to update
+    await delay(500);
+
+    // Verify all users return (including inactive users when status is cleared)
     await waitFor(async () => {
-      const allUserElements = within(modal).queryAllByText(/john\.doe|jane\.admin|alice\.manager|bob\.admin|charlie\.doe/);
+      const allUserElements = within(modal).queryAllByText(/john\.doe|jane\.admin|alice\.manager|bob\.admin/);
       expect(allUserElements.length).toBeGreaterThanOrEqual(3);
     });
+
+    // 🎯 TEST 3: VERIFY INACTIVE USERS APPEAR WHEN STATUS CLEARED
+    const getTable = () => within(modal).findByRole('grid');
+    const table = await getTable();
+
+    // Verify inactive users appear - should see "Inactive" in Status column exactly 3 times
+    expect(await within(table).findAllByText('Inactive')).toHaveLength(3);
+    // Verify active users are also present (should see "Active" in Status column exactly 4 times)
+    expect(await within(table).findAllByText('Active')).toHaveLength(4);
+
+    // 🎯 TEST 4: EMAIL FILTER
+    usersApiSpy.mockClear();
+
+    // Switch to Email filter
+    await userEvent.click(await within(modal).findByRole('button', { name: /username/i }));
+    await userEvent.click(await within(modal).findByRole('menuitem', { name: /^email$/i }));
+
+    // Type in email filter
+    await userEvent.type(await within(modal).findByPlaceholderText(/filter by email/i), 'company.com');
+    await delay(600);
+
+    // Verify email filter API call
+    await waitFor(() => {
+      const lastCall = usersApiSpy.mock.calls[usersApiSpy.mock.calls.length - 1][0];
+      expect(lastCall.email).toBe('company.com');
+    });
+
+    // Verify filtered results
+    expect(await within(modal).findByText('jane.admin')).toBeInTheDocument();
+    expect(await within(modal).findByText('bob.admin')).toBeInTheDocument();
+    expect(within(modal).queryByText('john.doe')).not.toBeInTheDocument();
+
+    // 🎯 TEST 5: STATUS FILTER (Checkbox Filter)
+    usersApiSpy.mockClear();
+    await userEvent.click(await within(modal).findByRole('button', { name: /clear.*filter/i }));
+    await delay(500);
+
+    // Wait for all users to appear
+    await waitFor(async () => {
+      expect(await within(modal).findByText('john.doe')).toBeInTheDocument();
+      expect(await within(modal).findByText('bob.smith')).toBeInTheDocument();
+    });
+
+    // Switch to Status filter
+    const toolbar = modal.querySelector('.pf-v5-c-toolbar') as HTMLElement;
+    await userEvent.click(await within(toolbar).findByRole('button', { name: /email|filter.*attribute/i }));
+    await delay(200);
+    await userEvent.click(await within(modal).findByRole('menuitem', { name: /^status$/i }));
+    await delay(300);
+
+    // Open status filter and select Inactive
+    await userEvent.click(await within(toolbar).findByRole('button', { name: /filter by status/i }));
+    await delay(200);
+
+    const statusCheckboxes = await within(await within(modal).findByRole('menu')).findAllByRole('checkbox');
+    await userEvent.click(statusCheckboxes[1]); // Second checkbox is "Inactive"
+    await delay(600);
+
+    // Verify only inactive users shown
+    expect(await within(await getTable()).findAllByText('Inactive')).toHaveLength(3);
+    expect(within(modal).queryByText('john.doe')).not.toBeInTheDocument();
+    expect(within(modal).queryByText('jane.admin')).not.toBeInTheDocument();
   },
 };
 
@@ -455,7 +559,7 @@ export const WithPagination: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '10');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
-          const username = url.searchParams.get('username') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
 
           // CRITICAL: Call spy for testing
@@ -613,7 +717,7 @@ export const ITLessMode: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
-          const username = url.searchParams.get('username') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
 
           // CRITICAL: Call spy for testing
@@ -681,7 +785,7 @@ export const SubmitNotification: Story = {
           const limit = parseInt(url.searchParams.get('limit') || '20');
           const offset = parseInt(url.searchParams.get('offset') || '0');
           const status = url.searchParams.get('status') || 'enabled';
-          const username = url.searchParams.get('username') || '';
+          const username = url.searchParams.get('usernames') || ''; // Note: API uses 'usernames' (plural)
           const email = url.searchParams.get('email') || '';
 
           // CRITICAL: Call spy for testing
