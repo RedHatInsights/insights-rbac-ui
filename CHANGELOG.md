@@ -1,3 +1,10 @@
+# [1.64.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.1...v1.64.0) (2025-10-14)
+
+
+### Features
+
+* **Storybook:** mocked E2E test for Kessel milestones ([bafc655](https://github.com/RedHatInsights/insights-rbac-ui/commit/bafc65554a4c18e0db40fae1318b20345a54829f))
+
 ## [1.63.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.0...v1.63.1) (2025-10-14)
 
 
