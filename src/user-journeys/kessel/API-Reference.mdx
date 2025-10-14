@@ -1,0 +1,713 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Workspaces (Kessel)/Documentation: API Reference" />
+
+# Workspace Management (Kessel) - API Reference
+
+This document describes the expected API endpoints, request/response formats, and data models for the Kessel workspace management feature. This serves as the contract between the frontend (RBAC UI) and backend (RBAC API) teams.
+
+---
+
+## Base URL
+
+All endpoints are relative to: `/api/rbac/v2/`
+
+---
+
+## Authentication
+
+All requests require:
+- Valid authentication token (handled by Chrome SDK)
+- Appropriate RBAC permissions (see each endpoint)
+
+---
+
+## Workspaces API
+
+### GET `/workspaces/`
+
+**Description:** List all workspaces with hierarchical structure
+
+**Required Permission:** `inventory:groups:read` or higher
+
+**Query Parameters:**
+```typescript
+{
+  limit?: number;          // Default: 20, Max: 100
+  offset?: number;         // Default: 0
+  name?: string;          // Filter by name (partial match)
+  parent_id?: string;     // Filter by parent workspace ID
+  type?: 'root' | 'standard' | 'ungrouped-hosts';  // Filter by type
+  order_by?: 'name' | 'created' | 'modified';      // Sort field
+  order_direction?: 'asc' | 'desc';                // Sort direction
+}
+```
+
+**Response:**
+```typescript
+{
+  data: Array<{
+    id: string;                    // UUID
+    name: string;
+    description?: string;
+    type: 'root' | 'standard' | 'ungrouped-hosts';
+    parent_id?: string | null;     // null for root workspace
+    created: string;               // ISO 8601 timestamp
+    modified: string;              // ISO 8601 timestamp
+    children?: Array<Workspace>;   // Nested children (optional, for tree view)
+  }>;
+  meta: {
+    count: number;                 // Total count (all pages)
+    limit: number;
+    offset: number;
+  };
+}
+```
+
+**Example Response:**
+```json
+{
+  "data": [
+    {
+      "id": "workspace-root",
+      "name": "Default Workspace",
+      "description": "Root workspace for the organization",
+      "type": "root",
+      "parent_id": null,
+      "created": "2024-01-01T00:00:00Z",
+      "modified": "2024-01-01T00:00:00Z",
+      "children": [
+        {
+          "id": "workspace-1",
+          "name": "Engineering",
+          "description": "Engineering team workspace",
+          "type": "standard",
+          "parent_id": "workspace-root",
+          "created": "2024-02-01T00:00:00Z",
+          "modified": "2024-02-15T10:30:00Z",
+          "children": []
+        }
+      ]
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+### GET `/workspaces/{workspace_id}/`
+
+**Description:** Get details for a specific workspace
+
+**Required Permission:** `inventory:groups:read` or higher
+
+**Path Parameters:**
+- `workspace_id`: UUID of the workspace
+
+**Response:**
+```typescript
+{
+  id: string;
+  name: string;
+  description?: string;
+  type: 'root' | 'standard' | 'ungrouped-hosts';
+  parent_id?: string | null;
+  created: string;
+  modified: string;
+  // Optional: Include parent workspace details
+  parent?: {
+    id: string;
+    name: string;
+  };
+}
+```
+
+---
+
+### POST `/workspaces/`
+
+**Description:** Create a new workspace
+
+**Required Permission:** `inventory:groups:write` or `inventory:groups:*`
+
+**Milestone:** M1+ (M2+ for parent selection)
+
+**Request Body:**
+```typescript
+{
+  name: string;                  // Required, max 255 chars
+  description?: string;          // Optional, max 1000 chars
+  parent_id?: string;            // Optional (M2+), defaults to root workspace
+  type?: 'standard';             // Optional, defaults to 'standard'
+}
+```
+
+**Response:** `201 Created`
+```typescript
+{
+  id: string;                    // Generated UUID
+  name: string;
+  description?: string;
+  type: 'standard';
+  parent_id: string;
+  created: string;
+  modified: string;
+}
+```
+
+**Validation Rules:**
+- `name`: Required, unique within parent, 1-255 characters
+- `description`: Optional, max 1000 characters
+- `parent_id`: Must be a valid workspace ID (M2+)
+- Cannot create workspaces with `type: 'root'` or `type: 'ungrouped-hosts'`
+
+**Error Responses:**
+```typescript
+// 400 Bad Request - Validation error
+{
+  "errors": [
+    {
+      "detail": "Workspace name must be unique within parent",
+      "source": "name"
+    }
+  ]
+}
+
+// 403 Forbidden - Insufficient permissions
+{
+  "errors": [
+    {
+      "detail": "User does not have permission to create workspaces"
+    }
+  ]
+}
+
+// 404 Not Found - Invalid parent_id
+{
+  "errors": [
+    {
+      "detail": "Parent workspace not found",
+      "source": "parent_id"
+    }
+  ]
+}
+```
+
+---
+
+### PATCH `/workspaces/{workspace_id}/`
+
+**Description:** Update a workspace (name, description, or parent)
+
+**Required Permission:** `inventory:groups:write` or `inventory:groups:*`
+
+**Milestone:** M2+
+
+**Path Parameters:**
+- `workspace_id`: UUID of the workspace
+
+**Request Body:**
+```typescript
+{
+  name?: string;                 // Optional, max 255 chars
+  description?: string;          // Optional, max 1000 chars
+  parent_id?: string;            // Optional (M2+), move to new parent
+}
+```
+
+**Response:** `200 OK`
+```typescript
+{
+  id: string;
+  name: string;
+  description?: string;
+  type: string;
+  parent_id: string;
+  created: string;
+  modified: string;              // Updated timestamp
+}
+```
+
+**Validation Rules:**
+- Cannot modify `type` or `id`
+- Cannot move root workspace
+- Cannot move workspace to be its own descendant (circular reference)
+- Cannot move workspace to `null` parent (must have parent)
+- Name must be unique within new parent
+
+**Error Responses:**
+```typescript
+// 400 Bad Request - Circular reference
+{
+  "errors": [
+    {
+      "detail": "Cannot move workspace to be a descendant of itself",
+      "source": "parent_id"
+    }
+  ]
+}
+
+// 403 Forbidden - Cannot modify root workspace
+{
+  "errors": [
+    {
+      "detail": "Cannot modify root workspace"
+    }
+  ]
+}
+```
+
+---
+
+### DELETE `/workspaces/{workspace_id}/`
+
+**Description:** Delete a workspace (must be a leaf node with no children)
+
+**Required Permission:** `inventory:groups:write` or `inventory:groups:*`
+
+**Milestone:** M2+
+
+**Path Parameters:**
+- `workspace_id`: UUID of the workspace
+
+**Response:** `204 No Content` (successful deletion)
+
+**Validation Rules:**
+- Cannot delete root workspace
+- Cannot delete `ungrouped-hosts` workspace
+- Cannot delete workspace with children (must delete children first)
+- Cannot delete workspace with associated resources (hosts, groups, etc.)
+
+**Error Responses:**
+```typescript
+// 400 Bad Request - Has children
+{
+  "errors": [
+    {
+      "detail": "Cannot delete workspace with children. Delete children first."
+    }
+  ]
+}
+
+// 403 Forbidden - Cannot delete root workspace
+{
+  "errors": [
+    {
+      "detail": "Cannot delete root workspace"
+    }
+  ]
+}
+
+// 409 Conflict - Has associated resources
+{
+  "errors": [
+    {
+      "detail": "Cannot delete workspace with associated inventory resources"
+    }
+  ]
+}
+```
+
+---
+
+## Role Bindings API (M3+)
+
+### GET `/role-bindings/by-subject`
+
+**Description:** Get role bindings for groups/users in a workspace
+
+**Required Permission:** `inventory:groups:read` or higher
+
+**Milestone:** M3+
+
+**Query Parameters:**
+```typescript
+{
+  resource_id: string;           // Required: Workspace ID
+  resource_type?: 'workspace';   // Optional, defaults to 'workspace'
+  limit?: number;                // Default: 20
+  offset?: number;               // Default: 0
+  order_by?: 'last_modified' | 'subject.group.name';
+  order_direction?: 'asc' | 'desc';
+}
+```
+
+**Response:**
+```typescript
+{
+  data: Array<{
+    id: string;                        // Role binding UUID
+    last_modified: string;             // ISO 8601 timestamp
+    subject: {
+      id: string;                      // Group or user UUID
+      type: 'group' | 'user';
+      group?: {
+        name: string;
+        description?: string;
+        user_count: number;
+      };
+      user?: {
+        username: string;
+        email?: string;
+        first_name?: string;
+        last_name?: string;
+      };
+    };
+    roles: Array<{
+      id: string;                      // Role UUID
+      name: string;
+      display_name?: string;
+    }>;
+    resource: {
+      id: string;                      // Workspace UUID
+      type: 'workspace';
+      workspace: {
+        name: string;
+        type: 'root' | 'standard' | 'ungrouped-hosts';
+        description?: string;
+      };
+    };
+  }>;
+  meta: {
+    count: number;
+    limit: number;
+    offset: number;
+  };
+}
+```
+
+**Example Response:**
+```json
+{
+  "data": [
+    {
+      "id": "binding-1",
+      "last_modified": "2024-08-24T15:45:00Z",
+      "subject": {
+        "id": "group-1",
+        "type": "group",
+        "group": {
+          "name": "Platform Team",
+          "description": "Core platform development team",
+          "user_count": 8
+        }
+      },
+      "roles": [
+        {
+          "id": "role-1",
+          "name": "Workspace Administrator",
+          "display_name": "Workspace Administrator"
+        }
+      ],
+      "resource": {
+        "id": "workspace-2",
+        "type": "workspace",
+        "workspace": {
+          "name": "Web Services",
+          "type": "standard",
+          "description": "Frontend web applications and services"
+        }
+      }
+    }
+  ],
+  "meta": {
+    "count": 1,
+    "limit": 20,
+    "offset": 0
+  }
+}
+```
+
+---
+
+### GET `/role-bindings/by-subject` (Parent Workspaces)
+
+**Description:** Get inherited role bindings from parent workspaces
+
+**Required Permission:** `inventory:groups:read` or higher
+
+**Milestone:** M3+
+
+**Query Parameters:**
+```typescript
+{
+  resource_id: string;           // Required: Current workspace ID
+  resource_type: 'workspace';
+  inherited: true;               // Flag to get parent role bindings
+  limit?: number;
+  offset?: number;
+}
+```
+
+**Response:** Same format as above, but returns role bindings from parent workspaces in the hierarchy.
+
+---
+
+### POST `/role-bindings/` (M4+)
+
+**Description:** Create a new role binding (assign role to group/user in workspace)
+
+**Required Permission:** `inventory:groups:write` or `inventory:groups:*`
+
+**Milestone:** M4+
+
+**Request Body:**
+```typescript
+{
+  subject: {
+    id: string;                      // Group or user UUID
+    type: 'group' | 'user';
+  };
+  role_id: string;                   // Role UUID
+  resource: {
+    id: string;                      // Workspace UUID
+    type: 'workspace';
+  };
+}
+```
+
+**Response:** `201 Created`
+```typescript
+{
+  id: string;                        // Generated role binding UUID
+  last_modified: string;
+  subject: { /* ... */ };
+  roles: [{ /* ... */ }];
+  resource: { /* ... */ };
+}
+```
+
+---
+
+### DELETE `/role-bindings/{binding_id}/` (M4+)
+
+**Description:** Remove a role binding
+
+**Required Permission:** `inventory:groups:write` or `inventory:groups:*`
+
+**Milestone:** M4+
+
+**Path Parameters:**
+- `binding_id`: UUID of the role binding
+
+**Response:** `204 No Content`
+
+---
+
+## Roles API
+
+### GET `/roles/`
+
+**Description:** List available roles (used in My User Access and role binding creation)
+
+**Required Permission:** Any authenticated user
+
+**Query Parameters:**
+```typescript
+{
+  limit?: number;
+  offset?: number;
+  name?: string;                 // Filter by name
+  display_name?: string;         // Filter by display name
+  name_match?: 'partial' | 'exact';
+  scope?: 'principal';           // Filter to user's assigned roles
+  application?: string;          // Comma-separated list of applications
+  order_by?: 'name' | 'display_name' | 'modified';
+}
+```
+
+**Response:**
+```typescript
+{
+  data: Array<{
+    uuid: string;
+    name: string;
+    display_name?: string;
+    description?: string;
+    system: boolean;               // System-defined vs custom role
+    platform_default: boolean;
+    created: string;
+    modified: string;
+    policyCount?: number;
+    accessCount?: number;
+    applications?: string[];       // List of applications this role applies to
+    access?: Array<{               // Permissions (when expanded)
+      permission: string;          // Format: "app:resource:operation"
+      resourceDefinitions?: any[];
+    }>;
+  }>;
+  meta: {
+    count: number;
+    limit: number;
+    offset: number;
+  };
+}
+```
+
+---
+
+## Data Models
+
+### Workspace
+```typescript
+interface Workspace {
+  id: string;                      // UUID
+  name: string;                    // 1-255 chars, unique within parent
+  description?: string;            // Max 1000 chars
+  type: 'root' | 'standard' | 'ungrouped-hosts';
+  parent_id?: string | null;       // null for root workspace
+  created: string;                 // ISO 8601 timestamp
+  modified: string;                // ISO 8601 timestamp
+  children?: Workspace[];          // For tree view
+  parent?: {                       // Optional parent details
+    id: string;
+    name: string;
+  };
+}
+```
+
+### Role Binding
+```typescript
+interface RoleBinding {
+  id: string;                      // UUID
+  last_modified: string;           // ISO 8601 timestamp
+  subject: {
+    id: string;                    // Group or user UUID
+    type: 'group' | 'user';
+    group?: {
+      name: string;
+      description?: string;
+      user_count: number;
+    };
+    user?: {
+      username: string;
+      email?: string;
+      first_name?: string;
+      last_name?: string;
+    };
+  };
+  roles: Array<{
+    id: string;                    // Role UUID
+    name: string;
+    display_name?: string;
+  }>;
+  resource: {
+    id: string;                    // Workspace UUID
+    type: 'workspace';
+    workspace: {
+      name: string;
+      type: 'root' | 'standard' | 'ungrouped-hosts';
+      description?: string;
+    };
+  };
+}
+```
+
+### Role
+```typescript
+interface Role {
+  uuid: string;                    // UUID
+  name: string;                    // Unique name
+  display_name?: string;           // Human-readable name
+  description?: string;
+  system: boolean;                 // System-defined vs custom
+  platform_default: boolean;       // Auto-assigned to all users
+  created: string;                 // ISO 8601 timestamp
+  modified: string;                // ISO 8601 timestamp
+  policyCount?: number;
+  accessCount?: number;
+  applications?: string[];         // Applications this role applies to
+  access?: Array<{
+    permission: string;            // Format: "app:resource:operation"
+    resourceDefinitions?: any[];
+  }>;
+}
+```
+
+---
+
+## Error Response Format
+
+All error responses follow this format:
+
+```typescript
+{
+  errors: Array<{
+    detail: string;                // Human-readable error message
+    status?: string;               // HTTP status code as string
+    source?: string;               // Field name that caused error (for validation)
+    code?: string;                 // Application-specific error code
+  }>;
+}
+```
+
+**Example:**
+```json
+{
+  "errors": [
+    {
+      "detail": "Workspace name must be unique within parent",
+      "status": "400",
+      "source": "name",
+      "code": "DUPLICATE_NAME"
+    }
+  ]
+}
+```
+
+---
+
+## Pagination
+
+All list endpoints support pagination with consistent parameters:
+
+**Request:**
+```typescript
+{
+  limit?: number;    // Items per page (default: 20, max: 100)
+  offset?: number;   // Skip N items (default: 0)
+}
+```
+
+**Response:**
+```typescript
+{
+  data: Array<T>;
+  meta: {
+    count: number;   // Total items across all pages
+    limit: number;   // Items per page
+    offset: number;  // Current offset
+  };
+}
+```
+
+---
+
+## Sorting
+
+Most list endpoints support sorting:
+
+**Request:**
+```typescript
+{
+  order_by?: string;              // Field to sort by
+  order_direction?: 'asc' | 'desc';  // Sort direction
+}
+```
+
+**Common sortable fields:**
+- `name`
+- `created`
+- `modified`
+- `last_modified`
+
+---
+
+## Filtering
+
+List endpoints support various filters specific to each resource type. See individual endpoint documentation for available filters.

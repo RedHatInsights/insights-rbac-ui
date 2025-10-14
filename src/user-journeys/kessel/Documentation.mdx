@@ -1,0 +1,191 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Workspaces (Kessel)/Documentation" />
+
+# Workspace Management (Kessel)
+
+This documentation provides an overview of the Kessel workspace management feature rollout across multiple milestones.
+
+---
+
+## Quick Start
+
+1. **Choose a milestone** from the sidebar (M1-M5)
+2. **Select permission level** (With Write Permission or Read Only)
+3. **Open the Manual Testing story** for interactive exploration
+4. **Use the Controls panel** to toggle feature flags
+5. **Follow the automated play functions** or explore manually
+
+---
+
+## Feature Rollout Roadmap
+
+Kessel workspace management is being delivered incrementally across 5 milestones, each building on the previous one:
+
+```
+M1: Workspace List View
+  ↓
+M2: Hierarchy Management
+  ↓
+M3: RBAC Detail Pages
+  ↓
+M4: Role Bindings Write
+  ↓
+M5: Master Flag
+```
+
+---
+
+## Feature Comparison Table
+
+| Feature | M1 | M2 | M3 | M4 | M5 |
+|---------|----|----|----|----|-----|
+| **Workspace List View** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Expand/Collapse Tree** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Basic Create Workspace** | ✅ | ✅ | ✅ | ✅ | ✅ |
+| **Parent Selection** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Create Subworkspace** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Edit Workspace** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Move Workspace** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Delete Workspace** | ❌ | ✅ | ✅ | ✅ | ✅ |
+| **Workspace Links** | Plain Text | → Inventory | → RBAC | → RBAC | → RBAC |
+| **RBAC Detail Pages** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **View Role Bindings** | ❌ | ❌ | ✅ | ✅ | ✅ |
+| **Modify Role Bindings** | ❌ | ❌ | ❌ | ✅ | ✅ |
+| **Bulk Operations** | ❌ | ❌ | ❌ | ❌ | ✅ |
+
+---
+
+## Milestone Breakdown
+
+### M1: Workspace List View
+**Flag**: `platform.rbac.workspaces-list`  
+**Required Permission**: `inventory:groups:write` or `inventory:groups:*`
+
+**Features:**
+- ✅ View workspaces in hierarchical tree structure
+- ✅ Expand/collapse workspace tree nodes
+- ✅ Basic workspace creation (parent auto-set to "Default Workspace")
+- ❌ Workspace names are plain text (not clickable)
+- ❌ No parent selection (disabled, fixed to Default)
+- ❌ No Edit/Move/Delete operations
+
+**User Stories:**
+- [M1 With Write Permission](?path=/story/user-journeys-kessel-m1-with-write-permission--manual-testing)
+- [M1 Read Only](?path=/story/user-journeys-kessel-m1-read-only--manual-testing)
+
+---
+
+### M2: Hierarchy Management
+**Flags**: `platform.rbac.workspaces-list` + `platform.rbac.workspace-hierarchy`  
+**Status**: 🚧 In development  
+**Required Permission**: `inventory:groups:write` or `inventory:groups:*`
+
+**Features:**
+- ✅ All M1 features
+- ✅ **Parent workspace selection** (interactive tree selector)
+- ✅ **Create subworkspace** from parent's kebab menu
+- ✅ **Move workspace** to different parent
+- ✅ **Edit workspace** name and description
+- ✅ **Delete workspace** (leaf nodes only)
+- ✅ **External links**: Workspace names link to Inventory
+- ❌ No RBAC workspace detail pages
+
+**Key Change:** Workspace links now go to Inventory (`/insights/inventory/workspaces/:id`)
+
+**User Stories:**
+- [M2 With Write Permission](?path=/story/user-journeys-kessel-m2-with-write-permission--manual-testing)
+
+---
+
+### M3: RBAC Detail Pages with Read-Only Role Bindings
+**Flags**: M1 + M2 + `platform.rbac.workspaces-role-bindings`  
+**Status**: 🚧 In development  
+**Required Permission**: `inventory:groups:write` or `inventory:groups:*`
+
+**Features:**
+- ✅ All M1 + M2 features
+- ✅ **Workspace detail pages IN RBAC** (major change!)
+- ✅ **Roles tab** (default) with sub-tabs:
+  - "Roles assigned in this workspace"
+  - "Roles assigned in parent workspaces"
+- ✅ **Assets tab** (view Inventory hosts/groups)
+- ✅ **Group drawer** with Roles and Users tabs
+- ✅ View role bindings (read-only)
+- ❌ Cannot modify role bindings
+
+**Key Change:** Workspace links now go to **RBAC detail pages** (`/iam/user-access/workspaces/detail/:id`) instead of Inventory!
+
+**User Stories:**
+- [M3 With Write Permission](?path=/story/user-journeys-kessel-m3-with-write-permission--manual-testing)
+
+---
+
+### M4: Role Bindings Write Access
+**Flags**: M1 + M2 + M3 + `platform.rbac.workspaces-role-bindings-write`  
+**Status**: 📋 Planned (Expected: January 2026)  
+**Required Permission**: `inventory:groups:write` or `inventory:groups:*`
+
+**Features:**
+- ✅ All M1 + M2 + M3 features
+- 🚧 **Add role binding** to workspace
+- 🚧 **Remove role binding** from workspace
+- 🚧 **Assign principals** (users/groups) to workspace roles
+- 🚧 **Remove principals** from workspace roles
+- 🚧 Full CRUD for workspace-level role assignments
+
+**Architecture:** Introduces **workspace-scoped role bindings** (separate from organization-level roles)
+
+**User Stories:**
+- [M4 With Write Permission (Placeholder)](?path=/story/user-journeys-kessel-m4-with-write-permission--manual-testing)
+
+---
+
+### M5: Master Flag (All Features)
+**Flag**: `platform.rbac.workspaces` (master flag enables all)  
+**Status**: 📋 Planned  
+**Required Permission**: `inventory:groups:write` or `inventory:groups:*`
+
+**Features:**
+- ✅ All M1-M4 features
+- ✅ Additional bulk operations
+- ✅ Complete workspace management
+
+**Note:** This is NOT Red Hat's "M5 - Management Fabric Hosted" milestone. It's simply the state when the master flag enables all workspace features at once.
+
+**User Stories:**
+- [M5 With Write Permission](?path=/story/user-journeys-kessel-m5-with-write-permission--manual-testing)
+
+---
+
+## Testing in Storybook
+
+Each milestone has dedicated test environments with:
+- ✅ Automated verification (play functions)
+- ✅ Interactive controls for feature flags and permissions
+- ✅ Manual testing stories with comprehensive documentation
+- ✅ MSW mock handlers for realistic API interactions
+
+**Navigation:**
+- Use the sidebar to explore different milestones
+- Each milestone has "With Write Permission" and/or "Read Only" variants
+- Toggle feature flags using the Controls panel
+- Watch the UI update in real-time
+
+---
+
+## Key Concepts
+
+### Workspace Types
+- **root**: The top-level "Default Workspace"
+- **standard**: Regular workspaces that can be created/edited/deleted
+- **ungrouped-hosts**: Special workspace for uncategorized inventory
+
+### Permission Gating
+- **Write Access**: Requires `inventory:groups:write` or `inventory:groups:*`
+- **Read-Only**: Users without write permissions can view but not modify
+
+### Link Behavior by Milestone
+- **M1**: Plain text (no links)
+- **M2**: Links to Inventory (`/insights/inventory/workspaces/:id`)
+- **M3+**: Links to RBAC detail pages (`/iam/user-access/workspaces/detail/:id`)

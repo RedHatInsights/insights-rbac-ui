@@ -20,11 +20,11 @@ import {
 import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
 import { FormattedMessage } from 'react-intl';
 import { ActionsColumn } from '@patternfly/react-table';
-import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, useEffect, useMemo, useState } from 'react';
 import { useIntl } from 'react-intl';
 import { Link, Outlet, useSearchParams } from 'react-router-dom';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import messages from '../../../Messages';
 import { AppLink } from '../../../components/navigation/AppLink';
 import { Workspace } from '../../../redux/workspaces/reducer';
@@ -141,17 +141,25 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
   const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
   const [currentWorkspaces, setCurrentWorkspaces] = useState<Workspace[]>([]);
 
-  const hideWorkspaceDetails = useFlag('platform.rbac.workspaces-list');
-  const globalWs = useFlag('platform.rbac.workspaces');
+  // Feature flags via custom hook (see WORKSPACE_FEATURE_FLAGS.md for complete documentation)
+  // M3: RBAC detail pages with read-only role bindings
+  // M5: Master flag that enables all features (including bulk delete)
+  const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
+  const hasAllFeatures = useWorkspacesFlag('m5'); // Master flag only
 
   const handleModalToggle = (workspaces: Workspace[]) => {
     setCurrentWorkspaces(workspaces);
     setIsDeleteModalOpen(!isDeleteModalOpen);
   };
 
-  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete') => {
+  // Check if user has write permissions at all
+  const hasWritePermissions = () => {
+    return ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission);
+  };
+
+  const canModify = (workspace: Workspace, action: 'edit' | 'move' | 'delete' | 'create') => {
     if (
-      ['inventory:groups:write', 'inventory:groups:*'].includes(userPermissions.permission) &&
+      hasWritePermissions() &&
       (userPermissions.resourceDefinitions.length === 0 ||
         userPermissions.resourceDefinitions.some((item) => item.attributeFilter.value.includes(workspace.id)))
     ) {
@@ -160,6 +168,8 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       } else if (action === 'move' && isValidMoveType(workspace)) {
         return true;
       } else if (action === 'delete' && isValidDeleteType(workspace)) {
+        return true;
+      } else if (action === 'create') {
         return true;
       }
     }
@@ -171,20 +181,10 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
       id: workspace.id,
       row: Object.values({
         name:
-          hideWorkspaceDetails && !globalWs ? (
-            ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
-              <Link
-                replace
-                to={`/insights/inventory/workspaces/${workspace.id}`}
-                key={`${workspace.id}-inventory-link`}
-                className="rbac-m-hide-on-sm"
-              >
-                {workspace.name}
-              </Link>
-            ) : (
-              workspace.name
-            )
-          ) : (
+          // Determine where workspace names should link based on milestone:
+          // M3+ (or master flag): Link to RBAC detail page
+          // M1-M2: Link to Inventory (or plain text in M1)
+          hasRbacDetailPages ? (
             <AppLink
               to={pathnames['workspace-detail'].path.replace(':workspaceId', workspace.id)}
               key={`${workspace.id}-detail`}
@@ -192,6 +192,13 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             >
               {workspace.name}
             </AppLink>
+          ) : // M1-M2: Link to Inventory for standard/ungrouped-hosts types
+          ['standard', 'ungrouped-hosts'].includes(workspace?.type) ? (
+            <Link replace to={`/insights/inventory/workspaces/${workspace.id}`} key={`${workspace.id}-inventory-link`} className="rbac-m-hide-on-sm">
+              {workspace.name}
+            </Link>
+          ) : (
+            workspace.name
           ),
         description: workspace.description,
         rowActions: {
@@ -201,17 +208,19 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
                 {
                   title: 'Edit workspace',
                   onClick: () => {
-                    navigate(pathnames['edit-workspace'].path.replace(':workspaceId', workspace.id));
+                    navigate(pathnames['edit-workspaces-list'].link.replace(':workspaceId', workspace.id));
                   },
                   isDisabled: !canModify(workspace, 'edit'),
                 },
                 {
                   title: 'Create workspace',
-                  onClick: () => navigate(pathnames['create-workspace'].path.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Create subworkspace',
-                  onClick: () => navigate(pathnames['create-workspace'].path.replace(':workspaceId?', workspace.id)),
+                  onClick: () => navigate(pathnames['create-workspace'].link.replace(':workspaceId?', workspace.id)),
+                  isDisabled: !canModify(workspace, 'create'),
                 },
                 {
                   title: 'Move workspace',
@@ -333,11 +342,11 @@ export const WorkspaceListTable: React.FC<WorkspaceListTableProps> = ({
             }
             actions={
               <>
-                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)}>
+                <Button variant="primary" onClick={() => navigate(pathnames['create-workspace'].link)} isDisabled={!hasWritePermissions()}>
                   {intl.formatMessage(messages.createWorkspace)}
                 </Button>
-                {globalWs && (
-                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)}>
+                {hasAllFeatures && (
+                  <Button variant="secondary" onClick={() => handleModalToggle(workspaces)} isDisabled={!hasWritePermissions()}>
                     {intl.formatMessage(messages.deleteWorkspacesAction)}
                   </Button>
                 )}

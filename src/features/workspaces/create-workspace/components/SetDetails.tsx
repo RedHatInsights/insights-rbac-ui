@@ -15,6 +15,7 @@ import { useIntl } from 'react-intl';
 import { useDispatch, useSelector } from 'react-redux';
 import messages from '../../../../Messages';
 import InputHelpPopover from '../../../../components/forms/InputHelpPopover';
+import { useWorkspacesFlag } from '../../../../hooks/useWorkspacesFlag';
 import { fetchWorkspaces } from '../../../../redux/workspaces/actions';
 import { selectWorkspacesForForm } from '../../../../redux/workspaces/selectors';
 
@@ -26,8 +27,8 @@ export const SetDetails = () => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const enableBillingFeatures = useFlag('platform.rbac.workspaces-billing-features');
-  const enableWorkspaceHierarchy = useFlag('platform.rbac.workspace-hierarchy');
-  const enableWorkspaces = useFlag('platform.rbac.workspaces');
+  const enableWorkspaceHierarchy = useWorkspacesFlag('m2'); // M2 or higher
+  const enableWorkspaces = useWorkspacesFlag('m5'); // Master flag
   const formOptions = useFormApi();
   const values = formOptions.getState().values;
   const { isLoading, workspaces } = useSelector(selectWorkspacesForForm);

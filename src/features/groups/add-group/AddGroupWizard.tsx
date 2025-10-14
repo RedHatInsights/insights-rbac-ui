@@ -16,6 +16,7 @@ import SetServiceAccounts from './components/stepServiceAccounts/SetServiceAccou
 import { SummaryContent } from './components/stepReview/SummaryContent';
 import { AddGroupSuccess } from './AddGroupSuccess';
 import useAppNavigate from '../../../hooks/useAppNavigate';
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import paths from '../../../utilities/pathnames';
 import { AddGroupWizardContext } from './add-group-wizard-context';
 
@@ -45,7 +46,7 @@ export const AddGroupWizard: React.FC<AddGroupWizardProps> = () => {
     (chrome.isBeta() && useFlag('platform.rbac.group-service-accounts')) ||
     (!chrome.isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
 
-  const enableWorkspaces = useFlag('platform.rbac.workspaces');
+  const enableWorkspaces = useWorkspacesFlag('m5'); // Master flag
 
   // When workspaces is enabled, roles are disabled (per business logic)
   const enableRoles = !enableWorkspaces;

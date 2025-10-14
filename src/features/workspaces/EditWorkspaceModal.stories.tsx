@@ -207,8 +207,10 @@ export const InteractiveEdit: Story = {
     const saveButton = await dialog.findByRole('button', { name: 'Save' });
     await user.click(saveButton);
 
-    // Verify callback was called
-    await expect(args.afterSubmit).toHaveBeenCalled();
+    // Verify callback was called (wait for async operation to complete)
+    await waitFor(() => {
+      expect(args.afterSubmit).toHaveBeenCalled();
+    });
   },
 };
 

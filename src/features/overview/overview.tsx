@@ -3,6 +3,7 @@ import { PageSection } from '@patternfly/react-core/dist/dynamic/components/Page
 import ContentHeader from '@patternfly/react-component-groups/dist/dynamic/ContentHeader';
 import { useIntl } from 'react-intl';
 import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesFlag } from '../../hooks/useWorkspacesFlag';
 import messages from '../../Messages';
 import { EnableWorkspacesAlert } from '../workspaces/overview/components/EnableWorkspacesAlert';
 import { GetStartedCard } from './components/GetStartedCard';
@@ -12,7 +13,7 @@ import './overview.scss';
 
 const Overview: React.FC = () => {
   const intl = useIntl();
-  const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
+  const isWorkspacesFlag = useWorkspacesFlag('m5'); // Master flag
   const isWorkspacesEligible = useFlag('platform.rbac.workspaces-eligible');
 
   return (

@@ -85,10 +85,6 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
     [initialFormData, workspaceId, intl, allWorkspaces],
   );
 
-  const returnToPreviousPage = () => {
-    navigate(paths['workspace-detail'].link.replace(':workspaceId', workspaceId ?? ''));
-  };
-
   const handleCancel = () => {
     dispatch(
       addNotification({
@@ -97,18 +93,39 @@ export const EditWorkspaceModal: React.FunctionComponent<EditWorkspaceModalProps
         description: intl.formatMessage(messages.editingWorkspaceCanceledDescription),
       }),
     );
-    onCancel();
+    if (onCancel) {
+      onCancel();
+    } else {
+      // Navigate back to workspace list if no onCancel provided
+      navigate(paths.workspaces.link);
+    }
   };
 
   const handleSubmit = async (data: Record<string, any>) => {
-    dispatch(
-      updateWorkspace({
-        id: workspaceId!,
-        workspacesPatchWorkspaceRequest: { name: data.name, description: data.description },
-      }),
-    );
-    returnToPreviousPage();
-    afterSubmit();
+    try {
+      await dispatch(
+        updateWorkspace({
+          id: workspaceId!,
+          workspacesPatchWorkspaceRequest: { name: data.name, description: data.description },
+        }),
+      );
+
+      // Refetch workspaces to update the list (don't await - let it run in background)
+      dispatch(fetchWorkspaces());
+
+      if (afterSubmit) {
+        afterSubmit();
+      } else {
+        // Navigate back to workspace list if no afterSubmit provided
+        navigate(paths.workspaces.link);
+      }
+    } catch {
+      // If update fails, still call afterSubmit to close modal
+      // The error notification is already shown by the redux action
+      if (afterSubmit) {
+        afterSubmit();
+      }
+    }
   };
 
   // Use memoized plain object for initialValues to prevent re-renders

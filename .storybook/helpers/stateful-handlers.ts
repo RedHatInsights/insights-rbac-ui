@@ -1,10 +1,12 @@
 import { http, HttpResponse } from 'msw';
 import { Group, Principal, Role, PaginatedResponse } from '../types/entities';
+import { Workspace, RoleBindingBySubject } from '../../src/redux/workspaces/reducer';
 
 export interface AppState {
   groups: Group[];
   users: Principal[];
   roles: Role[];
+  workspaces: Workspace[];
   serviceAccounts: Array<{
     id: string;
     name: string;
@@ -17,6 +19,8 @@ export interface AppState {
   groupMembers: Map<string, Principal[]>;
   // Track which roles are assigned to which groups
   groupRoles: Map<string, Role[]>;
+  // Track workspace-specific role bindings (M3+ feature)
+  workspaceRoleBindings: Map<string, RoleBindingBySubject[]>;
 }
 
 // Special system groups - these are global and shown to admin users
@@ -65,18 +69,22 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     groups: initialState.groups ? initialState.groups.map(g => ({ ...g })) : [],
     users: initialState.users ? initialState.users.map(u => ({ ...u })) : [],
     roles: initialState.roles ? initialState.roles.map(r => ({ ...r })) : [],
+    workspaces: initialState.workspaces ? initialState.workspaces.map(w => ({ ...w })) : [],
     serviceAccounts: initialState.serviceAccounts ? initialState.serviceAccounts.map(sa => ({ ...sa })) : [],
     groupMembers: deepCopyMap(initialState.groupMembers),
     groupRoles: deepCopyMap(initialState.groupRoles),
+    workspaceRoleBindings: deepCopyMap(initialState.workspaceRoleBindings),
   };
   
   let state: AppState = {
     groups: originalInitialState.groups.map(g => ({ ...g })),
     users: originalInitialState.users.map(u => ({ ...u })),
+    workspaces: originalInitialState.workspaces.map(w => ({ ...w })),
     roles: originalInitialState.roles.map(r => ({ ...r })),
     serviceAccounts: originalInitialState.serviceAccounts.map(sa => ({ ...sa })),
     groupMembers: deepCopyMap(originalInitialState.groupMembers),
     groupRoles: deepCopyMap(originalInitialState.groupRoles),
+    workspaceRoleBindings: deepCopyMap(originalInitialState.workspaceRoleBindings),
   };
 
   return [
@@ -87,9 +95,11 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
         groups: originalInitialState.groups.map(g => ({ ...g })),
         users: originalInitialState.users.map(u => ({ ...u })),
         roles: originalInitialState.roles.map(r => ({ ...r })),
+        workspaces: originalInitialState.workspaces.map(w => ({ ...w })),
         serviceAccounts: originalInitialState.serviceAccounts.map(sa => ({ ...sa })),
         groupMembers: deepCopyMap(originalInitialState.groupMembers),
         groupRoles: deepCopyMap(originalInitialState.groupRoles),
+        workspaceRoleBindings: deepCopyMap(originalInitialState.workspaceRoleBindings),
       };
       return HttpResponse.json({ message: 'State reset successfully' });
     }),
@@ -343,8 +353,36 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const name = url.searchParams.get('name');
       const display_name = url.searchParams.get('display_name');
       const name_match = url.searchParams.get('name_match');
+      const scope = url.searchParams.get('scope');
+      const application = url.searchParams.get('application');
+      // const username = url.searchParams.get('username');
+      // Note: username parameter is used by MyUserAccess to filter user's roles
+      // scope=principal also filters by user's roles
+      // For Storybook, we return all roles to show data in stories
+      // In production, the API would filter by user's actual role assignments
 
       let filtered = [...state.roles];
+
+      // Handle scope=principal (user's assigned roles)
+      // For Storybook mock, we allow all roles through to show data
+      // In production, this would filter to only roles assigned to the user
+      if (scope === 'principal') {
+        // Mock behavior: return all roles for demo purposes
+        // Real API would filter by user's actual role assignments
+      }
+
+      // Handle application filtering (used by MyUserAccess)
+      if (application) {
+        const apps = application.split(',').map(a => a.trim());
+        // Filter roles that have at least one matching application
+        // If role has no applications field, include it (legacy roles)
+        filtered = filtered.filter((r) => {
+          if (!r.applications || r.applications.length === 0) {
+            return true; // Include roles without applications field
+          }
+          return r.applications.some(roleApp => apps.includes(roleApp));
+        });
+      }
 
       // Handle name filtering
       if (name) {
@@ -579,6 +617,102 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
         data: accessData.slice(offset, offset + limit),
         meta: {
           count: accessData.length,
+          limit,
+          offset,
+        },
+      });
+    }),
+
+    // Workspace endpoints
+    // List workspaces
+    http.get('/api/rbac/v2/workspaces/', () => {
+      return HttpResponse.json({
+        data: state.workspaces,
+        meta: { count: state.workspaces.length, limit: 10000, offset: 0 },
+      });
+    }),
+
+    // Create workspace
+    http.post('/api/rbac/v2/workspaces/', async ({ request }) => {
+      const body = (await request.json()) as { name: string; description?: string; parent_id?: string };
+      const newWorkspace: Workspace = {
+        id: `ws-${Date.now()}`,
+        name: body.name,
+        description: body.description || '',
+        parent_id: body.parent_id || '',
+        type: 'standard',
+      };
+      state.workspaces.push(newWorkspace);
+      return HttpResponse.json(newWorkspace, { status: 201 });
+    }),
+
+    // Get workspace by ID
+    http.get('/api/rbac/v2/workspaces/:id', ({ params }) => {
+      const workspace = state.workspaces.find((w) => w.id === params.id);
+      if (!workspace) {
+        return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
+      }
+      return HttpResponse.json(workspace);
+    }),
+
+    // Update workspace
+    http.patch('/api/rbac/v2/workspaces/:id', async ({ params, request }) => {
+      const body = (await request.json()) as Partial<Workspace>;
+      const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
+      if (workspaceIndex === -1) {
+        return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
+      }
+      state.workspaces[workspaceIndex] = { ...state.workspaces[workspaceIndex], ...body };
+      return HttpResponse.json(state.workspaces[workspaceIndex]);
+    }),
+
+    // Delete workspace
+    http.delete('/api/rbac/v2/workspaces/:id', ({ params }) => {
+      const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
+      if (workspaceIndex === -1) {
+        return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
+      }
+      state.workspaces.splice(workspaceIndex, 1);
+      return HttpResponse.json(null, { status: 204 });
+    }),
+
+    // Move workspace (change parent)
+    http.post('/api/rbac/v2/workspaces/:id/move', async ({ params, request }) => {
+      const body = (await request.json()) as { parent_id: string };
+      const workspaceIndex = state.workspaces.findIndex((w) => w.id === params.id);
+      if (workspaceIndex === -1) {
+        return HttpResponse.json({ error: 'Workspace not found' }, { status: 404 });
+      }
+      state.workspaces[workspaceIndex].parent_id = body.parent_id;
+      return HttpResponse.json(state.workspaces[workspaceIndex]);
+    }),
+
+    // Workspace role bindings (M3+ feature)
+    // This endpoint returns role bindings for a specific workspace
+    http.get('/api/rbac/v2/role-bindings/by-subject', ({ request }) => {
+      const url = new URL(request.url);
+      const resourceId = url.searchParams.get('resource_id') || url.searchParams.get('resourceId');
+      const limit = parseInt(url.searchParams.get('limit') || '10000');
+      const offset = parseInt(url.searchParams.get('offset') || '0');
+      
+      if (!resourceId) {
+        // No resource_id specified, return empty
+        return HttpResponse.json({
+          data: [],
+          meta: { count: 0, limit, offset },
+        });
+      }
+      
+      // Get role bindings for this specific workspace
+      const bindings = state.workspaceRoleBindings.get(resourceId) || [];
+      
+      // Apply pagination
+      const paginatedBindings = bindings.slice(offset, offset + limit);
+      
+      return HttpResponse.json({
+        data: paginatedBindings,
+        meta: {
+          count: bindings.length,
           limit,
           offset,
         },
