@@ -10,10 +10,11 @@ import updateWorkspace from '@redhat-cloud-services/rbac-client/v2/WorkspacesPat
 
 import getWorkspace, { WorkspacesReadReturnType } from '@redhat-cloud-services/rbac-client/v2/WorkspacesRead';
 
-import roleBindingsListBySubject, { RoleBindingsListBySubjectReturnType } from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
+import roleBindingsListBySubject from '@redhat-cloud-services/rbac-client/v2/RoleBindingsListBySubject';
 
 import axios, { AxiosError } from 'axios';
 import { RBAC_API_BASE_2 } from '../../utilities/constants';
+import { RoleBindingBySubject } from './reducer';
 
 // TODO: remove once workspaces endpoints are implemented
 const interceptor404 = (error: AxiosError) => {
@@ -45,6 +46,16 @@ const customCreateWorkspace: typeof createWorkspace = async (...args) => {
   };
 };
 
+// Type for the role bindings paginated response (after responseDataInterceptor unwraps it)
+export interface RoleBindingsPaginatedResponse {
+  data: RoleBindingBySubject[];
+  meta: {
+    count: number;
+    limit: number;
+    offset: number;
+  };
+}
+
 const workspacesApiEndpoints = {
   getWorkspace,
   createWorkspace: customCreateWorkspace,
@@ -55,6 +66,8 @@ const workspacesApiEndpoints = {
   roleBindingsListBySubject,
 };
 
+// These types reflect what our responseDataInterceptor actually returns
+// (unwrapped data instead of AxiosPromise<data>)
 type workspacesApiEndpointsReturnType = {
   getWorkspace: WorkspacesReadReturnType;
   createWorkspace: WorkspacesCreateReturnType;
@@ -62,7 +75,7 @@ type workspacesApiEndpointsReturnType = {
   deleteWorkspace: WorkspacesDeleteReturnType;
   listWorkspaces: WorkspacesListReturnType;
   moveWorkspaces: WorkspacesMoveReturnType;
-  roleBindingsListBySubject: RoleBindingsListBySubjectReturnType;
+  roleBindingsListBySubject: RoleBindingsPaginatedResponse;
 };
 
 const workspacesApi = APIFactory<typeof workspacesApiEndpoints, workspacesApiEndpointsReturnType>(RBAC_API_BASE_2, workspacesApiEndpoints, {

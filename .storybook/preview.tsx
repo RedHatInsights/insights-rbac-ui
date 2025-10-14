@@ -9,12 +9,7 @@ import messages from '../src/locales/data.json';
 import { locale } from '../src/locales/locale';
 import PermissionsContext from '../src/utilities/permissionsContext';
 import { registryFactory, RegistryContext } from '../src/utilities/store';
-import { 
-  ChromeProvider, 
-  FeatureFlagsProvider,
-  type ChromeConfig,
-  type FeatureFlagsConfig
-} from './context-providers';
+import { ChromeProvider, FeatureFlagsProvider, type ChromeConfig, type FeatureFlagsConfig } from './context-providers';
 import { initialize, mswLoader } from 'msw-storybook-addon';
 
 // Mock insights global for Storybook
@@ -89,21 +84,45 @@ const preview: Preview = {
         ...(args.orgAdmin !== undefined && { orgAdmin: args.orgAdmin }),
         ...(args.userAccessAdministrator !== undefined && { userAccessAdministrator: args.userAccessAdministrator }),
       };
-      
+
+      // Merge chrome config from parameters (may include full Chrome API from createDynamicEnvironment)
+      // with any arg overrides
       const chromeConfig: ChromeConfig = {
         environment: 'prod',
-        ...parameters.chrome,
+        ...parameters.chrome, // This may include getUserPermissions, auth, etc. from createDynamicEnvironment
         // Override with args if provided (for interactive controls)
         ...(args.environment !== undefined && { environment: args.environment }),
       };
-      
+
       const featureFlags: FeatureFlagsConfig = {
         'platform.rbac.itless': false,
         ...parameters.featureFlags,
         // Override with args if provided (for interactive controls)
         ...(args['platform.rbac.itless'] !== undefined && { 'platform.rbac.itless': args['platform.rbac.itless'] }),
+        ...(args['platform.rbac.workspaces'] !== undefined && { 'platform.rbac.workspaces': args['platform.rbac.workspaces'] }),
+        ...(args['platform.rbac.workspaces-list'] !== undefined && { 'platform.rbac.workspaces-list': args['platform.rbac.workspaces-list'] }),
+        ...(args['platform.rbac.workspace-hierarchy'] !== undefined && {
+          'platform.rbac.workspace-hierarchy': args['platform.rbac.workspace-hierarchy'],
+        }),
+        ...(args['platform.rbac.workspaces-role-bindings'] !== undefined && {
+          'platform.rbac.workspaces-role-bindings': args['platform.rbac.workspaces-role-bindings'],
+        }),
+        ...(args['platform.rbac.workspaces-role-bindings-write'] !== undefined && {
+          'platform.rbac.workspaces-role-bindings-write': args['platform.rbac.workspaces-role-bindings-write'],
+        }),
+        ...(args['platform.rbac.group-service-accounts'] !== undefined && {
+          'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'],
+        }),
+        ...(args['platform.rbac.group-service-accounts.stable'] !== undefined && {
+          'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'],
+        }),
+        ...(args['platform.rbac.common-auth-model'] !== undefined && { 'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] }),
+        ...(args['platform.rbac.common.userstable'] !== undefined && { 'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] }),
+        ...(args['platform.rbac.workspaces-eligible'] !== undefined && {
+          'platform.rbac.workspaces-eligible': args['platform.rbac.workspaces-eligible'],
+        }),
       };
-      
+
       return (
         <RegistryContext.Provider
           value={{

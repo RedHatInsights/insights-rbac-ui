@@ -3,6 +3,7 @@ import { useFlag } from '@unleash/proxy-client-react';
 import React, { Suspense, lazy, useEffect, useMemo } from 'react';
 import { Navigate, Route as RouterRoute, Routes as RouterRoutes, matchPath, useLocation } from 'react-router-dom';
 import { mergeToBasename, useAppLink } from './hooks/useAppLink';
+import { useWorkspacesFlag } from './hooks/useWorkspacesFlag';
 import { AppPlaceholder } from './components/ui-states/LoaderPlaceholders';
 import ElementWrapper from './components/ElementWrapper';
 import EditWorkspaceModal from './features/workspaces/EditWorkspaceModal';
@@ -342,9 +343,12 @@ const Routing = () => {
   const isCommonAuthModel = useFlag('platform.rbac.common-auth-model');
   const enableServiceAccounts =
     (isBeta() && useFlag('platform.rbac.group-service-accounts')) || (!isBeta() && useFlag('platform.rbac.group-service-accounts.stable'));
-  const isWorkspacesFlag = useFlag('platform.rbac.workspaces');
-  const wsList = useFlag('platform.rbac.workspaces-list');
-  const hideWorkspaceDetails = wsList && !isWorkspacesFlag;
+
+  // Workspace feature flags
+  const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3 or master flag
+  const hasWorkspacesList = useWorkspacesFlag('m1'); // M1 or higher
+  const isWorkspacesFlag = useWorkspacesFlag('m5'); // Master flag (for routing config)
+  const hideWorkspaceDetails = hasWorkspacesList && !hasRbacDetailPages; // M1-M2 only (no RBAC detail pages yet)
   const toAppLink = useAppLink();
 
   useEffect(() => {

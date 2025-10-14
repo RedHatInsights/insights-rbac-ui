@@ -1,3 +1,17 @@
+# [1.64.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.1...v1.64.0) (2025-10-14)
+
+
+### Features
+
+* **Storybook:** mocked E2E test for Kessel milestones ([bafc655](https://github.com/RedHatInsights/insights-rbac-ui/commit/bafc65554a4c18e0db40fae1318b20345a54829f))
+
+## [1.63.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.0...v1.63.1) (2025-10-14)
+
+
+### Bug Fixes
+
+* **AddGroupMembers:** restored filtering capabilities ([0ba659a](https://github.com/RedHatInsights/insights-rbac-ui/commit/0ba659a6a5c8f7f3120cdc13716340bb62da6987))
+
 # [1.63.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.62.0...v1.63.0) (2025-10-13)
 
 

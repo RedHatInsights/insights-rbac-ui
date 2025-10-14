@@ -12,12 +12,9 @@ import AssetsCards from './components/AssetsCards';
 import { RoleAssignmentsTable } from './components/RoleAssignmentsTable';
 import { GroupWithInheritance } from './components/GroupDetailsDrawer';
 import { WorkspaceHeader } from '../components/WorkspaceHeader';
-import { useFlag } from '@unleash/proxy-client-react';
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
 import { Workspace } from '../../../redux/workspaces/reducer';
 import { Group } from '../../../redux/groups/reducer';
-import { mappedProps } from '../../../helpers/dataUtilities';
-import { ListGroupsOrderByEnum } from '@redhat-cloud-services/rbac-client/ListGroups';
-import { fetchGroups as fetchGroupsHelper } from '../../../redux/groups/helper';
 
 interface WorkspaceData {
   name: string;
@@ -43,7 +40,7 @@ export const WorkspaceDetail = () => {
   const intl = useIntl();
   const { workspaceId } = useParams();
   const [searchParams, setSearchParams] = useSearchParams();
-  const enableRoles = useFlag('platform.rbac.workspaces-role-bindings');
+  const enableRoles = useWorkspacesFlag('m3');
   const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
   const activeRoleAssignmentTabString = searchParams.get('roleAssignmentTab') || 'roles-assigned-in-workspace';
 
@@ -134,13 +131,13 @@ export const WorkspaceDetail = () => {
         limit: perPage,
         subjectType: 'group',
         resourceType: 'workspace',
-        subjectId: workspaceId,
+        resourceId: workspaceId,
       });
 
       // Transform role bindings data to match the expected Group structure
       const transformedData: Group[] =
         result.data?.map(
-          (binding: any): Group => ({
+          (binding): Group => ({
             uuid: binding.subject.id,
             name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
             description: binding.subject.group?.description || '',
@@ -166,43 +163,47 @@ export const WorkspaceDetail = () => {
   }, [workspaceId, page, perPage, sortBy, direction, filters]);
 
   const fetchParentGroupsData = useCallback(async () => {
-    const offset = (parentPage - 1) * parentPerPage;
-    const orderBy = parentSortBy && parentDirection ? `${parentDirection === 'desc' ? '-' : ''}${parentSortBy}` : 'name';
-    const nameFilter = parentFilters?.name?.trim() || '';
+    if (!selectedWorkspace || !selectedWorkspace.parent_id) {
+      // No parent workspace, clear data
+      setParentGroups([]);
+      setParentGroupsTotalCount(0);
+      return;
+    }
 
     setParentGroupsIsLoading(true);
 
     try {
-      // Call the same API helper that Redux uses, but store result in parent state
-      const result = await fetchGroupsHelper({
-        ...mappedProps({
-          count: 0, // Use 0 for initial count to avoid dependency loop
-          limit: parentPerPage,
-          offset,
-          orderBy: orderBy as ListGroupsOrderByEnum,
-        }),
-        // Pass filter parameters correctly according to the API
-        ...(nameFilter
-          ? {
-              filters: { name: nameFilter },
-              nameMatch: 'partial' as const, // Enable partial matching for the filter
-            }
-          : {}),
-        usesMetaInURL: true,
-        system: false,
+      // Fetch role bindings from parent workspace
+      const result = await getRoleBindingsForSubject({
+        limit: parentPerPage,
+        subjectType: 'group',
+        resourceType: 'workspace',
+        resourceId: selectedWorkspace.parent_id,
       });
 
-      // Store result in parent state and add inheritance information
-      const groupsWithInheritance = (result.data || []).map((group) => ({
-        ...group,
-        platform_default: group.platform_default ?? false,
-        system: group.system ?? false,
-        admin_default: group.admin_default ?? false,
-        inheritedFrom: {
-          workspaceId: '',
-          workspaceName: '',
-        },
-      }));
+      // Get parent workspace name for inheritance display
+      const parentWorkspace = workspaces.find((w) => w.id === selectedWorkspace.parent_id);
+      const parentWorkspaceName = parentWorkspace?.name || 'Parent Workspace';
+
+      // Transform and add inheritance information
+      const groupsWithInheritance: GroupWithInheritance[] =
+        result.data?.map((binding) => ({
+          uuid: binding.subject.id,
+          name: binding.subject.group?.name || binding.subject.user?.username || 'Unknown',
+          description: binding.subject.group?.description || '',
+          principalCount: binding.subject.group?.user_count || 0,
+          roleCount: binding.roles?.length || 0,
+          created: binding.last_modified,
+          modified: binding.last_modified,
+          platform_default: false,
+          system: false,
+          admin_default: false,
+          inheritedFrom: {
+            workspaceId: selectedWorkspace.parent_id,
+            workspaceName: parentWorkspaceName,
+          },
+        })) || [];
+
       setParentGroups(groupsWithInheritance);
       setParentGroupsTotalCount(result.meta?.count || 0);
     } catch (error) {
@@ -210,10 +211,9 @@ export const WorkspaceDetail = () => {
       setParentGroups([]);
       setParentGroupsTotalCount(0);
     } finally {
-      // Always set loading to false in finally block
       setParentGroupsIsLoading(false);
     }
-  }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters]);
+  }, [selectedWorkspace, workspaces, parentPage, parentPerPage]);
 
   useEffect(() => {
     if (activeTabString === 'roles' && enableRoles) {
@@ -226,7 +226,7 @@ export const WorkspaceDetail = () => {
         fetchParentGroupsData();
       }
     }
-  }, [activeTabString, enableRoles, activeRoleAssignmentTabString, fetchRoleBindingsData]);
+  }, [activeTabString, enableRoles, activeRoleAssignmentTabString, fetchRoleBindingsData, fetchParentGroupsData]);
 
   // Fetch workspace data when workspace table parameters change
   useEffect(() => {
@@ -240,10 +240,24 @@ export const WorkspaceDetail = () => {
     if (activeTabString === 'roles' && enableRoles && activeRoleAssignmentTabString === 'roles-assigned-in-parent-workspaces') {
       fetchParentGroupsData();
     }
-  }, [parentPage, parentPerPage, parentSortBy, parentDirection, parentFilters, activeTabString, enableRoles, activeRoleAssignmentTabString]);
+  }, [
+    parentPage,
+    parentPerPage,
+    parentSortBy,
+    parentDirection,
+    parentFilters,
+    activeTabString,
+    enableRoles,
+    activeRoleAssignmentTabString,
+    fetchParentGroupsData,
+  ]);
 
   useEffect(() => {
-    if (!searchParams.has('activeTab') || (!enableRoles && activeTabString !== 'assets')) {
+    if (!searchParams.has('activeTab')) {
+      // Default to 'roles' tab if role bindings are enabled (M3+), otherwise 'assets'
+      setSearchParams({ activeTab: enableRoles ? 'roles' : 'assets' });
+    } else if (!enableRoles && activeTabString !== 'assets') {
+      // If roles are disabled but user is on roles tab, redirect to assets
       setSearchParams({ activeTab: 'assets' });
     }
   }, [searchParams, setSearchParams, enableRoles, activeTabString]);
@@ -325,69 +339,68 @@ export const WorkspaceDetail = () => {
           ouiaId="assets-tab-button"
         />
       </Tabs>
-      <PageSection>
+      <PageSection isFilled={activeTabString !== 'assets'}>
         {activeTabString === 'assets' ? (
           <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
         ) : (
           enableRoles && (
             <>
-              <div className="pf-v5-u-background-color-100">
-                <Tabs
-                  activeKey={ROLE_ASSIGNMENT_TABS[activeRoleAssignmentTabString as keyof typeof ROLE_ASSIGNMENT_TABS]}
-                  onSelect={handleRoleAssignmentTabSelect}
-                  inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
-                  className="pf-v5-u-background-color-100"
-                >
-                  <Tab
-                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
-                    title={intl.formatMessage(messages.rolesAssignedInThisWorkspace)}
-                    tabContentId="rolesAssignedInWorkspaceTab"
-                  />
-                  <Tab
-                    eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-parent-workspaces']}
-                    title={intl.formatMessage(messages.rolesAssignedInParentWorkspaces)}
-                    tabContentId="rolesAssignedOutsideTab"
-                  />
-                </Tabs>
-                <div className="pf-v5-u-background-color-100">
-                  {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
-                    <RoleAssignmentsTable
-                      groups={roleBindings}
-                      totalCount={roleBindingsTotalCount}
-                      isLoading={roleBindingsIsLoading}
-                      page={page}
-                      perPage={perPage}
-                      onSetPage={onSetPage}
-                      onPerPageSelect={onPerPageSelect}
-                      sortBy={sortBy}
-                      direction={direction}
-                      onSort={onSort}
-                      filters={filters}
-                      onSetFilters={onSetFilters}
-                      clearAllFilters={clearAllFilters}
-                      workspaceName={selectedWorkspace?.name}
-                    />
-                  ) : (
-                    <RoleAssignmentsTable
-                      groups={parentGroups}
-                      totalCount={parentGroupsTotalCount}
-                      isLoading={parentGroupsIsLoading}
-                      page={parentPage}
-                      perPage={parentPerPage}
-                      onSetPage={parentOnSetPage}
-                      onPerPageSelect={parentOnPerPageSelect}
-                      sortBy={parentSortBy}
-                      direction={parentDirection}
-                      onSort={parentOnSort}
-                      filters={parentFilters}
-                      onSetFilters={parentOnSetFilters}
-                      clearAllFilters={parentClearAllFilters}
-                      workspaceName={selectedWorkspace?.name}
-                      ouiaId="parent-role-assignments-table"
-                    />
-                  )}
-                </div>
-              </div>
+              <Tabs
+                activeKey={ROLE_ASSIGNMENT_TABS[activeRoleAssignmentTabString as keyof typeof ROLE_ASSIGNMENT_TABS]}
+                onSelect={handleRoleAssignmentTabSelect}
+                inset={{ default: 'insetNone', md: 'insetSm', xl: 'insetLg' }}
+                className="pf-v5-u-background-color-100"
+              >
+                <Tab
+                  eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-workspace']}
+                  title={intl.formatMessage(messages.rolesAssignedInThisWorkspace)}
+                  tabContentId="rolesAssignedInWorkspaceTab"
+                />
+                <Tab
+                  eventKey={ROLE_ASSIGNMENT_TABS['roles-assigned-in-parent-workspaces']}
+                  title={intl.formatMessage(messages.rolesAssignedInParentWorkspaces)}
+                  tabContentId="rolesAssignedOutsideTab"
+                />
+              </Tabs>
+              {activeRoleAssignmentTabString === 'roles-assigned-in-workspace' ? (
+                <RoleAssignmentsTable
+                  key="current-workspace-roles"
+                  groups={roleBindings}
+                  totalCount={roleBindingsTotalCount}
+                  isLoading={roleBindingsIsLoading}
+                  page={page}
+                  perPage={perPage}
+                  onSetPage={onSetPage}
+                  onPerPageSelect={onPerPageSelect}
+                  sortBy={sortBy}
+                  direction={direction}
+                  onSort={onSort}
+                  filters={filters}
+                  onSetFilters={onSetFilters}
+                  clearAllFilters={clearAllFilters}
+                  workspaceName={selectedWorkspace?.name || ''}
+                  ouiaId="current-role-assignments-table"
+                />
+              ) : (
+                <RoleAssignmentsTable
+                  key="parent-workspace-roles"
+                  groups={parentGroups}
+                  totalCount={parentGroupsTotalCount}
+                  isLoading={parentGroupsIsLoading}
+                  page={parentPage}
+                  perPage={parentPerPage}
+                  onSetPage={parentOnSetPage}
+                  onPerPageSelect={parentOnPerPageSelect}
+                  sortBy={parentSortBy}
+                  direction={parentDirection}
+                  onSort={parentOnSort}
+                  filters={parentFilters}
+                  onSetFilters={parentOnSetFilters}
+                  clearAllFilters={parentClearAllFilters}
+                  workspaceName={selectedWorkspace?.name || ''}
+                  ouiaId="parent-role-assignments-table"
+                />
+              )}
             </>
           )
         )}

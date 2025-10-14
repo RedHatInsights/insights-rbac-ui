@@ -1,0 +1,391 @@
+import { Canvas, Meta, Story } from '@storybook/addon-docs/blocks';
+
+<Meta title="User Journeys/Workspaces (Kessel)/Documentation: useWorkspacesFlag" />
+
+# useWorkspacesFlag Hook
+
+A custom React hook to simplify feature flag checks for Kessel workspace milestones.
+
+---
+
+## Overview
+
+The `useWorkspacesFlag` hook provides a clean, declarative way to check if specific milestone features are enabled. It automatically handles the M5 master flag (`platform.rbac.workspaces`) which enables all previous milestone features.
+
+---
+
+## Feature Flag Hierarchy
+
+```typescript
+// M5 master flag overrides all individual flags
+platform.rbac.workspaces (M5)
+  ├── platform.rbac.workspaces-list (M1)
+  ├── platform.rbac.workspace-hierarchy (M2)
+  ├── platform.rbac.workspaces-role-bindings (M3)
+  └── platform.rbac.workspaces-role-bindings-write (M4)
+```
+
+---
+
+## Basic Usage
+
+```typescript
+import { useWorkspacesFlag } from './hooks/useWorkspacesFlag';
+
+function MyComponent() {
+  // Check if M3 features (or higher) are available
+  const hasRbacDetailPages = useWorkspacesFlag('m3');
+
+  if (hasRbacDetailPages) {
+    // Show RBAC detail pages
+    return <WorkspaceDetailPage />;
+  }
+
+  // Fallback to M1-M2 behavior
+  return <InventoryLink />;
+}
+```
+
+---
+
+## API Reference
+
+### `useWorkspacesFlag(milestone: Milestone): boolean`
+
+**Parameters:**
+- `milestone`: `'m1' | 'm2' | 'm3' | 'm4' | 'm5'` - The milestone to check
+
+**Returns:**
+- `boolean` - `true` if the requested milestone's features are enabled (either directly or via M5 master flag)
+
+**Examples:**
+
+```typescript
+// M1: Check if workspace list view is enabled
+const hasWorkspacesList = useWorkspacesFlag('m1');
+
+// M2: Check if hierarchy management is enabled
+const hasHierarchy = useWorkspacesFlag('m2');
+
+// M3: Check if RBAC detail pages are enabled
+const hasRbacDetailPages = useWorkspacesFlag('m3');
+
+// M4: Check if role bindings write is enabled
+const hasRoleBindingsWrite = useWorkspacesFlag('m4');
+
+// M5: Check if master flag is enabled
+const hasAllFeatures = useWorkspacesFlag('m5');
+```
+
+---
+
+## How It Works
+
+The hook checks milestone flags in sequence:
+
+### M1 Check
+```typescript
+useWorkspacesFlag('m1')
+// Returns true if:
+//   - platform.rbac.workspaces (M5 master flag) is enabled, OR
+//   - platform.rbac.workspaces-list is enabled
+```
+
+### M2 Check
+```typescript
+useWorkspacesFlag('m2')
+// Returns true if:
+//   - platform.rbac.workspaces (M5 master flag) is enabled, OR
+//   - (platform.rbac.workspaces-list AND platform.rbac.workspace-hierarchy) are enabled
+```
+
+### M3 Check
+```typescript
+useWorkspacesFlag('m3')
+// Returns true if:
+//   - platform.rbac.workspaces (M5 master flag) is enabled, OR
+//   - (M1 AND M2 AND platform.rbac.workspaces-role-bindings) are enabled
+```
+
+### M4 Check
+```typescript
+useWorkspacesFlag('m4')
+// Returns true if:
+//   - platform.rbac.workspaces (M5 master flag) is enabled, OR
+//   - (M1 AND M2 AND M3 AND platform.rbac.workspaces-role-bindings-write) are enabled
+```
+
+### M5 Check
+```typescript
+useWorkspacesFlag('m5')
+// Returns true if:
+//   - platform.rbac.workspaces (M5 master flag) is enabled
+```
+
+---
+
+## Migration Guide
+
+### Before (Manual Flag Checks)
+
+```typescript
+import { useFlag } from '@unleash/proxy-client-react';
+
+function WorkspaceListTable() {
+  const enableWorkspacesList = useFlag('platform.rbac.workspaces-list');
+  const enableHierarchy = useFlag('platform.rbac.workspace-hierarchy');
+  const enableRoleBindings = useFlag('platform.rbac.workspaces-role-bindings');
+  const globalWs = useFlag('platform.rbac.workspaces');
+  
+  // Complex logic with multiple checks
+  const hasRbacDetailPages = enableRoleBindings || globalWs;
+  const hasHierarchyFeatures = (enableWorkspacesList && enableHierarchy) || globalWs;
+  
+  // ...
+}
+```
+
+### After (Using useWorkspacesFlag)
+
+```typescript
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
+
+function WorkspaceListTable() {
+  // Clean, declarative checks
+  const hasRbacDetailPages = useWorkspacesFlag('m3');
+  const hasHierarchyFeatures = useWorkspacesFlag('m2');
+  
+  // ...
+}
+```
+
+---
+
+## Real-World Examples
+
+### Example 1: Conditional Rendering
+
+```typescript
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
+
+export const WorkspaceListTable = () => {
+  const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3+ or master flag
+  const hasAllFeatures = useWorkspacesFlag('m5'); // Master flag only
+
+  return (
+    <>
+      {/* Workspace name links */}
+      {hasRbacDetailPages ? (
+        <Link to={`/iam/user-access/workspaces/detail/${workspace.id}`}>
+          {workspace.name}
+        </Link>
+      ) : (
+        <Link to={`/insights/inventory/workspaces/${workspace.id}`}>
+          {workspace.name}
+        </Link>
+      )}
+
+      {/* Bulk delete button (M5 only) */}
+      {hasAllFeatures && (
+        <Button onClick={handleBulkDelete}>
+          Delete Workspaces
+        </Button>
+      )}
+    </>
+  );
+};
+```
+
+### Example 2: Feature-Specific Logic
+
+```typescript
+import { useWorkspacesFlag } from '../../../hooks/useWorkspacesFlag';
+
+export const WorkspaceDetail = () => {
+  const enableRoles = useWorkspacesFlag('m3'); // M3+ for read-only role bindings
+  const enableRoleBindingsWrite = useWorkspacesFlag('m4'); // M4+ for write access
+  
+  const activeTabString = searchParams.get('activeTab') || (enableRoles ? 'roles' : 'assets');
+
+  return (
+    <PageSection>
+      {activeTabString === 'assets' ? (
+        <AssetsCards workspaceName={selectedWorkspace?.name || ''} />
+      ) : (
+        enableRoles && (
+          <>
+            <Tabs>
+              <Tab title="Roles assigned in this workspace" />
+              <Tab title="Roles assigned in parent workspaces" />
+            </Tabs>
+            <RoleAssignmentsTable
+              readOnly={!enableRoleBindingsWrite}
+              {...props}
+            />
+          </>
+        )
+      )}
+    </PageSection>
+  );
+};
+```
+
+### Example 3: Routing Logic
+
+```typescript
+import { useWorkspacesFlag } from './hooks/useWorkspacesFlag';
+
+const Routing = () => {
+  const hasRbacDetailPages = useWorkspacesFlag('m3'); // M3 or higher
+  const hasWorkspacesList = useWorkspacesFlag('m1'); // M1 or higher
+  const isWorkspacesFlag = useWorkspacesFlag('m5'); // Master flag (for routing config)
+  
+  const hideWorkspaceDetails = hasWorkspacesList && !hasRbacDetailPages; // M1-M2 only
+
+  const routes = getRoutes({
+    isWorkspacesFlag,
+    hideWorkspaceDetails,
+  });
+
+  return <Routes>{routes}</Routes>;
+};
+```
+
+---
+
+## Companion Hook: useWorkspacesFeatures
+
+For cases where you need to check multiple milestones at once:
+
+```typescript
+import { useWorkspacesFeatures } from '../../../hooks/useWorkspacesFlag';
+
+function MyComponent() {
+  const features = useWorkspacesFeatures();
+  
+  // Returns an object with all milestone flags
+  console.log(features);
+  // {
+  //   m1: true,
+  //   m2: true,
+  //   m3: true,
+  //   m4: false,
+  //   m5: false
+  // }
+  
+  if (features.m3) {
+    // M3 features available
+  }
+}
+```
+
+---
+
+## Benefits
+
+1. **Simplified Logic**: No need to manually check multiple flags and combine them with `||` or `&&`
+2. **Master Flag Handling**: Automatically respects the M5 master flag that enables all features
+3. **Type Safety**: TypeScript ensures you only pass valid milestone values
+4. **Readability**: Code intent is clear (`useWorkspacesFlag('m3')` vs. multiple flag checks)
+5. **Maintainability**: Centralized logic makes updates easier
+6. **Consistency**: Ensures all components check flags the same way
+
+---
+
+## Implementation
+
+The hook is located at `src/hooks/useWorkspacesFlag.ts`:
+
+```typescript
+import { useFlag } from '@unleash/proxy-client-react';
+
+type Milestone = 'm1' | 'm2' | 'm3' | 'm4' | 'm5';
+
+export function useWorkspacesFlag(milestone: Milestone): boolean {
+  // Get all feature flags
+  const enableWorkspacesList = useFlag('platform.rbac.workspaces-list'); // M1
+  const enableHierarchy = useFlag('platform.rbac.workspace-hierarchy'); // M2
+  const enableRoleBindings = useFlag('platform.rbac.workspaces-role-bindings'); // M3
+  const enableRoleBindingsWrite = useFlag('platform.rbac.workspaces-role-bindings-write'); // M4
+  const globalWs = useFlag('platform.rbac.workspaces'); // M5 (master flag)
+
+  // Master flag (M5) enables ALL features
+  if (globalWs) {
+    return true;
+  }
+
+  switch (milestone) {
+    case 'm1':
+      return enableWorkspacesList;
+    case 'm2':
+      return enableWorkspacesList && enableHierarchy;
+    case 'm3':
+      return enableWorkspacesList && enableHierarchy && enableRoleBindings;
+    case 'm4':
+      return enableWorkspacesList && enableHierarchy && enableRoleBindings && enableRoleBindingsWrite;
+    case 'm5':
+      return globalWs;
+    default:
+      return false;
+  }
+}
+
+export function useWorkspacesFeatures() {
+  const globalWs = useFlag('platform.rbac.workspaces');
+
+  // If master flag is enabled, all features are available
+  if (globalWs) {
+    return { m1: true, m2: true, m3: true, m4: true, m5: true };
+  }
+
+  // Otherwise, check individual flags
+  const enableWorkspacesList = useFlag('platform.rbac.workspaces-list');
+  const enableHierarchy = useFlag('platform.rbac.workspace-hierarchy');
+  const enableRoleBindings = useFlag('platform.rbac.workspaces-role-bindings');
+  const enableRoleBindingsWrite = useFlag('platform.rbac.workspaces-role-bindings-write');
+
+  return {
+    m1: enableWorkspacesList,
+    m2: enableWorkspacesList && enableHierarchy,
+    m3: enableWorkspacesList && enableHierarchy && enableRoleBindings,
+    m4: enableWorkspacesList && enableHierarchy && enableRoleBindings && enableRoleBindingsWrite,
+    m5: globalWs,
+  };
+}
+```
+
+---
+
+## Testing
+
+When writing tests with this hook, use Storybook's feature flag controls:
+
+```typescript
+export const MyStory: Story = {
+  args: {
+    // Control feature flags in Storybook
+    'platform.rbac.workspaces-list': true,
+    'platform.rbac.workspace-hierarchy': true,
+    'platform.rbac.workspaces-role-bindings': true,
+    'platform.rbac.workspaces-role-bindings-write': false,
+    'platform.rbac.workspaces': false, // Master flag
+  },
+};
+```
+
+---
+
+## Best Practices
+
+1. **Use milestone checks, not individual flags**: Prefer `useWorkspacesFlag('m3')` over checking `platform.rbac.workspaces-role-bindings` directly
+2. **Check the lowest milestone needed**: If you only need M2 features, use `useWorkspacesFlag('m2')` not `useWorkspacesFlag('m3')`
+3. **Combine with permissions**: Feature flags control availability, but still check user permissions
+4. **Document your usage**: Add comments explaining which milestone's features you're checking
+
+---
+
+## Related Documentation
+
+- [Workspace Management (Kessel)](?path=/docs/user-journeys-workspaces-kessel-documentation--docs)
+- [API Reference](?path=/docs/user-journeys-workspaces-kessel-documentation-api-reference--docs)
+
