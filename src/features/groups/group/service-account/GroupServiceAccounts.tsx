@@ -1,5 +1,6 @@
 import React, { Fragment, Suspense, useCallback, useMemo } from 'react';
 import { Outlet, useParams } from 'react-router-dom';
+import { useDispatch } from 'react-redux';
 import { Alert } from '@patternfly/react-core/dist/dynamic/components/Alert';
 import Section from '@redhat-cloud-services/frontend-components/Section';
 
@@ -24,10 +25,12 @@ import pathnames from '../../../../utilities/pathnames';
 import type { GroupServiceAccountsProps } from './types';
 import './group-service-accounts.scss';
 import { useIntl } from 'react-intl';
+import { fetchGroup } from '../../../../redux/groups/actions';
 
 export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props) => {
   const intl = useIntl();
   const navigate = useAppNavigate();
+  const dispatch = useDispatch();
   const { groupId } = useParams<{ groupId: string }>();
 
   // Use custom hook for ALL business logic
@@ -42,11 +45,14 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     hasPermissions,
     isAdminDefault,
     isPlatformDefault,
+    isChanged,
+    systemGroupUuid,
     fetchData,
     emptyStateProps,
     toolbarButtons,
     group,
     pagination,
+    onDefaultGroupChanged,
   } = useGroupServiceAccounts(props);
 
   // Filter change handler
@@ -158,7 +164,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
   return (
     <React.Fragment>
       <Section type="content" id="tab-service-accounts">
-        {isPlatformDefault || isAdminDefault ? (
+        {(isAdminDefault || isPlatformDefault) && group?.system ? (
           <DefaultServiceAccountsCard isPlatformDefault={isPlatformDefault} />
         ) : (
           <>
@@ -202,7 +208,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
           </>
         )}
       </Section>
-      {!(isPlatformDefault || isAdminDefault) ? (
+      {!((isAdminDefault || isPlatformDefault) && group?.system) && (
         <Suspense>
           <Outlet
             context={{
@@ -220,17 +226,28 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
                 },
               },
               [pathnames['group-add-service-account'].path]: {
+                isDefault: isPlatformDefault || isAdminDefault,
+                isChanged: isChanged,
+                onDefaultGroupChanged: onDefaultGroupChanged,
+                fetchUuid: systemGroupUuid,
+                groupName: group?.name,
                 postMethod: (promise: Promise<unknown>) => {
                   navigate(pathnames['group-detail-service-accounts'].link.replace(':groupId', groupId!));
                   if (promise) {
-                    promise.then?.(() => fetchData());
+                    promise.then?.(() => {
+                      // If we just modified a default group, re-fetch to get the updated name
+                      if ((isPlatformDefault || isAdminDefault) && !isChanged) {
+                        dispatch(fetchGroup(groupId!));
+                      }
+                      fetchData();
+                    });
                   }
                 },
               },
             }}
           />
         </Suspense>
-      ) : null}
+      )}
     </React.Fragment>
   );
 };

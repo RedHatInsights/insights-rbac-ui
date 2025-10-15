@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
 import { ButtonVariant } from '@patternfly/react-core';
+import { getModalContainer } from '../../../../helpers/modal-container';
 
 interface RemoveRolesProps {
   title: React.ReactNode;
@@ -46,6 +47,7 @@ export const RemoveRoleModal: React.FC<RemoveRolesProps> = ({
         setShowConfirmModal(true);
         (!isDefault || isChanged) && onSubmit();
       }}
+      appendTo={getModalContainer()}
     >
       {text}
     </WarningModal>

@@ -2,6 +2,7 @@ import React from 'react';
 import { FormattedMessage, useIntl } from 'react-intl';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import messages from '../../../../Messages';
+import { getModalContainer } from '../../../../helpers/modal-container';
 
 interface GroupResetWarningModalProps {
   /**
@@ -38,6 +39,7 @@ export const GroupResetWarningModal: React.FC<GroupResetWarningModalProps> = ({ 
       confirmButtonLabel={intl.formatMessage(messages.continue)}
       onClose={onClose}
       onConfirm={onConfirm}
+      appendTo={getModalContainer()}
     >
       <FormattedMessage
         {...messages.restoreDefaultAccessDescription}

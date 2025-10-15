@@ -25,7 +25,7 @@ export const ENVIRONMENTS = {
     }),
     featureFlags: {
       'platform.rbac.group-service-accounts': false, // OLD feature flag, DO NOT USE
-      'platform.rbac.group-service-accounts.stable': false, // current feature flag, used after isBeta deprecation
+      'platform.rbac.group-service-accounts.stable': true, // current feature flag, used after isBeta deprecation
       'platform.rbac.workspaces': false,
       'platform.rbac.common-auth-model': true, // Enables selectable users table for org admins
     },
@@ -54,7 +54,7 @@ export const ENVIRONMENTS = {
     }),
     featureFlags: {
       'platform.rbac.group-service-accounts': false,
-      'platform.rbac.group-service-accounts.stable': false,
+      'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': false,
     },
     msw: {
@@ -81,7 +81,7 @@ export const ENVIRONMENTS = {
       isOrgAdmin: true,
     }),
     featureFlags: {
-      'platform.rbac.group-service-accounts': false,
+      'platform.rbac.group-service-accounts.stable': true,
       'platform.rbac.workspaces': true,
     },
     msw: {

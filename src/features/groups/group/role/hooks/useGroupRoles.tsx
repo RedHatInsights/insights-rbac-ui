@@ -67,6 +67,7 @@ export interface UseGroupRolesReturn {
   // Group data
   group: any;
   groupId: string | undefined;
+  systemGroupUuid: string | undefined;
 
   // Actions
   fetchData: (apiProps?: Record<string, unknown>) => void;
@@ -398,6 +399,7 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     disableAddRoles,
     group,
     groupId,
+    systemGroupUuid,
     fetchData,
     handleRemoveSelectedRoles,
     actionResolver,

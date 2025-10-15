@@ -19,9 +19,11 @@ import {
   selectGroupMembers,
   selectGroupMembersMeta,
   selectIsAdminDefaultGroup,
+  selectIsChangedDefaultGroup,
   selectIsGroupMembersLoading,
   selectIsPlatformDefaultGroup,
   selectSelectedGroup,
+  selectSystemGroupUUID,
 } from '../../../../redux/groups/selectors';
 
 // Member row actions component (moved from GroupMembers.tsx)
@@ -81,6 +83,8 @@ export interface UseGroupMembersReturn {
   group: Group | undefined;
   adminDefault: boolean;
   platformDefault: boolean;
+  isChanged: boolean;
+  systemGroupUuid: string | undefined;
   pagination: ReturnType<typeof useDataViewPagination>;
   totalCount: number;
 
@@ -158,6 +162,8 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
   const group = useSelector(selectSelectedGroup);
   const adminDefault = useSelector(selectIsAdminDefaultGroup);
   const platformDefault = useSelector(selectIsPlatformDefaultGroup);
+  const isChanged = useSelector(selectIsChangedDefaultGroup);
+  const systemGroupUuid = useSelector(selectSystemGroupUUID);
 
   // Calculate if there are active filters
   const hasActiveFilters = useMemo(() => {
@@ -268,6 +274,8 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     group: group as Group | undefined, // Cast to Group for compatibility with hook interface
     adminDefault,
     platformDefault,
+    isChanged,
+    systemGroupUuid,
     pagination,
     totalCount,
 

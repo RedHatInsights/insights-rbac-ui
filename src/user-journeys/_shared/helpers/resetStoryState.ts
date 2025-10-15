@@ -45,6 +45,15 @@ export async function resetStoryState(): Promise<void> {
   const existingNotifications = document.querySelectorAll('.pf-v5-c-alert');
   existingNotifications.forEach((notification) => notification.remove());
 
+  // Clear any lingering modals from previous stories
+  // This prevents "removeChild" errors when React tries to unmount modals from previous stories
+  const modalContainer = document.getElementById('storybook-modals');
+  if (modalContainer) {
+    // Remove all dialog elements from the modal container
+    const existingModals = modalContainer.querySelectorAll('[role="dialog"]');
+    existingModals.forEach((modal) => modal.remove());
+  }
+
   // Give React time to process any state updates and re-renders
   // This ensures components refetch fresh data after the reset
   await delay(500);

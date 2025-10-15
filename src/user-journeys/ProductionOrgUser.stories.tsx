@@ -27,7 +27,7 @@ function createDynamicEnvironment(args: any) {
     featureFlags: {
       'platform.rbac.workspaces': args['platform.rbac.workspaces'] ?? false,
       'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
-      'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? false,
+      'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? true,
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? false,
       'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
     },
@@ -51,7 +51,9 @@ const meta = {
       const dynamicEnv = createDynamicEnvironment(context.args);
       // Replace parameters entirely instead of mutating to ensure React sees the change
       context.parameters = { ...context.parameters, ...dynamicEnv };
-      return <Story />;
+      // Force remount when controls change by using args as key
+      const argsKey = JSON.stringify(context.args);
+      return <Story key={argsKey} />;
     },
   ],
   argTypes: {
@@ -86,7 +88,7 @@ const meta = {
     'platform.rbac.group-service-accounts.stable': {
       control: 'boolean',
       description: 'Current service accounts flag',
-      table: { category: 'Feature Flags', defaultValue: { summary: 'false' } },
+      table: { category: 'Feature Flags', defaultValue: { summary: 'true' } },
     },
     'platform.rbac.common-auth-model': {
       control: 'boolean',
@@ -102,9 +104,13 @@ const meta = {
   args: {
     // Default values (Production Org User environment - non-admin)
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    // Note: orgAdmin, userAccessAdministrator, and feature flags are set via
-    // parameters (permissions/featureFlags), not args, to allow story-level
-    // overrides without control conflicts. Controls can still modify them.
+    orgAdmin: false,
+    userAccessAdministrator: false,
+    'platform.rbac.workspaces': false,
+    'platform.rbac.group-service-accounts': false,
+    'platform.rbac.group-service-accounts.stable': true,
+    'platform.rbac.common-auth-model': false,
+    'platform.rbac.common.userstable': false,
   },
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_USER,

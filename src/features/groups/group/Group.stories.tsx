@@ -215,7 +215,7 @@ export const ModifiedDefaultGroup: Story = {
     const canvas = within(canvasElement);
 
     // Test modified default group shows special icon in header
-    const header = await canvas.findByRole('heading');
+    const header = await canvas.findByRole('heading', { name: /Modified Default Group/i });
     expect(within(header).getByText('Modified Default Group')).toBeInTheDocument();
 
     // Test restore button appears for modified default groups

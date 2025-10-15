@@ -8,6 +8,7 @@ import WarningModal from '@patternfly/react-component-groups/dist/dynamic/Warnin
 import { fetchGroup, removeGroups } from '../../redux/groups/actions';
 import { FormItemLoader } from '../../components/ui-states/LoaderPlaceholders';
 import useAppNavigate from '../../hooks/useAppNavigate';
+import { getModalContainer } from '../../helpers/modal-container';
 
 interface RemoveGroupModalProps {
   postMethod: (groupIds: string[], config: { limit?: number }) => Promise<unknown>;
@@ -85,6 +86,7 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
         confirmButtonVariant={ButtonVariant.danger}
         onClose={onCancel}
         onConfirm={() => {}}
+        appendTo={getModalContainer()}
       >
         <FormItemLoader />
       </WarningModal>
@@ -99,6 +101,7 @@ export const RemoveGroupModal: React.FC<RemoveGroupModalProps> = ({ postMethod, 
       confirmButtonVariant={ButtonVariant.danger}
       onClose={onCancel}
       onConfirm={onSubmit}
+      appendTo={getModalContainer()}
     >
       <TextContent>
         <Text>

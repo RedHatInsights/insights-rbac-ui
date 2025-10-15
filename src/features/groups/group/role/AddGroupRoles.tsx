@@ -10,11 +10,12 @@ import { useLocation, useParams } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { Skeleton, SkeletonSize } from '@redhat-cloud-services/frontend-components/Skeleton';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
-import { addRolesToGroup as addRolesToGroupAction, fetchGroup, fetchRolesForGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
+import { addRolesToGroup as addRolesToGroupAction, fetchGroup, invalidateSystemGroup } from '../../../../redux/groups/actions';
 import { selectIsGroupRecordLoading, selectSelectedGroupName } from '../../../../redux/groups/selectors';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
 import { RolesList } from '../../add-group/components/stepRoles/RolesList';
 import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModal';
+import { getModalContainer } from '../../../../helpers/modal-container';
 import messages from '../../../../Messages';
 import '../../../../App.scss';
 import './add-group-roles.scss';
@@ -24,11 +25,6 @@ interface Role {
   name: string;
   display_name?: string;
   description?: string;
-}
-
-interface Group {
-  uuid: string;
-  name: string;
 }
 
 interface AddGroupRolesProps {
@@ -41,7 +37,7 @@ interface AddGroupRolesProps {
   groupName?: string;
   isDefault?: boolean;
   isChanged?: boolean;
-  onDefaultGroupChanged?: (group: Group) => void;
+  onDefaultGroupChanged?: (show: boolean) => void;
 }
 
 export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
@@ -104,39 +100,23 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
       return;
     }
 
-    if (isDefault && isChanged) {
-      setShowConfirmModal(true);
-      return;
-    }
+    // Dispatch the addRolesToGroup action with role UUIDs
+    const roleUuids = selectedRoles.map((role) => role.uuid);
 
-    try {
-      // Dispatch the addRolesToGroup action with role UUIDs
-      const roleUuids = selectedRoles.map((role) => role.uuid);
-      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
-
-      // Refresh the group roles data to show the newly added roles
-      dispatch(fetchRolesForGroup(groupId!, {}));
-
-      afterSubmit && afterSubmit();
-      navigate(closeUrl || `/groups/detail/${groupId}/roles`);
-    } catch (error) {
-      console.error('Failed to add roles to group:', error);
-    }
-  };
-
-  const handleConfirm = async () => {
-    setShowConfirmModal(false);
-
-    try {
-      // Dispatch the addRolesToGroup action with role UUIDs
-      const roleUuids = selectedRoles!.map((role) => role.uuid);
-      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
-
-      // Refresh the group roles data to show the newly added roles
-      dispatch(fetchRolesForGroup(groupId!, {}));
-
+    // If this is a default group that hasn't been changed yet, mark it as changed
+    if (isDefault && !isChanged) {
+      onDefaultGroupChanged && onDefaultGroupChanged(true);
       dispatch(invalidateSystemGroup());
-      onDefaultGroupChanged && groupName && onDefaultGroupChanged({ uuid: groupId!, name: groupName });
+    }
+
+    try {
+      await dispatch(addRolesToGroupAction(groupId!, roleUuids));
+
+      // If we just modified a default group, re-fetch to get the updated name
+      if (isDefault && !isChanged) {
+        await dispatch(fetchGroup(groupId!));
+      }
+
       afterSubmit && afterSubmit();
       navigate(closeUrl || `/groups/detail/${groupId}/roles`);
     } catch (error) {
@@ -144,15 +124,26 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
     }
   };
 
-  return (
+  const handleAddClick = () => {
+    setShowConfirmModal(true);
+    // If not a default group or already changed, submit immediately
+    if (!isDefault || isChanged) {
+      onSubmit();
+    }
+  };
+
+  return isDefault && !isChanged && showConfirmModal ? (
+    <DefaultGroupChangeModal isOpen={true} onClose={onCancel} onSubmit={onSubmit} />
+  ) : (
     <>
       <Modal
         title={title || (groupName ? intl.formatMessage(messages.addRolesToGroup, { name: groupName }) : intl.formatMessage(messages.addRoles))}
         variant={ModalVariant.large}
         isOpen
         onClose={onCancel}
+        appendTo={getModalContainer()}
         actions={[
-          <Button key="confirm" variant="primary" onClick={onSubmit} isDisabled={!selectedRoles || selectedRoles.length === 0}>
+          <Button key="confirm" variant="primary" onClick={handleAddClick} isDisabled={!selectedRoles || selectedRoles.length === 0}>
             {intl.formatMessage(messages.addToGroup)}
           </Button>,
           <Button key="cancel" variant="link" onClick={onCancel}>
@@ -177,8 +168,6 @@ export const AddGroupRoles: React.FC<AddGroupRolesProps> = ({
           )}
         </Stack>
       </Modal>
-
-      <DefaultGroupChangeModal isOpen={showConfirmModal} onSubmit={handleConfirm} onClose={() => setShowConfirmModal(false)} />
     </>
   );
 };
