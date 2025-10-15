@@ -570,21 +570,20 @@ export const WithInheritance: Story = {
     const canvas = within(canvasElement);
 
     // Open drawer by clicking button
-    await waitFor(async () => {
-      const openButton = await canvas.findByRole('button', { name: /open group details drawer.*inheritance/i });
-      await userEvent.click(openButton);
-    }, { timeout: 5000 });
+    const openButton = await canvas.findByRole('button', { name: /open group details drawer.*inheritance/i });
+    await userEvent.click(openButton);
 
     // Wait for drawer to open
-    await waitFor(async () => {
-      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      async () => {
+        await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Verify basic tabs functionality
-    await waitFor(async () => {
-      const rolesTab = await canvas.findByRole('tab', { name: /roles/i });
-      await expect(rolesTab).toBeInTheDocument();
-    }, { timeout: 5000 });
+    const rolesTab = await canvas.findByRole('tab', { name: /roles/i });
+    await expect(rolesTab).toBeInTheDocument();
 
     // Verify users tab exists
     await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();

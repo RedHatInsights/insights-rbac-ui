@@ -294,7 +294,8 @@ export const WithChildContextAlert: Story = {
     route: '/iam/access-management/workspaces/detail/workspace-1?fromChildId=workspace-2&fromChildName=Web%20Services',
     docs: {
       description: {
-        story: 'Workspace header showing context alert when navigated from a child workspace. Tests the URL parameter handling for fromChildId and fromChildName.',
+        story:
+          'Workspace header showing context alert when navigated from a child workspace. Tests the URL parameter handling for fromChildId and fromChildName.',
       },
     },
   },

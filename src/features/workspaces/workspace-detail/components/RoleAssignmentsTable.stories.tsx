@@ -122,7 +122,7 @@ const storyMessages = {
   filterByInheritedFrom: 'Filter by inherited from', // This is the key used in the component
   grantAccess: 'Grant access',
   userGroupsEmptyStateTitle: 'No user group found',
-  'usersAndUserGroupsNoDescription': 'No description', // Quoted because of special chars
+  usersAndUserGroupsNoDescription: 'No description', // Quoted because of special chars
 };
 
 // Story decorator to provide necessary context
@@ -590,10 +590,8 @@ export const WithInheritanceColumn: Story = {
     const canvas = within(canvasElement);
 
     // Just verify basic table functionality - the inheritance feature may not be fully implemented
-    await waitFor(async () => {
-      const table = await canvas.findByRole('grid');
-      await expect(table).toBeInTheDocument();
-    }, { timeout: 10000 });
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
 
     // Verify basic group data shows
     await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
@@ -632,9 +630,12 @@ export const InheritanceFiltering: Story = {
     const canvas = within(canvasElement);
 
     // Just verify basic table functionality with filters applied
-    await waitFor(async () => {
-      await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
-    }, { timeout: 10000 });
+    await waitFor(
+      async () => {
+        await expect(canvas.findByRole('grid')).resolves.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Verify basic filtering UI exists
     await expect(canvas.findByPlaceholderText('Filter by user group')).resolves.toBeInTheDocument();
@@ -665,9 +666,7 @@ export const InheritanceDrawerInteraction: Story = {
       groupReducer: {
         selectedGroup: {
           members: {
-            data: [
-              { username: 'admin', first_name: 'Admin', last_name: 'User', uuid: '1' },
-            ],
+            data: [{ username: 'admin', first_name: 'Admin', last_name: 'User', uuid: '1' }],
             isLoading: false,
           },
           roles: {
@@ -691,19 +690,20 @@ export const InheritanceDrawerInteraction: Story = {
     const canvas = within(canvasElement);
 
     // Wait for table to load
-    await waitFor(async () => {
-      const table = await canvas.findByRole('grid');
-      await expect(table).toBeInTheDocument();
-    }, { timeout: 10000 });
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
 
     // Click on the first group (Platform Administrators)
     const firstRowCell = await canvas.findByText('Platform Administrators');
     await userEvent.click(firstRowCell);
 
     // Wait for drawer to open and verify basic drawer functionality
-    await waitFor(async () => {
-      await expect(canvas.findByRole('tab', { name: /roles/i })).resolves.toBeInTheDocument();
-    }, { timeout: 5000 });
+    await waitFor(
+      async () => {
+        await expect(canvas.findByRole('tab', { name: /roles/i })).resolves.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
     // Verify basic drawer content loads
     await expect(canvas.findByText('Administrator')).resolves.toBeInTheDocument();

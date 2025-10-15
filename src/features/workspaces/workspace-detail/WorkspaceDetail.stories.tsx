@@ -593,7 +593,9 @@ export const WithInheritedFromContext: Story = {
 
     // Verify the header shows the inherited-from alert
     await expect(canvas.findByText(/You are now viewing the 'Production Environment' workspace/)).resolves.toBeInTheDocument();
-    await expect(canvas.findByText(/From here, you can edit access for this workspace and the child workspace, 'Web Services' workspace/)).resolves.toBeInTheDocument();
+    await expect(
+      canvas.findByText(/From here, you can edit access for this workspace and the child workspace, 'Web Services' workspace/),
+    ).resolves.toBeInTheDocument();
 
     // Verify tabs are present with roles tab active
     await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
