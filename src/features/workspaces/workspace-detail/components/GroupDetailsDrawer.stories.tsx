@@ -9,6 +9,7 @@ import promiseMiddleware from 'redux-promise-middleware';
 import { notificationsMiddleware } from '@redhat-cloud-services/frontend-components-notifications/';
 import { GroupDetailsDrawer } from './GroupDetailsDrawer';
 import { IntlProvider } from 'react-intl';
+import { BrowserRouter } from 'react-router-dom';
 import { Group } from '../../../../redux/groups/reducer';
 import { User } from '../../../../redux/users/reducer';
 import { Role } from '../../../../redux/roles/reducer';
@@ -152,19 +153,36 @@ const createInitialState = (overrides: any = {}) => ({
   },
 });
 
+// Simple message translations for stories - must match Messages.js keys exactly
+const storyMessages = {
+  roles: 'Roles',
+  users: 'Users',
+  username: 'Username',
+  firstName: 'First name',
+  lastName: 'Last name',
+  inheritedFrom: 'Inherited from',
+  usersEmptyStateTitle: 'No users found',
+  rolesEmptyStateTitle: 'No roles found',
+  groupNoUsersAssigned: 'This group currently has no users assigned.',
+  groupNoRolesAssigned: 'This group currently has no roles assigned.',
+  editAccessForThisWorkspace: 'Edit access for this workspace',
+};
+
 // Story decorator to provide necessary context
 const withProviders = (Story: React.ComponentType, context: { parameters?: { mockState?: { groupReducer?: any } } }) => {
   const initialState = createInitialState(context.parameters?.mockState?.groupReducer || {});
   const store = mockStore(initialState);
 
   return (
-    <Provider store={store}>
-      <IntlProvider locale="en" messages={{}}>
-        <div style={{ height: '600px', padding: '16px' }}>
-          <Story />
-        </div>
-      </IntlProvider>
-    </Provider>
+    <BrowserRouter>
+      <Provider store={store}>
+        <IntlProvider locale="en" messages={storyMessages}>
+          <div style={{ height: '600px', padding: '16px' }}>
+            <Story />
+          </div>
+        </IntlProvider>
+      </Provider>
+    </BrowserRouter>
   );
 };
 
@@ -462,5 +480,143 @@ export const ErrorState: Story = {
     await userEvent.click(usersTab);
 
     await expect(canvas.findByText('Unable to load users')).resolves.toBeInTheDocument();
+  },
+};
+
+// Mock group with inheritance
+const mockGroupWithInheritance = {
+  ...mockGroup,
+  inheritedFrom: {
+    workspaceId: 'parent-workspace-1',
+    workspaceName: 'Default Workspace',
+  },
+};
+
+// Mock current workspace context
+const mockCurrentWorkspace = {
+  id: 'current-workspace-2',
+  name: 'Child Workspace',
+};
+
+// Interactive example with inheritance functionality
+const InheritanceDrawerExample = ({
+  isOpen: initialIsOpen = false,
+  group = mockGroupWithInheritance,
+  showInheritance = true,
+  currentWorkspace = mockCurrentWorkspace,
+  onClose = fn(),
+  ouiaId = 'group-details-drawer-inheritance',
+}: {
+  isOpen?: boolean;
+  group?: any;
+  showInheritance?: boolean;
+  currentWorkspace?: { id: string; name: string };
+  onClose?: () => void;
+  ouiaId?: string;
+}) => {
+  const [isOpen, setIsOpen] = React.useState(initialIsOpen);
+
+  const handleClose = () => {
+    setIsOpen(false);
+    if (onClose) onClose();
+  };
+
+  return (
+    <GroupDetailsDrawer
+      isOpen={isOpen}
+      group={isOpen ? group : undefined}
+      onClose={handleClose}
+      ouiaId={ouiaId}
+      showInheritance={showInheritance}
+      currentWorkspace={currentWorkspace}
+    >
+      <Card>
+        <CardBody>
+          <h2>Content Area with Inheritance Context</h2>
+          <p>This shows the drawer with inheritance information displayed.</p>
+          <Button onClick={() => setIsOpen(true)} disabled={isOpen}>
+            Open Group Details Drawer (With Inheritance)
+          </Button>
+          {isOpen && (
+            <p style={{ marginTop: '1rem', color: '#6a6e73' }}>
+              Drawer is open - check the Roles tab to see inheritance column and clickable parent workspace links.
+            </p>
+          )}
+        </CardBody>
+      </Card>
+    </GroupDetailsDrawer>
+  );
+};
+
+// Drawer with inheritance features
+export const WithInheritance: Story = {
+  render: (args) => <InheritanceDrawerExample {...args} />,
+  args: {
+    isOpen: false,
+    group: mockGroupWithInheritance,
+    showInheritance: true,
+    currentWorkspace: mockCurrentWorkspace,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-inheritance',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Group details drawer with inheritance data - shows basic drawer functionality.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Open drawer by clicking button
+    await waitFor(async () => {
+      const openButton = await canvas.findByRole('button', { name: /open group details drawer.*inheritance/i });
+      await userEvent.click(openButton);
+    }, { timeout: 5000 });
+
+    // Wait for drawer to open
+    await waitFor(async () => {
+      await expect(canvas.findByText('Platform Administrators')).resolves.toBeInTheDocument();
+    }, { timeout: 10000 });
+
+    // Verify basic tabs functionality
+    await waitFor(async () => {
+      const rolesTab = await canvas.findByRole('tab', { name: /roles/i });
+      await expect(rolesTab).toBeInTheDocument();
+    }, { timeout: 5000 });
+
+    // Verify users tab exists
+    await expect(canvas.findByRole('tab', { name: /users/i })).resolves.toBeInTheDocument();
+  },
+};
+
+// Drawer with inheritance disabled
+export const WithoutInheritance: Story = {
+  render: (args) => <InheritanceDrawerExample {...args} />,
+  args: {
+    isOpen: true,
+    group: mockGroup, // Regular group without inheritance
+    showInheritance: false,
+    currentWorkspace: mockCurrentWorkspace,
+    onClose: fn(),
+    ouiaId: 'group-details-drawer-no-inheritance',
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: 'Group details drawer without inheritance features - standard view.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify roles tab content does not show inheritance column
+    await expect(canvas.findByText('Administrator')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('User Manager')).resolves.toBeInTheDocument();
+
+    // Should not show inheritance information
+    await expect(canvas.queryByText('Default Workspace')).not.toBeInTheDocument();
   },
 };

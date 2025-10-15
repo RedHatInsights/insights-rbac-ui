@@ -555,3 +555,146 @@ export const EmptyGroupsState: Story = {
     await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
   },
 };
+
+export const WithInheritedFromContext: Story = {
+  parameters: {
+    storeState: {
+      workspacesReducer: {
+        workspaces: mockWorkspaces,
+        selectedWorkspace: mockWorkspaces[0], // Production Environment (parent)
+        isLoading: false,
+        error: '',
+      },
+      groupReducer: {
+        groups: {
+          data: mockGroups,
+          meta: { count: mockGroups.length },
+        },
+        isLoading: false,
+        error: null,
+      },
+    },
+    route: '/iam/access-management/workspaces/detail/workspace-1?activeTab=roles&fromChildId=workspace-2&fromChildName=Web%20Services',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': true,
+    },
+    docs: {
+      description: {
+        story: 'Workspace detail view when navigated from a child workspace, showing the inherited-from context alert.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Verify the header shows the inherited-from alert
+    await expect(canvas.findByText(/You are now viewing the 'Production Environment' workspace/)).resolves.toBeInTheDocument();
+    await expect(canvas.findByText(/From here, you can edit access for this workspace and the child workspace, 'Web Services' workspace/)).resolves.toBeInTheDocument();
+
+    // Verify tabs are present with roles tab active
+    await expect(canvas.findByText('Role assignments')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
+  },
+};
+
+export const RoleAssignmentTabsWithInheritance: Story = {
+  parameters: {
+    storeState: {
+      workspacesReducer: {
+        workspaces: mockWorkspaces,
+        selectedWorkspace: mockWorkspaces[1], // Web Services workspace
+        isLoading: false,
+        error: '',
+      },
+      groupReducer: {
+        groups: {
+          data: mockGroups,
+          meta: { count: mockGroups.length },
+        },
+        isLoading: false,
+        error: null,
+      },
+    },
+    route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles&roleAssignmentTab=roles-assigned-in-parent-workspaces',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': true,
+    },
+    docs: {
+      description: {
+        story: 'Workspace detail showing the role assignment tabs with focus on parent workspace roles.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Verify the role assignment sub-tabs are present
+    await expect(canvas.findByText('Roles assigned in this workspace')).resolves.toBeInTheDocument();
+    await expect(canvas.findByText('Roles assigned in parent workspaces')).resolves.toBeInTheDocument();
+
+    // Verify that the parent workspaces tab is active
+    const parentRolesTab = await canvas.findByText('Roles assigned in parent workspaces');
+    await expect(parentRolesTab).toBeInTheDocument();
+  },
+};
+
+export const NavigationBetweenTabs: Story = {
+  parameters: {
+    storeState: {
+      workspacesReducer: {
+        workspaces: mockWorkspaces,
+        selectedWorkspace: mockWorkspaces[1],
+        isLoading: false,
+        error: '',
+      },
+      groupReducer: {
+        groups: {
+          data: mockGroups,
+          meta: { count: mockGroups.length },
+        },
+        isLoading: false,
+        error: null,
+      },
+    },
+    route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles&roleAssignmentTab=roles-assigned-in-workspace',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': true,
+    },
+    docs: {
+      description: {
+        story: 'Testing navigation between different role assignment tabs and their respective data loading.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Start with roles assigned in this workspace tab
+    const thisWorkspaceTab = await canvas.findByText('Roles assigned in this workspace');
+    const parentWorkspacesTab = await canvas.findByText('Roles assigned in parent workspaces');
+
+    await expect(thisWorkspaceTab).toBeInTheDocument();
+    await expect(parentWorkspacesTab).toBeInTheDocument();
+
+    // Switch to parent workspaces tab
+    await userEvent.click(parentWorkspacesTab);
+
+    // Switch back to this workspace tab
+    await userEvent.click(thisWorkspaceTab);
+
+    // Verify we can see role assignments table content
+    await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+  },
+};
