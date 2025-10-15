@@ -434,10 +434,13 @@ export const EditGroupFromDetailPage: Story = {
     await user.click(groupLink);
 
     // Wait for group detail page to load with original unedited state
-    await waitFor(async () => {
-      await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
-      expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
-    }, { timeout: 10000 }); // Increased timeout to allow for API response
+    await waitFor(
+      async () => {
+        await expect(canvas.getByRole('heading', { name: 'Support Team' })).toBeInTheDocument();
+        expect(canvas.queryByRole('heading', { name: 'Customer Support Team' })).not.toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    ); // Increased timeout to allow for API response
 
     // Verify we're on the detail page
     await expect(canvas.getByRole('button', { name: 'Actions' })).toBeInTheDocument();
