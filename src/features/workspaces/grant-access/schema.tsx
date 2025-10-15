@@ -1,5 +1,4 @@
 import { componentTypes } from '@data-driven-forms/react-form-renderer';
-import React from 'react';
 import { createIntl, createIntlCache } from 'react-intl';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
