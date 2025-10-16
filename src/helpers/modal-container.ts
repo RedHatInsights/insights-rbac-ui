@@ -9,20 +9,19 @@
  * By using a shared, persistent container that survives story remounts,
  * we avoid this issue entirely.
  *
- * @param fallback - Fallback container to use in production (outside Storybook)
- * @returns The modal container element
+ * @returns The modal container element, or undefined if not in Storybook
  */
-export function getModalContainer(fallback: HTMLElement | null = null): HTMLElement | null {
-  // In production (non-Storybook), use the provided fallback
+export function getModalContainer(): HTMLElement | undefined {
+  // In production (non-Storybook), return undefined (use default portal behavior)
   if (typeof document === 'undefined') {
-    return fallback;
+    return undefined;
   }
 
   // Check if we're in Storybook by looking for storybook-root
   const isStorybook = !!document.getElementById('storybook-root');
 
   if (!isStorybook) {
-    return fallback;
+    return undefined;
   }
 
   // In Storybook, use or create a persistent modal container

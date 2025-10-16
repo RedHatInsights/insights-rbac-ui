@@ -52,6 +52,12 @@ export const useGroupNavigation = ({
       [pathnames['group-detail-roles'].path]: {
         onDefaultGroupChanged,
       },
+      [pathnames['group-detail-members'].path]: {
+        onDefaultGroupChanged,
+      },
+      [pathnames['group-detail-service-accounts'].path]: {
+        onDefaultGroupChanged,
+      },
       groupId: groupId || '',
       systemGroupUuid,
     }),

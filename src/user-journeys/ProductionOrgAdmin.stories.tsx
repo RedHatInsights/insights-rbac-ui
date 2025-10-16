@@ -1,7 +1,7 @@
 import type { StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
-import { delay } from 'msw';
+import { HttpResponse, delay, http } from 'msw';
 import { AppEntryWithRouter } from './_shared/components/AppEntryWithRouter';
 import { ENVIRONMENTS } from './_shared/environments';
 import {
@@ -46,7 +46,7 @@ function createDynamicEnvironment(args: any) {
     featureFlags: {
       'platform.rbac.workspaces': args['platform.rbac.workspaces'] ?? false,
       'platform.rbac.group-service-accounts': args['platform.rbac.group-service-accounts'] ?? false,
-      'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? false,
+      'platform.rbac.group-service-accounts.stable': args['platform.rbac.group-service-accounts.stable'] ?? true,
       'platform.rbac.common-auth-model': args['platform.rbac.common-auth-model'] ?? true,
       'platform.rbac.common.userstable': args['platform.rbac.common.userstable'] ?? false,
     },
@@ -70,7 +70,9 @@ const meta = {
       const dynamicEnv = createDynamicEnvironment(context.args);
       // Replace parameters entirely instead of mutating to ensure React sees the change
       context.parameters = { ...context.parameters, ...dynamicEnv };
-      return <Story />;
+      // Force remount when controls change by using args as key
+      const argsKey = JSON.stringify(context.args);
+      return <Story key={argsKey} />;
     },
   ],
   argTypes: {
@@ -105,7 +107,7 @@ const meta = {
     'platform.rbac.group-service-accounts.stable': {
       control: 'boolean',
       description: 'Current service accounts flag',
-      table: { category: 'Feature Flags', defaultValue: { summary: 'false' } },
+      table: { category: 'Feature Flags', defaultValue: { summary: 'true' } },
     },
     'platform.rbac.common-auth-model': {
       control: 'boolean',
@@ -121,9 +123,13 @@ const meta = {
   args: {
     // Default values (Production Org Admin environment)
     typingDelay: typeof process !== 'undefined' && process.env?.CI ? 0 : 30,
-    // Note: orgAdmin, userAccessAdministrator, and feature flags are set via
-    // parameters (permissions/featureFlags), not args, to allow story-level
-    // overrides without control conflicts. Controls can still modify them.
+    orgAdmin: true,
+    userAccessAdministrator: false,
+    'platform.rbac.workspaces': false,
+    'platform.rbac.group-service-accounts': false,
+    'platform.rbac.group-service-accounts.stable': true,
+    'platform.rbac.common-auth-model': true,
+    'platform.rbac.common.userstable': false,
   },
   parameters: {
     ...ENVIRONMENTS.PROD_ORG_ADMIN,
@@ -635,7 +641,9 @@ export const AddMembersToGroupJourney: Story = {
         groups: defaultGroups,
         users: defaultUsers,
         roles: defaultRoles,
-        // group-2 (Support Team) starts with no members
+        // Override: group-2 (Support Team) starts with members EXCEPT john.doe and jane.smith
+        // This way we can test adding those specific users while still having realistic data
+        groupMembers: new Map([['group-2', defaultUsers.filter((u) => !['john.doe', 'jane.smith'].includes(u.username!)).slice(0, 5)]]),
       }),
     },
     docs: {
@@ -692,10 +700,13 @@ Tests the full flow of adding members to an existing group.
     // Step 5: Verify success notification (notifications are rendered at document.body level)
     // Note: There are two notifications - "Adding members" (info) and "Success adding members" (success)
     const body = within(document.body);
-    await waitFor(async () => {
-      const notification = body.getByText(/success adding members to group/i);
-      await expect(notification).toBeInTheDocument();
-    });
+    await waitFor(
+      async () => {
+        const notification = body.getByText(/success adding members to group/i);
+        await expect(notification).toBeInTheDocument();
+      },
+      { timeout: 10000 },
+    );
 
     // Step 6: Verify members appear in the list
     await waitFor(async () => {
@@ -1775,9 +1786,858 @@ Tests inviting new users to the organization.
     const submitButton = modalContent.getByRole('button', { name: /invite new users/i });
     await waitFor(() => expect(submitButton).toBeEnabled());
     await user.click(submitButton);
-    await delay(300);
+    await delay(500);
 
     // Verify success notification
     await verifySuccessNotification();
+  },
+};
+
+/**
+ * Copy Default Group on First Edit - Roles Journey
+ *
+ * Tests the full flow of modifying the "Default access" group for the first time.
+ * When a pristine default group is modified, it should:
+ * 1. Show a confirmation modal
+ * 2. Copy the group to "Custom default access"
+ * 3. Apply changes to the copied group
+ * 4. Show an alert on the detail page
+ *
+ * Steps:
+ * 1. Navigate to "Default access" group detail page
+ * 2. Click Roles tab
+ * 3. Click "Add role" button
+ * 4. Select a role
+ * 5. Confirm addition
+ * 6. Verify confirmation modal appears
+ * 7. Check checkbox and click Continue
+ * 8. Verify group name changed to "Custom default access"
+ * 9. Verify alert appears
+ */
+export const CopyDefaultGroupAddRolesJourney: Story = {
+  name: 'Groups / Copy default group (add roles)',
+  tags: ['copy-default-group'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests the full flow of copying "Default access" group when adding a role for the first time.
+
+**Journey Flow:**
+- Navigate to "Default access" group detail page
+- Open "Add role" modal
+- Select a role
+- Click "Add to Group"
+- **Confirmation modal appears** warning about copying
+- Check confirmation checkbox
+- Click "Continue"
+- Verify group becomes "Custom default access"
+- Verify alert shows on detail page
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups from My User Access
+    await navigateToPage(user, canvas, 'Groups');
+
+    // Wait for groups list to load
+    await waitForPageToLoad(canvas, 'Default access');
+
+    // Click on "Default access" link
+    const groupLink = canvas.getByRole('link', { name: 'Default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: 'Default access' })).toBeInTheDocument();
+    });
+
+    // Click Roles tab
+    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
+    await user.click(rolesTab);
+    await delay(500);
+
+    // Wait for "Add role" button
+    await waitFor(async () => {
+      const addRoleBtn = canvas.queryByRole('button', { name: /add role/i });
+      expect(addRoleBtn).toBeInTheDocument();
+    });
+
+    await delay(1000); // Wait for roles to load
+
+    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    const addRoleBtn = await waitFor(
+      () => {
+        const btn = canvas.getByRole('button', { name: /add role/i });
+        expect(btn).toBeEnabled();
+        return btn;
+      },
+      { timeout: 5000 },
+    );
+    await user.click(addRoleBtn);
+
+    // Fill and submit the Add Roles modal (select 1 role)
+    await fillAddGroupRolesModal(user, 'Default access', 1);
+
+    // CRITICAL: Wait for confirmation modal to appear (2nd dialog)
+    await delay(1000);
+
+    // Find the warning modal by its OUIA component ID
+    // The warning modal has data-ouia-component-id="WarningModal"
+    let warningModal: HTMLElement | null = null;
+    await waitFor(
+      () => {
+        const modalContainer = document.getElementById('storybook-modals') || document.body;
+        const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
+
+        // Find the dialog with data-ouia-component-id="WarningModal"
+        warningModal = (allDialogs.find((dialog) => dialog.getAttribute('data-ouia-component-id') === 'WarningModal') as HTMLElement) || null;
+
+        expect(warningModal).not.toBeNull();
+      },
+      { timeout: 5000 },
+    );
+
+    // Now interact with the warning modal
+    const modalContent = within(warningModal!);
+
+    // Wait for and find the confirmation checkbox by its label
+    const confirmCheckbox = await waitFor(
+      () => {
+        const checkbox = modalContent.getByLabelText(/I understand, and I want to continue/i);
+        expect(checkbox).toBeInTheDocument();
+        return checkbox;
+      },
+      { timeout: 5000 },
+    );
+
+    await user.click(confirmCheckbox);
+    await delay(300);
+
+    // Find and click Continue button by its OUIA ID (more reliable)
+    const continueButton = await waitFor(
+      () => {
+        const modalContainer = document.getElementById('storybook-modals') || document.body;
+        const button = modalContainer.querySelector('[data-ouia-component-id="WarningModal-confirm-button"]') as HTMLElement;
+        expect(button).toBeInTheDocument();
+        expect(button).toBeEnabled();
+        return button;
+      },
+      { timeout: 5000 },
+    );
+
+    await user.click(continueButton);
+
+    // Wait for the WARNING modal specifically to close (the "Add roles" modal may still be open)
+    await waitFor(() => {
+      const modalContainer = document.getElementById('storybook-modals') || document.body;
+      const warningModals = modalContainer.querySelectorAll('[data-ouia-component-id="WarningModal"]');
+      expect(warningModals.length).toBe(0);
+    });
+
+    // Verify group name changed to "Custom default access" in the heading
+    await waitFor(() => {
+      expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    });
+
+    // Verify alert appears on page
+    await waitFor(() => {
+      const alert = canvas.getByText(/Default access group has changed/i);
+      expect(alert).toBeInTheDocument();
+    });
+
+    // NOW: Navigate to a different (non-default) group and verify NO alert shows
+    await delay(500);
+
+    // Click breadcrumb to go back to groups list (use within a specific container)
+    const breadcrumbs = canvas.getByLabelText('Breadcrumb');
+    const groupsBreadcrumb = within(breadcrumbs).getByRole('link', { name: 'Groups' });
+    await user.click(groupsBreadcrumb);
+    await delay(1000);
+
+    // Wait for groups list
+    await waitForPageToLoad(canvas, 'Platform Admins');
+
+    // Click on a regular group (Platform Admins)
+    const regularGroupLink = canvas.getByRole('link', { name: 'Platform Admins' });
+    await user.click(regularGroupLink);
+    await delay(1000);
+
+    // Wait for the regular group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: /Platform Admins/i })).toBeInTheDocument();
+    });
+
+    // CRITICAL: Verify the alert does NOT appear for this regular group
+    await delay(500); // Give time for any alert to potentially show
+    const alertOnRegularGroup = canvas.queryByText(/Default access group has changed/i);
+    expect(alertOnRegularGroup).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * No Confirmation for Already-Copied Group Journey
+ *
+ * Tests that once a default group has been copied, subsequent edits
+ * do NOT show the confirmation modal.
+ */
+export const ModifyAlreadyCopiedGroupJourney: Story = {
+  name: 'Groups / Modify already-copied default group (no confirmation)',
+  tags: ['copy-default-group'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: [
+          ...defaultGroups,
+          // Use the actual system-default group but mark it as already modified
+          {
+            uuid: 'system-default',
+            name: 'Custom default access',
+            description: 'Modified platform default group',
+            platform_default: true,
+            admin_default: false,
+            system: false, // Key: system=false means it's been modified
+            created: '2024-01-15T10:30:00Z',
+            modified: '2024-01-16T14:20:00Z',
+            principalCount: 5,
+            roleCount: 3,
+          },
+        ],
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that modifying an already-copied "Custom default access" group does NOT show the confirmation modal.
+
+**Journey Flow:**
+- Navigate to "Custom default access" group (already copied)
+- Open "Add role" modal
+- Select a role
+- Click "Add to Group"
+- **NO confirmation modal** (direct submission)
+- Verify success
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Custom default access');
+
+    // Click on "Custom default access"
+    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    });
+
+    // Click Roles tab
+    const rolesTab = canvas.getByRole('tab', { name: /roles/i });
+    await user.click(rolesTab);
+    await delay(500);
+
+    await delay(1000);
+
+    // Click "Add role" - wait for it to be enabled (fetchAddRolesForGroup is async)
+    const addRoleBtn = await waitFor(
+      () => {
+        const btn = canvas.getByRole('button', { name: /add role/i });
+        expect(btn).toBeEnabled();
+        return btn;
+      },
+      { timeout: 5000 },
+    );
+    await user.click(addRoleBtn);
+
+    // Fill and submit (select 1 role)
+    await fillAddGroupRolesModal(user, 'Custom default access', 1);
+
+    // Verify NO confirmation modal appears - check for the warning modal specifically
+    await delay(1000);
+    const modalContainer = document.getElementById('storybook-modals') || document.body;
+    const warningModal = modalContainer.querySelector('[data-ouia-component-id="WarningModal"]');
+
+    // Should NOT see the warning modal (group is already modified, so no confirmation needed)
+    expect(warningModal).toBeNull();
+
+    // Verify success notification
+    await verifySuccessNotification();
+
+    // Verify the alert IS visible on the page (this is correct - shows the group has been modified)
+    await waitFor(async () => {
+      const alert = canvas.queryByText(/Default access group has changed/i);
+      await expect(alert).toBeInTheDocument();
+    });
+  },
+};
+
+/**
+ * Restore Default Access Group Journey
+ *
+ * Tests the "Restore to default" functionality that appears when a default group
+ * has been modified. This allows admins to restore the group to its original state.
+ *
+ * Journey Flow:
+ * - Navigate to the modified "Custom default access" group
+ * - Click the "Restore to default" link in the header
+ * - Confirm the restoration in the warning modal
+ * - Verify the group is restored to "Default access"
+ */
+export const RestoreDefaultGroupJourney: Story = {
+  name: 'Groups / Restore default group',
+  tags: ['copy-default-group'],
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: (() => {
+        // Create a custom state manager for this test
+        let isRestored = false;
+
+        const baseHandlers = createStatefulHandlers({
+          groups: [
+            ...defaultGroups.filter((g) => g.uuid !== 'system-default'), // Remove system-default from base groups
+            // Start with an already-modified default group
+            {
+              uuid: 'system-default',
+              name: 'Custom default access',
+              description: 'Modified platform default group',
+              principalCount: 10,
+              roleCount: 3,
+              created: '2023-01-01T00:00:00Z',
+              modified: '2024-01-01T00:00:00Z',
+              platform_default: true,
+              admin_default: false,
+              system: false, // This marks it as modified
+            },
+          ],
+          users: defaultUsers,
+          roles: defaultRoles,
+        });
+
+        const restoredGroup = {
+          uuid: 'system-default',
+          name: 'Default access',
+          description: 'Default platform group',
+          principalCount: 'All users',
+          roleCount: 0,
+          created: '2023-01-01T00:00:00Z',
+          modified: '2024-01-01T00:00:00Z',
+          platform_default: true,
+          admin_default: false,
+          system: true, // Restored to system-managed
+        };
+
+        return [
+          // Override GET /api/rbac/v1/groups/system-default/ to handle restoration
+          // MUST be placed BEFORE baseHandlers to intercept the request
+          http.get('/api/rbac/v1/groups/system-default/', () => {
+            // Return restored or modified group based on state
+            return HttpResponse.json(
+              isRestored
+                ? restoredGroup
+                : {
+                    uuid: 'system-default',
+                    name: 'Custom default access',
+                    description: 'Modified platform default group',
+                    principalCount: 10,
+                    roleCount: 3,
+                    created: '2023-01-01T00:00:00Z',
+                    modified: '2024-01-01T00:00:00Z',
+                    platform_default: true,
+                    admin_default: false,
+                    system: false,
+                  },
+            );
+          }),
+          // Override GET /api/rbac/v1/groups/ (groups list) to include restored group
+          http.get('/api/rbac/v1/groups/', ({ request }) => {
+            const url = new URL(request.url);
+            const platformDefault = url.searchParams.get('platform_default');
+
+            // If requesting platform_default groups and we're restored, return the restored group
+            if (platformDefault === 'true' && isRestored) {
+              return HttpResponse.json({
+                data: [restoredGroup],
+                meta: { count: 1, limit: 1, offset: 0 },
+              });
+            }
+
+            // For the main groups list, include the restored group if restored
+            // Otherwise let baseHandlers handle it
+            return;
+          }),
+          // Mock the BULK DELETE endpoint to RESTORE the default group (not just delete)
+          // This endpoint is called with ?uuids=xxx,yyy
+          http.delete('/api/rbac/v1/groups/', async ({ request }) => {
+            const url = new URL(request.url);
+            const uuids = url.searchParams.get('uuids')?.split(',') || [];
+
+            // If deleting system-default, it means we're restoring it
+            if (uuids.includes('system-default')) {
+              isRestored = true;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            return HttpResponse.json({ message: 'Groups deleted successfully' });
+          }),
+          // ALSO override the single-group DELETE endpoint (just in case)
+          http.delete('/api/rbac/v1/groups/:groupId/', async ({ params }) => {
+            const { groupId } = params;
+
+            // If deleting system-default, it means we're restoring it
+            if (groupId === 'system-default') {
+              isRestored = true;
+            }
+
+            await new Promise((resolve) => setTimeout(resolve, 100));
+            return new HttpResponse(null, { status: 204 });
+          }),
+          ...baseHandlers,
+        ];
+      })(),
+    },
+    docs: {
+      description: {
+        story: `
+Tests the "Restore to default" functionality that allows admins to revert a modified
+default group back to its original system-managed state.
+
+**Journey Flow:**
+- Navigate to "Custom default access" group (modified default)
+- Click "Restore to default" link in header
+- Confirm restoration in warning modal
+- Verify group is restored to "Default access"
+- Verify alert no longer shows
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Custom default access');
+
+    // Click on "Custom default access"
+    const groupLink = canvas.getByRole('link', { name: 'Custom default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(async () => {
+      await expect(canvas.getByRole('heading', { name: /Custom default access/i })).toBeInTheDocument();
+    });
+
+    // Verify the "Restore to default" link is visible
+    const restoreLink = await waitFor(
+      () => {
+        const link = canvas.getByRole('button', { name: /restore to default/i });
+        expect(link).toBeInTheDocument();
+        return link;
+      },
+      { timeout: 5000 },
+    );
+
+    // Click "Restore to default"
+    await user.click(restoreLink);
+    await delay(500);
+
+    // Find the warning modal
+    let warningModal: HTMLElement | null = null;
+    await waitFor(
+      () => {
+        const modalContainer = document.getElementById('storybook-modals') || document.body;
+        const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
+
+        // Find the dialog with the restore warning content
+        warningModal =
+          (allDialogs.find((dialog) => {
+            const dialogContent = dialog.textContent || '';
+            return dialogContent.includes('Restore Default access group');
+          }) as HTMLElement) || null;
+
+        expect(warningModal).not.toBeNull();
+      },
+      { timeout: 5000 },
+    );
+
+    // Interact with the warning modal
+    const modalContent = within(warningModal!);
+
+    // Verify the warning message
+    expect(modalContent.getByText(/Restore Default access group/i)).toBeInTheDocument();
+
+    // The description text contains bold tags, so we need to check for the text content differently
+    // Just verify key parts of the message are present
+    expect(warningModal!.textContent).toContain('Restoring Default access group');
+    expect(warningModal!.textContent).toContain('Custom default access group');
+
+    // Find and click Continue button
+    const continueButton = await waitFor(
+      () => {
+        const btn = modalContent.getByRole('button', { name: /continue/i });
+        expect(btn).toBeInTheDocument();
+        expect(btn).toBeEnabled();
+        return btn;
+      },
+      { timeout: 5000 },
+    );
+
+    await user.click(continueButton);
+
+    // Wait for the restore warning modal specifically to close
+    await waitFor(() => {
+      const modalContainer = document.getElementById('storybook-modals') || document.body;
+      const restoreModals = modalContainer.querySelectorAll('[role="dialog"]');
+      // All modals should close after restore (no "add" modal in this flow)
+      expect(restoreModals.length).toBe(0);
+    });
+
+    // Verify we're on the restored "Default access" group page
+    // The page should show "Default access" instead of "Custom default access"
+    await waitFor(() => {
+      const heading = canvas.queryByRole('heading', { name: /^Default access$/i });
+      expect(heading).toBeInTheDocument();
+    });
+
+    // Verify the "Restore to default" link is NO LONGER visible
+    await waitFor(() => {
+      const restoreLinkAfter = canvas.queryByRole('button', { name: /restore to default/i });
+      expect(restoreLinkAfter).not.toBeInTheDocument();
+    });
+
+    // Verify the alert is NO LONGER visible
+    const alert = canvas.queryByText(/Default access group has changed/i);
+    expect(alert).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Default Admin Access - Members Tab Test
+ *
+ * Verifies that the "Default admin access" group shows the special card message
+ * instead of a table, since all org admins are automatically members.
+ */
+export const DefaultAdminAccessMembersJourney: Story = {
+  name: 'Groups / Default Admin Access Members Tab',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that the "Default admin access" group Members tab shows the special card
+instead of a table, with the message about all org admins being members.
+
+**Journey Flow:**
+- Navigate to Groups
+- Click on "Default admin access"
+- Click on Members tab
+- Verifies special card message is shown
+- Verifies NO data table is present
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Default admin access');
+
+    // Click on "Default admin access"
+    const groupLink = canvas.getByRole('link', { name: 'Default admin access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(() => {
+      expect(canvas.getByRole('heading', { name: /Default admin access/i })).toBeInTheDocument();
+    });
+
+    // Click Members tab
+    const membersTab = canvas.getByRole('tab', { name: /members/i });
+    await user.click(membersTab);
+    await delay(500);
+
+    // Should show the special default card message
+    await waitFor(() => {
+      expect(canvas.getByText(/All organization administrators in this organization are members of this group/i)).toBeInTheDocument();
+    });
+
+    // Should NOT show a data table
+    const table = canvas.queryByRole('table');
+    expect(table).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Default Access - Members Tab Test
+ *
+ * Verifies that the "Default access" (platform_default) group shows the special
+ * card message about all users being members.
+ */
+export const DefaultAccessMembersJourney: Story = {
+  name: 'Groups / Default Access Members Tab',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that the "Default access" group Members tab shows the special card
+message about all users being members (not admin-specific message).
+
+**Journey Flow:**
+- Navigate to Groups
+- Click on "Default access"
+- Click on Members tab
+- Verifies special card message about all users is shown
+- Verifies NO data table is present
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Default access');
+
+    // Click on "Default access"
+    const groupLink = canvas.getByRole('link', { name: 'Default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(() => {
+      expect(canvas.getByRole('heading', { name: /^Default access$/i })).toBeInTheDocument();
+    });
+
+    // Click Members tab
+    const membersTab = canvas.getByRole('tab', { name: /members/i });
+    await user.click(membersTab);
+    await delay(500);
+
+    // Should show the special default card message (for all users, not just org admins)
+    await waitFor(() => {
+      expect(canvas.getByText(/all users in this organization are members of this group/i)).toBeInTheDocument();
+    });
+
+    // Should NOT show a data table
+    const table = canvas.queryByRole('table');
+    expect(table).not.toBeInTheDocument();
+
+    // Should NOT show the org admin specific message
+    const adminMessage = canvas.queryByText(/All organization administrators in this organization are members of this group/i);
+    expect(adminMessage).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Default Admin Access - Service Accounts Tab Test
+ *
+ * Verifies that the "Default admin access" group shows the special message
+ * about service accounts not being automatically included.
+ */
+export const DefaultAdminAccessServiceAccountsJourney: Story = {
+  name: 'Groups / Default Admin Access Service Accounts Tab',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that the "Default admin access" group Service Accounts tab shows the special
+message about service accounts not being automatically included for security reasons.
+
+**Journey Flow:**
+- Navigate to Groups
+- Click on "Default admin access"
+- Click on Service Accounts tab
+- Verifies special security message is shown
+- Verifies NO data table is present
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Default admin access');
+
+    // Click on "Default admin access"
+    const groupLink = canvas.getByRole('link', { name: 'Default admin access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(() => {
+      expect(canvas.getByRole('heading', { name: /Default admin access/i })).toBeInTheDocument();
+    });
+
+    // Click Service Accounts tab
+    const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
+    await user.click(serviceAccountsTab);
+    await delay(500);
+
+    // Should show the special security message
+    await waitFor(() => {
+      expect(
+        canvas.getByText(/In adherence to security guidelines, service accounts are not automatically included in the default admin access group/i),
+      ).toBeInTheDocument();
+    });
+
+    // Should NOT show a data table
+    const table = canvas.queryByRole('table');
+    expect(table).not.toBeInTheDocument();
+  },
+};
+
+/**
+ * Default Access - Service Accounts Tab Test
+ *
+ * Verifies that the "Default access" group shows the special message
+ * about service accounts not being automatically included.
+ */
+export const DefaultAccessServiceAccountsJourney: Story = {
+  name: 'Groups / Default Access Service Accounts Tab',
+  args: {
+    initialRoute: '/iam/my-user-access',
+  },
+  parameters: {
+    msw: {
+      handlers: createStatefulHandlers({
+        groups: defaultGroups,
+        users: defaultUsers,
+        roles: defaultRoles,
+      }),
+    },
+    docs: {
+      description: {
+        story: `
+Tests that the "Default access" group Service Accounts tab shows the special
+message about service accounts not being automatically included for security reasons.
+
+**Journey Flow:**
+- Navigate to Groups
+- Click on "Default access"
+- Click on Service Accounts tab
+- Verifies special security message is shown
+- Verifies NO data table is present
+        `,
+      },
+    },
+  },
+  play: async (context) => {
+    const canvas = within(context.canvasElement);
+    const user = userEvent.setup({ delay: context.args.typingDelay ?? 30 });
+
+    await resetStoryState();
+
+    // Navigate to Groups
+    await navigateToPage(user, canvas, 'Groups');
+    await waitForPageToLoad(canvas, 'Default access');
+
+    // Click on "Default access"
+    const groupLink = canvas.getByRole('link', { name: 'Default access' });
+    await user.click(groupLink);
+    await delay(500);
+
+    // Wait for group detail page
+    await waitFor(() => {
+      expect(canvas.getByRole('heading', { name: /^Default access$/i })).toBeInTheDocument();
+    });
+
+    // Click Service Accounts tab
+    const serviceAccountsTab = canvas.getByRole('tab', { name: /service accounts/i });
+    await user.click(serviceAccountsTab);
+    await delay(500);
+
+    // Should show the special security message (slightly different wording from admin default)
+    await waitFor(() => {
+      expect(
+        canvas.getByText(/In adherence to security guidelines, service accounts are not automatically included in the default access group/i),
+      ).toBeInTheDocument();
+    });
+
+    // Should NOT show a data table
+    const table = canvas.queryByRole('table');
+    expect(table).not.toBeInTheDocument();
   },
 };

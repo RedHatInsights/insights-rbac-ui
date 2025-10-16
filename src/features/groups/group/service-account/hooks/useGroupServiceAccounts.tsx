@@ -12,6 +12,7 @@ import {
   selectGroupServiceAccounts,
   selectGroupServiceAccountsMeta,
   selectIsAdminDefaultGroup,
+  selectIsChangedDefaultGroup,
   selectIsGroupServiceAccountsLoading,
   selectIsPlatformDefaultGroup,
   selectSelectedGroup,
@@ -113,6 +114,7 @@ export interface UseGroupServiceAccountsReturn {
   hasPermissions: boolean;
   isAdminDefault: boolean;
   isPlatformDefault: boolean;
+  isChanged: boolean;
 
   // Group data
   groupId: string | undefined;
@@ -133,9 +135,12 @@ export interface UseGroupServiceAccountsReturn {
     title: string;
     description: string;
   };
+
+  // Callbacks for parent
+  onDefaultGroupChanged?: GroupServiceAccountsProps['onDefaultGroupChanged'];
 }
 
-export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps): UseGroupServiceAccountsReturn => {
+export const useGroupServiceAccounts = ({ groupId, onDefaultGroupChanged }: GroupServiceAccountsProps): UseGroupServiceAccountsReturn => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
@@ -154,6 +159,7 @@ export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps):
   const isAdminDefault = useSelector(selectIsAdminDefaultGroup);
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const isPlatformDefault = useSelector(selectIsPlatformDefaultGroup);
+  const isChanged = useSelector(selectIsChangedDefaultGroup);
   const group = useSelector(selectSelectedGroup);
 
   // DataView hooks
@@ -403,6 +409,7 @@ export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps):
     hasPermissions,
     isAdminDefault,
     isPlatformDefault,
+    isChanged,
     groupId: actualGroupId,
     systemGroupUuid,
     group,
@@ -410,5 +417,6 @@ export const useGroupServiceAccounts = ({ groupId }: GroupServiceAccountsProps):
     actionResolver,
     toolbarButtons,
     emptyStateProps,
+    onDefaultGroupChanged,
   };
 };

@@ -17,4 +17,5 @@ export interface ServiceAccountTableRow {
 
 export interface GroupServiceAccountsProps {
   groupId?: string;
+  onDefaultGroupChanged?: (group: { uuid: string; name: string }) => void;
 }

@@ -208,7 +208,6 @@ const setSystemGroup = (state: GroupStore, { payload }: any) => ({
 const invalidateSystemGroup = (state: GroupStore) => ({
   ...state,
   systemGroup: undefined,
-  selectedGroup: state.selectedGroup ? { ...state.selectedGroup, platform_default: false } : undefined,
 });
 const setGroup = (state: GroupStore, { payload }: any) => ({
   ...state,

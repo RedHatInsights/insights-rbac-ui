@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
-import { fetchSystemGroup, removeGroups } from '../../../redux/groups/actions';
+import { fetchGroup, fetchSystemGroup, removeGroups } from '../../../redux/groups/actions';
 import { DEFAULT_ACCESS_GROUP_ID } from '../../../utilities/constants';
 import messages from '../../../Messages';
 import pathnames from '../../../utilities/pathnames';
@@ -54,10 +54,16 @@ export const useGroupActions = ({
     if (systemGroupUuid) {
       await dispatch(removeGroups([systemGroupUuid]));
       await dispatch(fetchSystemGroup({ chrome }));
+      // Fetch the restored group detail to update Redux state
+      await dispatch(fetchGroup('system-default'));
       onDefaultGroupChangedHide();
+
+      // Navigate to the restored system default group
+      // After deletion, the system will recreate the default group with UUID 'system-default'
+      // Since we're already on this route, the fetchGroup above ensures the state is updated
+      navigateToGroup('system-default');
     }
     onResetWarningHide();
-    navigateToGroup(DEFAULT_ACCESS_GROUP_ID);
   }, [systemGroupUuid, dispatch, chrome, onDefaultGroupChangedHide, onResetWarningHide, navigateToGroup]);
 
   return {

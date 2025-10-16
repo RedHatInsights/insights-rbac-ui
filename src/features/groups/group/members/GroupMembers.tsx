@@ -30,7 +30,7 @@ import type { GroupMembersFilters, Member, MemberTableRow } from './types';
 import { selectGroupsFilters, selectGroupsPagination } from '../../../../redux/groups/selectors';
 
 interface GroupMembersProps {
-  // This container has no props - all data comes from Redux and URL params
+  onDefaultGroupChanged?: (group: { uuid: string; name: string }) => void;
 }
 
 interface SelectedItem {
@@ -39,7 +39,7 @@ interface SelectedItem {
 
 // Member row actions component
 
-const GroupMembers: React.FC<GroupMembersProps> = () => {
+const GroupMembers: React.FC<GroupMembersProps> = (props) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
@@ -52,7 +52,8 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
     group,
     adminDefault,
     platformDefault,
-
+    isChanged,
+    systemGroupUuid,
     totalCount,
     isAdmin,
     filters,
@@ -72,8 +73,11 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
   const groupsPagination = useSelector(selectGroupsPagination);
   const groupsFilters = useSelector(selectGroupsFilters);
 
-  // Show default cards for admin/platform default groups
-  const showDefaultCard = adminDefault || platformDefault;
+  // Show default cards for BOTH default groups when unchanged (system: true)
+  // Admin default shows "All org admins are members"
+  // Platform default shows "All users are members"
+  // These cards are read-only - no add/edit functionality (matching production behavior)
+  const showDefaultCard = (adminDefault || platformDefault) && group?.system;
 
   // Create skeleton loading states
   const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.cell)} />;
@@ -266,31 +270,38 @@ const GroupMembers: React.FC<GroupMembersProps> = () => {
         </DataView>
       )}
 
-      <Suspense>
-        <Outlet
-          context={{
-            [pathnames['group-members-edit-group'].path]: {
-              group,
-              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-              submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId), // Stay on members tab after edit
-            },
-            [pathnames['group-members-remove-group'].path]: {
-              postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
-              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-              submitRoute: getBackRoute(
-                pathnames.groups.link,
-                { ...groupsPagination, offset: 0, limit: (groupsPagination as any)?.limit || 20 },
-                groupsFilters,
-              ),
-              groupsUuid: [group],
-            },
-            [pathnames['group-add-members'].path]: {
-              fetchData: () => fetchData(),
-              cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
-            },
-          }}
-        />
-      </Suspense>
+      {!showDefaultCard && (
+        <Suspense>
+          <Outlet
+            context={{
+              [pathnames['group-members-edit-group'].path]: {
+                group,
+                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+                submitRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId), // Stay on members tab after edit
+              },
+              [pathnames['group-members-remove-group'].path]: {
+                postMethod: () => dispatch(fetchGroups({ ...groupsPagination, offset: 0, filters: groupsFilters, usesMetaInURL: true })),
+                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+                submitRoute: getBackRoute(
+                  pathnames.groups.link,
+                  { ...groupsPagination, offset: 0, limit: (groupsPagination as any)?.limit || 20 },
+                  groupsFilters,
+                ),
+                groupsUuid: [group],
+              },
+              [pathnames['group-add-members'].path]: {
+                isDefault: platformDefault || adminDefault,
+                isChanged: isChanged,
+                onDefaultGroupChanged: props.onDefaultGroupChanged,
+                fetchUuid: systemGroupUuid,
+                groupName: group?.name,
+                cancelRoute: pathnames['group-detail-members'].link.replace(':groupId', groupId),
+                afterSubmit: () => fetchData(),
+              },
+            }}
+          />
+        </Suspense>
+      )}
     </Fragment>
   );
 };

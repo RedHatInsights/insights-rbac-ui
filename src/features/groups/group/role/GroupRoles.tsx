@@ -40,11 +40,14 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     hasPermissions,
     isPlatformDefault,
     isAdminDefault,
+    isChanged,
     pagination,
     fetchData,
     emptyStateProps,
     toolbarButtons,
     group,
+    systemGroupUuid,
+    onDefaultGroupChanged,
   } = useGroupRoles(props);
 
   // Filter change handler
@@ -185,11 +188,21 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
         </DataView>
       </Section>
 
-      {!isPlatformDefault ? (
+      {!isAdminDefault ? (
         <Suspense>
           <Outlet
             context={{
               [pathnames['group-add-roles'].path]: {
+                isDefault: isPlatformDefault || isAdminDefault,
+                isChanged: isChanged,
+                onDefaultGroupChanged: onDefaultGroupChanged,
+                fetchUuid: systemGroupUuid,
+                groupName: group?.name,
+                closeUrl: pathnames['group-detail-roles'].link.replace(':groupId', groupId!),
+                afterSubmit: () => {
+                  dispatch(fetchAddRolesForGroup(groupId!, { limit: 20, offset: 0 }));
+                  fetchData();
+                },
                 postMethod: (promise: Promise<unknown>) => {
                   navigate(pathnames['group-detail-roles'].link.replace(':groupId', groupId!));
                   if (promise) {

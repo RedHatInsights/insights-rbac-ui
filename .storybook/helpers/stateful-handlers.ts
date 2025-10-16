@@ -1,27 +1,19 @@
 import { http, HttpResponse } from 'msw';
 import { Group, Principal, Role, PaginatedResponse } from '../types/entities';
 import { Workspace, RoleBindingBySubject } from '../../src/redux/workspaces/reducer';
-
-export interface AppState {
-  groups: Group[];
-  users: Principal[];
-  roles: Role[];
-  workspaces: Workspace[];
-  serviceAccounts: Array<{
-    id: string;
-    name: string;
-    clientId: string;
-    description: string;
-    createdBy: string;
-    createdAt: number; // Unix timestamp in seconds
-  }>;
-  // Track which users belong to which groups
-  groupMembers: Map<string, Principal[]>;
-  // Track which roles are assigned to which groups
-  groupRoles: Map<string, Role[]>;
-  // Track workspace-specific role bindings (M3+ feature)
-  workspaceRoleBindings: Map<string, RoleBindingBySubject[]>;
-}
+import {
+  AppState,
+  ServiceAccount,
+  cloneState,
+  updateGroup,
+  addRolesToGroup,
+  removeRolesFromGroup,
+  addMembersToGroup,
+  removeMembersFromGroup,
+  findGroup,
+  getGroupMembers,
+  getGroupRoles,
+} from './immutable-state';
 
 // Special system groups - these are global and shown to admin users
 const mockAdminGroup: Group = {
@@ -29,11 +21,12 @@ const mockAdminGroup: Group = {
   name: 'Default admin access',
   description: 'Default admin group',
   principalCount: 'All org admins', // Special display value for admin default group
-  roleCount: 15,
+  roleCount: 0, // Starts with no roles, allowing all to be added
   created: '2023-01-01T00:00:00Z',
   modified: '2024-01-01T00:00:00Z',
   platform_default: false,
   admin_default: true,
+  system: true, // Indicates this is the original, unmodified admin default group
 };
 
 const mockSystemGroup: Group = {
@@ -41,11 +34,12 @@ const mockSystemGroup: Group = {
   name: 'Default access',
   description: 'Default access group',
   principalCount: 'All', // Special display value for platform default group
-  roleCount: 8,
+  roleCount: 0, // Starts with no roles, allowing all to be added
   created: '2023-01-01T00:00:00Z',
   modified: '2024-01-01T00:00:00Z',
   platform_default: true,
   admin_default: false,
+  system: true, // Indicates this is the original, unmodified system group
 };
 
 /**
@@ -63,10 +57,23 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     return newMap;
   };
 
+  // Mock roles for default groups
+  const defaultSystemRoles: Role[] = [
+    { uuid: 'role-viewer-1', name: 'Viewer', display_name: 'Viewer', description: 'Read-only access', system: true, platform_default: false, admin_default: false, created: '2023-01-01T00:00:00Z', modified: '2023-01-01T00:00:00Z', policyCount: 1, accessCount: 5, applications: ['insights'], groups_in: [], groups_in_count: 0 },
+    { uuid: 'role-editor-1', name: 'Editor', display_name: 'Editor', description: 'Edit access', system: true, platform_default: false, admin_default: false, created: '2023-01-01T00:00:00Z', modified: '2023-01-01T00:00:00Z', policyCount: 1, accessCount: 10, applications: ['insights'], groups_in: [], groups_in_count: 0 },
+  ];
+
   // Store the ORIGINAL initial state with deep copies
   // This ensures reset always goes back to the true initial state
   const originalInitialState: AppState = {
-    groups: initialState.groups ? initialState.groups.map(g => ({ ...g })) : [],
+    groups: [
+      // Always include the special system groups, but allow overrides from initialState
+      // IMPORTANT: Deep copy all group objects to prevent mutation of original state
+      ...(initialState.groups?.map(g => ({ ...g })) || []),
+      // Add default system groups ONLY if not already provided in initialState
+      ...(initialState.groups?.some(g => g.uuid === 'system-default') ? [] : [{ ...mockSystemGroup }]),
+      ...(initialState.groups?.some(g => g.uuid === 'admin-default') ? [] : [{ ...mockAdminGroup }]),
+    ],
     users: initialState.users ? initialState.users.map(u => ({ ...u })) : [],
     roles: initialState.roles ? initialState.roles.map(r => ({ ...r })) : [],
     workspaces: initialState.workspaces ? initialState.workspaces.map(w => ({ ...w })) : [],
@@ -76,31 +83,57 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
     workspaceRoleBindings: deepCopyMap(initialState.workspaceRoleBindings),
   };
   
-  let state: AppState = {
-    groups: originalInitialState.groups.map(g => ({ ...g })),
-    users: originalInitialState.users.map(u => ({ ...u })),
-    workspaces: originalInitialState.workspaces.map(w => ({ ...w })),
-    roles: originalInitialState.roles.map(r => ({ ...r })),
-    serviceAccounts: originalInitialState.serviceAccounts.map(sa => ({ ...sa })),
-    groupMembers: deepCopyMap(originalInitialState.groupMembers),
-    groupRoles: deepCopyMap(originalInitialState.groupRoles),
-    workspaceRoleBindings: deepCopyMap(originalInitialState.workspaceRoleBindings),
-  };
+  // Initialize default group roles (minimal set for manual testing)
+  if (!originalInitialState.groupRoles.has('system-default')) {
+    // System default group gets first 2 roles for manual testing visibility
+    const sampleRoles = originalInitialState.roles.slice(0, 2);
+    originalInitialState.groupRoles.set('system-default', sampleRoles);
+  }
+  if (!originalInitialState.groupRoles.has('admin-default')) {
+    // Admin default group gets next 2 roles for manual testing visibility
+    const sampleRoles = originalInitialState.roles.slice(2, 4);
+    originalInitialState.groupRoles.set('admin-default', sampleRoles);
+  }
+  
+  // Initialize sample data for groups that have counts but no actual data
+  // This makes manual testing more realistic
+  // Tests that want empty groups should explicitly pass empty Maps for groupMembers/groupRoles
+  originalInitialState.groups.forEach(group => {
+    // Skip default groups - they're handled above
+    if (group.uuid === 'system-default' || group.uuid === 'admin-default') {
+      return;
+    }
+    
+    // Only auto-initialize if NO explicit data was provided
+    const hasRolesData = originalInitialState.groupRoles.has(group.uuid);
+    const hasMembersData = originalInitialState.groupMembers.has(group.uuid);
+    
+    // Initialize roles based on roleCount (only if not already set)
+    if (!hasRolesData && group.roleCount && typeof group.roleCount === 'number' && group.roleCount > 0) {
+      const availableRoles = originalInitialState.roles;
+      if (availableRoles.length > 0) {
+        const rolesToAdd = availableRoles.slice(0, Math.min(group.roleCount, availableRoles.length));
+        originalInitialState.groupRoles.set(group.uuid, rolesToAdd.map(r => ({ ...r })));
+      }
+    }
+    
+    // Initialize members based on principalCount (only if not already set)
+    if (!hasMembersData && group.principalCount && typeof group.principalCount === 'number' && group.principalCount > 0) {
+      const availableUsers = originalInitialState.users;
+      if (availableUsers.length > 0) {
+        const usersToAdd = availableUsers.slice(0, Math.min(group.principalCount, availableUsers.length));
+        originalInitialState.groupMembers.set(group.uuid, usersToAdd.map(u => ({ ...u })));
+      }
+    }
+  });
+  
+  let state: AppState = cloneState(originalInitialState);
 
   return [
     // RESET endpoint - for test isolation (call this at start of play functions)
     http.post('/api/test/reset-state', () => {
-      // Deep copy from original state to ensure clean reset
-      state = {
-        groups: originalInitialState.groups.map(g => ({ ...g })),
-        users: originalInitialState.users.map(u => ({ ...u })),
-        roles: originalInitialState.roles.map(r => ({ ...r })),
-        workspaces: originalInitialState.workspaces.map(w => ({ ...w })),
-        serviceAccounts: originalInitialState.serviceAccounts.map(sa => ({ ...sa })),
-        groupMembers: deepCopyMap(originalInitialState.groupMembers),
-        groupRoles: deepCopyMap(originalInitialState.groupRoles),
-        workspaceRoleBindings: deepCopyMap(originalInitialState.workspaceRoleBindings),
-      };
+      // Use cloneState for clean, immutable reset
+      state = cloneState(originalInitialState);
       return HttpResponse.json({ message: 'State reset successfully' });
     }),
     
@@ -114,19 +147,21 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const limit = parseInt(url.searchParams.get('limit') || '20');
       const offset = parseInt(url.searchParams.get('offset') || '0');
 
-      // Handle admin default group query - returns special "Default admin access" group
+      // Handle admin default group query
       if (adminDefault === 'true') {
+        const adminGroup = state.groups.find(g => g.admin_default);
         return HttpResponse.json({
-          data: [mockAdminGroup],
-          meta: { count: 1, limit, offset },
+          data: adminGroup ? [adminGroup] : [],
+          meta: { count: adminGroup ? 1 : 0, limit, offset },
         });
       }
 
-      // Handle platform default group query - returns special "Default access" group
+      // Handle platform default group query
       if (platformDefault === 'true') {
+        const platformGroup = state.groups.find(g => g.platform_default);
         return HttpResponse.json({
-          data: [mockSystemGroup],
-          meta: { count: 1, limit, offset },
+          data: platformGroup ? [platformGroup] : [],
+          meta: { count: platformGroup ? 1 : 0, limit, offset },
         });
       }
 
@@ -151,13 +186,23 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
 
     // Get single group by ID
     http.get('/api/rbac/v1/groups/:groupId/', ({ params }) => {
-      const group = state.groups.find((g) => g.uuid === params.groupId);
+      const groupId = params.groupId as string;
+      
+      // Use immutable accessor (returns a clone, never the original)
+      const group = findGroup(state, groupId);
       
       if (!group) {
         return new HttpResponse(null, { status: 404 });
       }
 
-      return HttpResponse.json(group);
+      // CRITICAL: Always explicitly set platform_default and admin_default to prevent state pollution
+      // If these properties are missing/undefined, Redux will inherit them from previous selectedGroup
+      return HttpResponse.json({
+        ...group,
+        platform_default: group.platform_default ?? false,
+        admin_default: group.admin_default ?? false,
+        system: group.system ?? false,
+      });
     }),
 
     http.post('/api/rbac/v1/groups/', async ({ request }) => {
@@ -214,8 +259,23 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
         });
       }
       
-      // Get members for this group (or empty array if none)
-      const members = state.groupMembers.get(groupId) || [];
+      // Handle unmodified default groups - return empty, they conceptually include "all users"
+      // But if the group has been modified (system: false), return actual members from state
+      const group = findGroup(state, groupId);
+      const isUnmodifiedDefault = (groupId === 'admin-default' || groupId === 'system-default') && group?.system !== false;
+      
+      if (isUnmodifiedDefault) {
+        // Both default groups return empty when unmodified - shows special card message
+        // Admin default: "All org admins are members"
+        // Platform default: "All users are members"
+        return HttpResponse.json({
+          data: [],
+          meta: { count: 0, limit, offset },
+        });
+      }
+      
+      // Get members for this group (using immutable accessor)
+      const members = getGroupMembers(state, groupId);
       const paginated = members.slice(offset, offset + limit);
       
       return HttpResponse.json({
@@ -228,18 +288,29 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const groupId = params.groupId as string;
       const body = (await request.json()) as { principals: Array<{ username: string }> };
       
-      // Get current members or initialize empty array
-      const currentMembers = state.groupMembers.get(groupId) || [];
+      // Check if group exists
+      const group = findGroup(state, groupId);
+      if (!group) {
+        return new HttpResponse(null, { status: 404 });
+      }
       
-      // Add new members (find them in state.users by username)
-      body.principals.forEach(({ username }) => {
-        const user = state.users.find(u => u.username === username);
-        if (user && !currentMembers.find(m => m.username === username)) {
-          currentMembers.push(user);
-        }
-      });
+      // Check if this is the system default group being modified for the first time
+      const isSystemDefaultUnchanged = group.platform_default && group.system !== false;
       
-      state.groupMembers.set(groupId, currentMembers);
+      // If modifying unchanged default group, modify it in-place (matching real backend behavior)
+      if (isSystemDefaultUnchanged) {
+        state = updateGroup(state, groupId, {
+          name: 'Custom default access',
+          description: 'Modified default access group',
+          system: false, // Mark as modified
+          modified: new Date().toISOString(),
+        });
+      }
+      
+      // Add members to the group (immutably)
+      const usernames = body.principals.map(p => p.username);
+      state = addMembersToGroup(state, groupId, usernames);
+      
       return HttpResponse.json({ message: 'Principals added successfully' });
     }),
     
@@ -248,12 +319,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const url = new URL(request.url);
       const usernames = url.searchParams.get('usernames')?.split(',') || [];
       
-      // Get current members
-      const currentMembers = state.groupMembers.get(groupId) || [];
-      
-      // Remove specified members
-      const updatedMembers = currentMembers.filter(m => !usernames.includes(m.username));
-      state.groupMembers.set(groupId, updatedMembers);
+      // Remove members from the group (immutably)
+      state = removeMembersFromGroup(state, groupId, usernames);
       
       return new HttpResponse(null, { status: 204 });
     }),
@@ -266,8 +333,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const exclude = url.searchParams.get('exclude');
       const groupId = params.groupId as string;
       
-      // Get roles for this group (or empty array if none)
-      const groupRoles = state.groupRoles.get(groupId) || [];
+      // Get roles for this group (using immutable accessor)
+      const groupRoles = getGroupRoles(state, groupId);
       
       let result: Role[];
       
@@ -291,18 +358,28 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const groupId = params.groupId as string;
       const body = (await request.json()) as { roles: string[] };
       
-      // Get current roles or initialize empty array
-      const currentRoles = state.groupRoles.get(groupId) || [];
+      // Check if group exists
+      const group = findGroup(state, groupId);
+      if (!group) {
+        return new HttpResponse(null, { status: 404 });
+      }
       
-      // Add new roles (find them in state.roles by uuid)
-      body.roles.forEach((roleUuid) => {
-        const role = state.roles.find(r => r.uuid === roleUuid);
-        if (role && !currentRoles.find(r => r.uuid === roleUuid)) {
-          currentRoles.push(role);
-        }
-      });
+      // Check if this is the system default group being modified for the first time
+      const isSystemDefaultUnchanged = group.platform_default && group.system !== false;
       
-      state.groupRoles.set(groupId, currentRoles);
+      // If modifying unchanged default group, modify it in-place (matching real backend behavior)
+      if (isSystemDefaultUnchanged) {
+        state = updateGroup(state, groupId, {
+          name: 'Custom default access',
+          description: 'Modified default access group',
+          system: false, // Mark as modified
+          modified: new Date().toISOString(),
+        });
+      }
+      
+      // Add roles to the group (immutably)
+      state = addRolesToGroup(state, groupId, body.roles);
+      
       return HttpResponse.json({ message: 'Roles added successfully' });
     }),
     
@@ -311,12 +388,8 @@ export const createStatefulHandlers = (initialState: Partial<AppState> = {}) => 
       const url = new URL(request.url);
       const roleUuids = url.searchParams.get('roles')?.split(',') || [];
       
-      // Get current roles
-      const currentRoles = state.groupRoles.get(groupId) || [];
-      
-      // Remove specified roles
-      const updatedRoles = currentRoles.filter(r => !roleUuids.includes(r.uuid));
-      state.groupRoles.set(groupId, updatedRoles);
+      // Remove roles from the group (immutably)
+      state = removeRolesFromGroup(state, groupId, roleUuids);
       
       return new HttpResponse(null, { status: 204 });
     }),

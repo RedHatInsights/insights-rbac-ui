@@ -8,12 +8,14 @@ import { GroupHeader } from './components/GroupHeader';
 import { GroupDefaultChangedAlert } from './components/GroupDefaultChangedAlert';
 import { GroupNotFound } from './components/GroupNotFound';
 import pathnames from '../../../utilities/pathnames';
+import useAppNavigate from '../../../hooks/useAppNavigate';
 // Custom hooks
 import { useGroupData } from './useGroupData';
 import { useGroupState } from './useGroupState';
 import { useGroupDataLoad } from './useGroupDataLoad';
 import { useGroupNavigation } from './useGroupNavigation';
 import { useGroupActions } from './useGroupActions';
+import { useDefaultGroupChangedAlert } from './useDefaultGroupChangedAlert';
 import './group.scss';
 
 export const Group: React.FC = () => {
@@ -21,17 +23,10 @@ export const Group: React.FC = () => {
   const { groupId, isPlatformDefault, group, isGroupLoading, groupExists, systemGroupUuid, tabItems, chrome } = useGroupData();
 
   // Local state management
-  const {
-    isResetWarningVisible,
-    setResetWarningVisible,
-    isDropdownOpen,
-    setDropdownOpen,
-    showDefaultGroupChangedInfo,
-    setShowDefaultGroupChangedInfo,
-  } = useGroupState();
+  const { isResetWarningVisible, setResetWarningVisible, isDropdownOpen, setDropdownOpen } = useGroupState();
 
-  // Memoize callback to prevent infinite re-renders in useGroupNavigation
-  const onDefaultGroupChanged = useCallback((show: boolean) => setShowDefaultGroupChangedInfo(show), []);
+  // Default group changed alert (automatically manages visibility based on group state)
+  const { isVisible: showDefaultGroupChangedAlert, dismiss: dismissDefaultGroupChangedAlert } = useDefaultGroupChangedAlert(group);
 
   // Navigation and context
   const { location, breadcrumbsList, outletContext, navigateBack } = useGroupNavigation({
@@ -40,17 +35,24 @@ export const Group: React.FC = () => {
     group,
     isGroupLoading,
     groupExists,
-    onDefaultGroupChanged,
+    onDefaultGroupChanged: () => {}, // No-op callback for backwards compatibility
   });
+
+  // React Router navigation with proper basename handling
+  const navigate = useAppNavigate();
 
   // Memoized handlers to prevent infinite re-renders
   const handleResetWarningHide = useCallback(() => setResetWarningVisible(false), []);
-  const handleDefaultGroupChangedHide = useCallback(() => setShowDefaultGroupChangedInfo(false), []);
   const handleResetWarningShow = useCallback(() => setResetWarningVisible(true), []);
 
-  const navigateToGroup = useCallback((id: string) => {
-    window.location.href = pathnames['group-detail-roles'].link.replace(':groupId', id);
-  }, []);
+  const navigateToGroup = useCallback(
+    (id: string) => {
+      // Navigate to the group detail roles page
+      // useAppNavigate automatically adds the proper basename (/iam/user-access)
+      navigate(pathnames['group-detail-roles'].link.replace(':groupId', id));
+    },
+    [navigate],
+  );
 
   // Actions and handlers
   const { editUrl, deleteUrl, editLabel, deleteLabel, handleResetConfirm } = useGroupActions({
@@ -60,7 +62,7 @@ export const Group: React.FC = () => {
     systemGroupUuid,
     chrome,
     onResetWarningHide: handleResetWarningHide,
-    onDefaultGroupChangedHide: handleDefaultGroupChangedHide,
+    onDefaultGroupChangedHide: dismissDefaultGroupChangedAlert,
     navigateToGroup,
   });
 
@@ -93,7 +95,7 @@ export const Group: React.FC = () => {
               deleteLabel={deleteLabel}
             />
 
-            <GroupDefaultChangedAlert isVisible={showDefaultGroupChangedInfo} onClose={handleDefaultGroupChangedHide} />
+            <GroupDefaultChangedAlert isVisible={showDefaultGroupChangedAlert} onClose={dismissDefaultGroupChangedAlert} />
           </PageLayout>
 
           {/* Tabs and Content */}

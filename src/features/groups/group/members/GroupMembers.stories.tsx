@@ -43,6 +43,7 @@ const mockDefaultAdminGroup = {
   uuid: 'admin-group-123',
   name: 'Default Admin Group',
   admin_default: true,
+  system: true, // Unmodified default group
 };
 
 const mockDefaultPlatformGroup = {
@@ -50,6 +51,7 @@ const mockDefaultPlatformGroup = {
   uuid: 'platform-group-123',
   name: 'Default Platform Group',
   platform_default: true,
+  system: true, // Unmodified default group
 };
 
 // Track API calls for parameter verification
@@ -445,8 +447,15 @@ export const DefaultPlatformGroup: Story = {
     await delay(300);
     const canvas = within(canvasElement);
 
-    // Should show DefaultMembersCard for platform groups
+    // Platform default groups show the special card message (not the table)
+    // These are read-only - users cannot add/remove members from unmodified default groups
     expect(await canvas.findByText('All users in this organization are members of this group.')).toBeInTheDocument();
+
+    // Should NOT show a data table or any action buttons
+    const table = canvas.queryByRole('table');
+    expect(table).not.toBeInTheDocument();
+    const addButton = canvas.queryByRole('button', { name: /add member/i });
+    expect(addButton).not.toBeInTheDocument();
   },
 };
 

@@ -11,6 +11,7 @@ import FormRenderer from '../../components/forms/FormRenderer';
 import { fetchGroup, updateGroup } from '../../redux/groups/actions';
 import { debouncedAsyncValidator } from './validators';
 import { selectIsGroupRecordLoading, selectSelectedGroup } from '../../redux/groups/selectors';
+import { getModalContainer } from '../../helpers/modal-container';
 
 interface Group {
   uuid: string;
@@ -141,6 +142,7 @@ export const EditGroupModal: React.FC<EditGroupModalProps> = ({ cancelRoute, sub
             isOpen: true,
             variant: 'medium',
             onClose: onCancel,
+            appendTo: getModalContainer(),
           }}
           disableSubmit={['validating', 'pristine']}
           submitLabel="Save"
