@@ -1,3 +1,18 @@
+# [1.65.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.64.0...v1.65.0) (2025-10-16)
+
+
+### Bug Fixes
+
+* **grantaccesswizard:** internationalize wizard labels ([fbcba6f](https://github.com/RedHatInsights/insights-rbac-ui/commit/fbcba6f5141aa61295d2c456e0502375601c29f2))
+* lint issues in ProductionOrgAdmin ([dcc41cd](https://github.com/RedHatInsights/insights-rbac-ui/commit/dcc41cd7658a8b4ad11a2887ac324ee10eb0ad40))
+* more lint ([3d3d870](https://github.com/RedHatInsights/insights-rbac-ui/commit/3d3d87006b0a6ffefb2bc1ac7ee3765b52f8740a))
+* resolve merge ([5a8c3b4](https://github.com/RedHatInsights/insights-rbac-ui/commit/5a8c3b4d43c55a558b9b7fa6bcbceaa041c8aff2))
+
+
+### Features
+
+* **grantaccesswizard:** create grant access wizard ([37f7d19](https://github.com/RedHatInsights/insights-rbac-ui/commit/37f7d19d1fd8c380ced10cfb2b6b3ad1c31ceba9))
+
 # [1.64.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.63.1...v1.64.0) (2025-10-14)
 
 
