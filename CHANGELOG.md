@@ -1,3 +1,10 @@
+## [1.65.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.0...v1.65.1) (2025-10-16)
+
+
+### Bug Fixes
+
+* **Groups:** restore warning dialog when changing Default Group ([3222086](https://github.com/RedHatInsights/insights-rbac-ui/commit/3222086924ffbd07bdddfcd35820271c0a35f993))
+
 # [1.65.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.64.0...v1.65.0) (2025-10-16)
 
 
