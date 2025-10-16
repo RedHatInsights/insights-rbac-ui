@@ -4,6 +4,8 @@ USER root
 
 RUN dnf install jq -y
 
+USER default
+
 RUN npm i -g yarn
 
 # ────────── SENTRY BUILD ARGS ──────────
@@ -34,11 +36,10 @@ COPY --chown=default . .
 RUN chmod +x build-tools/parse-secrets.sh
 
 # 👉 Mount one secret with many keys; export token only if key exists
+USER root
 RUN --mount=type=secret,id=build-container-additional-secret/secrets,required=false \
-  # set -euo pipefail; \
-  echo "=== Starting parse-secrets.sh ===" && \
-  ./build-tools/parse-secrets.sh 2>&1 && \
-  echo "=== Finished parse-secrets.sh ===" && \
+  set -euo pipefail; \
+  ./build-tools/parse-secrets.sh; \
   # Get the app name and define the secrets variable name within the same RUN layer
   APP_NAME="$(jq -r '.insights.appname' < package.json | tr '[:lower:]-' '[:upper:]_')"; \
   SECRET_VAR_NAME="${APP_NAME}_SECRET"; \
@@ -50,6 +51,7 @@ RUN --mount=type=secret,id=build-container-additional-secret/secrets,required=fa
   echo "Sentry: no token for ${APP_NAME} – using any pre-set token (if provided) or skipping upload."; \
   fi; \
   universal_build.sh
+USER default
 
 
 FROM quay.io/redhat-services-prod/hcm-eng-prod-tenant/caddy-ubi:latest
