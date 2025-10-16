@@ -527,3 +527,160 @@ export const DrawerInteraction: Story = {
     expect(true).toBeTruthy();
   },
 };
+
+// Test Grant Access Button - Feature Flag Disabled (should be disabled)
+export const GrantAccessButtonDisabled: Story = {
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    workspaceName: 'Test Workspace',
+    ouiaId: 'role-assignments-grant-access-disabled-test',
+  },
+  parameters: {
+    featureFlags: {
+      'platform.rbac.workspaces': false, // Feature flag disabled - button should be disabled
+    },
+    docs: {
+      description: {
+        story: 'Testing Grant Access button when feature flag is disabled. Button should be present but disabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Verify Grant Access button is present but disabled
+    const grantAccessButton = await canvas.findByRole('button', { name: /grant access/i });
+    await expect(grantAccessButton).toBeInTheDocument();
+    await expect(grantAccessButton).toBeDisabled();
+  },
+};
+
+// Test Grant Access Wizard functionality
+export const GrantAccessWizardTest: Story = {
+  tags: ['ff:platform.rbac.workspaces'], // Required tag for feature flag usage
+  args: {
+    groups: mockGroups,
+    totalCount: mockGroups.length,
+    isLoading: false,
+    page: 1,
+    perPage: 20,
+    onSetPage: fn(),
+    onPerPageSelect: fn(),
+    sortBy: 'name',
+    direction: 'asc',
+    onSort: fn(),
+    filters: { name: '' },
+    onSetFilters: fn(),
+    clearAllFilters: fn(),
+    workspaceName: 'Test Workspace', // Required for wizard to render
+    ouiaId: 'role-assignments-grant-access-test',
+  },
+  parameters: {
+    featureFlags: {
+      'platform.rbac.workspaces': true, // Enable grant access wizard functionality (M5 master flag)
+    },
+    docs: {
+      description: {
+        story:
+          'Testing Grant Access wizard functionality. Verifies the wizard opens when the Grant Access button is clicked. Requires the m5 feature flag to be enabled.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for table to load
+    const table = await canvas.findByRole('grid');
+    await expect(table).toBeInTheDocument();
+
+    // Wait for Grant Access button and verify it's enabled
+    // The button should be enabled when the platform.rbac.workspaces feature flag is true
+    let grantAccessButton: HTMLElement;
+    await waitFor(
+      async () => {
+        grantAccessButton = canvas.getByRole('button', { name: /grant access/i });
+        await expect(grantAccessButton).toBeInTheDocument();
+        await expect(grantAccessButton).toBeEnabled();
+      },
+      { timeout: 10000 }, // Give more time for feature flag to be applied
+    );
+
+    // Click the Grant Access button
+    await userEvent.click(grantAccessButton!);
+
+    // Wait for the wizard modal to appear
+    await waitFor(
+      async () => {
+        // Look for the wizard modal dialog
+        const wizardModal = document.querySelector('[role="dialog"]');
+        expect(wizardModal).toBeInTheDocument();
+
+        // Verify wizard title appears with workspace name
+        const modalContent = within(wizardModal as HTMLElement);
+        await expect(modalContent.getByText(/grant access in workspace test workspace/i)).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify wizard step navigation is present
+    await waitFor(
+      async () => {
+        const wizardModal = document.querySelector('[role="dialog"]') as HTMLElement;
+        const modalContent = within(wizardModal);
+
+        // Look for step content in the wizard - be more specific to avoid multiple matches
+        // Check for any text that indicates we're on the user groups step
+        const stepTexts = modalContent.queryAllByText(/select user group/i);
+        expect(stepTexts.length).toBeGreaterThan(0); // At least one should exist
+
+        // Verify wizard navigation buttons are present
+        const nextButton = modalContent.queryByRole('button', { name: /next/i });
+        const cancelButton = modalContent.queryByRole('button', { name: /cancel/i });
+
+        expect(nextButton || cancelButton).toBeTruthy(); // At least one navigation button should be present
+      },
+      { timeout: 3000 },
+    );
+
+    // Test canceling the wizard
+    await waitFor(
+      async () => {
+        const wizardModal = document.querySelector('[role="dialog"]') as HTMLElement;
+        const modalContent = within(wizardModal);
+
+        // Look for Cancel button and click it
+        const cancelButton = modalContent.getByRole('button', { name: /cancel/i });
+        await userEvent.click(cancelButton);
+      },
+      { timeout: 2000 },
+    );
+
+    // Verify wizard modal closes after cancel
+    await waitFor(
+      async () => {
+        const wizardModal = document.querySelector('[role="dialog"]');
+        expect(wizardModal).not.toBeInTheDocument();
+      },
+      { timeout: 3000 },
+    );
+
+    // Verify Grant Access button is still present after modal closes
+    await expect(canvas.findByRole('button', { name: /grant access/i })).resolves.toBeInTheDocument();
+  },
+};

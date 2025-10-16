@@ -2873,6 +2873,36 @@ export default defineMessages({
     description: 'Grant access button text',
     defaultMessage: 'Grant access',
   },
+  grantAccessInWorkspace: {
+    id: 'grantAccessInWorkspace',
+    description: 'Grant access in workspace wizard title',
+    defaultMessage: 'Grant access in Workspace {workspaceName}',
+  },
+  selectUserGroups: {
+    id: 'selectUserGroups',
+    description: 'Select user groups step title',
+    defaultMessage: 'Select user group(s)',
+  },
+  selectRoles: {
+    id: 'selectRoles',
+    description: 'Select roles step title',
+    defaultMessage: 'Select role(s)',
+  },
+  selectUserGroupsDescription: {
+    id: 'selectUserGroupsDescription',
+    description: 'Select user groups step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
+  selectRolesDescription: {
+    id: 'selectRolesDescription',
+    description: 'Select roles step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
+  reviewDescription: {
+    id: 'reviewDescription',
+    description: 'Review step description',
+    defaultMessage: 'This step is currently blank and ready for implementation.',
+  },
   editAccessForThisWorkspace: {
     id: 'editAccessForThisWorkspace',
     description: 'Edit access for this workspace button text',
