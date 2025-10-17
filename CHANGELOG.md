@@ -1,3 +1,11 @@
+## [1.65.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.1...v1.65.2) (2025-10-17)
+
+
+### Bug Fixes
+
+* **RHCLOUD-41224:** correct IAM learning resources link and text ([#1948](https://github.com/RedHatInsights/insights-rbac-ui/issues/1948)) ([e4fe13a](https://github.com/RedHatInsights/insights-rbac-ui/commit/e4fe13ad6627ff47ae94b9af13b36fbb48c782a8))
+* **RHCLOUD-42361:** correct 'Learn more about workspaces' link URL ([#1949](https://github.com/RedHatInsights/insights-rbac-ui/issues/1949)) ([bda6768](https://github.com/RedHatInsights/insights-rbac-ui/commit/bda676892bbcf2d24a8dde0961c760bd56561649))
+
 ## [1.65.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.0...v1.65.1) (2025-10-16)
 
 
