@@ -8,7 +8,7 @@ import { WorkspacesStoreProvider, useWorkspacesStore } from './WorkspacesStore';
 import buildWorkspaceTree from './WorkspaceTreeBuilder';
 import { WorkspaceMenuToggle } from './components/WorkspaceMenuToggle';
 import { WorkspaceSelector } from './components/WorkspaceSelector';
-import { useWorkspacePermissions, WorkspacePermissionsObject } from './WorkspacePermissions';
+import { WorkspacePermissionsObject, useWorkspacePermissions } from './WorkspacePermissions';
 
 export interface RBACListWorkspacesResponse {
   data: Workspace[];
@@ -55,11 +55,12 @@ export const filterWorkspaceItems = (item: TreeViewDataItem | TreeViewWorkspaceI
 };
 
 // Exported function to create a workspace data fetcher with store integration
-export const createWorkspaceDataFetcher = (storeActions: {
-  setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
-  setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
-  setFetchedWorkspaces: (workspaces: Workspace[]) => void;
-  setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
+export const createWorkspaceDataFetcher = (
+  storeActions: {
+    setIsFetchingWorkspacesFromRBAC: (loading: boolean) => void;
+    setIsFetchingWorkspacesFromRBACError: (error: boolean) => void;
+    setFetchedWorkspaces: (workspaces: Workspace[]) => void;
+    setWorkspaceTree: (tree: TreeViewWorkspaceItem | undefined) => void;
   },
   workspacePermissions: WorkspacePermissionsObject | undefined,
 ) => {
@@ -138,19 +139,22 @@ const ManagedSelectorInternal: React.FC<ManagedSelectorProps> = ({ onSelect, ini
     workspaceTree,
     setWorkspaceTree,
   } = useWorkspacesStore();
-  const [workspacePermissions, _] = useWorkspacePermissions();
+  const [workspacePermissions] = useWorkspacePermissions();
 
   const [searchInputValue, setSearchInputValue] = React.useState<string>('');
   const [filteredTreeElements, setFilteredTreeElements] = React.useState<TreeViewWorkspaceItem[]>(workspaceTree ? [workspaceTree] : []);
   const [areElementsFiltered, setElementsAreFiltered] = React.useState<boolean>(false);
 
   // Use the exported data fetcher function
-  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher({
-    setIsFetchingWorkspacesFromRBAC,
-    setIsFetchingWorkspacesFromRBACError,
-    setFetchedWorkspaces,
-    setWorkspaceTree,
-  }, workspacePermissions);
+  const fetchWorkspacesFromRBACBuildTree = createWorkspaceDataFetcher(
+    {
+      setIsFetchingWorkspacesFromRBAC,
+      setIsFetchingWorkspacesFromRBACError,
+      setFetchedWorkspaces,
+      setWorkspaceTree,
+    },
+    workspacePermissions,
+  );
 
   // Use the exported search filter function
   const onSearchFilter = createWorkspaceSearchFilter(workspaceTree, setFilteredTreeElements, setElementsAreFiltered);

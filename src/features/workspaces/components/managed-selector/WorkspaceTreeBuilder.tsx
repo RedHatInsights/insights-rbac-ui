@@ -1,21 +1,31 @@
-import React from 'react';
 import { TreeViewWorkspaceItem } from './TreeViewWorkspaceItem';
 import Workspace from './Workspace';
-import { canViewWorkspaceById, WorkspacePermissionsObject } from './WorkspacePermissions';
 import WorkspaceType from './WorkspaceType';
-import { Text } from '@patternfly/react-core';
 
-function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePermissionsObject | undefined): TreeViewWorkspaceItem | undefined {
+export default function buildWorkspaceTree(wps: Workspace[], excludeWorkspaceIds?: string[]): TreeViewWorkspaceItem | undefined {
   if (wps.length == 0) {
     return undefined;
   }
 
-  // Convert all the incoming workspaces to TreeViewWorkspaceItems, and
+  // Build complete list of workspace IDs to exclude (specified IDs + their descendants)
+  const allExcludeIds = new Set<string>();
+  if (excludeWorkspaceIds) {
+    for (const excludeId of excludeWorkspaceIds) {
+      allExcludeIds.add(excludeId);
+      const descendantIds = getWorkspaceDescendantIds(excludeId, wps);
+      descendantIds.forEach((id) => allExcludeIds.add(id));
+    }
+  }
+
+  // Filter out excluded workspaces before building tree
+  const filteredWorkspaces = wps.filter((ws) => !allExcludeIds.has(ws.id));
+
+  // Convert all the filtered workspaces to TreeViewWorkspaceItems, and
   // identify the root workspace.
   const workspaces: TreeViewWorkspaceItem[] = [];
   let rootWorkspace: TreeViewWorkspaceItem | undefined = undefined;
 
-  for (const workspace of wps) {
+  for (const workspace of filteredWorkspaces) {
     const tvwi: TreeViewWorkspaceItem = {
       id: workspace.id,
       name: workspace.name,
@@ -25,8 +35,8 @@ function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePer
     workspaces.push(tvwi);
 
     // Get the root workspace. The Kessel team has confirmed that there only
-    // exists one root workspace per organization.
-    if (tvwi.workspace.type === WorkspaceType.ROOT) {
+    // exists one root workspace per organization. Take the first one found.
+    if (tvwi.workspace.type === WorkspaceType.ROOT && rootWorkspace === undefined) {
       rootWorkspace = tvwi;
     }
 
@@ -50,11 +60,6 @@ function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePer
   const nodes: TreeViewWorkspaceItem[] = [rootWorkspace];
   while (nodes.length > 0) {
     const node = nodes.pop();
-
-    // TODO PF tree view list item does not currently support disabling the parent list item button programatically
-    if (node && node.id && workspacePermissions && !canViewWorkspaceById(node.workspace.id, workspacePermissions)) {
-      node.name = <Text className="pf-v6-u-text-color-disabled" onClick={(e: { stopPropagation: () => void; }) => { e.stopPropagation(); e }}>{node.name}</Text>;
-    }
 
     // Find all the children workspaces of the given node by looping through
     // all the available workspaces.
@@ -81,4 +86,19 @@ function buildWorkspaceTree(wps: Workspace[], workspacePermissions: WorkspacePer
   return rootWorkspace;
 }
 
-export default buildWorkspaceTree;
+export function getWorkspaceDescendants(workspaceId: string, workspaces: Workspace[]): Workspace[] {
+  const descendants: Workspace[] = [];
+
+  const directChildren = workspaces.filter((ws) => ws.parent_id === workspaceId);
+
+  for (const child of directChildren) {
+    descendants.push(child);
+    descendants.push(...getWorkspaceDescendants(child.id, workspaces));
+  }
+  return descendants;
+}
+
+export function getWorkspaceDescendantIds(workspaceId: string, workspaces: Workspace[]): string[] {
+  const descendants = getWorkspaceDescendants(workspaceId, workspaces);
+  return descendants.map((ws) => ws.id);
+}
