@@ -31,6 +31,8 @@ objects:
           description: Manage your organization's administrator users.
           alt_title:
             - org administrator
+          permissions:
+            - method: isOrgAdmin
       serviceTiles:
         - section: iam
           group: iam
@@ -39,6 +41,8 @@ objects:
           title: Users
           description: Manage your organization's role-based access control (RBAC) to services.
           icon: PlaceholderIcon
+          permissions:
+            - method: isOrgAdmin
         - section: iam
           group: iam
           id: groups
@@ -46,6 +50,8 @@ objects:
           title: Groups
           description: ""
           icon: PlaceholderIcon
+          permissions:
+            - method: isOrgAdmin
         - section: iam
           group: iam
           id: workspaces
@@ -53,6 +59,11 @@ objects:
           title: Workspaces
           description: ""
           icon: PlaceholderIcon
+          permissions:
+            - method: featureFlag
+              args:
+                - platform.rbac.workspaces-list
+                - true
         - section: iam
           group: iam
           id: serviceAccounts
