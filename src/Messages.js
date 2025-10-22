@@ -2558,6 +2558,11 @@ export default defineMessages({
     description: 'Users and user groups description',
     defaultMessage: 'These are all of the users in your Red Hat organization. Create User Groups to define access across your workspaces.',
   },
+  createUserGroup: {
+    id: 'createUserGroup',
+    description: 'Create user group',
+    defaultMessage: 'Create User Group',
+  },
   usersAndUserGroupsAdd: {
     id: 'usersAndUserGroupsAdd',
     description: 'Add label',
