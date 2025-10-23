@@ -1,3 +1,10 @@
+## [1.65.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.4...v1.65.5) (2025-10-23)
+
+
+### Bug Fixes
+
+* **Axios:** update request to use correct params ([ba338ba](https://github.com/RedHatInsights/insights-rbac-ui/commit/ba338ba59cd8fa194f7dd17ae2073b6cb2a17d21))
+
 ## [1.65.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.3...v1.65.4) (2025-10-23)
 
 
