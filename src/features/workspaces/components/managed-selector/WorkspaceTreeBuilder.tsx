@@ -33,10 +33,20 @@ export default function buildWorkspaceTree(
   let rootWorkspace: TreeViewWorkspaceItem | undefined = undefined;
 
   for (const workspace of filteredWorkspaces) {
-    const isDisabled = workspacePermissions ? !canViewWorkspaceById(workspace.id, workspacePermissions) : false;    
+    const isDisabled = workspacePermissions ? !canViewWorkspaceById(workspace.id, workspacePermissions) : false;
     const tvwi: TreeViewWorkspaceItem = {
       id: workspace.id,
-      name: <Text className={!isDisabled ? 'pf-v6-u-text-color-disabled' : ''} onClick={e => { e.stopPropagation(); e}}>{workspace.name}</Text>,
+      name: (
+        <Text
+          className={!isDisabled ? 'pf-v6-u-text-color-disabled' : ''}
+          onClick={(e) => {
+            e.stopPropagation();
+            e;
+          }}
+        >
+          {workspace.name}
+        </Text>
+      ),
       workspace: workspace,
     };
 
