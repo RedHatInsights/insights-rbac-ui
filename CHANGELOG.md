@@ -1,3 +1,10 @@
+## [1.65.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.2...v1.65.3) (2025-10-23)
+
+
+### Bug Fixes
+
+* **deps:** update babel monorepo ([#1971](https://github.com/RedHatInsights/insights-rbac-ui/issues/1971)) ([b28803a](https://github.com/RedHatInsights/insights-rbac-ui/commit/b28803a8d9f7d90589b975d2fbd550ae889c2a23))
+
 ## [1.65.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.1...v1.65.2) (2025-10-17)
 
 
