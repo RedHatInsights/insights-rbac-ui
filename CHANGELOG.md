@@ -1,3 +1,10 @@
+## [1.65.4](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.3...v1.65.4) (2025-10-23)
+
+
+### Bug Fixes
+
+* **tiles:** permissions for tiles are fixed ([#1961](https://github.com/RedHatInsights/insights-rbac-ui/issues/1961)) ([531e3cd](https://github.com/RedHatInsights/insights-rbac-ui/commit/531e3cd00392e7daf6c63ae6b007dc9c2a76266c))
+
 ## [1.65.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.2...v1.65.3) (2025-10-23)
 
 
