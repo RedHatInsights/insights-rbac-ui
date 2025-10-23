@@ -9,9 +9,9 @@ import { FormattedMessage, useIntl } from 'react-intl';
 import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import SkeletonTable from '@patternfly/react-component-groups/dist/dynamic/SkeletonTable';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
-import { AppLink } from '../../components/navigation/AppLink';
-import useAppNavigate from '../../hooks/useAppNavigate';
-import { TableToolbarView } from '../../components/tables/TableToolbarView';
+import { AppLink } from '../../../../components/navigation/AppLink';
+import useAppNavigate from '../../../../hooks/useAppNavigate';
+import { TableToolbarView } from '../../../../components/tables/TableToolbarView';
 import {
   INITIALIZE_ROLE,
   INITIATE_REMOVE_PERMISSION,
@@ -25,9 +25,9 @@ import {
   rolePermissionsReducer,
   rolePermissionsReducerInitialState,
 } from './role-permissions-table-helpers';
-import { fetchRole, removeRolePermissions } from '../../redux/roles/actions';
-import messages from '../../Messages';
-import pathnames from '../../utilities/pathnames';
+import { fetchRole, removeRolePermissions } from '../../../../redux/roles/actions';
+import messages from '../../../../Messages';
+import pathnames from '../../../../utilities/pathnames';
 import './role-permissions.scss';
 
 const maxFilterItems = 10;

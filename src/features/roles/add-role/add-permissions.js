@@ -14,7 +14,7 @@ import { DisabledRowWrapper } from './DisabledRowWrapper';
 import { isEqual } from 'lodash';
 import { useIntl } from 'react-intl';
 import messages from '../../../Messages';
-import '../role-permissions.scss';
+import '../role/legacy/role-permissions.scss';
 
 const selector = ({
   permissionReducer: {

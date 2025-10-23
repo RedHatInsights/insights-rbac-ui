@@ -6,7 +6,7 @@ import { fireEvent, render, screen } from '@testing-library/react';
 import configureStore from 'redux-mock-store';
 import WarningModal from '@patternfly/react-component-groups/dist/dynamic/WarningModal';
 import promiseMiddleware from 'redux-promise-middleware';
-import Role from '../../features/roles/role';
+import Role from '../../features/roles/role/legacy/role-legacy';
 import { FETCH_ROLE, UPDATE_ROLE } from '../../redux/roles/action-types';
 import { FETCH_GROUP, FETCH_SYSTEM_GROUP } from '../../redux/groups/action-types';
 
