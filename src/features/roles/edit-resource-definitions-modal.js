@@ -20,7 +20,7 @@ import useAppNavigate from '../../hooks/useAppNavigate';
 import ResourceDefinitionsFormTemplate from './ResourceDefinitionsFormTemplate';
 import { isInventoryHostsPermission, isInventoryPermission } from './role-resource-definitions-table-helpers';
 import messages from '../../Messages';
-import './role-permissions.scss';
+import './role/legacy/role-permissions.scss';
 
 const createOptions = (resources, permissionId) =>
   isInventoryPermission(permissionId)
