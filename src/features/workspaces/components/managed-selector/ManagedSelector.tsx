@@ -90,6 +90,7 @@ export const createWorkspaceDataFetcher = (
     storeActions.setIsFetchingWorkspacesFromRBACError,
     storeActions.setFetchedWorkspaces,
     storeActions.setWorkspaceTree,
+    workspacePermissions,
   ]);
 };
 
