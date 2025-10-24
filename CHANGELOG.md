@@ -1,3 +1,10 @@
+# [1.66.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.5...v1.66.0) (2025-10-24)
+
+
+### Features
+
+* **usergroups:** add create usergroup button ([#1972](https://github.com/RedHatInsights/insights-rbac-ui/issues/1972)) ([0d6658b](https://github.com/RedHatInsights/insights-rbac-ui/commit/0d6658b12c37902eada9af4a923c3b8e187fde45))
+
 ## [1.65.5](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.4...v1.65.5) (2025-10-23)
 
 
