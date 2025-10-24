@@ -20,7 +20,7 @@
     "@patternfly/react-data-view": "^5.7.1",
     "@patternfly/react-icons": "^5.1.1",
     "@patternfly/react-table": "^5.1.1",
-    "@patternfly/react-tokens": "^5.1.1",
+    "@patternfly/react-tokens": "^6.0.0",
     "@redhat-cloud-services/access-requests-frontend": "^1.2.11",
     "@redhat-cloud-services/frontend-components": "^4.2.3",
     "@redhat-cloud-services/frontend-components-notifications": "^4.1.0",
