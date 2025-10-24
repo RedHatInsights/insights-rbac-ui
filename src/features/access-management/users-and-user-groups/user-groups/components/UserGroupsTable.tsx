@@ -11,7 +11,7 @@ import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagin
 import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { ThProps } from '@patternfly/react-table';
-import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { ResponsiveAction, ResponsiveActions, SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { UserGroupsEmptyState } from './UserGroupsEmptyState';
 import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -21,6 +21,8 @@ import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/component
 
 import { Group } from '../../../../../redux/groups/reducer';
 import messages from '../../../../../Messages';
+import useAppNavigate from '../../../../../hooks/useAppNavigate';
+import pathnames from '../../../../../utilities/pathnames';
 
 // User group row actions component
 interface GroupRowActionsProps {
@@ -257,6 +259,8 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
 
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
+  const navigate = useAppNavigate();
+
   return (
     <>
       <DataView activeState={activeState} selection={selection}>
@@ -279,6 +283,13 @@ export const UserGroupsTable: React.FC<UserGroupsTableProps> = ({
                 }}
               />
             ) : undefined
+          }
+          actions={
+            <ResponsiveActions breakpoint="lg" ouiaId={`${ouiaId}-actions-dropdown`}>
+              <ResponsiveAction ouiaId="add-usergroup-button" isPinned onClick={() => navigate(pathnames['users-and-user-groups-create-group'].link)}>
+                {intl.formatMessage(messages.createUserGroup)}
+              </ResponsiveAction>
+            </ResponsiveActions>
           }
           pagination={
             <Pagination perPage={perPage} page={page} itemCount={totalCount} onSetPage={onSetPage} onPerPageSelect={onPerPageSelect} isCompact />

@@ -15,19 +15,28 @@ export async function fillAddGroupMembersModal(user: ReturnType<typeof userEvent
 
   // Wait for "Add members" modal to be visible and find the specific modal by its heading
   let addMembersModal: HTMLElement | null = null;
-  await waitFor(() => {
-    const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
-    // Find the dialog that contains "Add members" heading
-    addMembersModal =
-      (allDialogs.find((dialog) => {
-        const heading = within(dialog as HTMLElement).queryByRole('heading', { name: /add members/i });
-        return heading !== null;
-      }) as HTMLElement) || null;
+  await waitFor(
+    () => {
+      const allDialogs = Array.from(modalContainer.querySelectorAll('[role="dialog"]'));
 
-    if (!addMembersModal) {
-      throw new Error('Add members modal not found');
-    }
-  });
+      // Find the dialog that contains "Add members" heading
+      addMembersModal =
+        (allDialogs.find((dialog) => {
+          const heading = within(dialog as HTMLElement).queryByRole('heading', { name: /add members/i });
+          return heading !== null;
+        }) as HTMLElement) || null;
+
+      if (!addMembersModal) {
+        const debugInfo = {
+          dialogsFound: allDialogs.length,
+          containerUsed: modalContainer === document.body ? 'document.body' : '#storybook-modals',
+          allHeadingsInContainer: Array.from(modalContainer.querySelectorAll('h1, h2, h3, h4, h5, h6')).map((h) => h.textContent),
+        };
+        throw new Error(`Add members modal not found. Debug info: ${JSON.stringify(debugInfo, null, 2)}`);
+      }
+    },
+    { timeout: 10000 },
+  ); // Wait up to 10 seconds for modal to appear
 
   const modal = within(addMembersModal!);
 

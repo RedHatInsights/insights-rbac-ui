@@ -438,16 +438,23 @@ export const AdminUserWithUsersSorting: Story = {
     // Wait for initial data load
     expect(await canvas.findByText('john.doe')).toBeInTheDocument();
 
+    // Wait for table to be fully interactive - ensure sorting button is available
+    let usernameColumnHeader: HTMLElement;
+    let usernameButton: HTMLElement;
+    await waitFor(async () => {
+      usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
+      usernameButton = await within(usernameColumnHeader).findByRole('button');
+      expect(usernameButton).toBeInTheDocument();
+    });
+
     // Test sorting by Username column (default sorted ascending)
     console.log('SB: 🧪 Testing Username column sorting...');
-    let usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
-    let usernameButton = await within(usernameColumnHeader).findByRole('button');
 
     // Reset spy
     sortSpy.mockClear();
 
     // Click to sort descending (reverses default ascending)
-    await userEvent.click(usernameButton);
+    await userEvent.click(usernameButton!);
 
     // Verify sort API was called with descending sort
     await waitFor(() => {
@@ -455,14 +462,17 @@ export const AdminUserWithUsersSorting: Story = {
     });
 
     // Re-find the button after table re-render
-    usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
-    usernameButton = await within(usernameColumnHeader).findByRole('button');
+    await waitFor(async () => {
+      usernameColumnHeader = await canvas.findByRole('columnheader', { name: /username/i });
+      usernameButton = await within(usernameColumnHeader).findByRole('button');
+      expect(usernameButton).toBeInTheDocument();
+    });
 
     // Reset spy
     sortSpy.mockClear();
 
     // Click again to sort ascending
-    await userEvent.click(usernameButton);
+    await userEvent.click(usernameButton!);
 
     // Verify sort API was called with ascending sort
     await waitFor(() => {

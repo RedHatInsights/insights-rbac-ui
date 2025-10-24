@@ -529,7 +529,10 @@ export const DeleteGroupFromList: Story = {
     // Verify success and group removal
     await verifySuccessNotification();
     await waitFor(() => {
-      expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
+      const supportTeamElement = canvas.queryByText('Support Team');
+      if (supportTeamElement) {
+        throw new Error('Support Team group should have been deleted but was still found');
+      }
     });
   },
 };
