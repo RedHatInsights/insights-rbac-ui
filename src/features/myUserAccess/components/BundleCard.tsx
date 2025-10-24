@@ -29,12 +29,20 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
   const location = useLocation();
 
   const isITLess = useFlag('platform.rbac.itless');
+  const lightSpeedRebrand = useFlag('platform.lightspeed-rebrand');
 
   const onChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setIsChecked(event.target.id);
   };
 
   const bundles = isITLess ? bundleData.filter((data) => data.entitlement === 'rhel') : bundleData;
+
+  const getAppDisplayName = (appName: string): string => {
+    if (lightSpeedRebrand && appName === 'insights') {
+      return 'red hat lightspeed';
+    }
+    return appName;
+  };
 
   return (
     <React.Fragment>
@@ -92,7 +100,7 @@ export const BundleCard: React.FC<BundleCardProps> = ({ header, entitlements = [
                     <CardBody data-ouia-component-id={`${data.title}-card-body`}>
                       <List className="pf-v5-u-color-400 pf-v5-u-font-size-sm rbac-c-mua-bundles__card--applist" isPlain>
                         {Object.entries(data.apps || {}).map(([appName]) => (
-                          <ListItem key={appName}> {appName} </ListItem>
+                          <ListItem key={appName}> {getAppDisplayName(appName)} </ListItem>
                         ))}
                       </List>
                     </CardBody>

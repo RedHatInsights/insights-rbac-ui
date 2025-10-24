@@ -207,3 +207,45 @@ export const WithoutHeader: Story = {
     },
   },
 };
+
+export const LightspeedRebrand: Story = {
+  tags: ['ff:platform.lightspeed-rebrand'],
+  args: {
+    header: 'My Applications - Red Hat Lightspeed Rebrand',
+    entitlements: sampleEntitlements,
+    isDisabled: false,
+    currentBundle: 'ansible',
+  },
+  parameters: {
+    featureFlags: {
+      'platform.lightspeed-rebrand': true,
+    },
+    docs: {
+      description: {
+        story:
+          'Shows the Red Hat Lightspeed rebrand feature flag in action. When enabled, "insights" in the Ansible Automation Platform card is displayed as "Red Hat Lightspeed" instead. The Ansible card is selected to highlight the change.',
+      },
+    },
+  },
+};
+
+export const LightspeedRebrandDisabled: Story = {
+  tags: ['ff:platform.lightspeed-rebrand'],
+  args: {
+    header: 'My Applications - Original Branding',
+    entitlements: sampleEntitlements,
+    isDisabled: false,
+    currentBundle: 'ansible',
+  },
+  parameters: {
+    featureFlags: {
+      'platform.lightspeed-rebrand': false,
+    },
+    docs: {
+      description: {
+        story:
+          'Shows the original branding when the Lightspeed rebrand feature flag is disabled. The "insights" text remains unchanged in the Ansible Automation Platform card.',
+      },
+    },
+  },
+};
