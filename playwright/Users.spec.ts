@@ -56,7 +56,7 @@ test.describe('RBAC Users Page', async () => {
   test('org admin column appears when the user is an org admin', async({page}) => {
     // see test_org_admin_column_users_table for an equivalent test from the rbac_ui IQE plugin.
     await loginAsAdmin(page);
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     // expect to land on the Users page
@@ -70,7 +70,7 @@ test.describe('RBAC Users Page', async () => {
   test('org admin column does not appear when the user is not an admin', async({page}) => {
     // see test_org_admin_column_users_table for an equivalent test from the rbac_ui IQE plugin.
     await loginAsNonAdmin(page);
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
     await expect(page.getByText('You do not have access to User Access Administration')).toBeVisible();
   });
@@ -80,7 +80,7 @@ test.describe('RBAC Users Page', async () => {
     await loginAsAdmin(page);
 
     // Navigate to Users page first
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     // Get current user from environment
@@ -139,7 +139,7 @@ test.describe('RBAC Users Page', async () => {
     await loginAsAdmin(page);
 
     // Navigate to user details page
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     const currentUser = process.env.E2E_USER || 'misconfigured';
@@ -181,7 +181,7 @@ test.describe('RBAC Users Page', async () => {
     await loginAsAdmin(page);
 
     // Navigate to user details page
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     const currentUser = process.env.E2E_USER || 'misconfigured';
@@ -222,7 +222,7 @@ test.describe('RBAC Users Page', async () => {
     await loginAsAdmin(page);
 
     // Navigate to user details page
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     const currentUser = process.env.E2E_USER || 'misconfigured';
@@ -271,7 +271,7 @@ test.describe('RBAC Users Page', async () => {
     await loginAsAdmin(page);
 
     // Navigate to user details page
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     const currentUser = process.env.E2E_USER || 'misconfigured';
@@ -320,7 +320,7 @@ test.describe('RBAC Users Page', async () => {
   test('org admin column shows correct value for admin user', async({page}) => {
     // Enhanced test for test_org_admin_column_users_table
     await loginAsAdmin(page);
-    await page.goto("https://console.stage.redhat.com/iam/user-access/users")
+    await page.goto(`${CONSOLE_URL}/iam/user-access/users`)
     await page.waitForLoadState("load");
 
     // Verify Org. Administrator column exists
