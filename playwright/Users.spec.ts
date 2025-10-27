@@ -60,7 +60,10 @@ test.describe('RBAC Users Page', async () => {
     await page.waitForLoadState("load");
 
     // expect to land on the Users page
-    // expect to have a table with a "Org. Administrator column"
+    await expect(page.getByText('These are all of the users in your Red Hat organization. ')).toBeVisible();
+
+    // expect to have a table with an "Org. Administrator column"
+    await expect(page.getByRole('columnheader', { name: 'Org. Administrator' }), 'table heading not found').toBeVisible();
 
   });
 
@@ -69,6 +72,6 @@ test.describe('RBAC Users Page', async () => {
     await loginAsNonAdmin(page);
     await page.goto("https://console.stage.redhat.com/iam/user-access/users")
     await page.waitForLoadState("load");
-
+    await expect(page.getByText('You do not have access to User Access Administration')).toBeVisible();
   })
 });
