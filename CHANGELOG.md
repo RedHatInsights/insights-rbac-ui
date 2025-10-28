@@ -1,3 +1,10 @@
+# [1.67.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.66.0...v1.67.0) (2025-10-28)
+
+
+### Features
+
+* add lightspeed rebrand ([#1989](https://github.com/RedHatInsights/insights-rbac-ui/issues/1989)) ([6ad3f96](https://github.com/RedHatInsights/insights-rbac-ui/commit/6ad3f968cd0d8d6a25e20db516237e5be90051af))
+
 # [1.66.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.65.5...v1.66.0) (2025-10-24)
 
 
