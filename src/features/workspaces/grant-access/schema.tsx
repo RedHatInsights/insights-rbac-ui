@@ -1,4 +1,3 @@
-import { componentTypes } from '@data-driven-forms/react-form-renderer';
 import { createIntl, createIntlCache } from 'react-intl';
 import { locale } from '../../../locales/locale';
 import messages from '../../../Messages';
@@ -21,6 +20,7 @@ export const schemaBuilder = (workspaceName: string) => {
         'data-ouia-component-id': 'grant-access-wizard',
         inModal: true,
         showTitles: true,
+        disableForwardJumping: true,
         title: intl.formatMessage(messages.grantAccessInWorkspace, { workspaceName }),
         fields: [
           {
@@ -29,23 +29,21 @@ export const schemaBuilder = (workspaceName: string) => {
             nextStep: 'select-roles',
             fields: [
               {
-                name: 'user-groups-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-u-my-md',
-                label: intl.formatMessage(messages.selectUserGroupsDescription),
+                name: 'selected-user-groups',
+                component: 'user-groups-selection',
+                isRequired: true,
               },
             ],
           },
           {
-            title: intl.formatMessage(messages.selectRoles),
+            title: 'Select role(s)',
             name: 'select-roles',
             nextStep: 'review',
             fields: [
               {
-                name: 'roles-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-u-my-md',
-                label: intl.formatMessage(messages.selectRolesDescription),
+                name: 'roles-placeholder',
+                component: 'plain-text',
+                label: 'Role selection will be implemented here',
               },
             ],
           },
@@ -54,10 +52,8 @@ export const schemaBuilder = (workspaceName: string) => {
             name: 'review',
             fields: [
               {
-                name: 'review-description',
-                component: componentTypes.PLAIN_TEXT,
-                className: 'pf-v5-u-my-md',
-                label: intl.formatMessage(messages.reviewDescription),
+                name: 'review-selection',
+                component: 'review-selection',
               },
             ],
           },

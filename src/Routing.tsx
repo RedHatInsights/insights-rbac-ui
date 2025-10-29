@@ -167,7 +167,7 @@ const getRoutes = ({ enableServiceAccounts, isITLess, isWorkspacesFlag, isCommon
       },
     ],
   },
-  ...(isWorkspacesFlag
+  ...(!isWorkspacesFlag
     ? [
         {
           path: pathnames.roles.path,
