@@ -1,6 +1,10 @@
 import React, { useState } from 'react';
 import { useIntl } from 'react-intl';
 import { useDispatch } from 'react-redux';
+import { DataView, DataViewState } from '@patternfly/react-data-view';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { DataViewTextFilter } from '@patternfly/react-data-view';
 import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
 import { Tbody } from '@patternfly/react-table/dist/dynamic/components/Table';
@@ -11,8 +15,6 @@ import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Checkbox } from '@patternfly/react-core/dist/dynamic/components/Checkbox';
 import { Text } from '@patternfly/react-core/dist/dynamic/components/Text';
-import { SearchInput } from '@patternfly/react-core/dist/dynamic/components/SearchInput';
-import { Toolbar, ToolbarContent, ToolbarItem } from '@patternfly/react-core/dist/dynamic/components/Toolbar';
 import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import { EmptyState, EmptyStateBody, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core/dist/dynamic/components/EmptyState';
@@ -166,24 +168,66 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
 
   const handlePerPageChange = (_event: React.MouseEvent | React.KeyboardEvent | MouseEvent, newPerPage: number) => {
     setPerPage(newPerPage);
-    setPage(1); // Reset to first page when changing page size
+    setPage(1);
   };
 
-  if (isLoading) {
-    return (
-      <>
-        <Table aria-label={intl.formatMessage(messages.groups)}>
-          <SkeletonTableHead columns={columns.map((col) => col.title)} />
-          <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />
-        </Table>
-      </>
-    );
-  }
+  const handleFilterChange = (_key: string, newFilters: Partial<{ name: string }>) => {
+    const newFilterValue = newFilters.name || '';
+    setSearchValue(newFilterValue);
+    setPage(1);
+  };
 
-  if (totalCount === 0) {
-    return (
-      <>
-        <Table aria-label={intl.formatMessage(messages.selectUserGroups)} variant={TableVariant.compact}>
+  const handleClearFilters = () => {
+    setSearchValue('');
+    setPage(1);
+  };
+
+  const loadingHeader = <SkeletonTableHead columns={columns.map((col) => col.title)} />;
+  const loadingBody = <SkeletonTableBody rowsCount={10} columnsCount={columns.length} />;
+
+  const emptyState = (
+    <EmptyState>
+      <EmptyStateHeader
+        titleText={hasSearchFilter ? intl.formatMessage(messages.noGroupsFound) : intl.formatMessage(messages.noGroupsAvailable)}
+        headingLevel="h4"
+        icon={<EmptyStateIcon icon={SearchIcon} />}
+      />
+      <EmptyStateBody>
+        {hasSearchFilter ? intl.formatMessage(messages.noGroupsFoundDescription) : intl.formatMessage(messages.noGroupsAvailable)}
+      </EmptyStateBody>
+    </EmptyState>
+  );
+
+  const activeState = isLoading ? DataViewState.loading : totalCount === 0 ? DataViewState.empty : undefined;
+
+  const paginationComponent = (
+    <Pagination itemCount={totalCount} page={page} perPage={perPage} onSetPage={handlePageChange} onPerPageSelect={handlePerPageChange} isCompact />
+  );
+
+  return (
+    <DataView activeState={activeState}>
+      <DataViewToolbar
+        pagination={paginationComponent}
+        filters={
+          <DataViewFilters onChange={handleFilterChange} values={{ name: searchValue }}>
+            <DataViewTextFilter
+              filterId="name"
+              title="User group name"
+              placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) })}
+            />
+          </DataViewFilters>
+        }
+        clearAllFilters={hasSearchFilter ? handleClearFilters : undefined}
+      />
+
+      {/* Custom table for compound expandable rows */}
+      {isLoading ? (
+        <Table aria-label="Loading user groups">
+          {loadingHeader}
+          {loadingBody}
+        </Table>
+      ) : totalCount === 0 ? (
+        <Table aria-label="Empty user groups">
           <Thead>
             <Tr>
               {columns.map((column, index) => (
@@ -195,113 +239,66 @@ export const UserGroupsSelectionTable: React.FC<UserGroupsSelectionTableProps> =
           </Thead>
           <Tbody>
             <Tr>
-              <Td colSpan={columns.length}>
-                <EmptyState>
-                  <EmptyStateHeader
-                    titleText={hasSearchFilter ? intl.formatMessage(messages.noGroupsFound) : intl.formatMessage(messages.noGroupsAvailable)}
-                    headingLevel="h4"
-                    icon={<EmptyStateIcon icon={SearchIcon} />}
-                  />
-                  <EmptyStateBody>
-                    {hasSearchFilter ? intl.formatMessage(messages.noGroupsFoundDescription) : intl.formatMessage(messages.noGroupsAvailable)}
-                  </EmptyStateBody>
-                </EmptyState>
-              </Td>
+              <Td colSpan={columns.length}>{emptyState}</Td>
             </Tr>
           </Tbody>
         </Table>
-      </>
-    );
-  }
+      ) : (
+        <Table isExpandable aria-label={intl.formatMessage(messages.selectUserGroups)} variant={TableVariant.compact} borders={false}>
+          <Thead>
+            <Tr>
+              <Th className="pf-v5-c-table__check" screenReaderText="Row selection">
+                {/* Empty header for row selection column */}
+              </Th>
+              <Th {...getSortParams(1)}>{columns[1].title}</Th>
+              <Th {...getSortParams(2)}>{columns[2].title}</Th>
+            </Tr>
+          </Thead>
+          {paginatedGroups.map((group, rowIndex) => {
+            const canSelect = isRowSelectable(group);
+            const isSelected = isRowSelected(group);
+            const expandedCellKey = expandedCells[group.uuid];
+            const isRowExpanded = !!expandedCellKey;
 
-  return (
-    <>
-      <Toolbar>
-        <ToolbarContent>
-          <ToolbarItem>
-            <SearchInput
-              placeholder={intl.formatMessage(messages.filterByKey, { key: intl.formatMessage(messages.name) })}
-              value={searchValue}
-              onChange={(_event, value) => setSearchValue(value)}
-              onClear={() => setSearchValue('')}
-              aria-label="Filter user groups"
-            />
-          </ToolbarItem>
-          {totalCount > 0 && (
-            <ToolbarItem variant="pagination">
-              <Pagination
-                itemCount={totalCount}
-                page={page}
-                perPage={perPage}
-                onSetPage={handlePageChange}
-                onPerPageSelect={handlePerPageChange}
-                isCompact
-              />
-            </ToolbarItem>
-          )}
-        </ToolbarContent>
-      </Toolbar>
-      <Table isExpandable aria-label={intl.formatMessage(messages.selectUserGroups)} variant={TableVariant.compact} borders={false}>
-        <Thead>
-          <Tr>
-            <Th className="pf-v5-c-table__check" screenReaderText="Row selection">
-              {/* Empty header for row selection column */}
-            </Th>
-            <Th {...getSortParams(1)}>{columns[1].title}</Th>
-            <Th {...getSortParams(2)}>{columns[2].title}</Th>
-          </Tr>
-        </Thead>
-        {paginatedGroups.map((group, rowIndex) => {
-          const canSelect = isRowSelectable(group);
-          const isSelected = isRowSelected(group);
-          const expandedCellKey = expandedCells[group.uuid];
-          const isRowExpanded = !!expandedCellKey;
+            return (
+              <Tbody key={group.uuid} isExpanded={isRowExpanded}>
+                <Tr>
+                  <Td className="pf-v5-c-table__check">
+                    {canSelect ? (
+                      <Checkbox
+                        id={`select-${group.uuid}`}
+                        isChecked={isSelected}
+                        onChange={(_event, isChecking) => handleRowSelect(group, isChecking)}
+                        aria-label={`Select ${group.name}`}
+                      />
+                    ) : null}
+                  </Td>
 
-          return (
-            <Tbody key={group.uuid} isExpanded={isRowExpanded}>
-              <Tr>
-                <Td className="pf-v5-c-table__check">
-                  {canSelect ? (
-                    <Checkbox
-                      id={`select-${group.uuid}`}
-                      isChecked={isSelected}
-                      onChange={(_event, isChecking) => handleRowSelect(group, isChecking)}
-                      aria-label={`Select ${group.name}`}
-                    />
-                  ) : null}
-                </Td>
+                  <Td dataLabel={columns[1].title}>{group.name}</Td>
 
-                <Td dataLabel={columns[1].title}>{group.name}</Td>
-
-                <Td
-                  dataLabel={columns[2].title}
-                  {...(group.platform_default || group.admin_default
-                    ? { className: 'rbac-c-not-expandable-cell' }
-                    : { compoundExpand: compoundExpandParams(group, 'members', rowIndex, 1) })}
-                >
-                  {group.principalCount || 0}
-                </Td>
-              </Tr>
-              <Tr isExpanded={isRowExpanded && expandedCellKey === 'members'}>
-                <Td dataLabel="Members" noPadding colSpan={columns.length}>
-                  <ExpandableRowContent>
-                    <MembersList group={group} />
-                  </ExpandableRowContent>
-                </Td>
-              </Tr>
-            </Tbody>
-          );
-        })}
-      </Table>
-      {totalCount > 0 && (
-        <Toolbar>
-          <ToolbarContent>
-            <ToolbarItem variant="pagination">
-              <Pagination itemCount={totalCount} page={page} perPage={perPage} onSetPage={handlePageChange} onPerPageSelect={handlePerPageChange} />
-            </ToolbarItem>
-          </ToolbarContent>
-        </Toolbar>
+                  <Td
+                    dataLabel={columns[2].title}
+                    {...(group.platform_default || group.admin_default
+                      ? { className: 'rbac-c-not-expandable-cell' }
+                      : { compoundExpand: compoundExpandParams(group, 'members', rowIndex, 1) })}
+                  >
+                    {group.principalCount || 0}
+                  </Td>
+                </Tr>
+                <Tr isExpanded={isRowExpanded && expandedCellKey === 'members'}>
+                  <Td dataLabel="Members" noPadding colSpan={columns.length}>
+                    <ExpandableRowContent>
+                      <MembersList group={group} />
+                    </ExpandableRowContent>
+                  </Td>
+                </Tr>
+              </Tbody>
+            );
+          })}
+        </Table>
       )}
-    </>
+
+      <DataViewToolbar pagination={paginationComponent} />
+    </DataView>
   );
 };
