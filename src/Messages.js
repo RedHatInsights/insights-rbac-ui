@@ -2896,7 +2896,8 @@ export default defineMessages({
   selectUserGroupsDescription: {
     id: 'selectUserGroupsDescription',
     description: 'Select user groups step description',
-    defaultMessage: 'This step is currently blank and ready for implementation.',
+    defaultMessage:
+      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in Users and Groups.",
   },
   selectRolesDescription: {
     id: 'selectRolesDescription',
