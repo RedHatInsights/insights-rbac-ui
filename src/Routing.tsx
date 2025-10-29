@@ -23,7 +23,7 @@ const InviteUsersModal = lazy(() => import('./features/users/invite-users/invite
 const InviteUsersModalCommonAuth = lazy(() => import('./features/users/invite-users/invite-users-modal-common-auth'));
 
 const Roles = lazy(() => import('./features/roles/Roles'));
-const Role = lazy(() => import('./features/roles/role'));
+const Role = lazy(() => import('./features/roles/role/Role'));
 const AddRoleWizard = lazy(() => import('./features/roles/add-role/add-role-wizard'));
 const EditRole = lazy(() => import('./features/roles/edit-role-modal'));
 const RemoveRole = lazy(() => import('./features/roles/remove-role-modal'));

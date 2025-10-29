@@ -29,9 +29,9 @@ const mockRoles: Role[] = [
       { uuid: 'group-3', name: 'Super Users', description: 'Super user access group' },
     ],
     access: [
-      { permission: 'rbac:*:*', resourceDefinition: [] },
-      { permission: 'inventory:*:*', resourceDefinition: [] },
-      { permission: 'cost-management:*:*', resourceDefinition: [] },
+      { permission: 'rbac:*:*', resourceDefinitions: [] },
+      { permission: 'inventory:*:*', resourceDefinitions: [] },
+      { permission: 'cost-management:*:*', resourceDefinitions: [] },
     ],
   },
   {
@@ -52,8 +52,8 @@ const mockRoles: Role[] = [
     groups_in_count: 1,
     groups_in: [{ uuid: 'group-4', name: 'Finance Team', description: 'Finance and accounting team' }],
     access: [
-      { permission: 'cost-management:*:read', resourceDefinition: [] },
-      { permission: 'cost-management:report:read', resourceDefinition: [] },
+      { permission: 'cost-management:*:read', resourceDefinitions: [] },
+      { permission: 'cost-management:report:read', resourceDefinitions: [] },
     ],
   },
   {
@@ -362,7 +362,7 @@ export const EmptyGroups: Story = {
         policyCount: 1,
         groups_in_count: 0,
         groups_in: [],
-        access: [{ permission: 'example:*:read', resourceDefinition: [] }],
+        access: [{ permission: 'example:*:read', resourceDefinitions: [] }],
       },
     ],
     expandedCells: {

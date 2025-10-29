@@ -8,7 +8,7 @@ export interface RoleGroup {
 }
 
 export interface Access {
-  resourceDefinition: any[];
+  resourceDefinitions: any[];
   permission: string;
 }
 

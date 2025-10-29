@@ -22,7 +22,7 @@ import { useIntl } from 'react-intl';
 import { fetchInventoryGroupsDetails } from '../../redux/inventory/actions';
 import { processResourceDefinitions } from '../../redux/inventory/helper';
 import messages from '../../Messages';
-import './role-permissions.scss';
+import './role/legacy/role-permissions.scss';
 
 const ResourceDefinitions = () => {
   const intl = useIntl();
