@@ -12,7 +12,7 @@ import { Group } from '../../../../redux/groups/reducer';
 const ReviewSelection: React.FC = () => {
   const intl = useIntl();
   const formOptions = useFormApi();
-  const values = formOptions.getState().values;
+  const {values} = formOptions.getState();
   const { groups } = useSelector((state: RBACStore) => ({
     groups: state.groupReducer.groups?.data || [],
   }));
