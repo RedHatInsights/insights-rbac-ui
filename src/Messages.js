@@ -2896,7 +2896,8 @@ export default defineMessages({
   selectUserGroupsDescription: {
     id: 'selectUserGroupsDescription',
     description: 'Select user groups step description',
-    defaultMessage: 'This step is currently blank and ready for implementation.',
+    defaultMessage:
+      "Select the user group(s) you wish to grant access to. If you don't see the group you wish to select, you must create a new group in Users and Groups.",
   },
   selectRolesDescription: {
     id: 'selectRolesDescription',
@@ -2912,5 +2913,55 @@ export default defineMessages({
     id: 'editAccessForThisWorkspace',
     description: 'Edit access for this workspace button text',
     defaultMessage: 'Edit access for this workspace',
+  },
+  selectAtLeastOneUserGroup: {
+    id: 'selectAtLeastOneUserGroup',
+    description: 'Validation message for user group selection',
+    defaultMessage: 'Select at least one user group',
+  },
+  selectAtLeastOneRole: {
+    id: 'selectAtLeastOneRole',
+    description: 'Validation message for role selection',
+    defaultMessage: 'Select at least one role',
+  },
+  noGroupsFound: {
+    id: 'noGroupsFound',
+    description: 'Empty state title when no groups match filters',
+    defaultMessage: 'No groups found',
+  },
+  noGroupsFoundDescription: {
+    id: 'noGroupsFoundDescription',
+    description: 'Empty state description when no groups match filters',
+    defaultMessage: 'No groups match your current search criteria.',
+  },
+  noRolesFoundDescription: {
+    id: 'noRolesFoundDescription',
+    description: 'Empty state description when no roles match filters',
+    defaultMessage: 'No roles match your current search criteria.',
+  },
+  selectedUserGroups: {
+    id: 'selectedUserGroups',
+    description: 'Selected user groups section title',
+    defaultMessage: 'Selected user groups',
+  },
+  noUserGroupsSelected: {
+    id: 'noUserGroupsSelected',
+    description: 'Message when no user groups are selected',
+    defaultMessage: 'No user groups selected',
+  },
+  selectedRoles: {
+    id: 'selectedRoles',
+    description: 'Selected roles section title',
+    defaultMessage: 'Selected roles',
+  },
+  noRolesSelected: {
+    id: 'noRolesSelected',
+    description: 'Message when no roles are selected',
+    defaultMessage: 'No roles selected',
+  },
+  noGroupsAvailable: {
+    id: 'noGroupsAvailable',
+    description: 'Message when no groups are available for selection',
+    defaultMessage: 'No groups available',
   },
 });

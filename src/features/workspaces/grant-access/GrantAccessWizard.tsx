@@ -10,6 +10,8 @@ import useAppNavigate from '../../../hooks/useAppNavigate';
 import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
 import { schemaBuilder } from './schema';
+import UserGroupsSelectionField from './components/UserGroupsSelectionField';
+import ReviewSelection from './components/ReviewSelection';
 
 export interface GrantAccessWizardProps {
   workspaceName: string;
@@ -18,6 +20,12 @@ export interface GrantAccessWizardProps {
 }
 
 const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...props} showFormControls={false} />;
+
+const customComponentMapper = {
+  ...componentMapper,
+  'user-groups-selection': UserGroupsSelectionField,
+  'review-selection': ReviewSelection,
+};
 
 export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> = ({ workspaceName, afterSubmit, onCancel }) => {
   const dispatch = useDispatch();
@@ -49,7 +57,7 @@ export const GrantAccessWizard: React.FunctionComponent<GrantAccessWizardProps> 
   return (
     <FormRenderer
       schema={schemaBuilder(workspaceName)}
-      componentMapper={componentMapper}
+      componentMapper={customComponentMapper}
       FormTemplate={FormTemplate}
       onSubmit={onSubmit}
       onCancel={onCancel || defaultOnCancel}

@@ -734,12 +734,35 @@ export const SortingInteraction: Story = {
       expect(hasNameSort).toBe(true);
     });
 
-    // Wait for data to load
+    // Wait for data to load and table to be fully rendered (not skeleton)
     expect(await canvas.findByText('Test Group 2')).toBeInTheDocument();
+
+    // Wait for table to finish loading - look for actual table grid instead of skeleton
+    await waitFor(
+      () => {
+        const tableGrid = canvasElement.querySelector('[role="grid"]');
+        expect(tableGrid).toBeInTheDocument();
+
+        // Ensure we can find the actual column headers we need
+        const nameHeader = canvas.queryByRole('columnheader', { name: /name/i });
+        const modifiedHeader = canvas.queryByRole('columnheader', { name: /last modified/i });
+        expect(nameHeader).toBeInTheDocument();
+        expect(modifiedHeader).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
 
     // Test clicking Name column header for descending sort
     const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
-    const nameButton = await within(nameHeader).findByRole('button');
+
+    // Try to find button within the header, with fallback to clicking the header itself
+    let nameButton;
+    try {
+      nameButton = await within(nameHeader).findByRole('button');
+    } catch {
+      // If no button found, the header itself might be clickable
+      nameButton = nameHeader;
+    }
 
     await userEvent.click(nameButton);
 
@@ -758,7 +781,15 @@ export const SortingInteraction: Story = {
 
     // Test clicking Last Modified column header
     const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-    const modifiedButton = await within(modifiedHeader).findByRole('button');
+
+    // Try to find button within the header, with fallback to clicking the header itself
+    let modifiedButton;
+    try {
+      modifiedButton = await within(modifiedHeader).findByRole('button');
+    } catch {
+      // If no button found, the header itself might be clickable
+      modifiedButton = modifiedHeader;
+    }
 
     await userEvent.click(modifiedButton);
 

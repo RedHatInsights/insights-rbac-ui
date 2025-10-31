@@ -49,11 +49,42 @@ export async function openRoleActionsMenu(user: ReturnType<typeof userEvent.setu
 
 /**
  * Opens the detail page Actions dropdown (in the page header)
+ * This is typically a kebab menu (three dots) for groups or an "Actions" button for other pages
  */
 export async function openDetailPageActionsMenu(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>) {
-  const actionsButton = canvas.getByRole('button', { name: 'Actions' });
-  await user.click(actionsButton);
-  await delay(200);
+  // Try to find an Actions button first (for pages that have one)
+  let actionsButton = canvas.queryByRole('button', { name: 'Actions' });
+
+  // If no Actions button, look for kebab menu by ID (for group detail pages)
+  if (!actionsButton) {
+    actionsButton = document.getElementById('group-actions-dropdown') as HTMLButtonElement;
+  }
+
+  // If still not found, try to find any kebab toggle button using OUIA ID
+  if (!actionsButton) {
+    const dropdown = document.querySelector('[data-ouia-component-id="group-title-actions-dropdown"]');
+    if (dropdown) {
+      actionsButton = dropdown.querySelector('button') as HTMLButtonElement;
+    }
+  }
+
+  // Last resort: find any kebab toggle button
+  if (!actionsButton) {
+    actionsButton = document.querySelector('.pf-v5-c-dropdown__toggle.pf-m-plain') as HTMLButtonElement;
+  }
+
+  if (actionsButton) {
+    await user.click(actionsButton);
+    await delay(200);
+
+    // Wait for menu to appear
+    await waitFor(async () => {
+      const menuItem = document.querySelector('[role="menuitem"]');
+      await expect(menuItem).toBeInTheDocument();
+    });
+  } else {
+    throw new Error('Could not find Actions button or kebab menu');
+  }
 }
 
 /**
