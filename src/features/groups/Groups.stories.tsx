@@ -759,7 +759,7 @@ export const SortingInteraction: Story = {
     let nameButton;
     try {
       nameButton = await within(nameHeader).findByRole('button');
-    } catch (error) {
+    } catch {
       // If no button found, the header itself might be clickable
       nameButton = nameHeader;
     }
@@ -786,7 +786,7 @@ export const SortingInteraction: Story = {
     let modifiedButton;
     try {
       modifiedButton = await within(modifiedHeader).findByRole('button');
-    } catch (error) {
+    } catch {
       // If no button found, the header itself might be clickable
       modifiedButton = modifiedHeader;
     }
