@@ -1,3 +1,10 @@
+# [1.68.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.67.0...v1.68.0) (2025-11-03)
+
+
+### Features
+
+* **grantaccesswizard:** add user groups selector ([#1992](https://github.com/RedHatInsights/insights-rbac-ui/issues/1992)) ([4fa514d](https://github.com/RedHatInsights/insights-rbac-ui/commit/4fa514d31ca9b90b90b3f68de68ea42301103db5))
+
 # [1.67.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.66.0...v1.67.0) (2025-10-28)
 
 
