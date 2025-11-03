@@ -75,9 +75,123 @@ objects:
         - segmentId: module-rbac-ui
           bundleId: iam
           navItems:
+            # New navigation structure with platform.rbac.workspaces-organization-management feature flag
+            - id: overview
+              title: Overview
+              href: /iam/user-access/overview
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - true
+                - method: featureFlag
+                  args:
+                    - platform.rbac.overview
+                    - true
+                - method: isOrgAdmin
+              product: Identity & Access Management
+            - id: my-access
+              title: My Access
+              href: /iam/my-user-access
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - true
+            - id: access-management
+              title: Access Management
+              expandable: true
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - true
+                - method: loosePermissions
+                  args:
+                    - - 'rbac:*:*'
+              routes:
+                - id: users-and-groups
+                  title: Users and Groups
+                  href: /iam/access-management/users-and-groups
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: roles
+                  title: Roles
+                  href: /iam/user-access/roles
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: service-accounts
+                  title: Service Accounts
+                  href: /iam/service-accounts
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: workspaces
+                  title: Workspaces
+                  href: /iam/user-access/workspaces
+                  icon: PlaceholderIcon
+                  permissions:
+                    - method: featureFlag
+                      args:
+                        - platform.rbac.workspaces-list
+                        - true
+                    - method: loosePermissions
+                      args:
+                        - - 'inventory:groups:read'
+                  product: Identity & Access Management
+            - id: organization-management
+              title: Organization Management
+              expandable: true
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - true
+                - method: isOrgAdmin
+              routes:
+                - id: organization-wide-access
+                  title: Organization-Wide Access
+                  href: /iam/organization-management/organization-wide-access
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: trusted-organizations
+                  title: Trusted Organizations
+                  href: /iam/organization-management/trusted-organizations
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: authentication-factors
+                  title: Authentication Factors
+                  href: /iam/organization-management/authentication-factors
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+                - id: identity-provider-integration
+                  title: Identity Provider Integration
+                  href: /iam/organization-management/identity-provider-integration
+                  permissions:
+                    - method: isOrgAdmin
+                  product: Identity & Access Management
+            - id: learning-resources
+              title: Learning Resources
+              href: /iam/learning-resources
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - true
+            # Legacy navigation structure (when new feature flag is off)
             - id: my-user-access
               title: My User Access
               href: /iam/my-user-access
+              permissions:
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
+                    - false
             - id: user-access
               title: User Access
               expandable: true
@@ -88,6 +202,10 @@ objects:
                 - method: featureFlag
                   args:
                     - platform.rbac.workspaces
+                    - false
+                - method: featureFlag
+                  args:
+                    - platform.rbac.workspaces-organization-management
                     - false
               routes:
                 - id: overview
