@@ -738,3 +738,138 @@ export const RowActions: Story = {
     expect(menu).toBeInTheDocument();
   },
 };
+
+export const RemoveSingleMemberFlow: Story = {
+  tags: ['perm:org-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Interactive Flow**: Complete user journey from table to member removal confirmation modal.
+
+This story demonstrates:
+1. User clicks kebab menu on a member row
+2. Selects "Remove" action
+3. Confirmation modal appears with proper messaging (singular)
+4. User can confirm or cancel the removal
+
+Perfect for code review and UX validation.
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...createMockHandlers(),
+        http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
+          return HttpResponse.json({ message: 'Members removed successfully' });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [mockGroup],
+            meta: { count: 1, limit: 50, offset: 0 },
+          });
+        }),
+      ],
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    expect(await canvas.findByRole('grid')).toBeInTheDocument();
+    const aliceText = await canvas.findByText('alice.johnson');
+    expect(aliceText).toBeInTheDocument();
+
+    const aliceRow = aliceText.closest('tr');
+    if (!aliceRow) throw new Error('Could not find alice.johnson row');
+
+    const kebabButton = within(aliceRow).getByLabelText('Kebab toggle');
+    await userEvent.click(kebabButton);
+
+    await delay(200);
+
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    expect(removeMenuItem).toBeInTheDocument();
+
+    await userEvent.click(removeMenuItem);
+
+    await delay(300);
+
+    const modal = await canvas.findByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    expect(within(modal).getByText(/Remove member\?/i)).toBeInTheDocument();
+    expect(within(modal).getByText(/alice\.johnson/i)).toBeInTheDocument();
+  },
+};
+
+export const BulkRemoveMembersFlow: Story = {
+  tags: ['perm:org-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Bulk Removal Flow**: Complete user journey for removing multiple members at once.
+
+This story demonstrates:
+1. User selects multiple members using checkboxes
+2. Clicks bulk "Remove" button in toolbar
+3. Confirmation modal appears showing plural messaging ("Remove members?")
+4. Modal shows count of members to be removed
+
+Perfect for testing bulk operations and proper pluralization.
+        `,
+      },
+    },
+    msw: {
+      handlers: [
+        ...createMockHandlers(),
+        http.delete('/api/rbac/v1/groups/:groupId/principals/', async () => {
+          return HttpResponse.json({ message: 'Members removed successfully' });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [mockGroup],
+            meta: { count: 1, limit: 50, offset: 0 },
+          });
+        }),
+      ],
+    },
+    permissions: {
+      orgAdmin: true,
+      userAccessAdministrator: false,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    const table = await canvas.findByRole('grid');
+    expect(table).toBeInTheDocument();
+
+    await canvas.findByText('alice.johnson');
+
+    const checkboxes = await canvas.findAllByRole('checkbox');
+    const bulkSelectCheckbox = checkboxes[0];
+
+    await userEvent.click(bulkSelectCheckbox);
+
+    await delay(300);
+
+    const removeButton = await canvas.findByRole('button', { name: /Remove \(\d+\)/i });
+    expect(removeButton).toBeInTheDocument();
+
+    await userEvent.click(removeButton);
+
+    await delay(300);
+
+    const modal = await canvas.findByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    expect(within(modal).getByText(/Remove members\?/i)).toBeInTheDocument();
+  },
+};
