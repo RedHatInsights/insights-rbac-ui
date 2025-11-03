@@ -1,11 +1,11 @@
 import React, { Fragment } from 'react';
 import DateFormat from '@redhat-cloud-services/frontend-components/DateFormat';
-import { AppLink } from '../../components/navigation/AppLink';
-import { getDateFormat } from '../../helpers/stringUtilities';
-import { defaultSettings } from '../../helpers/pagination';
+import { AppLink } from '../../../../components/navigation/AppLink';
+import { getDateFormat } from '../../../../helpers/stringUtilities';
+import { defaultSettings } from '../../../../helpers/pagination';
 import flatten from 'lodash/flatten';
-import messages from '../../Messages';
-import pathnames from '../../utilities/pathnames';
+import messages from '../../../../Messages';
+import pathnames from '../../../../utilities/pathnames';
 
 export const createRows = (showResDefinitions, uuid, data, intl, selectedRows = []) =>
   data.reduce((acc, { resourceDefinitions, permission, modified }) => {
