@@ -2,7 +2,7 @@ import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React, { useEffect } from 'react';
 import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { HttpResponse, http } from 'msw';
+import { HttpResponse, delay, http } from 'msw';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { GroupRoles } from './GroupRoles';
 import { fetchGroup } from '../../../../redux/groups/actions';
@@ -733,5 +733,163 @@ export const EmptyState: Story = {
 
     // Verify Add role button is still present
     expect(await canvas.findByRole('button', { name: /add role/i })).toBeInTheDocument();
+  },
+};
+
+export const RemoveSingleRoleFlow: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Interactive Flow**: Complete user journey from table to removal confirmation modal.
+
+This story demonstrates:
+1. User clicks kebab menu on a role row
+2. Selects "Remove" action
+3. Confirmation modal appears with proper messaging
+4. User can confirm or cancel the removal
+
+Perfect for code review and UX validation.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+        http.delete('/api/rbac/v1/groups/:groupId/roles/', async () => {
+          return HttpResponse.json({ message: 'Roles removed successfully' });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    const table = await canvas.findByRole('grid');
+    expect(table).toBeInTheDocument();
+
+    await canvas.findByText('Console Administrator');
+
+    const firstRow = (await canvas.findByText('Console Administrator')).closest('tr');
+    if (!firstRow) throw new Error('Could not find first role row');
+
+    const kebabButton = within(firstRow).getByLabelText(/Actions for role/i);
+    await userEvent.click(kebabButton);
+
+    await delay(200);
+
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    expect(removeMenuItem).toBeInTheDocument();
+
+    await userEvent.click(removeMenuItem);
+
+    await delay(300);
+
+    const modal = await canvas.findByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    expect(within(modal).getByText(/Remove role\?/i)).toBeInTheDocument();
+    expect(within(modal).getByText(/Console Administrator/i)).toBeInTheDocument();
+  },
+};
+
+export const BulkRemoveRolesFlow: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Bulk Removal Flow**: Complete user journey for removing multiple roles at once.
+
+This story demonstrates:
+1. User selects multiple roles using checkboxes
+2. Clicks bulk "Remove" button in toolbar
+3. Confirmation modal appears showing plural messaging ("Remove roles?")
+4. Modal shows count of roles to be removed
+
+Perfect for testing bulk operations and proper pluralization.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', () => {
+          return HttpResponse.json({
+            data: mockRoles,
+            meta: { count: mockRoles.length, limit: 20, offset: 0 },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+        http.delete('/api/rbac/v1/groups/:groupId/roles/', async () => {
+          return HttpResponse.json({ message: 'Roles removed successfully' });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(500);
+    const canvas = within(canvasElement);
+
+    const table = await canvas.findByRole('grid');
+    const tableContext = within(table);
+
+    await canvas.findByText('Console Administrator');
+
+    const firstCheckbox = await tableContext.findByLabelText('Select row 0');
+    await userEvent.click(firstCheckbox);
+
+    await delay(200);
+
+    const secondCheckbox = await tableContext.findByLabelText('Select row 1');
+    await userEvent.click(secondCheckbox);
+
+    await delay(200);
+
+    const kebabToggle = await canvas.findByLabelText(/bulk actions toggle/i);
+    await userEvent.click(kebabToggle);
+
+    await delay(200);
+
+    const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
+    await userEvent.click(removeMenuItem);
+
+    await delay(300);
+
+    const modal = await canvas.findByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    expect(within(modal).getByText(/Remove roles\?/i)).toBeInTheDocument();
   },
 };
