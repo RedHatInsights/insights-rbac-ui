@@ -1,3 +1,10 @@
+# [1.69.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.68.0...v1.69.0) (2025-11-04)
+
+
+### Features
+
+* **groups:** add confirmation modals for remove actions on roles and members ([#1994](https://github.com/RedHatInsights/insights-rbac-ui/issues/1994)) ([1b94e8a](https://github.com/RedHatInsights/insights-rbac-ui/commit/1b94e8a84549f155d10049bb550766d888b394bb))
+
 # [1.68.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.67.0...v1.68.0) (2025-11-03)
 
 
