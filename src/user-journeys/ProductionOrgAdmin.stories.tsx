@@ -387,10 +387,9 @@ export const EditGroupFromList: Story = {
 
     // Verify success and updated group name in list
     await verifySuccessNotification();
-    await waitFor(() => {
-      expect(canvas.getByText('Customer Support Team')).toBeInTheDocument();
-      expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
-    });
+    await delay(500);
+    await canvas.findByText('Customer Support Team', {}, { timeout: 10000 });
+    expect(canvas.queryByText('Support Team')).not.toBeInTheDocument();
   },
 };
 
@@ -815,8 +814,12 @@ Tests the full flow of removing members from a group.
     const removeBtn = canvas.getByRole('button', { name: /remove \(1\)/i });
     await user.click(removeBtn);
 
-    // Verify success notification (notifications are rendered at document.body level)
     const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
+
+    const confirmRemoveBtn = within(modal).getByRole('button', { name: /remove/i });
+    await user.click(confirmRemoveBtn);
     await waitFor(async () => {
       const notification = body.getByText(/success removing members from group/i);
       await expect(notification).toBeInTheDocument();

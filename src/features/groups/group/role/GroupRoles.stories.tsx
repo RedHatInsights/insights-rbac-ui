@@ -803,11 +803,9 @@ Perfect for code review and UX validation.
 
     await userEvent.click(removeMenuItem);
 
-    await delay(300);
-
-    const modal = await canvas.findByRole('dialog');
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
     expect(modal).toBeInTheDocument();
-
     expect(within(modal).getByText(/Remove role\?/i)).toBeInTheDocument();
     expect(within(modal).getByText(/Console Administrator/i)).toBeInTheDocument();
   },
@@ -885,11 +883,9 @@ Perfect for testing bulk operations and proper pluralization.
     const removeMenuItem = await canvas.findByRole('menuitem', { name: /Remove/i });
     await userEvent.click(removeMenuItem);
 
-    await delay(300);
-
-    const modal = await canvas.findByRole('dialog');
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
     expect(modal).toBeInTheDocument();
-
     expect(within(modal).getByText(/Remove roles\?/i)).toBeInTheDocument();
   },
 };

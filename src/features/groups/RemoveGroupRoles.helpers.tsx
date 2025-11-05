@@ -8,8 +8,13 @@ import { delay } from 'msw';
  * - Finding the correct Actions dropdown (there may be multiple on the page)
  * - Opening the dropdown
  * - Clicking the "Remove" menu item
+ * - Confirming the removal in the modal (if confirmModal is true)
  */
-export async function removeSelectedRolesFromGroup(user: ReturnType<typeof userEvent.setup>, canvas: ReturnType<typeof within>) {
+export async function removeSelectedRolesFromGroup(
+  user: ReturnType<typeof userEvent.setup>,
+  canvas: ReturnType<typeof within>,
+  confirmModal: boolean = true,
+) {
   // Find the bulk actions toggle button (kebab menu in toolbar)
   // Use the specific aria-label to distinguish it from row-level action menus
   const actionsToggle = await waitFor(
@@ -36,4 +41,13 @@ export async function removeSelectedRolesFromGroup(user: ReturnType<typeof userE
   );
 
   await user.click(removeMenuItem);
+
+  if (confirmModal) {
+    const body = within(document.body);
+    const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
+    expect(modal).toBeInTheDocument();
+
+    const confirmRemoveBtn = within(modal).getByRole('button', { name: /remove/i });
+    await user.click(confirmRemoveBtn);
+  }
 }
