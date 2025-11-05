@@ -411,10 +411,6 @@
     "defaultMessage": "To add this permission to your role and define specific resources for it, at least one data source must be connected.",
     "description": "Configure resources for permission message"
   },
-  "configureRoles": {
-    "defaultMessage": "Configure roles",
-    "description": "Empty state title when no roles exist"
-  },
   "confirm": {
     "defaultMessage": "Confirm",
     "description": "Confirm button text"
@@ -516,7 +512,7 @@
     "description": "Create workspace error notification title"
   },
   "createWorkspaceSuccessTitle": {
-    "defaultMessage": "New {name} workspace has been successfully created",
+    "defaultMessage": "New {name} workspace have been successfully created",
     "description": "Create workspace success notification title"
   },
   "creatingGroup": {
@@ -526,10 +522,6 @@
   "creatingRoleCanceled": {
     "defaultMessage": "Creating role was canceled by the user",
     "description": "Creating role canceled notification message"
-  },
-  "creatingWorkspaceCancel": {
-    "defaultMessage": "Workspace creation was canceled by the user.",
-    "description": "Create workspace canceled notification description"
   },
   "deactivateUsersButton": {
     "defaultMessage": "Deactivate users",
@@ -707,10 +699,6 @@
     "defaultMessage": "Edit",
     "description": "Edit button text"
   },
-  "editAccessForThisWorkspace": {
-    "defaultMessage": "Edit access for this workspace",
-    "description": "Edit access for this workspace button text"
-  },
   "editCustomRole": {
     "defaultMessage": "Edit custom role",
     "description": "Edit custom role label"
@@ -879,17 +867,9 @@
     "defaultMessage": "Features management",
     "description": "Features management label"
   },
-  "filterByApplication": {
-    "defaultMessage": "Filter by application...",
-    "description": "Filter by application"
-  },
   "filterByEmail": {
     "defaultMessage": "Filter by email",
     "description": "Filter by email label"
-  },
-  "filterByInheritedFrom": {
-    "defaultMessage": "Filter by inherited from",
-    "description": "placeholder for inherited from filter"
   },
   "filterByKey": {
     "defaultMessage": "Filter by {key}",
@@ -898,10 +878,6 @@
   "filterByResource": {
     "defaultMessage": "Filter by resource...",
     "description": "Filter by resource label"
-  },
-  "filterByUserGroup": {
-    "defaultMessage": "Filter by user group",
-    "description": "placeholder for user group filter"
   },
   "filterByUsername": {
     "defaultMessage": "Filter by username",
@@ -926,14 +902,6 @@
   "gotItButtonLabel": {
     "defaultMessage": "Got it",
     "description": "got it button label"
-  },
-  "grantAccess": {
-    "defaultMessage": "Grant access",
-    "description": "Grant access button text"
-  },
-  "grantAccessInWorkspace": {
-    "defaultMessage": "Grant access in Workspace {workspaceName}",
-    "description": "Grant access in workspace wizard title"
   },
   "granularPermissionsWillBeCopied": {
     "defaultMessage": "Only granular permissions will be copied into a custom role (for example, approval:requests:read). Wildcard permissions will not be copied into a custom role (for example, approval:*:read).",
@@ -975,21 +943,9 @@
     "defaultMessage": "Group name already taken",
     "description": "Group name taken error title"
   },
-  "groupNoRolesAssigned": {
-    "defaultMessage": "This group currently has no roles assigned to it.",
-    "description": "Message when group has no roles assigned"
-  },
-  "groupNoUsersAssigned": {
-    "defaultMessage": "This group currently has no users assigned to it.",
-    "description": "Message when group has no users assigned"
-  },
   "groupNotFound": {
     "defaultMessage": "Group not found",
     "description": "Group not found message"
-  },
-  "groupServiceAccountEmptyStateBody": {
-    "defaultMessage": "No service accounts found for this group.",
-    "description": "No service accounts for this group message"
   },
   "groups": {
     "defaultMessage": "Groups",
@@ -1000,16 +956,12 @@
     "description": "groups service card description"
   },
   "iamLearningResourcesLink": {
-    "defaultMessage": "View all Identity and Access Management Learning Resources.",
+    "defaultMessage": "View all Identity and Access Management Learning Resources",
     "description": "Identity and Access Management Learning Resources link"
   },
   "inactive": {
     "defaultMessage": "Inactive",
     "description": "Inactive label"
-  },
-  "inheritedFrom": {
-    "defaultMessage": "Inherited from",
-    "description": "Inherited from column label"
   },
   "invGroupsLabel": {
     "defaultMessage": "Select a group to add permissions for",
@@ -1246,10 +1198,6 @@
     "defaultMessage": "You are not entitled to add cost-management permissions to your role.",
     "description": "No Cost management permissions message"
   },
-  "noFilteredRoles": {
-    "defaultMessage": "No roles match the filter criteria. Remove all filters or clear all to show results.",
-    "description": "Empty state body when no roles match filters"
-  },
   "noGroupAccounts": {
     "defaultMessage": "There are no service accounts in this group",
     "description": "No service accounts in a group message"
@@ -1293,10 +1241,6 @@
   "noRolePermissions": {
     "defaultMessage": "There are no permissions in this role",
     "description": "No role permissions text"
-  },
-  "noRolesFound": {
-    "defaultMessage": "No roles found",
-    "description": "Empty state title when no roles match filters"
   },
   "noServiceAccountsFound": {
     "defaultMessage": "No service accounts found",
@@ -1567,16 +1511,16 @@
     "description": "Remove member question"
   },
   "removeMemberText": {
-    "defaultMessage": "Member <b>{name}</b> will be removed from the group <b>{group}</b>. This action cannot be undone.",
-    "description": "Remove member text warning about irreversible action"
+    "defaultMessage": "<b>{name}</b> will lose all the roles associated with the <b>{group}</b> group.",
+    "description": "Remove member text"
   },
   "removeMembersQuestion": {
     "defaultMessage": "Remove members?",
     "description": "Remove members question"
   },
   "removeMembersText": {
-    "defaultMessage": "<b>{name}</b> selected members will be removed from the group <b>{group}</b>. This action cannot be undone.",
-    "description": "Remove members plural text warning about irreversible action"
+    "defaultMessage": "These <b>{name}</b> members will lose all the roles associated with the <b>{group}</b> group.",
+    "description": "Remove members plural text"
   },
   "removePermission": {
     "defaultMessage": "Remove permission",
@@ -1615,8 +1559,8 @@
     "description": "Remove role error notification title"
   },
   "removeRoleModalText": {
-    "defaultMessage": "Role <b>{role}</b> will be removed from the group <b>{name}</b>. This action cannot be undone.",
-    "description": "Remove role message warning about irreversible action"
+    "defaultMessage": "Members in the <b>{name}</b> group will lose the permissions in the <b>{role}</b> role",
+    "description": "Remove role message warning about losing permissions"
   },
   "removeRoleQuestion": {
     "defaultMessage": "Remove role?",
@@ -1635,8 +1579,8 @@
     "description": "Remove roles label"
   },
   "removeRolesModalText": {
-    "defaultMessage": "<b>{roles}</b> selected roles will be removed from the group <b>{name}</b>. This action cannot be undone.",
-    "description": "Remove roles message warning about irreversible action"
+    "defaultMessage": "Members in the <b>{name}</b> group will lose the permissions in these <b>{roles}</b> roles",
+    "description": "Remove role message warning about losing permissions"
   },
   "removeRolesQuestion": {
     "defaultMessage": "Remove roles?",
@@ -1710,10 +1654,6 @@
     "defaultMessage": "Review",
     "description": "Review label"
   },
-  "reviewDescription": {
-    "defaultMessage": "This step is currently blank and ready for implementation.",
-    "description": "Review step description"
-  },
   "reviewDetails": {
     "defaultMessage": "Review details",
     "description": "Review details label"
@@ -1777,14 +1717,6 @@
   "roles": {
     "defaultMessage": "Roles",
     "description": "Roles plural"
-  },
-  "rolesAssignedInParentWorkspaces": {
-    "defaultMessage": "Roles assigned in parent workspaces",
-    "description": "Tab title for roles assigned in parent workspaces"
-  },
-  "rolesAssignedInThisWorkspace": {
-    "defaultMessage": "Roles assigned in this workspace",
-    "description": "Tab title for roles assigned in current workspace"
   },
   "rolesEmptyStateSubtitle": {
     "defaultMessage": "This filter criteria matches no roles.{br}Try changing your filter input.",
@@ -1854,14 +1786,6 @@
     "defaultMessage": "Select resources",
     "description": "Select resources label"
   },
-  "selectRoles": {
-    "defaultMessage": "Select role(s)",
-    "description": "Select roles step title"
-  },
-  "selectRolesDescription": {
-    "defaultMessage": "This step is currently blank and ready for implementation.",
-    "description": "Select roles step description"
-  },
   "selectRolesForGroupText": {
     "defaultMessage": "Select one or more roles to add to this group.",
     "description": "Select roles to be added to a group text"
@@ -1869,14 +1793,6 @@
   "selectState": {
     "defaultMessage": "Select a state",
     "description": "Select state label"
-  },
-  "selectUserGroups": {
-    "defaultMessage": "Select user group(s)",
-    "description": "Select user groups step title"
-  },
-  "selectUserGroupsDescription": {
-    "defaultMessage": "This step is currently blank and ready for implementation.",
-    "description": "Select user groups step description"
   },
   "selectUsersAndOrServiceAccounts": {
     "defaultMessage": "Select users and/or service accounts",
@@ -1914,10 +1830,6 @@
     "defaultMessage": "Stay",
     "description": "Stay button text"
   },
-  "systemRolesCantBeModified": {
-    "defaultMessage": "System roles can not be modified",
-    "description": "Tooltip message for disabled add permissions button on system roles"
-  },
   "timeCreated": {
     "defaultMessage": "Time created",
     "description": "Time created column label"
@@ -1945,14 +1857,6 @@
   "tryChangingFilters": {
     "defaultMessage": "Try changing your filter settings.",
     "description": "Message advising change of the filter settings"
-  },
-  "unableToLoadRoles": {
-    "defaultMessage": "Unable to load roles",
-    "description": "Unable to load roles error title"
-  },
-  "unableToLoadUsers": {
-    "defaultMessage": "Unable to load users",
-    "description": "Unable to load users error title"
   },
   "understandActionIrreversible": {
     "defaultMessage": "I understand that this action cannot be undone",

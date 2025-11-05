@@ -4,7 +4,7 @@ import { DefaultGroupChangeModal } from '../../components/DefaultGroupChangeModa
 import { ButtonVariant } from '@patternfly/react-core';
 import { getModalContainer } from '../../../../helpers/modal-container';
 
-interface RemoveGroupMembersProps {
+interface RemoveRolesProps {
   title: React.ReactNode;
   text: React.ReactNode;
   onClose: () => void;
@@ -15,7 +15,7 @@ interface RemoveGroupMembersProps {
   isChanged?: boolean;
 }
 
-export const RemoveGroupMembers: React.FC<RemoveGroupMembersProps> = ({
+export const RemoveRoleModal: React.FC<RemoveRolesProps> = ({
   title,
   text,
   onClose,
