@@ -16,7 +16,6 @@ import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/
 // Component imports
 import { GroupRolesEmptyState } from './components/GroupRolesEmptyState';
 import { useGroupRoles } from './hooks/useGroupRoles';
-import { RemoveGroupRoles } from './RemoveGroupRoles';
 import { fetchAddRolesForGroup } from '../../../../redux/groups/actions';
 import { getBackRoute } from '../../../../helpers/navigation';
 import useAppNavigate from '../../../../hooks/useAppNavigate';
@@ -49,7 +48,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     group,
     systemGroupUuid,
     onDefaultGroupChanged,
-    removeModalState,
   } = useGroupRoles(props);
 
   // Filter change handler
@@ -189,17 +187,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
           <DataViewToolbar pagination={paginationComponent} />
         </DataView>
       </Section>
-
-      <RemoveGroupRoles
-        title={removeModalState.title}
-        text={removeModalState.text}
-        isOpen={removeModalState.isOpen}
-        confirmButtonLabel={removeModalState.confirmButtonLabel}
-        onClose={removeModalState.onClose}
-        onSubmit={removeModalState.onConfirm}
-        isDefault={isPlatformDefault}
-        isChanged={isChanged}
-      />
 
       {!isAdminDefault ? (
         <Suspense>

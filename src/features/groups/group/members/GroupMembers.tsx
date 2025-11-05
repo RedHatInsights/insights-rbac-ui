@@ -24,7 +24,6 @@ import messages from '../../../../Messages';
 // Removed useless GroupMembersTable placeholder - using DataViewTable directly
 import { MemberActionsMenu } from './components/MemberActionsMenu';
 import { DefaultMembersCard } from '../../components/DefaultMembersCard';
-import { RemoveGroupMembers } from './RemoveGroupMembers';
 
 import { useGroupMembers } from './useGroupMembers';
 import type { GroupMembersFilters, Member, MemberTableRow } from './types';
@@ -67,7 +66,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     handleRemoveMembers,
     emptyStateProps,
     pagination,
-    removeModalState,
   } = useGroupMembers();
 
   // Additional selectors not in hook
@@ -271,17 +269,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
           <DataViewToolbar pagination={paginationComponent} />
         </DataView>
       )}
-
-      <RemoveGroupMembers
-        title={removeModalState.title}
-        text={removeModalState.text}
-        isOpen={removeModalState.isOpen}
-        confirmButtonLabel={removeModalState.confirmButtonLabel}
-        onClose={removeModalState.onClose}
-        onSubmit={removeModalState.onConfirm}
-        isDefault={platformDefault}
-        isChanged={isChanged}
-      />
 
       {!showDefaultCard && (
         <Suspense>
