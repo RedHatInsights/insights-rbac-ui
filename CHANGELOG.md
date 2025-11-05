@@ -1,3 +1,10 @@
+## [1.69.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.0...v1.69.1) (2025-11-05)
+
+
+### Reverts
+
+* Revert "feat(groups): add confirmation modals for remove actions on roles and…" ([#1995](https://github.com/RedHatInsights/insights-rbac-ui/issues/1995)) ([33a6daf](https://github.com/RedHatInsights/insights-rbac-ui/commit/33a6daf9bcbe9f11b6fd02fbb09fb5f860020006))
+
 # [1.69.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.68.0...v1.69.0) (2025-11-04)
 
 
