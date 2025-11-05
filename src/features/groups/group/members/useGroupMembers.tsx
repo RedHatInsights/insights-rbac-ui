@@ -1,7 +1,7 @@
 import React, { useCallback, useContext, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
-import { useIntl } from 'react-intl';
+import { FormattedMessage, useIntl } from 'react-intl';
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -106,12 +106,23 @@ export interface UseGroupMembersReturn {
 
   // Actions
   fetchData: (usernameFilter?: string, apiProps?: FetchMembersForGroupParams) => void;
-  handleRemoveMembers: (membersToRemove: Member[]) => Promise<unknown>;
+  handleRemoveMembers: (membersToRemove: Member[]) => void;
 
   // Computed values
   emptyStateProps: {
     colSpan: number;
     hasActiveFilters: boolean;
+  };
+
+  // Remove modal state
+  removeModalState: {
+    isOpen: boolean;
+    membersToRemove: Member[];
+    title: React.ReactNode;
+    text: React.ReactNode;
+    confirmButtonLabel: string;
+    onClose: () => void;
+    onConfirm: () => void;
   };
 }
 
@@ -153,6 +164,10 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     index: isAdmin ? 1 : 0, // Account for selection column when admin
     direction: 'asc',
   });
+
+  // State for remove modal
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [membersToRemove, setMembersToRemove] = useState<Member[]>([]);
 
   // Use shared memoized selectors to prevent infinite re-renders
   const members = useSelector(selectGroupMembers);
@@ -204,23 +219,38 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     [dispatch, groupId], // REMOVED pagination dependency to prevent infinite loops
   );
 
-  // Remove members action (defined before tableRows to avoid dependency issues)
-  const handleRemoveMembers = useCallback(
-    (membersToRemove: Member[]) => {
-      if (!groupId) return Promise.resolve();
+  // Open remove modal (changed from direct removal)
+  const handleRemoveMembers = useCallback((members: Member[]) => {
+    setMembersToRemove(members);
+    setIsRemoveModalOpen(true);
+  }, []);
 
-      const usernames = membersToRemove.map((member) => member.username);
+  // Close remove modal
+  const handleCloseRemoveModal = useCallback(() => {
+    setIsRemoveModalOpen(false);
+    setMembersToRemove([]);
+  }, []);
 
-      const action = dispatch(removeMembersFromGroup(groupId, usernames)) as unknown as Promise<unknown>;
-      return action.then(() => {
-        selection.onSelect(false); // Clear all selections
-        // Reset offset to 0 after removal, fetchData will use current pagination from Redux
-        fetchData(undefined, { offset: 0 });
-        dispatch(fetchGroups({ usesMetaInURL: true }));
-      });
-    },
-    [dispatch, groupId, fetchData, selection], // Added selection for clearing selections
-  );
+  // Confirm removal - actually perform the deletion
+  const handleConfirmRemoveMembers = useCallback(async () => {
+    if (!groupId || membersToRemove.length === 0) {
+      return;
+    }
+
+    const usernames = membersToRemove.map((member) => member.username);
+
+    try {
+      await dispatch(removeMembersFromGroup(groupId, usernames));
+      selection.onSelect(false); // Clear all selections
+      setIsRemoveModalOpen(false);
+      setMembersToRemove([]);
+      // Reset offset to 0 after removal, fetchData will use current pagination from Redux
+      fetchData(undefined, { offset: 0 });
+      dispatch(fetchGroups({ usesMetaInURL: true }));
+    } catch (error) {
+      console.error('Failed to remove members from group:', error);
+    }
+  }, [dispatch, groupId, membersToRemove, selection, fetchData]);
 
   // Create table rows from members data
   const tableRows = useMemo((): MemberTableRow[] => {
@@ -267,6 +297,40 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
     [columns.length, hasActiveFilters],
   );
 
+  // Remove modal state with proper singulár/plurál texts
+  const removeModalState = useMemo(() => {
+    const isSingular = membersToRemove.length === 1;
+    const memberNames = membersToRemove.map((member) => member.username).join(', ');
+
+    return {
+      isOpen: isRemoveModalOpen,
+      membersToRemove,
+      title: intl.formatMessage(isSingular ? messages.removeMemberQuestion : messages.removeMembersQuestion),
+      text: isSingular ? (
+        <FormattedMessage
+          {...messages.removeMemberText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: memberNames,
+            group: group?.name || '',
+          }}
+        />
+      ) : (
+        <FormattedMessage
+          {...messages.removeMembersText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: membersToRemove.length,
+            group: group?.name || '',
+          }}
+        />
+      ),
+      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeMember : messages.remove),
+      onClose: handleCloseRemoveModal,
+      onConfirm: handleConfirmRemoveMembers,
+    };
+  }, [isRemoveModalOpen, membersToRemove, intl, group?.name, handleCloseRemoveModal, handleConfirmRemoveMembers]);
+
   return {
     // Data
     members,
@@ -301,5 +365,6 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
 
     // Computed values
     emptyStateProps,
+    removeModalState,
   };
 };

@@ -1,10 +1,10 @@
 import type { Meta, StoryObj } from '@storybook/react-webpack5';
 import React from 'react';
 import { expect, fn, screen, userEvent, within } from 'storybook/test';
-import { RemoveRoleModal } from './RemoveRoleModal';
+import { RemoveGroupMembers } from './RemoveGroupMembers';
 
 // Wrapper component to control modal state with a trigger button
-const RemoveRolesWrapper: React.FC<any> = (props) => {
+const RemoveGroupMembersWrapper: React.FC<any> = (props) => {
   const [isOpen, setIsOpen] = React.useState(false);
 
   return (
@@ -20,10 +20,10 @@ const RemoveRolesWrapper: React.FC<any> = (props) => {
           cursor: 'pointer',
         }}
       >
-        Remove Role
+        Remove Member
       </button>
 
-      <RemoveRoleModal
+      <RemoveGroupMembers
         {...props}
         isOpen={isOpen}
         onClose={() => {
@@ -39,11 +39,11 @@ const RemoveRolesWrapper: React.FC<any> = (props) => {
   );
 };
 
-const meta: Meta<typeof RemoveRoleModal> = {
-  component: RemoveRoleModal,
+const meta: Meta<typeof RemoveGroupMembers> = {
+  component: RemoveGroupMembers,
   parameters: {},
   tags: ['autodocs'],
-  render: (args) => <RemoveRolesWrapper {...args} />,
+  render: (args) => <RemoveGroupMembersWrapper {...args} />,
   argTypes: {
     title: {
       control: 'text',
@@ -73,9 +73,9 @@ type Story = StoryObj<typeof meta>;
 
 export const Default: Story = {
   args: {
-    title: 'Remove role from group?',
-    text: 'This action will remove the selected role from the group. This action cannot be undone.',
-    confirmButtonLabel: 'Remove',
+    title: 'Remove member?',
+    text: 'john_doe will lose all the roles associated with the Engineering group.',
+    confirmButtonLabel: 'Remove member',
     isDefault: false,
     isChanged: false,
     onClose: fn(),
@@ -85,7 +85,7 @@ export const Default: Story = {
     const canvas = within(canvasElement);
 
     // Click trigger button to open modal
-    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
+    const triggerButton = await canvas.findByRole('button', { name: /remove member/i });
     await userEvent.click(triggerButton);
 
     // Modal renders to document.body via portal
@@ -93,8 +93,42 @@ export const Default: Story = {
     expect(modal).toBeInTheDocument();
 
     // Verify modal content
-    expect(within(modal).getByText('Remove role from group?')).toBeInTheDocument();
-    expect(within(modal).getByText(/this action will remove/i)).toBeInTheDocument();
+    expect(within(modal).getByText('Remove member?')).toBeInTheDocument();
+    expect(within(modal).getByText(/john_doe will lose all the roles/i)).toBeInTheDocument();
+
+    // Click confirm button
+    const confirmButton = within(modal).getByRole('button', { name: /remove member/i });
+    await userEvent.click(confirmButton);
+
+    // Verify callback was called
+    expect(args.onSubmit).toHaveBeenCalled();
+  },
+};
+
+export const MultipleMembers: Story = {
+  args: {
+    title: 'Remove members?',
+    text: 'These 5 members will lose all the roles associated with the Engineering group.',
+    confirmButtonLabel: 'Remove',
+    isDefault: false,
+    isChanged: false,
+    onClose: fn(),
+    onSubmit: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+
+    // Open modal
+    const triggerButton = await canvas.findByRole('button', { name: /remove member/i });
+    await userEvent.click(triggerButton);
+
+    // Modal renders to document.body via portal
+    const modal = await screen.findByRole('dialog');
+    expect(modal).toBeInTheDocument();
+
+    // Verify modal content for plural
+    expect(within(modal).getByText('Remove members?')).toBeInTheDocument();
+    expect(within(modal).getByText(/These 5 members will lose/i)).toBeInTheDocument();
 
     // Click confirm button
     const confirmButton = within(modal).getByRole('button', { name: /remove/i });
@@ -107,8 +141,8 @@ export const Default: Story = {
 
 export const DefaultGroupUnchanged: Story = {
   args: {
-    title: 'Remove role from default group?',
-    text: 'This action will remove the selected role from the default group.',
+    title: 'Remove member from default group?',
+    text: 'This action will remove the selected member from the default group.',
     confirmButtonLabel: 'Remove',
     isDefault: true,
     isChanged: false, // Unchanged default group - complex flow
@@ -119,12 +153,12 @@ export const DefaultGroupUnchanged: Story = {
     const canvas = within(canvasElement);
 
     // Open modal
-    const triggerButton = await canvas.findByRole('button', { name: /remove role/i });
+    const triggerButton = await canvas.findByRole('button', { name: /remove member/i });
     await userEvent.click(triggerButton);
 
     // Should show WarningModal first
     const warningModal = await screen.findByRole('dialog');
-    expect(within(warningModal).getByText('Remove role from default group?')).toBeInTheDocument();
+    expect(within(warningModal).getByText('Remove member from default group?')).toBeInTheDocument();
 
     // Click confirm on WarningModal (this sets showConfirmModal=true)
     const confirmButton = within(warningModal).getByRole('button', { name: /remove/i });
@@ -149,7 +183,7 @@ export const DefaultGroupUnchanged: Story = {
 
 export const ClosedState: Story = {
   args: {
-    title: 'Remove role from group?',
+    title: 'Remove member?',
     text: 'This modal starts closed.',
     confirmButtonLabel: 'Remove',
     isDefault: false,
@@ -161,7 +195,7 @@ export const ClosedState: Story = {
     const canvas = within(canvasElement);
 
     // Should show trigger button but no modal
-    expect(await canvas.findByRole('button', { name: /remove role/i })).toBeInTheDocument();
+    expect(await canvas.findByRole('button', { name: /remove member/i })).toBeInTheDocument();
 
     // No modal should be present initially
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
