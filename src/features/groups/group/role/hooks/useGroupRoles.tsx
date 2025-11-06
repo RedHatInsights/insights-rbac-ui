@@ -1,7 +1,8 @@
-import React, { useCallback, useContext, useEffect, useMemo } from 'react';
+import React, { useCallback, useContext, useEffect, useMemo, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
+import { FormattedMessage } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
 import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -87,6 +88,17 @@ export interface UseGroupRolesReturn {
 
   // Callbacks for parent
   onDefaultGroupChanged?: GroupRolesProps['onDefaultGroupChanged'];
+
+  // Remove modal state
+  removeModalState: {
+    isOpen: boolean;
+    rolesToRemove: Role[];
+    title: React.ReactNode;
+    text: React.ReactNode;
+    confirmButtonLabel: string;
+    onClose: () => void;
+    onConfirm: () => void;
+  };
 }
 
 const generateOuiaID = (name: string) => {
@@ -157,6 +169,10 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
   const systemGroupUuid = useSelector(selectSystemGroupUUID);
   const group = useSelector(selectSelectedGroup);
 
+  // State for remove modal
+  const [isRemoveModalOpen, setIsRemoveModalOpen] = useState(false);
+  const [rolesToRemove, setRolesToRemove] = useState<Role[]>([]);
+
   // DataView hooks
   const filters = useDataViewFilters<GroupRoleFilters>({
     initialFilters: { name: '' },
@@ -208,39 +224,48 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     }
   }, [isChanged, group, props.onDefaultGroupChanged]);
 
-  // Handle remove selected roles
-  const handleRemoveSelectedRoles = useCallback(async () => {
+  // Open remove modal for selected roles
+  const handleRemoveSelectedRoles = useCallback(() => {
+    if (!selection.selected || selection.selected.length === 0) {
+      return;
+    }
+
+    const selectedRoleItems = selection.selected.map((item) => roles.find((role) => role.uuid === item.id)).filter(Boolean) as Role[];
+    setRolesToRemove(selectedRoleItems);
+    setIsRemoveModalOpen(true);
+  }, [selection, roles]);
+
+  // Open remove modal for individual role
+  const handleRemoveRole = useCallback((role: Role) => {
+    setRolesToRemove([role]);
+    setIsRemoveModalOpen(true);
+  }, []);
+
+  // Close remove modal
+  const handleCloseRemoveModal = useCallback(() => {
+    setIsRemoveModalOpen(false);
+    setRolesToRemove([]);
+  }, []);
+
+  // Confirm removal - actually perform the deletion
+  const handleConfirmRemoveRoles = useCallback(async () => {
     try {
-      if (!selection.selected || selection.selected.length === 0) {
+      if (rolesToRemove.length === 0) {
         return;
       }
 
-      const selectedRoleItems = selection.selected.map((item) => roles.find((role) => role.uuid === item.id)).filter(Boolean) as Role[];
-      const roleIds = selectedRoleItems.map(({ uuid }) => uuid);
+      const roleIds = rolesToRemove.map(({ uuid }) => uuid);
 
       await dispatch(removeRolesFromGroup(groupId!, roleIds));
       selection.onSelect(false); // Clear selection
+      setIsRemoveModalOpen(false);
+      setRolesToRemove([]);
       // Refresh the data to reflect the change
       fetchData();
     } catch (error) {
       console.error('Failed to remove roles from group:', error);
     }
-  }, [dispatch, groupId, selection, roles, fetchData]);
-
-  // Handle individual role removal
-  const handleRemoveRole = useCallback(
-    async (role: Role) => {
-      try {
-        // Remove this single role from the group
-        await dispatch(removeRolesFromGroup(groupId!, [role.uuid]));
-        // Refresh the data to reflect the change
-        fetchData();
-      } catch (error) {
-        console.error('Failed to remove role from group:', error);
-      }
-    },
-    [dispatch, groupId, fetchData],
-  );
+  }, [dispatch, groupId, rolesToRemove, selection, fetchData]);
 
   // Action resolver for table rows
   const actionResolver = useCallback(
@@ -383,6 +408,40 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     description: intl.formatMessage(isPlatformDefault ? messages.contactServiceTeamForRoles : messages.addRoleToThisGroup),
   };
 
+  // Remove modal state with proper singulár/plurál texts
+  const removeModalState = useMemo(() => {
+    const isSingular = rolesToRemove.length === 1;
+    const roleNames = rolesToRemove.map((role) => role.display_name || role.name).join(', ');
+
+    return {
+      isOpen: isRemoveModalOpen,
+      rolesToRemove,
+      title: intl.formatMessage(isSingular ? messages.removeRoleQuestion : messages.removeRolesQuestion),
+      text: isSingular ? (
+        <FormattedMessage
+          {...messages.removeRoleModalText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: group?.name || '',
+            role: roleNames,
+          }}
+        />
+      ) : (
+        <FormattedMessage
+          {...messages.removeRolesModalText}
+          values={{
+            b: (text: React.ReactNode) => <b>{text}</b>,
+            name: group?.name || '',
+            roles: rolesToRemove.length,
+          }}
+        />
+      ),
+      confirmButtonLabel: intl.formatMessage(isSingular ? messages.removeRole : messages.removeRoles),
+      onClose: handleCloseRemoveModal,
+      onConfirm: handleConfirmRemoveRoles,
+    };
+  }, [isRemoveModalOpen, rolesToRemove, intl, group?.name, handleCloseRemoveModal, handleConfirmRemoveRoles]);
+
   return {
     roles,
     isLoading,
@@ -406,5 +465,6 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     toolbarButtons,
     emptyStateProps,
     onDefaultGroupChanged: props.onDefaultGroupChanged,
+    removeModalState,
   };
 };

@@ -1516,13 +1516,13 @@ export default defineMessages({
   },
   removeMemberText: {
     id: 'removeMemberText',
-    description: 'Remove member text',
-    defaultMessage: '<b>{name}</b> will lose all the roles associated with the <b>{group}</b> group.',
+    description: 'Remove member text warning about irreversible action',
+    defaultMessage: 'Member <b>{name}</b> will be removed from the group <b>{group}</b>. This action cannot be undone.',
   },
   removeMembersText: {
     id: 'removeMembersText',
-    description: 'Remove members plural text',
-    defaultMessage: 'These <b>{name}</b> members will lose all the roles associated with the <b>{group}</b> group.',
+    description: 'Remove members plural text warning about irreversible action',
+    defaultMessage: '<b>{name}</b> selected members will be removed from the group <b>{group}</b>. This action cannot be undone.',
   },
   serviceAccountsPage: {
     id: 'serviceAccountsPage',
@@ -1675,13 +1675,13 @@ export default defineMessages({
   },
   removeRoleModalText: {
     id: 'removeRoleModalText',
-    description: 'Remove role message warning about losing permissions',
-    defaultMessage: 'Members in the <b>{name}</b> group will lose the permissions in the <b>{role}</b> role',
+    description: 'Remove role message warning about irreversible action',
+    defaultMessage: 'Role <b>{role}</b> will be removed from the group <b>{name}</b>. This action cannot be undone.',
   },
   removeRolesModalText: {
     id: 'removeRolesModalText',
-    description: 'Remove role message warning about losing permissions',
-    defaultMessage: 'Members in the <b>{name}</b> group will lose the permissions in these <b>{roles}</b> roles',
+    description: 'Remove roles message warning about irreversible action',
+    defaultMessage: '<b>{roles}</b> selected roles will be removed from the group <b>{name}</b>. This action cannot be undone.',
   },
   removeRole: {
     id: 'removeRole',
