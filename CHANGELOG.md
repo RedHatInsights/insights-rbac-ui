@@ -1,3 +1,10 @@
+## [1.69.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.1...v1.69.2) (2025-11-06)
+
+
+### Bug Fixes
+
+* **tests:** correct Storybook play tests for confirmation modals ([9059b22](https://github.com/RedHatInsights/insights-rbac-ui/commit/9059b22888b00e48afb339a42667219da1cae56f))
+
 ## [1.69.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.0...v1.69.1) (2025-11-05)
 
 
