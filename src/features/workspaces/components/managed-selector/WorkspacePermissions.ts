@@ -36,7 +36,7 @@ export const useWorkspacePermissions = (): [WorkspacePermissionsObject, Error | 
         result[WorkspacePermissions.AllPermission] = hasUnrestrictedAll ? [] : allPermissions.flatMap((p) => p.resourceDefinitions || []);
         result[WorkspacePermissions.ReadPermission] = hasUnrestrictedRead ? [] : readPermissions.flatMap((p) => p.resourceDefinitions || []);
         result[WorkspacePermissions.WritePermission] = hasUnrestrictedWrite ? [] : writePermissions.flatMap((p) => p.resourceDefinitions || []);
-        
+
         setWorkspacePermissions(result);
       })
       .catch((error) => setWorkspacePermissionsError(new Error('Error fetching user workspace permissions', error)));
