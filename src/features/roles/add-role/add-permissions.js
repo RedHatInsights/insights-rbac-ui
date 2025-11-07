@@ -296,11 +296,24 @@ const AddPermissionsTable = ({ selectedPermissions, setSelectedPermissions, ...p
           });
         }}
         setFilterValue={({ applications, resources, operations }) => {
+          const nextApplications = typeof applications !== 'undefined' ? applications : filters.applications;
+          const nextResources = typeof resources !== 'undefined' ? resources : filters.resources;
+          const nextOperations = typeof operations !== 'undefined' ? operations : filters.operations;
+
           setFilters({
             ...filters,
-            ...(applications ? { applications } : filters.applications),
-            ...(resources ? { resources } : filters.resources),
-            ...(operations ? { operations } : filters.operations),
+            applications: nextApplications,
+            resources: nextResources,
+            operations: nextOperations,
+          });
+
+          // Immediately fetch with the updated filters so the table updates without requiring pagination
+          fetchData({
+            limit: pagination.limit,
+            offset: 0,
+            application: nextApplications.join(),
+            resourceType: nextResources.join(),
+            verb: nextOperations.join(),
           });
         }}
         isLoading={isLoading || isLoadingExpandSplats}
