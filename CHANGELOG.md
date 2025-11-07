@@ -1,3 +1,10 @@
+## [1.69.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.2...v1.69.3) (2025-11-07)
+
+
+### Bug Fixes
+
+* fixed bug with filters in permissions table of create role wizard ([6daa692](https://github.com/RedHatInsights/insights-rbac-ui/commit/6daa692cb778275158dae36a17a58550cdb51b4f))
+
 ## [1.69.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.1...v1.69.2) (2025-11-06)
 
 
