@@ -1,3 +1,10 @@
+# [1.70.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.3...v1.70.0) (2025-11-10)
+
+
+### Features
+
+* **nav:** iam nav overhaul ([#1993](https://github.com/RedHatInsights/insights-rbac-ui/issues/1993)) ([4771166](https://github.com/RedHatInsights/insights-rbac-ui/commit/4771166cf61893e12df87340ad37944148e31bd2))
+
 ## [1.69.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.2...v1.69.3) (2025-11-07)
 
 
