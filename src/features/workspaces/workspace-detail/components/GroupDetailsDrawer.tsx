@@ -17,6 +17,7 @@ import { Spinner } from '@patternfly/react-core/dist/dynamic/components/Spinner'
 import { Tab } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Tabs } from '@patternfly/react-core/dist/dynamic/components/Tabs';
 import { Title } from '@patternfly/react-core/dist/dynamic/components/Title';
+import { Tooltip } from '@patternfly/react-core/dist/dynamic/components/Tooltip';
 import {} from '@patternfly/react-core';
 import ExclamationCircleIcon from '@patternfly/react-icons/dist/js/icons/exclamation-circle-icon';
 import KeyIcon from '@patternfly/react-icons/dist/js/icons/key-icon';
@@ -159,21 +160,33 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         const groupWithInheritance = group as GroupWithInheritance;
         const organizationCell =
           groupWithInheritance?.inheritedFrom && currentWorkspace ? (
-            <AppLink
-              to={`/workspaces/detail/${groupWithInheritance.inheritedFrom.workspaceId}`}
-              linkBasename="/iam/access-management"
-              className="pf-v5-c-button pf-m-link pf-m-inline"
+            <Tooltip
+              content={intl.formatMessage(messages.workspaceNavigationTooltip, {
+                workspaceName: groupWithInheritance.inheritedFrom.workspaceName,
+              })}
             >
-              {groupWithInheritance.inheritedFrom.workspaceName}
-            </AppLink>
+              <AppLink
+                to={`/workspaces/detail/${groupWithInheritance.inheritedFrom.workspaceId}`}
+                linkBasename="/iam/access-management"
+                className="pf-v5-c-button pf-m-link pf-m-inline"
+              >
+                {groupWithInheritance.inheritedFrom.workspaceName}
+              </AppLink>
+            </Tooltip>
           ) : currentWorkspace ? (
-            <AppLink
-              to={`/workspaces/detail/${currentWorkspace.id}`}
-              linkBasename="/iam/access-management"
-              className="pf-v5-c-button pf-m-link pf-m-inline"
+            <Tooltip
+              content={intl.formatMessage(messages.workspaceNavigationTooltip, {
+                workspaceName: currentWorkspace.name,
+              })}
             >
-              {currentWorkspace.name}
-            </AppLink>
+              <AppLink
+                to={`/workspaces/detail/${currentWorkspace.id}`}
+                linkBasename="/iam/access-management"
+                className="pf-v5-c-button pf-m-link pf-m-inline"
+              >
+                {currentWorkspace.name}
+              </AppLink>
+            </Tooltip>
           ) : (
             <div className="pf-v5-u-color-400">-</div>
           );
@@ -254,9 +267,15 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         // Use the group's inheritance info since roles inherit from the same workspace
         const groupWithInheritance = group as GroupWithInheritance;
         const inheritanceCell = groupWithInheritance?.inheritedFrom ? (
-          <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
-            {groupWithInheritance.inheritedFrom.workspaceName}
-          </a>
+          <Tooltip
+            content={intl.formatMessage(messages.workspaceNavigationTooltip, {
+              workspaceName: groupWithInheritance.inheritedFrom.workspaceName,
+            })}
+          >
+            <a href={`#/workspaces/${groupWithInheritance.inheritedFrom.workspaceId}`} className="pf-v5-c-button pf-m-link pf-m-inline">
+              {groupWithInheritance.inheritedFrom.workspaceName}
+            </a>
+          </Tooltip>
         ) : (
           <div className="pf-v5-u-color-400">-</div>
         );

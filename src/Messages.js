@@ -1260,6 +1260,11 @@ export default defineMessages({
     description: 'Alert shown when navigating to parent workspace from child workspace role binding',
     defaultMessage: 'You are viewing role bindings inherited by {childWorkspaceName} from {parentWorkspaceName}.',
   },
+  workspaceNavigationTooltip: {
+    id: 'workspaceNavigationTooltip',
+    description: 'Tooltip shown when hovering over workspace links in drawer',
+    defaultMessage: 'You will be taken to {workspaceName}',
+  },
   createWorkspace: {
     id: 'createWorkspace',
     description: 'Create workspace action label',
