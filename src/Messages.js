@@ -1255,6 +1255,11 @@ export default defineMessages({
     description: 'Workspace detail breadcrumb title',
     defaultMessage: 'Workspace hierarchy:',
   },
+  workspaceInheritedFromChildAlert: {
+    id: 'workspaceInheritedFromChildAlert',
+    description: 'Alert shown when navigating to parent workspace from child workspace role binding',
+    defaultMessage: 'You are viewing role bindings inherited by {childWorkspaceName} from {parentWorkspaceName}.',
+  },
   createWorkspace: {
     id: 'createWorkspace',
     description: 'Create workspace action label',
@@ -1508,6 +1513,11 @@ export default defineMessages({
     id: 'lastName',
     description: 'Last name label',
     defaultMessage: 'Last name',
+  },
+  organization: {
+    id: 'organization',
+    description: 'Organization label',
+    defaultMessage: 'Organization',
   },
   addToGroup: {
     id: 'addToGroup',

@@ -61,6 +61,7 @@ interface GroupDetailsDrawerProps {
   ouiaId?: string;
   children: React.ReactNode;
   showInheritance?: boolean; // New prop to control inheritance column display
+  currentWorkspace?: { id: string; name: string }; // Current workspace context for organization links
 }
 
 export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
@@ -70,6 +71,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
   ouiaId = 'group-details-drawer',
   children,
   showInheritance = false,
+  currentWorkspace,
 }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
@@ -95,12 +97,15 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
     }
   }, [dispatch, group]);
 
-  // Users tab columns (same for both drawer types)
-  const GROUP_USERS_COLUMNS: string[] = [
-    intl.formatMessage(messages.username),
-    intl.formatMessage(messages.firstName),
-    intl.formatMessage(messages.lastName),
-  ];
+  // Users tab columns - conditionally includes "Organization" column when showing inheritance
+  const GROUP_USERS_COLUMNS: string[] = showInheritance
+    ? [
+        intl.formatMessage(messages.username),
+        intl.formatMessage(messages.firstName),
+        intl.formatMessage(messages.lastName),
+        intl.formatMessage(messages.organization),
+      ]
+    : [intl.formatMessage(messages.username), intl.formatMessage(messages.firstName), intl.formatMessage(messages.lastName)];
 
   // Roles tab columns - conditionally includes "Inherited from" column
   const GROUP_ROLES_COLUMNS: string[] = showInheritance
@@ -146,11 +151,41 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
       );
     }
 
-    const userRows = members.map((user) => ({
-      key: user.username,
-      row: [user.username, user.first_name, user.last_name],
-      props: {},
-    }));
+    const userRows = members.map((user) => {
+      const baseRow: (string | React.ReactElement)[] = [user.username, user.first_name, user.last_name];
+
+      // Add organization column if showing inheritance
+      if (showInheritance) {
+        const groupWithInheritance = group as GroupWithInheritance;
+        const organizationCell =
+          groupWithInheritance?.inheritedFrom && currentWorkspace ? (
+            <AppLink
+              to={`/workspaces/detail/${groupWithInheritance.inheritedFrom.workspaceId}`}
+              linkBasename="/iam/access-management"
+              className="pf-v5-c-button pf-m-link pf-m-inline"
+            >
+              {groupWithInheritance.inheritedFrom.workspaceName}
+            </AppLink>
+          ) : currentWorkspace ? (
+            <AppLink
+              to={`/workspaces/detail/${currentWorkspace.id}`}
+              linkBasename="/iam/access-management"
+              className="pf-v5-c-button pf-m-link pf-m-inline"
+            >
+              {currentWorkspace.name}
+            </AppLink>
+          ) : (
+            <div className="pf-v5-u-color-400">-</div>
+          );
+        baseRow.push(organizationCell);
+      }
+
+      return {
+        key: user.username,
+        row: baseRow,
+        props: {},
+      };
+    });
 
     return (
       <div className="pf-v5-u-pt-md">
@@ -165,7 +200,7 @@ export const GroupDetailsDrawer: React.FC<GroupDetailsDrawerProps> = ({
         </DataView>
       </div>
     );
-  }, [intl, members, membersError, membersLoading, ouiaId]);
+  }, [intl, members, membersError, membersLoading, ouiaId, showInheritance, group, currentWorkspace]);
 
   // Render roles tab content - conditionally shows inheritance information
   const renderRolesTab = useCallback(() => {
