@@ -77,6 +77,7 @@ export const WorkspaceHeader: React.FC<WorkspaceHeaderProps> = ({ workspace, isL
             parentWorkspaceName: workspace?.name || '',
           })}
           className="pf-v5-u-mt-md"
+          role="alert"
         />
       )}
     </>
