@@ -47,6 +47,7 @@ interface RoleAssignmentsTableProps {
   clearAllFilters: () => void;
 
   workspaceName?: string;
+  currentWorkspace?: { id: string; name: string };
 
   // UI configuration props
   ouiaId?: string;
@@ -67,6 +68,7 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   onSetFilters,
   clearAllFilters,
   workspaceName,
+  currentWorkspace,
   ouiaId = 'iam-role-assignments-table',
 }) => {
   const intl = useIntl();
@@ -185,7 +187,14 @@ export const RoleAssignmentsTable: React.FC<RoleAssignmentsTableProps> = ({
   const activeState = isLoading ? DataViewState.loading : groups.length === 0 ? DataViewState.empty : undefined;
 
   return (
-    <GroupDetailsDrawer isOpen={!!focusedGroup} group={focusedGroup} onClose={onCloseDrawer} ouiaId={ouiaId} showInheritance={hasInheritanceData}>
+    <GroupDetailsDrawer
+      isOpen={!!focusedGroup}
+      group={focusedGroup}
+      onClose={onCloseDrawer}
+      ouiaId={ouiaId}
+      showInheritance={hasInheritanceData}
+      currentWorkspace={currentWorkspace}
+    >
       <DataView activeState={activeState} selection={selection}>
         <DataViewToolbar
           bulkSelect={

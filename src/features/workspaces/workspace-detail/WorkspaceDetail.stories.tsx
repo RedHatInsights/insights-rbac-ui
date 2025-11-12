@@ -488,3 +488,40 @@ export const EmptyGroupsState: Story = {
     await expect(canvas.findByText('Assets')).resolves.toBeInTheDocument();
   },
 };
+
+export const RoleAssignmentTabSwitching: Story = {
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-2?activeTab=roles&roleAssignmentTab=roles-assigned-in-workspace',
+    featureFlags: {
+      'platform.rbac.workspaces-role-bindings': true,
+    },
+    docs: {
+      description: {
+        story: 'Tests switching between "Roles assigned in this workspace" and "Roles assigned in parent workspaces" tabs.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    await delay(300);
+    const canvas = within(canvasElement);
+
+    // Wait for skeleton loading to complete
+    await waitForSkeletonToDisappear(canvasElement);
+
+    // Start with roles assigned in this workspace tab
+    const thisWorkspaceTab = await canvas.findByText('Roles assigned in this workspace');
+    const parentWorkspacesTab = await canvas.findByText('Roles assigned in parent workspaces');
+
+    await expect(thisWorkspaceTab).toBeInTheDocument();
+    await expect(parentWorkspacesTab).toBeInTheDocument();
+
+    // Switch to parent workspaces tab
+    await userEvent.click(parentWorkspacesTab);
+
+    // Switch back to this workspace tab
+    await userEvent.click(thisWorkspaceTab);
+
+    // Verify we can see role assignments table content
+    await expect(canvas.findByText('Platform Team')).resolves.toBeInTheDocument();
+  },
+};

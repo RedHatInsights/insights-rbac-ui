@@ -3,8 +3,10 @@ import React from 'react';
 import { expect, userEvent, waitFor, within } from 'storybook/test';
 import { WorkspaceHeader } from './WorkspaceHeader';
 import { IntlProvider } from 'react-intl';
-import { BrowserRouter } from 'react-router-dom';
+import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { Workspace } from '../../../redux/workspaces/reducer';
+import messages from '../../../locales/data.json';
+import { locale } from '../../../locales/locale';
 
 // Mock workspace data
 const mockWorkspace: Workspace = {
@@ -32,15 +34,19 @@ const mockHierarchy = [
 const mockSingleWorkspaceHierarchy = [{ name: 'Production Environment', id: 'workspace-1' }];
 
 // Story decorator to provide necessary context
-const withProviders = (Story: any) => {
+const withProviders = (Story: any, context: any) => {
+  const route = context.parameters?.route || '/iam/access-management/workspaces/detail/workspace-1';
   return (
-    <BrowserRouter>
-      <IntlProvider locale="en" messages={{}}>
+    <MemoryRouter initialEntries={[route]}>
+      <IntlProvider locale={locale} messages={messages[locale]}>
         <div style={{ minHeight: '300px', padding: '16px' }}>
-          <Story />
+          <Routes>
+            <Route path="/iam/access-management/workspaces/detail/:workspaceId" element={<Story />} />
+            <Route path="*" element={<Story />} />
+          </Routes>
         </div>
       </IntlProvider>
-    </BrowserRouter>
+    </MemoryRouter>
   );
 };
 
@@ -279,5 +285,70 @@ export const ActionsInteraction: Story = {
 
     // Verify button is still present after clicking
     await expect(actionsButton).toBeInTheDocument();
+  },
+};
+
+export const WithChildContextAlert: Story = {
+  args: {
+    workspace: mockWorkspace,
+    isLoading: false,
+    workspaceHierarchy: mockSingleWorkspaceHierarchy,
+    hasAssets: true,
+  },
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-1?fromChildId=workspace-2&fromChildName=Web%20Services',
+    docs: {
+      description: {
+        story:
+          'Workspace header showing context alert when navigated from a child workspace. Tests the URL parameter handling for fromChildId and fromChildName.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify workspace title is displayed (should appear multiple times: title, breadcrumb, alert)
+    const titleElements = canvas.getAllByText('Production Environment');
+    await expect(titleElements.length).toBeGreaterThanOrEqual(2);
+
+    // Verify the alert message is displayed when navigating from child workspace
+    // Find by the alert message text first, which is more reliable
+    const alertMessage = await canvas.findByText(/You are viewing role bindings inherited by Web Services from Production Environment/i);
+    await expect(alertMessage).toBeInTheDocument();
+
+    // Verify the alert element exists with the correct role
+    const alert = alertMessage.closest('[role="alert"]');
+    await expect(alert).toBeInTheDocument();
+  },
+};
+
+export const WithoutChildContext: Story = {
+  args: {
+    workspace: mockWorkspace,
+    isLoading: false,
+    workspaceHierarchy: mockSingleWorkspaceHierarchy,
+    hasAssets: true,
+  },
+  parameters: {
+    route: '/iam/access-management/workspaces/detail/workspace-1',
+    docs: {
+      description: {
+        story: 'Workspace header without child context parameters - should not show the alert.',
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Verify workspace title is displayed (should appear multiple times: title and breadcrumb)
+    const titleElements = canvas.getAllByText('Production Environment');
+    await expect(titleElements.length).toBeGreaterThanOrEqual(2);
+
+    // Verify workspace description is displayed
+    await expect(canvas.findByText('Main production workspace for critical services and applications')).resolves.toBeInTheDocument();
+
+    // Verify alert is NOT displayed when there are no child context parameters
+    const alert = canvas.queryByRole('alert');
+    await expect(alert).not.toBeInTheDocument();
   },
 };

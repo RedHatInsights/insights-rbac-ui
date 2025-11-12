@@ -311,6 +311,8 @@ export const WorkspaceDetail = () => {
     }
   };
 
+  const currentWorkspace = selectedWorkspace ? { id: selectedWorkspace.id, name: selectedWorkspace.name } : undefined;
+
   return (
     <>
       <WorkspaceHeader workspace={selectedWorkspace} isLoading={isLoading} workspaceHierarchy={workspaceHierarchy} hasAssets={hasAssets} />
@@ -379,6 +381,7 @@ export const WorkspaceDetail = () => {
                   onSetFilters={onSetFilters}
                   clearAllFilters={clearAllFilters}
                   workspaceName={selectedWorkspace?.name || ''}
+                  currentWorkspace={currentWorkspace}
                   ouiaId="current-role-assignments-table"
                 />
               ) : (
@@ -398,6 +401,7 @@ export const WorkspaceDetail = () => {
                   onSetFilters={parentOnSetFilters}
                   clearAllFilters={parentClearAllFilters}
                   workspaceName={selectedWorkspace?.name || ''}
+                  currentWorkspace={currentWorkspace}
                   ouiaId="parent-role-assignments-table"
                 />
               )}
