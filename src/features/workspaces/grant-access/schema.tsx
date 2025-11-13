@@ -36,14 +36,14 @@ export const schemaBuilder = (workspaceName: string) => {
             ],
           },
           {
-            title: 'Select role(s)',
+            title: intl.formatMessage(messages.selectRoles),
             name: 'select-roles',
             nextStep: 'review',
             fields: [
               {
-                name: 'roles-placeholder',
-                component: 'plain-text',
-                label: 'Role selection will be implemented here',
+                name: 'selected-roles',
+                component: 'roles-selection',
+                isRequired: true,
               },
             ],
           },
