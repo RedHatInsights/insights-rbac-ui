@@ -2902,7 +2902,7 @@ export default defineMessages({
   selectRolesDescription: {
     id: 'selectRolesDescription',
     description: 'Select roles step description',
-    defaultMessage: 'This step is currently blank and ready for implementation.',
+    defaultMessage: 'Select one or more roles to link to this group.',
   },
   reviewDescription: {
     id: 'reviewDescription',
