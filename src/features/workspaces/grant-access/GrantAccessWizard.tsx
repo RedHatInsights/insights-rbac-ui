@@ -11,6 +11,7 @@ import pathnames from '../../../utilities/pathnames';
 import messages from '../../../Messages';
 import { schemaBuilder } from './schema';
 import UserGroupsSelectionField from './components/UserGroupsSelectionField';
+import RolesSelectionField from './components/RolesSelectionField';
 import ReviewSelection from './components/ReviewSelection';
 
 export interface GrantAccessWizardProps {
@@ -24,6 +25,7 @@ const FormTemplate = (props: FormTemplateCommonProps) => <Pf4FormTemplate {...pr
 const customComponentMapper = {
   ...componentMapper,
   'user-groups-selection': UserGroupsSelectionField,
+  'roles-selection': RolesSelectionField,
   'review-selection': ReviewSelection,
 };
 

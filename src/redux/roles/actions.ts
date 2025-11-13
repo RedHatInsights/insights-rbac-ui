@@ -109,7 +109,10 @@ export const fetchRoleForPrincipal = (roleId: string) => ({
 
 export const fetchRolesForWizard = (options: FetchRolesParams = {}) => ({
   type: FETCH_ROLES_FOR_WIZARD,
-  payload: fetchRolesHelper(options),
+  payload: fetchRolesHelper({
+    ...options,
+    addFields: ['groups_in_count', 'access'],
+  }),
 });
 
 export const updateRole = (roleId: string, data: RolePut, useCustomAccess: boolean) => {
