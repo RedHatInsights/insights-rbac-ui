@@ -37,7 +37,6 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
     selection,
     tableRows,
     columns,
-    hasActiveFilters,
     hasPermissions,
     isPlatformDefault,
     isAdminDefault,
@@ -54,19 +53,18 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
 
   // Filter change handler
   const handleFilterChange = useCallback(
-    (key: string, newValues: Partial<{ name: string }>) => {
-      const newFilters = { ...filters.filters, ...newValues };
+    (_event: any, newFilters: Partial<{ name: string }>) => {
       filters.onSetFilters(newFilters);
-      fetchData({ name: newFilters.name, offset: 0 });
+      fetchData({ name: newFilters.name || '', offset: 0 });
     },
-    [filters, fetchData],
+    [filters.onSetFilters, fetchData],
   );
 
-  // Clear all filters
+  // Wrap clearAllFilters to also trigger API call
   const clearAllFilters = useCallback(() => {
-    filters.onSetFilters({ name: '' });
-    fetchData({ offset: 0 });
-  }, [filters, fetchData]);
+    filters.clearAllFilters();
+    fetchData({ name: '', offset: 0 });
+  }, [filters.clearAllFilters, fetchData]);
 
   // Bulk select handler
   const handleBulkSelect = useCallback(
@@ -174,7 +172,7 @@ export const GroupRoles: React.FC<GroupRolesProps> = (props) => {
                 <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
               </DataViewFilters>
             }
-            clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
+            clearAllFilters={clearAllFilters}
             actions={toolbarActions}
           />
           <DataViewTable

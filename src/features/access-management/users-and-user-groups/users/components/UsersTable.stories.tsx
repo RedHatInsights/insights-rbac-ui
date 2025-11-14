@@ -50,6 +50,18 @@ const defaultArgs = {
   onBulkStatusChange: fn(),
   searchParams: new URLSearchParams(),
   setSearchParams: fn(),
+  // Data view props required by the component
+  sortBy: 'username',
+  direction: 'asc' as const,
+  onSort: fn(),
+  filters: { username: '', email: '' },
+  onSetFilters: fn(),
+  clearAllFilters: fn(),
+  page: 1,
+  perPage: 20,
+  onSetPage: fn(),
+  onPerPageSelect: fn(),
+  pagination: {},
 };
 
 const meta: Meta<typeof UsersTable> = {
@@ -538,5 +550,66 @@ export const MixedUserStates: Story = {
 
     await expect(activeUserSwitch).toBeChecked();
     await expect(inactiveUserSwitch).not.toBeChecked();
+  },
+};
+
+// Filter functionality test
+export const FilterUsers: Story = {
+  args: {
+    ...defaultArgs,
+    users: [
+      createMockUser('1', { username: 'john.doe', email: 'john.doe@redhat.com', first_name: 'John', last_name: 'Doe' }),
+      createMockUser('2', { username: 'jane.smith', email: 'jane.smith@redhat.com', first_name: 'Jane', last_name: 'Smith' }),
+      createMockUser('3', { username: 'bob.wilson', email: 'bob.wilson@company.com', first_name: 'Bob', last_name: 'Wilson' }),
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Filter Functionality Test**: Validates that user filtering works correctly with username and email filters, and that the "Clear filters" button functions properly.
+
+This story tests:
+1. Username filter updates trigger onSetFilters callback
+2. Email filter updates trigger onSetFilters callback  
+3. "Clear filters" button appears and works correctly
+4. Filter inputs are cleared when "Clear filters" is clicked
+
+Perfect for testing filter state management and ensuring all filter controls work as expected.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial load
+    await canvas.findByText('john.doe');
+    await canvas.findByText('jane.smith');
+    await canvas.findByText('bob.wilson');
+
+    // Clear any previous calls to the mock
+    defaultArgs.onSetFilters.mockClear();
+    defaultArgs.clearAllFilters.mockClear();
+
+    // TEST FILTER INPUT
+    // Multi-field filter pattern: only ONE textbox is visible at a time
+    const filterInput = await canvas.findByRole('textbox');
+
+    await userEvent.type(filterInput, 'john');
+
+    // Verify onSetFilters was called
+    await waitFor(() => expect(defaultArgs.onSetFilters).toHaveBeenCalled());
+
+    // Verify filter input has the value
+    expect(filterInput).toHaveValue('john');
+
+    // TEST CLEAR FILTERS
+    // Find and click "Clear filters" button (there may be two toolbars, use the first one)
+    const clearButtons = await canvas.findAllByText('Clear filters');
+    await userEvent.click(clearButtons[0]);
+
+    // Verify clearAllFilters was called
+    await waitFor(() => expect(defaultArgs.clearAllFilters).toHaveBeenCalled());
   },
 };

@@ -94,7 +94,7 @@ export const UsersList: React.FC<UsersListProps> = (props) => {
       status: [],
       offset: 0,
     });
-  }, [filters, fetchData]);
+  }, [filters.onSetFilters, fetchData]);
 
   // Bulk select handler
   const handleBulkSelect = useCallback(

@@ -584,3 +584,62 @@ export const ActionsToolbar: Story = {
     await expect(paginationElements.length).toBeGreaterThanOrEqual(1);
   },
 };
+
+// Filter functionality test with clear filters
+export const FilterUserGroups: Story = {
+  args: {
+    ...defaultArgs,
+    groups: [
+      { ...createMockGroup('1'), name: 'Admin Group', description: 'Administrators' },
+      { ...createMockGroup('2'), name: 'Developer Group', description: 'Developers' },
+      { ...createMockGroup('3'), name: 'Viewer Group', description: 'Read-only users' },
+    ],
+  },
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Filter Functionality Test**: Validates that user group filtering works correctly and that the "Clear filters" button functions properly.
+
+This story tests:
+1. Filter input updates trigger onSetFilters callback
+2. Filter input retains typed value
+3. "Clear filters" button appears and works correctly
+4. clearAllFilters callback is invoked when clicking "Clear filters"
+
+Perfect for testing filter state management and ensuring the clear filters button works as expected.
+        `,
+      },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial load
+    await canvas.findByText('Admin Group');
+    await canvas.findByText('Developer Group');
+    await canvas.findByText('Viewer Group');
+
+    // Clear any previous calls to the mock
+    defaultArgs.onSetFilters.mockClear();
+    defaultArgs.clearAllFilters.mockClear();
+
+    // TEST FILTER INPUT
+    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+    await userEvent.type(filterInput, 'Admin');
+
+    // Verify onSetFilters was called
+    await waitFor(() => expect(defaultArgs.onSetFilters).toHaveBeenCalled());
+
+    // Verify filter input has the value
+    expect(filterInput).toHaveValue('Admin');
+
+    // TEST CLEAR FILTERS
+    // Find and click "Clear filters" button (there may be two toolbars, use the first one)
+    const clearButtons = await canvas.findAllByText('Clear filters');
+    await userEvent.click(clearButtons[0]);
+
+    // Verify clearAllFilters was called
+    await waitFor(() => expect(defaultArgs.clearAllFilters).toHaveBeenCalled());
+  },
+};

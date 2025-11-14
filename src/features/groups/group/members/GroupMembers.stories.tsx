@@ -533,6 +533,39 @@ export const FilterMembers: Story = {
     expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
     expect(canvas.queryByText('bob.smith')).not.toBeInTheDocument();
     expect(canvas.queryByText('charlie.brown')).not.toBeInTheDocument();
+
+    // Test clear all filters functionality
+    // Note: There are TWO "Clear filters" buttons (top and bottom toolbar), so use findAllByText
+    const clearAllFiltersButtons = await canvas.findAllByText('Clear filters');
+    const clearAllFilters = clearAllFiltersButtons[0]; // Use the first one (top toolbar)
+
+    // Reset spy to track the clear filters API call
+    getMembersSpy.mockClear();
+
+    await userEvent.click(clearAllFilters);
+
+    // Wait for filter state to update and API call to be triggered
+    // Need longer delay because filters.onSetFilters might be async
+    await delay(1500);
+
+    // Verify API was called with no filters (username should be empty)
+    await waitFor(
+      () => {
+        expect(getMembersSpy).toHaveBeenCalled();
+        const lastCall = getMembersSpy.mock.calls[getMembersSpy.mock.calls.length - 1][0];
+        expect(lastCall.username).toBe('');
+        expect(lastCall.offset).toBe(0);
+      },
+      { timeout: 1000 },
+    );
+
+    // Verify all members are displayed again after clearing filters
+    expect(await canvas.findByText('alice.johnson')).toBeInTheDocument();
+    expect(await canvas.findByText('bob.smith')).toBeInTheDocument();
+    expect(await canvas.findByText('charlie.brown')).toBeInTheDocument();
+
+    // Verify the filter input is cleared
+    expect(filterInput).toHaveValue('');
   },
 };
 

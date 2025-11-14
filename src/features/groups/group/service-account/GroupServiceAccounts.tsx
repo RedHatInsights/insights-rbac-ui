@@ -41,7 +41,6 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
     selection,
     tableRows,
     columns,
-    hasActiveFilters,
     hasPermissions,
     isAdminDefault,
     isPlatformDefault,
@@ -67,15 +66,14 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
         offset: 0,
       });
     },
-    [filters, fetchData],
+    [filters.onSetFilters, filters.filters, fetchData],
   );
 
-  // Clear all filters
+  // Wrap clearAllFilters to also trigger API call
   const clearAllFilters = useCallback(() => {
-    const defaultFilters = { clientId: '', name: '', description: '' };
-    filters.onSetFilters(defaultFilters);
-    fetchData({ ...defaultFilters, offset: 0 });
-  }, [filters, fetchData]);
+    filters.clearAllFilters();
+    fetchData({ clientId: '', name: '', description: '', offset: 0 });
+  }, [filters.clearAllFilters, fetchData]);
 
   // Bulk select handler
   const handleBulkSelect = useCallback(
@@ -192,7 +190,7 @@ export const GroupServiceAccounts: React.FC<GroupServiceAccountsProps> = (props)
                     <DataViewTextFilter filterId="name" title="Name" placeholder="Filter by name" />
                   </DataViewFilters>
                 }
-                clearAllFilters={hasActiveFilters ? clearAllFilters : undefined}
+                clearAllFilters={clearAllFilters}
               />
               <DataViewTable
                 columns={columns}
