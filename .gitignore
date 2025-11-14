@@ -37,3 +37,6 @@ storybook-static
 .cypress-cache
 # code coverage
 .nyc_output
+
+cypress/downloads
+test-results
