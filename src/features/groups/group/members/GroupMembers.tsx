@@ -59,7 +59,6 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
     isAdmin,
     filters,
     selection,
-    hasActiveFilters,
 
     tableRows,
     columns,
@@ -113,14 +112,15 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
       const usernameFilter = newFilters.name || undefined;
       debouncedFetchData(usernameFilter, { offset: 0 });
     },
-    [filters, debouncedFetchData],
+    [filters.onSetFilters, debouncedFetchData],
   );
 
-  // Clear all filters
-  const handleClearAllFilters = useCallback(() => {
-    filters.onSetFilters({ name: '' });
-    fetchData(undefined, { offset: 0 });
-  }, [filters, fetchData]);
+  // Wrap clearAllFilters to also trigger API call
+  // filters.clearAllFilters() only clears the UI state but doesn't trigger the API call
+  const clearAllFilters = useCallback(() => {
+    filters.clearAllFilters();
+    fetchData('', { offset: 0 });
+  }, [filters.clearAllFilters, fetchData]);
 
   // Bulk selection handling using DataView selection
   const handleBulkSelect = useCallback(
@@ -208,7 +208,7 @@ const GroupMembers: React.FC<GroupMembersProps> = (props) => {
                 />
               </DataViewFilters>
             }
-            clearAllFilters={hasActiveFilters ? handleClearAllFilters : undefined}
+            clearAllFilters={clearAllFilters}
             actions={
               isAdmin ? (
                 <>

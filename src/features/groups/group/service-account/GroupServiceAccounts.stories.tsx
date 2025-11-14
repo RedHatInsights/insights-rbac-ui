@@ -589,20 +589,19 @@ export const ServiceAccountsFilteringWithData: Story = {
     );
 
     // TEST CLEAR FILTERS: Clear all filters to restore full data
-    const clearFiltersButton = canvas.queryByText('Clear all filters');
-    if (clearFiltersButton) {
-      await userEvent.click(clearFiltersButton);
+    // There are two toolbars (top and bottom), so use findAllByText and click the first one
+    const clearFilterButtons = await canvas.findAllByText('Clear filters');
+    await userEvent.click(clearFilterButtons[0]);
 
-      // Should restore all service accounts
-      await waitFor(
-        () => {
-          expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
-          expect(canvas.getByText('monitoring-collector')).toBeInTheDocument();
-          expect(canvas.getByText('backup-automation')).toBeInTheDocument();
-        },
-        { timeout: 5000 },
-      );
-    }
+    // Should restore all service accounts
+    await waitFor(
+      () => {
+        expect(canvas.getByText('ci-pipeline-service')).toBeInTheDocument();
+        expect(canvas.getByText('monitoring-collector')).toBeInTheDocument();
+        expect(canvas.getByText('backup-automation')).toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
   },
 };
 
