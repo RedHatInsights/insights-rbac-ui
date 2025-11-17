@@ -639,7 +639,7 @@ export const GrantAccessWizardTest: Story = {
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const addFields = url.searchParams.get('add_fields');
-          
+
           // Only handle requests that include groups_in_count and access fields (from our wizard)
           if (!addFields || !addFields.includes('groups_in_count') || !addFields.includes('access')) {
             // Pass through to other handlers for non-wizard requests
@@ -653,11 +653,7 @@ export const GrantAccessWizardTest: Story = {
                 display_name: 'Administrator',
                 description: 'Full administrative access to all resources',
                 accessCount: 25,
-                access: [
-                  { permission: 'admin:read' },
-                  { permission: 'admin:write' },
-                  { permission: 'admin:delete' },
-                ],
+                access: [{ permission: 'admin:read' }, { permission: 'admin:write' }, { permission: 'admin:delete' }],
                 created: '2024-01-15T10:30:00Z',
                 modified: '2024-01-20T14:45:00Z',
               },
@@ -667,11 +663,7 @@ export const GrantAccessWizardTest: Story = {
                 display_name: 'User Manager',
                 description: 'Manage users and groups within the workspace',
                 accessCount: 8,
-                access: [
-                  { permission: 'users:read' },
-                  { permission: 'users:write' },
-                  { permission: 'groups:read' },
-                ],
+                access: [{ permission: 'users:read' }, { permission: 'users:write' }, { permission: 'groups:read' }],
                 created: '2024-01-10T09:15:00Z',
                 modified: '2024-01-18T16:20:00Z',
               },
@@ -681,10 +673,7 @@ export const GrantAccessWizardTest: Story = {
                 display_name: 'Viewer',
                 description: 'Read-only access to workspace resources',
                 accessCount: 5,
-                access: [
-                  { permission: 'workspace:read' },
-                  { permission: 'resources:read' },
-                ],
+                access: [{ permission: 'workspace:read' }, { permission: 'resources:read' }],
                 created: '2024-01-12T11:00:00Z',
                 modified: '2024-01-19T13:30:00Z',
               },
@@ -821,10 +810,7 @@ export const GrantAccessWizardTest: Story = {
               }
 
               if (foundRolesStep || foundRolesTable) {
-                // We found roles step content, verify we're on an active wizard step
-                const rolesStepIndicator =
-                  wizardContent?.querySelector('[aria-current="step"]') || wizardContent?.querySelector('.pf-v5-c-wizard__nav-item.pf-m-current');
-
+                // We found roles step content
                 expect(foundRolesStep || foundRolesTable).toBe(true);
 
                 // Try to interact with the roles table if visible
