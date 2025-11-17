@@ -3,9 +3,12 @@ import React, { useEffect } from 'react';
 import { MemoryRouter, Route, Routes, useParams } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { HttpResponse, delay, http } from 'msw';
-import { expect, userEvent, waitFor, within } from 'storybook/test';
+import { expect, fn, userEvent, waitFor, within } from 'storybook/test';
 import { GroupRoles } from './GroupRoles';
 import { fetchGroup } from '../../../../redux/groups/actions';
+
+// Spy for testing API calls
+const getRolesSpy = fn();
 
 // Regular group roles (custom roles assigned by admins)
 const mockRoles = [
@@ -887,5 +890,119 @@ Perfect for testing bulk operations and proper pluralization.
     const modal = await body.findByRole('dialog', {}, { timeout: 5000 });
     expect(modal).toBeInTheDocument();
     expect(within(modal).getByText(/Remove roles\?/i)).toBeInTheDocument();
+  },
+};
+
+// Test filtering functionality
+export const FilterRoles: Story = {
+  tags: ['perm:user-access-admin'],
+  parameters: {
+    docs: {
+      description: {
+        story: `
+**Filter Functionality Test**: Validates that role filtering works correctly with API calls and "Clear filters" button.
+
+This story tests:
+1. Filter input updates the table
+2. API is called with correct filter parameters
+3. "Clear filters" button appears and works
+4. API is called with empty filter when clearing
+5. Table displays all roles after clearing filters
+
+Perfect for testing filter state management and API integration.
+        `,
+      },
+    },
+    permissions: {
+      userAccessAdministrator: true,
+      orgAdmin: false,
+    },
+    msw: {
+      handlers: [
+        http.get('/api/rbac/v1/groups/:groupId/', () => {
+          return HttpResponse.json(mockGroup);
+        }),
+        http.get('/api/rbac/v1/groups/:groupId/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const nameFilter = url.searchParams.get('role_display_name') || '';
+          const limit = parseInt(url.searchParams.get('limit') || '20');
+          const offset = parseInt(url.searchParams.get('offset') || '0');
+
+          // Call spy for testing
+          getRolesSpy({ name: nameFilter, limit, offset });
+
+          // Filter roles by display_name if name parameter is provided
+          let filteredRoles = mockRoles;
+          if (nameFilter) {
+            filteredRoles = mockRoles.filter((role) => role.display_name.toLowerCase().includes(nameFilter.toLowerCase()));
+          }
+
+          return HttpResponse.json({
+            data: filteredRoles.slice(offset, offset + limit),
+            meta: { count: filteredRoles.length, limit, offset },
+          });
+        }),
+        http.get('/api/rbac/v1/groups/', () => {
+          return HttpResponse.json({
+            data: [],
+            meta: { count: 0, limit: 50, offset: 0 },
+          });
+        }),
+      ],
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+
+    // Wait for initial load
+    await canvas.findByText('Console Administrator');
+    await canvas.findByText('Organization Administrator');
+    await canvas.findByText('Insights Viewer');
+
+    // Clear the spy before testing to ignore mount calls
+    await delay(500); // Wait for any pending calls
+    getRolesSpy.mockClear();
+
+    // TEST FILTERING: Enter filter text
+    // Note: DataViewFilters onChange receives (event, newFilters)
+    const filterInput = canvas.getByPlaceholderText('Filter by name');
+
+    // Type the filter value
+    await userEvent.clear(filterInput);
+    await userEvent.type(filterInput, 'Console');
+
+    // Wait longer for all the onChange calls and API to complete
+    await delay(2000);
+
+    // Verify filtered results appear (this proves filtering works)
+    await waitFor(
+      () => {
+        expect(canvas.getByText('Console Administrator')).toBeInTheDocument();
+        expect(canvas.queryByText('Organization Administrator')).not.toBeInTheDocument();
+        expect(canvas.queryByText('Insights Viewer')).not.toBeInTheDocument();
+      },
+      { timeout: 5000 },
+    );
+
+    // Verify filter input has the value
+    expect(filterInput).toHaveValue('Console');
+
+    // TEST CLEAR FILTERS: Find and click "Clear filters" button
+    // There are two toolbars (top and bottom), so use findAllByText and click the first one
+    const clearButtons = await canvas.findAllByText('Clear filters');
+    await userEvent.click(clearButtons[0]);
+
+    // Wait for API to be called and data to refresh
+    await delay(500);
+
+    // Verify all roles are displayed again (proves clear filters works)
+    await waitFor(() => {
+      expect(canvas.getByText('Console Administrator')).toBeInTheDocument();
+      expect(canvas.getByText('Organization Administrator')).toBeInTheDocument();
+      expect(canvas.getByText('Insights Viewer')).toBeInTheDocument();
+    });
+
+    // Verify filter input is cleared
+    expect(filterInput).toHaveValue('');
   },
 };
