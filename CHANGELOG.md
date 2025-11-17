@@ -1,3 +1,10 @@
+## [1.70.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.70.0...v1.70.1) (2025-11-17)
+
+
+### Bug Fixes
+
+* **many:** clear filters now working across the board ([1ab8e2b](https://github.com/RedHatInsights/insights-rbac-ui/commit/1ab8e2b4daaf729e686ff48cdb83e63a4268958f))
+
 # [1.70.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.69.3...v1.70.0) (2025-11-10)
 
 
