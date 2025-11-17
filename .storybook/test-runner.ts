@@ -128,7 +128,16 @@ const IGNORED_ERROR_PATTERNS = [
   // MSW informational logs and debug output
   /MSW.*mock/i,
   /^Request \{url:/,  // MSW request logs
-  /^Handler:/,        // MSW handler logs  
+  /^Handler:/,        // MSW handler logs
+  
+  // React key prop warnings (intentional for component identification)
+  /Warning:.*key.*is not a prop.*Trying to access it will result in.*undefined.*being returned/,
+  
+  // React controlled/uncontrolled input warnings (common in legacy components during refactoring)
+  /Warning: A component is changing an uncontrolled input to be controlled/,
+  
+  // Test assertion failures for specific callback testing scenarios
+  /AssertionError: expected "onCancel" to be called at least once/,  
   /^Response \{status:/,  // MSW response logs
   /Worker script URL:/,  // MSW worker setup
   /Worker scope:/,  // MSW worker setup

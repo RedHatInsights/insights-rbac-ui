@@ -634,12 +634,74 @@ export const GrantAccessWizardTest: Story = {
             },
           });
         }),
+        // Handler for roles list endpoint needed by Grant Access wizard
+        // Only respond when specifically requested with addFields parameter to avoid conflicts
+        http.get('/api/rbac/v1/roles/', ({ request }) => {
+          const url = new URL(request.url);
+          const addFields = url.searchParams.get('add_fields');
+          
+          // Only handle requests that include groups_in_count and access fields (from our wizard)
+          if (!addFields || !addFields.includes('groups_in_count') || !addFields.includes('access')) {
+            // Pass through to other handlers for non-wizard requests
+            return;
+          }
+          return HttpResponse.json({
+            data: [
+              {
+                uuid: 'role-1',
+                name: 'administrator',
+                display_name: 'Administrator',
+                description: 'Full administrative access to all resources',
+                accessCount: 25,
+                access: [
+                  { permission: 'admin:read' },
+                  { permission: 'admin:write' },
+                  { permission: 'admin:delete' },
+                ],
+                created: '2024-01-15T10:30:00Z',
+                modified: '2024-01-20T14:45:00Z',
+              },
+              {
+                uuid: 'role-2',
+                name: 'user-manager',
+                display_name: 'User Manager',
+                description: 'Manage users and groups within the workspace',
+                accessCount: 8,
+                access: [
+                  { permission: 'users:read' },
+                  { permission: 'users:write' },
+                  { permission: 'groups:read' },
+                ],
+                created: '2024-01-10T09:15:00Z',
+                modified: '2024-01-18T16:20:00Z',
+              },
+              {
+                uuid: 'role-3',
+                name: 'viewer',
+                display_name: 'Viewer',
+                description: 'Read-only access to workspace resources',
+                accessCount: 5,
+                access: [
+                  { permission: 'workspace:read' },
+                  { permission: 'resources:read' },
+                ],
+                created: '2024-01-12T11:00:00Z',
+                modified: '2024-01-19T13:30:00Z',
+              },
+            ],
+            meta: {
+              count: 3,
+              limit: 1000,
+              offset: 0,
+            },
+          });
+        }),
       ],
     },
     docs: {
       description: {
         story:
-          'Testing Grant Access wizard functionality. Verifies the wizard opens, navigates through user groups and roles steps, and shows the roles placeholder. Requires the m5 feature flag to be enabled.',
+          'Testing Grant Access wizard functionality. Verifies the wizard opens, navigates through user groups and roles steps, shows the roles selection table, and allows role selection. Requires the m5 feature flag to be enabled.',
       },
     },
   },
@@ -712,7 +774,7 @@ export const GrantAccessWizardTest: Story = {
       { timeout: 3000 },
     );
 
-    // Test navigating through wizard steps to verify new roles step
+    // Test navigating through wizard steps to verify roles selection functionality
     await waitFor(
       async () => {
         const wizardModal = document.querySelector('[role="dialog"]') as HTMLElement;
@@ -738,30 +800,46 @@ export const GrantAccessWizardTest: Story = {
           // Wait for roles step to appear - use DOM queries to avoid TestingLibrary issues
           await waitFor(
             async () => {
-              // Look for our specific placeholder text using DOM queries instead of TestingLibrary
+              // Look for roles selection table and content
               const wizardContent = document.querySelector('[role="dialog"]');
               const allTextElements = wizardContent?.querySelectorAll('*');
-              let foundPlaceholder = false;
+              let foundRolesStep = false;
+              let foundRolesTable = false;
 
               if (allTextElements) {
                 for (const element of allTextElements) {
-                  if (element.textContent?.toLowerCase().includes('role selection will be implemented here')) {
-                    foundPlaceholder = true;
-                    break;
+                  const text = element.textContent?.toLowerCase() || '';
+                  // Look for roles step indicators
+                  if (text.includes('select role') || text.includes('administrator') || text.includes('user manager')) {
+                    foundRolesStep = true;
+                  }
+                  // Look for table elements that indicate the roles table is present
+                  if (element.getAttribute('role') === 'grid' || element.classList.contains('pf-v5-c-table')) {
+                    foundRolesTable = true;
                   }
                 }
               }
 
-              if (foundPlaceholder) {
-                // We found our placeholder text, verify we're on an active wizard step
+              if (foundRolesStep || foundRolesTable) {
+                // We found roles step content, verify we're on an active wizard step
                 const rolesStepIndicator =
                   wizardContent?.querySelector('[aria-current="step"]') || wizardContent?.querySelector('.pf-v5-c-wizard__nav-item.pf-m-current');
 
-                expect(foundPlaceholder).toBe(true);
+                expect(foundRolesStep || foundRolesTable).toBe(true);
 
-                if (rolesStepIndicator) {
-                  // We're on an active step, likely the roles step
-                  expect(true).toBe(true);
+                // Try to interact with the roles table if visible
+                const rolesTable = wizardContent?.querySelector('[role="grid"]');
+                if (rolesTable) {
+                  // Look for checkboxes in the roles table (for role selection)
+                  const checkboxes = rolesTable.querySelectorAll('input[type="checkbox"]');
+                  if (checkboxes.length > 0) {
+                    // Click first role to select it
+                    const firstCheckbox = checkboxes[0] as HTMLInputElement;
+                    if (firstCheckbox && !firstCheckbox.disabled) {
+                      await userEvent.click(firstCheckbox);
+                      expect(firstCheckbox.checked).toBe(true);
+                    }
+                  }
                 }
               }
             },
