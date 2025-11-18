@@ -5,4 +5,6 @@ export const getDateFormat = (date: string): 'onlyDate' | 'relative' => {
   return Date.parse(date) < monthAgo.setMonth(monthAgo.getMonth() - 1) ? 'onlyDate' : 'relative';
 };
 
-export const trimAll = (string: string): string => string.replace(/[-EFF]/g, '').trim();
+// This function is used to trim all leading and trailing spaces in a string and
+// replace multiple spaces with a single space.
+export const trimAll = (string: string): string => string.replace(/\s+/g, ' ').trim();
