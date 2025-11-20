@@ -136,8 +136,6 @@ const IGNORED_ERROR_PATTERNS = [
   // React controlled/uncontrolled input warnings (common in legacy components during refactoring)
   /Warning: A component is changing an uncontrolled input to be controlled/,
   
-  // Test assertion failures for specific callback testing scenarios
-  /AssertionError: expected "onCancel" to be called at least once/,  
   /^Response \{status:/,  // MSW response logs
   /Worker script URL:/,  // MSW worker setup
   /Worker scope:/,  // MSW worker setup
