@@ -1,3 +1,19 @@
+# [1.72.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.71.0...v1.72.0) (2025-11-20)
+
+
+### Bug Fixes
+
+* **GrantAccessWizard:** update branch ([7eb8903](https://github.com/RedHatInsights/insights-rbac-ui/commit/7eb8903fe4d0bd40d72c9d2e27b16455334959a9))
+* **GrantAccessWizard:** update roles step description ([728b9da](https://github.com/RedHatInsights/insights-rbac-ui/commit/728b9da8dd49504196241d187444ea386734d751))
+* **productionOrgAdmin:** fix lint ([7088cb2](https://github.com/RedHatInsights/insights-rbac-ui/commit/7088cb29c1f8deed41dae4d497e7fd05201ccd29))
+* **Storybook:** remove unsilence assertion ([fbce0c0](https://github.com/RedHatInsights/insights-rbac-ui/commit/fbce0c0cf79d720cb7d115a0c214bfa4c073deff))
+* **test:** lint ([d95a966](https://github.com/RedHatInsights/insights-rbac-ui/commit/d95a966438bbaab1237df090cc95d4e88d625dc1))
+
+
+### Features
+
+* **GrantAccessWizard:** add roles selection step ([3f97b0f](https://github.com/RedHatInsights/insights-rbac-ui/commit/3f97b0f9a6393e12cd85326bc6b7b11fc9cad127))
+
 # [1.71.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.70.1...v1.71.0) (2025-11-20)
 
 
