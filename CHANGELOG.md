@@ -1,3 +1,10 @@
+# [1.71.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.70.1...v1.71.0) (2025-11-20)
+
+
+### Features
+
+* add message and link to role binding detail ([#2013](https://github.com/RedHatInsights/insights-rbac-ui/issues/2013)) ([9b51ee5](https://github.com/RedHatInsights/insights-rbac-ui/commit/9b51ee5a1ac427dff93af3fa5dceb3788d2d7784))
+
 ## [1.70.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.70.0...v1.70.1) (2025-11-17)
 
 
