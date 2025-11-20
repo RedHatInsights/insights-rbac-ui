@@ -1,6 +1,32 @@
 import { Group } from '../types/entities';
 
 export const defaultGroups: Group[] = [
+  // Special system groups that the stories expect
+  {
+    uuid: 'admin-default',
+    name: 'Default admin access',
+    description: 'Default admin group',
+    principalCount: 'All org admins',
+    roleCount: 0,
+    created: '2023-01-01T00:00:00Z',
+    modified: '2024-01-01T00:00:00Z',
+    platform_default: false,
+    admin_default: true,
+    system: true,
+  },
+  {
+    uuid: 'system-default',
+    name: 'Default access',
+    description: 'Default access group',
+    principalCount: 'All',
+    roleCount: 0,
+    created: '2023-01-01T00:00:00Z',
+    modified: '2024-01-01T00:00:00Z',
+    platform_default: true,
+    admin_default: false,
+    system: true,
+  },
+  // Regular groups for testing
   {
     uuid: 'group-1',
     name: 'Platform Admins',
@@ -9,6 +35,9 @@ export const defaultGroups: Group[] = [
     roleCount: 3,
     created: '2024-01-01T00:00:00Z',
     modified: '2024-01-15T00:00:00Z',
+    platform_default: false,
+    system: false,
+    admin_default: false,
   },
   {
     uuid: 'group-2',
@@ -18,6 +47,9 @@ export const defaultGroups: Group[] = [
     roleCount: 2,
     created: '2024-01-05T00:00:00Z',
     modified: '2024-01-20T00:00:00Z',
+    platform_default: false,
+    system: false,
+    admin_default: false,
   },
   {
     uuid: 'group-3',
@@ -27,5 +59,8 @@ export const defaultGroups: Group[] = [
     roleCount: 5,
     created: '2024-01-10T00:00:00Z',
     modified: '2024-01-25T00:00:00Z',
+    platform_default: false,
+    system: false,
+    admin_default: false,
   },
 ];

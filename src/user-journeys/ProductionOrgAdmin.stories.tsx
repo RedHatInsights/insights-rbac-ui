@@ -2029,7 +2029,7 @@ export const ModifyAlreadyCopiedGroupJourney: Story = {
     msw: {
       handlers: createStatefulHandlers({
         groups: [
-          ...defaultGroups,
+          ...defaultGroups.filter((g) => g.uuid !== 'system-default'),
           // Use the actual system-default group but mark it as already modified
           {
             uuid: 'system-default',
