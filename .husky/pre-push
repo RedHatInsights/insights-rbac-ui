@@ -1,3 +1,0 @@
-if [ "$CI" != "true" ]; then
-  npm run lint && npm run test:coverage
-fi
