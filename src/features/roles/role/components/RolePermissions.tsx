@@ -17,8 +17,10 @@ import { ActionsColumn, IAction } from '@patternfly/react-table';
 import { useDataViewSelection } from '@patternfly/react-data-view/dist/dynamic/Hooks';
 import { useDataViewFilters } from '@patternfly/react-data-view';
 import { DateFormat } from '@redhat-cloud-services/frontend-components/DateFormat';
+import { AppLink } from '../../../../components/navigation/AppLink';
 import { getDateFormat } from '../../../../helpers/stringUtilities';
 import messages from '../../../../Messages';
+import pathnames from '../../../../utilities/pathnames';
 import '../legacy/role-permissions.scss';
 
 interface FilteredPermission {
@@ -68,6 +70,7 @@ const removeModalText = (permissions: string | number, roleName: string, plural:
 export const RolePermissions: React.FC<RolePermissionsProps> = ({
   cantAddPermissions,
   isLoading,
+  roleUuid = '',
   roleName = '',
   isSystemRole,
   filteredPermissions,
@@ -203,15 +206,20 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
     return paginatedPermissions.map((permission) => {
       const [application, resourceType, operation] = permission.permission.split(':');
       const resourceDefinitionsCount = permission.resourceDefinitions?.length || 0;
-      const resourceDefinitionsLabel =
-        (permission.permission.includes('cost-management') || permission.permission.includes('inventory')) && resourceDefinitionsCount > 0
-          ? resourceDefinitionsCount.toString()
-          : intl.formatMessage(messages.notApplicable);
+      const hasResourceDefinitions =
+        (permission.permission.includes('cost-management') || permission.permission.includes('inventory')) && resourceDefinitionsCount > 0;
 
       const cells: any[] = [application, resourceType, operation];
 
       if (showResourceDefinitions) {
-        cells.push(resourceDefinitionsLabel);
+        const resourceDefinitionCell = hasResourceDefinitions ? (
+          <AppLink to={pathnames['role-detail-permission'].link.replace(':roleId', roleUuid).replace(':permissionId', permission.permission)}>
+            {resourceDefinitionsCount}
+          </AppLink>
+        ) : (
+          <span className="rbac-c-text__disabled">{intl.formatMessage(messages.notApplicable)}</span>
+        );
+        cells.push({ cell: resourceDefinitionCell });
       }
 
       // Add formatted date
@@ -232,7 +240,7 @@ export const RolePermissions: React.FC<RolePermissionsProps> = ({
         row: cells,
       };
     });
-  }, [paginatedPermissions, showResourceDefinitions, intl, isSystemRole, rowActions]);
+  }, [paginatedPermissions, showResourceDefinitions, intl, isSystemRole, rowActions, roleUuid]);
 
   // Bulk select handler
   const handleBulkSelect = useCallback(
