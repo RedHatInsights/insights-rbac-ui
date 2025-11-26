@@ -1,3 +1,12 @@
+## [1.72.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.0...v1.72.1) (2025-11-26)
+
+
+### Bug Fixes
+
+* changes to role table filtering to prevent strange behavior ([48febbf](https://github.com/RedHatInsights/insights-rbac-ui/commit/48febbf8eb6cbe242dd30be9008ee85bec2373ba))
+* made updates based on sourcery-ai comments ([aaa45f9](https://github.com/RedHatInsights/insights-rbac-ui/commit/aaa45f9eff0c445d5c9e86438acb6fdf7e008a8c))
+* made updates based on sourcery-ai comments ([2e49568](https://github.com/RedHatInsights/insights-rbac-ui/commit/2e49568b1991a9dd28b44437a72bfee82f6030ab))
+
 # [1.72.0](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.71.0...v1.72.0) (2025-11-20)
 
 
