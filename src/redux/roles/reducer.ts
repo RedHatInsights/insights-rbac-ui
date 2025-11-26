@@ -73,19 +73,39 @@ const setRole = (state: RoleStore, { payload }: any): RoleStore => ({
   ...(!payload.error ? { selectedRole: payload } : payload),
   isRecordLoading: false,
 });
-const setRoles = (state: RoleStore, { payload }: any): RoleStore => ({
-  ...state,
-  ...(!payload.error
-    ? {
-        roles: {
-          pagination: state.roles?.pagination,
-          filters: state.roles?.filters,
-          ...payload,
-        },
-      }
-    : payload),
-  isLoading: false,
-});
+const setRoles = (state: RoleStore, { payload }: any): RoleStore => {
+  // Guard against race conditions: if a stale request (with different filters)
+  // resolves after a newer one, ignore its data to prevent UI flicker.
+  // Only applies when payload includes filters (usesMetaInURL flows).
+  const currentFilters = state.roles?.filters || {};
+  const incomingFilters = payload?.filters;
+  const hasActiveCurrentFilters =
+    currentFilters &&
+    Object.values(currentFilters).some((v: unknown) => (typeof v === 'string' ? v.trim() !== '' : Array.isArray(v) ? v.length > 0 : !!v));
+  const filtersMismatch = incomingFilters && hasActiveCurrentFilters && JSON.stringify(incomingFilters) !== JSON.stringify(currentFilters);
+
+  if (!payload?.error && filtersMismatch) {
+    // Keep existing roles slice; just drop loading state
+    return {
+      ...state,
+      isLoading: false,
+    };
+  }
+
+  return {
+    ...state,
+    ...(!payload?.error
+      ? {
+          roles: {
+            pagination: state.roles?.pagination,
+            filters: state.roles?.filters,
+            ...payload,
+          },
+        }
+      : payload),
+    isLoading: false,
+  };
+};
 const setRolesWithAccess = (state: any, { payload }: any): RoleStore => ({
   ...state,
   rolesWithAccess: { ...state.rolesWithAccess, [payload.uuid]: payload },
