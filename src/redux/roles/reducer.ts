@@ -109,9 +109,7 @@ const setRoles = (state: RoleStore, { payload }: any): RoleStore => {
   const incomingFilters = payload?.filters;
   // Treat any difference between incoming and current filters as stale,
   // including transitions filtered -> unfiltered and unfiltered -> filtered.
-  const filtersMismatch =
-    incomingFilters &&
-    JSON.stringify(normalizeFilters(incomingFilters)) !== JSON.stringify(normalizeFilters(currentFilters));
+  const filtersMismatch = incomingFilters && JSON.stringify(normalizeFilters(incomingFilters)) !== JSON.stringify(normalizeFilters(currentFilters));
 
   if (!payload?.error && filtersMismatch) {
     // Keep existing roles slice; just drop loading state
