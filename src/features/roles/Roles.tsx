@@ -30,6 +30,8 @@ import { getBackRoute } from '../../helpers/navigation';
 import messages from '../../Messages';
 import pathnames from '../../utilities/pathnames';
 import { useRoles } from './useRoles';
+import { useDispatch } from 'react-redux';
+import { updateRolesFilters } from '../../redux/roles/actions';
 import { RolesEmptyState } from './components/RolesEmptyState';
 import { RolesTable } from './components/RolesTable';
 import './roles.scss';
@@ -38,6 +40,7 @@ export const Roles: React.FC = () => {
   const intl = useIntl();
   const navigate = useNavigate();
   const toAppLink = useAppLink();
+  const dispatch = useDispatch();
 
   // Get all data and handlers from custom hook
   const {
@@ -83,13 +86,16 @@ export const Roles: React.FC = () => {
   const handleFilterChange = useCallback(
     (_key: string, newFilters: Partial<{ display_name: string }>) => {
       const newFilterValue = newFilters.display_name || '';
+      // Update redux filters immediately to guard against stale request races in reducer
+      dispatch(updateRolesFilters({ display_name: newFilterValue }));
       setFilterValue(newFilterValue);
 
       // Fetch with new filter and reset to page 1
       fetchData({ filters: { display_name: newFilterValue }, offset: 0 });
-      setPage(1);
+      // Update URL to page 1 without triggering a second fetch that could use stale filters
+      setPage(1, { skipFetch: true });
     },
-    [setFilterValue, fetchData, setPage],
+    [dispatch, setFilterValue, fetchData, setPage],
   );
 
   // Sort handler

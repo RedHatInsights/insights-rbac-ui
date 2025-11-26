@@ -3,7 +3,7 @@ import { shallowEqual, useDispatch, useSelector } from 'react-redux';
 import { useSearchParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { useChrome } from '@redhat-cloud-services/frontend-components/useChrome';
-import { fetchRolesWithPolicies } from '../../redux/roles/actions';
+import { fetchRolesWithPolicies, updateRolesFilters } from '../../redux/roles/actions';
 import { fetchAdminGroup } from '../../redux/groups/actions';
 import { mappedProps } from '../../helpers/dataUtilities';
 import { defaultAdminSettings, defaultSettings } from '../../helpers/pagination';
@@ -32,7 +32,9 @@ export interface UseRolesReturn {
   // Pagination
   page: number;
   perPage: number;
-  setPage: (page: number) => void;
+  // Optional options allow skipping the fetch (useful when a separate fetch with explicit filters was just issued)
+  // Backwards compatible: callers can still pass only the page number.
+  setPage: (page: number, options?: { skipFetch?: boolean }) => void;
   setPerPage: (perPage: number) => void;
 
   // Sorting
@@ -163,14 +165,16 @@ export const useRoles = (): UseRolesReturn => {
 
   // Set page (update URL and trigger fetch)
   const setPage = useCallback(
-    (newPage: number) => {
+    (newPage: number, options?: { skipFetch?: boolean }) => {
       const newParams = new URLSearchParams(searchParams);
       newParams.set('page', String(newPage));
       setSearchParams(newParams, { replace: true });
 
-      // Fetch with new offset
-      const newOffset = (newPage - 1) * perPage;
-      fetchData({ offset: newOffset });
+      // Fetch with new offset unless explicitly skipped (e.g., when a filter-triggered fetch already ran)
+      if (!options?.skipFetch) {
+        const newOffset = (newPage - 1) * perPage;
+        fetchData({ offset: newOffset });
+      }
     },
     [searchParams, setSearchParams, perPage, fetchData],
   );
@@ -206,13 +210,15 @@ export const useRoles = (): UseRolesReturn => {
   // Handle filter changes
   const handleClearFilters = useCallback(() => {
     setFilterValue('');
+    // Update redux filters immediately to reflect cleared state
+    dispatch(updateRolesFilters({ display_name: '' }));
     fetchData({ filters: { display_name: '' }, offset: 0 });
 
     // Reset to page 1 when clearing filters
     const newParams = new URLSearchParams(searchParams);
     newParams.set('page', '1');
     setSearchParams(newParams, { replace: true });
-  }, [searchParams, setSearchParams, fetchData]);
+  }, [dispatch, searchParams, setSearchParams, fetchData]);
 
   // Computed values
   const hasActiveFilters = filterValue.length > 0;
