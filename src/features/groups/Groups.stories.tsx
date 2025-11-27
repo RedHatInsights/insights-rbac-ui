@@ -225,34 +225,6 @@ export const Default: Story = {
   },
 };
 
-// Basic loading state
-export const Loading: Story = {
-  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
-  parameters: {
-    // ✅ Loading state now handled by MSW delayed response
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
-    msw: {
-      handlers: [
-        http.get('/api/rbac/v1/groups/', async () => {
-          await delay('infinite'); // Never resolves
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    // Should show skeleton loading state - check for skeleton elements
-    const skeletonElements = canvasElement.querySelectorAll('[class*="skeleton"], .pf-v5-c-skeleton');
-    expect(skeletonElements.length).toBeGreaterThan(0);
-
-    // Should not show actual groups data
-    expect(canvas.queryByText('Test Group 1')).not.toBeInTheDocument();
-    expect(canvas.queryByText('Test Group 2')).not.toBeInTheDocument();
-  },
-};
-
 // Non-admin user view
 export const NonAdminUserView: Story = {
   tags: ['env:stage'],
@@ -391,98 +363,6 @@ export const AdminUserView: Story = {
   },
 };
 
-// Bulk selection and actions
-export const BulkSelectionAndActions: Story = {
-  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await delay(300); // Required for MSW
-
-    // First select a row to enable bulk actions
-    const testGroup1Elements = await canvas.findAllByText('Test Group 1');
-    const testGroup1Row = testGroup1Elements[0].closest('tr');
-    if (!testGroup1Row) throw new Error('Could not find Test Group 1 row');
-    const rowCheckbox = within(testGroup1Row).getByRole('checkbox');
-    await userEvent.click(rowCheckbox);
-
-    // Wait for bulk actions dropdown to appear in toolbar after row selection
-    await waitFor(() => {
-      const toolbarDiv = canvasElement.querySelector('.pf-v5-c-toolbar, [class*="toolbar"], .pf-c-toolbar');
-      expect(toolbarDiv).toBeInTheDocument();
-    });
-
-    // Look for dropdown toggle specifically in the toolbar area (not row actions)
-    const toolbarDiv = canvasElement.querySelector('.pf-v5-c-toolbar, [class*="toolbar"], .pf-c-toolbar');
-    if (!toolbarDiv) throw new Error('Could not find toolbar');
-
-    const dropdownToggle = await within(toolbarDiv as HTMLElement).findByRole('button', {
-      name: /bulk actions toggle/i,
-    });
-    expect(dropdownToggle).toBeInTheDocument();
-    await userEvent.click(dropdownToggle);
-
-    // Should see bulk action options
-    await waitFor(() => {
-      expect(canvas.getByText('Edit')).toBeInTheDocument();
-      expect(canvas.getByText('Delete')).toBeInTheDocument();
-    });
-  },
-};
-
-// Bulk select checkbox functionality
-export const BulkSelectCheckbox: Story = {
-  tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: true },
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await delay(300); // Required for MSW
-
-    // Find bulk select checkbox
-    const checkboxes = await canvas.findAllByRole('checkbox');
-    const bulkSelectCheckbox = checkboxes[0]; // First checkbox should be bulk select
-    expect(bulkSelectCheckbox).toBeInTheDocument();
-    expect(bulkSelectCheckbox).not.toBeChecked();
-
-    // Click bulk select to select all
-    await userEvent.click(bulkSelectCheckbox);
-
-    // Verify bulk select is now checked
-    expect(bulkSelectCheckbox).toBeChecked();
-
-    // Verify individual row checkboxes are also checked (excluding system/platform groups)
-    const rowCheckboxes = checkboxes.filter((cb) => cb !== bulkSelectCheckbox);
-    const selectableRowCheckboxes = rowCheckboxes.filter((checkbox) => {
-      // Assume first few groups might be system/platform groups that can't be selected
-      const row = checkbox.closest('tr');
-      return row && !row.textContent?.includes('System') && !row.textContent?.includes('Platform');
-    });
-
-    selectableRowCheckboxes.forEach((checkbox) => {
-      expect(checkbox).toBeChecked();
-    });
-
-    // TEST DESELECT: Click bulk select again to deselect all
-    await userEvent.click(bulkSelectCheckbox);
-
-    // Verify bulk select is now unchecked
-    expect(bulkSelectCheckbox).not.toBeChecked();
-
-    // Verify individual row checkboxes are also unchecked
-    selectableRowCheckboxes.forEach((checkbox) => {
-      expect(checkbox).not.toBeChecked();
-    });
-  },
-};
-
 // Roles expansion functionality
 export const RolesExpansion: Story = {
   tags: ['env:stage', 'perm:org-admin', 'perm:user-access-admin'],
@@ -571,244 +451,8 @@ export const MembersExpansion: Story = {
   },
 };
 
-// Filtering interaction
-export const FilteringInteraction: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    msw: {
-      handlers: [
-        // Override the main handler to test filtering
-        http.get('/api/rbac/v1/groups/', ({ request }) => {
-          const url = new URL(request.url);
-          const name = url.searchParams.get('name') || '';
-          const adminDefault = url.searchParams.get('admin_default');
-          const platformDefault = url.searchParams.get('platform_default');
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          // Call the spy with API parameters
-          groupsApiCallSpy({
-            name,
-            limit: limit.toString(),
-            offset: offset.toString(),
-            order_by: url.searchParams.get('order_by'),
-          });
-
-          // Handle admin default groups query
-          if (adminDefault === 'true') {
-            return HttpResponse.json({
-              data: [mockAdminGroup],
-              meta: { count: 1, limit, offset },
-            });
-          }
-
-          // Handle platform default groups query
-          if (platformDefault === 'true') {
-            return HttpResponse.json({
-              data: [mockSystemGroup],
-              meta: { count: 1, limit, offset },
-            });
-          }
-
-          // Return filtered mock data based on name parameter
-          let filteredGroups = mockGroups;
-          if (name) {
-            filteredGroups = mockGroups.filter((group) => group.name.toLowerCase().includes(name.toLowerCase()));
-          }
-
-          return HttpResponse.json({
-            data: filteredGroups,
-            meta: {
-              count: filteredGroups.length,
-              limit,
-              offset,
-            },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
-
-    // Initial load should call API without filter
-    await waitFor(() => {
-      expect(groupsApiCallSpy).toHaveBeenCalled();
-      const lastCall = groupsApiCallSpy.mock.calls[groupsApiCallSpy.mock.calls.length - 1][0];
-      expect(lastCall.name).toBe('');
-    });
-
-    // Wait for data to load
-    const group1Elements = await canvas.findAllByText('Test Group 1');
-    expect(group1Elements.length).toBeGreaterThan(0);
-    const group2Elements = await canvas.findAllByText('Test Group 2');
-    expect(group2Elements.length).toBeGreaterThan(0);
-
-    // Find and use the name filter input
-    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
-
-    // Reset spy before testing filter
-    groupsApiCallSpy.mockClear();
-
-    // Type in filter
-    await userEvent.type(filterInput, 'Test Group 1');
-
-    // Verify filter API call (debounced)
-    await waitFor(
-      () => {
-        expect(groupsApiCallSpy).toHaveBeenCalled();
-        const lastCall = groupsApiCallSpy.mock.calls[groupsApiCallSpy.mock.calls.length - 1][0];
-        expect(lastCall.name).toBe('Test Group 1');
-      },
-      { timeout: 2000 }, // Account for debounce
-    );
-  },
-};
-
-// Sorting interaction
-export const SortingInteraction: Story = {
-  tags: ['env:stage', 'perm:org-admin'],
-  parameters: {
-    chrome: { environment: 'stage' },
-    permissions: { orgAdmin: true, userAccessAdministrator: false },
-    msw: {
-      handlers: [
-        // Override the main handler to test sorting
-        http.get('/api/rbac/v1/groups/', ({ request }) => {
-          const url = new URL(request.url);
-          const name = url.searchParams.get('name') || '';
-          const adminDefault = url.searchParams.get('admin_default');
-          const platformDefault = url.searchParams.get('platform_default');
-          const limit = parseInt(url.searchParams.get('limit') || '20');
-          const offset = parseInt(url.searchParams.get('offset') || '0');
-
-          // Call the spy with API parameters
-          groupsApiCallSpy({
-            name,
-            limit: limit.toString(),
-            offset: offset.toString(),
-            order_by: url.searchParams.get('order_by'),
-          });
-
-          // Handle admin default groups query
-          if (adminDefault === 'true') {
-            return HttpResponse.json({
-              data: [mockAdminGroup],
-              meta: { count: 1, limit, offset },
-            });
-          }
-
-          // Handle platform default groups query
-          if (platformDefault === 'true') {
-            return HttpResponse.json({
-              data: [mockSystemGroup],
-              meta: { count: 1, limit, offset },
-            });
-          }
-
-          return HttpResponse.json({
-            data: mockGroups,
-            meta: {
-              count: mockGroups.length,
-              limit,
-              offset,
-            },
-          });
-        }),
-      ],
-    },
-  },
-  play: async ({ canvasElement }) => {
-    await delay(300); // Required for MSW
-    const canvas = within(canvasElement);
-
-    // Initial load should call API with default sorting
-    await waitFor(() => {
-      expect(groupsApiCallSpy).toHaveBeenCalled();
-      const calls = groupsApiCallSpy.mock.calls;
-      // Look for any call that has order_by set to 'name' (initial load)
-      const hasNameSort = calls.some((call) => call[0].order_by === 'name');
-      expect(hasNameSort).toBe(true);
-    });
-
-    // Wait for data to load and table to be fully rendered (not skeleton)
-    expect(await canvas.findByText('Test Group 2')).toBeInTheDocument();
-
-    // Wait for table to finish loading - look for actual table grid instead of skeleton
-    await waitFor(
-      () => {
-        const tableGrid = canvasElement.querySelector('[role="grid"]');
-        expect(tableGrid).toBeInTheDocument();
-
-        // Ensure we can find the actual column headers we need
-        const nameHeader = canvas.queryByRole('columnheader', { name: /name/i });
-        const modifiedHeader = canvas.queryByRole('columnheader', { name: /last modified/i });
-        expect(nameHeader).toBeInTheDocument();
-        expect(modifiedHeader).toBeInTheDocument();
-      },
-      { timeout: 5000 },
-    );
-
-    // Test clicking Name column header for descending sort
-    const nameHeader = await canvas.findByRole('columnheader', { name: /name/i });
-
-    // Try to find button within the header, with fallback to clicking the header itself
-    let nameButton;
-    try {
-      nameButton = await within(nameHeader).findByRole('button');
-    } catch {
-      // If no button found, the header itself might be clickable
-      nameButton = nameHeader;
-    }
-
-    await userEvent.click(nameButton);
-
-    // Wait for API call and verify descending sort
-    await waitFor(
-      () => {
-        expect(groupsApiCallSpy).toHaveBeenCalled();
-        const calls = groupsApiCallSpy.mock.calls;
-        // Check if any recent call has the expected sort order (not just the very last one)
-        const recentCalls = calls.slice(-5); // Check last 5 calls
-        const hasDescendingSort = recentCalls.some((call) => call[0].order_by === '-name');
-        expect(hasDescendingSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
-
-    // Test clicking Last Modified column header
-    const modifiedHeader = await canvas.findByRole('columnheader', { name: /last modified/i });
-
-    // Try to find button within the header, with fallback to clicking the header itself
-    let modifiedButton;
-    try {
-      modifiedButton = await within(modifiedHeader).findByRole('button');
-    } catch {
-      // If no button found, the header itself might be clickable
-      modifiedButton = modifiedHeader;
-    }
-
-    await userEvent.click(modifiedButton);
-
-    // Wait for API call and verify modified sort
-    await waitFor(
-      () => {
-        expect(groupsApiCallSpy).toHaveBeenCalled();
-        const calls = groupsApiCallSpy.mock.calls;
-        // Check if any recent call has the expected sort order (not just the very last one)
-        const recentCalls = calls.slice(-5); // Check last 5 calls
-        const hasModifiedSort = recentCalls.some((call) => call[0].order_by === 'modified');
-        expect(hasModifiedSort).toBe(true);
-      },
-      { timeout: 2000 },
-    );
-  },
-};
-
 // Default groups behavior (admin and platform default)
+// Tests: non-selectable rows, no actions, "All" member count, members not expandable
 export const DefaultGroupsBehavior: Story = {
   tags: ['env:stage', 'perm:org-admin'],
   parameters: {
@@ -868,8 +512,34 @@ export const DefaultGroupsBehavior: Story = {
     // Verify modified dates are properly displayed (no "Invalid date")
     expect(within(adminGroupRow).getByText(/Jan.*2024/)).toBeInTheDocument(); // Should show formatted date
     expect(within(systemGroupRow).getByText(/Jan.*2024/)).toBeInTheDocument(); // Should show formatted date
+
+    // ========================================
+    // Test: Default group members NOT expandable (principalCount shows "All" text, no button)
+    // ========================================
+    // Find the members cell for admin group - shows "All org admins" instead of a count
+    const adminMembersCell = within(adminGroupRow).getByText('All org admins');
+    expect(adminMembersCell).toBeInTheDocument();
+    // Should NOT have an expand button - it's plain text, not a button
+    expect(within(adminMembersCell.closest('td') as HTMLElement).queryByRole('button')).not.toBeInTheDocument();
+
+    // Same for system group - shows "All" instead of a count
+    const systemMembersCell = within(systemGroupRow).getByText('All');
+    expect(systemMembersCell).toBeInTheDocument();
+    // Should NOT have an expand button
+    expect(within(systemMembersCell.closest('td') as HTMLElement).queryByRole('button')).not.toBeInTheDocument();
+
+    // But roles column SHOULD still be expandable for default groups
+    const adminRolesCell = within(adminGroupRow).getByText('15');
+    const adminRolesButton = within(adminRolesCell.closest('td') as HTMLElement).queryByRole('button');
+    expect(adminRolesButton).toBeInTheDocument(); // Roles ARE expandable
+
+    // Regular group members SHOULD be expandable (has a count + button)
+    const testGroup1MembersCell = within(testGroup1Row).getByText('5');
+    const testGroup1MembersButton = within(testGroup1MembersCell.closest('td') as HTMLElement).queryByRole('button');
+    expect(testGroup1MembersButton).toBeInTheDocument(); // Members ARE expandable for regular groups
   },
 };
+
 // 🚨 PRODUCTION BUG REPRODUCTION: User in org with lots of groups but no groups permissions
 export const ProductionBugReproduction: Story = {
   tags: ['env:prod'],

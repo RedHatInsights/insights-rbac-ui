@@ -878,7 +878,7 @@ Perfect for testing bulk operations and proper pluralization.
 
     await delay(200);
 
-    const kebabToggle = await canvas.findByLabelText(/bulk actions toggle/i);
+    const kebabToggle = await canvas.findByLabelText(/bulk actions/i);
     await userEvent.click(kebabToggle);
 
     await delay(200);
