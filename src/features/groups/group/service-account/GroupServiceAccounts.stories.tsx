@@ -733,7 +733,7 @@ export const BulkActionsTest: Story = {
     console.log('SB: 🔍 BULK ACTIONS TEST STARTING...');
 
     // 1. Verify initial state - bulk actions visible but enabled (so users can open dropdown)
-    let bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
+    let bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
     expect(bulkActionButton).toBeInTheDocument();
     expect(bulkActionButton).not.toBeDisabled();
     console.log('SB: ✅ INITIAL STATE: Bulk actions dropdown visible and enabled (correct)');
@@ -762,7 +762,7 @@ export const BulkActionsTest: Story = {
     // 5. Wait for bulk actions dropdown to become enabled
     await waitFor(
       async () => {
-        bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
+        bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
         expect(bulkActionButton).toBeInTheDocument();
         expect(bulkActionButton).not.toBeDisabled();
         console.log('SB: ✅ CRITICAL: Bulk actions dropdown became enabled after selection!');
@@ -785,7 +785,7 @@ export const BulkActionsTest: Story = {
     expect(rowCheckboxes[0]).not.toBeChecked();
 
     // 9. Verify bulk actions dropdown remains enabled (so users can always open it)
-    bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
+    bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
     expect(bulkActionButton).toBeInTheDocument();
     expect(bulkActionButton).not.toBeDisabled();
     console.log('SB: ✅ CORRECT: Bulk actions dropdown remains enabled after deselection (users can open dropdown)');
@@ -1015,7 +1015,7 @@ export const ActionsTest: Story = {
       // 5. Verify bulk actions dropdown appears after selection
       await waitFor(
         async () => {
-          const bulkActionButton = canvas.queryByRole('button', { name: /bulk actions toggle/i });
+          const bulkActionButton = canvas.queryByRole('button', { name: /bulk actions/i });
           expect(bulkActionButton).toBeInTheDocument();
           console.log('SB: ✅ Bulk actions dropdown appeared after selecting a service account');
         },
@@ -1023,7 +1023,7 @@ export const ActionsTest: Story = {
       );
 
       // 6. Click bulk actions dropdown to verify it opens
-      const bulkActionButton = canvas.getByRole('button', { name: /bulk actions toggle/i });
+      const bulkActionButton = canvas.getByRole('button', { name: /bulk actions/i });
       await userEvent.click(bulkActionButton);
 
       // 7. Verify Remove option in bulk actions dropdown

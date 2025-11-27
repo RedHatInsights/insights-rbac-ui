@@ -4,10 +4,8 @@ import { useParams } from 'react-router-dom';
 import { FormattedMessage, useIntl } from 'react-intl';
 import { useDataViewFilters, useDataViewPagination, useDataViewSelection } from '@patternfly/react-data-view';
 import { Label } from '@patternfly/react-core/dist/dynamic/components/Label';
-import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle, MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { EllipsisVIcon } from '@patternfly/react-icons/dist/dynamic/icons/ellipsis-v-icon';
 
+import { ActionDropdown } from '../../../../components/ActionDropdown';
 import { defaultSettings } from '../../../../helpers/pagination';
 import { fetchGroups, fetchMembersForGroup, removeMembersFromGroup } from '../../../../redux/groups/actions';
 import { FetchMembersForGroupParams } from '../../../../redux/groups/helper';
@@ -25,51 +23,6 @@ import {
   selectSelectedGroup,
   selectSystemGroupUUID,
 } from '../../../../redux/groups/selectors';
-
-// Member row actions component (moved from GroupMembers.tsx)
-interface MemberRowActionsProps {
-  member: Member;
-  onRemoveMember: (member: Member) => void;
-  ouiaId?: string;
-}
-
-const MemberRowActions: React.FC<MemberRowActionsProps> = ({ member, onRemoveMember, ouiaId }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const intl = useIntl();
-
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label="Kebab toggle"
-          variant="plain"
-          onClick={() => setIsOpen(!isOpen)}
-          isExpanded={isOpen}
-          data-ouia-component-id={`${ouiaId}-menu-toggle`}
-        >
-          <EllipsisVIcon />
-        </MenuToggle>
-      )}
-      ouiaId={ouiaId}
-    >
-      <DropdownList>
-        <DropdownItem
-          key="remove"
-          onClick={() => {
-            setIsOpen(false);
-            onRemoveMember(member);
-          }}
-          data-ouia-component-id={`${ouiaId}-remove`}
-        >
-          {intl.formatMessage(messages.remove)}
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
-  );
-};
 
 export interface UseGroupMembersOptions {
   /** Whether to enable admin functionality */
@@ -266,14 +219,21 @@ export const useGroupMembers = (options: UseGroupMembersOptions = {}): UseGroupM
         member.first_name,
       ];
 
-      // Actions column with MemberRowActions component
+      // Actions column with ActionDropdown component
       if (isAdmin && !adminDefault && !platformDefault) {
         baseRow.push(
-          <MemberRowActions
+          <ActionDropdown
             key={`actions-${member.username}`}
-            member={member}
-            onRemoveMember={(memberToRemove) => handleRemoveMembers([memberToRemove])}
+            ariaLabel={`Actions for ${member.username}`}
             ouiaId={`member-actions-${member.username}`}
+            items={[
+              {
+                key: 'remove',
+                label: intl.formatMessage(messages.remove),
+                onClick: () => handleRemoveMembers([member]),
+                ouiaId: `member-actions-${member.username}-remove`,
+              },
+            ]}
           />,
         );
       } else if (isAdmin) {

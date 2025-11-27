@@ -594,8 +594,7 @@ export const AddMemberButton: Story = {
     expect(addMemberButton).not.toHaveAttribute('disabled');
 
     // Find toolbar actions kebab menu (should be present with permissions)
-    // Get the first Kebab toggle which should be in the toolbar
-    const toolbarKebab = (await canvas.findAllByLabelText('Kebab toggle'))[0];
+    const toolbarKebab = await canvas.findByRole('button', { name: 'Member bulk actions' });
     expect(toolbarKebab).toBeInTheDocument();
 
     // Click to open toolbar actions
@@ -604,7 +603,7 @@ export const AddMemberButton: Story = {
     // Verify "Remove" option is present but disabled (no members selected)
     const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
     expect(removeOption).toBeInTheDocument();
-    expect(removeOption).toHaveAttribute('disabled');
+    expect(removeOption).toBeDisabled();
 
     // Verify "Add member" is NOT in the kebab menu (it's a primary button)
     expect(canvas.queryByRole('menuitem', { name: 'Add member' })).not.toBeInTheDocument();
@@ -692,13 +691,12 @@ export const ToolbarActionsState: Story = {
     expect(addMemberButton).not.toHaveAttribute('disabled');
 
     // Open toolbar actions initially (no selection)
-    // Get the first Kebab toggle which should be in the toolbar
-    const toolbarKebab = (await canvas.findAllByLabelText('Kebab toggle'))[0];
+    const toolbarKebab = await canvas.findByRole('button', { name: 'Member bulk actions' });
     await userEvent.click(toolbarKebab);
 
     // Verify initial state: Remove disabled when no selection
     const removeOption = await canvas.findByRole('menuitem', { name: 'Remove' });
-    expect(removeOption).toHaveAttribute('disabled'); // Disabled when no selection
+    expect(removeOption).toBeDisabled(); // Disabled when no selection
 
     // Verify "Add member" is NOT in the kebab menu
     expect(canvas.queryByRole('menuitem', { name: 'Add member' })).not.toBeInTheDocument();
@@ -720,7 +718,7 @@ export const ToolbarActionsState: Story = {
 
     // Verify state with selection: Remove should now be enabled
     const removeAfter = await canvas.findByRole('menuitem', { name: 'Remove' });
-    expect(removeAfter).not.toHaveAttribute('disabled'); // Now enabled with selection
+    expect(removeAfter).not.toBeDisabled(); // Now enabled with selection
 
     // Verify "Add member" is still NOT in the kebab menu
     expect(canvas.queryByRole('menuitem', { name: 'Add member' })).not.toBeInTheDocument();
@@ -755,7 +753,7 @@ export const RowActions: Story = {
     if (!aliceRow) throw new Error('Could not find alice.johnson row');
 
     // Find the kebab action button in the row (last cell)
-    const rowKebab = within(aliceRow).getByLabelText('Kebab toggle');
+    const rowKebab = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
     expect(rowKebab).toBeInTheDocument();
 
     // Click to open row actions menu
@@ -764,7 +762,7 @@ export const RowActions: Story = {
     // Verify "Remove" action is available
     const removeAction = await canvas.findByRole('menuitem', { name: 'Remove' });
     expect(removeAction).toBeInTheDocument();
-    expect(removeAction).not.toHaveAttribute('disabled');
+    expect(removeAction).not.toBeDisabled();
 
     // Verify the menu is properly positioned (should be visible)
     const menu = removeAction.closest('[role="menu"]');
@@ -820,7 +818,7 @@ Perfect for code review and UX validation.
     const aliceRow = aliceText.closest('tr');
     if (!aliceRow) throw new Error('Could not find alice.johnson row');
 
-    const kebabButton = within(aliceRow).getByLabelText('Kebab toggle');
+    const kebabButton = await within(aliceRow).findByRole('button', { name: 'Actions for alice.johnson' });
     await userEvent.click(kebabButton);
 
     await delay(200);
