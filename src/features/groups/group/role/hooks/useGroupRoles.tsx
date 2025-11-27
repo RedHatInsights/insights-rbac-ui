@@ -4,13 +4,8 @@ import { useParams } from 'react-router-dom';
 import { useIntl } from 'react-intl';
 import { FormattedMessage } from 'react-intl';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import { MenuToggleElement } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
-import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { useDataViewFilters, useDataViewSelection } from '@patternfly/react-data-view';
+import { ActionDropdown } from '../../../../../components/ActionDropdown';
 import { fetchAddRolesForGroup, fetchRolesForGroup, removeRolesFromGroup } from '../../../../../redux/groups/actions';
 import {
   selectGroupRoles,
@@ -104,50 +99,6 @@ export interface UseGroupRolesReturn {
 const generateOuiaID = (name: string) => {
   // given a group name, generate an OUIA ID for the 'Add role' button
   return name.toLowerCase().includes('default access') ? 'dag-add-role-button' : 'add-role-button';
-};
-
-// Role row actions component
-interface GroupRoleActionsProps {
-  role: Role;
-  onRemove: (role: Role) => void;
-  hasPermissions: boolean;
-  isAdminDefault: boolean;
-  ouiaId?: string;
-}
-
-const GroupRoleActions: React.FC<GroupRoleActionsProps> = ({ role, onRemove, hasPermissions, isAdminDefault, ouiaId }) => {
-  const [isOpen, setIsOpen] = React.useState(false);
-  const intl = useIntl();
-
-  // Don't show actions if no permissions or admin default group
-  if (!hasPermissions || isAdminDefault) {
-    return null;
-  }
-
-  return (
-    <Dropdown
-      isOpen={isOpen}
-      onOpenChange={setIsOpen}
-      toggle={(toggleRef: React.Ref<MenuToggleElement>) => (
-        <MenuToggle
-          ref={toggleRef}
-          aria-label={`Actions for role ${role.display_name || role.name}`}
-          variant="plain"
-          onClick={() => setIsOpen(!isOpen)}
-          isExpanded={isOpen}
-        >
-          <EllipsisVIcon />
-        </MenuToggle>
-      )}
-      ouiaId={ouiaId}
-    >
-      <DropdownList>
-        <DropdownItem key="remove" onClick={() => onRemove(role)}>
-          {intl.formatMessage(messages.remove)}
-        </DropdownItem>
-      </DropdownList>
-    </Dropdown>
-  );
 };
 
 export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
@@ -305,14 +256,22 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
           // Modified date
           <div key={`${role.uuid}-modified`}>{new Date(role.modified || '').toLocaleDateString()}</div>,
           // Actions
-          <GroupRoleActions
-            key={`${role.uuid}-actions`}
-            role={role}
-            onRemove={handleRemoveRole}
-            hasPermissions={hasPermissions}
-            isAdminDefault={isAdminDefault}
-            ouiaId={`group-roles-table-${role.uuid}-actions`}
-          />,
+          hasPermissions && !isAdminDefault ? (
+            <ActionDropdown
+              key={`${role.uuid}-actions`}
+              ariaLabel={`Actions for role ${role.display_name || role.name}`}
+              ouiaId={`group-roles-table-${role.uuid}-actions`}
+              items={[
+                {
+                  key: 'remove',
+                  label: intl.formatMessage(messages.remove),
+                  onClick: () => handleRemoveRole(role),
+                },
+              ]}
+            />
+          ) : (
+            <React.Fragment key={`${role.uuid}-no-actions`} />
+          ),
         ],
         item: role,
       }),
@@ -330,15 +289,13 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     [intl],
   );
 
-  // Toolbar actions dropdown
-  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
-
+  // Toolbar buttons
   const toolbarButtons = useMemo(() => {
     if (!hasPermissions || isAdminDefault) {
       return [];
     }
 
-    const actions = [];
+    const actions: React.ReactElement[] = [];
 
     // Always show Add Role button
     actions.push(
@@ -356,46 +313,23 @@ export const useGroupRoles = (props: GroupRolesProps): UseGroupRolesReturn => {
     // Show bulk actions dropdown when roles are selected
     if (selection.selected && selection.selected.length > 0) {
       actions.push(
-        <Dropdown
+        <ActionDropdown
           key="bulk-actions"
-          isOpen={isDropdownOpen}
-          onSelect={() => setIsDropdownOpen(false)}
-          onOpenChange={setIsDropdownOpen}
-          toggle={(toggleRef) => (
-            <MenuToggle ref={toggleRef} aria-label="bulk actions toggle" variant="plain" onClick={() => setIsDropdownOpen(!isDropdownOpen)}>
-              <EllipsisVIcon />
-            </MenuToggle>
-          )}
-          shouldFocusToggleOnSelect
-        >
-          <DropdownList>
-            <DropdownItem
-              key="remove"
-              onClick={() => {
-                handleRemoveSelectedRoles();
-                setIsDropdownOpen(false);
-              }}
-            >
-              {intl.formatMessage(messages.remove)}
-            </DropdownItem>
-          </DropdownList>
-        </Dropdown>,
+          ariaLabel="bulk actions"
+          ouiaId="group-roles-bulk-actions"
+          items={[
+            {
+              key: 'remove',
+              label: intl.formatMessage(messages.remove),
+              onClick: handleRemoveSelectedRoles,
+            },
+          ]}
+        />,
       );
     }
 
     return actions;
-  }, [
-    hasPermissions,
-    isAdminDefault,
-    groupId,
-    group?.name,
-    disableAddRoles,
-    selection.selected?.length,
-    intl,
-    navigate,
-    handleRemoveSelectedRoles,
-    isDropdownOpen,
-  ]);
+  }, [hasPermissions, isAdminDefault, groupId, group?.name, disableAddRoles, selection.selected?.length, intl, navigate, handleRemoveSelectedRoles]);
 
   // Computed values
   const hasActiveFilters = Object.values(filters.filters).some((value) => value !== '');
