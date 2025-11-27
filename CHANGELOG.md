@@ -1,3 +1,10 @@
+## [1.72.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.1...v1.72.2) (2025-11-27)
+
+
+### Bug Fixes
+
+* **roles:** align filtering + resource definition UX ([#2021](https://github.com/RedHatInsights/insights-rbac-ui/issues/2021)) ([3bfa514](https://github.com/RedHatInsights/insights-rbac-ui/commit/3bfa5149f280bb8a730f44ee5c8d48f40802ea6d))
+
 ## [1.72.1](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.0...v1.72.1) (2025-11-26)
 
 
