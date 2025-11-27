@@ -211,8 +211,6 @@ export interface UseTableStateReturn<
   page: number;
   /** Items per page */
   perPage: number;
-  /** Available per-page options for pagination dropdown */
-  perPageOptions: number[];
   /** Callback to change page */
   onPageChange: (page: number) => void;
   /** Callback to change items per page */
@@ -328,8 +326,6 @@ export interface TableViewProps<
   page: number;
   /** Items per page */
   perPage: number;
-  /** Available per-page options for pagination dropdown (default: [10, 20, 50, 100]) */
-  perPageOptions?: number[];
   /** Callback when page changes */
   onPageChange: (page: number) => void;
   /** Callback when per-page changes */
@@ -386,8 +382,6 @@ export interface TableViewProps<
   onFiltersChange?: (filters: FilterState) => void;
   /** Clear all filters callback */
   clearAllFilters?: () => void;
-  /** Whether any filters are active (from hook, avoids recomputation) */
-  hasActiveFilters?: boolean;
 
   // -------------------------------------------------------------------------
   // Toolbar content
@@ -414,4 +408,87 @@ export interface TableViewProps<
   ouiaId?: string;
   /** Aria label for accessibility */
   ariaLabel: string;
+}
+
+// =============================================================================
+// Toolbar Types
+// =============================================================================
+
+/**
+ * Props for TableViewToolbar component.
+ */
+export interface TableViewToolbarProps {
+  /** Filter configuration */
+  filterConfig?: FilterConfig[];
+  /** Current filter values */
+  filters?: FilterState;
+  /** Callback when filters change */
+  onFiltersChange?: (filters: FilterState) => void;
+  /** Clear all filters callback */
+  clearAllFilters?: () => void;
+  /** Whether any filters are active */
+  hasActiveFilters?: boolean;
+
+  /** Pagination props */
+  page: number;
+  perPage: number;
+  totalCount: number;
+  onPageChange: (page: number) => void;
+  onPerPageChange: (perPage: number) => void;
+
+  /** Selection props for bulk select */
+  selectable?: boolean;
+  selectedCount?: number;
+  pageRowCount?: number;
+  onSelectAll?: (selected: boolean) => void;
+
+  /** Custom actions */
+  toolbarActions?: ReactNode;
+  /** Bulk actions (shown when items selected) */
+  bulkActions?: ReactNode;
+
+  /** Position - top or bottom toolbar */
+  position?: 'top' | 'bottom';
+  /** OUIA ID for testing */
+  ouiaId?: string;
+}
+
+// =============================================================================
+// Skeleton Types
+// =============================================================================
+
+/**
+ * Props for TableViewSkeleton component.
+ */
+export interface TableViewSkeletonProps {
+  /** Number of columns */
+  columnCount: number;
+  /** Number of rows to show (default: matches perPage) */
+  rowCount?: number;
+  /** Table variant */
+  variant?: 'default' | 'compact';
+  /** Whether to show selection column */
+  hasSelection?: boolean;
+  /** Whether to show actions column */
+  hasActions?: boolean;
+}
+
+// =============================================================================
+// Empty State Types
+// =============================================================================
+
+/**
+ * Props for TableViewEmptyState component.
+ */
+export interface TableViewEmptyStateProps {
+  /** Title text */
+  title: string;
+  /** Description text or elements */
+  description?: ReactNode;
+  /** Action button(s) */
+  actions?: ReactNode;
+  /** Icon component */
+  icon?: React.ComponentType;
+  /** Number of columns (for colspan) */
+  columnCount: number;
 }

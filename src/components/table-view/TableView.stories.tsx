@@ -5,7 +5,6 @@ import { HttpResponse, delay, http } from 'msw';
 import { MemoryRouter, useSearchParams } from 'react-router-dom';
 import { TableView } from './TableView';
 import { useTableState } from './hooks/useTableState';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults } from './components/TableViewEmptyState';
 import type { CellRendererMap, ColumnConfigMap, ExpansionRendererMap, FilterConfig } from './types';
 import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
 import { Dropdown, DropdownItem, DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
@@ -56,10 +55,8 @@ const generateMockRoles = (count: number): Role[] => {
       name: `role_${i}`,
       display_name: `${names[nameIdx]} ${Math.ceil(i / names.length)}`,
       description: descriptions[nameIdx],
-      // Use deterministic values derived from i to avoid flaky visual/interaction tests
-      accessCount: (i % 20) + 1,
-      // Spread modified dates over the past year deterministically based on i
-      modified: new Date(Date.now() - ((i % 365) + 1) * 24 * 60 * 60 * 1000).toISOString(),
+      accessCount: Math.floor(Math.random() * 20) + 1,
+      modified: new Date(Date.now() - Math.random() * 365 * 24 * 60 * 60 * 1000).toISOString(),
       system: i === 4, // Only one system role for testing
     });
   }
@@ -230,98 +227,6 @@ const onBulkDeleteSpy = fn();
 const onCreateSpy = fn();
 
 // =============================================================================
-// Test Helpers - Reduce duplication in play functions
-// =============================================================================
-
-/**
- * Wait for initial data to load and return canvas.
- * Most play functions need to wait for data before interacting.
- */
-async function waitForInitialLoad(canvasElement: HTMLElement) {
-  const canvas = within(canvasElement);
-  await waitFor(() => {
-    expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
-  });
-  return canvas;
-}
-
-/**
- * Apply a text filter to the name filter input.
- */
-async function applyNameFilter(canvas: ReturnType<typeof within>, value: string) {
-  const input = canvas.getByPlaceholderText(/filter by name/i);
-  await userEvent.clear(input);
-  await userEvent.type(input, value);
-}
-
-/**
- * Get the last API call parameters from the spy.
- */
-function getLastApiCall(spy: ReturnType<typeof fn>) {
-  const { calls } = spy.mock;
-  return calls.length > 0 ? calls[calls.length - 1][0] : null;
-}
-
-/**
- * Click the "Clear filters" button.
- */
-async function clickClearFilters(canvas: ReturnType<typeof within>) {
-  const clearButtons = canvas.getAllByText('Clear filters');
-  await userEvent.click(clearButtons[0]);
-}
-
-// =============================================================================
-// Shared API Fetch Helper
-// =============================================================================
-
-interface RolesApiParams {
-  offset: number;
-  limit: number;
-  orderBy?: string;
-  filters: Record<string, string | string[]>;
-}
-
-interface RolesApiResponse {
-  data: Role[];
-  meta: {
-    count: number;
-    limit: number;
-    offset: number;
-  };
-}
-
-/**
- * Fetch roles data from the mock API.
- * Used by both InteractiveTable and UrlSyncTable.
- */
-async function fetchRolesData(apiParams: RolesApiParams, options?: { forceEmpty?: boolean }): Promise<RolesApiResponse> {
-  const params = new URLSearchParams();
-  params.set('limit', String(apiParams.limit));
-  params.set('offset', String(apiParams.offset));
-
-  if (apiParams.orderBy) {
-    params.set('order_by', apiParams.orderBy);
-  }
-
-  const nameFilter = apiParams.filters.name;
-  if (nameFilter && typeof nameFilter === 'string' && nameFilter.trim()) {
-    params.set('name', nameFilter);
-  }
-
-  const typeFilter = apiParams.filters.type;
-  if (Array.isArray(typeFilter) && typeFilter.length > 0) {
-    params.set('type', typeFilter.join(','));
-  }
-
-  if (options?.forceEmpty) {
-    params.set('force_empty', 'true');
-  }
-
-  const response = await fetch(`/api/rbac/v1/roles/?${params.toString()}`);
-  return response.json();
-}
-
-// =============================================================================
 // Interactive Table Wrapper Component
 // =============================================================================
 
@@ -341,6 +246,16 @@ interface InteractiveTableProps {
   customEmptyStateNoData?: React.ReactNode;
   /** Custom empty state for no results - uses default if not provided */
   customEmptyStateNoResults?: React.ReactNode;
+}
+
+// API response type
+interface RolesApiResponse {
+  data: Role[];
+  meta: {
+    count: number;
+    limit: number;
+    offset: number;
+  };
 }
 
 /**
@@ -369,10 +284,47 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
 
   // Fetch data from API - called by useTableState via onStaleData
   const handleStaleData = useCallback(
-    async (apiParams: RolesApiParams) => {
+    async (apiParams: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      // Set loading state
       setData(undefined);
+
+      // Build query params
+      const params = new URLSearchParams();
+      params.set('limit', String(apiParams.limit));
+      params.set('offset', String(apiParams.offset));
+
+      if (apiParams.orderBy) {
+        params.set('order_by', apiParams.orderBy);
+      }
+
+      // Add filters
+      const nameFilter = apiParams.filters.name;
+      if (nameFilter && typeof nameFilter === 'string' && nameFilter.trim()) {
+        params.set('name', nameFilter);
+      }
+
+      const typeFilter = apiParams.filters.type;
+      if (Array.isArray(typeFilter) && typeFilter.length > 0) {
+        params.set('type', typeFilter.join(','));
+      }
+
+      // Special param for stories that want empty data
+      if (forceEmpty) {
+        params.set('force_empty', 'true');
+      }
+
+      // Track API call for testing
+      apiCallSpy({
+        limit: apiParams.limit,
+        offset: apiParams.offset,
+        orderBy: apiParams.orderBy,
+        nameFilter: nameFilter || '',
+        typeFilter: Array.isArray(typeFilter) ? typeFilter : [],
+      });
+
       try {
-        const json = await fetchRolesData(apiParams, { forceEmpty });
+        const response = await fetch(`/api/rbac/v1/roles/?${params.toString()}`);
+        const json: RolesApiResponse = await response.json();
         setData(json.data);
         setTotalCount(json.meta.count);
       } catch (error) {
@@ -396,13 +348,6 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
     syncWithUrl,
     onStaleData: handleStaleData,
   });
-
-  // Wrap clearAllFilters to immediately set loading state
-  // This prevents a flash of "no data" empty state when clearing from "no results"
-  const handleClearAllFilters = useCallback(() => {
-    setData(undefined); // Show loading immediately
-    tableState.clearAllFilters();
-  }, [tableState]);
 
   // Bulk delete handler
   const handleBulkDelete = () => {
@@ -460,9 +405,8 @@ const InteractiveTable: React.FC<InteractiveTableProps> = ({
       variant={variant}
       ouiaId={ouiaId}
       ariaLabel="Roles table"
-      // Spread all state from hook, but override clearAllFilters with wrapped version
+      // Spread all state from hook
       {...tableState}
-      clearAllFilters={handleClearAllFilters}
     />
   );
 };
@@ -486,18 +430,36 @@ const UrlSyncTable: React.FC<UrlSyncTableProps> = ({ ouiaId = 'url-sync-table' }
   const [totalCount, setTotalCount] = useState(0);
 
   // Fetch data from API - called by useTableState via onStaleData
-  const handleStaleData = useCallback(async (apiParams: RolesApiParams) => {
-    setData(undefined);
-    try {
-      const json = await fetchRolesData(apiParams);
-      setData(json.data);
-      setTotalCount(json.meta.count);
-    } catch (error) {
-      console.error('Failed to fetch roles:', error);
-      setData([]);
-      setTotalCount(0);
-    }
-  }, []);
+  const handleStaleData = useCallback(
+    async (apiParams: { offset: number; limit: number; orderBy?: string; filters: Record<string, string | string[]> }) => {
+      setData(undefined);
+
+      const params = new URLSearchParams();
+      params.set('limit', String(apiParams.limit));
+      params.set('offset', String(apiParams.offset));
+
+      if (apiParams.orderBy) {
+        params.set('order_by', apiParams.orderBy);
+      }
+
+      const nameFilter = apiParams.filters.name;
+      if (nameFilter && typeof nameFilter === 'string' && nameFilter.trim()) {
+        params.set('name', nameFilter);
+      }
+
+      try {
+        const response = await fetch(`/api/rbac/v1/roles/?${params.toString()}`);
+        const json: RolesApiResponse = await response.json();
+        setData(json.data);
+        setTotalCount(json.meta.count);
+      } catch (error) {
+        console.error('Failed to fetch roles:', error);
+        setData([]);
+        setTotalCount(0);
+      }
+    },
+    [],
+  );
 
   // Use the hook with URL sync enabled - onStaleData handles fetching automatically
   const tableState = useTableState<typeof columns, Role, SortableColumnId, CompoundColumnId>({
@@ -557,7 +519,7 @@ const UrlSyncTable: React.FC<UrlSyncTableProps> = ({ ouiaId = 'url-sync-table' }
 const meta: Meta<typeof InteractiveTable> = {
   title: 'Components/TableView',
   component: InteractiveTable,
-  tags: ['table-view'],
+  tags: ['autodocs', 'debug'],
   parameters: {
     // MSW handlers for fake API
     msw: {
@@ -729,124 +691,6 @@ type Story = StoryObj<typeof InteractiveTable>;
  * Try: sorting columns, filtering by name, selecting rows, expanding permissions.
  */
 export const Default: Story = {
-  tags: ['autodocs'],
-  parameters: {
-    docs: {
-      description: {
-        story: `
-# TableView Component
-
-A high-level table component that handles pagination, sorting, filtering, selection, 
-compound expansion, and row actions with full TypeScript safety.
-
-## Basic Usage
-
-\`\`\`tsx
-import { TableView, useTableState } from '@/components/table-view';
-
-const columns = ['name', 'description', 'modified'] as const;
-
-const MyTable = () => {
-  const tableState = useTableState({
-    columns,
-    getRowId: (row) => row.id,
-    syncWithUrl: true,
-    onStaleData: (params) => fetchData(params),
-  });
-
-  return (
-    <TableView
-      {...tableState}
-      columns={columns}
-      columnConfig={{
-        name: { label: 'Name' },
-        description: { label: 'Description' },
-        modified: { label: 'Modified' },
-      }}
-      data={data}
-      totalCount={totalCount}
-      getRowId={(row) => row.id}
-      cellRenderers={{
-        name: (row) => row.name,
-        description: (row) => row.description,
-        modified: (row) => <DateFormat date={row.modified} />,
-      }}
-      ariaLabel="My Table"
-    />
-  );
-};
-\`\`\`
-
-## Features
-
-### Sorting
-Add \`sortableColumns\` prop and configure columns with \`sortable: true\`:
-\`\`\`tsx
-const sortableColumns = ['name', 'modified'] as const;
-<TableView sortableColumns={sortableColumns} ... />
-\`\`\`
-
-### Filtering
-Use \`filterConfig\` to define filters (decoupled from columns):
-\`\`\`tsx
-<TableView
-  filterConfig={[
-    { id: 'name', label: 'Name', type: 'text', placeholder: 'Filter by name...' },
-    { id: 'type', label: 'Type', type: 'checkbox', options: [
-      { value: 'system', label: 'System' },
-      { value: 'custom', label: 'Custom' },
-    ]},
-  ]}
-/>
-\`\`\`
-
-### Selection
-Enable with \`selectable\` prop. Use \`isRowSelectable\` for conditional selection:
-\`\`\`tsx
-<TableView
-  selectable
-  isRowSelectable={(row) => !row.system}
-  bulkActions={<Button onClick={() => handleBulkDelete(tableState.selectedRows)}>Delete</Button>}
-/>
-\`\`\`
-
-### Compound Expansion
-Define \`compoundColumns\` and provide \`expansionRenderers\`:
-\`\`\`tsx
-const compoundColumns = ['permissions'] as const;
-<TableView
-  compoundColumns={compoundColumns}
-  expansionRenderers={{
-    permissions: (row) => <PermissionsTable roleId={row.id} />,
-  }}
-/>
-\`\`\`
-
-### Custom Empty States
-Override default empty states with custom components:
-\`\`\`tsx
-<TableView
-  emptyStateNoData={<DefaultEmptyStateNoData title="No items yet" />}
-  emptyStateNoResults={
-    <DefaultEmptyStateNoResults
-      title="No results"
-      onClearFilters={tableState.clearAllFilters}
-    />
-  }
-/>
-\`\`\`
-
-## Related Stories
-- **Sorting**: SortingInteraction
-- **Filtering**: TextFilteringWithClear, MultipleFiltersWithChips
-- **Selection**: SelectionWithBulkDelete
-- **Expansion**: CompoundExpansion, ConditionalExpansion
-- **Empty States**: CustomEmptyStateNoData, CustomEmptyStateNoResults
-- **URL Sync**: URLSynchronization
-        `,
-      },
-    },
-  },
   args: {
     enableSelection: true,
     enableExpansion: true,
@@ -920,20 +764,26 @@ export const DefaultEmptyState: Story = {
     await waitFor(() => {
       // Default empty state shows "No data available"
       expect(canvas.getByText('No data available')).toBeInTheDocument();
-      expect(canvas.getByText(/There is no data to display/)).toBeInTheDocument();
+      expect(canvas.getByText(/There are no items to display/)).toBeInTheDocument();
     });
   },
 };
 
 /**
- * Custom empty state for no data using DefaultEmptyStateNoData component.
- * Demonstrates using the exported component with custom title/body props.
+ * Custom empty state for no data.
+ * Demonstrates how to customize the empty state when there's no data.
  */
 export const CustomEmptyStateNoData: Story = {
   args: {
     forceEmpty: true,
     customEmptyStateNoData: (
-      <DefaultEmptyStateNoData title="🚀 No roles configured yet" body="Create your first role to start managing permissions." />
+      <div style={{ textAlign: 'center', padding: '40px' }}>
+        <h3>🚀 No roles configured yet</h3>
+        <p>Create your first role to start managing permissions.</p>
+        <Button variant="primary" onClick={() => console.log('Create clicked')}>
+          Create your first role
+        </Button>
+      </div>
     ),
   },
   play: async ({ canvasElement }) => {
@@ -941,21 +791,22 @@ export const CustomEmptyStateNoData: Story = {
 
     await waitFor(() => {
       expect(canvas.getByText('🚀 No roles configured yet')).toBeInTheDocument();
-      expect(canvas.getByText('Create your first role to start managing permissions.')).toBeInTheDocument();
+      expect(canvas.getByText('Create your first role')).toBeInTheDocument();
     });
   },
 };
 
 /**
- * Custom empty state for no search results using DefaultEmptyStateNoResults.
- * Note: The "Clear filters" button won't appear here because onClearFilters isn't passed
- * (Storybook args are static). In real usage, pass tableState.clearAllFilters to enable it.
- * If you don't provide a custom emptyStateNoResults, TableView automatically wires the button.
+ * Custom empty state for no search results.
+ * Demonstrates how to customize the empty state when filters return no results.
  */
 export const CustomEmptyStateNoResults: Story = {
   args: {
     customEmptyStateNoResults: (
-      <DefaultEmptyStateNoResults title="🔍 No matching roles found" body="Try adjusting your search criteria or removing some filters." />
+      <div style={{ textAlign: 'center', padding: '40px' }}>
+        <h3>🔍 No matching roles found</h3>
+        <p>Try adjusting your search criteria or removing some filters.</p>
+      </div>
     ),
   },
   play: async ({ canvasElement }) => {
@@ -972,39 +823,8 @@ export const CustomEmptyStateNoResults: Story = {
     // Verify custom empty state appears
     await waitFor(() => {
       expect(canvas.getByText('🔍 No matching roles found')).toBeInTheDocument();
+      expect(canvas.getByText(/Try adjusting your search criteria/)).toBeInTheDocument();
     });
-  },
-};
-
-/**
- * Fully custom empty state with action button.
- * Demonstrates using DefaultEmptyStateNoData with a custom action handler.
- */
-export const CustomEmptyStateWithAction: Story = {
-  args: {
-    forceEmpty: true,
-    customEmptyStateNoData: (
-      <div style={{ textAlign: 'center', padding: '40px' }}>
-        <h3>🎉 Get started with roles</h3>
-        <p style={{ marginBottom: '16px' }}>Roles let you define what users can do in your application.</p>
-        <Button variant="primary" onClick={onCreateSpy}>
-          Create your first role
-        </Button>
-      </div>
-    ),
-  },
-  play: async ({ canvasElement }) => {
-    const canvas = within(canvasElement);
-
-    await waitFor(() => {
-      expect(canvas.getByText('🎉 Get started with roles')).toBeInTheDocument();
-    });
-
-    // Click the action button
-    const createButton = canvas.getByRole('button', { name: /create your first role/i });
-    await userEvent.click(createButton);
-
-    expect(onCreateSpy).toHaveBeenCalled();
   },
 };
 
@@ -1211,26 +1031,45 @@ export const ToolbarActionsCallback: Story = {
 export const TextFilteringWithClear: Story = {
   args: {},
   play: async ({ canvasElement }) => {
-    const canvas = await waitForInitialLoad(canvasElement);
+    const canvas = within(canvasElement);
+
+    await waitFor(() => {
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
     apiCallSpy.mockClear();
 
-    // Apply filter using helper
-    await applyNameFilter(canvas, 'Admin');
+    // Type in filter
+    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+    await userEvent.type(filterInput, 'Admin');
 
     // Verify API was called with filter parameter
     await waitFor(() => {
-      const lastCall = getLastApiCall(apiCallSpy);
-      expect(lastCall?.nameFilter).toContain('Admin');
-      expect(lastCall?.offset).toBe(0);
+      const { calls } = apiCallSpy.mock;
+      expect(calls.length).toBeGreaterThan(0);
+      const lastCall = calls[calls.length - 1][0];
+      // Verify nameFilter is passed to API
+      expect(lastCall.nameFilter).toContain('Admin');
+      // Page should reset to 1 (offset = 0)
+      expect(lastCall.offset).toBe(0);
     });
 
-    // Clear filters using helper
-    await clickClearFilters(canvas);
+    // Wait for filtering in UI
+    await waitFor(() => {
+      // Should see Administrator but not Viewer (sorted by name, so Viewer comes after)
+      expect(canvas.getByText('Administrator 1')).toBeInTheDocument();
+    });
+
+    // Find and click clear filters button (use getAllByText and take the first - toolbar button)
+    const clearButtons = canvas.getAllByText('Clear filters');
+    await userEvent.click(clearButtons[0]);
 
     // Verify API was called with cleared filter
     await waitFor(() => {
-      const lastCall = getLastApiCall(apiCallSpy);
-      expect(lastCall?.nameFilter).toBe('');
+      const { calls } = apiCallSpy.mock;
+      const lastCall = calls[calls.length - 1][0];
+      // Filter should be empty
+      expect(lastCall.nameFilter).toBe('');
     });
   },
 };

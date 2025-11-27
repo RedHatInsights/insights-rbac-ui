@@ -9,9 +9,19 @@
  */
 
 import React, { useMemo } from 'react';
-import { Table, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Table, Tbody, Td, Th, Thead, Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { TableVariant } from '@patternfly/react-table';
-import { BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import { ExpandableRowContent } from '@patternfly/react-table/dist/dynamic/components/Table';
+import { Button } from '@patternfly/react-core/dist/dynamic/components/Button';
+import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
+import { EmptyState, EmptyStateActions, EmptyStateBody, EmptyStateFooter, EmptyStateHeader, EmptyStateIcon } from '@patternfly/react-core';
+import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
+import { BulkSelect, BulkSelectValue } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
+import { DataViewToolbar } from '@patternfly/react-data-view/dist/dynamic/DataViewToolbar';
+import DataViewFilters from '@patternfly/react-data-view/dist/cjs/DataViewFilters';
+import { DataViewCheckboxFilter, DataViewTextFilter } from '@patternfly/react-data-view';
+import SearchIcon from '@patternfly/react-icons/dist/js/icons/search-icon';
+import CubesIcon from '@patternfly/react-icons/dist/js/icons/cubes-icon';
 import type {
   CellRendererMap,
   ColumnConfigMap,
@@ -22,11 +32,6 @@ import type {
   SortDirection,
   TableViewProps,
 } from './types';
-import { TableViewFilters } from './components/TableViewFilters';
-import { TableViewToolbar } from './components/TableViewToolbar';
-import { TableViewRow } from './components/TableViewRow';
-import { TableViewSkeleton } from './components/TableViewSkeleton';
-import { DefaultEmptyStateNoData, DefaultEmptyStateNoResults, TableViewEmptyState } from './components/TableViewEmptyState';
 
 /**
  * TableView - Unified table component for RBAC UI
@@ -64,7 +69,6 @@ export function TableView<
     // Pagination
     page,
     perPage,
-    perPageOptions = [10, 20, 50, 100],
     onPageChange,
     onPerPageChange,
 
@@ -93,7 +97,6 @@ export function TableView<
     filters = {},
     onFiltersChange,
     clearAllFilters,
-    hasActiveFilters: hasActiveFiltersProp,
 
     // Toolbar
     toolbarActions,
@@ -109,18 +112,20 @@ export function TableView<
     ariaLabel,
   } = props;
 
-  // -------------------------------------------------------------------------
-  // Derived State
-  // -------------------------------------------------------------------------
+  // Determine loading state
   const isLoading = data === undefined;
+
+  // Determine empty state type
   const isEmpty = !isLoading && data.length === 0;
-  // Use prop from hook if provided, otherwise compute
-  const hasActiveFilters = hasActiveFiltersProp ?? Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== ''));
+  const hasActiveFilters = Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== ''));
+
+  // Calculate column count for skeleton and empty state
   const columnCount = columns.length + (selectable ? 1 : 0) + (renderActions ? 1 : 0);
-  const columnLabels = columns.map((col) => columnConfig[col as keyof typeof columnConfig]?.label || col);
 
-  const sortableColumnSet = useMemo(() => new Set(sortableColumns as readonly string[]), [sortableColumns]);
+  // Get sortable column index map
+  const sortableColumnSet = new Set(sortableColumns as readonly string[]);
 
+  // Get compound column set
   const compoundColumnSet = useMemo(() => {
     const set = new Set<string>();
     columns.forEach((col) => {
@@ -131,198 +136,362 @@ export function TableView<
     return set;
   }, [columns, columnConfig]);
 
-  // Selection derived state
+  // Handle sort click
+  const handleSortClick = (columnId: TSortable) => {
+    if (!onSortChange) return;
+
+    const newDirection: SortDirection = sort?.column === columnId && sort.direction === 'asc' ? 'desc' : 'asc';
+    onSortChange(columnId, newDirection);
+  };
+
+  // Handle row selection
+  const handleSelectRow = (row: TRow, isSelecting: boolean) => {
+    onSelectRow?.(row, isSelecting);
+  };
+
+  // Handle bulk select - pass current page data to selection handler
+  const handleBulkSelect = (value: BulkSelectValue) => {
+    const currentRows = data || [];
+    if (value === BulkSelectValue.none) {
+      onSelectAll?.(false, currentRows);
+    } else if (value === BulkSelectValue.page || value === BulkSelectValue.all) {
+      onSelectAll?.(true, currentRows);
+    } else if (value === BulkSelectValue.nonePage) {
+      onSelectAll?.(false, currentRows);
+    }
+  };
+
+  // Check if row is selected
+  const isRowSelected = (row: TRow): boolean => {
+    const rowId = getRowId(row);
+    return selectedRows.some((r) => getRowId(r) === rowId);
+  };
+
+  // Handle expansion toggle
+  const handleToggleExpand = (row: TRow, columnId: TCompound) => {
+    const rowId = getRowId(row);
+    const isCurrentlyExpanded = expandedCell?.rowId === rowId && expandedCell?.column === columnId;
+
+    onToggleExpand?.(rowId, columnId);
+
+    // Call onExpand when expanding (not collapsing)
+    if (!isCurrentlyExpanded) {
+      onExpand?.(row, columnId);
+    }
+  };
+
+  // Check if cell is expanded
+  const isCellExpanded = (rowId: string, columnId: string): boolean => {
+    return expandedCell?.rowId === rowId && expandedCell?.column === columnId;
+  };
+
+  // Handle row click
+  const handleRowClick = (row: TRow, event: React.MouseEvent) => {
+    // Don't trigger row click if clicking on checkbox, button, or actions
+    const target = event.target as HTMLElement;
+    if (target.closest('input[type="checkbox"]') || target.closest('button') || target.closest('[data-actions]')) {
+      return;
+    }
+
+    if (isRowClickable(row)) {
+      onRowClick?.(row);
+    }
+  };
+
+  // Handle filter change - DataViewFilters passes (_event, values)
+  const handleFilterChange = (_event: unknown, newFilters: Partial<FilterState>) => {
+    // Merge with existing filters and convert undefined to empty strings
+    const mergedFilters: FilterState = { ...filters };
+    Object.entries(newFilters).forEach(([key, value]) => {
+      if (value === undefined) {
+        delete mergedFilters[key];
+      } else {
+        mergedFilters[key] = value;
+      }
+    });
+    onFiltersChange?.(mergedFilters);
+  };
+
+  // Normalize filter config - reduce 4 types to 2 (text vs checkbox)
+  // Note: 'search' type intentionally doesn't have a label field - we provide 'Search' as default
+  const normalizedFilterConfig = useMemo(
+    () =>
+      filterConfig.map((config) => {
+        if (config.type === 'search') {
+          return { ...config, type: 'text' as const, label: 'Search' };
+        }
+        if (config.type === 'select') {
+          return { ...config, type: 'checkbox' as const };
+        }
+        return config;
+      }),
+    [filterConfig],
+  );
+
+  // Render filter components
+  const renderFilters = () => {
+    if (normalizedFilterConfig.length === 0) return null;
+
+    return (
+      <DataViewFilters onChange={handleFilterChange} values={filters}>
+        {normalizedFilterConfig.map((config) => {
+          if (config.type === 'text') {
+            return <DataViewTextFilter key={config.id} filterId={config.id} title={config.label} placeholder={config.placeholder} />;
+          }
+          if (config.type === 'checkbox') {
+            const mappedOptions = config.options.map((opt) => ({ value: opt.id, label: opt.label }));
+            return <DataViewCheckboxFilter key={config.id} filterId={config.id} title={config.label} options={mappedOptions} />;
+          }
+          return null;
+        })}
+      </DataViewFilters>
+    );
+  };
+
+  // Calculate selection state for bulk select
   const selectableCount = data?.filter(isRowSelectable).length || 0;
   const selectedOnPage = data?.filter((row) => isRowSelected(row) && isRowSelectable(row)).length || 0;
   const pageSelected = selectedOnPage > 0 && selectedOnPage === selectableCount;
   const pagePartiallySelected = selectedOnPage > 0 && selectedOnPage < selectableCount;
 
-  // -------------------------------------------------------------------------
-  // Handlers
-  // -------------------------------------------------------------------------
-  function isRowSelected(row: TRow): boolean {
-    const rowId = getRowId(row);
-    return selectedRows.some((r) => getRowId(r) === rowId);
-  }
+  // Render toolbar using DataViewToolbar for proper filter integration
+  const renderToolbar = (position: 'top' | 'bottom') => {
+    const showFilters = position === 'top' && normalizedFilterConfig.length > 0;
+    const showBulkSelect = position === 'top' && selectable && data && data.length > 0;
+    const showActions = position === 'top' && (toolbarActions || (bulkActions && selectedRows.length > 0));
+    const showPagination = totalCount > 0;
 
-  function handleSortClick(columnId: TSortable) {
-    if (!onSortChange) return;
-    const newDirection: SortDirection = sort?.column === columnId && sort.direction === 'asc' ? 'desc' : 'asc';
-    onSortChange(columnId, newDirection);
-  }
-
-  function handleBulkSelect(value: BulkSelectValue) {
-    const currentRows = data || [];
-    if (value === BulkSelectValue.none || value === BulkSelectValue.nonePage) {
-      onSelectAll?.(false, currentRows);
-    } else if (value === BulkSelectValue.page || value === BulkSelectValue.all) {
-      onSelectAll?.(true, currentRows);
+    if (!showFilters && !showBulkSelect && !showActions && !showPagination) {
+      return null;
     }
-  }
 
-  function handleToggleExpand(row: TRow, columnId: TCompound) {
-    const rowId = getRowId(row);
-    const isCurrentlyExpanded = expandedCell?.rowId === rowId && expandedCell?.column === columnId;
-    onToggleExpand?.(rowId, columnId);
-    if (!isCurrentlyExpanded) {
-      onExpand?.(row, columnId);
-    }
-  }
+    const toolbarOuiaId = ouiaId ? `${ouiaId}-${position}-toolbar` : undefined;
 
-  // -------------------------------------------------------------------------
-  // Render
-  // -------------------------------------------------------------------------
-
-  // Filters (only for top toolbar)
-  const filtersElement =
-    filterConfig.length > 0 ? <TableViewFilters filterConfig={filterConfig} filters={filters} onFiltersChange={onFiltersChange} /> : null;
-
-  // Actions (only for top toolbar)
-  const actionsElement =
-    toolbarActions || (bulkActions && selectedRows.length > 0) ? (
-      <>
-        {selectedRows.length > 0 && bulkActions}
-        {toolbarActions}
-      </>
-    ) : null;
-
-  // Empty state content
-  const emptyStateContent = hasActiveFilters
-    ? emptyStateNoResults || <DefaultEmptyStateNoResults onClearFilters={clearAllFilters} />
-    : emptyStateNoData || <DefaultEmptyStateNoData />;
-
-  return (
-    <div data-testid="table-view" data-ouia-component-id={ouiaId || undefined}>
-      {/* Top Toolbar */}
-      <TableViewToolbar
-        position="top"
-        ouiaId={ouiaId ? `${ouiaId}-top-toolbar` : undefined}
-        totalCount={totalCount}
-        page={page}
-        perPage={perPage}
-        perPageOptions={perPageOptions}
-        onPageChange={onPageChange}
-        onPerPageChange={onPerPageChange}
-        showFilters={filterConfig.length > 0}
-        filters={filtersElement}
+    return (
+      <DataViewToolbar
+        ouiaId={toolbarOuiaId}
+        bulkSelect={
+          showBulkSelect ? (
+            <BulkSelect
+              isDataPaginated
+              selectedCount={selectedRows.length}
+              totalCount={totalCount}
+              pageCount={selectableCount}
+              pageSelected={pageSelected}
+              pagePartiallySelected={pagePartiallySelected}
+              onSelect={handleBulkSelect}
+            />
+          ) : undefined
+        }
+        filters={showFilters ? renderFilters() : undefined}
         clearAllFilters={clearAllFilters}
-        selectable={selectable}
-        selectableCount={selectableCount}
-        selectedCount={selectedRows.length}
-        pageSelected={pageSelected}
-        pagePartiallySelected={pagePartiallySelected}
-        onBulkSelect={handleBulkSelect}
-        actions={actionsElement}
+        actions={
+          showActions ? (
+            <>
+              {selectedRows.length > 0 && bulkActions}
+              {toolbarActions}
+            </>
+          ) : undefined
+        }
+        pagination={
+          showPagination ? (
+            <Pagination
+              itemCount={totalCount}
+              page={page}
+              perPage={perPage}
+              onSetPage={(_e, newPage) => onPageChange(newPage)}
+              onPerPageSelect={(_e, newPerPage) => onPerPageChange(newPerPage)}
+              variant={position === 'bottom' ? 'bottom' : undefined}
+              isCompact={position === 'top'}
+            />
+          ) : undefined
+        }
       />
+    );
+  };
 
-      {/* Loading State */}
-      {isLoading && (
-        <TableViewSkeleton
-          columnLabels={columnLabels}
-          rowCount={perPage}
-          hasSelection={selectable}
-          hasActions={!!renderActions}
-          variant={variant}
-          ariaLabel={ariaLabel}
-          ouiaId={ouiaId}
-        />
+  // Render loading skeleton
+  const renderSkeleton = () => (
+    <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
+      <SkeletonTableHead
+        columns={[
+          ...(selectable ? [''] : []),
+          ...columns.map((col) => columnConfig[col as keyof typeof columnConfig]?.label || col),
+          ...(renderActions ? [''] : []),
+        ]}
+      />
+      <SkeletonTableBody rowsCount={perPage} columnsCount={columnCount} />
+    </Table>
+  );
+
+  // Default empty state for no data
+  const defaultEmptyStateNoData = (
+    <EmptyState>
+      <EmptyStateHeader titleText="No data available" headingLevel="h4" icon={<EmptyStateIcon icon={CubesIcon} />} />
+      <EmptyStateBody>There are no items to display. Create a new item to get started.</EmptyStateBody>
+    </EmptyState>
+  );
+
+  // Default empty state for no results (with filters active)
+  const defaultEmptyStateNoResults = (
+    <EmptyState>
+      <EmptyStateHeader titleText="No results found" headingLevel="h4" icon={<EmptyStateIcon icon={SearchIcon} />} />
+      <EmptyStateBody>No items match the filter criteria. Remove all filters or clear all filters to show results.</EmptyStateBody>
+      {clearAllFilters && (
+        <EmptyStateFooter>
+          <EmptyStateActions>
+            <Button variant="link" onClick={clearAllFilters}>
+              Clear all filters
+            </Button>
+          </EmptyStateActions>
+        </EmptyStateFooter>
       )}
+    </EmptyState>
+  );
 
-      {/* Empty State */}
-      {!isLoading && isEmpty && (
-        <TableViewEmptyState
-          columnLabels={columnLabels}
-          hasSelection={selectable}
-          hasActions={!!renderActions}
-          variant={variant}
-          ariaLabel={ariaLabel}
-          ouiaId={ouiaId}
-        >
-          {emptyStateContent}
-        </TableViewEmptyState>
-      )}
+  // Render empty state
+  const renderEmptyState = () => (
+    <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
+      <Thead>
+        <Tr>
+          {selectable && <Th screenReaderText="Select" />}
+          {columns.map((col) => (
+            <Th key={col}>{columnConfig[col as keyof typeof columnConfig]?.label || col}</Th>
+          ))}
+          {renderActions && <Th screenReaderText="Actions" />}
+        </Tr>
+      </Thead>
+      <Tbody>
+        <Tr>
+          <Td colSpan={columnCount}>
+            {hasActiveFilters ? emptyStateNoResults || defaultEmptyStateNoResults : emptyStateNoData || defaultEmptyStateNoData}
+          </Td>
+        </Tr>
+      </Tbody>
+    </Table>
+  );
 
-      {/* Data Table */}
-      {!isLoading && !isEmpty && (
-        <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
-          <Thead>
-            <Tr>
-              {selectable && <Th screenReaderText="Select" />}
-              {columns.map((col, index) => {
-                const config = columnConfig[col as keyof typeof columnConfig];
-                const isSortable = sortableColumnSet.has(col);
+  // Render table with data
+  const renderTable = () => {
+    if (!data) return null;
 
-                return (
-                  <Th
-                    key={col}
-                    sort={
-                      isSortable && onSortChange
+    return (
+      <Table aria-label={ariaLabel} variant={variant === 'compact' ? TableVariant.compact : undefined} ouiaId={ouiaId}>
+        <Thead>
+          <Tr>
+            {selectable && <Th screenReaderText="Select" />}
+            {columns.map((col, index) => {
+              const config = columnConfig[col as keyof typeof columnConfig];
+              const isSortable = sortableColumnSet.has(col);
+
+              return (
+                <Th
+                  key={col}
+                  sort={
+                    isSortable && onSortChange
+                      ? {
+                          sortBy: {
+                            index: sort?.column === col ? index : -1,
+                            direction: sort?.column === col ? sort.direction : 'asc',
+                          },
+                          onSort: () => handleSortClick(col as TSortable),
+                          columnIndex: index,
+                        }
+                      : undefined
+                  }
+                  // width prop omitted - PF5 Th only accepts specific percentage values
+                >
+                  {config?.label || col}
+                </Th>
+              );
+            })}
+            {renderActions && <Th screenReaderText="Actions" />}
+          </Tr>
+        </Thead>
+
+        {data.map((row, rowIndex) => {
+          const rowId = getRowId(row);
+          const isSelected = isRowSelected(row);
+          const canSelect = isRowSelectable(row);
+          const isClickable = isRowClickable(row);
+          const isExpanded = expandedCell?.rowId === rowId;
+
+          // Get the expansion renderer for the currently expanded cell (if any)
+          const expandedColumnId = isExpanded ? expandedCell?.column : undefined;
+          const expansionRenderer = expandedColumnId ? expansionRenderers?.[expandedColumnId as keyof typeof expansionRenderers] : undefined;
+
+          return (
+            <Tbody key={rowId} isExpanded={isExpanded}>
+              <Tr
+                isClickable={isClickable}
+                isRowSelected={isSelected}
+                onRowClick={isClickable ? (e) => e && handleRowClick(row, e as React.MouseEvent) : undefined}
+              >
+                {selectable && (
+                  <Td
+                    className={!canSelect ? 'pf-v5-c-table__check' : undefined}
+                    select={
+                      canSelect
                         ? {
-                            sortBy: {
-                              index: sort?.column === col ? index : -1,
-                              direction: sort?.column === col ? sort.direction : 'asc',
-                            },
-                            onSort: () => handleSortClick(col as TSortable),
-                            columnIndex: index,
+                            rowIndex,
+                            onSelect: (_e, isSelecting) => handleSelectRow(row, isSelecting),
+                            isSelected,
                           }
                         : undefined
                     }
-                  >
-                    {config?.label || col}
-                  </Th>
-                );
-              })}
-              {renderActions && <Th screenReaderText="Actions" />}
-            </Tr>
-          </Thead>
+                  />
+                )}
 
-          {data.map((row, rowIndex) => (
-            <TableViewRow
-              key={getRowId(row)}
-              row={row}
-              rowIndex={rowIndex}
-              rowId={getRowId(row)}
-              columns={columns}
-              selectable={selectable}
-              canSelect={isRowSelectable(row)}
-              isSelected={isRowSelected(row)}
-              onSelectRow={onSelectRow}
-              isClickable={isRowClickable(row)}
-              onRowClick={onRowClick}
-              expandedCell={expandedCell}
-              expansionRenderers={expansionRenderers}
-              isCellExpandable={isCellExpandable}
-              onToggleExpand={handleToggleExpand}
-              compoundColumnSet={compoundColumnSet}
-              columnConfig={columnConfig}
-              cellRenderers={cellRenderers}
-              renderActions={renderActions}
-              columnCount={columnCount}
-            />
-          ))}
-        </Table>
-      )}
+                {columns.map((col) => {
+                  const isCompound = compoundColumnSet.has(col);
+                  const canExpand = isCompound && isCellExpandable(row, col as TCompound);
+                  const cellExpanded = isCellExpanded(rowId, col);
 
-      {/* Bottom Toolbar (pagination only) */}
-      {!isLoading && !isEmpty && (
-        <TableViewToolbar
-          position="bottom"
-          ouiaId={ouiaId ? `${ouiaId}-bottom-toolbar` : undefined}
-          totalCount={totalCount}
-          page={page}
-          perPage={perPage}
-          perPageOptions={perPageOptions}
-          onPageChange={onPageChange}
-          onPerPageChange={onPerPageChange}
-          showFilters={false}
-          selectable={selectable}
-          selectableCount={selectableCount}
-          selectedCount={selectedRows.length}
-          pageSelected={pageSelected}
-          pagePartiallySelected={pagePartiallySelected}
-          onBulkSelect={handleBulkSelect}
-        />
-      )}
+                  return (
+                    <Td
+                      key={col}
+                      dataLabel={columnConfig[col as keyof typeof columnConfig]?.label || col}
+                      compoundExpand={
+                        canExpand && onToggleExpand
+                          ? {
+                              isExpanded: cellExpanded,
+                              onToggle: () => handleToggleExpand(row, col as TCompound),
+                            }
+                          : undefined
+                      }
+                    >
+                      {cellRenderers[col as keyof typeof cellRenderers](row)}
+                    </Td>
+                  );
+                })}
+
+                {renderActions && (
+                  <Td data-actions isActionCell>
+                    {renderActions(row)}
+                  </Td>
+                )}
+              </Tr>
+
+              {/* Single expansion row - only render if this row has an expanded cell */}
+              {expansionRenderer && (
+                <Tr key={`${rowId}-${expandedColumnId}-expansion`} isExpanded>
+                  <Td colSpan={columnCount}>
+                    <ExpandableRowContent>{expansionRenderer(row)}</ExpandableRowContent>
+                  </Td>
+                </Tr>
+              )}
+            </Tbody>
+          );
+        })}
+      </Table>
+    );
+  };
+
+  return (
+    <div data-testid="table-view" data-ouia-component-id={ouiaId || undefined}>
+      {renderToolbar('top')}
+      {isLoading ? renderSkeleton() : isEmpty ? renderEmptyState() : renderTable()}
+      {!isLoading && !isEmpty && renderToolbar('bottom')}
     </div>
   );
 }

@@ -6,7 +6,7 @@
  * - Decoupled filtering from columns
  * - Compound expandable rows
  * - Optional URL state synchronization
- * - Reusable building blocks for custom implementations
+ * - Utility hooks for common checks
  */
 
 // Types
@@ -32,24 +32,13 @@ export type {
   UseTableStateReturn,
   // Component types
   TableViewProps,
+  TableViewToolbarProps,
+  TableViewSkeletonProps,
+  TableViewEmptyStateProps,
 } from './types';
 
-// Main Component
+// Components
 export { TableView } from './TableView';
 
 // Hooks
 export { useTableState } from './hooks/useTableState';
-export { useRowSelection, type UseRowSelectionOptions, type UseRowSelectionReturn } from './hooks/useRowSelection';
-
-// Reusable Building Blocks (for custom implementations)
-export {
-  TableViewEmptyState,
-  type TableViewEmptyStateProps,
-  DefaultEmptyStateNoData,
-  type DefaultEmptyStateNoDataProps,
-  DefaultEmptyStateNoResults,
-  type DefaultEmptyStateNoResultsProps,
-} from './components/TableViewEmptyState';
-export { TableViewSkeleton, type TableViewSkeletonProps } from './components/TableViewSkeleton';
-export { TableViewFilters, type TableViewFiltersProps } from './components/TableViewFilters';
-export { TableViewToolbar, type TableViewToolbarProps } from './components/TableViewToolbar';
