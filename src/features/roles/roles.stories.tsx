@@ -153,22 +153,62 @@ After the fix is applied, the NonAdminUserUnauthorizedCalls story should pass wi
     },
     msw: {
       handlers: [
-        // Roles API - successful response for admin users
+        // Roles API - successful response for admin users with detailed logging
         http.get('/api/rbac/v1/roles/', ({ request }) => {
-          console.log('SB: 🔍 MSW: Roles API called', request.url);
-          fetchRolesSpy(request);
           const url = new URL(request.url);
           const limit = parseInt(url.searchParams.get('limit') || '20', 10);
           const offset = parseInt(url.searchParams.get('offset') || '0', 10);
+          const displayNameFilter = url.searchParams.get('display_name');
 
-          return HttpResponse.json({
-            data: mockRoles.slice(offset, offset + limit),
+          console.log('SB: 🔍 MSW: Roles API called', {
+            url: request.url,
+            displayNameFilter:
+              displayNameFilter === null ? 'NULL (no parameter)' : displayNameFilter === '' ? 'EMPTY STRING' : `"${displayNameFilter}"`,
+            limit,
+            offset,
+          });
+
+          fetchRolesSpy(request);
+
+          // Apply display_name filtering ONLY if provided and not empty
+          // Note: mappedProps filters out empty strings, so when clearing filters,
+          // the display_name parameter won't be in the URL at all (displayNameFilter will be null)
+          let filteredRoles = mockRoles;
+          if (displayNameFilter && displayNameFilter.trim() !== '') {
+            console.log('SB: 🔍 MSW: Applying display_name filter:', displayNameFilter);
+            filteredRoles = mockRoles.filter(
+              (role) =>
+                role.name.toLowerCase().includes(displayNameFilter.toLowerCase()) ||
+                (role.display_name && role.display_name.toLowerCase().includes(displayNameFilter.toLowerCase())) ||
+                (role.description && role.description.toLowerCase().includes(displayNameFilter.toLowerCase())),
+            );
+            console.log('SB: 🔍 MSW: Filtered roles count:', filteredRoles.length);
+          } else {
+            console.log('SB: 🔍 MSW: No filter (displayNameFilter is null or empty), returning all', mockRoles.length, 'roles');
+          }
+
+          const response = {
+            data: filteredRoles.slice(offset, offset + limit),
             meta: {
-              count: mockRoles.length,
+              count: filteredRoles.length,
               limit,
               offset,
             },
-          });
+            // Include filters and pagination for Redux state management
+            // When displayNameFilter is null (parameter not in URL), use empty string for Redux
+            filters: {
+              display_name: displayNameFilter || '',
+            },
+            pagination: {
+              count: filteredRoles.length,
+              limit,
+              offset,
+            },
+          };
+
+          console.log('SB: 🔍 MSW: Returning', response.data.length, 'roles, total count:', response.meta.count);
+
+          return HttpResponse.json(response);
         }),
 
         // Admin group API - successful response for admin users
@@ -407,25 +447,51 @@ export const AdminUserWithRolesFiltering: Story = {
         http.get('/api/rbac/v1/roles/', ({ request }) => {
           const url = new URL(request.url);
           const displayNameFilter = url.searchParams.get('display_name');
+          const limit = parseInt(url.searchParams.get('limit') || '20', 10);
+          const offset = parseInt(url.searchParams.get('offset') || '0', 10);
 
-          console.log('SB: 🔍 MSW: Roles API called with display_name filter:', displayNameFilter);
+          console.log(
+            'SB: 🔍 MSW: Roles API called with display_name filter:',
+            displayNameFilter === null ? 'NULL (no parameter)' : displayNameFilter === '' ? 'EMPTY STRING' : `"${displayNameFilter}"`,
+          );
           fetchRolesSpy(request);
 
           if (displayNameFilter) {
             filterSpy(displayNameFilter);
           }
 
+          // Apply display_name filtering ONLY if provided and not empty
+          // mappedProps filters out empty strings, so when clearing filters,
+          // the display_name parameter won't be in the URL (displayNameFilter will be null)
           let filteredRoles = mockRoles;
-          if (displayNameFilter) {
-            filteredRoles = mockRoles.filter((role) => role.display_name.toLowerCase().includes(displayNameFilter.toLowerCase()));
+          if (displayNameFilter && displayNameFilter.trim() !== '') {
+            console.log('SB: 🔍 MSW: Filtering to', displayNameFilter);
+            filteredRoles = mockRoles.filter(
+              (role) =>
+                role.name.toLowerCase().includes(displayNameFilter.toLowerCase()) ||
+                (role.display_name && role.display_name.toLowerCase().includes(displayNameFilter.toLowerCase())) ||
+                (role.description && role.description.toLowerCase().includes(displayNameFilter.toLowerCase())),
+            );
+          } else {
+            console.log('SB: 🔍 MSW: No filter, returning all', mockRoles.length, 'roles');
           }
 
           return HttpResponse.json({
             data: filteredRoles,
             meta: {
               count: filteredRoles.length,
-              limit: 20,
-              offset: 0,
+              limit,
+              offset,
+            },
+            // Include filters and pagination for Redux state management
+            // When displayNameFilter is null (not in URL), use empty string for Redux
+            filters: {
+              display_name: displayNameFilter || '',
+            },
+            pagination: {
+              count: filteredRoles.length,
+              limit,
+              offset,
             },
           });
         }),
@@ -460,36 +526,46 @@ export const AdminUserWithRolesFiltering: Story = {
     expect(await canvas.findByText('Cost Management Viewer')).toBeInTheDocument();
 
     // Test filtering functionality
-    const filterInput = canvas.getByPlaceholderText(/filter by name/i);
+    const filterInput = await canvas.findByPlaceholderText(/filter by name/i);
     expect(filterInput).toBeInTheDocument();
 
-    // Test 1: Filter by "Platform"
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Platform');
+    // Test 1: Filter by "vulner" - should match "Vulnerability Administrator"
+    console.log('SB: 🧪 FILTERING: Typing "vulner" filter');
+    await userEvent.type(filterInput, 'vulner');
 
     // Wait for debounce to complete (250ms debounce + buffer)
     await delay(400);
 
     await waitFor(() => {
-      // Verify filter API was called with correct parameter
-      expect(filterSpy).toHaveBeenCalledWith('Platform');
+      expect(filterSpy).toHaveBeenCalledWith('vulner');
     });
 
-    // Test 2: Filter by "Management"
-    await userEvent.clear(filterInput);
-    await userEvent.type(filterInput, 'Management');
-
-    // Wait for debounce to complete (250ms debounce + buffer)
-    await delay(400);
-
+    // Verify only Vulnerability Administrator is visible
+    expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
     await waitFor(() => {
-      expect(filterSpy).toHaveBeenCalledWith('Management');
+      expect(canvas.queryByText('Platform Administrator')).not.toBeInTheDocument();
+      expect(canvas.queryByText('Cost Management Viewer')).not.toBeInTheDocument();
     });
 
-    // Test 3: Clear filter
-    await userEvent.clear(filterInput);
+    // Test 2: Clear filter by clicking the Clear filters button
+    console.log('SB: 🧪 FILTERING: Clicking clear filters button');
+    const clearFiltersButton = await canvas.findByRole('button', { name: /clear filters/i });
+    expect(clearFiltersButton).toBeInTheDocument();
 
-    console.log('SB: 🧪 FILTERING: Role filtering test completed');
+    filterSpy.mockClear();
+    await userEvent.click(clearFiltersButton);
+
+    // Wait for API call and table refresh
+    console.log('SB: 🧪 FILTERING: Waiting for clear to complete...');
+    await delay(600);
+
+    // All roles should be visible again after clearing
+    console.log('SB: 🧪 FILTERING: Verifying all roles are back...');
+    expect(await canvas.findByText('Platform Administrator')).toBeInTheDocument();
+    expect(await canvas.findByText('Cost Management Viewer')).toBeInTheDocument();
+    expect(await canvas.findByText('Vulnerability Administrator')).toBeInTheDocument();
+
+    console.log('SB: 🧪 FILTERING: Role filtering test completed successfully');
   },
 };
 

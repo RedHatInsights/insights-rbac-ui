@@ -96,7 +96,8 @@ export const useRoles = (): UseRolesReturn => {
   const totalCount = rawPagination.count || 0;
 
   // Local state
-  const [filterValue, setFilterValue] = useState(reduxFilters.display_name || '');
+  // Prioritize display_name, fallback to name for backwards compatibility
+  const [filterValue, setFilterValue] = useState(reduxFilters.display_name || reduxFilters.name || '');
   const [expandedCells, setExpandedCells] = useState<ExpandedCells>({});
   const [selectedRows, setSelectedRows] = useState<Array<{ uuid: string; label: string }>>([]);
 
@@ -151,14 +152,27 @@ export const useRoles = (): UseRolesReturn => {
   // Memoized fetch function
   const fetchData = useCallback(
     (options: Partial<FetchRolesWithPoliciesParams> = {}) => {
-      const defaultOptions = {
+      // Determine the filters to use:
+      // 1. If options.filters is explicitly provided (even if empty object {}), use it
+      // 2. Otherwise, use filterValue from the closure
+      const shouldUseFilterValue = options.filters === undefined && filterValue;
+      const filters = shouldUseFilterValue ? { display_name: filterValue } : options.filters;
+
+      const apiParams: Partial<FetchRolesWithPoliciesParams> = {
         limit: perPage,
         offset: (page - 1) * perPage,
         orderBy,
-        filters: { display_name: filterValue },
+        ...options, // Spread options to allow overrides
       };
 
-      dispatch(fetchRolesWithPolicies({ ...mappedProps({ ...defaultOptions, ...options }), usesMetaInURL: true, chrome }));
+      // CRITICAL: Only include filters if they have actual values
+      // When filters is {} (empty object), we want to omit it entirely
+      // so the API call has no 'name' parameter, which returns all roles
+      if (filters && Object.keys(filters).length > 0) {
+        apiParams.filters = filters;
+      }
+
+      dispatch(fetchRolesWithPolicies({ ...mappedProps(apiParams as Record<string, unknown>), usesMetaInURL: true, chrome }));
     },
     [dispatch, chrome, perPage, page, orderBy, filterValue],
   );
@@ -209,6 +223,7 @@ export const useRoles = (): UseRolesReturn => {
 
   // Handle filter changes
   const handleClearFilters = useCallback(() => {
+    // First update the UI state
     setFilterValue('');
     // Update redux filters immediately to reflect cleared state
     dispatch(updateRolesFilters({ display_name: '' }));

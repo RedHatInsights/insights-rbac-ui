@@ -291,7 +291,7 @@ export const Roles: React.FC = () => {
                     <DataViewTextFilter filterId="display_name" title="Name" placeholder="Filter by name" />
                   </DataViewFilters>
                 }
-                clearAllFilters={hasActiveFilters ? handleClearFilters : undefined}
+                clearAllFilters={handleClearFilters}
               />
 
               {/* Custom table for compound expandable rows */}
