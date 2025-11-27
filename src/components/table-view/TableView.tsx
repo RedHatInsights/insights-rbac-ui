@@ -213,7 +213,6 @@ export function TableView<
   };
 
   // Normalize filter config - reduce 4 types to 2 (text vs checkbox)
-  // Note: 'search' type intentionally doesn't have a label field - we provide 'Search' as default
   const normalizedFilterConfig = useMemo(
     () =>
       filterConfig.map((config) => {

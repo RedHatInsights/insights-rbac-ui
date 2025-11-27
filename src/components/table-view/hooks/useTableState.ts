@@ -82,48 +82,44 @@ function updateSortInUrl(searchParams: URLSearchParams, column: string, directio
   return next;
 }
 
-/** Update filters in URL, preserving all non-filter params (including external params) */
-function updateFiltersInUrl(searchParams: URLSearchParams, newFilters: FilterState, oldFilters: FilterState): URLSearchParams {
-  const next = new URLSearchParams(searchParams);
+/** Update filters in URL, preserving table-managed params and other non-filter params */
+function updateFiltersInUrl(searchParams: URLSearchParams, newFilters: FilterState): URLSearchParams {
+  const next = new URLSearchParams();
+
+  // Preserve all non-filter params (table params + any external params)
+  searchParams.forEach((value, key) => {
+    // Keep table-managed params
+    if ((TABLE_URL_PARAMS as readonly string[]).includes(key)) {
+      next.set(key, value);
+    }
+  });
 
   // Reset page when filters change
   next.delete('page');
 
-  // Remove old filter keys that are no longer in newFilters
-  Object.keys(oldFilters).forEach((key) => {
-    if (!(key in newFilters) || !newFilters[key] || (Array.isArray(newFilters[key]) && (newFilters[key] as string[]).length === 0)) {
-      next.delete(key);
-    }
-  });
-
-  // Add/update filter params
+  // Add filter params
   Object.entries(newFilters).forEach(([key, value]) => {
     if (Array.isArray(value)) {
       if (value.length > 0) {
         next.set(key, value.join(','));
-      } else {
-        next.delete(key);
       }
     } else if (value) {
       next.set(key, value);
-    } else {
-      next.delete(key);
     }
   });
 
   return next;
 }
 
-/** Clear filters in URL, preserving all non-filter params (including external params) */
-function clearFiltersInUrl(searchParams: URLSearchParams, currentFilters: FilterState): URLSearchParams {
-  const next = new URLSearchParams(searchParams);
+/** Clear filters in URL, preserving table-managed params */
+function clearFiltersInUrl(searchParams: URLSearchParams): URLSearchParams {
+  const next = new URLSearchParams();
 
-  // Reset page when clearing filters
-  next.delete('page');
-
-  // Remove only filter keys (keys that exist in currentFilters)
-  Object.keys(currentFilters).forEach((key) => {
-    next.delete(key);
+  // Preserve table-managed params except page
+  searchParams.forEach((value, key) => {
+    if ((TABLE_URL_PARAMS as readonly string[]).includes(key) && key !== 'page') {
+      next.set(key, value);
+    }
   });
 
   return next;
@@ -316,25 +312,21 @@ export function useTableState<
 
   const onFiltersChange = useCallback(
     (newFilters: FilterState) => {
-      setFiltersState((prevFilters) => {
-        if (syncWithUrl) {
-          setSearchParams((prev) => updateFiltersInUrl(prev, newFilters, prevFilters));
-        }
-        return newFilters;
-      });
+      setFiltersState(newFilters);
       setPageState(1);
+      if (syncWithUrl) {
+        setSearchParams((prev) => updateFiltersInUrl(prev, newFilters));
+      }
     },
     [syncWithUrl, setSearchParams],
   );
 
   const clearAllFilters = useCallback(() => {
-    setFiltersState((prevFilters) => {
-      if (syncWithUrl) {
-        setSearchParams((prev) => clearFiltersInUrl(prev, prevFilters));
-      }
-      return {};
-    });
+    setFiltersState({});
     setPageState(1);
+    if (syncWithUrl) {
+      setSearchParams((prev) => clearFiltersInUrl(prev));
+    }
   }, [syncWithUrl, setSearchParams]);
 
   const hasActiveFilters = useMemo(() => Object.values(filters).some((v) => (Array.isArray(v) ? v.length > 0 : v !== '')), [filters]);
