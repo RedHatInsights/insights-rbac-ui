@@ -94,7 +94,7 @@ const RolesTable: React.FunctionComponent<RolesTableProps> = ({ selectedRole }) 
       if (!role) {
         return;
       }
-      navigate(paths['edit-role'].path.replace(':roleId', role.uuid));
+      navigate(paths['edit-role'].link.replace(':roleId', role.uuid));
     },
     [navigate],
   );
