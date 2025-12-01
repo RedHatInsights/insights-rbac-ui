@@ -1,3 +1,10 @@
+## [1.72.3](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.2...v1.72.3) (2025-12-01)
+
+
+### Bug Fixes
+
+* **Roles:** fix nav for editing roles ([66ebd75](https://github.com/RedHatInsights/insights-rbac-ui/commit/66ebd758eb6088ba2a98c3f4e49452600cb8cfca))
+
 ## [1.72.2](https://github.com/RedHatInsights/insights-rbac-ui/compare/v1.72.1...v1.72.2) (2025-11-27)
 
 
