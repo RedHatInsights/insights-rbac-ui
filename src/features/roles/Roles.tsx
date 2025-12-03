@@ -11,17 +11,13 @@ import { Stack, StackItem } from '@patternfly/react-core/dist/dynamic/layouts/St
 import { Pagination } from '@patternfly/react-core/dist/dynamic/components/Pagination';
 import { BulkSelect } from '@patternfly/react-component-groups/dist/dynamic/BulkSelect';
 import { BulkSelectValue } from '@patternfly/react-component-groups';
-import { Dropdown } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownList } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { DropdownItem } from '@patternfly/react-core/dist/dynamic/components/Dropdown';
-import { MenuToggle } from '@patternfly/react-core/dist/dynamic/components/MenuToggle';
 import { Table } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Thead } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Tr } from '@patternfly/react-table/dist/dynamic/components/Table';
 import { Th } from '@patternfly/react-table/dist/dynamic/components/Table';
-import EllipsisVIcon from '@patternfly/react-icons/dist/js/icons/ellipsis-v-icon';
 import { SkeletonTableBody, SkeletonTableHead } from '@patternfly/react-component-groups';
 import Section from '@redhat-cloud-services/frontend-components/Section';
+import { ActionDropdown } from '../../components/ActionDropdown';
 import { PageLayout, PageTitle } from '../../components/layout/PageLayout';
 import { AppLink } from '../../components/navigation/AppLink';
 import { useAppLink } from '../../hooks/useAppLink';
@@ -69,7 +65,6 @@ export const Roles: React.FC = () => {
   } = useRoles();
 
   // Local state for UI
-  const [isBulkActionsOpen, setIsBulkActionsOpen] = useState(false);
   const [removeRolesList, setRemoveRolesList] = useState<Array<{ uuid: string; label: string }>>([]);
 
   // Show NotAuthorized component for users without proper permissions
@@ -241,40 +236,23 @@ export const Roles: React.FC = () => {
                   isAdmin ? (
                     <Fragment>
                       {selectedRows.length > 0 ? (
-                        <Dropdown
-                          isOpen={isBulkActionsOpen}
-                          onOpenChange={setIsBulkActionsOpen}
-                          toggle={(toggleRef) => (
-                            <MenuToggle
-                              ref={toggleRef}
-                              aria-label="bulk actions toggle"
-                              variant="plain"
-                              onClick={() => setIsBulkActionsOpen(!isBulkActionsOpen)}
-                            >
-                              <EllipsisVIcon />
-                            </MenuToggle>
-                          )}
-                        >
-                          <DropdownList>
-                            <DropdownItem
-                              isDisabled={selectedRows.length !== 1}
-                              onClick={() => {
-                                if (selectedRows.length === 1) {
-                                  handleEditRole(selectedRows[0].uuid);
-                                }
-                              }}
-                            >
-                              {intl.formatMessage(messages.edit)}
-                            </DropdownItem>
-                            <DropdownItem
-                              onClick={() => {
-                                handleDeleteRole(selectedRows.map((row) => row.uuid));
-                              }}
-                            >
-                              {intl.formatMessage(messages.delete)}
-                            </DropdownItem>
-                          </DropdownList>
-                        </Dropdown>
+                        <ActionDropdown
+                          ariaLabel="bulk actions"
+                          ouiaId="roles-bulk-actions"
+                          items={[
+                            {
+                              key: 'edit',
+                              label: intl.formatMessage(messages.edit),
+                              onClick: () => handleEditRole(selectedRows[0].uuid),
+                              isDisabled: selectedRows.length !== 1,
+                            },
+                            {
+                              key: 'delete',
+                              label: intl.formatMessage(messages.delete),
+                              onClick: () => handleDeleteRole(selectedRows.map((row) => row.uuid)),
+                            },
+                          ]}
+                        />
                       ) : (
                         <AppLink to={pathnames['add-role'].link}>
                           <Button ouiaId="create-role-button" variant="primary" aria-label="Create role">
