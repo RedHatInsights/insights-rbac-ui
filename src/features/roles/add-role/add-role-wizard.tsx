@@ -113,10 +113,15 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const chrome = useChrome();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
 
-  const [wizardContextValue, setWizardContextValue] = useState({
+  const [wizardContextValue, setWizardContextValue] = useState<{
+    success: boolean;
+    submitting: boolean;
+    error: unknown | undefined;
+    hideForm: boolean;
+  }>({
     success: false,
     submitting: false,
-    error: undefined as unknown,
+    error: undefined,
     hideForm: false,
   });
 
@@ -140,8 +145,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
         addNotification({
           variant: 'warning',
           title: intl.formatMessage(messages.creatingRoleCanceled),
-          dismissDelay: 8000,
-        } as any),
+        }),
       );
     }
 
@@ -156,6 +160,16 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   const setWizardError = (error: unknown) => setWizardContextValue((prev) => ({ ...prev, error }));
   const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
   const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
+
+  const handleFormCancel = (values: Record<string, any>) => {
+    const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
+    if (showWarning) {
+      container.current.hidden = true;
+      setCancelWarningVisible(true);
+    } else {
+      onCancel();
+    }
+  };
 
   const onSubmit = (formData: FormData) => {
     const {
@@ -174,7 +188,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
     const roleData: RoleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
       description: (type === 'create' ? description : copyDescription) || undefined,
-      name: type === 'create' ? (name as string) : (copyName as string),
+      name: type === 'create' ? name || '' : copyName || '',
       access: permissions.reduce<RoleAccess[]>(
         (acc, { uuid: permission, requires = [] }) => [
           ...acc,
@@ -206,9 +220,14 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
       ),
     };
 
-    const createRoleResult = dispatch(createRole(roleData as RoleIn)) as any;
-    return createRoleResult
-      .then(() => {
+    setWizardContextValue((prev) => ({ ...prev, submitting: true }));
+
+    const createRoleResult = dispatch(createRole(roleData as RoleIn));
+    return Promise.resolve(createRoleResult)
+      .then((result: any) => {
+        if (result.error) {
+          throw result.error;
+        }
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
         dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }));
       })
@@ -224,7 +243,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
   }
 
   return (
-    <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm } as any}>
+    <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <SilentErrorBoundary silentErrorString="focus-trap">
         <WarningModal
           title={intl.formatMessage(messages.exitItemCreation, { item: intl.formatMessage(messages.role).toLocaleLowerCase() })}
@@ -275,15 +294,7 @@ const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination
           }}
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
-          onCancel={(values: any) => {
-            const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
-            if (showWarning) {
-              container.current.hidden = true;
-              setCancelWarningVisible(true);
-            } else {
-              onCancel();
-            }
-          }}
+          onCancel={handleFormCancel}
         />
       )}
     </AddRoleWizardContext.Provider>
