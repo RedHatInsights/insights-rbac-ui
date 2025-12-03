@@ -1,5 +1,4 @@
 import React, { useEffect, useRef, useState } from 'react';
-import PropTypes from 'prop-types';
 import { useDispatch } from 'react-redux';
 import { useIntl } from 'react-intl';
 import { addNotification } from '@redhat-cloud-services/frontend-components-notifications/';
@@ -27,13 +26,74 @@ import messages from '../../../Messages';
 import paths from '../../../utilities/pathnames';
 import './add-role-wizard.scss';
 import { AddRoleWizardContext } from './add-role-wizard-context';
+import { RoleIn } from '@redhat-cloud-services/rbac-client/types';
 
-const FormTemplate = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
+interface PaginationProps {
+  limit: number;
+}
 
-const Description = ({ Content, ...rest }) => <Content {...rest} />;
-Description.propTypes = {
-  Content: PropTypes.elementType.isRequired,
-};
+interface FiltersProps {
+  name?: string;
+  [key: string]: any;
+}
+
+interface AddRoleWizardProps {
+  pagination: PaginationProps;
+  filters: FiltersProps;
+  orderBy?: string;
+}
+
+interface DescriptionProps {
+  Content: React.ComponentType<any>;
+  [key: string]: any;
+}
+
+interface Permission {
+  uuid: string;
+  requires?: string[];
+}
+
+interface CostResource {
+  permission: string;
+  resources: string[];
+}
+
+interface InventoryResource {
+  permission: string;
+  groups: Array<{ id: string }>;
+}
+
+interface FormData {
+  'role-name'?: string;
+  'role-description'?: string;
+  'role-copy-name'?: string;
+  'role-copy-description'?: string;
+  'add-permissions-table': Permission[];
+  'inventory-groups-role'?: InventoryResource[];
+  'cost-resources'?: CostResource[];
+  'role-type': 'create' | 'copy';
+}
+
+interface AttributeFilter {
+  key: string;
+  operation: 'in';
+  value: string[] | undefined;
+}
+
+interface RoleAccess {
+  permission: string;
+  resourceDefinitions: Array<{ attributeFilter: AttributeFilter }> | [];
+}
+
+interface RoleData {
+  applications: string[];
+  description?: string;
+  name: string;
+  access: RoleAccess[];
+}
+
+const FormTemplate: React.FC<any> = (props) => <Pf4FormTemplate {...props} showFormControls={false} />;
+const Description: React.FC<DescriptionProps> = ({ Content, ...rest }) => <Content {...rest} />;
 
 export const mapperExtension = {
   'set-name': SetName,
@@ -46,25 +106,32 @@ export const mapperExtension = {
   'type-selector': TypeSelector,
 };
 
-const AddRoleWizard = ({ pagination, filters, orderBy }) => {
+const AddRoleWizard: React.FunctionComponent<AddRoleWizardProps> = ({ pagination, filters, orderBy }) => {
   const intl = useIntl();
   const dispatch = useDispatch();
   const navigate = useAppNavigate();
   const chrome = useChrome();
   const enableWorkspacesNameChange = useFlag('platform.rbac.groups-to-workspaces-rename');
-  const [wizardContextValue, setWizardContextValue] = useState({
+
+  const [wizardContextValue, setWizardContextValue] = useState<{
+    success: boolean;
+    submitting: boolean;
+    error: unknown | undefined;
+    hideForm: boolean;
+  }>({
     success: false,
     submitting: false,
     error: undefined,
     hideForm: false,
   });
-  const [cancelWarningVisible, setCancelWarningVisible] = useState(false);
-  const container = useRef(document.createElement('div'));
-  const [schema, setSchema] = useState();
+
+  const [cancelWarningVisible, setCancelWarningVisible] = useState<boolean>(false);
+  const container = useRef<HTMLDivElement>(document.createElement('div'));
+  const [schema, setSchema] = useState<any>();
 
   useEffect(() => {
     setSchema(schemaBuilder(container.current, enableWorkspacesNameChange));
-  }, []);
+  }, [enableWorkspacesNameChange]);
 
   const onClose = () =>
     navigate({
@@ -78,7 +145,6 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
         addNotification({
           variant: 'warning',
           title: intl.formatMessage(messages.creatingRoleCanceled),
-          dismissDelay: 8000,
         }),
       );
     }
@@ -91,11 +157,21 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
     });
   };
 
-  const setWizardError = (error) => setWizardContextValue((prev) => ({ ...prev, error }));
-  const setWizardSuccess = (success) => setWizardContextValue((prev) => ({ ...prev, success }));
-  const setHideForm = (hideForm) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
+  const setWizardError = (error: unknown) => setWizardContextValue((prev) => ({ ...prev, error }));
+  const setWizardSuccess = (success: boolean) => setWizardContextValue((prev) => ({ ...prev, success }));
+  const setHideForm = (hideForm: boolean) => setWizardContextValue((prev) => ({ ...prev, hideForm }));
 
-  const onSubmit = (formData) => {
+  const handleFormCancel = (values: Record<string, any>) => {
+    const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
+    if (showWarning) {
+      container.current.hidden = true;
+      setCancelWarningVisible(true);
+    } else {
+      onCancel();
+    }
+  };
+
+  const onSubmit = (formData: FormData) => {
     const {
       'role-name': name,
       'role-description': description,
@@ -106,23 +182,25 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       'cost-resources': costResources,
       'role-type': type,
     } = formData;
+
     const selectedPermissionIds = permissions.map((record) => record.uuid);
 
-    const roleData = {
+    const roleData: RoleData = {
       applications: [...new Set(permissions.map(({ uuid: permission }) => permission.split(':')[0]))],
-      description: (type === 'create' ? description : copyDescription) || null,
-      name: type === 'create' ? name : copyName,
-      access: permissions.reduce(
+      description: (type === 'create' ? description : copyDescription) || undefined,
+      name: type === 'create' ? name || '' : copyName || '',
+      access: permissions.reduce<RoleAccess[]>(
         (acc, { uuid: permission, requires = [] }) => [
           ...acc,
-          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission) => {
-            let attributeFilter;
+          ...[permission, ...requires.filter((require) => !selectedPermissionIds.includes(require))].map((permission): RoleAccess => {
+            let attributeFilter: AttributeFilter | undefined;
 
-            if (permission.includes('cost-management') && costResources?.find((r) => r.permission === permission)?.resources.length > 0) {
+            const costResource = costResources?.find((r) => r.permission === permission);
+            if (permission.includes('cost-management') && costResource && costResource.resources.length > 0) {
               attributeFilter = {
                 key: `cost-management.${permission.split(':')[1]}`,
                 operation: 'in',
-                value: costResources?.find((r) => r.permission === permission)?.resources,
+                value: costResource.resources,
               };
             } else if (permission.includes('inventory')) {
               attributeFilter = {
@@ -142,8 +220,14 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       ),
     };
 
-    return dispatch(createRole(roleData))
-      .then(() => {
+    setWizardContextValue((prev) => ({ ...prev, submitting: true }));
+
+    const createRoleResult = dispatch(createRole(roleData as RoleIn));
+    return Promise.resolve(createRoleResult)
+      .then((result: any) => {
+        if (result.error) {
+          throw result.error;
+        }
         setWizardContextValue((prev) => ({ ...prev, submitting: false, success: true, hideForm: true }));
         dispatch(fetchRolesWithPolicies({ limit: pagination.limit, orderBy, usesMetaInURL: true, chrome }));
       })
@@ -157,6 +241,7 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
   if (!schema) {
     return null;
   }
+
   return (
     <AddRoleWizardContext.Provider value={{ ...wizardContextValue, setWizardError, setWizardSuccess, setHideForm }}>
       <SilentErrorBoundary silentErrorString="focus-trap">
@@ -202,7 +287,6 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
       ) : (
         <FormRenderer
           schema={schema}
-          container={container}
           subscription={{ values: true }}
           FormTemplate={FormTemplate}
           initialValues={{
@@ -210,29 +294,11 @@ const AddRoleWizard = ({ pagination, filters, orderBy }) => {
           }}
           componentMapper={{ ...componentMapper, ...mapperExtension }}
           onSubmit={onSubmit}
-          onCancel={(values) => {
-            const showWarning = Boolean((values && values['role-name']) || values['role-description'] || values['copy-base-role']);
-            if (showWarning) {
-              container.current.hidden = true;
-              setCancelWarningVisible(true);
-            } else {
-              onCancel();
-            }
-          }}
+          onCancel={handleFormCancel}
         />
       )}
     </AddRoleWizardContext.Provider>
   );
-};
-
-AddRoleWizard.propTypes = {
-  pagination: PropTypes.shape({
-    limit: PropTypes.number.isRequired,
-  }).isRequired,
-  filters: PropTypes.shape({
-    name: PropTypes.string,
-  }).isRequired,
-  orderBy: PropTypes.string,
 };
 
 export default AddRoleWizard;
